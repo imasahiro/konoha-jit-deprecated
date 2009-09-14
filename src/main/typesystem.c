@@ -112,7 +112,7 @@ knh_class_t knh_class_parent(Ctx *ctx, knh_class_t c1, knh_class_t c2)
 ///* ------------------------------------------------------------------------ */
 ///* @method Object Object.opAs(Class! c) */
 //
-//METHOD knh__Object_opAs(Ctx *ctx, knh_sfp_t *sfp)
+//METHOD Object_opAs(Ctx *ctx, knh_sfp_t *sfp)
 //{
 //	KNH_RETURN(ctx, sfp, knh_Object_opAs(ctx, sfp[0].o, p_cid(sfp[1])));
 //}

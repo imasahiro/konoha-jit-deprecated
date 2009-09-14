@@ -136,7 +136,7 @@ KNHAPI(void) knh_esp1_format(Ctx *ctx, knh_methodn_t mn, knh_OutputStream_t *w, 
 /* ------------------------------------------------------------------------ */
 /* @method void System.stackdump() */
 
-METHOD knh__System_stackdump(Ctx *ctx, knh_sfp_t *sfp)
+METHOD System_stackdump(Ctx *ctx, knh_sfp_t *sfp)
 {
 	fprintf(stderr, "\n** ** ** ** ** ** ** ** **\n");
 	int i;

@@ -854,7 +854,7 @@ knh_String_t *knh_Context_getScriptLineNULL(Ctx *ctx, size_t at)
 /* ------------------------------------------------------------------------ */
 /* @method String[] Script.getLines() @Hidden */
 
-METHOD knh__Script_getLines(Ctx *ctx, knh_sfp_t *sfp)
+METHOD Script_getLines(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_Array_t *res = (ctx->lines == NULL)
 		? new_Array(ctx, CLASS_String, 0) : ctx->lines;

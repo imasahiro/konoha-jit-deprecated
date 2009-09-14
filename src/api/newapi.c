@@ -42,7 +42,7 @@ extern "C" {
 
 //## @Virtual method This! Object.new();
 
-static METHOD knh__Object_new(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Object_new(Ctx *ctx, knh_sfp_t *sfp)
 {
 	DBG_P("DEFAULT CONSTRUCTOR? %s", CLASSNo(sfp[0].o));
 	KNH_RETURN(ctx, sfp, sfp[0].o);
@@ -493,7 +493,7 @@ static METHOD Exception_new__init(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## method This! Closure.new(Any! base, Method! method);
 
-static METHOD knh__Closure_new(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Closure_new(Ctx *ctx, knh_sfp_t *sfp)
 {
 	DBG2_ASSERT(IS_bClosure(sfp[0].cc));
 	DBG2_ASSERT(IS_bMethod(sfp[2].mtd));
