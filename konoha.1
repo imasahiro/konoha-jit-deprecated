@@ -1,0 +1,46 @@
+.TH KONOHA 1 "2009-09-08" "Konoha Software Foundation" "Scripting Language"
+.SH NAME
+konoha \- a newly designed object-oriented scripting language
+.SH SYNOPSIS
+.B konoha
+[
+.I options
+] 
+[
+.I file
+]
+.SH DESCRIPTION
+.B Konoha
+is a newly designed object-oriented scripting language, providing hybrid 
+type system for static/dynamic typing, mappable class, and various experimental
+features.
+.PP
+The default install pachage directory is $HOME/.konoha/package .
+.SH OPTIONS
+.TP
+\fB-g\fP , \fB-g2\fP \fB-v\fP \fB-v2\fP
+Run with more debugging info.
+.TP
+\fB-c\fP
+Syntax check only.
+.TP
+\fB-s\fP
+Run with secure mode.
+.TP
+\fB-p\fP
+Executes with profiler.
+.SH ENVIRONMENT
+.TP
+.B MOSH_LOADPATH
+You can add library loadpaths by using this variable with
+colon-separated paths.
+.SH SEE ALSO
+.TP
+\fBklip\fP
+Installer for konoha package Library
+.SH MORE INFORMATION
+http://konoha.sourceforge.jp/  (source)
+.br
+http://groups.google.com/group/konoha-users (bug reports)
+.SH AUTHOR
+Kimio Kuramitsu <kimio at ynu.ac.jp>
