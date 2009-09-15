@@ -217,7 +217,10 @@ void knh_Context_traverseCommon(Ctx *ctx, knh_Context_t *o, knh_ftraverse ftr)
 		knh_mutex_destroy(o->ctxlock);
 		KNH_FREE(ctx, o->ctxlock, sizeof(knh_mutex_t));
 		o->ctxlock = NULL;
+	} else {
+	  ftr(ctx, UP(o->lines));
 	}
+		  
 }
 
 /* ------------------------------------------------------------------------ */
