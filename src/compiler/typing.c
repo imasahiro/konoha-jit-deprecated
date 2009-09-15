@@ -1317,7 +1317,7 @@ knh_flag_t knh_StmtDECL_flag(Ctx *ctx, knh_Stmt_t *o)
 /* ------------------------------------------------------------------------ */
 
 static
-knh_index_t knh_Asm_addVariableTable(Ctx *ctx, knh_Asm_t *abr, knh_cfield_t *tbl, size_t max, knh_cfield_t *decl)
+knh_index_t knh_Asm_addVariableTable(Ctx *ctx, knh_Asm_t *abr, knh_cfield_t *tbl, size_t max, knh_cfield_t *decl, int isLocal)
 {
 	DBG2_ASSERT(decl->fn != FIELDN_/*register*/);
 	knh_index_t idx;
@@ -1336,12 +1336,14 @@ knh_index_t knh_Asm_addVariableTable(Ctx *ctx, knh_Asm_t *abr, knh_cfield_t *tbl
 				KNH_INITv(tbl[idx].value, KNH_NULL);
 			}
 #ifdef KNH_USING_UNBOXFIELD
-			if((IS_ubxint(decl->type) && (sizeof(knh_int_t) > sizeof(void*))) ||
-				(IS_ubxfloat(decl->type) && (sizeof(knh_float_t) > sizeof(void*)))) {
-				tbl[idx+1].flag = 0;
-				tbl[idx+1].type = TYPE_void;
-				tbl[idx+1].fn   = FIELDN_/*register*/;
-				DBG2_ASSERT(tbl[idx+1].value == NULL);
+			if(!isLocal) {
+				if((IS_ubxint(decl->type) && (sizeof(knh_int_t) > sizeof(void*))) ||
+					(IS_ubxfloat(decl->type) && (sizeof(knh_float_t) > sizeof(void*)))) {
+					tbl[idx+1].flag = 0;
+					tbl[idx+1].type = TYPE_void;
+					tbl[idx+1].fn   = FIELDN_/*register*/;
+					DBG2_ASSERT(tbl[idx+1].value == NULL);
+				}
 			}
 #endif
 			return idx;
@@ -1364,7 +1366,7 @@ knh_index_t knh_Asm_declareScriptVariable(Ctx *ctx, knh_Asm_t *abr, knh_cfield_t
 	knh_Script_t *scr = knh_getAsmScript(ctx);
 	knh_class_t cid = knh_Object_cid(scr);
 	knh_cfield_t *tbl = (ClassTable(cid).cstruct)->fields;
-	knh_index_t idx = knh_Asm_addVariableTable(ctx, abr, tbl, KNH_SCRIPT_FIELDSIZE, decl);
+	knh_index_t idx = knh_Asm_addVariableTable(ctx, abr, tbl, KNH_SCRIPT_FIELDSIZE, decl, 0/*isLocal*/);
 	if(idx != -1) {
 		knh_Object_t *value = decl->value;
 #ifdef KNH_USING_UNBOXFIELD
@@ -1404,7 +1406,7 @@ static
 knh_index_t knh_Asm_declareFieldVariable(Ctx *ctx, knh_Asm_t *abr, knh_cfield_t *decl)
 {
 	knh_index_t idx =
-		knh_Asm_addVariableTable(ctx, abr, DP(abr)->gamma, KONOHA_LOCALSIZE, decl);
+		knh_Asm_addVariableTable(ctx, abr, DP(abr)->gamma, KONOHA_LOCALSIZE, decl, 0/*isLocal*/);
 	if(idx != -1) {
 		knh_type_t type = decl->type;
 #ifdef KNH_USING_UNBOXFIELD
@@ -1434,7 +1436,7 @@ static
 knh_index_t knh_Asm_declareLocalVariable(Ctx *ctx, knh_Asm_t *abr, knh_cfield_t *decl)
 {
 	knh_index_t idx =
-		knh_Asm_addVariableTable(ctx, abr, (knh_cfield_t*)DP(abr)->gamma, KONOHA_LOCALSIZE, decl);
+		knh_Asm_addVariableTable(ctx, abr, (knh_cfield_t*)DP(abr)->gamma, KONOHA_LOCALSIZE, decl, 1/*isLocal*/);
 	if(idx != -1 && (idx + 1) > DP(abr)->gamma_size) {
 		DP(abr)->gamma_size = (knh_ushort_t)(idx + 1);
 	}
@@ -1543,7 +1545,12 @@ Term * knh_StmtDECL_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameS
 				decl->type = NATYPE_cid(decl->type);
 			}
 		}
-		knh_Token_toLOCAL(ctx, tkN, decl->type,	knh_Asm_declareLocalVariable(ctx, abr, decl));
+		if(level == OUTERPARAMS) {
+			knh_Asm_declareLocalVariable(ctx, abr, decl);
+		}
+		else {
+			knh_Token_toLOCAL(ctx, tkN, decl->type,	knh_Asm_declareLocalVariable(ctx, abr, decl));
+		}
 		return knh_Stmt_typed(ctx, stmt, decl->type);
 	}
 	else {
@@ -3753,7 +3760,7 @@ knh_index_t knh_Asm_beginRegister(Ctx *ctx, knh_Asm_t *abr, knh_Stmt_t *stmt)
 		if(DP(abr)->regs[size].varidx == -1) {
 			knh_cfield_t decl = {0, TYPE_void, FIELDN_/*register*/, NULL};
 			DP(abr)->regs[size].varidx =
-				knh_Asm_addVariableTable(ctx, abr, DP(abr)->gamma, KONOHA_LOCALSIZE, &decl);
+				knh_Asm_addVariableTable(ctx, abr, DP(abr)->gamma, KONOHA_LOCALSIZE, &decl, 1/*isLocal*/);
 		}
 		DP(abr)->regs_size = size + 1;
 		if(DP(abr)->regs_size > DP(abr)->regs_usedsize) {
