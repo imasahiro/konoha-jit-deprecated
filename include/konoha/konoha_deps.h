@@ -248,11 +248,22 @@
 #ifdef ALT_SORT
 #define  knh_sort(b,s,w,f)            ALT_sort(b,s,w,f)
 #define  knh_qsort(b,s,w,f)           ALT_qsort(b,s,w,f)
-#else
+#else /* ALT_SORT */
+
 #define  knh_sort(b,s,w,f)            qsort(b,s,w,f)
 #define  knh_qsort(b,s,w,f)           qsort(b,s,w,f)
+
+#ifdef KONOHA_ON_MACOSX
+#define  knh_qsort_r(b,s,w,thunk,f)   qsort_r(b,s,w,thunk,f)
+#elif KONOHA_ON_LINUX
+#define  knh_qsort_r(b,s,w,thunk,f)   qsort_r(b,s,w,f,thunk)
+#elif KONOHA_ON_WINDOWS
+#define  knh_qsort_r(b,s,w,thunk,f)   qsort_s(b,s,w,f,thunk)
+#else /* FIXME KONOHA_ON_UNKNOWN ?? */
 #define  knh_qsort_r(b,s,w,thunk,f)   qsort_r(b,s,w,thunk,f)
 #endif
+
+#endif /* ALT_SORT */
 
 /* ======================================================================== */
 
