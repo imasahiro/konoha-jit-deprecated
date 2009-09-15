@@ -231,32 +231,32 @@ static int isPATH(Ctx *ctx, knh_Token_t *tk)
 	return IS_bString(DP(tk)->text);
 }
 
-/* ------------------------------------------------------------------------ */
-
-static int knh_bytes_isCLASSN(knh_bytes_t t)
-{
-	size_t i;
-	if(!isupper(t.buf[0])) return 0;
-	for(i = 1; i < t.len; i++) {
-		if(!isalnum(t.buf[i])) return 0;
-	}
-	return 1;
-}
-
-/* ------------------------------------------------------------------------ */
-
-static int knh_bytes_isCONSTN(knh_bytes_t t)
-{
-	knh_index_t loc = knh_bytes_rindex(t, '.');
-	if(loc == -1 || !knh_bytes_isCLASSN(knh_bytes_first(t, loc))) return 0;
-	t = knh_bytes_last(t,loc+1);
-	size_t i;
-	if(!isupper(t.buf[0])) return 0;
-	for(i = 1; i < t.len; i++) {
-		if(!isupper(t.buf[i]) && !isdigit(t.buf[i]) && t.buf[i] != '_') return 0;
-	}
-	return 1;
-}
+///* ------------------------------------------------------------------------ */
+//
+//static int knh_bytes_isCLASSN(knh_bytes_t t)
+//{
+//	size_t i;
+//	if(!isupper(t.buf[0])) return 0;
+//	for(i = 1; i < t.len; i++) {
+//		if(!isalnum(t.buf[i])) return 0;
+//	}
+//	return 1;
+//}
+//
+///* ------------------------------------------------------------------------ */
+//
+//static int knh_bytes_isCONSTN(knh_bytes_t t)
+//{
+//	knh_index_t loc = knh_bytes_rindex(t, '.');
+//	if(loc == -1 || !knh_bytes_isCLASSN(knh_bytes_first(t, loc))) return 0;
+//	t = knh_bytes_last(t,loc+1);
+//	size_t i;
+//	if(!isupper(t.buf[0])) return 0;
+//	for(i = 1; i < t.len; i++) {
+//		if(!isupper(t.buf[i]) && !isdigit(t.buf[i]) && t.buf[i] != '_') return 0;
+//	}
+//	return 1;
+//}
 
 /* ------------------------------------------------------------------------ */
 
@@ -508,30 +508,6 @@ static knh_Token_t *new_TokenTHIS(Ctx *ctx, knh_Token_t *tk)
 /* ------------------------------------------------------------------------ */
 
 static
-knh_Token_t *new_TokenVARN(Ctx *ctx, knh_Token_t *tk, knh_bytes_t name)
-{
-	knh_fieldn_t fn = knh_getfnq(ctx, name, FIELDN_NEWID);
-	return new_TokenFN(ctx, FL(tk), fn);
-}
-
-/* ------------------------------------------------------------------------ */
-
-static
-knh_Token_t *new_TokenCLASSN(Ctx *ctx, knh_Token_t *tk, knh_bytes_t name)
-{
-	return new_TokenSYMBOL(ctx, FL(tk), TT_TYPEN, new_StringSYMBOL(ctx, name));
-}
-
-/* ------------------------------------------------------------------------ */
-
-static knh_Token_t *new_TokenCONSTN(Ctx *ctx, knh_Token_t *tk, knh_bytes_t name)
-{
-	return new_TokenSYMBOL(ctx, FL(tk), TT_CONSTN, new_StringSYMBOL(ctx, name));
-}
-
-/* ------------------------------------------------------------------------ */
-
-static
 knh_Token_t *new_TokenFUNCNAME(Ctx *ctx, knh_Token_t *tk, knh_bytes_t name, int isFunc)
 {
 	if(isFunc) {
@@ -554,39 +530,50 @@ knh_Token_t *new_TokenFUNCNAME(Ctx *ctx, knh_Token_t *tk, knh_bytes_t name, int 
 static
 void knh_Stmt_add_FIRSTNAME(Ctx *ctx, knh_Stmt_t *stmt, knh_Token_t *tk, knh_bytes_t name)
 {
-	knh_index_t idx = knh_bytes_rindex(name, '.');
 	knh_bool_t isFunc = (TTn_(tk) == TT_PARENTHESIS) ? 1 : 0;
 	DBG2_ASSERT(DP(stmt)->size == 0);
-	DBG2_ASSERT(idx != -1);
-
-	L_NAMEDIV:;
-	{
+	while(1) {
+		knh_index_t idx = knh_bytes_rindex(name, '.');
 		knh_bytes_t fname = knh_bytes_first(name, idx);
 		knh_bytes_t lname = knh_bytes_last(name,  idx+1);
+		DBG2_ASSERT(idx != -1);
 		knh_Stmt_addT(ctx, stmt, new_TokenFUNCNAME(ctx, tk, lname, isFunc));
 
-		//DEBUG("**1 idx=%d, len=%d", (int)idx, fn.len);
-		idx = knh_bytes_rindex(fname, '.');
-		if(idx == -1) {
-			if(knh_bytes_isCLASSN(fname)) {
-				knh_Stmt_add(ctx, stmt, TM(new_TokenCLASSN(ctx, tk, fname)));
+		isFunc = 0;
+		name = fname;
+
+		if(isupper(name.buf[0])) {
+			int i, has_ = 0, hasLOWER = 0, hasDOT = 0;
+			for(i = 1; i < name.len; i++) {
+				if(name.buf[i] == '_') {has_ = 0; continue; }
+				if(islower(name.buf[i])) { hasLOWER = 0; continue; }
+				if(name.buf[i] == '.') { hasDOT = 1; break; }
 			}
-			else if(knh_bytes_isCONSTN(fname)) {
-				knh_Stmt_add(ctx, stmt, TM(new_TokenCONSTN(ctx, tk, fname)));
+			if(hasDOT == 0) {
+				knh_token_t tt = TT_TYPEN;
+				if(has_ == 1 || hasLOWER == 0 || name.len != 1) {
+					tt = TT_CONSTN;
+				}
+				knh_Stmt_add(ctx, stmt, TM(new_TokenSYMBOL(ctx, FL(tk), tt, new_StringSYMBOL(ctx, name))));
+				return;
 			}
-			else {
-				knh_Stmt_add(ctx, stmt, TM(new_TokenVARN(ctx, tk, fname)));
-			}
-			return;
 		}
 		else {
-			knh_Stmt_t *stmt_in = new_Stmt(ctx, 0, STT_CALL);
-			knh_Stmt_add(ctx, stmt, TM(stmt_in));
-			stmt = stmt_in;
-			isFunc = 0;
-			name = fname;
+			int i, hasDOT = 0;
+			for(i = 1; i < name.len; i++) {
+				if(name.buf[i] == '.') { hasDOT = 1; break; }
+			}
+			if(hasDOT == 0) {
+				knh_fieldn_t fn = knh_getfnq(ctx, name, FIELDN_NEWID);
+				knh_Stmt_add(ctx, stmt, TM(new_TokenFN(ctx, FL(tk), fn)));
+				return;
+			}
 		}
-		goto L_NAMEDIV;
+		/* push */ {
+			knh_Stmt_t *stmtIN = new_Stmt(ctx, 0, STT_CALL);
+			knh_Stmt_add(ctx, stmt, TM(stmtIN));
+			stmt = stmtIN;
+		}
 	}
 }
 

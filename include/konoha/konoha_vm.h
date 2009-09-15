@@ -224,76 +224,82 @@ int knh_Method_pctoline(knh_Method_t *mtd, knh_code_t *pc);
 
 #define KLR_ARRAY_INDEX(ctx, n, size)   (size_t)n
 
-#define KLR_AGET(ctx, b, a, n)  {\
-		size_t idxn_ = KLR_ARRAY_INDEX(ctx, sfp[n].ivalue, ((knh_Array_t*)sfp[a].o)->size);\
-		if(idxn_ >= ((knh_Array_t*)sfp[a].o)->size) knh_throw_OutOfIndex(ctx, idxn_, ((knh_Array_t*)sfp[a].o)->size, _HERE_); \
-		KLR_MOV(ctx, sfp[b].o, KNH_FIELDn(sfp[a].o, idxn_));\
+#define KLR_AGET(ctx, bidx, aidx, nidx)  {\
+		Object *v_;\
+		size_t idxn_ = KLR_ARRAY_INDEX(ctx, sfp[nidx].ivalue, (sfp[aidx].a)->size);\
+		if(unlikely(idxn_ >= (sfp[aidx].a)->size)) knh_throw_OutOfIndex(ctx, idxn_, (sfp[aidx].a)->size, _HERE_); \
+		v_ = (sfp[aidx].a)->list[idxn_];\
+		KLR_MOV(ctx, sfp[bidx].o, v_);\
+		sfp[bidx].data = knh_Object_data(v_);\
 	}\
 
-#define KLR_AGETn(ctx, b, a, n)  {\
-		size_t idxn_ = KLR_ARRAY_INDEX(ctx, n, ((knh_Array_t*)sfp[a].o)->size);\
-		if(idxn_ >= ((knh_Array_t*)sfp[a].o)->size) knh_throw_OutOfIndex(ctx, idxn_, ((knh_Array_t*)sfp[a].o)->size, _HERE_); \
-		KLR_MOV(ctx, sfp[b].o, KNH_FIELDn(sfp[n].o, idxn_));\
+#define KLR_AGETn(ctx, bidx, aidx, n)  {\
+		Object *v_;\
+		size_t idxn_ = KLR_ARRAY_INDEX(ctx, n, (sfp[aidx].a)->size);\
+		if(unlikely(idxn_ >= (sfp[aidx].a)->size)) knh_throw_OutOfIndex(ctx, idxn_, (sfp[aidx].a)->size, _HERE_); \
+		v_ = (sfp[aidx].a)->list[idxn_];\
+		KLR_MOV(ctx, sfp[bidx].o, v_);\
+		sfp[bidx].data = knh_Object_data(v_);\
 	}\
 
-#define KLR_IAGET(ctx, b, a, n)  {\
-		size_t idxn_ = KLR_ARRAY_INDEX(ctx, sfp[n].ivalue, ((knh_IArray_t*)sfp[a].o)->size);\
-		if(idxn_ >= ((knh_IArray_t*)sfp[a].o)->size) knh_throw_OutOfIndex(ctx, idxn_, ((knh_Array_t*)sfp[a].o)->size, _HERE_); \
-		sfp[b].ivalue = ((knh_IArray_t*)sfp[a].o)->ilist[idxn_];\
+#define KLR_IAGET(ctx, bidx, aidx, nidx)  {\
+		size_t idxn_ = KLR_ARRAY_INDEX(ctx, sfp[nidx].ivalue, (sfp[aidx].ia)->size);\
+		if(unlikely(idxn_ >= (sfp[aidx].ia)->size)) knh_throw_OutOfIndex(ctx, idxn_, (sfp[aidx].ia)->size, _HERE_); \
+		sfp[bidx].ivalue = (sfp[aidx].ia)->ilist[idxn_];\
 	}\
 
-#define KLR_IAGETn(ctx, b, a, n)  {\
-		size_t idxn_ = KLR_ARRAY_INDEX(ctx, n, ((knh_IArray_t*)sfp[a].o)->size);\
-		if(idxn_ >= ((knh_IArray_t*)sfp[a].o)->size) knh_throw_OutOfIndex(ctx, idxn_, ((knh_Array_t*)sfp[a].o)->size, _HERE_); \
-		sfp[b].ivalue = ((knh_IArray_t*)sfp[a].o)->ilist[idxn_];\
+#define KLR_IAGETn(ctx, bidx, aidx, n)  {\
+		size_t idxn_ = KLR_ARRAY_INDEX(ctx, n, (sfp[aidx].ia)->size);\
+		if(unlikely(idxn_ >= (sfp[aidx].ia)->size)) knh_throw_OutOfIndex(ctx, idxn_, (sfp[aidx].ia)->size, _HERE_); \
+		sfp[bidx].ivalue = (sfp[aidx].ia)->ilist[idxn_];\
 	}\
 
 #define KLR_FAGET(ctx, b, a, n)  {\
-		size_t idxn_ = KLR_ARRAY_INDEX(ctx, sfp[n].ivalue, ((knh_FArray_t*)sfp[a].o)->size);\
-		if(idxn_ >= ((knh_FArray_t*)sfp[a].o)->size) knh_throw_OutOfIndex(ctx, idxn_, ((knh_Array_t*)sfp[a].o)->size, _HERE_); \
-		sfp[b].fvalue = ((knh_FArray_t*)sfp[a].o)->flist[idxn_];\
+		size_t idxn_ = KLR_ARRAY_INDEX(ctx, sfp[n].ivalue, (sfp[a].fa)->size);\
+		if(unlikely(idxn_ >= (sfp[a].fa)->size)) knh_throw_OutOfIndex(ctx, idxn_, (sfp[a].fa)->size, _HERE_); \
+		sfp[b].fvalue = (sfp[a].fa)->flist[idxn_];\
 	}\
 
 #define KLR_FAGETn(ctx, b, a, n)  {\
-		size_t idxn_ = KLR_ARRAY_INDEX(ctx, n, ((knh_FArray_t*)sfp[a].o)->size);\
-		if(idxn_ >= ((knh_FArray_t*)sfp[a].o)->size) knh_throw_OutOfIndex(ctx, idxn_, ((knh_Array_t*)sfp[a].o)->size, _HERE_); \
+		size_t idxn_ = KLR_ARRAY_INDEX(ctx, n, (sfp[a].fa)->size);\
+		if(unlikely(idxn_ >= (sfp[a].fa)->size)) knh_throw_OutOfIndex(ctx, idxn_, (sfp[a].fa)->size, _HERE_); \
 		sfp[b].fvalue = ((knh_FArray_t*)sfp[a].o)->flist[idxn_];\
 	}\
 
-#define KLR_ASET(ctx, b, a, n)  {\
-		size_t idxn_ = KLR_ARRAY_INDEX(ctx, sfp[n].ivalue, ((knh_Array_t*)sfp[a].o)->size);\
-		if(idxn_ >= ((knh_Array_t*)sfp[a].o)->size) knh_throw_OutOfIndex(ctx, idxn_, ((knh_Array_t*)sfp[a].o)->size, _HERE_); \
-		KLR_MOV(ctx, KNH_FIELDn(sfp[a].o, idxn_), sfp[b].o);\
+#define KLR_ASET(ctx, bidx, aidx, nidx)  {\
+		size_t idxn_ = KLR_ARRAY_INDEX(ctx, sfp[nidx].ivalue, (sfp[aidx].a)->size);\
+		if(unlikely(idxn_ >= (sfp[aidx].a)->size)) knh_throw_OutOfIndex(ctx, idxn_, (sfp[aidx].a)->size, _HERE_); \
+		KLR_MOV(ctx, (sfp[aidx].a)->list[idxn_], sfp[bidx].o);\
 	}\
 
-#define KLR_ASETn(ctx, b, a, n)  {\
-		size_t idxn_ = KLR_ARRAY_INDEX(ctx, n, ((knh_Array_t*)sfp[a].o)->size);\
-		if(idxn_ >= ((knh_Array_t*)sfp[a].o)->size) knh_throw_OutOfIndex(ctx, idxn_, ((knh_Array_t*)sfp[a].o)->size, _HERE_); \
-		KLR_MOV(ctx, KNH_FIELDn(sfp[n].o, idxn_), sfp[b].o);\
+#define KLR_ASETn(ctx, bidx, aidx, n)  {\
+		size_t idxn_ = KLR_ARRAY_INDEX(ctx, n, (sfp[aidx].a)->size);\
+		if(unlikely(idxn_ >= (sfp[aidx].a)->size)) knh_throw_OutOfIndex(ctx, idxn_, (sfp[aidx].a)->size, _HERE_); \
+		KLR_MOV(ctx, (sfp[aidx].a)->list[idxn_], sfp[bidx].o);\
 	}\
 
 #define KLR_IASET(ctx, b, a, n)  {\
-		size_t idxn_ = KLR_ARRAY_INDEX(ctx, sfp[n].ivalue, ((knh_IArray_t*)sfp[a].o)->size);\
-		if(idxn_ >= ((knh_IArray_t*)sfp[a].o)->size) knh_throw_OutOfIndex(ctx, idxn_, ((knh_Array_t*)sfp[a].o)->size, _HERE_); \
-		((knh_IArray_t*)sfp[a].o)->ilist[idxn_] = sfp[b].ivalue;\
+		size_t idxn_ = KLR_ARRAY_INDEX(ctx, sfp[n].ivalue, (sfp[a].ia)->size);\
+		if(unlikely(idxn_ >= (sfp[a].ia)->size)) knh_throw_OutOfIndex(ctx, idxn_, (sfp[a].ia)->size, _HERE_); \
+		(sfp[a].ia)->ilist[idxn_] = sfp[b].ivalue;\
 	}\
 
 #define KLR_IASETn(ctx, b, a, n)  {\
-		size_t idxn_ = KLR_ARRAY_INDEX(ctx, n, ((knh_IArray_t*)sfp[a].o)->size);\
-		if(idxn_ >= ((knh_IArray_t*)sfp[a].o)->size) knh_throw_OutOfIndex(ctx, idxn_, ((knh_Array_t*)sfp[a].o)->size, _HERE_); \
-		((knh_IArray_t*)sfp[a].o)->ilist[idxn_] = sfp[b].ivalue;\
+		size_t idxn_ = KLR_ARRAY_INDEX(ctx, n, (sfp[a].ia)->size);\
+		if(unlikely(idxn_ >= (sfp[a].ia)->size)) knh_throw_OutOfIndex(ctx, idxn_, (sfp[a].ia)->size, _HERE_); \
+		(sfp[a].ia)->ilist[idxn_] = sfp[b].ivalue;\
 	}\
 
 #define KLR_FASET(ctx, b, a, n)  {\
-		size_t idxn_ = KLR_ARRAY_INDEX(ctx, sfp[n].ivalue, ((knh_FArray_t*)sfp[a].o)->size);\
-		if(idxn_ >= ((knh_FArray_t*)sfp[a].o)->size) knh_throw_OutOfIndex(ctx, idxn_, ((knh_Array_t*)sfp[a].o)->size, _HERE_); \
-		((knh_FArray_t*)sfp[a].o)->flist[idxn_] = sfp[b].fvalue;\
+		size_t idxn_ = KLR_ARRAY_INDEX(ctx, sfp[n].ivalue, (sfp[a].fa)->size);\
+		if(unlikely(idxn_ >= (sfp[a].fa)->size)) knh_throw_OutOfIndex(ctx, idxn_, (sfp[a].fa)->size, _HERE_); \
+		(sfp[a].fa)->flist[idxn_] = sfp[b].fvalue;\
 	}\
 
 #define KLR_FASETn(ctx, b, a, n)  {\
-		size_t idxn_ = KLR_ARRAY_INDEX(ctx, n, ((knh_FArray_t*)sfp[a].o)->size);\
-		if(idxn_ >= ((knh_FArray_t*)sfp[a].o)->size) knh_throw_OutOfIndex(ctx, idxn_, ((knh_Array_t*)sfp[a].o)->size, _HERE_); \
-		((knh_FArray_t*)sfp[a].o)->flist[idxn_] = sfp[b].fvalue;\
+		size_t idxn_ = KLR_ARRAY_INDEX(ctx, n, (sfp[a].fa)->size);\
+		if(unlikely(idxn_ >= (sfp[a].fa)->size)) knh_throw_OutOfIndex(ctx, idxn_, (sfp[a].fa)->size, _HERE_); \
+		(sfp[a].fa)->flist[idxn_] = sfp[b].fvalue;\
 	}\
 
 /* ------------------------------------------------------------------------ */
