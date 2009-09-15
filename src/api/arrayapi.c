@@ -474,7 +474,7 @@ static METHOD FArray_lastIndexOf(Ctx *ctx, knh_sfp_t *sfp)
 static METHOD Array_sort(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_Array_t *o = (knh_Array_t*)sfp[0].o;
-	knh_qsort(o->list, o->size, sizeof(Object*), (int (*)(const void*, const void*))knh_Object_compareTo);
+	knh_qsort_r(o->list, o->size, sizeof(Object*), (void*)ctx, (int (*)(void*, const void*, const void*))knh_Object_compareTo);
 	KNH_RETURN_void(ctx, sfp);
 }
 

@@ -115,7 +115,10 @@ static void knh_DictMap_array(Ctx *ctx, knh_DictMap_t *d, knh_Array_t *a, knh_fa
 	size_t i;
 	knh_DictMap_sort(d);
 	for(i = 0; i < d->size; i++) {
-		fadd(ctx, a, knh_DictMap_keyAt(d, i), knh_DictMap_valueAt(d, i));
+		Object *v = knh_DictMap_valueAt(d, i);
+		if(IS_NOTNULL(v)) {
+			fadd(ctx, a, knh_DictMap_keyAt(d, i), v);
+		}
 	}
 }
 
@@ -195,7 +198,7 @@ static void knh_Hash_toArray(Ctx *ctx, knh_Hash_t *d, knh_Array_t *a, knh_fadd_h
 	size_t i, max = (KNH_HASH_TABLESIZE / d->hashop->size) * DP(d)->tables_size;
 	for(i = 0; i < max; i++) {
 		knh_hashentry_t *e = knh_hashentry_at(d, i);
-		if(e != NULL) {
+		if(e != NULL && IS_NOTNULL(e->value)) {
 			fadd(ctx, a, e);
 		}
 	}

@@ -420,9 +420,7 @@ void knh_class_addInterface(Ctx *ctx, knh_class_t cid, knh_class_t icid)
 					knh_Method_t *mtd = knh_Class_getMethod(ctx, cid, DP(imtd)->mn);
 					if(IS_NOTNULL(mtd)) {
 						if(!knh_MethodField_equalsType(DP(mtd)->mf, DP(imtd)->mf)) {
-							char bufcm[CLASSNAME_BUFSIZ];
-							knh_format_cmethodn(ctx, bufcm, sizeof(bufcm), DP(imtd)->cid, DP(imtd)->mn);
-							DBG2_P("mismatch!! %s", bufcm);
+							DBG2_P("mismatch!! %s.%s", CLASSN(DP(imtd)->cid), METHODN(DP(imtd)->mn));
 							allchecked = 0;
 						}
 					}

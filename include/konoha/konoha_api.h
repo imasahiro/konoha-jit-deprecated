@@ -401,7 +401,6 @@ knh_Method_t* new_Method__NoSuchMethod(Ctx *ctx, knh_class_t cid, knh_methodn_t 
 int knh_methodn_isNew(Ctx *ctx, knh_methodn_t mn);
 int knh_Method_isConstructor(Ctx *ctx, knh_Method_t *o);
 int knh_methodn_isOp(Ctx *ctx, knh_methodn_t mn);
-int knh_methodn_hasTag(Ctx *ctx, knh_methodn_t mn);
 knh_String_t* knh_Method_getName(Ctx *ctx, knh_Method_t *o);
 int knh_Method_isWoven(knh_Method_t *mtd);
 int knh_Method_canWeave(Ctx *ctx, knh_Method_t *mtd, knh_Method_t *aspect);
@@ -885,9 +884,6 @@ char *knh_format_newFMT(char *buf, size_t bufsiz, knh_bytes_t t, int dot, char *
 knh_String_t *knh_getFieldName(Ctx *ctx, knh_fieldn_t fn);
 knh_fieldn_t knh_getfnq(Ctx *ctx, knh_bytes_t tname, knh_fieldn_t def);
 knh_methodn_t knh_getmn(Ctx *ctx, knh_bytes_t tname, knh_methodn_t def);
-char *knh_format_methodn(Ctx *ctx, char *buf, size_t bufsiz, knh_methodn_t mn);
-char *
-knh_format_cmethodn(Ctx *ctx, char *buf, size_t bufsiz, knh_class_t cid, knh_methodn_t mn);
 knh_uri_t knh_getResourceId(Ctx *ctx, knh_bytes_t t);
 knh_uri_t knh_cwb_getResourceId(Ctx *ctx, knh_cwb_t *cwb);
 knh_String_t *knh_getResourceName(Ctx *ctx, knh_uri_t uri);

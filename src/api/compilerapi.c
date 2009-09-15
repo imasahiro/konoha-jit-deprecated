@@ -55,9 +55,7 @@ void knh_Token__s(Ctx *ctx, knh_Token_t *o, knh_OutputStream_t *w, knh_String_t 
 	}else if(SP(o)->tt == TT_FN) {
 		knh_write_char(ctx, w, FIELDN(DP(o)->fn));
 	}else if(SP(o)->tt == TT_MN) {
-		char bufm[CLASSNAME_BUFSIZ];
-		knh_format_methodn(ctx, bufm, sizeof(bufm), DP(o)->mn);
-		knh_write_char(ctx, w, bufm);
+		knh_write_mn(ctx, w, TYPE_void, DP(o)->mn);
 	}else if(IS_String(DP(o)->text)) {
 		if(SP(o)->tt == TT_STR) {
 			knh_putc(ctx, w, '"');
@@ -141,9 +139,7 @@ void knh_Token__k(Ctx *ctx, knh_Token_t *o, knh_OutputStream_t *w, knh_String_t 
 	}else if(SP(o)->tt == TT_FN) {
 		knh_write_char(ctx, w, FIELDN(DP(o)->fn));
 	}else if(SP(o)->tt == TT_MN) {
-		char bufm[CLASSNAME_BUFSIZ];
-		knh_format_methodn(ctx, bufm, sizeof(bufm), DP(o)->mn);
-		knh_write_char(ctx, w, bufm);
+		knh_write_mn(ctx, w, TYPE_void, DP(o)->mn);
 	}else {
 		knh_write_char(ctx, w, sToken(o));
 	}

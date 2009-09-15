@@ -2222,6 +2222,7 @@ void knh_StmtFOREACH_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr)
 		knh_class_t reqc = CLASS_type(DP(tkN)->type);
 		knh_class_t foundc = CLASS_type(DP(tkITR)->type);
 		KNH_ASSERT_cid(foundc); foundc = ClassTable(foundc).p1;
+		DBG2_ASSERT(reqc != CLASS_Tvar);
 		if(reqc == foundc || reqc == CLASS_Any || knh_class_instanceof(ctx, reqc, foundc)) {
 			KNH_ASM_NEXT_(ctx, abr, lbend, sfi_(DP(tkN)->index), sfi_(DP(tkITR)->index));
 		}

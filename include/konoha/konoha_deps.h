@@ -246,11 +246,12 @@
 /* ------------------------------------------------------------------------ */
 
 #ifdef ALT_SORT
-#define  knh_sort(b,s,w,f)     ALT_sort(b,s,w,f)
-#define  knh_qsort(b,s,w,f)    ALT_qsort(b,s,w,f)
+#define  knh_sort(b,s,w,f)            ALT_sort(b,s,w,f)
+#define  knh_qsort(b,s,w,f)           ALT_qsort(b,s,w,f)
 #else
-#define  knh_sort(b,s,w,f)     qsort(b,s,w,f)
-#define  knh_qsort(b,s,w,f)    qsort(b,s,w,f)
+#define  knh_sort(b,s,w,f)            qsort(b,s,w,f)
+#define  knh_qsort(b,s,w,f)           qsort(b,s,w,f)
+#define  knh_qsort_r(b,s,w,thunk,f)   qsort_r(b,s,w,thunk,f)
 #endif
 
 /* ======================================================================== */

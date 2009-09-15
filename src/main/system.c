@@ -403,52 +403,52 @@ knh_methodn_t knh_getmn(Ctx *ctx, knh_bytes_t tname, knh_methodn_t def)
 	}
 }
 
-/* ------------------------------------------------------------------------ */
-
-char *knh_format_methodn(Ctx *ctx, char *buf, size_t bufsiz, knh_methodn_t mn)
-{
-	if(METHODN_IS_MOVTEXT(mn)) {
-		knh_snprintf(buf, bufsiz, "%%%s", FIELDN(METHODN_TOFIELDN(mn)));
-		return buf;
-	}
-	if(METHODN_IS_GETTER(mn)) {
-		knh_snprintf(buf, bufsiz, "get%s", FIELDN(METHODN_TOFIELDN(mn)));
-		if(islower(buf[3])) buf[3] = toupper(buf[3]);
-		return buf;
-	}
-	if(METHODN_IS_SETTER(mn)) {
-		knh_snprintf(buf, bufsiz, "set%s", FIELDN(METHODN_TOFIELDN(mn)));
-		if(islower(buf[3])) buf[3] = toupper(buf[3]);
-		return buf;
-	}
-	knh_snprintf(buf, bufsiz, "%s", FIELDN(mn));
-	return buf;
-}
-
-/* ------------------------------------------------------------------------ */
-
-char *
-knh_format_cmethodn(Ctx *ctx, char *buf, size_t bufsiz, knh_class_t cid, knh_methodn_t mn)
-{
-	if(METHODN_IS_MOVTEXT(mn)) {
-		knh_snprintf(buf, bufsiz, "%s.%%%s", CLASSN(cid), FIELDN(METHODN_TOFIELDN(mn)));
-		return buf;
-	}
-	if(METHODN_IS_GETTER(mn)) {
-		int off = knh_strlen(CLASSN(cid))+4;
-		knh_snprintf(buf, bufsiz, "%s.get%s", CLASSN(cid), FIELDN(METHODN_TOFIELDN(mn)));
-		if(islower(buf[off])) buf[off] = toupper(buf[off]);
-		return buf;
-	}
-	if(METHODN_IS_SETTER(mn)) {
-		int off = knh_strlen(CLASSN(cid))+4;
-		knh_snprintf(buf, bufsiz, "%s.set%s", CLASSN(cid), FIELDN(METHODN_TOFIELDN(mn)));
-		if(islower(buf[off])) buf[off] = toupper(buf[off]);
-		return buf;
-	}
-	knh_snprintf(buf, bufsiz, "%s.%s", CLASSN(cid), FIELDN(mn));
-	return buf;
-}
+///* ------------------------------------------------------------------------ */
+//
+//char *knh_format_methodn(Ctx *ctx, char *buf, size_t bufsiz, knh_methodn_t mn)
+//{
+//	if(METHODN_IS_MOVTEXT(mn)) {
+//		knh_snprintf(buf, bufsiz, "%%%s", FIELDN(METHODN_TOFIELDN(mn)));
+//		return buf;
+//	}
+//	if(METHODN_IS_GETTER(mn)) {
+//		knh_snprintf(buf, bufsiz, "get%s", FIELDN(METHODN_TOFIELDN(mn)));
+//		if(islower(buf[3])) buf[3] = toupper(buf[3]);
+//		return buf;
+//	}
+//	if(METHODN_IS_SETTER(mn)) {
+//		knh_snprintf(buf, bufsiz, "set%s", FIELDN(METHODN_TOFIELDN(mn)));
+//		if(islower(buf[3])) buf[3] = toupper(buf[3]);
+//		return buf;
+//	}
+//	knh_snprintf(buf, bufsiz, "%s", FIELDN(mn));
+//	return buf;
+//}
+//
+///* ------------------------------------------------------------------------ */
+//
+//char *
+//knh_format_cmethodn(Ctx *ctx, char *buf, size_t bufsiz, knh_class_t cid, knh_methodn_t mn)
+//{
+//	if(METHODN_IS_MOVTEXT(mn)) {
+//		knh_snprintf(buf, bufsiz, "%s.%%%s", CLASSN(cid), FIELDN(METHODN_TOFIELDN(mn)));
+//		return buf;
+//	}
+//	if(METHODN_IS_GETTER(mn)) {
+//		int off = knh_strlen(CLASSN(cid))+4;
+//		knh_snprintf(buf, bufsiz, "%s.get%s", CLASSN(cid), FIELDN(METHODN_TOFIELDN(mn)));
+//		if(islower(buf[off])) buf[off] = toupper(buf[off]);
+//		return buf;
+//	}
+//	if(METHODN_IS_SETTER(mn)) {
+//		int off = knh_strlen(CLASSN(cid))+4;
+//		knh_snprintf(buf, bufsiz, "%s.set%s", CLASSN(cid), FIELDN(METHODN_TOFIELDN(mn)));
+//		if(islower(buf[off])) buf[off] = toupper(buf[off]);
+//		return buf;
+//	}
+//	knh_snprintf(buf, bufsiz, "%s.%s", CLASSN(cid), FIELDN(mn));
+//	return buf;
+//}
 
 /* ======================================================================== */
 /* [uri] */

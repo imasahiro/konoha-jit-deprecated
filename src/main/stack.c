@@ -138,20 +138,20 @@ KNHAPI(void) knh_esp1_format(Ctx *ctx, knh_methodn_t mn, knh_OutputStream_t *w, 
 
 METHOD System_stackdump(Ctx *ctx, knh_sfp_t *sfp)
 {
-	fprintf(stderr, "\n** ** ** ** ** ** ** ** **\n");
-	int i;
-	if(sfp-1 > ctx->stack && IS_Method(sfp[-1].mtd)) {
-		char buf[CLASSNAME_BUFSIZ];
-		knh_format_cmethodn(ctx, buf, sizeof(buf), DP(sfp[-1].mtd)->cid, DP(sfp[-1].mtd)->mn);
-		fprintf(stderr, "sfp[-1] %s data=%d\n", buf, (int)sfp[-1].data);
-	}
-	for(i = 0; sfp + i < ctx->esp; i++) {
-		fprintf(stderr, "sfp[%2d] %s data=%d\n", i, CLASSN(sfp[i].o->h.cid), (int)sfp[i].data);
-	}
-	for(i = 0; i < 2; i++) {
-		fprintf(stderr, "esp[%2d] %s data=%d\n", i, CLASSN(ctx->esp[i].o->h.cid), (int)sfp[i].data);
-	}
-	fprintf(stderr, "** ** ** ** ** ** ** ** **\n");
+//	fprintf(stderr, "\n** ** ** ** ** ** ** ** **\n");
+//	int i;
+//	if(sfp-1 > ctx->stack && IS_Method(sfp[-1].mtd)) {
+//		char buf[CLASSNAME_BUFSIZ];
+//		knh_format_cmethodn(ctx, buf, sizeof(buf), DP(sfp[-1].mtd)->cid, DP(sfp[-1].mtd)->mn);
+//		fprintf(stderr, "sfp[-1] %s data=%d\n", buf, (int)sfp[-1].data);
+//	}
+//	for(i = 0; sfp + i < ctx->esp; i++) {
+//		fprintf(stderr, "sfp[%2d] %s data=%d\n", i, CLASSN(sfp[i].o->h.cid), (int)sfp[i].data);
+//	}
+//	for(i = 0; i < 2; i++) {
+//		fprintf(stderr, "esp[%2d] %s data=%d\n", i, CLASSN(ctx->esp[i].o->h.cid), (int)sfp[i].data);
+//	}
+//	fprintf(stderr, "** ** ** ** ** ** ** ** **\n");
 }
 
 /* ======================================================================== */

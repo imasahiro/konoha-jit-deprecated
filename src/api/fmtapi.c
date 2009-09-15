@@ -850,7 +850,7 @@ void knh_Script__dump(Ctx *ctx, knh_Script_t *o, knh_OutputStream_t *w, knh_Stri
 /* [man] */
 
 static
-void knh_Const__man(Ctx *ctx, knh_class_t cid, knh_OutputStream_t *w)
+void knh_ClassCONST__man(Ctx *ctx, knh_class_t cid, knh_OutputStream_t *w)
 {
 	KNH_ASSERT_cid(cid);
 	if(ClassTable(cid).constPool == NULL) return ;
@@ -971,7 +971,7 @@ char *knh_methodop_tochar(knh_methodn_t mn)
 /* ------------------------------------------------------------------------ */
 
 static
-void knh_Class_NAME__man(Ctx *ctx, knh_class_t cid, knh_OutputStream_t *w)
+void knh_ClassNAME__man(Ctx *ctx, knh_class_t cid, knh_OutputStream_t *w)
 {
 	knh_write_char(ctx, w, _("Class"));
 	knh_write_EOL(ctx, w);
@@ -1037,26 +1037,26 @@ static
 void knh_Class__man(Ctx *ctx, knh_Class_t *o, knh_OutputStream_t *w, knh_String_t *m)
 {
 	knh_class_t cid = (o)->cid;
-	knh_Class_NAME__man(ctx, cid, w);
-	knh_Const__man(ctx, cid, w);
-
-	char bufmn[CLASSNAME_BUFSIZ];
-	KNH_ASSERT_cid(cid);
+	size_t i = 0;
 	knh_sfp_t *lsfp = KNH_LOCAL(ctx);
 	knh_DictMap_t *dm = new_DictMap0(ctx, 128);
+	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 	KNH_LPUSH(ctx, dm);
-	size_t i = 0;
+
+	KNH_ASSERT_cid(cid);
+	knh_ClassNAME__man(ctx, cid, w);
+	knh_ClassCONST__man(ctx, cid, w);
+
 	while(1) {
 		knh_Array_t *a = ClassTable(cid).cstruct->methods;
 		for(i = 0; i < knh_Array_size(a); i++) {
 			knh_Method_t *mtd = (knh_Method_t*)knh_Array_n(a, i);
 			char *op = knh_methodop_tochar(DP(mtd)->mn);
 			if(op == NULL) {
-				knh_format_methodn(ctx, bufmn, sizeof(bufmn), DP(mtd)->mn);
-				//DBG2_P("mn='%s'", bufmn);
-				knh_bytes_t name = B(bufmn);
-				if(IS_NULL(knh_DictMap_get__b(ctx,  dm, name))) {
-					knh_DictMap_set(ctx, dm, new_String(ctx, name, NULL), UP(mtd));
+				knh_cwb_subclear(cwb, 0);
+				knh_write_mn(ctx, cwb->w, knh_Method_rztype(mtd), DP(mtd)->mn);
+				if(IS_NULL(knh_DictMap_get__b(ctx, dm, knh_cwb_tobytes(cwb)))) {
+					knh_DictMap_set(ctx, dm, knh_cwb_newString(ctx, cwb), UP(mtd));
 				}
 			}
 			else {
@@ -1072,9 +1072,9 @@ void knh_Class__man(Ctx *ctx, knh_Class_t *o, knh_OutputStream_t *w, knh_String_
 
 	int cnt = 0;
 	cid = (o)->cid;
-
 	int hasCaption = 0;
 	int isBOL = 1;
+	char buf[40];
 	for(i = 0; i < knh_DictMap_size(dm); i++) {
 		knh_Method_t *mtd = (knh_Method_t*)knh_DictMap_valueAt(dm, i);
 		if(IS_Method(mtd)) {
@@ -1091,8 +1091,8 @@ void knh_Class__man(Ctx *ctx, knh_Class_t *o, knh_OutputStream_t *w, knh_String_
 				knh_write_TAB(ctx, w);
 				isBOL = 0;
 			}
-			knh_snprintf(bufmn, sizeof(bufmn), "%10s  ", op);
-			knh_write_char(ctx, w, bufmn);
+			knh_snprintf(buf, sizeof(buf), "%10s  ", op);
+			knh_write_char(ctx, w, buf);
 			if(cnt % 5 == 4) {
 				knh_write_EOL(ctx, w);
 				isBOL = 1;

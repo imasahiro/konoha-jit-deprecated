@@ -284,17 +284,6 @@ int knh_methodn_isOp(Ctx *ctx, knh_methodn_t mn)
 	return 0;
 }
 
-/* ------------------------------------------------------------------------ */
-
-int knh_methodn_hasTag(Ctx *ctx, knh_methodn_t mn)
-{
-	char *n = FIELDN(METHODN_TOFIELDN(mn));
-	while(*n != 0) {
-		if(*n == ':') return 1;
-		n++;
-	}
-	return 0;
-}
 
 /* ======================================================================== */
 /* [methods] */
@@ -303,9 +292,9 @@ int knh_methodn_hasTag(Ctx *ctx, knh_methodn_t mn)
 
 knh_String_t* knh_Method_getName(Ctx *ctx, knh_Method_t *o)
 {
-	char buf[CLASSNAME_BUFSIZ];
-	knh_format_methodn(ctx, buf, sizeof(buf), DP(o)->mn);
-	return new_String(ctx, B(buf), NULL);
+	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
+	knh_write_mn(ctx, cwb->w, knh_Method_rztype(o), DP(o)->mn);
+	return knh_cwb_newString(ctx, cwb);
 }
 
 /* ======================================================================== */
@@ -369,9 +358,7 @@ void knh_Class_addMethod(Ctx *ctx, knh_class_t cid, knh_Method_t *mtd)
 	for(i = 0; i < knh_Array_size(cs->methods); i++) {
 		knh_Method_t *mtd2 = (knh_Method_t*)knh_Array_n(cs->methods, i);
 		if(DP(mtd2)->mn == DP(mtd)->mn) {
-			char buf[CLASSNAME_BUFSIZ];
-			knh_format_cmethodn(ctx, buf, sizeof(buf), cid, DP(mtd)->mn);
-			KNH_WARNING(ctx, "Duplicated method: %s", buf);
+			KNH_WARNING(ctx, "Duplicated method: %s", FIELDN(METHODN_TOFIELDN(DP(mtd)->mn)));
 			return ;
 		}
 	}
@@ -633,6 +620,24 @@ knh_Method_t *new_Method_setter(Ctx *ctx, knh_class_t cid, knh_methodn_t mn, knh
 	return mtd;
 }
 
+
+/* ------------------------------------------------------------------------ */
+
+static knh_methodn_t knh_methodn_base(Ctx *ctx, knh_methodn_t mn)
+{
+	size_t i;
+	knh_bytes_t n =
+		knh_String_tobytes(knh_getFieldName(ctx, METHODN_TOFIELDN(mn)));
+	for(i = 0; i < n.len; i++) {
+		if(n.buf[i] == ':') {
+			n.len = i;
+			knh_fieldn_t fn = knh_getfnq(ctx, n, FIELDN_NEWID);
+			return (fn | ((~KNH_FLAG_MN_MOVTEXT) & mn));
+		}
+	}
+	return mn;
+}
+
 /* ------------------------------------------------------------------------ */
 
 knh_Method_t*
@@ -657,6 +662,15 @@ knh_Class_getMethod__(Ctx *ctx, knh_class_t this_cid, knh_methodn_t mn, knh_bool
 	goto TAIL_RECURSION;
 
 	L_GenerateField:;
+	{
+		knh_methodn_t mnbase = knh_methodn_base(ctx, mn);
+		if(mnbase != mn) {
+			DBG2_P("searching again %s, %s", FIELDN(METHODN_TOFIELDN(mn)), FIELDN(METHODN_TOFIELDN(mnbase)));
+			mn = mnbase;
+			goto TAIL_RECURSION;
+		}
+	}
+
 	if(METHODN_IS_GETTER(mn)) {
 		knh_index_t idx = knh_Class_indexOfField(ctx, this_cid, METHODN_TOFIELDN(mn));
 		if(idx == -1) {
@@ -704,11 +718,6 @@ knh_Class_getMethod__(Ctx *ctx, knh_class_t this_cid, knh_methodn_t mn, knh_bool
 		else {
 			knh_Method_t *mtd = new_Method__NoSuchMethod(ctx, cid, mn);
 			knh_ClassStruct_t *cs = ctx->share->ClassTable[this_cid].cstruct;;
-			DBG2_({
-				char bufcm[CLASSNAME_BUFSIZ];
-				knh_format_cmethodn(ctx, bufcm, sizeof(bufcm), cid, mn);
-				DBG2_P("GENERATE NoSuchMethod: %s", bufcm);
-			})
 			knh_Array_add(ctx, cs->methods, UP(mtd));
 			return mtd;
 		}
@@ -734,11 +743,7 @@ knh_Method_t *knh_lookupMethod(Ctx *ctx, knh_class_t cid, knh_methodn_t mn)
 			}
 		}
 		knh_stat_mtdCacheMiss(ctx);
-		DBG2_({
-			char bufcm[CLASSNAME_BUFSIZ];
-			knh_format_cmethodn(ctx, bufcm, sizeof(bufcm), cid, mn);
-			DBG2_P("Cache missed. looking up %s", bufcm);
-		})
+		DBG2_P("Cache missed. looking up %s.%s", CLASSN(cid), METHODN(mn));
 	}
 	mtd = knh_Class_findMethod(ctx, cid, mn);
 	ctx->mtdCache[h] = mtd;
@@ -760,11 +765,7 @@ knh_Method_t *knh_lookupFormatter(Ctx *ctx, knh_class_t cid, knh_methodn_t mn)
 			}
 		}
 		knh_stat_fmtCacheMiss(ctx);
-		DBG2_({
-			char bufcm[CLASSNAME_BUFSIZ];
-			knh_format_cmethodn(ctx, bufcm, sizeof(bufcm), cid, mn);
-			DBG2_P("Cache missed. looking up %s <%s>", bufcm, CLASSN(DP(mtd)->cid));
-		})
+		DBG2_P("Cache missed. looking up %s.%%s <%s>", CLASSN(cid), METHODN(mn), CLASSN(DP(mtd)->cid));
 	}
 	mtd = knh_Class_findMethod(ctx, cid, mn);
 	ctx->fmtCache[h] = mtd;
