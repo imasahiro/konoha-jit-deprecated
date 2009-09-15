@@ -3291,7 +3291,7 @@ int TERMs_typing(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_Asm_t *abr, knh_NameS
 
 		if(vart == reqt || reqc == CLASS_Any || knh_class_instanceof(ctx, varc, reqc)) return 1;
 
-		if(mode == TITERCONV_ && ctx->share->ClassTable[varc].bcid == CLASS_Iterator) return 1;
+		if(mode == TITERCONV_ && ClassTable(varc).bcid == CLASS_Iterator) return 1;
 
 		if(varc == CLASS_Any ||
 				(varc == CLASS_Float && reqc == CLASS_Int) ||
@@ -3315,13 +3315,13 @@ int TERMs_typing(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_Asm_t *abr, knh_NameS
 			}
 			//if(mode == TITERCONV_) goto L_ERROR;
 		}
-		DBG_P("stt=%s reqt=%s%s, vart=%s%s", knh_stmt_tochar(SP(stmt)->stt), TYPEQN(reqt), TYPEQN(vart));
+		DBG_P("stt=%s n=%d, reqt=%s%s, vart=%s%s", knh_stmt_tochar(SP(stmt)->stt), n, TYPEQN(reqt), TYPEQN(vart));
 		TERMs_perrorTYPE(ctx, stmt, n, reqt);
 	}
 
 	L_ERROR:;
 	if(STT_(stmt) != STT_ERR) {
-		DBG2_P("FOUND ERROR %s ==> STT_ERR", knh_stmt_tochar(STT_(stmt)));
+		//DBG2_P("FOUND ERROR %s ==> STT_ERR", knh_stmt_tochar(STT_(stmt)));
 		STT_(stmt) = STT_ERR;
 	}
 	return 0;

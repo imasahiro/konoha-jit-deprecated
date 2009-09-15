@@ -361,7 +361,7 @@ void knh_Stmt_add_DECL(Ctx *ctx, knh_Stmt_t *o, knh_Token_t *tkT, knh_tkc_t *tc)
 	L_INIT:;
 	if(tc->c + 1 < tc->e && TT_(TK0(tc)) == TT_LET) {
 		tc->c += 1;
-		knh_Stmt_add(ctx, o, new_TermEXPR(ctx, tc, /*isData=CONST*/1));
+		knh_Stmt_add(ctx, o, new_TermEXPR(ctx, tc, /*isData*/0));
 	}
 	else {
 		//knh_tokens_ignoreLast(ctx, &tc);
@@ -1118,6 +1118,8 @@ Term *new_TermVALUE(Ctx *ctx, knh_Token_t *tk, int isData)
 				return TM(tk);
 			}
 			if(isData) {
+				DBG2_P("TO CONST name=%s", sToken(tk));
+				//DBG2_ASSERT(isData == 0);
 				knh_Token_toCONST(ctx, tk);
 				return TM(tk);
 			}
