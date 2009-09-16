@@ -1627,8 +1627,6 @@ Term *knh_StmtLET_CONST(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpac
 		knh_Stmt_insert(ctx, stmt, 0, TM(new_TokenMN(ctx, FL(tkN), METHODN_setConst)));
 		knh_Stmt_insert(ctx, stmt, 1, TM(new_TokenCONST(ctx, FL(tkN), UP(ns))));
 		TT_(tkN) = TT_STR;
-		//knh_Stmt_addT(ctx, stmtCALL, tkN);
-		//knh_Stmt_add(ctx, stmtCALL, DP(stmt)->terms[1]);
 		return knh_StmtCALL_typing(ctx, stmt, abr, ns, TYPE_void);
 	}
 

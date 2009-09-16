@@ -392,10 +392,12 @@ int knh_Method_pctoline(knh_Method_t *mtd, knh_code_t *pc);
 
 /* ======================================================================== */
 
-#define KLR_CHECKNULL(ctx, n) \
-	if(unlikely(IS_NULL(sfp[n].o))) { \
-		knh_throwException(ctx, new_NullException(ctx, sfp[n].o), _HERE_); \
+#define KLR_CHECKNULL(ctx, n) {\
+		if(unlikely(IS_NULL(sfp[n].o))) { \
+			knh_throwException(ctx, new_NullException(ctx, sfp[n].o), _HERE_); \
+		} \
 	} \
+
 
 #define KLR_CHECKNULLx(ctx, n) \
 	if(unlikely(IS_NULL(SFXo(n)))) { \

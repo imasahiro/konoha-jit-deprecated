@@ -108,6 +108,10 @@ void knh_stack_p(Ctx *ctx, knh_sfp_t *sfp, knh_flag_t flag, knh_methodn_t mn, in
 {
 	knh_OutputStream_t *w = knh_stack_pstream(ctx, flag);
 	knh_stack_beginPRINT(ctx, sfp, flag, w);
+	DBG2_P("sfpidx=%d, esp=%d", sfpidx, ctx->esp - sfp);
+	if(sfp + sfpidx >= ctx->esp) {
+		((knh_Context_t*)ctx)->esp = sfp + (sfpidx + 1);
+	}
 	knh_sfp_t *esp = ctx->esp;
 	KNH_SETv(ctx, esp[1].o, sfp[sfpidx].o);
 	esp[1].data = sfp[sfpidx].data;
