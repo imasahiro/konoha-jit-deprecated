@@ -938,6 +938,7 @@ char *knh_methodop_tochar(knh_methodn_t mn)
 	case METHODN_opGte:  return "x >= y";
 
 	case METHODN_opLshift:  return "x << y";
+	case METHODN_opAppend:  return "x << y";
 	case METHODN_opRshift:  return "x >> y";
 
 	case METHODN_opMod:  return "x mod y";

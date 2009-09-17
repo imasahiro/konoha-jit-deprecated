@@ -139,9 +139,9 @@ static METHOD FArray_add(Ctx *ctx, knh_sfp_t *sfp)
 }
 
 /* ------------------------------------------------------------------------ */
-//## method void Array.opLshift(T1 value, ...);
+//## method void Array.opAppend(T1 value, ...);
 
-static METHOD Array_opLshift(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Array_opAppend(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_Array_t *o = (knh_Array_t*)sfp[0].o;
 	knh_sfp_t *v = sfp + 1;
@@ -154,9 +154,9 @@ static METHOD Array_opLshift(Ctx *ctx, knh_sfp_t *sfp)
 }
 
 /* ------------------------------------------------------------------------ */
-//## method void IArray.opLshift(Int! value, ...);
+//## method void IArray.opAppend(Int! value, ...);
 
-static METHOD IArray_opLshift(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD IArray_opAppend(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_IArray_t *o = (knh_IArray_t*)sfp[0].o;
 	knh_sfp_t *v = sfp + 1;
@@ -168,9 +168,9 @@ static METHOD IArray_opLshift(Ctx *ctx, knh_sfp_t *sfp)
 }
 
 /* ------------------------------------------------------------------------ */
-//## method void FArray.opLshift(Float! value, ...);
+//## method void FArray.opAppend(Float! value, ...);
 
-static METHOD FArray_opLshift(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD FArray_opAppend(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_FArray_t *o = (knh_FArray_t*)sfp[0].o;
 	knh_sfp_t *v = sfp + 1;

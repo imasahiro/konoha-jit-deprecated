@@ -206,7 +206,7 @@ static METHOD OutputStream_isClosed(Ctx *ctx, knh_sfp_t *sfp)
 
 /* ------------------------------------------------------------------------ */
 //## method void OutputStream.print(Any? value, ...);
-//## method void OutputStream.opLshift(Any? value, ...);
+//## method void OutputStream.opAppend(Any? value, ...);
 
 static METHOD OutputStream_print(Ctx *ctx, knh_sfp_t *sfp)
 {

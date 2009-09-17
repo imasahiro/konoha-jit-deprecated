@@ -64,17 +64,17 @@ am__vpath_adj = case $$p in \
 am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
 am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" \
 	"$(DESTDIR)$(klipdir)" "$(DESTDIR)$(sampledir)" \
-	"$(DESTDIR)$(scriptklipdir)" "$(DESTDIR)$(pkgdemodir)" \
-	"$(DESTDIR)$(pkgmathdir)" "$(DESTDIR)$(pkgposixdir)" \
-	"$(DESTDIR)$(pkgxmldir)" \
+	"$(DESTDIR)$(scriptklipdir)" "$(DESTDIR)$(man1dir)" \
+	"$(DESTDIR)$(pkgdemodir)" "$(DESTDIR)$(pkgmathdir)" \
+	"$(DESTDIR)$(pkgposixdir)" "$(DESTDIR)$(pkgxmldir)" \
 	"$(DESTDIR)$(libkonoha_la_includedir)" \
 	"$(DESTDIR)$(libkonoha_la_includegendir)" \
 	"$(DESTDIR)$(libkonoha_la_includekonohadir)"
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libkonoha_la_LIBADD =
-am_libkonoha_la_OBJECTS = anyapi.lo arrayapi.lo bytesapi.lo dbapi.lo \
-	dictapi.lo fmtapi.lo hashapi.lo itrapi.lo mprapi.lo \
+am_libkonoha_la_OBJECTS = anyapi.lo arrayapi.lo compilerapi.lo \
+	dbapi.lo dictapi.lo fmtapi.lo hashapi.lo itrapi.lo mprapi.lo \
 	narutoapi.lo newapi.lo numberapi.lo objectapi.lo oprapi.lo \
 	streamapi.lo stringapi.lo structapi.lo systemapi.lo \
 	knh_Array.lo knh_Bytes.lo knh_bytes_t.lo knh_BytesConv.lo \
@@ -121,6 +121,9 @@ LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	$(LDFLAGS) -o $@
 SOURCES = $(libkonoha_la_SOURCES) $(konoha_SOURCES)
 DIST_SOURCES = $(libkonoha_la_SOURCES) $(konoha_SOURCES)
+man1dir = $(mandir)/man1
+NROFF = nroff
+MANS = $(man_MANS)
 dist_pkgdemoDATA_INSTALL = $(INSTALL_DATA)
 dist_pkgmathDATA_INSTALL = $(INSTALL_DATA)
 dist_pkgposixDATA_INSTALL = $(INSTALL_DATA)
@@ -266,36 +269,36 @@ AM_CPPFLAGS = -I../include
 #AM_CPPFLAGS += -DKONOHA_ON_MINGW
 #endif
 libkonoha_la_SOURCES = ../src/api/anyapi.c ../src/api/arrayapi.c \
-	../src/api/bytesapi.c ../src/api/dbapi.c ../src/api/dictapi.c \
-	../src/api/fmtapi.c ../src/api/hashapi.c ../src/api/itrapi.c \
-	../src/api/mprapi.c ../src/api/narutoapi.c ../src/api/newapi.c \
-	../src/api/numberapi.c ../src/api/objectapi.c \
-	../src/api/oprapi.c ../src/api/streamapi.c \
-	../src/api/stringapi.c ../src/api/structapi.c \
-	../src/api/systemapi.c ../src/class/knh_Array.c \
-	../src/class/knh_Bytes.c ../src/class/knh_bytes_t.c \
-	../src/class/knh_BytesConv.c ../src/class/knh_Class.c \
-	../src/class/knh_ClassSpec.c ../src/class/knh_Closure.c \
-	../src/class/knh_Connection.c ../src/class/knh_Context.c \
-	../src/class/knh_DictIdx.c ../src/class/knh_DictMapSet.c \
-	../src/class/knh_Exception.c ../src/class/knh_Hash.c \
-	../src/class/knh_InputStream.c ../src/class/knh_Iterator.c \
-	../src/class/knh_Mapper.c ../src/class/knh_Method.c \
-	../src/class/knh_NameSpace.c ../src/class/knh_Number.c \
-	../src/class/knh_Object.c ../src/class/knh_OutputStream.c \
-	../src/class/knh_ResultSet.c ../src/class/knh_Script.c \
-	../src/class/knh_String.c ../src/class/knh_String_mbytes.c \
-	../src/class/knh_System.c ../src/class/knh_type_t.c \
-	../src/class/knh_write.c ../src/compiler/asm.c \
-	../src/compiler/kcode.c ../src/compiler/konoha_code_.c \
-	../src/compiler/konohac.c ../src/compiler/misc_.c \
-	../src/compiler/parser.c ../src/compiler/perror.c \
-	../src/compiler/stmt.c ../src/compiler/token.c \
-	../src/compiler/tokenizer.c ../src/compiler/typing.c \
-	../src/deps/dlopen.c ../src/deps/fileio.c \
-	../src/deps/filesystem.c ../src/deps/locale.c \
-	../src/deps/regex.c ../src/deps/socket.c ../src/deps/sqlite3.c \
-	../src/deps/thread.c ../src/deps/time.c \
+	../src/api/compilerapi.c ../src/api/dbapi.c \
+	../src/api/dictapi.c ../src/api/fmtapi.c ../src/api/hashapi.c \
+	../src/api/itrapi.c ../src/api/mprapi.c ../src/api/narutoapi.c \
+	../src/api/newapi.c ../src/api/numberapi.c \
+	../src/api/objectapi.c ../src/api/oprapi.c \
+	../src/api/streamapi.c ../src/api/stringapi.c \
+	../src/api/structapi.c ../src/api/systemapi.c \
+	../src/class/knh_Array.c ../src/class/knh_Bytes.c \
+	../src/class/knh_bytes_t.c ../src/class/knh_BytesConv.c \
+	../src/class/knh_Class.c ../src/class/knh_ClassSpec.c \
+	../src/class/knh_Closure.c ../src/class/knh_Connection.c \
+	../src/class/knh_Context.c ../src/class/knh_DictIdx.c \
+	../src/class/knh_DictMapSet.c ../src/class/knh_Exception.c \
+	../src/class/knh_Hash.c ../src/class/knh_InputStream.c \
+	../src/class/knh_Iterator.c ../src/class/knh_Mapper.c \
+	../src/class/knh_Method.c ../src/class/knh_NameSpace.c \
+	../src/class/knh_Number.c ../src/class/knh_Object.c \
+	../src/class/knh_OutputStream.c ../src/class/knh_ResultSet.c \
+	../src/class/knh_Script.c ../src/class/knh_String.c \
+	../src/class/knh_String_mbytes.c ../src/class/knh_System.c \
+	../src/class/knh_type_t.c ../src/class/knh_write.c \
+	../src/compiler/asm.c ../src/compiler/kcode.c \
+	../src/compiler/konoha_code_.c ../src/compiler/konohac.c \
+	../src/compiler/misc_.c ../src/compiler/parser.c \
+	../src/compiler/perror.c ../src/compiler/stmt.c \
+	../src/compiler/token.c ../src/compiler/tokenizer.c \
+	../src/compiler/typing.c ../src/deps/dlopen.c \
+	../src/deps/fileio.c ../src/deps/filesystem.c \
+	../src/deps/locale.c ../src/deps/regex.c ../src/deps/socket.c \
+	../src/deps/sqlite3.c ../src/deps/thread.c ../src/deps/time.c \
 	../src/ext/mt19937-64.c ../src/ext/mt19937ar.c \
 	../src/ext/qsort.c ../src/ext/strerror.c \
 	../src/konohadev_main.c ../src/labs/b4.c ../src/main/exports.c \
@@ -322,22 +325,22 @@ libkonoha_la_includekonoha_HEADERS = ../include/konoha/konoha_api.h \
 	../include/konoha/license.h
 libkonoha_la_includegendir = $(includedir)/../include/konoha/gen
 libkonoha_la_includegen_HEADERS = 
-sampledir = /usr/local/share/konoha/sample
+sampledir = $(datadir)/konoha/sample
 dist_sample_SCRIPTS = ../dist/sample/ao.k ../dist/sample/counter.k \
 	../dist/sample/err.k ../dist/sample/fib.k \
 	../dist/sample/helloworld.k ../dist/sample/http.k \
 	../dist/sample/konohaget.k ../dist/sample/main.k \
 	../dist/sample/readfile.k ../dist/sample/sort.k
-pkgmathdir = /usr/local/share/konoha/package/math
+pkgmathdir = $(datadir)/konoha/package/math
 dist_pkgmath_DATA = ../dist/package/math/math.k \
 	../dist/package/math/math_linux_32.so \
 	../dist/package/math/math_macosx_32.dylib \
 	../dist/package/math/math_macosx_64.dylib
-pkgposixdir = /usr/local/share/konoha/package/posix
+pkgposixdir = $(datadir)/konoha/package/posix
 dist_pkgposix_DATA = ../dist/package/posix/posix.k \
 	../dist/package/posix/posix_linux_32.so \
 	../dist/package/posix/posix_macosx_32.dylib
-pkgxmldir = /usr/local/share/konoha/package/xml
+pkgxmldir = $(datadir)/konoha/package/xml
 dist_pkgxml_DATA = ../dist/package/xml/libxml2.k \
 	../dist/package/xml/libxml2_linux_32.so \
 	../dist/package/xml/libxml2_macosx_32.dylib \
@@ -346,13 +349,14 @@ dist_pkgxml_DATA = ../dist/package/xml/libxml2.k \
 	../dist/package/xml/sample/xmlreader_2.k \
 	../dist/package/xml/src/xml.k \
 	../dist/package/xml/src/xmlreader.k
-pkgdemodir = /usr/local/share/konoha/package/demo
+pkgdemodir = $(datadir)/konoha/package/demo
 dist_pkgdemo_DATA = ../dist/package/demo/demo.k \
 	../dist/package/demo/demo_macosx_32.dylib
-scriptklipdir = /usr/local/share/konoha/script/klip
+scriptklipdir = $(datadir)/konoha/script/klip
 dist_scriptklip_SCRIPTS = ../dist/bin/klip.k
-klipdir = /usr/local/bin
+klipdir = $(bindir)
 dist_klip_SCRIPTS = ../dist/bin/klip
+man_MANS = ../konoha.1
 konoha_SOURCES = ../src/konoha.c
 konoha_INCLUDES = ../include
 konoha_LDADD = libkonoha.la
@@ -517,7 +521,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/arrayapi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asm.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/b4.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bytesapi.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/compilerapi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dbapi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dictapi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dlopen.Plo@am__quote@
@@ -635,12 +639,12 @@ arrayapi.lo: ../src/api/arrayapi.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o arrayapi.lo `test -f '../src/api/arrayapi.c' || echo '$(srcdir)/'`../src/api/arrayapi.c
 
-bytesapi.lo: ../src/api/bytesapi.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT bytesapi.lo -MD -MP -MF $(DEPDIR)/bytesapi.Tpo -c -o bytesapi.lo `test -f '../src/api/bytesapi.c' || echo '$(srcdir)/'`../src/api/bytesapi.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/bytesapi.Tpo $(DEPDIR)/bytesapi.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/api/bytesapi.c' object='bytesapi.lo' libtool=yes @AMDEPBACKSLASH@
+compilerapi.lo: ../src/api/compilerapi.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT compilerapi.lo -MD -MP -MF $(DEPDIR)/compilerapi.Tpo -c -o compilerapi.lo `test -f '../src/api/compilerapi.c' || echo '$(srcdir)/'`../src/api/compilerapi.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/compilerapi.Tpo $(DEPDIR)/compilerapi.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/api/compilerapi.c' object='compilerapi.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o bytesapi.lo `test -f '../src/api/bytesapi.c' || echo '$(srcdir)/'`../src/api/bytesapi.c
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o compilerapi.lo `test -f '../src/api/compilerapi.c' || echo '$(srcdir)/'`../src/api/compilerapi.c
 
 dbapi.lo: ../src/api/dbapi.c
 @am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dbapi.lo -MD -MP -MF $(DEPDIR)/dbapi.Tpo -c -o dbapi.lo `test -f '../src/api/dbapi.c' || echo '$(srcdir)/'`../src/api/dbapi.c
@@ -1235,6 +1239,51 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
+install-man1: $(man1_MANS) $(man_MANS)
+	@$(NORMAL_INSTALL)
+	test -z "$(man1dir)" || $(MKDIR_P) "$(DESTDIR)$(man1dir)"
+	@list='$(man1_MANS) $(dist_man1_MANS) $(nodist_man1_MANS)'; \
+	l2='$(man_MANS) $(dist_man_MANS) $(nodist_man_MANS)'; \
+	for i in $$l2; do \
+	  case "$$i" in \
+	    *.1*) list="$$list $$i" ;; \
+	  esac; \
+	done; \
+	for i in $$list; do \
+	  if test -f $(srcdir)/$$i; then file=$(srcdir)/$$i; \
+	  else file=$$i; fi; \
+	  ext=`echo $$i | sed -e 's/^.*\\.//'`; \
+	  case "$$ext" in \
+	    1*) ;; \
+	    *) ext='1' ;; \
+	  esac; \
+	  inst=`echo $$i | sed -e 's/\\.[0-9a-z]*$$//'`; \
+	  inst=`echo $$inst | sed -e 's/^.*\///'`; \
+	  inst=`echo $$inst | sed '$(transform)'`.$$ext; \
+	  echo " $(INSTALL_DATA) '$$file' '$(DESTDIR)$(man1dir)/$$inst'"; \
+	  $(INSTALL_DATA) "$$file" "$(DESTDIR)$(man1dir)/$$inst"; \
+	done
+uninstall-man1:
+	@$(NORMAL_UNINSTALL)
+	@list='$(man1_MANS) $(dist_man1_MANS) $(nodist_man1_MANS)'; \
+	l2='$(man_MANS) $(dist_man_MANS) $(nodist_man_MANS)'; \
+	for i in $$l2; do \
+	  case "$$i" in \
+	    *.1*) list="$$list $$i" ;; \
+	  esac; \
+	done; \
+	for i in $$list; do \
+	  ext=`echo $$i | sed -e 's/^.*\\.//'`; \
+	  case "$$ext" in \
+	    1*) ;; \
+	    *) ext='1' ;; \
+	  esac; \
+	  inst=`echo $$i | sed -e 's/\\.[0-9a-z]*$$//'`; \
+	  inst=`echo $$inst | sed -e 's/^.*\///'`; \
+	  inst=`echo $$inst | sed '$(transform)'`.$$ext; \
+	  echo " rm -f '$(DESTDIR)$(man1dir)/$$inst'"; \
+	  rm -f "$(DESTDIR)$(man1dir)/$$inst"; \
+	done
 install-dist_pkgdemoDATA: $(dist_pkgdemo_DATA)
 	@$(NORMAL_INSTALL)
 	test -z "$(pkgdemodir)" || $(MKDIR_P) "$(DESTDIR)$(pkgdemodir)"
@@ -1431,12 +1480,12 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(SCRIPTS) $(DATA) \
+all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(SCRIPTS) $(MANS) $(DATA) \
 		$(HEADERS)
 install-binPROGRAMS: install-libLTLIBRARIES
 
 installdirs:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(klipdir)" "$(DESTDIR)$(sampledir)" "$(DESTDIR)$(scriptklipdir)" "$(DESTDIR)$(pkgdemodir)" "$(DESTDIR)$(pkgmathdir)" "$(DESTDIR)$(pkgposixdir)" "$(DESTDIR)$(pkgxmldir)" "$(DESTDIR)$(libkonoha_la_includedir)" "$(DESTDIR)$(libkonoha_la_includegendir)" "$(DESTDIR)$(libkonoha_la_includekonohadir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(klipdir)" "$(DESTDIR)$(sampledir)" "$(DESTDIR)$(scriptklipdir)" "$(DESTDIR)$(man1dir)" "$(DESTDIR)$(pkgdemodir)" "$(DESTDIR)$(pkgmathdir)" "$(DESTDIR)$(pkgposixdir)" "$(DESTDIR)$(pkgxmldir)" "$(DESTDIR)$(libkonoha_la_includedir)" "$(DESTDIR)$(libkonoha_la_includegendir)" "$(DESTDIR)$(libkonoha_la_includekonohadir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -1490,7 +1539,7 @@ install-data-am: install-dist_klipSCRIPTS install-dist_pkgdemoDATA \
 	install-dist_scriptklipSCRIPTS \
 	install-libkonoha_la_includeHEADERS \
 	install-libkonoha_la_includegenHEADERS \
-	install-libkonoha_la_includekonohaHEADERS
+	install-libkonoha_la_includekonohaHEADERS install-man
 
 install-dvi: install-dvi-am
 
@@ -1500,7 +1549,7 @@ install-html: install-html-am
 
 install-info: install-info-am
 
-install-man:
+install-man: install-man1
 
 install-pdf: install-pdf-am
 
@@ -1532,7 +1581,9 @@ uninstall-am: uninstall-binPROGRAMS uninstall-dist_klipSCRIPTS \
 	uninstall-dist_sampleSCRIPTS uninstall-dist_scriptklipSCRIPTS \
 	uninstall-libLTLIBRARIES uninstall-libkonoha_la_includeHEADERS \
 	uninstall-libkonoha_la_includegenHEADERS \
-	uninstall-libkonoha_la_includekonohaHEADERS
+	uninstall-libkonoha_la_includekonohaHEADERS uninstall-man
+
+uninstall-man: uninstall-man1
 
 .MAKE: install-am install-strip
 
@@ -1550,18 +1601,19 @@ uninstall-am: uninstall-binPROGRAMS uninstall-dist_klipSCRIPTS \
 	install-libLTLIBRARIES install-libkonoha_la_includeHEADERS \
 	install-libkonoha_la_includegenHEADERS \
 	install-libkonoha_la_includekonohaHEADERS install-man \
-	install-pdf install-pdf-am install-ps install-ps-am \
-	install-strip installcheck installcheck-am installdirs \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
-	pdf pdf-am ps ps-am tags uninstall uninstall-am \
-	uninstall-binPROGRAMS uninstall-dist_klipSCRIPTS \
+	install-man1 install-pdf install-pdf-am install-ps \
+	install-ps-am install-strip installcheck installcheck-am \
+	installdirs maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-compile mostlyclean-generic \
+	mostlyclean-libtool pdf pdf-am ps ps-am tags uninstall \
+	uninstall-am uninstall-binPROGRAMS uninstall-dist_klipSCRIPTS \
 	uninstall-dist_pkgdemoDATA uninstall-dist_pkgmathDATA \
 	uninstall-dist_pkgposixDATA uninstall-dist_pkgxmlDATA \
 	uninstall-dist_sampleSCRIPTS uninstall-dist_scriptklipSCRIPTS \
 	uninstall-libLTLIBRARIES uninstall-libkonoha_la_includeHEADERS \
 	uninstall-libkonoha_la_includegenHEADERS \
-	uninstall-libkonoha_la_includekonohaHEADERS
+	uninstall-libkonoha_la_includekonohaHEADERS uninstall-man \
+	uninstall-man1
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

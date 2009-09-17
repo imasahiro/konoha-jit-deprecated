@@ -551,9 +551,10 @@ void knh_Stmt_add_FIRSTNAME(Ctx *ctx, knh_Stmt_t *stmt, knh_Token_t *tk, knh_byt
 			}
 			if(hasDOT == 0) {
 				knh_token_t tt = TT_TYPEN;
-				if(has_ == 1 || hasLOWER == 0 || name.len != 1) {
+				if(has_ == 1 || hasLOWER == 0) {
 					tt = TT_CONSTN;
 				}
+				if(name.len == 1) tt = TT_TYPEN;
 				knh_Stmt_add(ctx, stmt, TM(new_TokenSYMBOL(ctx, FL(tk), tt, new_StringSYMBOL(ctx, name))));
 				return;
 			}

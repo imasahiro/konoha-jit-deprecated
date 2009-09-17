@@ -1879,6 +1879,11 @@ knh_StmtEXPR_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_type_t reqt, in
 	else if(IS_NNTYPE(reqt) && !IS_NNTYPE(DP(stmt)->type)) {
 		KNH_ASM_CHECKNULL_(ctx, abr, sfpidx);
 	}
+	DBG2_P("CHECK AUTORETURN %d", knh_Stmt_isAutoReturn(stmt));
+	if(knh_Stmt_isAutoReturn(stmt)) {
+		DBG2_P("AUTO RETURN %s", knh_stmt_tochar(STT_(stmt)));
+		KNH_ASM_RETa_(ctx, abr, 0/*dummy*/, sfpidx);
+	}
 }
 
 /* ------------------------------------------------------------------------ */
@@ -2060,14 +2065,21 @@ void knh_StmtSWITCH_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr)
 	stmtCASE = DP(stmt)->stmts[1];
 	while(IS_Stmt(stmtCASE)) {
 		if(SP(stmtCASE)->stt == STT_CASE) {
-			if(TERMs_isASIS(stmtCASE, 0)) {
-				TERMs_asmBLOCK(ctx, stmtCASE, 1, abr);
-			}
-			else {
+			if(!TERMs_isASIS(stmtCASE, 0)) {
 				knh_labelid_t lbend = knh_Asm_newLabelId(ctx, abr, NULL);
 				TERMs_ASM_JIFF(ctx, stmtCASE, 0, abr, lbend);
 				TERMs_asmBLOCK(ctx, stmtCASE, 1, abr);
 				KNH_ASM_LLABEL(ctx, abr, lbend);
+			}
+		}
+		stmtCASE = DP(stmtCASE)->next;
+	}
+	stmtCASE = DP(stmt)->stmts[1];
+	while(IS_Stmt(stmtCASE)) {
+		if(SP(stmtCASE)->stt == STT_CASE) {
+			if(TERMs_isASIS(stmtCASE, 0)) {
+				DBG2_P("default: ");
+				TERMs_asmBLOCK(ctx, stmtCASE, 1, abr);
 			}
 		}
 		stmtCASE = DP(stmtCASE)->next;
@@ -2613,6 +2625,7 @@ void KNH_ASM_METHOD(Ctx *ctx, knh_Asm_t *abr, knh_Method_t *mtd, knh_Stmt_t *par
 {
 	knh_class_t prev_cid = DP(abr)->this_cid;
 	knh_StmtMETHOD_typingBODY(ctx, abr, DP(abr)->ns, mtd, params, body, isIteration);
+	if(STT_(body) == STT_ERR) return ;
 
 	DP(abr)->line = 0;
 	KNH_ASM_SETLINE(ctx, abr, SP(body)->line);

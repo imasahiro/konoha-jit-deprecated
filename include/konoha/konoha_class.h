@@ -1098,7 +1098,7 @@ typedef struct {
 //## @Struct class Stmt Object;
 //## flag Stmt Adposition 0 SP(%s)->flag is set * *;
 //## flag Stmt Literal    1 SP(%s)->flag is set * *;
-//## flag Stmt ToReturn   2 SP(%s)->flag is set * *;
+//## flag Stmt AutoReturn   2 SP(%s)->flag is set * *;
 //## flag Stmt Untyped    3 SP(%s)->flag is set * *;
 //## flag Stmt Expr       4 SP(%s)->flag is set * *;
 //## flag Stmt Memo1      5 SP(%s)->flag is set * *;

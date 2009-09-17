@@ -1,20 +1,20 @@
 /****************************************************************************
- * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER  
- * 
+ * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
+ *
  * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
- *           (c) 2008-      Konoha Software Foundation  
+ *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
- * 
- * You may choose one of the following two licenses when you use konoha. 
+ *
+ * You may choose one of the following two licenses when you use konoha.
  * See www.konohaware.org/license.html for further information.
- * 
+ *
  * (1) GNU General Public License 2.0      (with    KONOHA_UNDER_GPL2)
  * (2) Konoha Software Foundation License 1.0
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER 
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER
  * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
  * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
@@ -22,13 +22,13 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *  
+ *
  ****************************************************************************/
 
 #include"commons.h"
 
 
-#ifdef __cplusplus 
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -820,7 +820,7 @@ knh_code_t* KNH_ASM_RETn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_RETa_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2)
+knh_code_t* KNH_ASM_RETa_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1, knh_sfi_t a2)
 {
 	klr_reta_t *op = NULL;
 	if(!knh_Asm_isCancelled(o)) {
@@ -2752,7 +2752,7 @@ void knh_Asm_writeAddress(Ctx *ctx, knh_Asm_t *o, knh_code_t *pc_start)
 	knh_code_t *pc = pc_start;
 	while(1) {
 		int opcode = KNH_OPCODE(pc);
-		if(opcode == OPCODE_HALT) return ; 
+		if(opcode == OPCODE_HALT) return ;
 		OPREWRITE[opcode](ctx, o, pc_start, (knh_kode_t*)pc);
 		pc += OPSIZE[opcode];
 	}
@@ -4935,19 +4935,19 @@ void knh_code_thread(Ctx *ctx, knh_code_t *pc, void **codeaddr)
 			return;
 		}
 		switch(op->opcode) {
-		case OPCODE_JMP : 
-		case OPCODE_SKIP : 
-		case OPCODE_BJIFT : 
-		case OPCODE_BJIFF : 
-		case OPCODE_BJIFF_LOOP : 
-		case OPCODE_JIFNUL : 
-		case OPCODE_JIFNN : 
-		case OPCODE_NEXT : 
-		case OPCODE_INEXT : 
-		case OPCODE_MAPNEXT : 
-		case OPCODE_SMAPNEXT : 
-		case OPCODE_TRY : 
-		case OPCODE_CATCH : 
+		case OPCODE_JMP :
+		case OPCODE_SKIP :
+		case OPCODE_BJIFT :
+		case OPCODE_BJIFF :
+		case OPCODE_BJIFF_LOOP :
+		case OPCODE_JIFNUL :
+		case OPCODE_JIFNN :
+		case OPCODE_NEXT :
+		case OPCODE_INEXT :
+		case OPCODE_MAPNEXT :
+		case OPCODE_SMAPNEXT :
+		case OPCODE_TRY :
+		case OPCODE_CATCH :
 			DBG2_P("%p GOTO %p", op, op->jumppc);
 			op->jumpaddr = codeaddr[((knh_kode_t*)(op->jumppc))->opcode];
 			break;

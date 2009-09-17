@@ -43,12 +43,12 @@
 #define DBG2_RESIZE(o, p, os, ns) \
 	DBG2_P("RESIZE %s(%p) %d => %d\n\tOLD_BLOCK(%p-%p)", STRUCTN((o->h.bcid)), o, (int)os, (int)ns, p, (p + os)); \
 
-#define DBG2_ASSERT(c) KNH_ASSERT(c);
+#define DBG2_ASSERT(c) KNH_ASSERT(c)
 
 #define KNH_MALLOC(ctx, size)    DBG2_malloc(ctx, size, (char*)__FUNCTION__)
 #define KNH_FREE(ctx, p, size)   DBG2_free(ctx, p, size, (char*)__FUNCTION__)
 
-#define DBG2_ABORT()    abort()
+#define DBG2_ABORT()    KNH_ABORT()
 
 #elif /*KNH_DBGMODE2*/ !defined(KONOHA_ON_LKM)
 
@@ -57,8 +57,8 @@
 #define DBG2_DUMP(ctx, o, opt, msg)
 #define TODO2(msg)
 #define DBG2_RESIZE(o, p, os, ns)
-#define DBG2_ASSERT(c)
-#define DBG2_ABORT()
+#define DBG2_ASSERT(c) KNH_ASSERT(c)
+#define DBG2_ABORT()   KNH_ABORT()
 
 #ifdef KNH_USING_FASTMALLOC
 #define 	KNH_MALLOC(ctx, size)    knh_fastmalloc(ctx, size)
