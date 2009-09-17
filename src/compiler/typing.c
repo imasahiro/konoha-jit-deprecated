@@ -136,7 +136,7 @@ knh_type_t knh_Token_gettype(Ctx *ctx, knh_Token_t *tk, knh_NameSpace_t *ns, knh
 	DBG2_ASSERT(IS_Token(tk));
 	knh_type_t type;
 	if(TT_(tk) == TT_ASIS) {
-		type = TYPE_var;
+		DBG2_P("ASIS"); type = defc;
 	}
 	else if(TT_(tk) == TT_CID) {
 		type = DP(tk)->cid;
@@ -1449,10 +1449,13 @@ Term * knh_StmtDECL_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameS
 {
 	int level = DP(abr)->level;
 	knh_cfield_t declbuf, *decl = &declbuf;
+	knh_Token_t *tkT = StmtDECL_type(stmt);
 	knh_Token_t *tkN = StmtDECL_name(stmt);
 	knh_fieldn_t fnq = knh_Token_getfnq(ctx, tkN);
-	knh_type_t pmztype  = knh_Token_gettype(ctx, StmtDECL_type(stmt), ns, TYPE_var);
-
+	knh_type_t pmztype  = TYPE_var;
+	if(TT_(tkT) != TT_ASIS) {
+		pmztype = knh_Token_gettype(ctx, tkT, ns, TYPE_Any);
+	}
 	decl->flag = knh_StmtDECL_flag(ctx, stmt);
 	decl->fn  = FIELDN_UNMASK(fnq);
 	decl->type = knh_pmztype_totype(ctx, pmztype, DP(abr)->this_cid);

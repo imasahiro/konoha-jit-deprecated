@@ -177,9 +177,14 @@ void knh_NameSpace_setLocalName(Ctx *ctx, knh_NameSpace_t *o, knh_class_t cid)
 
 knh_class_t knh_NameSpace_getcid(Ctx *ctx, knh_NameSpace_t *o, knh_bytes_t name)
 {
-	if(knh_bytes_equals(name, STEXT("This"))) return CLASS_This;
+	if(knh_bytes_equals(name, STEXT("This"))) {
+		return CLASS_This;
+	}
 	if(knh_bytes_equals(name, STEXT("Script"))) {
 		return knh_Object_cid(knh_NameSpace_getScript(ctx, o));
+	}
+	if(knh_bytes_equals(name, STEXT("byte[]"))) {
+		return CLASS_Bytes;
 	}
 
 	{
@@ -201,10 +206,41 @@ knh_class_t knh_NameSpace_getcid(Ctx *ctx, knh_NameSpace_t *o, knh_bytes_t name)
 		}
 	}
 
+	if(name.buf[name.len-1] == ']' && name.buf[name.len-2] == '[') {
+		name.len -= 2;
+		knh_class_t p1 = knh_NameSpace_getcid(ctx, o, name);
+		if(p1 == CLASS_unknown) {
+			return CLASS_Array;
+		}
+		knh_class_t cid = knh_class_Array(ctx, p1);
+		if(cid != CLASS_unknown) {
+			knh_NameSpace_setcid(ctx, o, new_String(ctx, name, NULL), cid);
+			knh_NameSpace_setLocalName(ctx, o, cid);
+		}
+		return cid;
+	}
+
+	if(name.buf[name.len-1] == '.' && name.buf[name.len-2] == '.') {
+		name.len -= 2;
+		knh_class_t p1 = knh_NameSpace_getcid(ctx, o, name);
+		if(p1 == CLASS_unknown) {
+			return CLASS_Iterator;
+		}
+		knh_class_t cid = knh_class_Iterator(ctx, p1);
+		if(cid != CLASS_unknown) {
+			knh_NameSpace_setcid(ctx, o, new_String(ctx, name, NULL), cid);
+			knh_NameSpace_setLocalName(ctx, o, cid);
+		}
+		return cid;
+	}
+
 	{
 		knh_index_t loc = knh_bytes_index(name, '<');
 		if(loc > 0) {
 			knh_class_t bcid = knh_NameSpace_getcid(ctx, o, knh_bytes_first(name, loc));
+			if(bcid == CLASS_unknown) {
+				return CLASS_unknown;
+			}
 			KNH_ASSERT_cid(bcid);
 			if(!knh_class_isGenerics(bcid)) return bcid;
 			knh_class_t p1 = CLASS_Any, p2 = ClassTable(bcid).p2;
@@ -215,12 +251,18 @@ knh_class_t knh_NameSpace_getcid(Ctx *ctx, knh_NameSpace_t *o, knh_bytes_t name)
 				knh_NameSpace_setcid(ctx, o, new_String(ctx, name, NULL), cid);
 				knh_NameSpace_setLocalName(ctx, o, cid);
 			}
+			else {
+				cid = bcid;
+			}
 			return cid;
 		}
 
 		loc = knh_bytes_index(name, '(');
 		if(loc > 0) {
 			knh_type_t r0 = knh_NameSpace_gettype(ctx, o, knh_bytes_first(name, loc), 0);
+			if(CLASS_type(r0) == CLASS_unknown) {
+				return CLASS_unknown;
+			}
 			knh_type_t t1 = TYPE_void, t2 = TYPE_void, t3 = TYPE_void;
 			knh_bytes_t nsub = knh_NameSpace_firstType(ctx, o, knh_bytes_last(name, loc+1), &t1);
 			name = knh_NameSpace_firstType(ctx, o, nsub, &t2);
@@ -229,6 +271,9 @@ knh_class_t knh_NameSpace_getcid(Ctx *ctx, knh_NameSpace_t *o, knh_bytes_t name)
 			if(cid != CLASS_unknown) {
 				knh_NameSpace_setcid(ctx, o, new_String(ctx, name, NULL), cid);
 				knh_NameSpace_setLocalName(ctx, o, cid);
+			}
+			else {
+				CLASS_Closure;
 			}
 			return cid;
 		}
@@ -284,7 +329,9 @@ knh_type_t knh_NameSpace_gettype(Ctx *ctx, knh_NameSpace_t *ns, knh_bytes_t name
 	if(name.buf[0] == 'v') {
 		if(name.len == 4 && name.buf[1] == 'o' &&
 				name.buf[2] == 'i' && name.buf[3] == 'd') return TYPE_void;
-		if(name.len == 3 && name.buf[1] == 'a' && name.buf[2] == 'r') return TYPE_var;
+		if(name.len == 3 && name.buf[1] == 'a' && name.buf[2] == 'r') {
+			return TYPE_var;
+		}
 	}
 
 	if(name.len > 2 && name.buf[name.len-1] == '!') {
@@ -296,7 +343,6 @@ knh_type_t knh_NameSpace_gettype(Ctx *ctx, knh_NameSpace_t *ns, knh_bytes_t name
 		name.len--;
 		isNullable = 1;
 	}
-
 	{
 		knh_class_t cid = knh_NameSpace_getcid(ctx, ns, name);
 		if(cid==CLASS_Any) return cid;
