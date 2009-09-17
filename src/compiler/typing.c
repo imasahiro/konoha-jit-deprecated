@@ -4073,7 +4073,6 @@ int knh_Stmt_checkLastReturn(Ctx *ctx, knh_Stmt_t *stmt, knh_Method_t *mtd, knh_
 {
 	knh_Stmt_t *stmtLAST = knh_Stmt_tailReturn(ctx, stmt);
 	knh_stmt_t stt = SP(stmtLAST)->stt;
-	knh_type_t rtype = knh_Method_rztype(mtd);
 	if(stt == STT_RETURN || stt == STT_THROW || stt == STT_ERR) {
 		return 1;
 	}
@@ -4103,6 +4102,7 @@ int knh_Stmt_checkLastReturn(Ctx *ctx, knh_Stmt_t *stmt, knh_Method_t *mtd, knh_
 	DBG2_P("generating default return .. stmtLAST=%s", knh_stmt_tochar(STT_(stmtLAST)));
 	/* Generate default return statement */
 	{
+		knh_type_t rtype = knh_Method_rztype(mtd);
 		knh_Stmt_t *stmtRETURN = new_Stmt(ctx, 0, STT_RETURN);
 		if(!knh_Method_isConstructor(ctx, mtd) || rtype != TYPE_void) {
 			knh_Asm_addDefaultReturnValue(ctx, ctx->abr, stmtRETURN, knh_Method_rtype(ctx, mtd, DP(mtd)->cid));

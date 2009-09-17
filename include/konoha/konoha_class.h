@@ -806,6 +806,7 @@ typedef struct knh_Socket_t {
 //## @Struct class ResultSet Object;
 
 typedef struct knh_Connection_t {
+	knh_hObject_t h;
 	knh_db_t           *conn;
 	knh_db_drvapi_t    *df;
 	knh_String_t       *urn;

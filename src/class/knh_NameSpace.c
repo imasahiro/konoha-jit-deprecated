@@ -261,7 +261,7 @@ knh_class_t knh_NameSpace_getcid(Ctx *ctx, knh_NameSpace_t *o, knh_bytes_t name)
 		if(loc > 0) {
 			knh_type_t r0 = knh_NameSpace_gettype(ctx, o, knh_bytes_first(name, loc), 0);
 			if(CLASS_type(r0) == CLASS_unknown) {
-				return CLASS_unknown;
+				return CLASS_Closure;
 			}
 			knh_type_t t1 = TYPE_void, t2 = TYPE_void, t3 = TYPE_void;
 			knh_bytes_t nsub = knh_NameSpace_firstType(ctx, o, knh_bytes_last(name, loc+1), &t1);
@@ -273,7 +273,7 @@ knh_class_t knh_NameSpace_getcid(Ctx *ctx, knh_NameSpace_t *o, knh_bytes_t name)
 				knh_NameSpace_setLocalName(ctx, o, cid);
 			}
 			else {
-				CLASS_Closure;
+				cid = CLASS_Closure;
 			}
 			return cid;
 		}
