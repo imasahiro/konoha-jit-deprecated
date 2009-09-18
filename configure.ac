@@ -339,11 +339,11 @@ AC_CONFIG_FILES([Makefile
 # define macros for konoha
 AC_DEFINE_UNQUOTED([ACCONFIG_KONOHA_OS], [${host_os}], Defining KONOHA_OS_MACROS)
 
-AC_MSG_RESULT([this is ${datadir}])
-if  test  "${datadir}" != "NONE" ; then
-  AC_DEFINE_UNQUOTED([KNH_PREFIX], ["${datadir}"], Defineing konoha prefix install folder)
+AC_MSG_RESULT([this is ${prefix}])
+if  test  "${prefix}" != "NONE" ; then
+  AC_DEFINE_UNQUOTED([KNH_PREFIX], ["${prefix}"], Defineing konoha prefix install folder)
 else
-  AC_DEFINE_UNQUOTED([KNH_PREFIX], "$ac_default_datadir", Difining konoha library prefix with default value)
+  AC_DEFINE_UNQUOTED([KNH_PREFIX], "$ac_default_prefix", Difining konoha library prefix with default value)
 fi
 
 AC_DEFINE_UNQUOTED([KONOHA_CONFIG_OS], ["${host_os}"], Konoha os type)

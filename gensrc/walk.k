@@ -7,7 +7,7 @@
 import "array.k"
  
 String[] System.walk(String path){
-    String[] p = [];
+    String[] p = new String[]();
     if(System.hasDir(path)){
         foreach(String t in System.listDir(path)){
             String newpath = path + "/" + t;

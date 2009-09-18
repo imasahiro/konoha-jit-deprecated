@@ -210,6 +210,10 @@
 #define KONOHA_PLATFORM KONOHA_OS "_32"
 #endif
 
+#ifdef __SSE2__
+#define KNH_USING_SSE2
+#endif
+
 /* ======================================================================== */
 /* [OPTIONS_DEPS] */
 

@@ -41,6 +41,7 @@ libkonoha_la_SOURCES =
         if(p.indexOf(".svn") >= 0) continue;
         if(p.endsWith(".c") == false ) continue;
         if(p.endsWith("konoha.c")) continue;
+        //if(p.indexOf("/api") >= 0) continue;
 
         o.println(%("libkonoha_la_SOURCES += %s{0}",p));
     }
@@ -53,7 +54,6 @@ libkonoha_la_SOURCES =
 
     foreach (String p in System.walk("../include/konoha")) {
         if(p.indexOf(".svn") >= 0) continue;
-        if(p.indexOf("gen") >= 0) continue;
         if(p.endsWith(".h") == false ) continue;
         if(p.endsWith("konoha.h")) continue;
 
@@ -70,7 +70,7 @@ libkonoha_la_SOURCES =
         o.println(%("libkonoha_la_includegen_HEADERS += %s{0}",p));
     }
 
-    o.println("sampledir = $(datadir)/konoha/sample");
+    o.println("sampledir = $(prefix)/konoha/sample");
     o.println("dist_sample_SCRIPTS =");
 
     foreach (String p in System.walk("../dist/sample")) {
@@ -85,7 +85,7 @@ libkonoha_la_SOURCES =
 
     pkgs= ["math", "posix", "xml", "demo"];
     foreach(String pname in pkgs) {
-        o.println(%("pkg%s{0}dir = $(datadir)/konoha/package/%s{0}", pname));
+        o.println(%("pkg%s{0}dir = $(prefix)/konoha/package/%s{0}", pname));
         o.println(%("dist_pkg%s{0}_DATA =", pname));
 
         foreach (String p in System.walk(%("../dist/package/%s{0}", pname))) {
@@ -97,7 +97,7 @@ libkonoha_la_SOURCES =
         }
     }
     o.println("""
-scriptklipdir = $(datadir)/konoha/script/klip
+scriptklipdir = $(prefix)/konoha/script/klip
 dist_scriptklip_SCRIPTS = ../dist/bin/klip.k""");
 
     o.println("""
