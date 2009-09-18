@@ -1129,8 +1129,8 @@ Term *knh_TokenESTR_toTerm(Ctx *ctx, knh_Token_t *tk, knh_Asm_t *abr)
 		knh_sfp_t *lsfp = KNH_LOCAL(ctx);
 		KNH_LPUSH(ctx, KNH_NULL);   // lsfp[0]
 		knh_Stmt_t *stmt = new_Stmt(ctx, 0, STT_OP);
-		knh_Token_t *tkop = new_Token(ctx, 0, SP(tk)->uri, SP(tk)->line, TT_ADD);
-		knh_Stmt_add(ctx, stmt, TM(tkop));
+		knh_Token_t *tkOP = new_Token(ctx, 0, SP(tk)->uri, SP(tk)->line, TT_ADD);
+		knh_Stmt_add(ctx, stmt, TM(tkOP));
 		while(res) {
 			//DBG2_P("mt='%s', len=%d", mt.buf, mt.len);
 			//DBG2_P("expr='%s', len=%d", expr.buf, expr.len);
@@ -1139,15 +1139,15 @@ Term *knh_TokenESTR_toTerm(Ctx *ctx, knh_Token_t *tk, knh_Asm_t *abr)
 			if(text.len > 0) {
 				knh_Stmt_add(ctx, stmt, new_TermCONST(ctx, FL(tk), UP(new_String(ctx, text, NULL))));
 			}
-			knh_Stmt_t *stmt_expr = knh_bytes_parseExpr(ctx, expr, SP(tk)->uri, SP(tk)->line);
-			KNH_SETv(ctx, lsfp[0].o, stmt_expr);
-			if(knh_stmt_isExpr(SP(stmt_expr)->stt)) {
-				knh_Stmt_t *stmt_mt = new_Stmt(ctx, 0, STT_MT);
-				knh_Stmt_add(ctx, stmt, TM(stmt_mt));
-				tkop = new_Token(ctx, 0, SP(tk)->uri, SP(tk)->line, TT_MT);
-				KNH_SETv(ctx, DP(tkop)->data, new_String(ctx, mt, NULL));
-				knh_Stmt_add(ctx, stmt_mt, TM(tkop));
-				knh_Stmt_add(ctx, stmt_mt, TM(stmt_expr));
+			knh_Stmt_t *stmtEXPR = knh_bytes_parseExpr(ctx, expr, SP(tk)->uri, SP(tk)->line);
+			KNH_SETv(ctx, lsfp[0].o, stmtEXPR);
+			if(knh_stmt_isExpr(SP(stmtEXPR)->stt)) {
+				knh_Stmt_t *stmtFMT = new_Stmt(ctx, 0, STT_MT);
+				knh_Stmt_add(ctx, stmt, TM(stmtFMT));
+				tkOP = new_Token(ctx, 0, SP(tk)->uri, SP(tk)->line, TT_MT);
+				KNH_SETv(ctx, DP(tkOP)->data, new_String(ctx, mt, NULL));
+				knh_Stmt_add(ctx, stmtFMT, TM(tkOP));
+				knh_Stmt_add(ctx, stmtFMT, TM(stmtEXPR));
 			}
 			else {
 				knh_Asm_perror(ctx, abr, KERR_ERROR, _("some expression is needed: {%B}"), expr);
@@ -1160,6 +1160,7 @@ Term *knh_TokenESTR_toTerm(Ctx *ctx, knh_Token_t *tk, knh_Asm_t *abr)
 		}
 		KNH_LOCALBACK(ctx, lsfp);
 		knh_foundKonohaStyle(1);
+		knh_Stmt_setAutoReturn(stmt, 0);
 		return TM(stmt);
 	}
 }
@@ -1865,6 +1866,9 @@ static Term *knh_StmtCALL_toCONST(Ctx *ctx, knh_Stmt_t *stmt, knh_Method_t *mtd)
 	KNH_SCALL(ctx, lsfp, 0, mtd, (DP(stmt)->size - 2));
 	KNH_BOX(ctx, &lsfp[0], knh_Method_rztype(mtd));
 	knh_Token_setCONST(ctx, DP(stmt)->tokens[1], lsfp[0].o);
+	if(knh_Method_rztype(mtd) == TYPE_void) {
+		return knh_Stmt_done(ctx, stmt);
+	}
 	return DP(stmt)->terms[1];
 }
 
@@ -2453,14 +2457,14 @@ Term *knh_StmtNEW_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpa
 	}
 
 	if(mn == METHODN_new__dictmap) {
-		knh_Method_t *mtd = knh_Class_getMethod(ctx, mtd_cid, mn);
-		DBG2_ASSERT(IS_Method(mtd));
 		if(mtd_cid == CLASS_DictMap) {
 			if(reqc != CLASS_Any) {
 				mtd_cid = reqc;
 				knh_Asm_derivedClass(ctx, abr, CLASS_DictMap, mtd_cid);
 			}
 		}
+		knh_Method_t *mtd = knh_Class_getMethod(ctx, mtd_cid, mn);
+		DBG2_ASSERT(IS_Method(mtd));
 		knh_Token_toMTD(ctx, tkNEW, mn, mtd);
 		DP(tkC)->cid = mtd_cid;
 		knh_StmtDICTMAP_typing(ctx, stmt, abr, ns, mtd_cid);
@@ -3199,7 +3203,7 @@ Term *knh_StmtEXPR_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSp
 	}
 	if(tm == NULL) {
 		knh_Stmt_setAutoReturn(stmt, 0);
-		DBG2_ASSERT(STT_(stmt) == STT_ERR);
+		knh_Stmt_toERR(ctx, stmt, NULL);
 		return tm;
 	}
 	if(isAutoReturn) {
@@ -3283,6 +3287,7 @@ int TERMs_typing(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_Asm_t *abr, knh_NameS
 	}
 	if(IS_Token(tkN) && TT_(tkN) == TT_ESTR) {
 		KNH_SETv(ctx, DP(stmt)->terms[n], knh_TokenESTR_toTerm(ctx, tkN, abr));
+		tkN = DP(stmt)->tokens[n];
 	}
 	if(IS_Token(tkN)) {
 		if(TT_(tkN) == TT_ASIS || !knh_Token_isTyped(tkN) ) {

@@ -51,19 +51,6 @@ static METHOD Object_new(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 
 static
-knh_type_t knh_class_getFieldType(Ctx *ctx, knh_class_t cid, knh_bytes_t name)
-{
-	knh_fieldn_t fn = knh_getfnq(ctx, name, FIELDN_NONAME);
-	if(fn == FIELDN_NONAME) return TYPE_void;
-	knh_index_t idx = knh_Class_queryField(ctx, cid, fn);
-	if(idx == -1) return TYPE_void;
-	knh_cfield_t *cf = knh_Class_fieldAt(ctx, cid, idx);
-	return knh_pmztype_totype(ctx, cf->type, cid);
-}
-
-/* ------------------------------------------------------------------------ */
-
-static
 void knh_ObjectField_setValue(Ctx *ctx, knh_ObjectField_t *of, knh_index_t idx, knh_type_t type, Object *value)
 {
 	if(IS_NULL(value)) {
@@ -91,15 +78,15 @@ void knh_ObjectField_setValue(Ctx *ctx, knh_ObjectField_t *of, knh_index_t idx, 
 	L_SET:;
 #ifdef KNH_USING_UNBOXFIELD
 	if(IS_ubxint(type)) {
-		knh_int_t *data = (knh_int_t*)(of->fields[idx]);
+		knh_int_t *data = (knh_int_t*)(of->fields + idx);
 		data[0] = toint(value);
 	}
 	else if(IS_ubxfloat(type)) {
-		knh_float_t *data = (knh_float_t*)(of->fields[idx]);
+		knh_float_t *data = (knh_float_t*)(of->fields + idx);
 		data[0] = tofloat(value);
 	}
 	else if(IS_ubxboolean(type)) {
-		knh_boolean_t *data = (knh_boolean_t*)(of->fields[idx]);
+		knh_boolean_t *data = (knh_boolean_t*)(of->fields +idx);
 		data[0] = tobool(value);
 	}
 	else
@@ -122,10 +109,15 @@ static METHOD Object_new__dictmap(Ctx *ctx, knh_sfp_t *sfp)
 	size_t i;
 	for(i = 0; i < ac; i+= 2) {
 		if(IS_bString(v[i].s)) {
-			knh_type_t type = knh_class_getFieldType(ctx, cid, knh_String_tobytes(v[i].s));
+			knh_fieldn_t fn = knh_getfnq(ctx, knh_String_tobytes(v[i].s), FIELDN_NONAME);
+			if(fn == FIELDN_NONAME) continue;
+			knh_index_t idx = knh_Class_queryField(ctx, cid, fn);
+			if(idx == -1) continue;
+			knh_cfield_t *cf = knh_Class_fieldAt(ctx, cid, idx);
+			knh_type_t type = knh_pmztype_totype(ctx, cf->type, cid);
 			if(type == TYPE_void) continue;
-			DBG2_P("[%d] %s%s %s", (int)(i/2), TYPEQN(type), knh_String_tochar(v[i].s));
-			knh_ObjectField_setValue(ctx, of, (i/2), type, v[i+1].o);
+			DBG2_P("[%d] %s%s %s", (int)(idx), TYPEQN(type), knh_String_tochar(v[i].s));
+			knh_ObjectField_setValue(ctx, of, idx, type, v[i+1].o);
 		}
 	}
 	KNH_RETURN(ctx, sfp, of);

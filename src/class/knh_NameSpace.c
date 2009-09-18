@@ -38,9 +38,9 @@ extern "C" {
 /* ======================================================================== */
 /* [prototype] */
 
-knh_class_t knh_system_loadEnum(Ctx *ctx, knh_bytes_t urn);
-knh_class_t knh_system_loadUnit(Ctx *ctx, knh_bytes_t urn);
-knh_class_t knh_system_loadVocabulary(Ctx *ctx, knh_bytes_t urn);
+//knh_class_t knh_system_loadEnum(Ctx *ctx, knh_bytes_t urn);
+//knh_class_t knh_system_loadUnit(Ctx *ctx, knh_bytes_t urn);
+//knh_class_t knh_system_loadVocabulary(Ctx *ctx, knh_bytes_t urn);
 
 /* ======================================================================== */
 /* [constructors] */
@@ -214,6 +214,7 @@ knh_class_t knh_NameSpace_getcid(Ctx *ctx, knh_NameSpace_t *o, knh_bytes_t name)
 		}
 		knh_class_t cid = knh_class_Array(ctx, p1);
 		if(cid != CLASS_unknown) {
+			name.len += 2;
 			knh_NameSpace_setcid(ctx, o, new_String(ctx, name, NULL), cid);
 			knh_NameSpace_setLocalName(ctx, o, cid);
 		}
@@ -228,6 +229,7 @@ knh_class_t knh_NameSpace_getcid(Ctx *ctx, knh_NameSpace_t *o, knh_bytes_t name)
 		}
 		knh_class_t cid = knh_class_Iterator(ctx, p1);
 		if(cid != CLASS_unknown) {
+			name.len += 2;
 			knh_NameSpace_setcid(ctx, o, new_String(ctx, name, NULL), cid);
 			knh_NameSpace_setLocalName(ctx, o, cid);
 		}
@@ -256,7 +258,6 @@ knh_class_t knh_NameSpace_getcid(Ctx *ctx, knh_NameSpace_t *o, knh_bytes_t name)
 			}
 			return cid;
 		}
-
 		loc = knh_bytes_index(name, '(');
 		if(loc > 0) {
 			knh_type_t r0 = knh_NameSpace_gettype(ctx, o, knh_bytes_first(name, loc), 0);

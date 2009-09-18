@@ -585,7 +585,7 @@ knh_code_t* KNH_ASM_SETESP_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1);
 knh_code_t* KNH_ASM_CHECKESP_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1);
 knh_code_t* KNH_ASM_RET_(Ctx *ctx, knh_Asm_t *o);
 knh_code_t* KNH_ASM_RETn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2);
-knh_code_t* KNH_ASM_RETa_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2);
+knh_code_t* KNH_ASM_RETa_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1, knh_sfi_t a2);
 knh_code_t* KNH_ASM_RETo_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_Object_t* a2);
 knh_code_t* KNH_ASM_RETx_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfx_t a2);
 knh_code_t* KNH_ASM_YEILDBREAK_(Ctx *ctx, knh_Asm_t *o);

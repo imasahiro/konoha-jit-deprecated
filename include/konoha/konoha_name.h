@@ -2,7 +2,7 @@
 
 /* ======================================================================== */
 /* MACROS */
-#define KONOHA_BUILDID                  690
+#define KONOHA_BUILDID                  691
 
 /* ======================================================================== */
 /* STRUCT */
@@ -1164,7 +1164,7 @@
 #define knh_Stmt_isLiteral(o)  ((SP(o)->flag & FLAG_Stmt_Literal) == FLAG_Stmt_Literal)
 
 #define knh_Stmt_setLiteral(o,b) if(b) SP(o)->flag |= FLAG_Stmt_Literal; else SP(o)->flag &= ~(FLAG_Stmt_Literal);
-#define FLAG_Stmt_AutoReturn              (knh_flag_t)(1<<2)
+#define FLAG_Stmt_AutoReturn            (knh_flag_t)(1<<2)
 
 #define knh_Stmt_isAutoReturn(o)  ((SP(o)->flag & FLAG_Stmt_AutoReturn) == FLAG_Stmt_AutoReturn)
 
