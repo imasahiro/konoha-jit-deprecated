@@ -620,14 +620,12 @@ knh_Method_t *new_Method_setter(Ctx *ctx, knh_class_t cid, knh_methodn_t mn, knh
 	return mtd;
 }
 
-
 /* ------------------------------------------------------------------------ */
 
 static knh_methodn_t knh_methodn_base(Ctx *ctx, knh_methodn_t mn)
 {
 	size_t i;
-	knh_bytes_t n =
-		knh_String_tobytes(knh_getFieldName(ctx, METHODN_TOFIELDN(mn)));
+	knh_bytes_t n = knh_String_tobytes(knh_getFieldName(ctx, METHODN_TOFIELDN(mn)));
 	for(i = 0; i < n.len; i++) {
 		if(n.buf[i] == ':') {
 			n.len = i;
@@ -662,14 +660,6 @@ knh_Class_getMethod__(Ctx *ctx, knh_class_t this_cid, knh_methodn_t mn, knh_bool
 	goto TAIL_RECURSION;
 
 	L_GenerateField:;
-	{
-		knh_methodn_t mnbase = knh_methodn_base(ctx, mn);
-		if(mnbase != mn) {
-			DBG2_P("searching again %s, %s", FIELDN(METHODN_TOFIELDN(mn)), FIELDN(METHODN_TOFIELDN(mnbase)));
-			mn = mnbase;
-			goto TAIL_RECURSION;
-		}
-	}
 
 	if(METHODN_IS_GETTER(mn)) {
 		knh_index_t idx = knh_Class_indexOfField(ctx, this_cid, METHODN_TOFIELDN(mn));
@@ -689,8 +679,7 @@ knh_Class_getMethod__(Ctx *ctx, knh_class_t this_cid, knh_methodn_t mn, knh_bool
 			}
 		}
 	}
-
-	if(METHODN_IS_SETTER(mn)) {
+	else if(METHODN_IS_SETTER(mn)) {
 		knh_index_t idx = knh_Class_indexOfField(ctx, this_cid, METHODN_TOFIELDN(mn));
 		if(idx == -1) {
 			goto L_NoSuchMethod;
@@ -708,11 +697,19 @@ knh_Class_getMethod__(Ctx *ctx, knh_class_t this_cid, knh_methodn_t mn, knh_bool
 			}
 		}
 	}
+	else if(!METHODN_IS_MOVTEXT(mn)) {
+		knh_methodn_t mnbase = knh_methodn_base(ctx, mn);
+		if(mnbase != mn) {
+			DBG2_P("searching again %s, %s", FIELDN(METHODN_TOFIELDN(mn)), FIELDN(METHODN_TOFIELDN(mnbase)));
+			mn = mnbase;
+			goto TAIL_RECURSION;
+		}
+	}
 
 	L_NoSuchMethod:;
-	//DEBUG("Not Found: cid=%s, mn=%d,%s", CLASSN(this_cid), mn, METHODN(mn));
 	if(gen) {
 		if(METHODN_IS_MOVTEXT(mn)) {
+			DBG2_P("Generating %%empty: cid=%s mn=%%%s", CLASSN(cid), METHODN(mn));
 			return knh_Class_getMethod(ctx, cid, METHODN__empty);
 		}
 		else {

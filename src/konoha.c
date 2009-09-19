@@ -58,7 +58,6 @@ main(int argc, char **argv)
     konoha_t konoha = konoha_open(4096);
     int n = konoha_parseopt(konoha, argc, args);
     if(argc - n == 0) {
-        //package_init(konoha.ctx);
         konoha_shell(konoha);
     }
     else {
@@ -67,6 +66,9 @@ main(int argc, char **argv)
         }
         else {
             fprintf(stderr, "[konoha] cannot open: %s\n", args[n]);
+        }
+        if(knh_isToInteractiveMode()) {
+        	konoha_shell(konoha);
         }
     }
     konoha_close(konoha);

@@ -778,9 +778,9 @@ int knh_Stmt_eval(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace_t *n
 			}
 			SP(stmt)->stt = STT_RETURN;
 		}
-		else if(SP(stmt)->stt == STT_LET) {
-			isExpr = 0;
-		}
+//		else if(SP(stmt)->stt == STT_LET) {
+//			isExpr = 0;
+//		}
 		else {
 			knh_Stmt_t *newstmt = new_Stmt(ctx, 0, STT_RETURN);
 			knh_Stmt_add(ctx, newstmt, UP(stmt));

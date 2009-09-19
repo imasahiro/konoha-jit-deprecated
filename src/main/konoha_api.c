@@ -114,6 +114,7 @@ KNHAPI(Ctx*) knh_getCurrentContext(void)
 static int userExperienceProgram = 0;
 static int dumpLevel2 = 0;    // this is -d2 debug mode for konoha itself
 static int debugLevel = 0;
+static int toInteractiveMode = 0;
 
 /* ----------------------------------------------------------------------- */
 
@@ -127,6 +128,13 @@ KNHAPI(int) konoha_debugLevel(void)
 KNHAPI(int) konoha_isSystemDump2(void)
 {
 	return (dumpLevel2 == 2);
+}
+
+/* ----------------------------------------------------------------------- */
+
+int knh_isToInteractiveMode(void)
+{
+	return toInteractiveMode;
 }
 
 /* ----------------------------------------------------------------------- */
@@ -176,6 +184,9 @@ KNHAPI(int) konoha_parseopt(konoha_t konoha, int argc, char **argv)
 		}
 		else if(t[1] == 'c' && t[2] == 0) {
 			knh_Context_setCompiling(konoha.ctx, 1);
+		}
+		else if(t[1] == 'i' && t[2] == 0) {
+			toInteractiveMode = 1;
 		}
 		else if(t[1] == 'v') {
 			knh_Context_setVerbose(konoha.ctx, 1);
