@@ -42,27 +42,22 @@ knh_bool_t knh_class_instanceof(Ctx *ctx, knh_class_t scid, knh_class_t tcid)
 {
 	KNH_ASSERT_cid(scid);
 	KNH_ASSERT_cid(tcid);
-	//DBG2_P("@@@@@@@@@ %s %s", CLASSN(ctx->share->ClassTable[scid].bcid), CLASSN(tcid));
-	if(scid == CLASS_Any) return 0;
-	if(ctx->share->ClassTable[scid].bcid == tcid /* Int:km Int */
-			|| scid == tcid
-			|| tcid == CLASS_Object  /* Int    Object */
-			|| tcid == CLASS_Any ) return 1;   /* Any */
-
-	if(ctx->share->ClassTable[scid].bcid == ctx->share->ClassTable[tcid].bcid && knh_class_isGenerics(scid) && knh_class_isGenerics(tcid)) {
-		return knh_class_instanceof(ctx, ctx->share->ClassTable[scid].p1, ctx->share->ClassTable[tcid].p1) &&
-			knh_class_instanceof(ctx, ctx->share->ClassTable[scid].p2, ctx->share->ClassTable[tcid].p2);
+	if(scid == tcid || tcid == CLASS_Object || tcid == CLASS_Any ) return 1;
+	if(knh_class_isGenerics(scid)) {
+		TODO();
 	}
-
-	while(scid != CLASS_Object) {
-		knh_ClassMap_t *cmap = ctx->share->ClassTable[scid].cmap;
-		int i;
-		for(i = 0; i < cmap->size; i++) {
-			knh_Mapper_t *mpr = cmap->maplist[i];
-			if(DP(mpr)->tcid == tcid && DP(mpr)->flag == FLAG_Mapper_Interface) return 1;
+	else {
+		if(ClassTable(scid).bcid == tcid) return 1; /* Int:km Int */
+		while(scid != CLASS_Object) {
+			knh_ClassMap_t *cmap = ClassTable(scid).cmap;
+			int i;
+			for(i = 0; i < cmap->size; i++) {
+				knh_Mapper_t *mpr = cmap->maplist[i];
+				if(DP(mpr)->tcid == tcid && DP(mpr)->flag == FLAG_Mapper_Interface) return 1;
+			}
+			scid = ClassTable(scid).supcid;
+			if(scid == tcid) return 1;
 		}
-		scid = ctx->share->ClassTable[scid].supcid;
-		if(scid == tcid) return 1;
 	}
 	return 0;
 }
@@ -127,10 +122,10 @@ knh_class_t knh_class_parent(Ctx *ctx, knh_class_t c1, knh_class_t c2)
 //	}
 //	else {
 //		knh_class_t scid = knh_Object_cid(o);
-//		if(scid == tcid || ctx->share->ClassTable[scid].bcid == tcid || knh_class_instanceof(ctx, scid, tcid)) {
+//		if(scid == tcid || ClassTable(scid).bcid == tcid || knh_class_instanceof(ctx, scid, tcid)) {
 //			return o;
 //		}
-//		else if(ctx->share->ClassTable[tcid].bcid == scid) {
+//		else if(ClassTable(tcid).bcid == scid) {
 //			if(IS_String(o)) {
 //				String *s = (String*)o;
 //				return UP(new_StringX(ctx, tcid, knh_String_tobytes(s), s));

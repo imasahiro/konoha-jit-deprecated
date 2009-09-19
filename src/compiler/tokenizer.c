@@ -784,10 +784,15 @@ void knh_InputStream_parseToken(Ctx *ctx, knh_InputStream_t *in, knh_Token_t *tk
 				equote = 0;
 				goto MAIN_PART;
 			}
-
-			//DBG2_P("IS EXTENDED QUOTE: %s", (equote) ? "yes" : "no");
-			if(equote == 0 && knh_Token_lastTT(tks[tkslevel]) < TT_NUM) {
-				equote = 1;
+			{
+				knh_token_t tt = knh_Token_lastTT(tks[tkslevel]);
+				if(equote == 0 &&  tt < TT_NUM) {
+					equote = 1;
+				}
+				if(equote == 1 && (TT_BRACE <= tt && tt <= TT_BRANCET)) {
+					equote = 0;
+				}
+				//DBG2_P("IS EXTENDED QUOTE: %s", (equote) ? "yes" : "no");
 			}
 
 			if(equote == 1) {

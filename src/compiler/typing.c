@@ -2279,6 +2279,8 @@ Term *knh_StmtCALL_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSp
 		knh_Asm_perror(ctx, abr, KERR_ERROR, _("undefined method: %C.%M"), mtd_cid, mn);
 		return NULL;
 	}
+
+	DBG2_P("call mn=%s mtd_cid='%s' DP(mtd)->cid=%s", METHODN(mn), CLASSN(mtd_cid), CLASSN(DP(mtd)->cid));
 	knh_Token_toMTD(ctx, DP(stmt)->tokens[0], mn, mtd);
 
 	if(IS_Token(DP(stmt)->tokens[1]) && knh_Token_isSUPER(DP(stmt)->tokens[1])) {
