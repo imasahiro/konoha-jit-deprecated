@@ -1065,6 +1065,7 @@ static char* knh_stmt_array_tochar[] = {
     "throw",  /* throw */ 
     "err",  /* err */ 
     "let",  /* let */ 
+    "letm",  /* letm */ 
     "register",  /* register */ 
     "separator",  /* separator */ 
     "new",  /* new */ 
@@ -1136,6 +1137,7 @@ static int knh_stmt_array_isExpr[] = {
     0,  /* throw */ 
     0,  /* err */ 
     1,  /* let */ 
+    0,  /* letm */ 
     0,  /* register */ 
     0,  /* separator */ 
     1,  /* new */ 

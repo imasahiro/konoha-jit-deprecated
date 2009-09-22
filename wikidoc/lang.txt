@@ -1,0 +1,596 @@
+= Konoha の基本文法
+
+== 識別子
+
+識別子は、変数やクラスなどにつける名前のことです。
+アルファベット文字で始まり、英数字かアンダースコア(_)を続けて名前付けします。
+
+{{{
+i              
+v9             
+my_variable    
+MATH_PI        
+URN            
+Urn            
+C              
+
+}}}
+
+=== 変数、クラス名、定数の区別
+
+Konoha は、
+Java プログラミングで伝統的に用いられてきた名前付け慣習(naming convension)をルール化し、
+識別子からクラス名か変数名か定数か、判定できるようにしています。
+
+ * 変数は、英小文字から始まる名前です。
+ * 定数は、英大文字から始まり、英大文字のみ含まれる名前です。
+ * クラス名は、英大文字から始まり、英小文字が含まれる名前です。
+
+{{{
+i              // 変数名
+v9             // 変数名
+my_variable    // 変数名
+MATH_PI        // 定数
+URN            // 定数
+Urn            // クラス名
+C              // クラス名　１文字はクラス名
+
+}}}
+
+=== 識別子の正規化
+
+プログラマは、読みやすさのためアンダースコアを名前に含めることが多いですが、
+ときどきアンダースコアの有無や位置を忘れてしまうことがあります。
+
+Konoha は、識別子を処理するとき、アンダースコアを除去し、
+名前を正規化してマッチングを行っています。
+除去されたアンダースコアに続くアルファベットは、英大文字化して扱われます。
+
+{{{
+get_name             // getName と同じ
+get_host_by_name     // getHostByName と同じ
+Class_Name           // ClassName と同じ
+BUF_SIZ              // BUFSIZ と同じ
+
+}}}
+
+=== メソッド名と呼び出し
+
+メソッド名は、変数と同じく、英小文字で始まり英数字からなる名前を用います。
+
+Konoha では、Javaと同じく、
+アンダースコアの代わりに英大文字化して連結する命名スタイルを推奨しています。
+
+{{{
+readLine      // 推奨スタイル
+readline      // 非推奨
+read_line     // 非推奨
+
+}}}
+
+さて、スクリプティング言語は、別名グルー言語と呼ばれるとおり、
+C/C++などで開発されたライブラリを利用する機会が多くあります。
+このようなとき、既存のライブラリ関数名をそのまま利用できた方が便利です。
+
+Konohaでは、メソッドや関数のコールに限り、英大文字と英小文字を区別しません。
+つまり、メソッド名が getPid であれば、次のどの方法で呼んでも構いません。
+
+{{{
+getpid()
+GetPid()
+GETPID()
+GET_PID()
+
+}}}
+
+=== 予約語
+
+Konoha は、いくつかのキーワードを「識別子」と衝突しないため予約しています。
+次のリストは、Konoha にとって文法の一部に相当する特別な意味をもったキーワードとなります。
+
+{{{
+as assert break case catch class continue
+default defined do double else extends false finally
+for foreach from goto if import include interface
+is isa lock namespace new null
+pragma print
+return switch  this true try typeof using
+var void where while
+
+}}}
+
+いくつかのキーワードは、
+CやJava, JavaScript などの既存プログラミング言語と互換性のため、
+エイリアス（別名）として予約されています。
+
+{{{
+abstract                    // @Abstract の別名 
+boolean	                    // Boolean 
+byte[]                      // Bytes
+double                      // Float
+final                       // @Final
+float                       // Float
+int                         // Int
+private	                    // @Private
+protected                   // @Protected
+public                      // @Public
+
+}}}
+
+=== ラベル名
+
+英字で始まりコロン(:)で終わるトークンは、予約語を含め、クラス名、変数名、定数名とは関係なく、ラベルとして扱われます。
+
+{{{
+default:    ClassName:   variable:   CONST:
+
+}}}
+
+コロン(:)の前に空白を入れると、そのトークンはラベルと解釈されません。
+コロン(:)の次に空白がない場合は、連続したトークンとみなされる。
+
+{{{
+name : value      // name はラベルでない
+name: value       // name: ラベル
+name:value        // ひとつの識別子
+}}}
+
+=== 特別な名前
+
+Konoha では、接頭語や接尾語で特別なタイプの名前を使うことができます。
+
+ * 例外名 {{{!!}}}で終わる名前。　{{{　Null!!  Security!!   OutOfIndex!!   IO!!　}}}
+ * フォーマッタ名  {{{%}}}で始まる名前 {{{　%s    %4.2f    %dump   %HTML　}}}
+ * プロパティ変数 {{{$}}}で始まる名前 {{{ $konoha.version $env.PATH }}}
+ * アノテーション　{{{@}}}で始まる名前　{{{　@Override   @Final   @Doc　}}}
+ * キー {{{**}}} で始まる名前　{{{ **Class:key }}}
+
+== リテラル
+
+リテラルは、プログラム中に直接あらわれたデータ値のことです。型をもった値として扱われます。
+
+{{{
+12                            // 整数12
+1.2                           // 小数1.2
+"hello world"                 // テキスト
+/^world$/                     // 正規表現パターン
+true                          // 論理値 true
+false                         // 論理値 false
+null                          // NULL 
+[1,2,3]                       // 配列オブジェクト
+{x :1, y: 2}                  // 辞書オブジェクト
+
+}}}
+
+Konohaで は、データ表現はスクリプトの重要な一部と考え、
+配列, 辞書、そしてオブジェクトなどの値をリテラルとして記述できます。
+
+{{{
+C{x: 1, y: 2}                 // クラスCのオブジェクト
+
+}}}
+
+
+== ステートメントと式
+
+ステートメントとは、プログラミング言語における文のことです。
+正しいスタイルのステートメントは、CやC++, Java と同様に、セミコロン(;)で終わります。
+
+{{{
+a = 3;
+b = 4;
+
+}}}
+
+次のように、１行に複数のステートメントを書くこともできます。
+
+{{{
+a = 3; b = 4;
+
+}}}
+
+もし、C/C++, Java プログラミングもする方は、
+正しいスタイルを身につけ、プログラミングしましょう。
+
+=== セミコロンの省略
+
+スクリプティング言語の流儀としてみたとき、
+セミコロンを強制することは、Konohaは書きにくい言語となってしまう。
+そこで、Konoha は、ステートメントの途中に改行がくると、セミコロン(;)を忘れたものと拡大解釈しています。
+つまり、次の例でも、同様に、２つのステートメントになります。
+
+{{{
+a = 3
+b = 4
+}}}
+
+こうすると、あちらを立てればこちらが立たずという問題が発生する。
+
+Cプログラマは、１行(80文字)に収まりきらないステートメントを改行して読みやすくする習慣があり、
+このケースではステートメントが勝手に分割されてしまうことになりかねない。
+
+{{{
+print a + b
+-c;
+
+}}}
+
+そこで、もしステートメントの途中で改行を入れたときは、２行目以降は字下げしてステートメントが続いていることを明示的に示すことにした。
+少々面倒な気もするが、多くのCプログラマは読みやすくするため、習慣的に字下げを行っているため、比較的影響が少ないと思われる妥協点です。
+
+{{{
+print a + b
+	- c;
+}}}
+
+=== 式
+
+=== コメント
+
+Konoha は、C/C++, Java スタイルのコメントを採用しています。
+// は、行コメントの始まりであり、改行までのテキストがコメントとして無視されます。
+
+{{{
+a = b;            // 行コメント
+
+}}}
+
+また、C/C++ や Java と同様に、{{{/* */}}} で囲むことでコメント化できます。
+Konohaは、C言語と異なり、コメントのネストも可能です。
+
+{{{
+/* まとめてコメントアウト
+a = 1;
+b = 2;  /* コメントの入れ子もOK */
+*/
+
+}}}
+
+== 式によるステートメント}
+
+%The simplest kinds of statements in Konoha are expressions that change a program status. Assignment statements are one major category of expression statements. For example:
+
+もっとも簡単なステートメントは、プログラムの状態を変更する式(expression)です。代入式は、もっともよく使われるステートメントです。
+
+{{{
+s = "Hello " + name;
+i *= 3;
+}}}
+
+%The increment and decrement operators, ++ and --, are related to assignment statements. 
+
+インクリメント演算式(++)、デクリメント演算式(--)は、代入式の一種であるが、Konoha ではステートメントとして利用することができます。
+
+{{{
+counter++;
+}}}
+
+%Function/method calls are another major category of expression statements. For example:
+
+関数/メソッドのコールも、もうひとつの代表的な式によるステートメントです。
+
+{{{
+System.out.println("hello,world");
+Math.sin(0.5);
+}}}
+
+上記以外の任意の式もステートメントとして用いることができます。しかし、プログラムの状態を変更しない式は、コンパイラによって無視され、実際には評価されない。
+
+{{{
+if(a == 1) print a;
+a + 1;                      // 無視される
+return a;
+}}}
+
+%Before proceeding next, recall that statements in Konoha are separated from each other with semicolons. It is a good idea to get in the habit of using semicolons everywhere.
+
+== ブロック}
+¥index{block@block}
+
+% Konoha has a way to combine a number of statements into a single statement, or statement block. This is done simply by enclosing any number of statements with curly braces. 
+
+(ステートメント)ブロックは、0個以上のステートメントまとめてひとつのステートメントとして扱えるようにする。これは、任意のプログラムを中括弧 { }|で囲むことで作ることができます。ブロックの終端には、C時代からの慣習的にセミコロン(;)は必要ない。また、ブロック内では、読みやすさのためインデントするのがよい。
+
+{{{
+{
+   x = Math.PI;
+   a = Math.cos(x);
+   print a;
+}
+}}}
+
+注意：Konoha では、メソッド(関数)内同一スコープであるため、ブロックの中で宣言した変数はブロック外でも有効になります。詳しくは、「第 ¥ref{function} 章 関数」で述べられる。
+
+%Note that although this statement block acts as a single statement, it does not necessary end with a semicolon. The elemental statements within the block end in semicolons, but the block itself does not.
+
+=== 空ステートメント}
+
+空ステートメントは、何もしないステートメントです。ブロックを用いて空ステートメントを表すことができます。
+
+{{{
+{}
+}}}
+
+
+== 制御構造
+
+プログラムは、ステートメントの集まりです。
+本章では、Konoha の基本的なステートメントとその文法を説明する。
+あらかじめ断っておきたいが、Konoha は C/C++, Java とステートメントレベルでの互換性を目標として設計されています。
+そのため、本章で紹介するステートメントは、（頑張ってかいた割には悲しい事実であるが、）経験豊富なプログラマには読み飛ばしても差し支えない内容です。
+なお、ステートメントの一般的な訳語は、「文」です。本来、ステートメントに統一すべきかも知れないが、if} ステートメントと呼ぶのは冗長な気がするので、広く慣習的に用いられている「if文」的な呼称を用いています。
+
+
+=== if/else文, switch文
+
+if 文は、もっとも基本的な制御ステートメントです。
+ご想像のとおり、与えられた条件式に応じて実行するステートメントを切り替えるときに用います。
+
+{{{
+>>> n = 4
+>>> if (n mod 2 == 0) {
+...    print "even";
+... }
+even
+
+}}}
+
+もちろん、ブロックの中が単文の場合は、ブロックを使う必要はありません。
+
+{{{
+>>> if (n mod 2 == 0) print "even";
+
+}}}
+
+else 節は、if文の条件が false だったときに実行されるステートメントを記述します。
+
+{{{
+>>> n = 3
+>>> if (n mod 2 == 0) {
+...    print "even";
+... } else {
+...    print "odd";
+... }
+odd
+
+}}}
+
+更に、if/else文を組み合わせ、あたかも　else if文のように用いると、3つ以上の条件分岐をすっきりと書くことができます。
+
+{{{
+if(n == 1) {
+  // n が1のとき
+}
+else if(n == 2) {
+  // n が2のとき
+}
+else if(n == 3) {
+  // n が3のとき
+}
+else {
+   // それ以外のとき
+}
+}}}
+
+switch} 文は、多重条件分岐をすっきりと書くための専用のステートメントです。
+基本的な文法や原理は、C/C++ や Java と大きく変わりません。
+
+次は、else ifの例の switchバージョンです。
+注意すべき点は、break文が必要な点です。
+
+各case節は、条件分岐の始まりを表すに過ぎず、break文によって明示的に分岐の終端を表す必要があります。
+（もちろん、これはKonohaが変わっているのではなく、C言語の設計がそうだからです。）
+
+{{{
+switch(n) {
+  case 1 : 
+    // n が 1のとき
+  break;
+  case 2 : 
+    // n が 2のとき
+  break;
+  case 3 : 
+    // n が 3のとき
+  break;
+  default:
+   // それ以外のとき
+}
+
+}}}
+
+Konoha は、case節で与えられる条件に関して強化されています。
+C言語は、コンパイラ最適化のため、整数リテラルのみ条件にかけましたが、
+Konoha では任意のリテラルを与えることができます。
+
+{{{
+switch(lang) {
+  case "perl" : 
+  case "python" : 
+    // 
+  break;
+  case "cpp" : 
+    // 
+  break;
+  default:
+   // それ以外のとき
+}
+
+}}}
+
+=== ループの構造 while文、do/while文、for文、foreach文
+
+while文は、与えられた条件式が真の間、
+続くステートメントを繰り返し実行させるループ構造のステートメントです。
+
+次の例では、変数 a が 0 より大きい間、繰り返し実行されます。
+
+{{{
+>>> a = 1;
+>>> while(a > 0) {
+...   a = Int.random(10);           // 乱数生成
+...   print a;
+...}
+a=1
+a=7
+a=0
+
+}}}
+
+while文の条件式に定数としてtrueを与えれば、
+ループが無限に繰り返されることになります。
+
+{{{
+>>> c = 0;
+while(ture) {  // 無限ループ: 試さない方がいい
+　　print c;
+   c++;
+}
+c=0
+c=1
+...Ctrl-C
+
+}}}
+
+注意：無限ループは、break文を用いるか、throw文による大域ジャンプによって抜け出すことができます。
+これらの手法を組み合わせない限り、無限ループを作るのはやめましょう。
+
+do/while文は、条件判定の順序が異なるwhile文のバリエーションです。
+while文とdo/while文の違いは、
+while文が条件に次第では一度もステートメントを実行されないことがあるのに対し、
+do/while文の方は必ず１回はループが実行される点にあります。
+
+{{{
+>>> do {
+...   a = Int.random(10);   // 乱数生成
+...   print a;
+... } while(a > 0);
+a=8
+a=4
+a=2
+a=0
+
+}}}
+
+for文は、n回の繰り返しなどを書くときに便利なwhile文の置き換えです。
+
+{{{
+>>> for(i = 0; i < 10; i++) {   // for 版
+...   print i;
+... }
+i=0
+i=1
+...
+i=9
+
+}}}
+
+実際、上のfor文は、while文は全く同じですが、
+for文の方がwhile文よりもコンパクトにかけて、
+しかも読みやすいでしょう。
+
+{{{
+>>> i = 0; 
+>>> while(i < 10) { // // while 版
+...   print i;
+...   i++;
+... }
+i=0
+i=1
+...
+i=9
+
+}}}
+
+for文は、C/C++やJava で広く使われているため、Konoha でも採用されています。
+ただし、モダンなプログラミングでは、for文よりも、イテレーションパターンを扱う foreach文（後述）の方が好まれています。
+
+{{{
+>>> foreach(n in (0 to 9)) {
+...   print n;
+... }
+n=0
+n=1
+...
+n=9
+}}}
+
+Konohaでは、foreach文に様々な拡張を加えています。
+詳しくは、「[kbook.iterator foreachとイテレーション]」を参考にしてください。
+
+=== break文とcontinue文
+
+break文とcontinue文は、ループ制御のステートメントをもっています。
+
+break文を使うと、現在繰り返しているループ構造のブロックから抜け出すことができます。
+
+{{{
+>>> while(true) {
+...   dice  = Int.random(6) + 1;
+...   dice2 = Int.random(6) + 1;
+...   print dice, dice2;
+...   if(dice == dice2) break;    // ぞろ目になったらおしまい
+... }
+
+}}}
+
+continue　文を使うと、現在繰り返しているループ構造のブロックの残りのパートをスキップします。
+
+{{{
+>>> for(i = 0; i < 10; i++) {
+...   if(i mod 2 == 0) continue;    // ループの先頭へ
+...   print i;
+... }
+i=0
+i=2
+i=4
+....
+
+}}}
+
+ループ構造では、while文やfor/foreach文を組み合わせて、多重ループを作ることができます。
+多重ループでは、break文やcontinue文を用いても、どのループを対象として制御したいのか曖昧になります。
+
+Konoha では、ループにラベルをつけることで、どのループからのbreak/continue制御なのか、
+明示的に示すことができます。
+ラベルを省略すれば、今まで通り、暗示的に最も内側のループが対象となります。
+
+{{{
+>>> OUTER: for(y = 0; y < 8; y++) {
+...   INNER: for(x = 0; x < 8; x++) {
+...      print x, y;
+...      if (x == y) continue OUTER; /* 外側 */
+...      if (x < y) break; /* 内側 */
+...   }
+... }
+
+}}}
+
+注意： switch 文のラベルと組み合わせることも可能です。
+
+=== 例外処理 try/catch/finally
+
+Konohaは、Java風のtry/catch/finallyによる例外処理をサポートし、
+throw された例外を大域ジャンプとしてキャッチすることができます。
+
+{{{
+try {
+   file = new InputStream("file.txt");
+   line = file.readLine();
+}
+catch(IO!! ex) {
+   print ex;
+}
+catch(Security!! ex) {
+   print ex;
+}
+finally {
+   file.close();
+}
+}}}
+
+例外処理機構に関しては、
+後述の「[kbook.exception 例外処理]」において、
+詳しく説明します。
+
+[[include(KbookIndex)]]
+[[include(KbookFooter)]]

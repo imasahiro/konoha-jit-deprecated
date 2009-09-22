@@ -45,8 +45,6 @@ static knh_Stmt_t *new_StmtMETA(Ctx *ctx,  knh_tkc_t *tc, knh_stmt_t stt);
 static void knh_Stmt_addMETA(Ctx *ctx, knh_Stmt_t *stmt, knh_tkc_t *tc);
 static void knh_Stmt_add_STMT1(Ctx *ctx, knh_Stmt_t *stmt, knh_tkc_t *tc);
 static void knh_Stmt_add_SEMICOLON(Ctx *ctx, knh_Stmt_t *stmt, knh_tkc_t *tc);
-static int knh_Token_isLVALUE(Ctx *ctx, knh_Token_t *tkL);
-static void knh_Stmt_toLVALUE(Ctx *ctx, knh_Stmt_t *stmt, int pe, char *fmt);
 
 /* ======================================================================== */
 /* [tokens] */
@@ -231,33 +229,6 @@ static int isPATH(Ctx *ctx, knh_Token_t *tk)
 	return IS_bString(DP(tk)->text);
 }
 
-///* ------------------------------------------------------------------------ */
-//
-//static int knh_bytes_isCLASSN(knh_bytes_t t)
-//{
-//	size_t i;
-//	if(!isupper(t.buf[0])) return 0;
-//	for(i = 1; i < t.len; i++) {
-//		if(!isalnum(t.buf[i])) return 0;
-//	}
-//	return 1;
-//}
-//
-///* ------------------------------------------------------------------------ */
-//
-//static int knh_bytes_isCONSTN(knh_bytes_t t)
-//{
-//	knh_index_t loc = knh_bytes_rindex(t, '.');
-//	if(loc == -1 || !knh_bytes_isCLASSN(knh_bytes_first(t, loc))) return 0;
-//	t = knh_bytes_last(t,loc+1);
-//	size_t i;
-//	if(!isupper(t.buf[0])) return 0;
-//	for(i = 1; i < t.len; i++) {
-//		if(!isupper(t.buf[i]) && !isdigit(t.buf[i]) && t.buf[i] != '_') return 0;
-//	}
-//	return 1;
-//}
-
 /* ------------------------------------------------------------------------ */
 
 static int isTYPEN(Ctx *ctx, knh_Token_t *tk)
@@ -320,11 +291,13 @@ void knh_Stmt_add_SYMBOL(Ctx *ctx, knh_Stmt_t *o, knh_token_t tt, knh_String_t *
 /* ------------------------------------------------------------------------ */
 
 static
-void knh_Token_checkKeyword(Ctx *ctx, knh_Token_t *tk)
+knh_bool_t knh_Token_checkKeyword(Ctx *ctx, knh_Token_t *tk)
 {
 	if(knh_token_isKeyword(TT_(tk))) {
 		knh_Token_perror(ctx, tk, KERR_ERROR, _("reserved keyword: %s"), sToken(tk));
+		return 0;
 	}
+	return 1;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1161,101 +1134,6 @@ Term *new_TermVALUE(Ctx *ctx, knh_Token_t *tk, int isData)
 /* ======================================================================== */
 /* [LET] */
 
-static int knh_Token_isLVALUE(Ctx *ctx, knh_Token_t *tkL)
-{
-	return isVARN(ctx, tkL) || TT_(tkL) == TT_CONSTN || TT_(tkL) == TT_CCONSTN;
-}
-
-/* ------------------------------------------------------------------------ */
-
-static
-void knh_Stmt_toLVALUE(Ctx *ctx, knh_Stmt_t *stmt, int pe, char *fmt)
-{
-	if(STT_(stmt) == STT_CALL) {
-		knh_Token_t *tk = (knh_Token_t*)DP(stmt)->tokens[0];
-		DBG2_ASSERT(IS_Token(tk));
-		if(knh_Token_isGetter(tk)) {
-			knh_Token_setGetter(tk, 0);
-			knh_Token_setSetter(tk, 1);
-			return ;
-		}
-		else if(TT_(tk) == TT_MN) {
-			knh_methodn_t mn = DP(tk)->mn;
-			if(METHODN_IS_SETTER(mn)) {
-				return ;
-			}
-			else if(METHODN_IS_GETTER(mn)) {
-				mn = METHODN_TOFIELDN(mn);
-				DP(tk)->mn = METHODN_TO_SETTER(mn);
-				TODO();
-				return ;
-			}
-		}
-		else if(TT_(tk) == TT_FN) {
-			TODO();
-		}
-		else {
-			TODO();
-		}
-	}
-	STT_(stmt) = STT_ERR;
-	knh_perror(ctx, SP(stmt)->uri, SP(stmt)->line, pe, fmt);
-	DBG2_P("stt=%s", knh_stmt_tochar(STT_(stmt)));
-}
-
-/* ------------------------------------------------------------------------ */
-
-static
-knh_Stmt_t *new_StmtLET(Ctx *ctx, knh_tkc_t *lexpr, knh_tkc_t *rexpr, int isStmt)
-{
-	knh_Token_t *tkL = (knh_Token_t*)new_TermEXPR(ctx, lexpr, 0/*isData*/);
-	if(IS_Token(tkL)) {
-		knh_Token_checkKeyword(ctx, tkL);
-		if(knh_Token_isLVALUE(ctx, tkL)) {
-			knh_Stmt_t *stmt = new_Stmt(ctx, 0, STT_LET);
-			knh_Stmt_addT(ctx, stmt, tkL);
-			knh_Stmt_add(ctx, stmt, new_TermEXPR(ctx, rexpr, 0/*isData*/));
-			return stmt;
-		}
-		else {
-			knh_Token_perror(ctx, tkL, KERR_ERROR, _("not l-value"));
-			return new_StmtERR(ctx, lexpr);
-		}
-	}
-	else {
-		knh_Stmt_t *stmt = (knh_Stmt_t*)tkL;
-		KNH_ASSERT(IS_Stmt(stmt));
-		knh_Stmt_toLVALUE(ctx, stmt, KERR_ERROR, _("not l-value"));
-		if(STT_(stmt) != STT_ERR) {
-			knh_Stmt_add(ctx, stmt, new_TermEXPR(ctx, rexpr, 0/*isData*/));
-		}
-		return stmt;
-	}
-}
-
-/* ------------------------------------------------------------------------ */
-
-static
-knh_Stmt_t *new_StmtLETOP(Ctx *ctx, knh_tkc_t *lexpr, knh_Token_t *tkOP, knh_tkc_t *rexpr)
-{
-	TT_(tkOP) = TT_(tkOP) - (TT_ADDE - TT_ADD);
-	rexpr->c = lexpr->c;
-	return new_StmtLET(ctx, lexpr, rexpr, /*isStmt*/1);
-}
-
-/* ------------------------------------------------------------------------ */
-
-static
-knh_Stmt_t *new_StmtSEPARATOR(Ctx *ctx, knh_tkc_t *lexpr, knh_tkc_t *rexpr)
-{
-	knh_Stmt_t *stmt = new_Stmt(ctx, 0, STT_SEPARATOR);
-	knh_Stmt_add_PARAMs(ctx, stmt, lexpr);
-	knh_Stmt_add(ctx, stmt, new_TermEXPR(ctx, rexpr, 0/*isData*/));
-	return stmt;
-}
-
-/* ------------------------------------------------------------------------ */
-
 static int knh_tokens_findLETIDX(knh_tkc_t *tc)
 {
 	int i;
@@ -1269,59 +1147,138 @@ static int knh_tokens_findLETIDX(knh_tkc_t *tc)
 /* ------------------------------------------------------------------------ */
 
 static
+int knh_Term_checkLVALUE(Ctx *ctx, Term *tm)
+{
+	if(IS_Token(tm)) {
+		knh_Token_t *tkL = (knh_Token_t*)tm;
+		if(knh_Token_checkKeyword(ctx, tkL)) {
+			if(isVARN(ctx, tkL) || TT_(tkL) == TT_CONSTN || TT_(tkL) == TT_CCONSTN) {
+				return 1;
+			}
+			knh_Token_perror(ctx, tkL, KERR_ERROR, _("not l-value"));
+		}
+		return 0;
+	}
+	else {
+		knh_Stmt_t *stmt = (knh_Stmt_t*)tm;
+		if(STT_(stmt) == STT_CALL) {
+			knh_Token_t *tk = (knh_Token_t*)DP(stmt)->tokens[0];
+			DBG2_ASSERT(IS_Token(tk));
+			if(knh_Token_isGetter(tk)) {
+				knh_Token_setGetter(tk, 0);
+				knh_Token_setSetter(tk, 1);
+				return 1;
+			}
+			else if(TT_(tk) == TT_MN) {
+				knh_methodn_t mn = DP(tk)->mn;
+//				if(METHODN_IS_SETTER(mn)) {
+//					return 1;
+//				}
+//				else
+				if(METHODN_IS_GETTER(mn)) {
+					mn = METHODN_TOFIELDN(mn);
+					DP(tk)->mn = METHODN_TO_SETTER(mn);
+					return 1;
+				}
+			}
+			else if(TT_(tk) == TT_FN) {
+				TODO();
+			}
+			else {
+				TODO();
+			}
+		}
+		knh_perror(ctx, SP(stmt)->uri, SP(stmt)->line, KERR_ERROR, _("not l-value"));
+		DBG2_P("stt=%s", knh_stmt_tochar(STT_(stmt)));
+		STT_(stmt) = STT_ERR;
+
+	}
+	return 0;
+}
+
+static
+knh_Stmt_t *new_StmtLET(Ctx *ctx, knh_tkc_t *expr, int idx, int isData)
+{
+	knh_tkc_t tcbuf, *lexpr = knh_tokens_firstEXPR(expr, idx, &tcbuf);
+	Term *ltm = new_TermEXPR(ctx, lexpr, isData);
+	knh_Stmt_t *stmt;
+	if(TT_(expr->ts[idx]) != TT_LET) {
+		TT_(expr->ts[idx]) = TT_(expr->ts[idx]) - (TT_ADDE - TT_ADD);
+		expr->c = lexpr->c;
+	}
+	if(IS_Token(ltm)) {
+		stmt = new_Stmt(ctx, 0, STT_LET);
+		knh_Stmt_add(ctx, stmt, ltm);
+		knh_Stmt_add(ctx, stmt, new_TermEXPR(ctx, expr, 0/*isData*/));
+	}
+	else {
+		stmt = (knh_Stmt_t*)ltm;
+		DBG2_ASSERT(IS_Stmt(stmt));
+		knh_Stmt_add(ctx, stmt, new_TermEXPR(ctx, expr, 0/*isData*/));
+	}
+	if(!knh_Term_checkLVALUE(ctx, ltm)) {
+		knh_Stmt_toERR(ctx, stmt, ltm);
+	}
+	return stmt;
+}
+
+static
 knh_Stmt_t* new_StmtLETEXPR(Ctx *ctx, knh_tkc_t *tc, int isData)
 {
 	knh_tkc_t tcbuf, *expr = knh_tokens_firstSTMT(ctx, tc, /*pos*/0, &tcbuf, 0/*needs;*/);
 	int idx = knh_tokens_findLETIDX(expr);
-	if(idx == -1) {
-		if(IS_EMPTY(expr)) {
-			return new_Stmt(ctx, 0, STT_DONE);
-		}
-		else {
-			Term *term = new_TermEXPR(ctx, expr, isData);
-			if(IS_Token(term)) {
-				knh_Stmt_t *stmt = new_Stmt(ctx, 0, STT_CALL1);
-				knh_Stmt_add(ctx, stmt, term);
-				return stmt;
-			}
-			return (knh_Stmt_t*)term;
-		}
-	}
-	else {
-		knh_Token_t *tkL = tc->ts[idx];
+	if(idx > 0) {
 		knh_tkc_t tcbuf2, *lexpr = knh_tokens_firstEXPR(expr, idx, &tcbuf2);
-		if(TT_(tkL) != TT_LET) {
-			return new_StmtLETOP(ctx, lexpr, tkL, expr);
+		int lc = knh_tokens_count(lexpr, TT_COMMA);
+		int rc = knh_tokens_count(expr, TT_COMMA);
+		if((lc > 0 || rc > 0) && TT_(expr->ts[idx]) != TT_LET) {
+			knh_Token_perror(ctx, expr->ts[idx],
+				KERR_ERRATA, _("%s => ="), sToken(expr->ts[idx]));
 		}
-		else{
-			int lc = knh_tokens_count(lexpr, TT_COMMA);
-			int rc = knh_tokens_count(expr, TT_COMMA);
-			if(lc == 0) {
-				return new_StmtLET(ctx, lexpr, expr, 1/*isStmt*/);
-			}
+		DBG2_P("lc=%d, %s rc=%d", lc, sToken(expr->ts[idx]), rc);
+		if(lc > 0) {
+			knh_Stmt_t *stmt;
 			if(rc == 0) {
-				return new_StmtSEPARATOR(ctx, lexpr, expr);
+				/* a, b = s */
+				stmt = new_Stmt(ctx, 0, STT_SEPARATOR);
+				knh_Stmt_add_PARAMs(ctx, stmt, lexpr);
+				knh_Stmt_add(ctx, stmt, new_TermEXPR(ctx, expr, 0/*isData*/));
 			}
 			else {
 				/* a, b = 1, 2 */
-				knh_Stmt_t *stmt_head = NULL;
-				int lidx = knh_tokens_findTTIDX(lexpr, TT_COMMA, lexpr->e);
-				int ridx = knh_tokens_findTTIDX(expr, TT_COMMA, expr->e);
-				knh_tkc_t ltcbuf, *ltc = knh_tokens_firstEXPR(lexpr, lidx, &ltcbuf);
-				knh_tkc_t rtcbuf, *rtc = knh_tokens_firstEXPR(expr, ridx, &rtcbuf);
-				do {
-					knh_Stmt_t *stmt = new_StmtLET(ctx, ltc, rtc, 1/*isStmt*/);
-					stmt_head = knh_StmtNULL_tail_append(ctx, stmt_head, stmt);
-					lidx = knh_tokens_findTTIDX(lexpr, TT_COMMA, lexpr->e);
-					ridx = knh_tokens_findTTIDX(expr, TT_COMMA, expr->e);
-					ltc = knh_tokens_firstEXPR(lexpr, lidx, &ltcbuf);
-					rtc = knh_tokens_firstEXPR(expr, ridx, &rtcbuf);
+				stmt = new_Stmt(ctx, 0, STT_LETM);
+				while(1) {
+					int lidx = knh_tokens_findTTIDX(lexpr, TT_COMMA, lexpr->e);
+					int ridx = knh_tokens_findTTIDX(expr, TT_COMMA, expr->e);
+					knh_tkc_t ltcbuf, *ltc = knh_tokens_firstEXPR(lexpr, lidx, &ltcbuf);
+					knh_tkc_t rtcbuf, *rtc = knh_tokens_firstEXPR(expr, ridx, &rtcbuf);
+					if(IS_EMPTY(ltc) || IS_EMPTY(rtc)) break;
+					{
+						Term *ltm = new_TermEXPR(ctx, ltc, isData);
+						knh_Stmt_add(ctx, stmt, ltm);
+						knh_Stmt_add(ctx, stmt, new_TermEXPR(ctx, rtc, isData));
+						if(!knh_Term_checkLVALUE(ctx, ltm)) {
+							knh_Stmt_toERR(ctx, stmt, ltm);
+							break;
+						}
+					}
 				}
-				while(HAS_TOKEN(ltc) && HAS_TOKEN(rtc));
-				KNH_ASSERT(stmt_head != NULL);
-				return stmt_head;
 			}
+			return stmt;
 		}
+		expr->c = lexpr->c;
+	}
+	if(IS_EMPTY(expr)) {
+		return new_Stmt(ctx, 0, STT_DONE);
+	}
+	else {
+		Term *term = new_TermEXPR(ctx, expr, isData);
+		if(IS_Token(term)) {
+			knh_Stmt_t *stmt = new_Stmt(ctx, 0, STT_CALL1);
+			knh_Stmt_add(ctx, stmt, term);
+			return stmt;
+		}
+		return (knh_Stmt_t*)term;
 	}
 }
 
@@ -1340,8 +1297,6 @@ Term *new_TermPEXPR(Ctx *ctx, knh_Token_t *tk, int isData)
 	}
 	return new_TermEXPR(ctx, tc, isData);
 }
-
-/* ------------------------------------------------------------------------ */
 
 static
 void knh_Stmt_add_PEXPR(Ctx *ctx, knh_Stmt_t *stmt, knh_tkc_t *tc)
@@ -1441,36 +1396,30 @@ Term *new_TermOPR(Ctx *ctx, knh_tkc_t *tc, int idx)
 		}
 		return TM(stmt);
 	}
-	if(TT_(op) == TT_NEXT || TT_(op) == TT_PREV) {
+	else if(TT_(op) == TT_NEXT || TT_(op) == TT_PREV) {
 		int isPrePosition = 0;
+		knh_Stmt_t *stmt;
 		if(TK0(tc) == op) {
 			isPrePosition = 1;
 			tc->c += 1;
-			idx = knh_tokens_findTTIDX(tc, TT_(op), tc->e);
-		}
-		knh_tkc_t tcbuf, *lexpr = knh_tokens_firstEXPR(tc, idx, &tcbuf);
-		knh_tkc_t tcbuf2 = tcbuf, *rexpr = &tcbuf2;
-		Term *lval = new_TermEXPR(ctx, lexpr, 0/*isData*/);
-		if(IS_Token(lval)) {
-			if(knh_Token_isLVALUE(ctx, (knh_Token_t*)lval)) {
-				knh_Stmt_t *stmt = new_Stmt(ctx, 0, STT_LET);
-				knh_Stmt_add(ctx, stmt, lval);
-				knh_Stmt_add(ctx, stmt, TM(new_StmtNEXT(ctx, op, rexpr)));
-				return TM(stmt);
-			}
-			else {
-				knh_Token_perror(ctx, op, KERR_ERROR, _("cannot use %s for this expression"), sToken(op));
-				return TM(new_StmtERR(ctx, lexpr));
-			}
 		}
 		else {
-			knh_Stmt_t *stmt = (knh_Stmt_t*)lval;
-			knh_Stmt_toLVALUE(ctx, stmt, KERR_ERROR, _("cannot use %s for this expression"));
-			if(STT_(stmt) != STT_ERR) {
-				knh_Stmt_add(ctx, stmt, TM(new_StmtNEXT(ctx, op, rexpr)));
-			}
-			return TM(stmt);
+			tc->e = idx;
 		}
+		Term *lval = new_TermEXPR(ctx, tc, 0/*isData*/);
+		if(IS_Token(lval)) {
+			stmt = new_Stmt(ctx, 0, STT_LET);
+			knh_Stmt_add(ctx, stmt, lval);
+			knh_Stmt_add(ctx, stmt, TM(new_StmtNEXT(ctx, op, tc)));
+		}
+		else {
+			stmt = (knh_Stmt_t*)lval;
+			knh_Stmt_add(ctx, stmt, TM(new_StmtNEXT(ctx, op, tc)));
+		}
+		if(!knh_Term_checkLVALUE(ctx, lval)) {
+			knh_Stmt_toERR(ctx, stmt, lval);
+		}
+		return TM(stmt);
 	}
 	else {
 		knh_Stmt_t *stmtOPR;
@@ -1479,7 +1428,6 @@ Term *new_TermOPR(Ctx *ctx, knh_tkc_t *tc, int idx)
 			case TT_AND: stt = STT_AND; break;
 			case TT_OR:  stt = STT_OR; break;
 			case TT_ALT: stt = STT_ALT; break;
-			case TT_LET: stt = STT_LET; break;
 		}
 		stmtOPR = new_Stmt(ctx, 0, stt);
 		if(stt == STT_OP) {
@@ -1620,6 +1568,14 @@ static Term *new_TermEXPR(Ctx *ctx, knh_tkc_t *tc, int isData)
 				knh_Stmt_add(ctx, stmt, new_TermEXPR(ctx, tc, isData));
 				return TM(stmt);
 			}
+		}
+	}
+
+	/* LET */ {
+		int idx = knh_tokens_findLETIDX(tc);
+		DBG2_P("LET idx=%d", idx);
+		if(idx != -1) {
+			return TM(new_StmtLET(ctx, tc, idx, isData));
 		}
 	}
 

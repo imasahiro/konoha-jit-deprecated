@@ -911,6 +911,11 @@ int knh_NameSpace_compile(Ctx *ctx, knh_NameSpace_t *ns, knh_Stmt_t *stmt, int i
 				tm = knh_StmtLET_typing(ctx, cur, abr, ns, TYPE_void);
 				break;
 			}
+		case STT_LETM: {
+				knh_Asm_initThisScript(ctx, abr);
+				tm = knh_StmtLETM_typing(ctx, cur, abr, ns);
+				break;
+			}
 		case STT_SEPARATOR: {
 				knh_Asm_initThisScript(ctx, abr);
 				tm = knh_StmtSEPARATOR_typing(ctx, cur, abr, ns);

@@ -204,24 +204,25 @@
 #define STT_THROW                       ((knh_stmt_t)38)
 #define STT_ERR                         ((knh_stmt_t)39)
 #define STT_LET                         ((knh_stmt_t)40)
-#define STT_REGISTER                    ((knh_stmt_t)41)
-#define STT_SEPARATOR                   ((knh_stmt_t)42)
-#define STT_NEW                         ((knh_stmt_t)43)
-#define STT_MAPCAST                     ((knh_stmt_t)44)
-#define STT_CALL                        ((knh_stmt_t)45)
-#define STT_CALL1                       ((knh_stmt_t)46)
-#define STT_PCALL                       ((knh_stmt_t)47)
-#define STT_MT                          ((knh_stmt_t)48)
-#define STT_OP                          ((knh_stmt_t)49)
-#define STT_PROCEED                     ((knh_stmt_t)50)
-#define STT_TRI                         ((knh_stmt_t)51)
-#define STT_ALT                         ((knh_stmt_t)52)
-#define STT_AND                         ((knh_stmt_t)53)
-#define STT_OR                          ((knh_stmt_t)54)
-#define STT_PRINT                       ((knh_stmt_t)55)
-#define STT_ASSERT                      ((knh_stmt_t)56)
-#define STT_UTEST                       ((knh_stmt_t)57)
-#define KNH_STMT_MAXSIZ                 ((knh_stmt_t)58)
+#define STT_LETM                        ((knh_stmt_t)41)
+#define STT_REGISTER                    ((knh_stmt_t)42)
+#define STT_SEPARATOR                   ((knh_stmt_t)43)
+#define STT_NEW                         ((knh_stmt_t)44)
+#define STT_MAPCAST                     ((knh_stmt_t)45)
+#define STT_CALL                        ((knh_stmt_t)46)
+#define STT_CALL1                       ((knh_stmt_t)47)
+#define STT_PCALL                       ((knh_stmt_t)48)
+#define STT_MT                          ((knh_stmt_t)49)
+#define STT_OP                          ((knh_stmt_t)50)
+#define STT_PROCEED                     ((knh_stmt_t)51)
+#define STT_TRI                         ((knh_stmt_t)52)
+#define STT_ALT                         ((knh_stmt_t)53)
+#define STT_AND                         ((knh_stmt_t)54)
+#define STT_OR                          ((knh_stmt_t)55)
+#define STT_PRINT                       ((knh_stmt_t)56)
+#define STT_ASSERT                      ((knh_stmt_t)57)
+#define STT_UTEST                       ((knh_stmt_t)58)
+#define KNH_STMT_MAXSIZ                 ((knh_stmt_t)59)
 
 /* ------------------------------------------------------------------------ */
 
@@ -493,6 +494,11 @@
 #define LET_lvalue                      0
 #define StmtLET_rvalue(stmt)            DP(stmt)->terms[1]
 #define LET_rvalue                      1
+
+/* ======================================================================== */
+/* [letm] */
+#define StmtLETM_vars(stmt)             DP(stmt)->terms[0]
+#define LETM_vars                       0
 
 /* ======================================================================== */
 /* [register] */

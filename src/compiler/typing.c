@@ -1264,16 +1264,25 @@ knh_type_t TERMs_gettype(knh_Stmt_t *stmt, size_t n)
 static
 void TERMs_perrorTYPE(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_type_t reqt)
 {
-	knh_type_t type = TERMs_gettype(stmt, n);
+	knh_type_t type = TYPE_void;
+	if(n < DP(stmt)->size) {
+		type = TERMs_gettype(stmt, n);
+	}
+
 	switch(SP(stmt)->stt) {
 	case STT_CALL:
 	case STT_NEW:
 	case STT_OP:
 	{
 		knh_Method_t *mtd = DP(DP(stmt)->tokens[0])->mtd;
-		DBG2_ASSERT(IS_Method(mtd));
-		knh_perror(ctx, SP(stmt)->uri, SP(stmt)->line,
+		if(IS_Method(mtd)) {
+			knh_perror(ctx, SP(stmt)->uri, SP(stmt)->line,
 				KERR_TERROR, _("%T must be %T at the parameter %d of %M"), type, reqt, n - 1, DP(mtd)->mn);
+		}
+		else {
+			knh_perror(ctx, SP(stmt)->uri, SP(stmt)->line,
+				KERR_TERROR, _("%T must be %T at the parameter %d"), type, reqt, n - 1);
+		}
 	}
 	break;
 	case STT_DECL:
@@ -1569,7 +1578,7 @@ Term * knh_StmtDECL_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameS
 	}
 	if(!TERMs_isASIS(stmt, 2)) {
 		DBG2_ASSERT(SP(stmt)->stt == STT_DECL); /* STT_DECL => STT_LET */
-		SP(stmt)->stt = STT_LET;
+		STT_(stmt) = STT_LET;
 		KNH_SETv(ctx, DP(stmt)->terms[0], DP(stmt)->terms[1]);
 		KNH_SETv(ctx, DP(stmt)->terms[1], DP(stmt)->terms[2]);
 		KNH_SETv(ctx, DP(stmt)->terms[2], KNH_NULL);
@@ -1740,6 +1749,39 @@ Term *knh_StmtLET_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpa
 		}
 	}
 	return knh_Stmt_untyped(ctx, stmt, abr);
+}
+
+/* ------------------------------------------------------------------------ */
+
+Term *knh_StmtLETM_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace_t *ns)
+{
+	knh_sfp_t *esp = ctx->esp; ((knh_Context_t*)ctx)->esp += 1;
+	Term *tm = NULL;
+	int i;
+	for(i = 0; i < DP(stmt)->size; i+= 2) {
+		if(IS_Token(DP(stmt)->terms[i])) {
+			knh_Stmt_t *stmtLET = new_Stmt(ctx, 0, STT_LET);
+			KNH_SETv(ctx, esp[0].o, stmtLET); // TO AVOID GC
+			knh_Stmt_add(ctx, stmtLET, DP(stmt)->terms[i]);
+			knh_Stmt_add(ctx, stmtLET, DP(stmt)->terms[i+1]);
+			if(knh_StmtLET_typing(ctx, stmtLET, abr, ns, TYPE_void) == NULL) {
+				goto L_RETURN;
+			}
+			DBG2_ASSERT(STT_(stmtLET) == STT_LET);
+			KNH_SETv(ctx, DP(stmt)->terms[i], DP(stmtLET)->terms[0]);
+			KNH_SETv(ctx, DP(stmt)->terms[i+1], DP(stmtLET)->terms[1]);
+		}
+		else {
+			knh_Stmt_add(ctx, DP(stmt)->stmts[i], DP(stmt)->terms[i+1]);
+			if(!TERMs_typing(ctx, stmt, i, abr, ns, TYPE_Any, TWARN_)) {
+				goto L_RETURN;
+			}
+		}
+	}
+	tm = TM(stmt);
+	L_RETURN:;
+	((knh_Context_t*)ctx)->esp -= 1;
+	return NULL;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -3287,6 +3329,10 @@ int TERMs_typing(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_Asm_t *abr, knh_NameS
 	if(SP(stmt)->stt == STT_ERR) {
 		goto L_ERROR;
 	}
+	if(!(n < DP(stmt)->size)) {
+		TERMs_perrorTYPE(ctx, stmt, n, reqt);
+		goto L_ERROR;
+	}
 	if(IS_Token(tkN) && TT_(tkN) == TT_ESTR) {
 		KNH_SETv(ctx, DP(stmt)->terms[n], knh_TokenESTR_toTerm(ctx, tkN, abr));
 		tkN = DP(stmt)->tokens[n];
@@ -4494,6 +4540,9 @@ Term *knh_Stmt_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace_
 			break;
 		case STT_DECL:
 			tm = knh_StmtDECL_typing(ctx, stmt, abr, ns);
+			break;
+		case STT_LETM:
+			tm = knh_StmtLETM_typing(ctx, stmt, abr, ns);
 			break;
 		case STT_SEPARATOR:
 			tm = knh_StmtSEPARATOR_typing(ctx, stmt, abr, ns);

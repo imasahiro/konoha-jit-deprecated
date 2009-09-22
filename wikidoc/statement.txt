@@ -1,0 +1,551 @@
+= ステートメント
+
+%A Konoha program is simply a collection of statements. This section describes the various statements in Konoha and explains their syntax. If you are familiar with C, C++, and Java, you will notice that the statements in Konoha are very similar, and you'll be able to skim this section quickly. 
+
+プログラムは、ステートメントの集まりです。本章では、Konoha の基本的なステートメントとその文法を説明する。あらかじめ断っておきたいが、Konoha は C/C++, Java とステートメントレベルでの互換性を目標として設計されています。そのため、本章で紹介するステートメントは、（頑張ってかいた割には悲しい事実であるが、）経験豊富なプログラマには読み飛ばしても差し支えない内容です。なお、ステートメントの一般的な訳語は、「文」です。本来、ステートメントに統一すべきかも知れないが、if} ステートメントと呼ぶのは冗長な気がするので、広く慣習的に用いられている「if文」的な呼称を用いています。
+
+== 式によるステートメント}
+
+%The simplest kinds of statements in Konoha are expressions that change a program status. Assignment statements are one major category of expression statements. For example:
+
+もっとも簡単なステートメントは、プログラムの状態を変更する式(expression)です。代入式は、もっともよく使われるステートメントです。
+
+{{{
+s = "Hello " + name;
+i *= 3;
+}}}
+
+%The increment and decrement operators, ++ and --, are related to assignment statements. 
+
+インクリメント演算式(++)、デクリメント演算式(--)は、代入式の一種であるが、Konoha ではステートメントとして利用することができます。
+
+{{{
+counter++;
+}}}
+
+%Function/method calls are another major category of expression statements. For example:
+
+関数/メソッドのコールも、もうひとつの代表的な式によるステートメントです。
+
+{{{
+System.out.println("hello,world");
+Math.sin(0.5);
+}}}
+
+上記以外の任意の式もステートメントとして用いることができます。しかし、プログラムの状態を変更しない式は、コンパイラによって無視され、実際には評価されない。
+
+{{{
+if(a == 1) print a;
+a + 1;                      // 無視される
+return a;
+}}}
+
+%Before proceeding next, recall that statements in Konoha are separated from each other with semicolons. It is a good idea to get in the habit of using semicolons everywhere.
+
+== ブロック}
+¥index{block@block}
+
+% Konoha has a way to combine a number of statements into a single statement, or statement block. This is done simply by enclosing any number of statements with curly braces. 
+
+(ステートメント)ブロックは、0個以上のステートメントまとめてひとつのステートメントとして扱えるようにする。これは、任意のプログラムを中括弧 { }|で囲むことで作ることができます。ブロックの終端には、C時代からの慣習的にセミコロン(;)は必要ない。また、ブロック内では、読みやすさのためインデントするのがよい。
+
+{{{
+{
+   x = Math.PI;
+   a = Math.cos(x);
+   print a;
+}
+}}}
+
+注意：Konoha では、メソッド(関数)内同一スコープであるため、ブロックの中で宣言した変数はブロック外でも有効になります。詳しくは、「第 ¥ref{function} 章 関数」で述べられる。
+
+%Note that although this statement block acts as a single statement, it does not necessary end with a semicolon. The elemental statements within the block end in semicolons, but the block itself does not.
+
+=== 空ステートメント}
+
+空ステートメントは、何もしないステートメントです。ブロックを用いて空ステートメントを表すことができます。
+
+{{{
+{}
+}}}
+
+== 変数の型宣言}
+¥index{かたせんげん@型宣言}
+
+Konoha の変数は、静的に型付けされています。プログラマは、新しい変数を使うとき、型宣言が必要となります。C/C++やJavaと同様、次の構文で変数$name$の型$T$を宣言することができます。
+
+¥begin{quote}
+$T$  | $name$;
+¥end{quote}
+
+また、変数宣言では、必要に応じて、代入演算子によって変数の初期値を与えることもできます。また同じ型であれば、複数の変数をひとつのステートメントで宣言できます。
+
+{{{
+String s;                          // 初期値なし
+String t = "hello,world";          // 初期値あり
+String u, v = "ABC";               // 同じ型の複数の変数宣言
+}}}
+
+=== クラスと型}
+
+Konoha は、オブジェクト指向プログラミング言語であるため、全ての宣言されたクラスC}を「C}」型として利用することができます。また、クラス名C}に修飾子を付けることで、その型のnull}値の扱いを変更したり、配列型やイテレータ型の短縮名も利用することができます。
+
+{{{
+C                      C 型 
+C?                     @Nullable C 
+C!                     @NonNull C 
+C[]                    C の配列型
+C..                    C のイテレータ型
+}}}
+
+Konoha の大きな特徴は、型に@Nullable|または@NonNull|を修飾できることです。これらは、名前が示すとおり、変数の値としてnull}値を認めるかどうかであるか、を制約を付加したものです。Java との大きな違いは、何も修飾しなければ、原則として NonNull型となる点です。この場合、変数宣言の初期値は、null} ではなく、そのクラスのデフォルト値となります。
+
+{{{
+>>> String s;                    // 初期値のデフォルト値
+>>> s
+""
+>>> s = null                     // Null例外が発生
+ ** Null!! 
+}}}
+
+注意：各クラスC}のデフォルト値は、組み込み関数 default(C)|を用いて得ることができます。また、デフォルト値の中には Nullオブジェクトパターンにしたがって、null} 値のように振る舞う値もあります。
+
+逆に、C¥#風に?|を型名に付けるか、@Nullable修飾子を用いれば、null} を保持可能な変数となります。この場合の初期値は、null} です。
+
+{{{
+>>> String? t;                   // 初期値はnull
+>>> t
+null
+}}}
+
+=== var} 文*}
+
+var} 文は、JavaScript など一部のスクリプティング言語で採用されている変数宣言のための特別なステートメントです。Konoha では、静的に型付けして型宣言を行うため、var} 文では初期値から型推論を行い、静的な型付けを行っています。
+
+{{{
+var i;                             // Any 型（型推論なし)
+var s = "hello,world";             // s は、String 型
+var x = Math.cos(0.75);            // x は、Float 型
+}}}
+
+注意：var} 文は省略可能です。始めての使用する変数への代入は、型推論による変数宣言とみなされる。詳細は、「第¥ref{dynamic} 章 ダイナミック・スタイル」で解説する。
+
+== if/else} 文}
+¥index{if@if文}
+
+%6.3   if
+%The if statement is the fundamental control statement that allows Konoha to execute statements conditionally. This statement has two forms. The first is:
+
+if} 文は、もっとも基本的な制御ステートメントです。与えられた条件式に応じて、続いて実行するステートメントの切り替えるときに使用する。if} 文には、2種類の形式があります。次は、簡単な形式です。
+
+¥begin{quote}
+if| ($expr$) $stmt$
+¥end{quote}
+
+%In this form, the expression is first evaluated. If the resulting value is true, then statement is executed. If expression is false, statement is not executed. For example:
+
+この形式では、条件式$expr$がまず評価される。その結果が、true}であれば、それに続くステートメント$stmt$が実行される。もし条件式の結果がfalse}であれば、ステートメント$stmt$は実行されない。
+
+{{{
+>>> n = 4
+>>> if (n mod 2 == 0) print "even";
+even
+}}}
+
+%As mentioned in the previous section, you can always replace a single statement with a statement block. 
+ 
+if} 文に続くステートメントとして、ブロックを用いることもできます。ブロックを用いれば、0個以上のステートメントを順次実行することもできます。
+
+{{{
+>>> if (n mod 2 == 0) {
+...    print "even";
+... }
+even
+}}}
+
+%The indention used in these examples is not mandatory. Using line breaks and indention as shown here makes the code easier to read and understand. 
+
+%The second form of the if statement introduces an else clause that is executed when expression is false. Its syntax is:
+
+=== else}節}
+¥index{else@else節}
+
+if文に続くelse}節は、別のステートメントを与えるときに利用する。
+
+¥begin{quote}
+if| ($expr$) $stmt1$ else| $stmt2$
+¥end{quote}
+
+%In this form of the statement, expression is evaluated, and if it is true, statement1 is executed; otherwise, statement2 is executed. For example:
+
+この形式のif文では、まず条件式$expr$が評価され、もしそれがtrue}であればステートメント$stmt1$が実行され、そうでなければ$stmt2$が実行される。
+
+{{{
+>>> n = 3
+>>> if (n mod 2 == 0) {
+...    print "even";
+... } else {
+...    print "odd";
+... }
+odd
+}}}
+
+=== else if}}
+
+if/else文は、2つのステートメントの実行を分岐させることができた。更に、if/else文を組み合わせ、あたかも else if} 文のように用いると、3つ以上の条件分岐をすっきりと書くことができます。
+
+{{{
+if(n == 1) {
+  // n が1のとき
+}
+else if(n == 2) {
+  // n が2のとき
+}
+else if(n == 3) {
+  // n が3のとき
+}
+else {
+   // それ以外のとき
+}
+}}}
+
+else if文は、特別なステートメントではなく、ふつうのif/else文の組み合わせたに過ぎない。条件式は、上から、つまり(n == 1)|から、順番に評価されていくため、後に続く条件判定のステートメントほど処理時間が遅くなります。
+
+== switch} 文**}
+¥index{switch@switch文}
+%6.4   switch
+%The switch statement is not supported in the version 0.5 of Konoha.
+
+switch} 文は、多重ディスパッチを行うための専用のステートメントです。文法は、C/C++ や Java と同様に次のとおりです。式$expr$の評価結果にマッチするcase} 節が選択され、そのステートメントが実行される。
+
+¥begin{quote}
+switch| ($expr$) {| ¥¥
+   case | $c_1$  : | $stmt_1$; ¥¥
+   case | $c_2$  : | $stmt_2$; ¥¥
+   ... |¥¥
+   case | $c_n$  : | $stmt_n$; ¥¥
+   default :|  $stmt$; ¥¥
+}|
+¥end{quote}
+
+switch文を用いると、一般に　if/else文よりもすっきりと複雑な条件分岐をかくことができます。次は、else if} の節で用いた多重分岐の switch} バージョンです。注意すべき点は、break文です。これは、各 case}節は、条件分岐の始まりを表すに過ぎず、明示的に分岐の終端を表しています。
+
+{{{
+switch(n) {
+  case 1 : 
+    // n が 1のとき
+  break;
+  case 2 : 
+    // n が 2のとき
+  break;
+  case 3 : 
+    // n が 3のとき
+  break;
+  default:
+   // それ以外のとき
+}
+}}}
+
+Konoha と C/Java との違いは、case} 節のマッチングにあります。C や Java は、case}節では整数リテラルのみマッチングする条件として与えることができたが、Konoha では任意のリテラルを与えることができます。（ただし、式は与えることができない。）
+
+{{{
+switch(lang) {
+  case "perl" : 
+  case "python" : 
+    // 
+  break;
+  case "cpp" : 
+    // 
+  break;
+  default:
+   // それ以外のとき
+}
+}}}
+
+注意：この辺りが悩みどころで、コードディスパッチの最適化ができなくなるので、switch文の実装は済んでいない。
+
+== while} 文}
+¥index{while@while文}
+% The while loops repeatedly execute a statement block while its condition expression is true.
+%6.5   while
+
+%The while statement is the basic statement that allows Konoha to perform repetitive actions. It has the following syntax:
+
+while文は、あるステートメントを繰り返し実行させる基本的なステートメントです。ループの制御構造とも呼ばれる。その文法は次のとおりです。条件式$expr$の評価結果がtrue}の間、続くステートメント$stmt$を繰り返し実行する。
+
+¥begin{quote}
+while | ($expr$)  | $stmt$
+¥end{quote}
+
+%The while loops repeatedly execute a statement block while its condition expression is true.
+
+次は、変数 a| が 0 より大きい間、繰り返し実行される。
+
+{{{
+a = 1;
+while(a > 0) {
+   a = Int.random(10);           // 乱数生成
+   print a;
+}
+}}}
+
+=== 無限ループ}
+
+while文の条件式に定数としてtrue}を与えれば、常に真であるため無限にループを繰り返すことになります。
+
+{{{
+while(ture) {
+   // 無限ループ
+}
+}}}
+
+注意：無限ループは、break文を内部で用いるか、throw文による大域ジャンプによって抜け出すことができます。そのため、多くのプログラマは何らかの脱出方法を用意して、確信犯的に無限ループを使用しています。Konoha コンパイラは、本当に無限ループかどうか判定をするのは難しいため、エラーも警告も出力しない。
+
+=== do/while} 文}
+
+%The do-while loops differ in that the condition is tested after the statement block has been executed. 
+
+do/while文は、条件判定の順序が異なるwhile}ループのバリエーションです。
+
+¥begin{quote}
+do | $stmt$  while | ($expr$);
+¥end{quote}
+
+do/while} ループは、先にステートメント$stmt$を一度実行したあと、条件式$expr$によって繰り返しの判定を行う。while文とdo/while文の違いは、while文が条件に次第では一度もステートメントを実行しないこともありえるのに対し、do/while文の方は必ず１回はループが実行される点にあります。
+
+{{{
+do {
+   a = Int.random(10);
+   print a;
+}while(a > 0);
+}}}
+
+== for} 文}
+
+%The for loops are a conventional alternative to the while loops with special clauses for initialization and iteration of a loop variable.
+
+for} 文は、$n$回の繰り返しなどを書くときに便利なwhile文の置き換えです。最初のステートメント$stmt_1$でループに入る前の状態の初期化を行い、ステートメント$stmt_3$でループを実行したのちの状態の変化、条件式$expr_2$でループの終了判定を行う。
+
+¥begin{quote}
+for (| $stmt_1$ ; | $expr_2$ ; | $stmt_3$ ) | $stmt$;
+¥end{quote}
+
+for} 文は、ある回数を繰り返し実行するときに多く利用される。実際、次のfor文とwhile文は全く同じであるが、多くの慣れたプログラマにとって、for文の方がwhile文よりも読みやすく処理の内容も把握しやすい。
+
+{{{
+for(i = 0; i < 10; i++) {   // for 版
+   print i;
+}
+
+i = 0;                      // while 版
+while(i < 10) {
+   print i;
+   i++;
+}
+}}}
+
+for文は、C/C++やJava で広く使われているため、Konoha でも採用となった。ただし、モダンなプログラミングスタイルでは、for文よりも、イテレーションパターンを扱う foreach文（後述）の方が好まれる。
+
+=== for文とイテレーション}
+
+モダンなオブジェクト指向プログラミングでは、繰り返しのループ処理はイテレーションパターンを用いることが多くなっています。Javaは、Java5からイテレーションを扱うため、for文を独自に拡張しています。
+
+{{{
+for(Object e : list.iterator()) {
+   print e;
+}
+}}}
+
+Konoha では、イテレーションを扱う専用のステートメントとして、後述するとおり、foreach文を導入しています。ただし、Java 風の拡張for文も、Konoha スタイルのforeach文に翻訳されて実行される。
+
+{{{
+foreach(Object e in list.iterator()) {
+   print e;
+}
+}}}
+
+== break文とcontinue文}
+
+%The break statement ends the statement block of a while loop, for loop, or foreach loop:
+
+Konoha は、break文とcontinue文という2種類のループ制御のステートメントをもっています。
+
+break文を使うと、現在繰り返しているループ構造のブロックから抜け出すことができます。
+
+{{{
+while(true) {
+   dice  = Int.random(6) + 1;
+   dice2 = Int.random(6) + 1;
+   print dice, dice2;
+   if(dice == dice2) break;    // ループから抜ける
+}
+}}}
+
+% The continue statement skips the remaining statements in the loop and restart the loop with the next iteration status. 
+
+continue} 文を使うと、現在繰り返しているループ構造のブロックの残りのパートをスキップする。
+
+{{{
+for(i = 0; i < 10; i++) {
+   if(i % 2 == 0) continue;    // ループの先頭へ
+   print i;
+}
+}}}
+
+=== 多重ループとラベル}
+
+ループ構造は、while文やfor/foreach文を組み合わせて、多重ループを作ることができます。多重ループ中では、break} 文やcontinue文を用いても、どのループを対象としているか曖昧になります。伝統的なC/C++, Java の定義では、最も内側のループのみ対象としてきたが、外側のループを対象としたい場合も多くあります。そこで、ループにラベルをつけることで、どのループからのbreak}/continue}なのか明示的に示すことができます。また、ラベルを省略すれば、今まで通り暗示的に最も内側のループが対象となります。
+
+{{{
+OUTER: 
+for(y = 0; y < 8; y++) {
+   INNER: 
+   for(x = 0; x < 8; x++) {
+      print x, y;
+      if (x == y) continue OUTER; /* 外側 */
+      if (x < y) break; /* 内側 */
+   }
+}
+}}}
+
+== foreach文}
+
+%The foreach statement iterates over each element in an Iterator object. 
+
+foreach} は、イテレータパターンを扱う専用のループ構造です。foreach文は、次の２種類のバリエーションが存在するが、どちらもイテレータ評価式$itr$によるイテレータ内の各オブジェクトをイテレーション変数$var$に代入し、イテレータ内のオブジェクトがなくなるまで、ステートメント$stmt$の実行を繰り返す。
+
+¥begin{quote}
+foreach(| $var$  in | $itr$ ) | $stmt$; ¥¥
+foreach(| $var$  from | $itr$ ) | $stmt$; ¥¥
+¥end{quote}
+
+foreach文は、多くの場合、for} 文を用いるよりも可読性が高くなり、また（専用命令のおかげで）高速な処理が期待される。
+
+{{{
+>>> a = [0, 1, 2]
+>>> for(i = 0; i < |a|; i++) {   // for版(古風)
+...   n = a[i];
+...   print n;
+... }
+n=0
+n=1
+n=2
+>>> foreach(n from a) {          // foreach版
+...   print n;
+... }
+n=0
+n=1
+n=2
+}}}
+
+=== イテレータの評価式}
+
+foreach} 文の in}/from} 節は、任意の式からイテレータをえるため、イテレータ評価式と呼ばれる。Konoha では、イテレータをえる方法は、マッピングによる方法とイテレータ演算子を用いる方法の2種類が存在し、foreach文ではイテレーション要素の型が与えられているかどうかで、自動的に使い分けられる。
+
+¥subsubsection{型が与えられている場合}
+
+イテレーション要素の型が決まっている場合、つまりイテレーション変数の型が明示的に与えられている場合、foreach文は、マッピングによってイテレータを評価する。つまり、次の場合、イテレーション変数 {¥tt line}はString}型であるため、イテレーション評価式は、(String..)(file)|で評価される。
+
+{{{
+file = new InputStream("file.txt");
+foreach(String line from file) {
+   print line;
+}
+}}}
+
+¥subsubsection{型が与えられている場合}
+
+イテレーション要素の型が決まっていない場合、foreach文は、イテレーション演算子でイテレータを取り出す。次の場合、(file)..|で評価される。同時に、このとき得られたイテレーションの型(int..|)からイテレーション変数 tt} の型は、int|と型推論される。
+
+{{{
+file = new InputStream("file.txt");
+foreach(ch from file) {
+   print ch;
+}
+}}}
+
+=== フィルタと変換}
+
+foreach} 文の in}/from} は、ほぼ同じ動作をする。違いは、イテレータから得られるオブジェクトとイテレーション変数の型が異なった場合、 フィルタ処理にするか、変換を試みるかの違いです。
+
+¥subsubsection{in}節：型検査によるフィルタ}
+
+foreach} 文と in} は、多くのプログラミング言語で組み合わせられているペアであり、イテレータ内部のものを加工せずに取り出す意味論に近いため、型検査によるフィルタ処理を行っています。
+
+{{{
+>>> a = ["naruto", 9, "gahra", 1];
+>>> foreach(String s in a) {
+...   print a;
+... }
+a="naruto"
+a="gahra"
+}}}
+
+¥subsubsection{from}節：マッピングによる変換}
+
+from}節は、本来、次節で述べる通り、 クエリー言語に由来しており、特別に変換の意味と結びつけられたものではないが、Konoha のforeach 文では変換しながらのイテレーション処理と定義されています。変換できなかったオブジェクトは、無視される。
+
+{{{
+>>> a = ["naruto", 9, "gahra", 1];
+>>> foreach(String s in a) {
+...   print a;
+... }
+a="naruto"
+a="9"                          // String へ変換
+a="gahra"
+a="1"                          // String へ変換
+}}}
+
+=== where}節*}
+
+Konoha における foreach} 文は、SQLやXMLQueryなど、クエリー言語をモデルにしています。そのため、クエリー言語のwhere} 節に相当する検索条件を書くことができます。
+
+¥begin{quote}
+foreach(| $var$  from | $itr$  where | $expr$ ) | $stmt$; ¥¥
+¥end{quote}
+
+現在は、where}節による条件検索は、Konoha 言語処理系の上で実行されているため、それほど高速ではない。将来は、foreach文の処理を一部ダイレクトにクエリー展開し、データソースアクセスとスクリプティングをシームレスに統合する計画があります。
+
+{{{
+foreach(Person p 
+         from 'db:PERSON_TBL' 
+         where p.age > 20 and p.age <= 60) {
+   print p.name, p.salary;
+}
+}}}
+
+== ステートメント・アノテーション*}
+
+Konoha は、全てのステートメントに対し、アノテーションを付けることで、ステートメントの意味や振る舞いを拡張することができます。
+アノテーションは、@|マークで始まる識別子であり、ひとつのステートメントに対し、複数のアノテーションを同時に与えることもできます。ただし、アノテーションとステートメントの間にセミコロン(;)を入れてはならない。
+
+{{{
+@Date print n;
+@Const @Nullable String s;
+}}}
+
+各ステートメントによって、対応しているアノテーションの種類は異なります。未定義のアノテーションを利用しても、現在のところ、エラーも警告も発生しない。将来は、ユーザが自由に拡張したアノテーションを使うフレームワークを用意する予定です。
+
+%== try-catch-finally}}
+%Konoha は、モダンな例外処理機構を備えています。
+
+¥begin{comment}
+{{{
+try {
+   in = new InputStream("/dev/null");
+   line = in.readLine();
+}
+catch(IO!! ex) {
+   print ex;
+}
+catch(Security!! ex) {
+   print ex;
+}
+finally {
+   in.close();
+}
+}}}
+¥end{comment}
+
+[[include(KbookIndex)]]
+[[include(KbookFooter)]]

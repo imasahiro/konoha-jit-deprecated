@@ -1792,7 +1792,7 @@ void knh_StmtLET_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_type_t reqt
 	}
 	else {
 		int local = ASML(abr, sfpidx);
-		knh_token_t tt = TT_(tkL); /* NOTE: ltk is reused inside stmt */
+		knh_token_t tt = TT_(tkL); /* NOTE: tkL is reused inside stmt */
 		knh_short_t index = DP(tkL)->index;
 		TERMs_asm(ctx, stmt, 1, abr, DP(tkL)->type, local);
 		TT_(tkL) = tt;

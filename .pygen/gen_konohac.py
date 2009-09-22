@@ -70,6 +70,7 @@ throw expr:expt ;   @stmt  @token @new @name @cmpl @eos
 err ANY:msg     @stmt @cmpl
 
 let        VARN:lvalue expr:rvalue     @stmt  @expr  @P0
+letm       expr*:vars @stmt
 register   expr*:exprs[] ; @stmt @token @eos
 separator  STT_DECL:decls expr:value   @stmt
 
