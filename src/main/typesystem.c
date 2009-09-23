@@ -43,11 +43,16 @@ knh_bool_t knh_class_instanceof(Ctx *ctx, knh_class_t scid, knh_class_t tcid)
 	KNH_ASSERT_cid(scid);
 	KNH_ASSERT_cid(tcid);
 	if(scid == tcid || tcid == CLASS_Object || tcid == CLASS_Any ) return 1;
+	if(ClassTable(scid).bcid == tcid) return 1; /* Int:km Int */
 	if(knh_class_isGenerics(scid)) {
-		TODO();
+		// Immutable simulates covariance of generics
+		if(knh_class_isImmutable(scid) && ClassTable(scid).bcid == ClassTable(tcid).bcid) {
+			// Iterator<C> Iterator<D>;
+			return (knh_class_instanceof(ctx, ClassTable(scid).p1, ClassTable(tcid).p1) &&
+					knh_class_instanceof(ctx, ClassTable(scid).p2, ClassTable(tcid).p2));
+		}
 	}
 	else {
-		if(ClassTable(scid).bcid == tcid) return 1; /* Int:km Int */
 		while(scid != CLASS_Object) {
 			knh_ClassMap_t *cmap = ClassTable(scid).cmap;
 			int i;

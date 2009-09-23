@@ -2,7 +2,7 @@
 
 /* ======================================================================== */
 /* MACROS */
-#define KONOHA_BUILDID                  693
+#define KONOHA_BUILDID                  694
 
 /* ======================================================================== */
 /* STRUCT */
@@ -111,7 +111,7 @@
 #define TYPE_Iterator           CLASS_Iterator
 #define NNTYPE_Iterator         NNTYPE_cid(CLASS_Iterator)
 #define NATYPE_Iterator         NATYPE_cid(CLASS_Iterator)
-#define CFLAG_Iterator          ((knh_flag_t)0)
+#define CFLAG_Iterator          ((knh_flag_t)FLAG_Class_Immutable)
 #define FLAG_Iterator           knh_flag_oflag(CFLAG_Iterator)
 
 /* ------------------------------------------------------------------------ */
@@ -569,7 +569,7 @@
 #define TYPE_This               CLASS_This
 #define NNTYPE_This             NNTYPE_cid(CLASS_This)
 #define NATYPE_This             NATYPE_cid(CLASS_This)
-#define CFLAG_This              ((knh_flag_t)0)
+#define CFLAG_This              ((knh_flag_t)FLAG_Class_TypeVariable)
 #define FLAG_This               knh_flag_oflag(CFLAG_This)
 
 /* ------------------------------------------------------------------------ */
@@ -580,7 +580,7 @@
 #define TYPE_Tvoid              CLASS_Tvoid
 #define NNTYPE_Tvoid            NNTYPE_cid(CLASS_Tvoid)
 #define NATYPE_Tvoid            NATYPE_cid(CLASS_Tvoid)
-#define CFLAG_Tvoid             ((knh_flag_t)0)
+#define CFLAG_Tvoid             ((knh_flag_t)FLAG_Class_TypeVariable)
 #define FLAG_Tvoid              knh_flag_oflag(CFLAG_Tvoid)
 
 /* ------------------------------------------------------------------------ */
@@ -591,7 +591,7 @@
 #define TYPE_T0                 CLASS_T0
 #define NNTYPE_T0               NNTYPE_cid(CLASS_T0)
 #define NATYPE_T0               NATYPE_cid(CLASS_T0)
-#define CFLAG_T0                ((knh_flag_t)0)
+#define CFLAG_T0                ((knh_flag_t)FLAG_Class_TypeVariable)
 #define FLAG_T0                 knh_flag_oflag(CFLAG_T0)
 
 /* ------------------------------------------------------------------------ */
@@ -602,7 +602,7 @@
 #define TYPE_T1                 CLASS_T1
 #define NNTYPE_T1               NNTYPE_cid(CLASS_T1)
 #define NATYPE_T1               NATYPE_cid(CLASS_T1)
-#define CFLAG_T1                ((knh_flag_t)0)
+#define CFLAG_T1                ((knh_flag_t)FLAG_Class_TypeVariable)
 #define FLAG_T1                 knh_flag_oflag(CFLAG_T1)
 
 /* ------------------------------------------------------------------------ */
@@ -613,7 +613,7 @@
 #define TYPE_T2                 CLASS_T2
 #define NNTYPE_T2               NNTYPE_cid(CLASS_T2)
 #define NATYPE_T2               NATYPE_cid(CLASS_T2)
-#define CFLAG_T2                ((knh_flag_t)0)
+#define CFLAG_T2                ((knh_flag_t)FLAG_Class_TypeVariable)
 #define FLAG_T2                 knh_flag_oflag(CFLAG_T2)
 
 /* ------------------------------------------------------------------------ */
@@ -624,7 +624,7 @@
 #define TYPE_T3                 CLASS_T3
 #define NNTYPE_T3               NNTYPE_cid(CLASS_T3)
 #define NATYPE_T3               NATYPE_cid(CLASS_T3)
-#define CFLAG_T3                ((knh_flag_t)0)
+#define CFLAG_T3                ((knh_flag_t)FLAG_Class_TypeVariable)
 #define FLAG_T3                 knh_flag_oflag(CFLAG_T3)
 
 /* ------------------------------------------------------------------------ */
@@ -635,7 +635,7 @@
 #define TYPE_Tvar               CLASS_Tvar
 #define NNTYPE_Tvar             NNTYPE_cid(CLASS_Tvar)
 #define NATYPE_Tvar             NATYPE_cid(CLASS_Tvar)
-#define CFLAG_Tvar              ((knh_flag_t)0)
+#define CFLAG_Tvar              ((knh_flag_t)FLAG_Class_TypeVariable)
 #define FLAG_Tvar               knh_flag_oflag(CFLAG_Tvar)
 
 /* ------------------------------------------------------------------------ */

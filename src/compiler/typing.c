@@ -3430,7 +3430,7 @@ int TERMs_typing(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_Asm_t *abr, knh_NameS
 			//if(mode == TITERCONV_) goto L_ERROR;
 		}
 		DBG_P("stt=%s n=%d, reqt=%s%s, vart=%s%s", knh_stmt_tochar(SP(stmt)->stt), (int)n, TYPEQN(reqt), TYPEQN(vart));
-		DBG2_ASSERT(vart != TYPE_Method);
+		DBG2_ASSERT(vart != TYPE_Array);
 		TERMs_perrorTYPE(ctx, stmt, n, reqt);
 	}
 
@@ -3751,6 +3751,9 @@ Term *knh_StmtFOREACH_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_Nam
 	else {
 		DBG2_ASSERT(tkSPR == NULL);
 		DP(tkITR)->type = knh_class_Iterator(ctx, CLASS_type(reqt));
+//		TERMs_typing(ctx, stmt, FOREACH_iter, abr, ns, DP(tkITR)->type, TWARN_);
+//		DP(tkITR)->type = TERMs_gettype(stmt, FOREACH_iter);
+//		TT;
 		if(!TERMs_typing(ctx, stmt, FOREACH_iter, abr, ns, DP(tkITR)->type, TITERCONV_)) {
 			knh_Stmt_t *stmtCALL = new_StmtMN(ctx, FL(stmt), mn_opItr);
 			knh_Stmt_add(ctx, stmtCALL, StmtFOREACH_iter(stmt));

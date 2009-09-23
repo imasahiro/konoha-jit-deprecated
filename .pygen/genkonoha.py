@@ -115,6 +115,8 @@ class Class :
         f = addflag(f, self.meta, 'Class', '@Singleton')
         f = addflag(f, self.meta, 'Class', '@Immutable')
         f = addflag(f, self.meta, 'Class', '@Private')
+        f = addflag(f, self.meta, 'Class', '@TypeVariable')
+        f = addflag(f, self.meta, 'Class', '@Final')
         return f
         
     def has(self, key):

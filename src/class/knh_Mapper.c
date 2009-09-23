@@ -85,20 +85,19 @@ KNHAPI(knh_Mapper_t*) new_Mapper(Ctx *ctx, knh_flag_t flag, knh_class_t scid, kn
 /* ======================================================================== */
 /* [MapMap] */
 
-static
-MAPPER knh_fmapper_mapmap(Ctx *ctx, knh_sfp_t *sfp)
+static MAPPER knh_fmapper_mapmap(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_ASSERT(IS_Mapper(sfp[1].mpr));
-	knh_Mapper_t *mpr = sfp[1].mpr;
+	knh_Mapper_t *mpr = KNH_GETMAPPER(ctx, sfp);
+	DBG2_ASSERT(IS_Mapper(mpr));
 	knh_Mapper_t *m1 = DP(mpr)->m1, *m2 = DP(mpr)->m2;
-	KNH_ASSERT(knh_Mapper_isMapMap(mpr));
-	KNH_ASSERT(IS_Mapper(m1));
+	DBG2_ASSERT(IS_Mapper(m1));
 	KNH_MOV(ctx, sfp[1].o, m1);
 	(m1)->fmap_1(ctx, sfp);
-	if(IS_NULL(sfp[0].o)) return ;
-	KNH_ASSERT(IS_Mapper(m2));
-	KNH_MOV(ctx, sfp[1].o, m2);
-	(m2)->fmap_1(ctx, sfp);
+	if(IS_NOTNULL(sfp[0].o)) {
+		DBG2_ASSERT(IS_Mapper(m2));
+		KNH_MOV(ctx, sfp[1].o, m2);
+		(m2)->fmap_1(ctx, sfp);
+	}
 }
 
 /* ------------------------------------------------------------------------ */
@@ -106,16 +105,16 @@ MAPPER knh_fmapper_mapmap(Ctx *ctx, knh_sfp_t *sfp)
 knh_Mapper_t* new_MapMap(Ctx *ctx, knh_Mapper_t *m1, knh_Mapper_t *m2)
 {
 	knh_Mapper_t* mpr = (knh_Mapper_t*)new_Object_bcid(ctx, CLASS_Mapper, 0);
-	mpr->h.flag = FLAG_Mapper|FLAG_Mapper_MapMap;
 	KNH_NOTICE(ctx, "generated mapper: %C => %C => %C", DP(m1)->scid, DP(m1)->tcid, DP(m2)->tcid);
 	DP(mpr)->size = 0;
 	DP(mpr)->flag = DP(m1)->flag | DP(m2)->flag;
 	DP(mpr)->scid = DP(m1)->scid;
 	DP(mpr)->tcid = DP(m2)->tcid;
-	KNH_ASSERT(IS_Mapper(m1));
+	DBG2_ASSERT(IS_Mapper(m1));
 	KNH_SETv(ctx, DP(mpr)->m1, m1);
-	KNH_ASSERT(IS_Mapper(m2));
+	DBG2_ASSERT(IS_Mapper(m2));
 	KNH_SETv(ctx, DP(mpr)->m2, m2);
+	mpr->h.flag = m1->h.flag & m2->h.flag;
 	mpr->fmap_1 = knh_fmapper_mapmap;
 	return mpr;
 }
@@ -250,7 +249,7 @@ knh_Mapper_t *knh_findMapper_(Ctx *ctx, knh_class_t scid, knh_class_t tcid, int 
 			for(i = 0; i < (cmap)->size; i++) {
 				knh_class_t mcid = DP((cmap)->maplist[i])->tcid;
 				KNH_ASSERT_cid(mcid);
-				if(mcid <= CLASS_Class) {
+				if(mcid <= CLASS_String) {
 					DBG_P("forbid lowlevel transitivity %s", CLASSN(mcid));
 					continue;   /* Stop lowlevel inference */
 				}

@@ -617,8 +617,6 @@ static void knh_Array_traverse(Ctx *ctx, knh_Array_t *a, knh_ftraverse ftr)
 	}
 }
 
-#define FLAG_Mapper_Iteration (FLAG_Mapper_Synonym | FLAG_Mapper_Total)
-
 static void knh_Array_newClass(Ctx *ctx, knh_class_t cid)
 {
 	KNH_ASSERT_cid(cid);
@@ -703,7 +701,7 @@ static void knh_FArray_traverse(Ctx *ctx, knh_FArray_t *a, knh_ftraverse ftr)
 #define knh_Iterator_traverse_ NULL
 #define knh_Iterator_compareTo NULL
 #define knh_Iterator_hashCode NULL
-#define knh_Iterator_newClass NULL
+#define knh_Iterator_newClass_ NULL
 #define knh_Iterator_getkey NULL
 
 static ITRNEXT knh_fitrnext_single(Ctx *ctx, knh_sfp_t *sfp, int n)
@@ -730,6 +728,38 @@ static void knh_Iterator_traverse(Ctx *ctx, knh_Iterator_t *it, knh_ftraverse ft
 {
 	knh_Iterator_close(ctx, it);
 	ftr(ctx, DP(it)->source);
+}
+
+static ITRNEXT knh_Iterator_filterNext(Ctx *ctx, knh_sfp_t *sfp, int n)
+{
+	knh_Iterator_t *itr2 = (knh_Iterator_t*)DP(sfp[0].it)->source;
+	knh_class_t cid = knh_Object_p1(sfp[0].it);
+	DBG2_ASSERT(IS_bIterator(itr2));
+	sfp = sfp + 1;
+	n = n - 1;
+	KNH_SETv(ctx, sfp[0].o, itr2);
+	int res = SP(itr2)->fnext_1(ctx, sfp, n);
+	while(res != 0) {
+		if(knh_class_instanceof(ctx, knh_Object_cid(sfp[n].o), cid)) break;
+		res = SP(itr2)->fnext_1(ctx, sfp, n);
+	}
+	return res;
+}
+
+static MAPPER Iterator_Iterator(Ctx *ctx, knh_sfp_t *sfp)
+{
+	knh_Mapper_t *mpr = KNH_GETMAPPER(ctx, sfp);
+	DBG2_ASSERT(IS_Mapper(mpr));
+	KNH_MAPPED(ctx, sfp, new_Iterator(ctx, ClassTable(DP(mpr)->tcid).p1, sfp[0].o, knh_Iterator_filterNext));
+}
+
+static void knh_Iterator_newClass(Ctx *ctx, knh_class_t cid)
+{
+	if(cid != CLASS_Iterator) {
+		KNH_ASSERT_cid(cid);
+		DBG2_P("*** %s", CLASSN(cid));
+		knh_addMapperFunc(ctx, FLAG_Mapper_Iteration, CLASS_Iterator, cid, Iterator_Iterator, KNH_NULL);
+	}
 }
 
 /* ======================================================================== */
@@ -2163,11 +2193,6 @@ static void knh_KLRCode_traverse(Ctx *ctx, knh_KLRCode_t *o, knh_ftraverse ftr)
 		}
 	}
 }
-
-/* ======================================================================== */
-/* [default] */
-
-/* ------------------------------------------------------------------------ */
 
 /* ======================================================================== */
 /* [commons] */

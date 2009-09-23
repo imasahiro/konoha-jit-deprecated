@@ -100,7 +100,7 @@ static
 ITRNEXT knh_Array_var_next(Ctx *ctx, knh_sfp_t *sfp, int n)
 {
 	knh_Array_t *o = (knh_Array_t*)DP(sfp[0].it)->source;
-	KNH_ASSERT(IS_bArray(o));
+	DBG2_ASSERT(IS_bArray(o));
 	size_t pos = DP(sfp[0].it)->pos;
 	while(pos < o->size) {
 		if(IS_NOTNULL(o->list[pos])) {
@@ -116,7 +116,7 @@ static
 ITRNEXT knh_IArray_var_next(Ctx *ctx, knh_sfp_t *sfp, int n)
 {
 	knh_IArray_t *o = (knh_IArray_t*)DP(sfp[0].it)->source;
-	KNH_ASSERT(IS_bIArray(o));
+	DBG2_ASSERT(IS_bIArray(o));
 	size_t pos = DP(sfp[0].it)->pos;
 	while(pos < o->size) {
 		DP(sfp[0].it)->pos = pos+1;
@@ -130,7 +130,7 @@ static
 ITRNEXT knh_FArray_var_next(Ctx *ctx, knh_sfp_t *sfp, int n)
 {
 	knh_FArray_t *o = (knh_FArray_t*)DP(sfp[0].it)->source;
-	KNH_ASSERT(IS_bFArray(o));
+	DBG2_ASSERT(IS_bFArray(o));
 	size_t pos = DP(sfp[0].it)->pos;
 	while(pos < o->size) {
 		DP(sfp[0].it)->pos = pos+1;
@@ -148,8 +148,12 @@ KNHAPI(knh_Iterator_t*) new_ArrayIterator(Ctx *ctx, knh_Array_t *a)
 	knh_fitrnext fnext = knh_Array_var_next;
 	if(knh_Object_bcid(a) == CLASS_IArray) fnext = knh_IArray_var_next;
 	else if(knh_Object_bcid(a) == CLASS_FArray) fnext = knh_FArray_var_next;
+	else {
+		DBG2_ASSERT(IS_bArray(a));
+	}
 	return new_Iterator(ctx, cid, UP(a), fnext);
 }
+
 
 /* ------------------------------------------------------------------------ */
 

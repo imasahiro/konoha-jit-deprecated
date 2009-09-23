@@ -165,6 +165,8 @@ extern "C" {
 /* [Mapper] */
 
 
+#define KNH_GETMAPPER(ctx, sfp) sfp[1].mpr
+
 #define KNH_MAPPED(ctx, sfp, v) {\
 		knh_Int_t *vn_ = (knh_Int_t*)(v);\
 		KNH_MOV(ctx, sfp[0].o, vn_);\

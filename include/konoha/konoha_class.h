@@ -187,7 +187,7 @@ typedef knh_Glue_t knh_T3_t;
 #define IS_NOTNULL(o)         ((ctx)->share->constNull != UP(o))
 
 /* ------------------------------------------------------------------------ */
-//## @Struct @Param1(Any) class Iterator Object;
+//## @Immutable @Struct @Param1(Any) class Iterator Object;
 
 #ifdef _MSC_VER
 typedef int   (KNH_CC_FASTCALL *knh_fitrnext)(Ctx *, knh_sfp_t *, int n);
@@ -295,7 +295,6 @@ typedef struct knh_FArray_t {
 	size_t size;
 	size_t capacity;
 } knh_FArray_t;
-
 
 /* ------------------------------------------------------------------------ */
 //## @Cyclic @Param1(Any) class DictMap Object;
