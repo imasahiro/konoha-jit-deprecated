@@ -328,8 +328,8 @@ typedef knh_uint16_t       knh_expt_t;    /* knh_expt_t */
 #define IS_ubxfloat(t)      (IS_NNTYPE(t) && ClassTable(CLASS_type(t)).bcid == CLASS_Float)
 #define IS_ubxboolean(t)    (NNTYPE_Boolean == t)
 #define IS_ubxtype(t)       (IS_NNTYPE(t) && (ClassTable(CLASS_type(t)).bcid == CLASS_Int || ClassTable(CLASS_type(t)).bcid == CLASS_Float || t == NNTYPE_Boolean) )
-#define IS_bxint(t)         (!IS_NNTYPE(t) && ClassTable(CLASS_type(t)).bcid == CLASS_Int)
-#define IS_bxfloat(t)       (!IS_NNTYPE(t) && ClassTable(CLASS_type(t)).bcid == CLASS_Float)
+#define IS_bxint(t)         (IS_NATYPE(t) && ClassTable(CLASS_type(t)).bcid == CLASS_Int)
+#define IS_bxfloat(t)       (IS_NATYPE(t) && ClassTable(CLASS_type(t)).bcid == CLASS_Float)
 
 // @NOUSE
 #define TYPEN(type)                   knh_TYPEN(ctx,type)

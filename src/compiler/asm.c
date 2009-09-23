@@ -625,6 +625,27 @@ void KNH_ASM_XMOVx(Ctx *ctx, knh_Asm_t *abr, knh_type_t atype, knh_sfx_t ax, knh
 		KNH_ASM_XMOVxBXf_(ctx, abr, ax, bx, CLASS_type(btype));
 		return;
 	}
+	if(IS_ubxint(btype)) { // Any a = b; // int b;
+		DBG2_P("atype=%s%s", TYPEQN(atype));
+		KNH_ASM_MOVxi_(ctx, abr, DP(abr)->stack, bx);
+		KNH_ASM_BOX_(ctx, abr, DP(abr)->stack, CLASS_type(btype));
+		KNH_ASM_XMOVs_(ctx, abr, ax, DP(abr)->stack);
+		return;
+	}
+	if(IS_ubxfloat(btype)) { // Any a = b; // float b;
+		DBG2_P("atype=%s%s", TYPEQN(atype));
+		KNH_ASM_MOVxf_(ctx, abr, DP(abr)->stack, bx);
+		KNH_ASM_BOX_(ctx, abr, DP(abr)->stack, CLASS_type(btype));
+		KNH_ASM_XMOVs_(ctx, abr, ax, DP(abr)->stack);
+		return;
+	}
+	if(IS_ubxboolean(btype)) { // Any a = b; // boolean b;
+		DBG2_P("atype=%s%s", TYPEQN(atype));
+		KNH_ASM_MOVxb_(ctx, abr, DP(abr)->stack, bx);
+		KNH_ASM_BOX_(ctx, abr, DP(abr)->stack, CLASS_type(btype));
+		KNH_ASM_XMOVs_(ctx, abr, ax, DP(abr)->stack);
+		return;
+	}
 	KNH_ASM_XMOVx_(ctx, abr, ax, bx);
 }
 
@@ -1231,15 +1252,19 @@ int knh_StmtOP_checkConst(Ctx *ctx, knh_Stmt_t *stmt, knh_methodn_t *mn, int swa
 {
 	Term *tm = DP(stmt)->terms[1];
 	if(swap && IS_Token(tm) && TT_((knh_Token_t*)tm) == TT_CONST) {
-		DP(stmt)->terms[1] = DP(stmt)->terms[2];
-		DP(stmt)->terms[2] = tm;
-		if(*mn == METHODN_opLt) *mn = METHODN_opGte;
-		else if(*mn == METHODN_opLte) *mn = METHODN_opGt;
-		else if(*mn == METHODN_opGt) *mn = METHODN_opLte;
-		else if(*mn == METHODN_opGte) *mn = METHODN_opLt;
+		knh_methodn_t newmn = *mn;
+		knh_Stmt_swap(ctx, stmt, 1, 2);
+		if(*mn == METHODN_opLt) newmn = METHODN_opGt;
+		else if(*mn == METHODN_opLte) newmn = METHODN_opGte;
+		else if(*mn == METHODN_opGt) newmn = METHODN_opLt;
+		else if(*mn == METHODN_opGte) newmn = METHODN_opLte;
+		*mn = newmn;
+		return 1;
 	}
-	knh_Token_t *tk = DP(stmt)->tokens[2];
-	return (IS_Token(tk) && TT_(tk) == TT_CONST);
+	else {
+		knh_Token_t *tk = DP(stmt)->tokens[2];
+		return (IS_Token(tk) && TT_(tk) == TT_CONST);
+	}
 }
 
 /* ------------------------------------------------------------------------ */
