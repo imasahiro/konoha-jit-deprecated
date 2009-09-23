@@ -1781,7 +1781,7 @@ Term *knh_StmtLETM_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSp
 	tm = TM(stmt);
 	L_RETURN:;
 	((knh_Context_t*)ctx)->esp -= 1;
-	return NULL;
+	return tm;
 }
 
 /* ------------------------------------------------------------------------ */

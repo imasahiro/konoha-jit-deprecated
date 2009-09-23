@@ -1652,8 +1652,6 @@ knh_flag_t knh_StmtNEW_flag(Ctx *ctx, knh_Stmt_t *stmt)
 	return 0;
 }
 
-/* ------------------------------------------------------------------------ */
-
 static
 void knh_StmtNEW_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_type_t reqt, int sfpidx)
 {
@@ -1670,8 +1668,6 @@ void knh_StmtNEW_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_type_t reqt
 	MOVL(ctx, abr, local, sfpidx);
 }
 
-/* ------------------------------------------------------------------------ */
-
 static
 void knh_StmtMAPCAST_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_type_t reqt, int sfpidx)
 {
@@ -1686,8 +1682,6 @@ void knh_StmtMAPCAST_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_type_t 
 //	}
 	MOVL(ctx, abr, local, sfpidx);
 }
-
-/* ------------------------------------------------------------------------ */
 
 static
 void knh_StmtMT_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_type_t reqt, int sfpidx)
@@ -1706,8 +1700,7 @@ void knh_StmtMT_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_type_t reqt,
 	MOVL(ctx, abr, local, sfpidx);
 }
 
-/* ------------------------------------------------------------------------ */
-
+static
 void knh_StmtALT_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_type_t reqt, int sfpidx)
 {
 	knh_labelid_t label = knh_Asm_newLabelId(ctx, abr, NULL);
@@ -1722,8 +1715,7 @@ void knh_StmtALT_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_type_t reqt
 	MOVL(ctx, abr, local, sfpidx);
 }
 
-/* ------------------------------------------------------------------------ */
-
+static
 void knh_StmtOR_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_type_t reqt, int sfpidx)
 {
 	int local = ASML(abr, sfpidx);
@@ -1737,8 +1729,7 @@ void knh_StmtOR_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_type_t reqt,
 	nMOVL(ctx, abr, local, sfpidx);
 }
 
-/* ------------------------------------------------------------------------ */
-
+static
 void knh_StmtAND_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_type_t reqt, int sfpidx)
 {
 	int local = ASML(abr, sfpidx);
@@ -1752,8 +1743,7 @@ void knh_StmtAND_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_type_t reqt
 	nMOVL(ctx, abr, local, sfpidx);
 }
 
-/* ------------------------------------------------------------------------ */
-
+static
 void knh_StmtTRI_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_type_t reqt, int sfpidx)
 {
 	int local = ASML(abr, sfpidx);
@@ -1773,8 +1763,7 @@ void knh_StmtTRI_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_type_t reqt
 	MOVL(ctx, abr, local, sfpidx);
 }
 
-/* ------------------------------------------------------------------------ */
-
+static
 void knh_StmtLET_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_type_t reqt, int sfpidx)
 {
 	knh_Token_t *tkL = DP(stmt)->tokens[0];
@@ -1804,37 +1793,63 @@ void knh_StmtLET_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_type_t reqt
 	}
 }
 
+///* ------------------------------------------------------------------------ */
+//
+//static
+//void knh_Token_toLOCAL(Ctx *ctx, knh_Token_t *tk, knh_type_t type, int sfpidx)
+//{
+//	TT_(tk) = TT_LOCAL;
+//	DP(tk)->index = (knh_short_t)sfpidx;
+//	DP(tk)->type = type;
+//}
+//
+///* ------------------------------------------------------------------------ */
+//
+//static
+//knh_Token_t *knh_Stmt_toLOCAL(Ctx *ctx, knh_Stmt_t *stmt, int sfpidx, knh_type_t reqt, int level)
+//{
+////	DBG2_P("stt=%s, toLOCAL=%d", knh_stmt_tochar(SP(stmt)->stt), sfpidx);
+//	size_t i;
+//	for(i = 0; i < DP(stmt)->size; i++) {
+//		if(IS_Token(DP(stmt)->tokens[i])) {
+//			knh_Token_toLOCAL(ctx, DP(stmt)->tokens[i], reqt, sfpidx);
+//			return DP(stmt)->tokens[i];
+//		}
+//		else {
+//			knh_Token_t *tk = knh_Stmt_toLOCAL(ctx, DP(stmt)->stmts[i], reqt, sfpidx, 1);
+//			if(tk != NULL) return tk;
+//		}
+//	}
+//	if(level == 1) return NULL;
+//	knh_Token_t *tk = new_TokenNULL(ctx, FL(stmt), reqt);
+//	knh_Token_toLOCAL(ctx, tk, reqt, sfpidx);
+//	return tk;
+//}
+
 /* ------------------------------------------------------------------------ */
 
 static
-void knh_Token_toLOCAL(Ctx *ctx, knh_Token_t *tk, knh_type_t type, int sfpidx)
+knh_Token_t *knh_Term_toLOCAL(Ctx *ctx, Term *tm, knh_type_t type, int sfpidx)
 {
-	TT_(tk) = TT_LOCAL;
-	DP(tk)->index = (knh_short_t)sfpidx;
-	DP(tk)->type = type;
-}
-
-/* ------------------------------------------------------------------------ */
-
-static
-knh_Token_t *knh_Stmt_toLOCAL(Ctx *ctx, knh_Stmt_t *stmt, int sfpidx, knh_type_t reqt, int level)
-{
-//	DBG2_P("stt=%s, toLOCAL=%d", knh_stmt_tochar(SP(stmt)->stt), sfpidx);
-	size_t i;
-	for(i = 0; i < DP(stmt)->size; i++) {
-		if(IS_Token(DP(stmt)->tokens[i])) {
-			knh_Token_toLOCAL(ctx, DP(stmt)->tokens[i], reqt, sfpidx);
-			return DP(stmt)->tokens[i];
+	if(IS_Stmt(tm)) {
+		size_t i;
+		knh_Stmt_t *stmt = (knh_Stmt_t*)tm;
+		for(i = 0; i < DP(stmt)->size; i++) {
+			if(IS_Token(DP(stmt)->tokens[i])) {
+				tm = DP(stmt)->terms[i];
+				goto L_TOKEN;
+			}
 		}
-		else {
-			knh_Token_t *tk = knh_Stmt_toLOCAL(ctx, DP(stmt)->stmts[i], reqt, sfpidx, 1);
-			if(tk != NULL) return tk;
-		}
+		tm = (Term*)new_TokenNULL(ctx, FL(stmt), type);
 	}
-	if(level == 1) return NULL;
-	knh_Token_t *tk = new_TokenNULL(ctx, FL(stmt), reqt);
-	knh_Token_toLOCAL(ctx, tk, reqt, sfpidx);
-	return tk;
+	L_TOKEN: {
+		knh_Token_t *tk = (knh_Token_t*)tm;
+		DBG2_ASSERT(IS_Token(tk));
+		TT_(tk) = TT_LOCAL;
+		DP(tk)->index = (knh_short_t)sfpidx;
+		DP(tk)->type = type;
+		return tk;
+	}
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1896,17 +1911,16 @@ void TERMs_asm(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_Asm_t *abr, knh_type_t 
 	if(IS_Token(DP(stmt)->tokens[n])) {
 		knh_Token_t *tk = DP(stmt)->tokens[n];
 		KNH_ASM_SMOV(ctx, abr, reqt, sfpidx, tk);
-		knh_Token_toLOCAL(ctx, tk, reqt, sfpidx);
+		knh_Term_toLOCAL(ctx, TM(tk), reqt, sfpidx);
 	}
 	else {
 		knh_StmtEXPR_asm(ctx, DP(stmt)->stmts[n], abr, reqt, sfpidx);
-		KNH_SETv(ctx, DP(stmt)->tokens[n], knh_Stmt_toLOCAL(ctx, DP(stmt)->stmts[n], sfpidx, reqt, 0));
+		KNH_SETv(ctx, DP(stmt)->tokens[n], knh_Term_toLOCAL(ctx, DP(stmt)->terms[n], reqt, sfpidx));
 	}
 }
 
 /* ======================================================================== */
 /* [LABEL]  */
-
 
 static
 knh_Token_t *knh_StmtMETA_getLabelNULL(Ctx *ctx, knh_Stmt_t *o)
@@ -2178,6 +2192,32 @@ void knh_StmtFOR_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr)
 
 	KNH_ASM_GLABEL(ctx, abr, lbend);
 	knh_Asm_popLabelStack(ctx, abr);
+}
+
+/* ------------------------------------------------------------------------ */
+
+void knh_StmtLETM_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr)
+{
+	size_t i, size = DP(stmt)->size / 2;
+	int local = DP(abr)->stack;
+	for(i = 0; i < size; i++) {
+		int n = (i*2);
+		knh_type_t type = TERMs_gettype(stmt, n);
+		TERMs_asm(ctx, stmt, n+1, abr, type, local+i);
+		KNH_SETv(ctx, DP(stmt)->tokens[n+1], knh_Term_toLOCAL(ctx, DP(stmt)->terms[n+1], type, local+i));
+	}
+	for(i = 0; i < size; i++) {
+		int n = (i*2);
+		if(IS_Token(DP(stmt)->terms[n])) {
+			KNH_ASM_MOV(ctx, abr, DP(stmt)->tokens[n], DP(stmt)->tokens[n+1]);
+		}
+		else {
+			knh_Stmt_t *stmtSET = DP(stmt)->stmts[n];
+			DBG2_ASSERT(STT_(stmtSET) == STT_CALL);
+			KNH_SETv(ctx, DP(stmtSET)->tokens[DP(stmtSET)->size - 1], DP(stmt)->tokens[n+1]);
+			knh_StmtCALL_asm(ctx, stmtSET, abr, TYPE_void, local + size);
+		}
+	}
 }
 
 /* ------------------------------------------------------------------------ */
@@ -2501,6 +2541,8 @@ void knh_Stmt_asmBLOCK(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, int isIterati
 			}
 		case STT_LET:
 			knh_StmtLET_asm(ctx, cur, abr, TYPE_void, DP(abr)->stack); break;
+		case STT_LETM:
+			knh_StmtLETM_asm(ctx, cur, abr); break;
 		case STT_SEPARATOR:
 			knh_StmtSEPARATOR_asm(ctx, cur, abr); break;
 		case STT_REGISTER:

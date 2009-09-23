@@ -521,11 +521,6 @@ void knh_Asm_initThisScript(Ctx *ctx, knh_Asm_t *abr);
 void *knh_Asm_asmmalloc(Ctx *ctx, knh_Asm_t *abr, size_t size);
 void knh_Asm_rewind(Ctx *ctx, knh_Asm_t *abr);
 void KNH_ASM_SETLINE(Ctx *ctx, knh_Asm_t *abr, int line);
-void knh_StmtALT_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_type_t reqt, int sfpidx);
-void knh_StmtOR_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_type_t reqt, int sfpidx);
-void knh_StmtAND_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_type_t reqt, int sfpidx);
-void knh_StmtTRI_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_type_t reqt, int sfpidx);
-void knh_StmtLET_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_type_t reqt, int sfpidx);
 void
 knh_StmtEXPR_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_type_t reqt, int sfpidx);
 void knh_StmtPRINT_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr);
