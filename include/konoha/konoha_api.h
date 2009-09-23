@@ -523,6 +523,7 @@ void knh_Asm_rewind(Ctx *ctx, knh_Asm_t *abr);
 void KNH_ASM_SETLINE(Ctx *ctx, knh_Asm_t *abr, int line);
 void
 knh_StmtEXPR_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_type_t reqt, int sfpidx);
+void knh_StmtLETM_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr);
 void knh_StmtPRINT_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr);
 void knh_StmtASSERT_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr);
 void knh_Stmt_asmBLOCK(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, int isIteration);

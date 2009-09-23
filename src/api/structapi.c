@@ -563,8 +563,20 @@ void knh_Tuple_traverse(Ctx *ctx, knh_Tuple_t *t, knh_ftraverse ftr)
 #define knh_Range_traverse knh_Pair_traverse
 #define knh_Range_compareTo NULL
 #define knh_Range_hashCode NULL
-#define knh_Range_newClass NULL
 #define knh_Range_getkey NULL
+
+static MAPPER Range_Iterator(Ctx *ctx, knh_sfp_t *sfp);
+
+#define FLAG_Mapper_Iteration (FLAG_Mapper_Synonym | FLAG_Mapper_Total)
+
+static void knh_Range_newClass(Ctx *ctx, knh_class_t cid)
+{
+	KNH_ASSERT_cid(cid);
+	knh_class_t p1 = ClassTable(cid).p1;
+	knh_class_t icid = knh_class_Iterator(ctx, p1);
+	DBG2_P("*** %s, %s", CLASSN(p1), CLASSN(icid));
+	knh_addMapperFunc(ctx, FLAG_Mapper_Iteration, cid, icid, Range_Iterator, KNH_NULL);
+}
 
 /* ======================================================================== */
 /* Array */
@@ -605,7 +617,7 @@ static void knh_Array_traverse(Ctx *ctx, knh_Array_t *a, knh_ftraverse ftr)
 	}
 }
 
-#define FLAG_Mapper_Iteration (FLAG_Mapper_Synonym)
+#define FLAG_Mapper_Iteration (FLAG_Mapper_Synonym | FLAG_Mapper_Total)
 
 static void knh_Array_newClass(Ctx *ctx, knh_class_t cid)
 {

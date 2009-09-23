@@ -2,7 +2,7 @@
 
 /* ======================================================================== */
 /* MACROS */
-#define KONOHA_BUILDID                  692
+#define KONOHA_BUILDID                  693
 
 /* ======================================================================== */
 /* STRUCT */
@@ -103,9 +103,21 @@
 #define FLAG_Any                knh_flag_oflag(CFLAG_Any)
 
 /* ------------------------------------------------------------------------ */
+/* Iterator */
+#define CLASS_Iterator          ((knh_class_t)8)
+#define STRUCT_Iterator         ((knh_struct_t)8)
+#define IS_Iterator(o)          ((o)->h.cid == CLASS_Iterator)
+#define IS_bIterator(o)         ((o)->h.bcid == CLASS_Iterator)
+#define TYPE_Iterator           CLASS_Iterator
+#define NNTYPE_Iterator         NNTYPE_cid(CLASS_Iterator)
+#define NATYPE_Iterator         NATYPE_cid(CLASS_Iterator)
+#define CFLAG_Iterator          ((knh_flag_t)0)
+#define FLAG_Iterator           knh_flag_oflag(CFLAG_Iterator)
+
+/* ------------------------------------------------------------------------ */
 /* Pair */
-#define CLASS_Pair              ((knh_class_t)8)
-#define STRUCT_Pair             ((knh_struct_t)8)
+#define CLASS_Pair              ((knh_class_t)9)
+#define STRUCT_Pair             ((knh_struct_t)9)
 #define IS_Pair(o)              ((o)->h.cid == CLASS_Pair)
 #define IS_bPair(o)             ((o)->h.bcid == CLASS_Pair)
 #define TYPE_Pair               CLASS_Pair
@@ -116,8 +128,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* Tuple */
-#define CLASS_Tuple             ((knh_class_t)9)
-#define STRUCT_Tuple            ((knh_struct_t)9)
+#define CLASS_Tuple             ((knh_class_t)10)
+#define STRUCT_Tuple            ((knh_struct_t)10)
 #define IS_Tuple(o)             ((o)->h.cid == CLASS_Tuple)
 #define IS_bTuple(o)            ((o)->h.bcid == CLASS_Tuple)
 #define TYPE_Tuple              CLASS_Tuple
@@ -128,8 +140,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* Range */
-#define CLASS_Range             ((knh_class_t)10)
-#define STRUCT_Range            ((knh_struct_t)10)
+#define CLASS_Range             ((knh_class_t)11)
+#define STRUCT_Range            ((knh_struct_t)11)
 #define IS_Range(o)             ((o)->h.cid == CLASS_Range)
 #define IS_bRange(o)            ((o)->h.bcid == CLASS_Range)
 #define TYPE_Range              CLASS_Range
@@ -137,18 +149,6 @@
 #define NATYPE_Range            NATYPE_cid(CLASS_Range)
 #define CFLAG_Range             ((knh_flag_t)FLAG_Class_Immutable)
 #define FLAG_Range              knh_flag_oflag(CFLAG_Range)
-
-/* ------------------------------------------------------------------------ */
-/* Iterator */
-#define CLASS_Iterator          ((knh_class_t)11)
-#define STRUCT_Iterator         ((knh_struct_t)11)
-#define IS_Iterator(o)          ((o)->h.cid == CLASS_Iterator)
-#define IS_bIterator(o)         ((o)->h.bcid == CLASS_Iterator)
-#define TYPE_Iterator           CLASS_Iterator
-#define NNTYPE_Iterator         NNTYPE_cid(CLASS_Iterator)
-#define NATYPE_Iterator         NATYPE_cid(CLASS_Iterator)
-#define CFLAG_Iterator          ((knh_flag_t)0)
-#define FLAG_Iterator           knh_flag_oflag(CFLAG_Iterator)
 
 /* ------------------------------------------------------------------------ */
 /* Array */

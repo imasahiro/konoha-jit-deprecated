@@ -187,6 +187,34 @@ typedef knh_Glue_t knh_T3_t;
 #define IS_NOTNULL(o)         ((ctx)->share->constNull != UP(o))
 
 /* ------------------------------------------------------------------------ */
+//## @Struct @Param1(Any) class Iterator Object;
+
+#ifdef _MSC_VER
+typedef int   (KNH_CC_FASTCALL *knh_fitrnext)(Ctx *, knh_sfp_t *, int n);
+#else
+typedef ITRNEXT (*knh_fitrnext)(Ctx *, knh_sfp_t *, int n);
+#endif
+
+typedef void (*knh_ffree)(void *ptr);
+
+typedef struct knh_Iterator {
+	knh_fitrnext fnext;
+	Object* source;
+	knh_int_t  pos;
+	union {
+		void*   ref;
+		knh_code_t *pc; /* @see(Generator) */
+	};
+	knh_ffree freffree;
+} knh_Iterator_struct;
+
+typedef struct knh_Iterator_t {
+	knh_hObject_t h;
+	knh_Iterator_struct *b;
+	knh_fitrnext fnext_1;
+} knh_Iterator_t;
+
+/* ------------------------------------------------------------------------ */
 //## @Immutable @Param1(Any) @Param2(Any) class Pair Object;
 //## type Pair<String,String> PairSS Pair void String String;
 //## type Pair<String,T1> PairST1 Pair void String T1;
@@ -224,34 +252,6 @@ typedef struct knh_Range_t {
 	knh_Object_t  *start;
 	knh_Object_t  *end;
 } knh_Range_t;
-
-/* ------------------------------------------------------------------------ */
-//## @Struct @Param1(Any) class Iterator Object;
-
-#ifdef _MSC_VER
-typedef int   (KNH_CC_FASTCALL *knh_fitrnext)(Ctx *, knh_sfp_t *, int n);
-#else
-typedef ITRNEXT (*knh_fitrnext)(Ctx *, knh_sfp_t *, int n);
-#endif
-
-typedef void (*knh_ffree)(void *ptr);
-
-typedef struct knh_Iterator {
-	knh_fitrnext fnext;
-	Object* source;
-	size_t  pos;
-	union {
-		void*   ref;
-		knh_code_t *pc; /* @see(Generator) */
-	};
-	knh_ffree freffree;
-} knh_Iterator_struct;
-
-typedef struct knh_Iterator_t {
-	knh_hObject_t h;
-	knh_Iterator_struct *b;
-	knh_fitrnext fnext_1;
-} knh_Iterator_t;
 
 /* ------------------------------------------------------------------------ */
 //## @Cyclic @Param1(Any) class Array Object;

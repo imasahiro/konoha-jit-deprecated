@@ -38,6 +38,109 @@ extern "C" {
 #ifdef KNH_CC_METHODAPI
 
 /* ======================================================================== */
+/* [Range] */
+
+static ITRNEXT knh_Range_inext(Ctx *ctx, knh_sfp_t *sfp, int n)
+{
+	knh_Iterator_t *itr = sfp[0].it;
+	knh_Range_t *rng = (knh_Range_t*)DP(itr)->source;
+	knh_int_t pos = DP(itr)->pos;
+	if(pos <= toint((rng)->end)) {
+		DP(itr)->pos = pos+1;
+		KNH_ITRNEXT_IntX(ctx, sfp, n, pos, rng->end);
+	}
+	KNH_ITREND(ctx, sfp, n);
+}
+
+static ITRNEXT knh_Range_inextInclusive(Ctx *ctx, knh_sfp_t *sfp, int n)
+{
+	knh_Iterator_t *itr = sfp[0].it;
+	knh_Range_t *rng = (knh_Range_t*)DP(itr)->source;
+	knh_int_t pos = DP(itr)->pos;
+	if(pos <= toint((rng)->end)) {
+		DP(itr)->pos = pos+1;
+		KNH_ITRNEXT_IntX(ctx, sfp, n, pos, rng->end);
+	}
+	KNH_ITREND(ctx, sfp, n);
+}
+
+static ITRNEXT knh_Range_fnext(Ctx *ctx, knh_sfp_t *sfp, int n)
+{
+	knh_Iterator_t *itr = sfp[0].it;
+	knh_Range_t *rng = (knh_Range_t*)DP(itr)->source;
+	knh_int_t pos = DP(itr)->pos;
+	if(pos <= toint((rng)->end)) {
+		DP(itr)->pos = pos+1;
+		KNH_ITRNEXT_FloatX(ctx, sfp, n, (knh_float_t)pos, rng->end);
+	}
+	KNH_ITREND(ctx, sfp, n);
+}
+
+static ITRNEXT knh_Range_fnextInclusive(Ctx *ctx, knh_sfp_t *sfp, int n)
+{
+	knh_Iterator_t *itr = sfp[0].it;
+	knh_Range_t *rng = (knh_Range_t*)DP(itr)->source;
+	knh_int_t pos = DP(itr)->pos;
+	if(pos <= toint((rng)->end)) {
+		DP(itr)->pos = pos+1;
+		KNH_ITRNEXT_FloatX(ctx, sfp, n, (knh_float_t)pos, rng->end);
+	}
+	KNH_ITREND(ctx, sfp, n);
+}
+
+static knh_Iterator_t *new_RangeIterator(Ctx *ctx, knh_Range_t *rng)
+{
+	knh_class_t p1 = knh_Object_p1(rng);
+	if(ClassTable(p1).bcid == CLASS_Int) {
+		knh_Iterator_t *itr;
+		knh_fitrnext f = knh_Range_inext;
+		if(knh_Range_isInclusive(rng)) {
+			f = knh_Range_inextInclusive;
+		}
+		itr = new_Iterator(ctx, p1, UP(rng), f);
+		DP(itr)->pos = toint(rng->start);
+		return itr;
+	}
+	else if(ClassTable(p1).bcid == CLASS_Float) {
+		knh_Iterator_t *itr;
+		knh_fitrnext f = knh_Range_fnext;
+		knh_float_t s = tofloat((rng)->start);
+		if(knh_Range_isInclusive(rng)) {
+			f = knh_Range_fnextInclusive;
+		}
+		itr = new_Iterator(ctx, p1, UP(rng), f);
+		DP(itr)->pos = (knh_int_t)s;
+		if((knh_float_t)DP(itr)->pos < s) DP(itr)->pos += 1;
+		return itr;
+	}
+	else {
+		knh_Array_t *a = new_Array(ctx, p1, 2);
+		knh_Array_add(ctx, a, (rng)->start);
+		if(knh_Range_isInclusive(rng)) {
+			knh_Array_add(ctx, a, (rng)->end);
+		}
+		return new_ArrayIterator(ctx, a);
+	}
+}
+
+/* ------------------------------------------------------------------------ */
+// ## @General mapper Range Iterator;
+
+static MAPPER Range_Iterator(Ctx *ctx, knh_sfp_t *sfp)
+{
+	KNH_MAPPED(ctx, sfp, new_RangeIterator(ctx, sfp[0].range));
+
+}
+
+/* ------------------------------------------------------------------------ */
+//## method T1.. Range.opItr();
+
+static METHOD Range_opItr(Ctx *ctx, knh_sfp_t *sfp)
+{
+	KNH_RETURN(ctx, sfp, new_RangeIterator(ctx, sfp[0].range));
+}
+
+/* ======================================================================== */
 /* [Array] */
 
 /* ------------------------------------------------------------------------ */

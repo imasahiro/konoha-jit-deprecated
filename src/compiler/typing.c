@@ -2841,6 +2841,9 @@ Term *knh_StmtOP_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpac
 
 	case METHODN_opEq:
 	{
+		if(!knh_Stmt_checkOPSIZE(ctx, stmt, 2, mn)) {
+			return NULL;
+		}
 		if(!knh_Asm_isTypedBINARYOP(ctx, abr, stmt)) {
 			return knh_Stmt_untyped(ctx, stmt, abr);
 		}
@@ -2878,6 +2881,9 @@ Term *knh_StmtOP_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpac
 	}
 	case METHODN_opNeq:
 	{
+		if(!knh_Stmt_checkOPSIZE(ctx, stmt, 2, mn)) {
+			return NULL;
+		}
 		if(!knh_Asm_isTypedBINARYOP(ctx, abr, stmt)) {
 			return knh_Stmt_untyped(ctx, stmt, abr);
 		}
@@ -2916,6 +2922,9 @@ Term *knh_StmtOP_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpac
 	case METHODN_opGt: case METHODN_opGte:
 	case METHODN_opLt: case METHODN_opLte:
 	{
+		if(!knh_Stmt_checkOPSIZE(ctx, stmt, 2, mn)) {
+			return NULL;
+		}
 		if(!knh_Asm_isTypedBINARYOP(ctx, abr, stmt)) {
 			return knh_Stmt_untyped(ctx, stmt, abr);
 		}

@@ -740,7 +740,7 @@ knh_Method_t *knh_lookupMethod(Ctx *ctx, knh_class_t cid, knh_methodn_t mn)
 			}
 		}
 		knh_stat_mtdCacheMiss(ctx);
-		DBG2_P("Cache missed. looking up %s.%s", CLASSN(cid), METHODN(mn));
+		DBG2_P("Cache missed[%ld]. looking up %s.%s", h, CLASSN(cid), METHODN(mn));
 	}
 	mtd = knh_Class_findMethod(ctx, cid, mn);
 	ctx->mtdCache[h] = mtd;
@@ -762,7 +762,7 @@ knh_Method_t *knh_lookupFormatter(Ctx *ctx, knh_class_t cid, knh_methodn_t mn)
 			}
 		}
 		knh_stat_fmtCacheMiss(ctx);
-		DBG2_P("Cache missed. looking up %s.%%%s <%s>", CLASSN(cid), METHODN(mn), CLASSN(DP(mtd)->cid));
+		DBG2_P("Cache[%ld] missed. looking up %s.%%%s <%s>", h, CLASSN(cid), METHODN(mn), CLASSN(DP(mtd)->cid));
 	}
 	mtd = knh_Class_findMethod(ctx, cid, mn);
 	ctx->fmtCache[h] = mtd;

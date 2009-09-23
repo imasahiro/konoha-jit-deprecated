@@ -501,6 +501,8 @@ int knh_StmtCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace
 		}
 		t->supcid = supcid;
 		t->offset = 0; /* will be extended in CLASS_typing */
+		KNH_ASSERT_cid(supcid);
+		t->keyidx = ClassTable(supcid).keyidx;
 		KNH_ASSERT(t->sname == NULL);
 		knh_setClassName(ctx, cid, new_String(ctx, B(bufn), NULL));
 		KNH_INITv(t->cstruct, new_ClassStruct0(ctx, 0, 8));
