@@ -2,7 +2,7 @@
 
 /* ======================================================================== */
 /* MACROS */
-#define KONOHA_BUILDID                  694
+#define KONOHA_BUILDID                  696
 
 /* ======================================================================== */
 /* STRUCT */
@@ -1526,24 +1526,26 @@
 #define FIELDN_twofold  220
 #define FIELDN_typeof   221
 #define FIELDN_u        222
-#define FIELDN_undefined 223
-#define FIELDN_unique   224
-#define FIELDN_unlikely 225
-#define FIELDN_unlink   226
-#define FIELDN_urn      227
-#define FIELDN_v        228
-#define FIELDN_value    229
-#define FIELDN_varArgs  230
-#define FIELDN_varargs  230
-#define FIELDN_vargs    231
-#define FIELDN_verbose  232
-#define FIELDN_virtual  233
-#define FIELDN_w        234
-#define FIELDN_write    235
-#define FIELDN_x        236
-#define FIELDN_y        237
-#define FIELDN_z        238
-#define KNH_TFIELDN_SIZE 239
+#define FIELDN_uCS4     223
+#define FIELDN_ucs4     223
+#define FIELDN_undefined 224
+#define FIELDN_unique   225
+#define FIELDN_unlikely 226
+#define FIELDN_unlink   227
+#define FIELDN_urn      228
+#define FIELDN_v        229
+#define FIELDN_value    230
+#define FIELDN_varArgs  231
+#define FIELDN_varargs  231
+#define FIELDN_vargs    232
+#define FIELDN_verbose  233
+#define FIELDN_virtual  234
+#define FIELDN_w        235
+#define FIELDN_write    236
+#define FIELDN_x        237
+#define FIELDN_y        238
+#define FIELDN_z        239
+#define KNH_TFIELDN_SIZE 240
 
 /* ======================================================================== */
 /* METHODN */
@@ -1595,6 +1597,7 @@
 #define METHODN_opN     FIELDN_opn
 #define METHODN_read    FIELDN_read
 #define METHODN_split   FIELDN_split
+#define METHODN_getUCS4 METHODN_TO_GETTER(FIELDN_ucs4)
 #define METHODN_lastIndexOf__IgnoreCase FIELDN_lastindexof__ignorecase
 #define METHODN_print   FIELDN_print
 #define METHODN_opMatch FIELDN_opmatch

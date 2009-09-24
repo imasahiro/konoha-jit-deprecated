@@ -831,7 +831,7 @@ static knh_ClassData_t ClassData[] = {
 	   CLASS_Float, CLASS_Number, 17, 5, 2,
 	   TYPE_void, TYPE_void, TYPE_void, TYPE_void},
 	{"String", CLASS_String, FLAG_String, 
-	   CLASS_String, CLASS_Object, 33, 2, 4,
+	   CLASS_String, CLASS_Object, 34, 2, 6,
 	   TYPE_void, TYPE_void, TYPE_void, TYPE_void},
 	{"Bytes", CLASS_Bytes, FLAG_Bytes, 
 	   CLASS_Bytes, CLASS_Object, 11, 2, 1,
@@ -1246,6 +1246,7 @@ static knh_FieldNameData_t FieldNameData[] = {
 	{"twofold", FIELDN_twofold},
 	{"typeof", FIELDN_typeof},
 	{"u", FIELDN_u},
+	{"uCS4", FIELDN_uCS4},
 	{"undefined", FIELDN_undefined},
 	{"unique", FIELDN_unique},
 	{"unlikely", FIELDN_unlikely},
@@ -1556,6 +1557,7 @@ static knh_MethodData_t MethodData[] = {
 	{HashMap_opHas, 0, CLASS_HashMap, METHODN_opHas, 0, 41, NULL},
 	{HashMap_remove, 0, CLASS_HashMap, METHODN_remove, 0, 42, NULL},
 	{HashMap_set, 0, CLASS_HashMap, METHODN_set, 0, 43, NULL},
+	{String_opItr, 0, CLASS_String, METHODN_opItr, 0, 44, NULL},
 	{Range_opItr, 0, CLASS_Range, METHODN_opItr, 0, 44, NULL},
 	{Array_opItr, 0, CLASS_Array, METHODN_opItr, 0, 44, NULL},
 	{IArray_opItr, 0, CLASS_IArray, METHODN_opItr, 0, 44, NULL},
@@ -1771,7 +1773,7 @@ static knh_MethodData_t MethodData[] = {
 	{String_twofold, FLAG_Method_Const, CLASS_String, METHODN_twofold, 0, 123, NULL},
 	{String_format, FLAG_Method_VarArgs, CLASS_String, METHODN_format, 0, 122, NULL},
 	{String_replace, FLAG_Method_Const, CLASS_String, METHODN_replace, 0, 124, NULL},
-	{String_getChar, FLAG_Method_Const, CLASS_String, METHODN_getChar, 0, 125, NULL},
+	{String_getUCS4, FLAG_Method_Const, CLASS_String, METHODN_getUCS4, 0, 125, NULL},
 	{String_toLower, FLAG_Method_Const, CLASS_String, METHODN_toLower, 0, 76, NULL},
 	{String_toUpper, FLAG_Method_Const, CLASS_String, METHODN_toUpper, 0, 76, NULL},
 	{String_trim, FLAG_Method_Const, CLASS_String, METHODN_trim, 0, 76, NULL},
@@ -1859,6 +1861,8 @@ static knh_MethodData_t MethodData[] = {
 };
 
 static knh_MapperData_t MapperData[] = {
+	{String_Iterator, 0, CLASS_String, CLASS_Iterator},
+	{String_Iterator, 0, CLASS_String, CLASS_String_Itr},
 	{Array_Iterator, 0, CLASS_Array, CLASS_Iterator},
 	{knh_IArray_Iterator, 0, CLASS_IArray, CLASS_Iterator},
 	{knh_FArray_Iterator, 0, CLASS_FArray, CLASS_Iterator},

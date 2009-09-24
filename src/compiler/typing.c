@@ -914,33 +914,31 @@ int knh_TokenNUM_typing(Ctx *ctx, knh_Token_t *tk, knh_NameSpace_t *ns, knh_clas
 static
 int knh_TokenSTR_typing(Ctx *ctx, knh_Token_t *tk, knh_NameSpace_t *ns, knh_class_t reqt)
 {
-	knh_class_t reqc = CLASS_type(reqt);
-	if(reqc == CLASS_String || reqc == CLASS_Object || reqc == CLASS_Any) {
-		KNH_ASSERT(IS_String(DP(tk)->data));
-		knh_Token_toCONST(ctx, tk);
-		return 1;
-	}
-	else if(reqc == CLASS_Exception) {
-		knh_Token_setCONST(ctx, tk, UP(new_Exception(ctx, DP(tk)->text)));
-		return 1;
-	}
-	else {
-		knh_class_t breqc = ctx->share->ClassTable[reqc].bcid;
-		if(breqc == CLASS_String) {
-			knh_bytes_t t = knh_Token_tobytes(ctx, tk);
-			knh_ClassSpec_t *u = knh_getClassSpec(ctx, reqc);
-			int foundError = 0;
-			knh_String_t *s = DP(u)->fsnew(ctx, reqc, t, NULL, &foundError);
-			if(foundError) {
-				knh_Token_perror(ctx, tk, KERR_TERROR, _("invalid string: %O of %C"), DP(tk)->data, reqc);
-				return 0;
-			}
-			knh_Token_setCONST(ctx, tk, UP(s));
-			return 1;
-		}
-	}
-	knh_Token_perror(ctx, tk, KERR_TERROR, _("not string: %C"), reqc);
-	return 0;
+//	knh_class_t reqc = CLASS_type(reqt);
+	DBG2_ASSERT(IS_String(DP(tk)->data));
+//	if(reqc == CLASS_Exception) {
+//		knh_Token_setCONST(ctx, tk, UP(new_Exception(ctx, DP(tk)->text)));
+//		return 1;
+//	}
+//	else {
+//		knh_class_t breqc = ClassTable(reqc).bcid;
+//		if(breqc == CLASS_String) {
+//			knh_bytes_t t = knh_Token_tobytes(ctx, tk);
+//			knh_ClassSpec_t *u = knh_getClassSpec(ctx, reqc);
+//			int foundError = 0;
+//			knh_String_t *s = DP(u)->fsnew(ctx, reqc, t, NULL, &foundError);
+//			if(foundError) {
+//				knh_Token_perror(ctx, tk, KERR_TERROR, _("invalid string: %O of %C"), DP(tk)->data, reqc);
+//				return 0;
+//			}
+//			knh_Token_setCONST(ctx, tk, UP(s));
+//			return 1;
+//		}
+//	}
+	knh_Token_toCONST(ctx, tk);
+	return 1;
+//	knh_Token_perror(ctx, tk, KERR_TERROR, _("not string: %C"), reqc);
+//	return 0;
 }
 
 /* ------------------------------------------------------------------------ */

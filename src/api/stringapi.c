@@ -372,9 +372,9 @@ static METHOD String_replace(Ctx *ctx, knh_sfp_t *sfp)
 }
 
 /* ------------------------------------------------------------------------ */
-//## @Const method Int! String.getChar(Int? n);
+//## @Const method Int! String.getUCS4(Int? n);
 
-static METHOD String_getChar(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD String_getUCS4(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_bytes_t base = knh_String_tobytes(sfp[0].s);
 	knh_intptr_t index = IS_NULL(sfp[1].o) ? 0 : (knh_intptr_t)sfp[1].ivalue;

@@ -38,6 +38,41 @@ extern "C" {
 #ifdef KNH_CC_METHODAPI
 
 /* ======================================================================== */
+/* [String] */
+
+static ITRNEXT knh_String_nextChar(Ctx *ctx, knh_sfp_t *sfp, int n)
+{
+	knh_Iterator_t *itr = sfp[0].it;
+	knh_String_t *s = (knh_String_t*)DP(itr)->source;
+	knh_bytes_t base = knh_String_tobytes(s);
+	size_t pos = (size_t)DP(itr)->pos;
+	if(pos < knh_bytes_mlen(base)) {
+		DP(itr)->pos = pos+1;
+		knh_bytes_t sub = knh_bytes_mofflen(base, pos, 1);
+		s = new_String(ctx, sub, s);
+		KNH_ITRNEXT(ctx, sfp, n, UP(s));
+	}
+	KNH_ITREND(ctx, sfp, n);
+}
+
+/* ------------------------------------------------------------------------ */
+//## @General mapper String Iterator;
+//## mapper String String..;
+
+static MAPPER String_Iterator(Ctx *ctx, knh_sfp_t *sfp)
+{
+	KNH_MAPPED(ctx, sfp, new_Iterator(ctx, CLASS_String, sfp[0].o, knh_String_nextChar));
+}
+
+/* ------------------------------------------------------------------------ */
+//## method String.. String.opItr();
+
+static METHOD String_opItr(Ctx *ctx, knh_sfp_t *sfp)
+{
+	KNH_RETURN(ctx, sfp, new_Iterator(ctx, CLASS_String, sfp[0].o, knh_String_nextChar));
+}
+
+/* ======================================================================== */
 /* [Range] */
 
 static ITRNEXT knh_Range_inext(Ctx *ctx, knh_sfp_t *sfp, int n)
