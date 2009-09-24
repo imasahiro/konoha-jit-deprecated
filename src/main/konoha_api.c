@@ -361,53 +361,64 @@ KNHAPI(int) konoha_loadScript(konoha_t konoha, char *fpath)
 
 /* ------------------------------------------------------------------------ */
 
+KNHAPI(void) knh_setArgv(Ctx* ctx, int argc, char** argv)
+{
+    knh_Array_t *a = new_Array(ctx, CLASS_String, argc);
+    int i;
+    for(i = 0; i < argc; i++) {
+        knh_Array_add(ctx, a, UP(T__(argv[i])));
+    }
+    knh_DictMap_set(ctx, DP(ctx->sys)->props,T__("argv"), UP(a));
+}
+
+/* ------------------------------------------------------------------------ */
+
 KNHAPI(int) konoha_runMain(konoha_t konoha, int argc, char **argv)
 {
-	KONOHA_CHECK(konoha, -1);
-	Ctx *ctx = knh_beginContext(konoha.ctx);
-	knh_sfp_t *lsfp = KNH_LOCAL(ctx);
-	KNH_MOV(ctx, lsfp[0].o, new_ExceptionHandler(ctx));
-	KNH_TRY(ctx, L_CATCH, lsfp, 0);
-	{
-		knh_NameSpace_t *ns = ctx->share->mainns;
-		knh_Script_t *scr = knh_NameSpace_getScript(ctx, ns);
-		knh_Method_t *mtd = knh_Class_getMethod(ctx, knh_Object_cid(scr), METHODN_main);
-		if(IS_NULL(mtd)) {
-			goto L_END_TRY;
-		}
-		if(knh_Method_psize(mtd) == 1) {
-			knh_type_t ptype = knh_Method_pztype(mtd, 0);
-			if(CLASS_type(ptype) != CLASS_String_Ary) {
-				knh_setRuntimeError(ctx, T__("Type!!: main()"));
-				goto L_END_TRY;
-			}
-			else {
-				knh_Array_t *a = new_Array(ctx, CLASS_String, argc);
-				int i;
-				for(i = 0; i < argc; i++) {
-					knh_Array_add(ctx, a, UP(T__(argv[i])));
-				}
-				//KNH_MOV(ctx, lsfp[1].o, mtd);
-				KNH_MOV(ctx, lsfp[2].o, scr);
-				KNH_MOV(ctx, lsfp[3].o, a);
-				KNH_SCALL(ctx, lsfp, 1, mtd, /* args*/ 1);
-			}
-		}
-		else {
-			knh_setRuntimeError(ctx, T__("Type!!: main()"));
-			goto L_END_TRY;
-		}
-	}
-	L_END_TRY:
-	knh_Context_clearstack(ctx);
-	knh_endContext(ctx);
-	return (ctx->hasError == 0 ? 0 : 1);
+    KONOHA_CHECK(konoha, -1);
+    Ctx *ctx = knh_beginContext(konoha.ctx);
+    knh_sfp_t *lsfp = KNH_LOCAL(ctx);
+    KNH_MOV(ctx, lsfp[0].o, new_ExceptionHandler(ctx));
+    KNH_TRY(ctx, L_CATCH, lsfp, 0);
+    {
+        knh_NameSpace_t *ns = ctx->share->mainns;
+        knh_Script_t *scr = knh_NameSpace_getScript(ctx, ns);
+        knh_Method_t *mtd = knh_Class_getMethod(ctx, knh_Object_cid(scr), METHODN_main);
+        
+        knh_setArgv(ctx, argc, argv);
 
-	/* catch */
-	L_CATCH:;
-	KNH_PRINT_STACKTRACE(ctx, lsfp, 0);
-	knh_endContext(ctx);
-	return (ctx->hasError == 0 ? 0 : 1);
+        if(IS_NULL(mtd)) {
+            goto L_END_TRY;
+        }
+        if(knh_Method_psize(mtd) == 1) {
+            knh_type_t ptype = knh_Method_pztype(mtd, 0);
+            if(CLASS_type(ptype) != CLASS_String_Ary) {
+                knh_setRuntimeError(ctx, T__("Type!!: main()"));
+                goto L_END_TRY;
+            }
+            else {
+                //KNH_MOV(ctx, lsfp[1].o, mtd);
+                knh_Array_t *a = (knh_Array_t *) knh_Context_getProperty(ctx, (knh_Context_t *)ctx, B("argv"));
+                KNH_MOV(ctx, lsfp[2].o, scr);
+                KNH_MOV(ctx, lsfp[3].o, a);
+                KNH_SCALL(ctx, lsfp, 1, mtd, /* args*/ 1);
+            }
+        }
+        else {
+            knh_setRuntimeError(ctx, T__("Type!!: main()"));
+            goto L_END_TRY;
+        }
+    }
+L_END_TRY:
+    knh_Context_clearstack(ctx);
+    knh_endContext(ctx);
+    return (ctx->hasError == 0 ? 0 : 1);
+
+    /* catch */
+L_CATCH:;
+        KNH_PRINT_STACKTRACE(ctx, lsfp, 0);
+        knh_endContext(ctx);
+        return (ctx->hasError == 0 ? 0 : 1);
 }
 
 
