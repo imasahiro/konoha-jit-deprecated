@@ -22047,18 +22047,18 @@ cat >>confdefs.h <<_ACEOF
 _ACEOF
 
 
-{ echo "$as_me:$LINENO: result: this is ${datadir}" >&5
-echo "${ECHO_T}this is ${datadir}" >&6; }
-if  test  "${datadir}" != "NONE" ; then
+{ echo "$as_me:$LINENO: result: this is ${prefix}" >&5
+echo "${ECHO_T}this is ${prefix}" >&6; }
+if  test  "${prefix}" != "NONE" ; then
 
 cat >>confdefs.h <<_ACEOF
-#define KNH_PREFIX "${datadir}"
+#define KNH_PREFIX "${prefix}"
 _ACEOF
 
 else
 
 cat >>confdefs.h <<_ACEOF
-#define KNH_PREFIX "$ac_default_datadir"
+#define KNH_PREFIX "$ac_default_prefix"
 _ACEOF
 
 fi

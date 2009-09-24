@@ -89,10 +89,10 @@ am_libkonoha_la_OBJECTS = anyapi.lo arrayapi.lo compilerapi.lo \
 	perror.lo stmt.lo token.lo tokenizer.lo typing.lo dlopen.lo \
 	fileio.lo filesystem.lo locale.lo regex.lo socket.lo \
 	sqlite3.lo thread.lo time.lo mt19937-64.lo mt19937ar.lo \
-	qsort.lo strerror.lo konohadev_main.lo b4.lo exports.lo \
-	glue.lo konoha_api.lo konoha_ext.lo logging.lo memory.lo \
-	metadata.lo objectdbms.lo security.lo stack.lo system.lo \
-	systemtable.lo typesystem.lo
+	qsort.lo strerror.lo strlen.lo konohadev_main.lo b4.lo \
+	exports.lo glue.lo konoha_api.lo konoha_ext.lo logging.lo \
+	memory.lo metadata.lo objectdbms.lo security.lo stack.lo \
+	system.lo systemtable.lo typesystem.lo
 libkonoha_la_OBJECTS = $(am_libkonoha_la_OBJECTS)
 libkonoha_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
@@ -300,7 +300,7 @@ libkonoha_la_SOURCES = ../src/api/anyapi.c ../src/api/arrayapi.c \
 	../src/deps/locale.c ../src/deps/regex.c ../src/deps/socket.c \
 	../src/deps/sqlite3.c ../src/deps/thread.c ../src/deps/time.c \
 	../src/ext/mt19937-64.c ../src/ext/mt19937ar.c \
-	../src/ext/qsort.c ../src/ext/strerror.c \
+	../src/ext/qsort.c ../src/ext/strerror.c ../src/ext/strlen.c \
 	../src/konohadev_main.c ../src/labs/b4.c ../src/main/exports.c \
 	../src/main/glue.c ../src/main/konoha_api.c \
 	../src/main/konoha_ext.c ../src/main/logging.c \
@@ -325,22 +325,22 @@ libkonoha_la_includekonoha_HEADERS = ../include/konoha/konoha_api.h \
 	../include/konoha/license.h
 libkonoha_la_includegendir = $(includedir)/../include/konoha/gen
 libkonoha_la_includegen_HEADERS = 
-sampledir = $(datadir)/konoha/sample
+sampledir = $(prefix)/konoha/sample
 dist_sample_SCRIPTS = ../dist/sample/ao.k ../dist/sample/counter.k \
 	../dist/sample/err.k ../dist/sample/fib.k \
 	../dist/sample/helloworld.k ../dist/sample/http.k \
 	../dist/sample/konohaget.k ../dist/sample/main.k \
 	../dist/sample/readfile.k ../dist/sample/sort.k
-pkgmathdir = $(datadir)/konoha/package/math
+pkgmathdir = $(prefix)/konoha/package/math
 dist_pkgmath_DATA = ../dist/package/math/math.k \
 	../dist/package/math/math_linux_32.so \
 	../dist/package/math/math_macosx_32.dylib \
 	../dist/package/math/math_macosx_64.dylib
-pkgposixdir = $(datadir)/konoha/package/posix
+pkgposixdir = $(prefix)/konoha/package/posix
 dist_pkgposix_DATA = ../dist/package/posix/posix.k \
 	../dist/package/posix/posix_linux_32.so \
 	../dist/package/posix/posix_macosx_32.dylib
-pkgxmldir = $(datadir)/konoha/package/xml
+pkgxmldir = $(prefix)/konoha/package/xml
 dist_pkgxml_DATA = ../dist/package/xml/libxml2.k \
 	../dist/package/xml/libxml2_linux_32.so \
 	../dist/package/xml/libxml2_macosx_32.dylib \
@@ -349,10 +349,10 @@ dist_pkgxml_DATA = ../dist/package/xml/libxml2.k \
 	../dist/package/xml/sample/xmlreader_2.k \
 	../dist/package/xml/src/xml.k \
 	../dist/package/xml/src/xmlreader.k
-pkgdemodir = $(datadir)/konoha/package/demo
+pkgdemodir = $(prefix)/konoha/package/demo
 dist_pkgdemo_DATA = ../dist/package/demo/demo.k \
 	../dist/package/demo/demo_macosx_32.dylib
-scriptklipdir = $(datadir)/konoha/script/klip
+scriptklipdir = $(prefix)/konoha/script/klip
 dist_scriptklip_SCRIPTS = ../dist/bin/klip.k
 klipdir = $(bindir)
 dist_klip_SCRIPTS = ../dist/bin/klip
@@ -593,6 +593,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/streamapi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/strerror.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stringapi.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/strlen.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/structapi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/system.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/systemapi.Plo@am__quote@
@@ -1114,6 +1115,13 @@ strerror.lo: ../src/ext/strerror.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/ext/strerror.c' object='strerror.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o strerror.lo `test -f '../src/ext/strerror.c' || echo '$(srcdir)/'`../src/ext/strerror.c
+
+strlen.lo: ../src/ext/strlen.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT strlen.lo -MD -MP -MF $(DEPDIR)/strlen.Tpo -c -o strlen.lo `test -f '../src/ext/strlen.c' || echo '$(srcdir)/'`../src/ext/strlen.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/strlen.Tpo $(DEPDIR)/strlen.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/ext/strlen.c' object='strlen.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o strlen.lo `test -f '../src/ext/strlen.c' || echo '$(srcdir)/'`../src/ext/strlen.c
 
 konohadev_main.lo: ../src/konohadev_main.c
 @am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT konohadev_main.lo -MD -MP -MF $(DEPDIR)/konohadev_main.Tpo -c -o konohadev_main.lo `test -f '../src/konohadev_main.c' || echo '$(srcdir)/'`../src/konohadev_main.c

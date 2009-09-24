@@ -55,6 +55,8 @@
 #define KONOHA_VERSION  "0.7"
 #endif
 
+#define LIBKONOHA_VERSION "0.7"
+
 #define KONOHA_XCODE    "BAKUMAN"
 #define KONOHA_URL		"http://konoha.sourceforge.jp/"
 #define KONOHA_URLBASE  "kttp://konoha.sourceforge.jp/wiki/"
