@@ -353,12 +353,18 @@ void knh_Stmt_add_PARAMs(Ctx *ctx, knh_Stmt_t *o, knh_tkc_t *tc)
 		int idx = knh_tokens_findTTIDX(tc, TT_COMMA, tc->e);
 		knh_tkc_t tcbuf, *expr = knh_tokens_firstEXPR(tc, idx, &tcbuf);
 		if(IS_EMPTY(expr)) continue;
-		if(TT_(expr->ts[expr->c]) == TT_DOTS) {
+		knh_Token_t *tkT = expr->ts[expr->c];
+		if(TT_(tkT) == TT_DOTS) {
 			/* @TEST (T1 v1, T2 v2, ...) */
 			if(stmtPARAMs != NULL) {
 				knh_Stmt_setVARARGS(o, 1);
 			}
 			break;
+		}
+		if(expr->c + 1 == expr->e && TT_(tkT) == TT_TYPEN) {
+			/* void */
+			knh_Token_perror(ctx, tkT, KERR_DWARN, "no needs: %s", sToken(tkT));
+			continue;
 		}
 		else {
 			knh_Stmt_t *stmtPARAM = new_StmtMETA(ctx, expr, STT_DECL);

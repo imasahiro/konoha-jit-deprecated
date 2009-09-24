@@ -2,7 +2,7 @@
 
 /* ======================================================================== */
 /* MACROS */
-#define KONOHA_BUILDID                  696
+#define KONOHA_BUILDID                  697
 
 /* ======================================================================== */
 /* STRUCT */
@@ -683,19 +683,8 @@
 #define FLAG_Cmpr               knh_flag_oflag(CFLAG_Cmpr)
 
 /* ------------------------------------------------------------------------ */
-/* T1_Itr */
-#define CLASS_T1_Itr            ((knh_class_t)KNH_TCLASS_SIZE-(11+1))
-#define STRUCT_T1_Itr           STRUCT_Iterator
-#define IS_T1_Itr(o)            ((o)->h.cid == CLASS_T1_Itr)
-#define TYPE_T1_Itr             CLASS_T1_Itr
-#define NNTYPE_T1_Itr           NNTYPE_cid(CLASS_T1_Itr)
-#define NATYPE_T1_Itr           NATYPE_cid(CLASS_T1_Itr)
-#define CFLAG_T1_Itr            ((knh_flag_t)0)
-#define FLAG_T1_Itr             knh_flag_oflag(CFLAG_T1_Itr)
-
-/* ------------------------------------------------------------------------ */
 /* String_Itr */
-#define CLASS_String_Itr        ((knh_class_t)KNH_TCLASS_SIZE-(12+1))
+#define CLASS_String_Itr        ((knh_class_t)KNH_TCLASS_SIZE-(11+1))
 #define STRUCT_String_Itr       STRUCT_Iterator
 #define IS_String_Itr(o)        ((o)->h.cid == CLASS_String_Itr)
 #define TYPE_String_Itr         CLASS_String_Itr
@@ -703,6 +692,17 @@
 #define NATYPE_String_Itr       NATYPE_cid(CLASS_String_Itr)
 #define CFLAG_String_Itr        ((knh_flag_t)0)
 #define FLAG_String_Itr         knh_flag_oflag(CFLAG_String_Itr)
+
+/* ------------------------------------------------------------------------ */
+/* T1_Itr */
+#define CLASS_T1_Itr            ((knh_class_t)KNH_TCLASS_SIZE-(12+1))
+#define STRUCT_T1_Itr           STRUCT_Iterator
+#define IS_T1_Itr(o)            ((o)->h.cid == CLASS_T1_Itr)
+#define TYPE_T1_Itr             CLASS_T1_Itr
+#define NNTYPE_T1_Itr           NNTYPE_cid(CLASS_T1_Itr)
+#define NATYPE_T1_Itr           NATYPE_cid(CLASS_T1_Itr)
+#define CFLAG_T1_Itr            ((knh_flag_t)0)
+#define FLAG_T1_Itr             knh_flag_oflag(CFLAG_T1_Itr)
 
 /* ------------------------------------------------------------------------ */
 /* PairST1_Itr */

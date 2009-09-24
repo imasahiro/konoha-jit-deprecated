@@ -3483,27 +3483,29 @@ void knh_Stmt_toBLOCK(Ctx *ctx, knh_Stmt_t *stmt, size_t n)
 	DP(stmt)->size = 1;
 }
 
-/* ------------------------------------------------------------------------ */
-
 static
 Term *knh_StmtIF_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace_t *ns)
 {
+	int isIteration = 1;
 	if(!TERMs_typing(ctx, stmt, 0, abr, ns, NNTYPE_Boolean, TCHECK_)) {
 		return NULL;
 	}
+	if(knh_Stmt_isAutoReturn(stmt)) {
+		isIteration = 2/*AutoReturn*/;
+	}
 	if(TERMs_isTRUE(stmt, 0)) {
 		knh_Stmt_done(ctx, DP(stmt)->stmts[2]);
-		TERMs_typingBLOCK(ctx, stmt, 1, abr, ns, 2/*AutoReturn*/);
+		TERMs_typingBLOCK(ctx, stmt, 1, abr, ns, isIteration);
 		knh_Stmt_toBLOCK(ctx, stmt, 1);
 	}
 	else if(TERMs_isFALSE(stmt, 0)) {
 		knh_Stmt_done(ctx, DP(stmt)->stmts[1]);
-		TERMs_typingBLOCK(ctx, stmt, 2, abr, ns, 2/*AutoReturn*/);
+		TERMs_typingBLOCK(ctx, stmt, 2, abr, ns, isIteration);
 		knh_Stmt_toBLOCK(ctx, stmt, 2);
 	}
 	else {
-		TERMs_typingBLOCK(ctx, stmt, 1, abr, ns, 2/*AutoReturn*/);
-		TERMs_typingBLOCK(ctx, stmt, 2, abr, ns, 2/*AutoReturn*/);
+		TERMs_typingBLOCK(ctx, stmt, 1, abr, ns, isIteration);
+		TERMs_typingBLOCK(ctx, stmt, 2, abr, ns, isIteration);
 	}
 	return TM(stmt);
 }
@@ -3522,6 +3524,7 @@ knh_Stmt_t *new_StmtMN(Ctx *ctx, Any *fl, knh_methodn_t mn)
 static
 Term *knh_StmtSWITCH_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace_t *ns)
 {
+	int isIteration = 1;
 	knh_Stmt_t *stmtCASE, *stmtDEFAULT = NULL;
 	knh_Token_t *tkIT = NULL;
 	int c = 0;
@@ -3530,6 +3533,9 @@ Term *knh_StmtSWITCH_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_Name
 	}
 	else {
 		tkIT = knh_Stmt_add_IT(ctx, stmt, TERMs_gettype(stmt, 0), 0);
+	}
+	if(knh_Stmt_isAutoReturn(stmt)) {
+		isIteration = 2/*AutoReturn*/;
 	}
 	stmtCASE = DP(stmt)->stmts[1];
 	while(IS_Stmt(stmtCASE)) {
@@ -3541,7 +3547,7 @@ Term *knh_StmtSWITCH_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_Name
 					goto L_NEXT;
 				}
 				stmtDEFAULT = stmtCASE;
-				TERMs_typingBLOCK(ctx, stmtCASE, 1, abr, ns, 2/*AutoReturn*/);
+				TERMs_typingBLOCK(ctx, stmtCASE, 1, abr, ns, isIteration);
 				c++;
 				goto L_NEXT;
 			}
@@ -3559,7 +3565,7 @@ Term *knh_StmtSWITCH_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_Name
 					goto L_NEXT;
 				}
 			}
-			TERMs_typingBLOCK(ctx, stmtCASE, 1, abr, ns, 2/*AutoReturn*/);
+			TERMs_typingBLOCK(ctx, stmtCASE, 1, abr, ns, isIteration);
 			c++;
 		}
 		L_NEXT:;
@@ -3777,8 +3783,12 @@ Term *knh_StmtFOREACH_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_Nam
 static
 Term *knh_StmtTRY_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace_t *ns)
 {
+	int isIteration = 1;
 	knh_Stmt_add_IT(ctx, stmt, NNTYPE_Exception, 0);
-	TERMs_typingBLOCK(ctx, stmt, TRY_try, abr, ns, 2/*AutoReturn*/);
+	if(knh_Stmt_isAutoReturn(stmt)) {
+		isIteration = 2/*AutoReturn*/;
+	}
+	TERMs_typingBLOCK(ctx, stmt, TRY_try, abr, ns, isIteration);
 	{
 		knh_Stmt_t *stmtCATCH = DP(stmt)->stmts[TRY_catch];
 		while(IS_Stmt(stmtCATCH)) {
@@ -3795,14 +3805,14 @@ Term *knh_StmtTRY_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpa
 						knh_Stmt_done(ctx, stmtCATCH);
 					}
 					else {
-						TERMs_typingBLOCK(ctx, stmtCATCH, 2, abr, ns, 2/*AutoReturn*/);
+						TERMs_typingBLOCK(ctx, stmtCATCH, 2, abr, ns, isIteration);
 					}
 				}
 			}
 			stmtCATCH = DP(stmtCATCH)->next;
 		}
 	}
-	TERMs_typingBLOCK(ctx, stmt, TRY_finally, abr, ns, 2/*AutoReturn*/);
+	TERMs_typingBLOCK(ctx, stmt, TRY_finally, abr, ns, isIteration);
 	return TM(stmt);
 }
 

@@ -48,7 +48,7 @@ static METHOD System_setRandomSeed(Ctx *ctx, knh_sfp_t *sfp)
 }
 
 /* ------------------------------------------------------------------------ */
-//## @Static method Int! Int.random(Int n);
+//## @Static method Int! Int.random(Int? n);
 
 static METHOD Int_random(Ctx *ctx, knh_sfp_t *sfp)
 {
