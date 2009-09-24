@@ -437,6 +437,7 @@ Object *knh_Object_copy(Ctx *ctx, Object *b);
 knh_hcode_t knh_Object_hashCode(Ctx *ctx, Object *o);
 knh_String_t *knh_Object_key(Ctx *ctx, Object *o);
 int knh_Object_compareTo(Ctx *ctx, Object *o1, Object *o2);
+int knh_Object_compareTo2(Ctx *ctx, Object **o1, Object **o2);
 knh_bool_t knh_Object_equals(Ctx *ctx, Object *o1, Object *o2);
 knh_bytes_t knh_Object_tobytes(Ctx *ctx, Object *o);
 Object *knh_OutputStream_open(Ctx *ctx, knh_OutputStream_t *o, knh_String_t *urn, knh_String_t *m);

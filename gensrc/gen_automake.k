@@ -37,12 +37,12 @@ libkonoha_la_SOURCES =
 """);
 
     foreach (String p in System.walk("../src")) {
-        //OUT << p << EOL;
         if(p.indexOf(".svn") >= 0) continue;
         if(p.endsWith(".c") == false ) continue;
         if(p.endsWith("konoha.c")) continue;
         //if(p.indexOf("/api") >= 0) continue;
 
+        OUT << p << EOL;
         o.println(%("libkonoha_la_SOURCES += %s{0}",p));
     }
 
@@ -90,7 +90,8 @@ libkonoha_la_SOURCES =
 
         foreach (String p in System.walk(%("../dist/package/%s{0}", pname))) {
             if(p.indexOf(".svn") >= 0) continue;
-            if((p.endsWith(".k") == false) and (p.endsWith(".so") == false) and (p.endsWith(".dylib") == false)) continue;
+            if((p.endsWith(".k") == false) and (p.endsWith(".so") == false) 
+                    and (p.endsWith(".dylib") == false)) continue;
             if(p.endsWith("konoha.h")) continue;
             // little bit tricky...
             o.println(%("dist_pkg%s{0}_DATA += %s{1}", pname ,p));

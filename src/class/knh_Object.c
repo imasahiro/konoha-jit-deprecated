@@ -115,16 +115,15 @@ knh_String_t *knh_Object_key(Ctx *ctx, Object *o)
 	KNH_SETv(ctx, lsfp[-1].o, s);
 	return s;
 }
-
 /* ------------------------------------------------------------------------ */
 
 int knh_Object_compareTo(Ctx *ctx, Object *o1, Object *o2)
 {
-	knh_class_t bcid = o1->h.bcid;
+	knh_class_t bcid1 = o1->h.bcid;
 	knh_class_t bcid2 = o2->h.bcid;
 	int res;
-	if(bcid == bcid2) {
-		res = StructTable(bcid).fcompareTo(ctx, o1, o2);
+	if(bcid1 == bcid2) {
+		res = StructTable(bcid1).fcompareTo(ctx, o1, o2);
 	}
 	else {
 		if((o1->h.cid == CLASS_Int || o1->h.cid == CLASS_Float)
@@ -141,6 +140,30 @@ int knh_Object_compareTo(Ctx *ctx, Object *o1, Object *o2)
 
 /* ------------------------------------------------------------------------ */
 
+int knh_Object_compareTo2(Ctx *ctx, Object **o1, Object **o2)
+{
+	Object* _o1 = *((Object**) o1);
+	Object* _o2 = *((Object**) o2);
+	knh_class_t bcid1 = _o1->h.bcid;
+	knh_class_t bcid2 = _o2->h.bcid;
+	int res;
+	if(bcid1 == bcid2) {
+		res = StructTable(bcid1).fcompareTo(ctx, _o1, _o2);
+	}
+	else {
+		if((_o1->h.cid == CLASS_Int || _o1->h.cid == CLASS_Float)
+		&& (_o2->h.cid == CLASS_Int || _o2->h.cid == CLASS_Float)) {
+			res = (int)knh_Number_tofloat(_o1) - (int)knh_Number_tofloat(_o2);
+		}
+		else {
+			res = (int)(_o1 - _o2);
+		}
+	}
+	DBG2_P("compared %s %s res=%d", CLASSNo(_o1), CLASSNo(_o2), res);
+	return res;
+}
+
+/* ------------------------------------------------------------------------ */
 
 knh_bool_t knh_Object_equals(Ctx *ctx, Object *o1, Object *o2)
 {
