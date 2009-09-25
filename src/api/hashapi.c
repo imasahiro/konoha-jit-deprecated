@@ -41,11 +41,11 @@ extern "C" {
 /* [common] */
 
 static
-knh_hcode_t knh_stack_hashCode(Ctx *ctx, knh_sfp_t *sfp)
+knh_hashcode_t knh_stack_hashCode(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_class_t bcid = (sfp[0].o)->h.bcid;
 	if(CLASS_Boolean <= bcid && bcid <= CLASS_Float) {
-		return (knh_hcode_t)(sfp[0].i)->n.data;
+		return (knh_hashcode_t)(sfp[0].i)->n.data;
 	}
 	return ctx->share->StructTable[bcid].fhashCode(ctx, sfp[0].o);
 }
@@ -81,7 +81,7 @@ static METHOD HashMap_new(Ctx *ctx, knh_sfp_t *sfp)
 static METHOD HashMap_get(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_HashMap_t *o = (knh_HashMap_t*)sfp[0].o;
-	knh_hcode_t hcode = knh_stack_hashCode(ctx, sfp + 1);
+	knh_hashcode_t hcode = knh_stack_hashCode(ctx, sfp + 1);
 	knh_uintptr_t h =  hcode % DP(o)->hmax;
 	knh_hashentry_t *e = DP(o)->array[h];
 
@@ -102,7 +102,7 @@ static METHOD HashMap_get(Ctx *ctx, knh_sfp_t *sfp)
 static METHOD HashMap_opHas(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_HashMap_t *o = (knh_HashMap_t*)sfp[0].o;
-	knh_hcode_t hcode = knh_stack_hashCode(ctx, sfp + 1);
+	knh_hashcode_t hcode = knh_stack_hashCode(ctx, sfp + 1);
 	knh_uintptr_t h =  hcode % DP(o)->hmax;
 	knh_hashentry_t *e = DP(o)->array[h];
 
@@ -123,7 +123,7 @@ static METHOD HashMap_opHas(Ctx *ctx, knh_sfp_t *sfp)
 static METHOD HashMap_remove(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_Hash_t *o = (knh_Hash_t*)sfp[0].o;
-	knh_hcode_t hcode = knh_stack_hashCode(ctx, sfp + 1);
+	knh_hashcode_t hcode = knh_stack_hashCode(ctx, sfp + 1);
 	knh_uintptr_t h =  hcode % DP(o)->hmax;
 	knh_hashentry_t *e = DP(o)->array[h];
 	knh_hashentry_t **prev_next = &(DP(o)->array[h]);
@@ -152,7 +152,7 @@ static METHOD HashMap_set(Ctx *ctx, knh_sfp_t *sfp)
 	}
 	else {
 		knh_Hash_t *o = (knh_Hash_t*)sfp[0].o;
-		knh_hcode_t hcode = knh_stack_hashCode(ctx, sfp + 1);
+		knh_hashcode_t hcode = knh_stack_hashCode(ctx, sfp + 1);
 		knh_uintptr_t h =  hcode % DP(o)->hmax;
 		knh_hashentry_t *e = DP(o)->array[h];
 
@@ -206,7 +206,7 @@ static METHOD HashMap_set(Ctx *ctx, knh_sfp_t *sfp)
 ////## method Boolean HashSet.opHas(T1 key);
 //
 //
-//knh_bool_t knh_HashSet_opHas(Ctx *ctx, HashSet *b, knh_hcode_t key, Object *keyobj)
+//knh_bool_t knh_HashSet_opHas(Ctx *ctx, HashSet *b, knh_hashcode_t key, Object *keyobj)
 //{
 //	return (knh_HashSet_get(ctx, b, key, keyobj) != 0);
 //}

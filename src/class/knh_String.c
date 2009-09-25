@@ -37,7 +37,7 @@ extern "C" {
 
 /* ======================================================================== */
 
-knh_hcode_t knh_uchar_hcode(knh_hcode_t h, knh_uchar_t *buf, size_t len)
+knh_hashcode_t knh_uchar_hcode(knh_hashcode_t h, knh_uchar_t *buf, size_t len)
 {
 	size_t i;
 	for(i = 0; i < len; i++) {

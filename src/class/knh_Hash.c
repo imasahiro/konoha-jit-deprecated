@@ -129,7 +129,7 @@ knh_HashMap_t* new_HashMap(Ctx *ctx, char *name, size_t capacity)
 /* ======================================================================== */
 /* [methods] */
 
-knh_hashentry_t *knh_Hash_get__hcode(Ctx *ctx, knh_Hash_t *o, knh_hcode_t hcode)
+knh_hashentry_t *knh_Hash_get__hcode(Ctx *ctx, knh_Hash_t *o, knh_hashcode_t hcode)
 {
 	knh_uintptr_t h = hcode % DP(o)->hmax;
 	knh_hashentry_t *e = DP(o)->array[h];
@@ -142,7 +142,7 @@ knh_hashentry_t *knh_Hash_get__hcode(Ctx *ctx, knh_Hash_t *o, knh_hcode_t hcode)
 
 /* ------------------------------------------------------------------------ */
 
-Object *knh_HashMap_get__hcode(Ctx *ctx, knh_HashMap_t *o, knh_hcode_t hcode)
+Object *knh_HashMap_get__hcode(Ctx *ctx, knh_HashMap_t *o, knh_hashcode_t hcode)
 {
 	knh_uintptr_t h = hcode % DP((knh_Hash_t*)o)->hmax;
 	knh_hashentry_t *e = DP((knh_Hash_t*)o)->array[h];
@@ -155,7 +155,7 @@ Object *knh_HashMap_get__hcode(Ctx *ctx, knh_HashMap_t *o, knh_hcode_t hcode)
 
 /* ------------------------------------------------------------------------ */
 
-knh_uintptr_t knh_HashSet_get__hcode(Ctx *ctx, knh_HashSet_t *o, knh_hcode_t hcode)
+knh_uintptr_t knh_HashSet_get__hcode(Ctx *ctx, knh_HashSet_t *o, knh_hashcode_t hcode)
 {
 	knh_uintptr_t h = hcode % DP((knh_Hash_t*)o)->hmax;
 	knh_hashentry_t *e = DP((knh_Hash_t*)o)->array[h];
@@ -168,7 +168,7 @@ knh_uintptr_t knh_HashSet_get__hcode(Ctx *ctx, knh_HashSet_t *o, knh_hcode_t hco
 
 /* ------------------------------------------------------------------------ */
 
-void knh_Hash_remove__hcode(Ctx *ctx, knh_Hash_t *o, knh_hcode_t hcode)
+void knh_Hash_remove__hcode(Ctx *ctx, knh_Hash_t *o, knh_hashcode_t hcode)
 {
 	knh_uintptr_t h = hcode % DP(o)->hmax;
 	knh_hashentry_t *e = DP(o)->array[h];
@@ -220,7 +220,7 @@ void knh_Hash_rehash(Ctx *ctx, knh_Hash_t *o)
 
 /* ------------------------------------------------------------------------ */
 
-void knh_HashMap_set__hcode(Ctx *ctx, knh_HashMap_t *o, knh_hcode_t hcode, Any *value)
+void knh_HashMap_set__hcode(Ctx *ctx, knh_HashMap_t *o, knh_hashcode_t hcode, Any *value)
 {
 	knh_Hash_t *hash = (knh_Hash_t*)o;
 	knh_hashentry_t *e = knh_Hash_get__hcode(ctx, hash, hcode);
@@ -241,7 +241,7 @@ void knh_HashMap_set__hcode(Ctx *ctx, knh_HashMap_t *o, knh_hcode_t hcode, Any *
 
 /* ------------------------------------------------------------------------ */
 
-void knh_HashSet_set__hcode(Ctx *ctx, knh_HashSet_t *o, knh_hcode_t hcode, knh_uintptr_t uvalue)
+void knh_HashSet_set__hcode(Ctx *ctx, knh_HashSet_t *o, knh_hashcode_t hcode, knh_uintptr_t uvalue)
 {
 	knh_Hash_t *hash = (knh_Hash_t*)o;
 	knh_hashentry_t *e = knh_Hash_get__hcode(ctx, hash, hcode);

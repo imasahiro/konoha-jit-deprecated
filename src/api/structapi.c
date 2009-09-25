@@ -324,9 +324,9 @@ static void knh_Int_init(Ctx *ctx, knh_Int_t *n, int init)
 	n->n.ivalue = (knh_int_t)init;
 }
 
-static knh_hcode_t knh_Int_hashCode(Ctx *ctx, knh_Int_t *o)
+static knh_hashcode_t knh_Int_hashCode(Ctx *ctx, knh_Int_t *o)
 {
-	return (knh_hcode_t)o->n.ivalue;
+	return (knh_hashcode_t)o->n.ivalue;
 }
 
 static int knh_Int_compareTo(Ctx *ctx, knh_Int_t *o, knh_Int_t *o2)
@@ -368,9 +368,9 @@ static void knh_Float_init(Ctx *ctx, knh_Float_t *f, int init)
 	f->n.fvalue = (knh_float_t)init;
 }
 
-static knh_hcode_t knh_Float_hashCode(Ctx *ctx, knh_Int_t *f)
+static knh_hashcode_t knh_Float_hashCode(Ctx *ctx, knh_Int_t *f)
 {
-	return (knh_hcode_t)f->n.ivalue;
+	return (knh_hashcode_t)f->n.ivalue;
 }
 
 static int knh_Float_compareTo(Ctx *ctx, knh_Float_t *o, knh_Float_t *o2)
@@ -422,10 +422,10 @@ static void knh_String_traverse(Ctx *ctx, knh_String_t *s, knh_ftraverse ftr)
 	}
 }
 
-static knh_hcode_t knh_String_hashCode(Ctx *ctx, knh_String_t *o)
+static knh_hashcode_t knh_String_hashCode(Ctx *ctx, knh_String_t *o)
 {
 	KNH_ASSERT(IS_bString(o));
-	knh_hcode_t h = o->size;
+	knh_hashcode_t h = o->size;
 	size_t i;
 	for(i = 0; i < o->size; i++) {
 		h = o->str[i] + 31 * h;
@@ -970,9 +970,9 @@ static void knh_Class_init(Ctx *ctx, knh_Class_t *c, int init)
 	c->type = (knh_type_t)init;
 }
 
-static knh_hcode_t knh_Class_hashCode(Ctx *ctx, knh_Class_t *o)
+static knh_hashcode_t knh_Class_hashCode(Ctx *ctx, knh_Class_t *o)
 {
-	return (knh_hcode_t)o->cid;
+	return (knh_hashcode_t)o->cid;
 }
 
 static int knh_Class_compareTo(Ctx *ctx, knh_Class_t *o, knh_Class_t *o2)
@@ -1074,9 +1074,9 @@ static void knh_MethodField_init(Ctx *ctx, knh_MethodField_t *o, int init)
 
 /* ------------------------------------------------------------------------ */
 
-knh_hcode_t knh_MethodField_hachCode(Ctx *ctx, knh_MethodField_t *o)
+knh_hashcode_t knh_MethodField_hashCode(Ctx *ctx, knh_MethodField_t *o)
 {
-	knh_hcode_t h = o->rtype;
+	knh_hashcode_t h = o->rtype;
 	if(o->psize == 1) {
 		return knh_mparam_hcode(h, o->p0.type, o->p0.fn);
 	}
@@ -2283,9 +2283,9 @@ static Object *knh_fcopy__default(Ctx *ctx, Object *o)
 	return o;
 }
 
-static knh_hcode_t knh_fhashCode__default(Ctx *ctx, Object* o1)
+static knh_hashcode_t knh_fhashCode__default(Ctx *ctx, Object* o1)
 {
-	return ((knh_hcode_t)o1) / sizeof(Object*);
+	return ((knh_hashcode_t)o1) / sizeof(Object*);
 }
 
 static void knh_fnewClass__default(Ctx *ctx, knh_class_t cid)

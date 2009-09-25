@@ -598,15 +598,15 @@ typedef void (*knh_fgchook)(Ctx *ctx);
 typedef void (*knh_ftraverse)(Ctx *ctx, Object *);
 typedef int (*knh_finit)(Ctx *);
 
-typedef knh_uintptr_t                knh_hcode_t;  /* knh_hcode_t */
-#define knh_hcode_join(s1,s2)	   ((knh_hcode_t)s1 << (sizeof(knh_short_t)*8)) + s2;
+typedef knh_uintptr_t                knh_hashcode_t;  /* knh_hashcode_t */
+#define knh_hcode_join(s1,s2)	   ((knh_hashcode_t)s1 << (sizeof(knh_short_t)*8)) + s2;
 
 #define KNH_OBJECT_RAWINIT              (-1)
 
 typedef void         (*knh_fstruct_init)(Ctx *, Object *, int);
 typedef void         (*knh_fstruct_traverse)(Ctx *, Object*, knh_ftraverse);
 typedef int          (*knh_fstruct_compareTo)(Ctx *ctx, Object*, Object*);
-typedef knh_hcode_t  (*knh_fstruct_hashCode)(Ctx *ctx, Object *);
+typedef knh_hashcode_t  (*knh_fstruct_hashCode)(Ctx *ctx, Object *);
 typedef Object*      (*knh_fstruct_copy)(Ctx *, Object *);
 typedef void         (*knh_fstruct_newClass)(Ctx *ctx, knh_class_t cid);
 typedef struct knh_String_t* (*knh_fstruct_getkey)(Ctx *ctx, knh_sfp_t *lsfp);

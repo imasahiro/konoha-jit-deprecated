@@ -353,7 +353,7 @@ typedef struct knh_DictSet_t {
 //## @Struct @Param1(Any) @Cyclic class HashSet Object;
 
 typedef struct knh_hashentry_t {
-	knh_hcode_t hcode;
+	knh_hashcode_t hcode;
 	struct knh_hashentry_t *next;
 	Object *key;
 	union {

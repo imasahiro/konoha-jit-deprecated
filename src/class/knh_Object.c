@@ -98,7 +98,7 @@ Object *knh_Object_copy(Ctx *ctx, Object *b)
 /* ======================================================================== */
 /* [commons] */
 
-knh_hcode_t knh_Object_hashCode(Ctx *ctx, Object *o)
+knh_hashcode_t knh_Object_hashCode(Ctx *ctx, Object *o)
 {
 	return StructTable(o->h.bcid).fhashCode(ctx, o);
 }

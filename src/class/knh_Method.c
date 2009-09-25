@@ -52,7 +52,7 @@ knh_MethodField_t* new_MethodField(Ctx *ctx, knh_type_t rtype, size_t psize)
 /* ======================================================================== */
 /* [hcode] */
 
-knh_hcode_t knh_mparam_hcode(knh_hcode_t h, knh_type_t type, knh_fieldn_t fn)
+knh_hashcode_t knh_mparam_hcode(knh_hashcode_t h, knh_type_t type, knh_fieldn_t fn)
 {
 	h = h * (KNH_TCLASS_SIZE+1) + type;
 	return h + fn;
@@ -373,7 +373,7 @@ void knh_Class_addMethod(Ctx *ctx, knh_class_t cid, knh_Method_t *mtd)
 
 void knh_addMethodFieldTable(Ctx *ctx, knh_MethodField_t *mf)
 {
-	knh_hcode_t h = knh_MethodField_hachCode(ctx, mf);
+	knh_hashcode_t h = knh_MethodField_hashCode(ctx, mf);
 	knh_HashMap_t *hmap = DP(ctx->sys)->MethodFieldHashMap;
 	if(IS_NOTNULL(hmap)) {
 		KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
@@ -398,7 +398,7 @@ knh_MethodField_t *knh_findMethodField0(Ctx *ctx, knh_type_t rtype)
 {
 	knh_HashMap_t *hmap = DP(ctx->sys)->MethodFieldHashMap;
 	if(IS_NOTNULL(hmap)) {
-		knh_hcode_t h = rtype;
+		knh_hashcode_t h = rtype;
 		KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
 		knh_MethodField_t *mf = (knh_MethodField_t*)knh_HashMap_get__hcode(ctx, hmap, h);
 		KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
@@ -419,7 +419,7 @@ knh_MethodField_t *knh_findMethodField1(Ctx *ctx, knh_type_t rtype, knh_type_t p
 {
 	knh_HashMap_t *hmap = DP(ctx->sys)->MethodFieldHashMap;
 	if(IS_NOTNULL(hmap)) {
-		knh_hcode_t h = rtype;
+		knh_hashcode_t h = rtype;
 		h = knh_mparam_hcode(h, p1, fn1);
 		KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
 		knh_MethodField_t *mf = (knh_MethodField_t*)knh_HashMap_get__hcode(ctx, hmap, h);
@@ -730,7 +730,7 @@ knh_Class_getMethod__(Ctx *ctx, knh_class_t this_cid, knh_methodn_t mn, knh_bool
 knh_Method_t *knh_lookupMethod(Ctx *ctx, knh_class_t cid, knh_methodn_t mn)
 {
 	KNH_ASSERT(!METHODN_IS_MOVTEXT(mn));
-	knh_hcode_t h = ((((knh_hcode_t)cid) << (sizeof(knh_class_t) * 8)) + mn) % ctx->cachesize;
+	knh_hashcode_t h = ((((knh_hashcode_t)cid) << (sizeof(knh_class_t) * 8)) + mn) % ctx->cachesize;
 	knh_Method_t *mtd = ctx->mtdCache[h];
 	if(mtd != NULL) {
 		if(DP(mtd)->mn == mn) {
@@ -752,7 +752,7 @@ knh_Method_t *knh_lookupMethod(Ctx *ctx, knh_class_t cid, knh_methodn_t mn)
 knh_Method_t *knh_lookupFormatter(Ctx *ctx, knh_class_t cid, knh_methodn_t mn)
 {
 	DBG2_ASSERT(METHODN_IS_MOVTEXT(mn));
-	knh_hcode_t h = ((((knh_hcode_t)cid) << (sizeof(knh_class_t) * 8)) + mn) % ctx->cachesize;
+	knh_hashcode_t h = ((((knh_hashcode_t)cid) << (sizeof(knh_class_t) * 8)) + mn) % ctx->cachesize;
 	knh_Method_t *mtd = ctx->fmtCache[h];
 	if(mtd != NULL) {
 		if(DP(mtd)->mn == mn) {

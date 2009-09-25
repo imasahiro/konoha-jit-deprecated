@@ -148,7 +148,7 @@ void knh_addMapperFunc(Ctx *ctx, knh_flag_t flag, knh_type_t stype, knh_type_t t
 static
 knh_Mapper_t *knh_Context_getMapperCache(Ctx *ctx, knh_class_t scid, knh_class_t tcid)
 {
-	knh_hcode_t h = ((((knh_hcode_t)scid) << (sizeof(knh_class_t) * 8)) + tcid) % ctx->cachesize;
+	knh_hashcode_t h = ((((knh_hashcode_t)scid) << (sizeof(knh_class_t) * 8)) + tcid) % ctx->cachesize;
 	knh_Mapper_t *mpr = ctx->mprCache[h];
 	if(mpr != NULL) {
 		if(DP(mpr)->scid == scid && DP(mpr)->tcid == tcid) {
@@ -165,7 +165,7 @@ knh_Mapper_t *knh_Context_getMapperCache(Ctx *ctx, knh_class_t scid, knh_class_t
 static
 knh_Mapper_t *knh_Context_setMapperCache(Ctx *ctx, knh_class_t scid, knh_class_t tcid, knh_Mapper_t *mpr)
 {
-	knh_hcode_t h = ((((knh_hcode_t)scid) << (sizeof(knh_class_t) * 8)) + tcid) % ctx->cachesize;
+	knh_hashcode_t h = ((((knh_hashcode_t)scid) << (sizeof(knh_class_t) * 8)) + tcid) % ctx->cachesize;
 	ctx->mprCache[h] = mpr;
 	return mpr;
 }

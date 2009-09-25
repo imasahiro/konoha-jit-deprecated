@@ -503,7 +503,7 @@ METHOD %s(Ctx *ctx, knh_sfp_t *sfp)
 \t\tknh_stack_argc(ctx, sfp + %d),
 \t\tsfp + %d''' % ((ki + 1), (ki + 1)))
 			break
-		if p.type == 'knh_hcode_t':
+		if p.type == 'knh_hashcode_t':
 			f.write(''',
 \t\tknh_Object_hashCode(Ctx *ctx, %s)''' % n)
 			continue

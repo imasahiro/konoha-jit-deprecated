@@ -361,7 +361,7 @@ KNHAPI(int) konoha_loadScript(konoha_t konoha, char *fpath)
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(void) knh_setArgv(Ctx* ctx, int argc, char** argv)
+void knh_setArgv(Ctx* ctx, int argc, char** argv)
 {
     knh_Array_t *a = new_Array(ctx, CLASS_String, argc);
     int i;

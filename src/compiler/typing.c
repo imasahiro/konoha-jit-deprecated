@@ -4091,7 +4091,7 @@ static
 knh_MethodField_t *knh_Asm_findMethodField(Ctx *ctx, knh_Asm_t *abr, knh_type_t rztype, size_t mfsize)
 {
 	size_t i;
-	knh_hcode_t h = rztype;
+	knh_hashcode_t h = rztype;
 	for(i = 1; i < mfsize; i++) {
 		knh_type_t vtype = DP(abr)->gamma[i].type;
 		h = knh_mparam_hcode(h, vtype, DP(abr)->gamma[i].fn);
