@@ -155,8 +155,8 @@ KNHAPI(int) knh_socket_recv(Ctx *ctx, knh_intptr_t sd, char *buf, size_t bufsiz,
 #elif defined(KNH_USING_POSIX)
 	res = recv(sd, buf, bufsiz, flags);
 #elif defined(KNH_USING_BTRON)
-        res = so_recv(sd, buf, bufsiz, flags);
-        if (res < 0) res = -1;
+	res = so_recv(sd, buf, bufsiz, flags);
+	if (res < 0) res = -1;
 #endif
 	if(res == -1) {
 		KNH_PERRNO(ctx, NULL, "Socket!!", "recv", knh_Context_isStrict(ctx));
@@ -277,7 +277,7 @@ knh_io_t knh_iodrv_open__HTTP(Ctx *ctx, knh_bytes_t url, char *mode, int isThrow
 		knh_bytes_t msg;
 		knh_cwb_write(ctx, cwb, STEXT("GET "));
 		knh_cwb_write(ctx, cwb, path);
-		knh_cwb_write(ctx, cwb, STEXT(" HTTP/1.1\r\n"));
+		knh_cwb_write(ctx, cwb, STEXT(" HTTP/1.0\r\n"));
 		knh_cwb_write(ctx, cwb, STEXT("Host: "));
 		knh_cwb_write(ctx, cwb, B(bfhost));
 		knh_cwb_write(ctx, cwb, STEXT("\r\n"));
@@ -311,6 +311,7 @@ void knh_iodrv_init__HTTP(Ctx *ctx, Object *stream, char *mode)
 				TODO();
 			}
 		}while((esp[0].s)->size > 0);
+		DP(in)->bufpos++; // skip additional CR+LF
 	}
 }
 
@@ -319,7 +320,7 @@ void knh_iodrv_init__HTTP(Ctx *ctx, Object *stream, char *mode)
 static
 knh_intptr_t knh_iodrv_read__HTTP(Ctx *ctx, knh_io_t sd, char *buf, size_t bufsiz)
 {
-	return knh_socket_recv(ctx, (knh_intptr_t)sd, buf, bufsiz, 0);
+  return knh_socket_recv(ctx, (knh_intptr_t)sd, buf, bufsiz, 0);
 }
 
 /* ------------------------------------------------------------------------ */
