@@ -1332,7 +1332,7 @@ static knh_MethodFieldData_t MethodFieldData[] = {
 	{62, 1, NNTYPE_This, TYPE_Int, FIELDN_size},
 	{63, 1, NNTYPE_This, TYPE_T1, FIELDN_value},
 	{64, 1, NNTYPE_This, NNTYPE_Int, FIELDN_value},
-	{65, 3, NNTYPE_This, NNTYPE_Int, FIELDN_start, NNTYPE_Int, FIELDN_end, TYPE_Int, FIELDN_isInclusive},
+	{65, 3, NNTYPE_This, NNTYPE_Int, FIELDN_start, NNTYPE_Int, FIELDN_end, NATYPE_Int, FIELDN_isInclusive},
 	{66, 1, NNTYPE_This, NNTYPE_Float, FIELDN_value},
 	{67, 2, NNTYPE_Exception, NATYPE_String, FIELDN_msg, NATYPE_Any, FIELDN_bag},
 	{68, 3, NNTYPE_This, NATYPE_String, FIELDN_e, NATYPE_String, FIELDN_msg, NATYPE_Object, FIELDN_bag},

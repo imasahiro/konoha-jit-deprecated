@@ -822,6 +822,12 @@ def genkonoha():
     f.close()
     f = open('include/konoha/konoha_api.h', 'w')
     f.write('''// THIS FILE WAS AUTOMATICALLY GENERATED
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 ''')
     write_chapter(f, 'PUBLIC')
     for p in data.KNHAPI_LIST:
@@ -833,6 +839,17 @@ def genkonoha():
         if p.endswith('\n'): p = p[:-1] + ';\n'
         else: p += ';\n'
         f.write(p)
+
+    f.write('''
+#ifdef __cplusplus
+}
+#endif
+
+// THIS FILE WAS AUTOMATICALLY GENERATED. DON'T EDIT.
+
+''')
+
+    
     f.close()
 
 if __name__ == '__main__':

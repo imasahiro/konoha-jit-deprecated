@@ -1,5 +1,11 @@
 // THIS FILE WAS AUTOMATICALLY GENERATED
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+
 /* ======================================================================== */
 /* PUBLIC */
 KNHAPI(knh_Array_t*) new_Array(Ctx *ctx, knh_class_t p1, size_t capacity);
@@ -838,6 +844,7 @@ int knh_isToInteractiveMode(void);
 int knh_isUserExperienceProgram(Ctx *ctx);
 void knh_startUserExperienceProgram(Ctx *ctx);
 void knh_setRuntimeError(Ctx *ctx, knh_String_t *msg);
+void knh_setArgv(Ctx* ctx, int argc, char** argv);
 char *knh_readline(char *prompt);
 void knh_add_history(char *line);
 int knh_ask(Ctx *ctx, char *prompt, int def);
@@ -899,3 +906,10 @@ knh_bool_t knh_class_instanceof(Ctx *ctx, knh_class_t scid, knh_class_t tcid);
 knh_bool_t knh_Object_opTypeOf(Ctx *ctx, Object *o, knh_type_t t);
 knh_class_t knh_class_parent(Ctx *ctx, knh_class_t c1, knh_class_t c2);
 knh_Exception_t* new_Exception__type(Ctx *ctx, Object *value, knh_type_t spec_type);
+
+#ifdef __cplusplus
+}
+#endif
+
+// THIS FILE WAS AUTOMATICALLY GENERATED. DON'T EDIT.
+

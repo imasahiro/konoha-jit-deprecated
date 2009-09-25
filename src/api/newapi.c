@@ -350,17 +350,18 @@ static METHOD IArray_new__init(Ctx *ctx, knh_sfp_t *sfp)
 }
 
 /* ------------------------------------------------------------------------ */
-//## @Hidden @Const method This! IArray.new:range(Int! start, Int! end, Int isInclusive);
+//## @Hidden @Const method This! IArray.new:range(Int! start, Int! end, Int? isInclusive);
 
 static METHOD IArray_new__range(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_IArray_t *o = (knh_IArray_t*)sfp[0].o;
 	knh_int_t s = sfp[1].ivalue;
 	knh_int_t e = sfp[2].ivalue;
-	if(e > s) {
+	if(e < s) {
 		s = e;
 		e = sfp[1].ivalue;
 	}
+
 	knh_IArray_grow(ctx, o, e - s + 1, 0);
 	for(; s < e; s++) {
 		knh_IArray_add(ctx, o, s);

@@ -480,10 +480,10 @@ int knh_Method_pctoline(knh_Method_t *mtd, knh_code_t *pc);
 /* this is used only for Closure.invoke */
 
 #define KLR_AINVOKE(ctx, n, shift) { \
-		KNH_ASSERT(IS_Closure(sfp[n+1].o));\
-		knh_sfp_typecheck(ctx, sfp + n + 1, (sfp[n+1].cc)->mtd, pc); \
+		DBG2_ASSERT(IS_bClosure(sfp[n+1].o));\
 		KLR_MOV(ctx, sfp[n].o, (sfp[n+1].cc)->mtd); \
 		KLR_MOV(ctx, sfp[n+1].o, (sfp[n+1].cc)->base); \
+		knh_sfp_typecheck(ctx, sfp + n + 1, (sfp[n].mtd), pc); \
 		((knh_Context_t*)ctx)->esp = &(sfp[n + shift]); \
 		sfp[-1].pc = pc; \
 		sfp[n].pc = (sfp[n].mtd)->pc_start; \

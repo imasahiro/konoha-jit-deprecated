@@ -60,6 +60,7 @@ void *knh_malloc(Ctx *ctx, size_t size)
 	KNH_ASSERT(size>0);
 	void *block = malloc(size);
 	if (unlikely(block == NULL)) {
+		DBG2_ABORT();
 		KNH_EXIT("OutOfMemory!!: %d bytes used", (int)ctx->stat->usedMemorySize);
 		//KNH_THROWs(ctx, "OutOfMemory!!");
 	}
@@ -84,6 +85,7 @@ void *DBG2_malloc(Ctx *ctx, size_t size, char *func)
 	size_t *block = (size_t*)malloc(size + sizeof(size_t));
 	//if(size >32) { fprintf(stdout, "%p: M(%s, size=%d)\n", block, func, (int)size); };
 	if (unlikely(block == NULL)) {
+		DBG2_ABORT();
 		KNH_EXIT("OutOfMemory!!: %d bytes used", (int)ctx->stat->usedMemorySize);
 		//KNH_THROWs(ctx, "OutOfMemory!!");
 	}
@@ -98,7 +100,7 @@ void DBG2_free(Ctx *ctx, void *p, size_t size, char *func)
 {
 	DBG_ASSERT_FREE();
 	size_t *block = ((size_t*)p) - 1;
-	if(size != block[0]) {
+	if(unlikely(size != block[0])) {
 		fprintf(stderr, "%s: ptr = %p, block.size = %d, free.size=%d", func, p, (int)block[0], (int)size);
 		KNH_ASSERT(size == block[0]);
 	}
@@ -228,6 +230,7 @@ void *knh_fastmalloc(Ctx *ctx, size_t size)
 	else {
 		void *block = malloc(size);
 		if (unlikely(block == NULL)) {
+			DBG2_ABORT();
 			KNH_EXIT("OutOfMemory!!: %d bytes used", (int)ctx->stat->usedMemorySize);
 			//KNH_THROWs(ctx, "OutOfMemory!!");
 		}

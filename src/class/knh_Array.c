@@ -242,7 +242,7 @@ Any* knh_Array_pop(Ctx *ctx, knh_Array_t *o)
 
 void knh_IArray_grow(Ctx *ctx, knh_IArray_t *a, size_t newsize, knh_int_t v)
 {
-	KNH_ASSERT(a->capacity < newsize);
+	DBG2_ASSERT(a->capacity < newsize);
 	size_t i;
 	if(newsize == 0) newsize = (KNH_FASTMALLOC_SIZE / sizeof(knh_int_t));
 	knh_int_t *newa = (knh_int_t*)KNH_MALLOC(ctx, sizeof(knh_int_t) * newsize);
@@ -277,7 +277,7 @@ void knh_IArray_add(Ctx *ctx, knh_IArray_t *o, knh_int_t value)
 
 void knh_FArray_grow(Ctx *ctx, knh_FArray_t *a, size_t newsize, knh_float_t v)
 {
-	KNH_ASSERT(a->capacity < newsize);
+	DBG2_ASSERT(a->capacity < newsize);
 	size_t i;
 	if(newsize == 0) newsize = (KNH_FASTMALLOC_SIZE / sizeof(knh_float_t));
 	knh_float_t *newa = (knh_float_t*)KNH_MALLOC(ctx, (sizeof(knh_float_t)) * newsize);
