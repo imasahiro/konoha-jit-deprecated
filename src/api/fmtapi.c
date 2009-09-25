@@ -1246,7 +1246,14 @@ static METHOD Int__f(Ctx *ctx, knh_sfp_t *sfp)
 
 static METHOD Int__x(Ctx *ctx, knh_sfp_t *sfp)
 {
-	knh_write_ifmt(ctx, sfp[1].w, KNH_INT_XFMT, sfp[0].ivalue);
+    if(IS_String(sfp[2].s)) {
+        char fmt[40];
+        knh_format_newFMT(fmt, sizeof(fmt), knh_String_tobytes(sfp[2].s), 1, KNH_INT_XFMT);
+        knh_write_ifmt(ctx, sfp[1].w, fmt, sfp[0].ivalue);
+    }
+    else {
+        knh_write_ifmt(ctx, sfp[1].w, KNH_INT_XFMT, sfp[0].ivalue);
+    }
 }
 
 /* ------------------------------------------------------------------------ */
