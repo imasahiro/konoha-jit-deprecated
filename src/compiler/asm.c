@@ -2219,6 +2219,14 @@ void knh_StmtFOR_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr)
 	knh_Asm_popLabelStack(ctx, abr);
 }
 
+static knh_Token_t *new_TokenLOCAL(Ctx *ctx, knh_type_t type, int sfpidx)
+{
+	knh_Token_t *tk = new_Token(ctx, 0, 0, 0, TT_LOCAL);
+	DP(tk)->index = (knh_short_t)sfpidx;
+	DP(tk)->type = type;
+	return tk;
+}
+
 /* ------------------------------------------------------------------------ */
 
 void knh_StmtLETM_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr)
@@ -2229,7 +2237,7 @@ void knh_StmtLETM_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr)
 		int n = (i*2);
 		knh_type_t type = TERMs_gettype(stmt, n);
 		TERMs_asm(ctx, stmt, n+1, abr, type, local+i);
-		KNH_SETv(ctx, DP(stmt)->tokens[n+1], knh_Term_toLOCAL(ctx, DP(stmt)->terms[n+1], type, local+i));
+		KNH_SETv(ctx, DP(stmt)->tokens[n+1], new_TokenLOCAL(ctx, type, local+i));
 	}
 	for(i = 0; i < size; i++) {
 		int n = (i*2);
@@ -2239,6 +2247,7 @@ void knh_StmtLETM_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr)
 		else {
 			knh_Stmt_t *stmtSET = DP(stmt)->stmts[n];
 			DBG2_ASSERT(STT_(stmtSET) == STT_CALL);
+			DBG2_ASSERT(TT_(DP(stmt)->tokens[n+1]) == TT_LOCAL);
 			KNH_SETv(ctx, DP(stmtSET)->tokens[DP(stmtSET)->size - 1], DP(stmt)->tokens[n+1]);
 			knh_StmtCALL_asm(ctx, stmtSET, abr, TYPE_void, local + size);
 		}

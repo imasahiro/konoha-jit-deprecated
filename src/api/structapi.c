@@ -1048,7 +1048,7 @@ static void knh_ClassStruct_traverse(Ctx *ctx, knh_ClassStruct_t *b, knh_ftraver
 #define knh_MethodField_copy NULL
 #define knh_MethodField_traverse_ NULL
 #define knh_MethodField_compareTo NULL
-#define knh_MethodField_hashCode NULL
+#define knh_MethodField_hashCode_ NULL
 #define knh_MethodField_newClass NULL
 #define knh_MethodField_getkey NULL
 
