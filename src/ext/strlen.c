@@ -18,8 +18,6 @@
     #define bsf(x) __builtin_ctz(x)
 #endif
 
-
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -66,9 +64,8 @@ size_t knh_strlen(const char *p)
     }
 }
 
-#endif
-
 #ifdef __cplusplus
 }
 #endif
 
+#endif

@@ -2079,7 +2079,7 @@ static void knh_Asm_init(Ctx *ctx, knh_Asm_t *abr, int init)
 
 	knh_intptr_t i;
 	b->gamma = (knh_cfield_t*)KNH_MALLOC(ctx, KONOHA_LOCALSIZE * sizeof(knh_cfield_t));
-	bzero(b->gamma, KONOHA_LOCALSIZE * sizeof(knh_cfield_t));
+	knh_bzero(b->gamma, KONOHA_LOCALSIZE * sizeof(knh_cfield_t));
 	b->gamma_size = 0;
 	for(i = 0; i < KONOHA_LOCALSIZE; i++) {
 		b->gamma[i].flag  = 0;
@@ -2097,7 +2097,7 @@ static void knh_Asm_init(Ctx *ctx, knh_Asm_t *abr, int init)
 	KNH_INITv(b->xmtd,   KNH_NULL);
 
 	b->regs = (knh_asmreg_t*)KNH_MALLOC(ctx, KNH_ASM_REGMAX * sizeof(knh_asmreg_t));
-	bzero(b->regs, KNH_ASM_REGMAX * sizeof(knh_asmreg_t));
+	knh_bzero(b->regs, KNH_ASM_REGMAX * sizeof(knh_asmreg_t));
 	b->regs_size = 0;
 
 	b->labels = NULL;
