@@ -261,29 +261,67 @@ knh_bool_t knh_unlink(Ctx *ctx, knh_bytes_t path, int isThrowable)
 
 /* ------------------------------------------------------------------------ */
 
+//knh_bool_t knh_rename(Ctx *ctx, knh_bytes_t on, knh_bytes_t nn, int isThrowable)
+//{
+//	knh_cwb_t cwbbuf, *cwb = knh_cwb_openinit(ctx, &cwbbuf, on);
+//	char *pathname = knh_cwb_ospath(ctx, cwb);
+//	knh_cwb_t cwbbuf2, *cwb2 = knh_cwb_openinit(ctx, &cwbbuf2, nn);
+//	char *pathname2 = knh_cwb_ospath(ctx, cwb2);
+//	int res = 1;
+//#if defined(KNH_USING_POSIX)
+//	if(rename(pathname, pathname2) == -1) {
+//		KNH_PERRNO(ctx, cwb, "OS!!", "rename", isThrowable);
+//		res = 0;
+//	}
+//#elif defined(KNH_USING_WINDOWS)
+//	if(MoveFileA(pathname, pathname2) == 0) {
+//		KNH_PERRNO(ctx, cwb, "OS!!", "MoveFile", isThrowable);
+//		res = 0;
+//	}
+//#else
+//	KNH_NOAPI(ctx, cwb, isThrowable);
+//#endif
+//	knh_cwb_close(cwb);
+//	return res;
+//}
+
 knh_bool_t knh_rename(Ctx *ctx, knh_bytes_t on, knh_bytes_t nn, int isThrowable)
 {
-	knh_cwb_t cwbbuf, *cwb = knh_cwb_openinit(ctx, &cwbbuf, on);
-	char *pathname = knh_cwb_ospath(ctx, cwb);
-	knh_cwb_t cwbbuf2, *cwb2 = knh_cwb_openinit(ctx, &cwbbuf2, nn);
-	char *pathname2 = knh_cwb_ospath(ctx, cwb2);
-	int res = 1;
+    knh_cwb_t cwbbuf1, *cwb1;
+    knh_cwb_t cwbbuf2, *cwb2;
+    knh_bytes_t path1 , path2;
+    char pathname1[FILEPATH_BUFSIZ] = {0};
+    char pathname2[FILEPATH_BUFSIZ] = {0};
+
+    cwb1 = knh_cwb_openinit(ctx, &cwbbuf1, on);
+    knh_cwb_ospath(ctx, cwb1);
+    path1 = knh_cwb_tobytes(cwb1);
+    knh_memcpy(pathname1, path1.buf, path1.len);
+
+    cwb2 = knh_cwb_openinit(ctx, &cwbbuf2, nn);
+    knh_cwb_ospath(ctx, cwb2);
+    path2 = knh_cwb_tobytes(cwb2);
+    knh_memcpy(pathname2, path2.buf, path2.len);
+    int res = 1;
+
 #if defined(KNH_USING_POSIX)
-	if(rename(pathname, pathname2) == -1) {
-		KNH_PERRNO(ctx, cwb, "OS!!", "rename", isThrowable);
-		res = 0;
-	}
+    if(rename(pathname1, pathname2) == -1) {
+        KNH_PERRNO(ctx, cwb1, "OS!!", "rename", isThrowable);
+        res = 0;
+    }
 #elif defined(KNH_USING_WINDOWS)
-	if(MoveFileA(pathname, pathname2) == 0) {
-		KNH_PERRNO(ctx, cwb, "OS!!", "MoveFile", isThrowable);
-		res = 0;
-	}
+    if(MoveFileA(pathname1, pathname2) == 0) {
+        KNH_PERRNO(ctx, cwb1, "OS!!", "MoveFile", isThrowable);
+        res = 0;
+    }
 #else
-	KNH_NOAPI(ctx, cwb, isThrowable);
+    KNH_NOAPI(ctx, cwb1, isThrowable);
 #endif
-	knh_cwb_close(cwb);
-	return res;
+    knh_cwb_close(cwb2);
+    knh_cwb_close(cwb1);
+    return res;
 }
+
 
 /* ======================================================================== */
 /* [homepath] */
