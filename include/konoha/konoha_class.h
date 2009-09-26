@@ -163,6 +163,7 @@ typedef struct knh_Bytes_t {
 //## @Cyclic @TypeVariable class T1    Any Any;
 //## @Cyclic @TypeVariable class T2    Any Any;
 //## @Cyclic @TypeVariable class T3    Any Any;
+//## @Cyclic @TypeVariable class Tx    Any Any;
 //## @Cyclic @TypeVariable class Tvar  Any Any;
 
 struct knh_Glue_t;

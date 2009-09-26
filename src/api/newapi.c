@@ -131,8 +131,9 @@ static METHOD Bytes_new(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_Bytes_t *o = (knh_Bytes_t*)sfp[0].o;
 	size_t init = IS_NULL(sfp[1].o) ? 0 : knh_bytes_newsize(p_size(sfp[1]));
-	KNH_ASSERT(o->capacity == 0);
+	DBG2_ASSERT(o->capacity == 0);
 	if(init > 0) {
+		if(init > KNH_FASTMALLOC_SIZE && init < KONOHA_SMALLPAGESIZE) init = KONOHA_SMALLPAGESIZE;
 		o->buf = (knh_uchar_t*)KNH_MALLOC(ctx, init);
 		o->capacity = init;
 		knh_bzero(o->buf, init);
@@ -426,9 +427,9 @@ static METHOD FArray_new__init(Ctx *ctx, knh_sfp_t *sfp)
 static METHOD DictMap_new(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_DictMap_t *o = (knh_DictMap_t*)sfp[0].o;
-	size_t init = IS_NULL(sfp[1].o) ? KNH_DICT_INITSIZE: p_int(sfp[1]);
-	if(init > 0) {
-		o->_list = knh_dictmap_malloc(ctx, init);
+	size_t init = IS_NULL(sfp[1].o) ? 0: p_int(sfp[1]);
+	if(init > knh_dict_capacity(o->_list)) {
+		o->_list = knh_dict_resize(ctx, o->_list, init);
 		o->size = 0;
 	}
 	KNH_RETURN(ctx, sfp, o);

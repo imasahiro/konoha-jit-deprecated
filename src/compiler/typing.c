@@ -1469,7 +1469,7 @@ Term * knh_StmtDECL_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameS
 	decl->type = knh_pmztype_totype(ctx, pmztype, DP(abr)->this_cid);
 	decl->value = NULL;
 
-	if(decl->type == TYPE_var) {
+	if(pmztype == TYPE_var) {
 		int idx = knh_Asm_indexOfLocalVariable(abr, decl->fn);
 		if(idx != -1) {
 			decl->type = DP(abr)->gamma[idx].type;
@@ -3307,7 +3307,7 @@ Term *new_TermINCAST(Ctx *ctx, knh_class_t reqc, knh_Stmt_t *stmt, size_t n)
 		DBG2_P("cannot convert");
 		return NULL;
 	}
-	if(TERMs_isCONST(stmt, n)) {
+	if(knh_Mapper_isConst(mpr) && TERMs_isCONST(stmt, n)) {
 		knh_Token_t *tk2 = DP(stmt)->tokens[n];
 		knh_sfp_t *lsfp = KNH_LOCAL(ctx);
 		KNH_MOV(ctx, lsfp[0].o, DP(tk2)->data);

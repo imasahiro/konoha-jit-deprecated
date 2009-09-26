@@ -51,7 +51,6 @@ typedef struct {
 
 /* ------------------------------------------------------------------------ */
 
-static
 size_t knh_dict_capacity(knh_dict_t *a)
 {
 	if(a == NULL) {
@@ -101,7 +100,6 @@ knh_dict_t *knh_dict_malloc(Ctx *ctx, size_t capacity,
 	if(!(capacity > 0)) {
 		capacity = (KONOHA_SMALLPAGESIZE - sizeof(knh_hdict_t)) / sizeof(knh_dict_t);
 	}
-
 	h = (knh_hdict_t*)KNH_MALLOC(ctx, (capacity * sizeof(knh_dict_t)) + sizeof(knh_hdict_t));
 	h->capacity = capacity;
 	h->sorted = 0;

@@ -314,6 +314,7 @@ knh_index_t knh_DictIdx_add__b(Ctx *ctx, knh_DictIdx_t *o, knh_bytes_t term);
 knh_String_t* knh_DictIdx_get__fast(knh_DictIdx_t *o, knh_intptr_t termid);
 knh_String_t* knh_DictIdx_get(Ctx *ctx, knh_DictIdx_t *o, knh_intptr_t termid);
 void knh_DictIdx_clear(Ctx *ctx, knh_DictIdx_t *o);
+size_t knh_dict_capacity(knh_dict_t *a);
 knh_dict_t* knh_dict_resize(Ctx *ctx, knh_dict_t *a, size_t newsize);
 void knh_dict_traverse(Ctx *ctx, knh_dict_t *a, knh_ftraverse ftr);
 void knh_DictMap_sort(knh_DictMap_t *o);

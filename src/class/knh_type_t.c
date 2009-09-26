@@ -38,8 +38,6 @@ extern "C" {
 /* ======================================================================== */
 /* [macros] */
 
-/* ------------------------------------------------------------------------ */
-
 knh_class_t knh_pmztype_toclass(Ctx *ctx, knh_type_t t, knh_class_t this_cid)
 {
 	knh_class_t cid = CLASS_type(t);
@@ -48,11 +46,14 @@ knh_class_t knh_pmztype_toclass(Ctx *ctx, knh_type_t t, knh_class_t this_cid)
 	if(cid == CLASS_This) {
 		return this_cid;
 	}
-	if(cid == CLASS_T1) {
-		return ctx->share->ClassTable[this_cid].p1;
+	else if(cid == CLASS_T1) {
+		return ClassTable(this_cid).p1;
 	}
-	if(cid == CLASS_T2) {
-		return ctx->share->ClassTable[this_cid].p2;
+	else if(cid == CLASS_T2) {
+		return ClassTable(this_cid).p2;
+	}
+	else if(cid == CLASS_Tx || cid == CLASS_Tvar) {
+		return CLASS_Any;
 	}
 	if(ClassTable(cid).bcid == CLASS_Closure) {
 		knh_type_t r0 = ClassTable(cid).r0;
@@ -99,6 +100,9 @@ knh_type_t knh_pmztype_totype(Ctx *ctx, knh_type_t t, knh_class_t this_cid)
 	if(cid == CLASS_T2) {
 		DBG2_ASSERT(ClassTable(this_cid).p1 != CLASS_Tvoid);
 		return ClassTable(this_cid).p2 | mask;
+	}
+	else if(cid == CLASS_Tx || cid == CLASS_Tvar || cid == CLASS_Any) {
+		return TYPE_Any;
 	}
 	if(ClassTable(cid).bcid == CLASS_Closure) {
 		knh_type_t r0 = ClassTable(cid).r0;

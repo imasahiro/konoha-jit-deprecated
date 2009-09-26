@@ -2,7 +2,7 @@
 
 /* ======================================================================== */
 /* MACROS */
-#define KONOHA_BUILDID                  699
+#define KONOHA_BUILDID                  700
 
 /* ======================================================================== */
 /* STRUCT */
@@ -628,8 +628,19 @@
 #define FLAG_T3                 knh_flag_oflag(CFLAG_T3)
 
 /* ------------------------------------------------------------------------ */
+/* Tx */
+#define CLASS_Tx                ((knh_class_t)KNH_TCLASS_SIZE-(6+1))
+#define STRUCT_Tx               STRUCT_Any
+#define IS_Tx(o)                ((o)->h.cid == CLASS_Tx)
+#define TYPE_Tx                 CLASS_Tx
+#define NNTYPE_Tx               NNTYPE_cid(CLASS_Tx)
+#define NATYPE_Tx               NATYPE_cid(CLASS_Tx)
+#define CFLAG_Tx                ((knh_flag_t)FLAG_Class_TypeVariable)
+#define FLAG_Tx                 knh_flag_oflag(CFLAG_Tx)
+
+/* ------------------------------------------------------------------------ */
 /* Tvar */
-#define CLASS_Tvar              ((knh_class_t)KNH_TCLASS_SIZE-(6+1))
+#define CLASS_Tvar              ((knh_class_t)KNH_TCLASS_SIZE-(7+1))
 #define STRUCT_Tvar             STRUCT_Any
 #define IS_Tvar(o)              ((o)->h.cid == CLASS_Tvar)
 #define TYPE_Tvar               CLASS_Tvar
@@ -640,7 +651,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* PairSS */
-#define CLASS_PairSS            ((knh_class_t)KNH_TCLASS_SIZE-(7+1))
+#define CLASS_PairSS            ((knh_class_t)KNH_TCLASS_SIZE-(8+1))
 #define STRUCT_PairSS           STRUCT_Pair
 #define IS_PairSS(o)            ((o)->h.cid == CLASS_PairSS)
 #define TYPE_PairSS             CLASS_PairSS
@@ -651,7 +662,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* PairST1 */
-#define CLASS_PairST1           ((knh_class_t)KNH_TCLASS_SIZE-(8+1))
+#define CLASS_PairST1           ((knh_class_t)KNH_TCLASS_SIZE-(9+1))
 #define STRUCT_PairST1          STRUCT_Pair
 #define IS_PairST1(o)           ((o)->h.cid == CLASS_PairST1)
 #define TYPE_PairST1            CLASS_PairST1
@@ -662,7 +673,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* PairT1T2 */
-#define CLASS_PairT1T2          ((knh_class_t)KNH_TCLASS_SIZE-(9+1))
+#define CLASS_PairT1T2          ((knh_class_t)KNH_TCLASS_SIZE-(10+1))
 #define STRUCT_PairT1T2         STRUCT_Pair
 #define IS_PairT1T2(o)          ((o)->h.cid == CLASS_PairT1T2)
 #define TYPE_PairT1T2           CLASS_PairT1T2
@@ -673,7 +684,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* Cmpr */
-#define CLASS_Cmpr              ((knh_class_t)KNH_TCLASS_SIZE-(10+1))
+#define CLASS_Cmpr              ((knh_class_t)KNH_TCLASS_SIZE-(11+1))
 #define STRUCT_Cmpr             STRUCT_Closure
 #define IS_Cmpr(o)              ((o)->h.cid == CLASS_Cmpr)
 #define TYPE_Cmpr               CLASS_Cmpr
@@ -684,7 +695,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* String_Itr */
-#define CLASS_String_Itr        ((knh_class_t)KNH_TCLASS_SIZE-(11+1))
+#define CLASS_String_Itr        ((knh_class_t)KNH_TCLASS_SIZE-(12+1))
 #define STRUCT_String_Itr       STRUCT_Iterator
 #define IS_String_Itr(o)        ((o)->h.cid == CLASS_String_Itr)
 #define TYPE_String_Itr         CLASS_String_Itr
@@ -695,7 +706,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* T1_Itr */
-#define CLASS_T1_Itr            ((knh_class_t)KNH_TCLASS_SIZE-(12+1))
+#define CLASS_T1_Itr            ((knh_class_t)KNH_TCLASS_SIZE-(13+1))
 #define STRUCT_T1_Itr           STRUCT_Iterator
 #define IS_T1_Itr(o)            ((o)->h.cid == CLASS_T1_Itr)
 #define TYPE_T1_Itr             CLASS_T1_Itr
@@ -706,7 +717,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* PairST1_Itr */
-#define CLASS_PairST1_Itr       ((knh_class_t)KNH_TCLASS_SIZE-(13+1))
+#define CLASS_PairST1_Itr       ((knh_class_t)KNH_TCLASS_SIZE-(14+1))
 #define STRUCT_PairST1_Itr      STRUCT_Iterator
 #define IS_PairST1_Itr(o)       ((o)->h.cid == CLASS_PairST1_Itr)
 #define TYPE_PairST1_Itr        CLASS_PairST1_Itr
@@ -717,7 +728,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* PairT1T2_Itr */
-#define CLASS_PairT1T2_Itr      ((knh_class_t)KNH_TCLASS_SIZE-(14+1))
+#define CLASS_PairT1T2_Itr      ((knh_class_t)KNH_TCLASS_SIZE-(15+1))
 #define STRUCT_PairT1T2_Itr     STRUCT_Iterator
 #define IS_PairT1T2_Itr(o)      ((o)->h.cid == CLASS_PairT1T2_Itr)
 #define TYPE_PairT1T2_Itr       CLASS_PairT1T2_Itr
@@ -728,7 +739,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* This_Itr */
-#define CLASS_This_Itr          ((knh_class_t)KNH_TCLASS_SIZE-(15+1))
+#define CLASS_This_Itr          ((knh_class_t)KNH_TCLASS_SIZE-(16+1))
 #define STRUCT_This_Itr         STRUCT_Iterator
 #define IS_This_Itr(o)          ((o)->h.cid == CLASS_This_Itr)
 #define TYPE_This_Itr           CLASS_This_Itr
@@ -739,7 +750,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* String_Ary */
-#define CLASS_String_Ary        ((knh_class_t)KNH_TCLASS_SIZE-(16+1))
+#define CLASS_String_Ary        ((knh_class_t)KNH_TCLASS_SIZE-(17+1))
 #define STRUCT_String_Ary       STRUCT_Array
 #define IS_String_Ary(o)        ((o)->h.cid == CLASS_String_Ary)
 #define TYPE_String_Ary         CLASS_String_Ary

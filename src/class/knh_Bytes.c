@@ -112,11 +112,15 @@ KNHAPI(void) knh_Bytes_ensureSize(Ctx *ctx, knh_Bytes_t *o, size_t len)
 
 void knh_Bytes_ensureZero(Ctx *ctx, knh_Bytes_t *o)
 {
+	if(o->buf[o->size-1] == 0) {
+		return;
+	}
 	if(o->size == o->capacity) {
 		knh_Bytes_expands(ctx, o, o->capacity * 2);
 	}
 	if(o->buf[o->size] != 0) {
 		o->buf[o->size] = 0;
+		o->size += 1;
 	}
 }
 
