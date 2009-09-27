@@ -35,6 +35,30 @@ extern "C" {
 #endif
 
 /* ------------------------------------------------------------------------ */
+/* new version */
+
+#define Boolean_to(T, a)         ((T)a.bvalue)
+#define Int_to(T, a)             ((T)a.ivalue)
+#define IntNull_to(T, a, def)    ((T)(IS_bInt(a.o) ? (a.ivalue) : (def)))
+#define Float_to(T, a)           ((T)a.fvalue)
+#define FloatNull_to(T, a, def)  ((T)(IS_bFloat(a.o) ? (a.fvalue) : (def)))
+#define String_to(T, a)          ((T)knh_String_text(ctx, a.s))
+#define StringNull_to(T, a, def) ((T)(IS_bString(a.o) ? knh_String_text(ctx, a.s) : def))
+#define Glue_to(T, a)            ((T)((a.glue)->ptr))
+#define GlueNull_to(T, a, def)   (IS_bGlue(a.o) ? ((T)((a.glue)->ptr)) : (def))
+
+#define Boolean_to_(a)         (a.bvalue)
+#define Int_to_(a)             (a.ivalue)
+#define IntNull_to_(a, def)    ((IS_bInt(a.o) ? (a.ivalue) : (def)))
+#define Float_to_(a)           (a.fvalue)
+#define FloatNull_to_(a, def)  ((IS_bFloat(a.o) ? (a.fvalue) : (def)))
+#define String_to_(a)          (knh_String_text(ctx, a.s))
+#define StringNull_to_(a, def) ((IS_bString(a.o) ? knh_String_text(ctx, a.s) : def))
+#define Glue_to_(a)            (((a.glue)->ptr))
+#define GlueNull_to_(a, def)   (IS_bGlue(a.o) ? (((a.glue)->ptr)) : (def))
+
+/* ------------------------------------------------------------------------ */
+/* old */
 
 #define p_size(a)      ((size_t)(a).ivalue)
 #define p_int(a)         ((knh_int_t)(a).ivalue)
