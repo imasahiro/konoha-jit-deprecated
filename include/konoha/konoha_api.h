@@ -224,6 +224,7 @@ void knh_FArray_grow(Ctx *ctx, knh_FArray_t *a, size_t newsize, knh_float_t v);
 void knh_FArray_add(Ctx *ctx, knh_FArray_t *o, knh_float_t value);
 size_t knh_bytes_newsize(size_t s);
 void knh_Bytes_ensureZero(Ctx *ctx, knh_Bytes_t *o);
+void knh_Bytes_concatZero(Ctx *ctx, knh_Bytes_t *o);
 void knh_Bytes_remove(Ctx *ctx, knh_Bytes_t *o, size_t offset, size_t len);
 void knh_Bytes_unputc(knh_Bytes_t *o);
 void knh_Bytes_update(Ctx *ctx, knh_Bytes_t *o, size_t pos, knh_bytes_t t);

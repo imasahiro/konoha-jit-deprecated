@@ -124,6 +124,15 @@ void knh_Bytes_ensureZero(Ctx *ctx, knh_Bytes_t *o)
 
 /* ------------------------------------------------------------------------ */
 
+void knh_Bytes_concatZero(Ctx *ctx, knh_Bytes_t *o)
+{
+    if(o->size > 0 && o->buf[o->size-1] == 0) {
+    	o->size -= 1;
+    }
+}
+
+/* ------------------------------------------------------------------------ */
+
 KNHAPI(void) knh_Bytes_putc(Ctx *ctx, knh_Bytes_t *o, int ch)
 {
 	if(o->size == o->capacity) {

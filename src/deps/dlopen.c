@@ -60,6 +60,7 @@ void *knh_cwb_dlopen(Ctx *ctx, knh_cwb_t *cwb)
 {
 	char *file;
 	if(!knh_bytes_endsWith(knh_cwb_tobytes(cwb), STEXT(KONOHA_OS_DLLEXT))) {
+		knh_Bytes_concatZero(ctx, cwb->ba);
 		knh_Bytes_write(ctx, cwb->ba, STEXT(KONOHA_OS_DLLEXT));
 	}
 	file = knh_cwb_ospath(ctx, cwb);
