@@ -413,13 +413,13 @@ void knh_System_initPath(Ctx *ctx, knh_System_t *o)
 	/* $konoha.package.path {$konoha.path}/package */
 	knh_cwb_subclear(cwb, 0);
 	knh_cwb_write(ctx, cwb, home);
-	knh_cwb_write(ctx, cwb, STEXT("/package" LIBKONOHA_VERSION));
+	knh_cwb_write(ctx, cwb, STEXT("/package-" LIBKONOHA_VERSION));
 	knh_DictMap_set(ctx, sys->props,
 		T__("konoha.package.path"), UP(knh_cwb_newString(ctx, cwb)));
 
 	/* $konoha.script.path {$konoha.path}/script */
 	knh_cwb_write(ctx, cwb, home);
-	knh_cwb_write(ctx, cwb, STEXT("/script" LIBKONOHA_VERSION));
+	knh_cwb_write(ctx, cwb, STEXT("/script-" LIBKONOHA_VERSION));
 	knh_DictMap_set(ctx, sys->props, T__("konoha.script.path"), UP(knh_cwb_newString(ctx, cwb)));
 
 	homepath = knh_getenv("HOME");
@@ -438,12 +438,12 @@ void knh_System_initPath(Ctx *ctx, knh_System_t *o)
 
 		/* $user.package.path ${user.path}/package */
 		knh_cwb_write(ctx, cwb, home);
-		knh_cwb_write(ctx, cwb, STEXT("/package" LIBKONOHA_VERSION));
+		knh_cwb_write(ctx, cwb, STEXT("/package-" LIBKONOHA_VERSION));
 		knh_DictMap_set(ctx, sys->props, T__("user.package.path"), UP(knh_cwb_newString(ctx, cwb)));
 
 		/* $user.script.path ${user.path}/script */
 		knh_cwb_write(ctx, cwb, home);
-		knh_cwb_write(ctx, cwb, STEXT("/script" LIBKONOHA_VERSION));
+		knh_cwb_write(ctx, cwb, STEXT("/script-" LIBKONOHA_VERSION));
 		knh_DictMap_set(ctx, sys->props, T__("user.script.path"), UP(knh_cwb_newString(ctx, cwb)));
 	}
 	else {
