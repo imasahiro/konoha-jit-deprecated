@@ -1377,7 +1377,7 @@ static
 int knh_ffcmp__default(knh_ClassSpec_t *u, knh_float_t v1, knh_float_t v2)
 {
 	knh_float_t delta = v1 - v2;
-#ifdef KNH_USING_NOFLOAT
+#ifndef KNH_USING_NOFLOAT
 	if(delta == 0.0) return 0;
 #else
 	if(delta == 0) return 0;

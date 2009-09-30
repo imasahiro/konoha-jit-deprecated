@@ -24,9 +24,6 @@
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("masahiro ide");
 
-float __eqdf2(float a,float b) {return a;}
-float __floatsidf(int i) { return 1;}
-
 enum {
     MAXCOPYBUF = 128
 };
