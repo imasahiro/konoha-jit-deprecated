@@ -383,7 +383,12 @@ int knh_bytes_parsefloat(knh_bytes_t t, knh_float_t *value)
 	}
 
 	size_t i = 0;
+
+#ifndef KNH_USING_NOFLOAT
 	knh_float_t v = 0.0, prev = 0.0, c = 1.0;
+#else
+	knh_float_t v = 0, prev = 0, c = 1;
+#endif
 
 	if(t.buf[0] == '-') i = 1;
 
@@ -496,7 +501,11 @@ KNHAPI(knh_intptr_t) knh_bytes_toint(knh_bytes_t t)
 KNHAPI(knh_float_t) knh_bytes_tofloat(knh_bytes_t t)
 {
 	size_t i = 0, c = 1;
+#ifndef KNH_USING_NOFLOAT
 	knh_float_t v = 0.0;
+#else
+	knh_float_t v = 0;
+#endif
 
 	if(t.buf[0] == '-') i = 1;
 

@@ -92,7 +92,11 @@ static MAPPER Int_Float(Ctx *ctx, knh_sfp_t *sfp)
 
 static MAPPER String_Float(Ctx *ctx, knh_sfp_t *sfp)
 {
+#ifndef KNH_USING_NOFLOAT
 	knh_float_t f = 0.0;
+#else 
+	knh_float_t f = 0;
+#endif
 	if(knh_bytes_parsefloat(knh_String_tobytes(sfp[0].s), &f)) {
 		KNH_MAPPED_Float(ctx, sfp, f);
 	}

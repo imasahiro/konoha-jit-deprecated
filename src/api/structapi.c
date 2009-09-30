@@ -1268,8 +1268,13 @@ static void knh_Closure_traverse(Ctx *ctx, knh_Closure_t *cc, knh_ftraverse ftr)
 
 static void knh_AffineConv_init(Ctx *ctx, knh_AffineConv_t *o, int init)
 {
+#ifndef KNH_USING_NOFLOAT
 	o->scale = 1.0;
 	o->shift = 0.0;
+#else
+	o->scale = 1;
+	o->shift = 0;
+#endif
 }
 
 /* ======================================================================== */
@@ -2524,7 +2529,11 @@ static knh_IntConstData_t IntConstData[] = {
 static knh_FloatConstData_t FloatConstData[] = {
 	{"Float.MAX", KNH_FLOAT_MAX},
 	{"Float.MIN", KNH_FLOAT_MIN},
+#ifndef KONOHA_ON_LKM
 	{NULL, 0.0}
+#else
+	{NULL, 0.0}
+#endif
 };
 
 static knh_StringConstData_t StringConstData[] = {

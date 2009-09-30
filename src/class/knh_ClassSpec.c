@@ -357,12 +357,14 @@ KNHAPI(knh_ClassSpec_t*) new_Unit(Ctx *ctx, char *tag, knh_bytes_t urn, knh_floa
 
 	}
 	knh_ClassSpec_initFloatRange(ctx, u, min, max, step);
+#if !defined(KNH_USING_NOFLOT)
 	if(!DP(u)->ffchk(u, 0.0)) {
 		KNH_INITv(DP(u)->fvalue, new_FloatX__fast(ctx, cid, min));
 	}
 	else {
 		KNH_INITv(DP(u)->fvalue, new_FloatX__fast(ctx, cid, 0.0));
 	}
+#endif
 	knh_addSpecializedType(ctx, cid, CLASS_Float, u);
 	return u;
 }

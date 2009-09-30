@@ -381,7 +381,11 @@ static METHOD FArray_new(Ctx *ctx, knh_sfp_t *sfp)
 	knh_FArray_t *o = (knh_FArray_t*)sfp[0].o;
 	long init = IS_NULL(sfp[1].o) ? KNH_FARRAY_INITSIZE: p_int(sfp[1]);
 	if(init > 0) {
+#ifndef KNH_USING_NOFLOAT
 		knh_FArray_grow(ctx, o, init, 0.0);
+#else
+		knh_FArray_grow(ctx, o, init, 0);
+#endif
 	}
 	o->size = 0;
 	KNH_RETURN(ctx, sfp, o);
@@ -395,7 +399,11 @@ static METHOD FArray_new__array(Ctx *ctx, knh_sfp_t *sfp)
 	knh_FArray_t *o = (knh_FArray_t*)sfp[0].o;
 	knh_int_t init = sfp[1].ivalue;
 	if(0 < init && init < LONG_MAX) {
+#ifndef KNH_USING_NOFLOAT
 		knh_FArray_grow(ctx, o, init, 0.0);
+#else
+		knh_FArray_grow(ctx, o, init, 0);
+#endif
 		o->size = init;
 	}
 	else if(init < 0) {
@@ -413,7 +421,11 @@ static METHOD FArray_new__init(Ctx *ctx, knh_sfp_t *sfp)
 	knh_sfp_t *v = sfp + 1;
 	int i, ac = knh_stack_argc(ctx, v);
 	if(ac > 0) {
+#ifndef KNH_USING_NOFLOAT
 		knh_FArray_grow(ctx, o, ac, 0.0);
+#else
+		knh_FArray_grow(ctx, o, ac, 0);
+#endif
 	}
 	for(i = 0; i < ac; i++) {
 		knh_FArray_add(ctx, o, v[i].fvalue);

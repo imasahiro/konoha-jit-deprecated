@@ -877,7 +877,11 @@ int knh_TokenNUM_typing(Ctx *ctx, knh_Token_t *tk, knh_NameSpace_t *ns, knh_clas
 	}
 
 	if(breqc == CLASS_Float) {
+#ifndef KNH_USING_NOFLOAT
 		knh_float_t n = 0.0;
+#else
+		knh_float_t n = 0;
+#endif
 		if(!knh_bytes_parsefloat(t, &n)) {
 			knh_Token_perror(ctx, tk, KERR_EWARN, _("float overflow: %B"), t);
 		}

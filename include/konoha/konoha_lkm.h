@@ -61,7 +61,7 @@ typedef intptr_t FILE;
 #define abort() BUG_ON(1)
 
 
-#define DBG2_(stmt)  stmt
+#define DBG2_(stmt) 
 
 #define DBG2_P(fmt, ...) \
     printk(KERN_DEBUG "DBG2[%s:%d/%s]: ", knh_safefile(__FILE__), __LINE__, __FUNCTION__); \
@@ -87,9 +87,12 @@ typedef intptr_t FILE;
 #define 	KNH_MALLOC(ctx, size)    knh_fastmalloc(ctx, size)
 #define 	KNH_FREE(ctx, p, size)   knh_fastfree(ctx, p, size)
 
-
 /* ../../src/ext/qsort.c */
-void qsort(void* base,size_t total,size_t size, int (*comp)(const void*,const void*));
+void knh_qsort (void *const pbase, size_t total_elems, size_t size,
+        int (*cmp)(const void*,const void*));
+
+void knh_qsort_r (void *const pbase, size_t total_elems, size_t size,
+        int (*cmp)(void* ,const void*,const void*),void* thunk);
 
 /* ../../src/ext/strerror.c */
 char* strerror(int errno);

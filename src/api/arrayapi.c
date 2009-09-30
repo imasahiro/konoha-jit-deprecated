@@ -131,7 +131,11 @@ static METHOD FArray_add(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_FArray_t *o = (knh_FArray_t*)sfp[0].o;
 	if(o->size == o->capacity) {
+#if !defined(KNH_USING_NOFLOT)
 		knh_FArray_grow(ctx, o, knh_array_newsize(o->capacity * 2, sizeof(knh_float_t)), 0.0);
+#else
+		knh_FArray_grow(ctx, o, knh_array_newsize(o->capacity * 2, sizeof(knh_float_t)), 0);
+#endif
 	}
 	o->flist[o->size] = sfp[1].fvalue;
 	o->size++;
@@ -233,7 +237,11 @@ static METHOD FArray_insert(Ctx *ctx, knh_sfp_t *sfp)
 	size_t i, n = knh_array_index(ctx, p_int(sfp[1]), o->size);
 	knh_float_t temp;
 	if(o->size == o->capacity) {
+#if !defined(KNH_USING_NOFLOT)
 		knh_FArray_grow(ctx, o, knh_array_newsize(o->capacity * 2, sizeof(knh_float_t)), 0.0);
+#else
+		knh_FArray_grow(ctx, o, knh_array_newsize(o->capacity * 2, sizeof(knh_float_t)), 0);
+#endif
 	}
 	temp = o->flist[o->size];
 	o->size++;
@@ -902,7 +910,11 @@ void knh_FArrayDim_init(Ctx *ctx, knh_FArray_t *a, size_t x, size_t y, size_t z)
 	a->capacity = x * y * z;
 	int i = 0;
 	for(i = 0; i < a->capacity; i++) {
+#if !defined(KNH_USING_NOFLOT)
 		a->flist[i] = 0.0;
+#else
+		a->flist[i] = 0;
+#endif
 	}
 	a->size = a->capacity;
 }

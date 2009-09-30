@@ -38,8 +38,6 @@ int main(String[] args)
         // filter
         if(line.indexOf(".svn") >= 0) continue;
         if(line.indexOf("/.") >= 0) continue;
-        if(line.indexOf("src/gen/codetemplate") >= 0) continue;
-        if(line.indexOf("src/gen/fibo") >= 0) continue;
         if(line.indexOf("src/ext/mt") >= 0) continue;
         if(line.indexOf(".c") < 0) continue;
         if(line == "./src/konoha.c") continue;

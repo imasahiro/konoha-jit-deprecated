@@ -190,7 +190,7 @@ void knh_dict_sort(knh_dict_t *a, size_t size)
 	if(a != NULL) {
 		knh_hdict_t *h = ((knh_hdict_t*)a) - 1;
 		if(h->fdict_compar != NULL) {
-			knh_sort(a, size, sizeof(knh_dict_t), h->fdict_compar);
+			knh_qsort(a, size, sizeof(knh_dict_t), h->fdict_compar);
 			h->sorted = size;
 		}
 		else {

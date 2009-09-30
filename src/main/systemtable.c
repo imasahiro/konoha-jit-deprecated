@@ -347,7 +347,11 @@ void knh_initSharedData(knh_Context_t *ctx)
 	}
 	{
 		knh_Float_t *fo = (knh_Float_t*)new_hObject(ctx, FLAG_Float, CLASS_Float, CLASS_Float);
+#ifndef KNH_USING_NOFLOAT
 		(fo)->n.fvalue = 0.0;
+#else
+		(fo)->n.fvalue = 0;
+#endif
 		KNH_INITv(share->constFloat0, fo);
 	}
 

@@ -18,11 +18,14 @@
 #endif
 
 #include <konoha.h>
-#include <konoha/gen/konoha_knhapi_.h>
+#include <konoha/konoha_api.h>
 
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("masahiro ide");
+
+float __eqdf2(float a,float b) {return a;}
+float __floatsidf(int i) { return 1;}
 
 enum {
     MAXCOPYBUF = 128
@@ -158,7 +161,7 @@ static void knh_dev_setup(struct konohadev_t *dev){
 }
 
 // Start/Init function
-static int __init konoha_init(void) {
+static int __init konohadev_init(void) {
     konohadev_p = kmalloc(sizeof(struct konohadev_t),GFP_KERNEL);
     if(!konohadev_p){
         printk(KERN_ALERT "%s:kmalloc() failed\n",msg);
@@ -171,7 +174,7 @@ static int __init konoha_init(void) {
 }
 
 // End/Cleanup function
-static void __exit konoha_exit(void) {
+static void __exit konohadev_exit(void) {
     printk(KERN_ALERT "Goodbye!\n");
     konoha_close(konohadev_p->konoha);
     kfree(konohadev_p->buffer);
@@ -180,8 +183,8 @@ static void __exit konoha_exit(void) {
     kfree(konohadev_p);
 }
 
-module_init(konoha_init);
-module_exit(konoha_exit);
+module_init(konohadev_init);
+module_exit(konohadev_exit);
 
 #endif /*KONOHA_ON_LKM*/
 

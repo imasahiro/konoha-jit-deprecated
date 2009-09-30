@@ -34,8 +34,6 @@
 
 /* configuration and dependency */
 
-#include"konoha/konoha_config.h"
-
 #ifdef KONOHA_ON_LKM
 #include"konoha/konoha_lkm.h"
 #else
@@ -46,6 +44,8 @@
 #include<string.h>
 #include<setjmp.h>
 #endif
+
+#include"konoha/konoha_config.h"
 
 #include<stdarg.h>
 

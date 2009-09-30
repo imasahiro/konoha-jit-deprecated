@@ -785,7 +785,7 @@ static METHOD Float_opNext(Ctx *ctx, knh_sfp_t *sfp)
 
 static METHOD Float_opPrev(Ctx *ctx, knh_sfp_t *sfp)
 {
-#ifndef KNH_USING_NOFLOAT
+#ifdef KNH_USING_NOFLOAT
 	KNH_RETURN_Float(ctx, sfp, (p_float(sfp[0])) - 1);
 #else
 	KNH_RETURN_Float(ctx, sfp, (p_float(sfp[0]))-1.0);
