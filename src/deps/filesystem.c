@@ -190,7 +190,7 @@ static
 knh_bool_t knh_cwb_mkdir(Ctx *ctx, knh_cwb_t *cwb, char *subpath, int isThrowable)
 {
 	char *pathname;
-	if(!knh_cwb_isdir(ctx, cwb)) {
+	if(knh_cwb_isdir(ctx, cwb)) {
 		char subbuf[SUBPATH_BUFSIZ];
 		if(knh_cwb_parentpath(ctx, cwb, subbuf)) {
 			if(knh_cwb_mkdir(ctx, cwb, subpath, isThrowable) == 0) {
