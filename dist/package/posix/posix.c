@@ -108,20 +108,6 @@ METHOD System_kill(Ctx *ctx, knh_sfp_t *sfp)
 }
 
 /* ------------------------------------------------------------------------ */
-// >>> int System.system(String! cmd);
-
-METHOD System_system(Ctx *ctx, knh_sfp_t *sfp)
-{
-    KNH_SECURE(ctx,sfp);
-    int ret = system(p_char(sfp[1]));
-    if(ret  == -1) {
-        KNH_PERRNO(ctx, "OS!!", "system", knh_Context_isStrict(ctx));
-    }
-    KNH_RETURN_Int(ctx, sfp,ret);
-}
-
-
-/* ------------------------------------------------------------------------ */
 
 METHOD System_sleep(Ctx *ctx, knh_sfp_t *sfp)
 {

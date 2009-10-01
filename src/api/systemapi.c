@@ -94,6 +94,20 @@ static METHOD System_gc(Ctx *ctx, knh_sfp_t *sfp)
 }
 
 /* ------------------------------------------------------------------------ */
+//## @static method Int Script.system(String cmd);
+//## @static method Int Script.sudo(String cmd);
+
+static METHOD Script_system(Ctx *ctx, knh_sfp_t *sfp)
+{
+    KNH_SECURE(ctx,sfp);
+    int ret = system(String_to(char*, sfp[1]));
+    if(ret  == -1) {
+        KNH_PERRNO(ctx, NULL, "OS!!", "system", knh_Context_isStrict(ctx));
+    }
+    KNH_RETURN_Int(ctx, sfp,ret);
+}
+
+/* ------------------------------------------------------------------------ */
 //## @Static method Boolean! System.hasLib(String! lib, String? func);
 
 static METHOD System_hasLib(Ctx *ctx, knh_sfp_t *sfp)

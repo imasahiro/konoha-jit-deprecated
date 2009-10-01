@@ -97,7 +97,6 @@ extern "C" {
 
 /* ------------------------------------------------------------------------ */
 
-
 #define KNH_RETURN(ctx, sfp, v) {\
 		knh_Int_t *n_ = (knh_Int_t*)v;\
 		KNH_NGCMOV(ctx, sfp[-1].o, n_);\
