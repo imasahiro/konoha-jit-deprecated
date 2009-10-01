@@ -1345,6 +1345,7 @@ static METHOD DictMap_opRangeUntil(Ctx *ctx, knh_sfp_t *sfp)
 
 static METHOD Pair_op0(Ctx *ctx, knh_sfp_t *sfp)
 {
+	DBG2_ASSERT(IS_bPair(sfp[0].pair));
 	KNH_RETURN(ctx, sfp, (sfp[0].pair)->first);
 }
 
@@ -1353,6 +1354,7 @@ static METHOD Pair_op0(Ctx *ctx, knh_sfp_t *sfp)
 
 static METHOD Pair_op1(Ctx *ctx, knh_sfp_t *sfp)
 {
+	DBG2_ASSERT(IS_bPair(sfp[0].pair));
 	KNH_RETURN(ctx, sfp, (sfp[0].pair)->second);
 }
 

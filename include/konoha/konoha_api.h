@@ -294,8 +294,7 @@ knh_addClosureClass(Ctx *ctx, knh_class_t cid, knh_String_t *name, knh_type_t r0
 void knh_Closure_newClass(Ctx *ctx, knh_class_t cid);
 knh_class_t knh_class_Closure(Ctx *ctx, knh_type_t r0, knh_type_t p1, knh_type_t p2, knh_type_t p3);
 knh_class_t knh_class_MethodClosure(Ctx *ctx, knh_class_t cid, knh_Method_t *mtd);
-knh_Closure_t* new_Closure(Ctx *ctx, knh_sfp_t *sfp, knh_Method_t *mtd);
-void knh_Closure_storeEnv(Ctx *ctx, knh_Closure_t *cc, knh_sfp_t *sfp);
+void knh_Closure_copyEnv(Ctx *ctx, knh_Closure_t *cc, knh_sfp_t *sfp);
 knh_class_t knh_Method_gencid(Ctx *ctx, knh_Method_t *mtd, knh_class_t cid);
 void knh_Method_toGenerator(knh_Method_t *mtd);
 void knh_Connection_open(Ctx *ctx, knh_Connection_t *c, knh_String_t *urn);
@@ -776,16 +775,16 @@ int TERMs_isTRUE(knh_Stmt_t *stmt, size_t n);
 int TERMs_isFALSE(knh_Stmt_t *stmt, size_t n);
 int TERMs_isASIS(knh_Stmt_t *stmt, size_t n);
 knh_type_t TERMs_gettype(knh_Stmt_t *stmt, size_t n);
-Term * knh_StmtDECL_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace_t *ns);
+Term * knh_StmtDECL_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace_t *ns, int declClass);
 Term *knh_StmtLET_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace_t *ns, knh_type_t reqt);
 Term *knh_StmtLETM_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace_t *ns);
 char *METHODN_op(knh_methodn_t mn);
 Term *knh_StmtEXPR_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace_t *ns, knh_class_t reqt);
 Term *knh_StmtSEPARATOR_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace_t *ns);
 void knh_Asm_initReg(Ctx *ctx, knh_Asm_t *abr);
-int knh_Stmt_initParams(Ctx *ctx, knh_Stmt_t *pstmt, knh_Asm_t *abr, knh_NameSpace_t *ns, int level);
 void knh_StmtMETHOD_typingBODY(Ctx *ctx, knh_Asm_t *abr, knh_NameSpace_t *ns, knh_Method_t *mtd, knh_Stmt_t *stmtPARAMS, knh_Stmt_t *stmtBODY, int isIteration);
 Term * knh_StmtMETHOD_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace_t *ns);
+Term * knh_StmtFUNCTION_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace_t *ns, knh_type_t reqt);
 Term *knh_StmtFORMAT_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace_t *ns);
 Term *knh_StmtCLASS_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace_t *ns);
 int

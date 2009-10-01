@@ -79,6 +79,7 @@ AINVOKE sfi ushort
 CALL  sfi ushort mn 
 ACALL sfi ushort mn
 NEW   sfi flag cid ushort mtd
+COPYSFP sfi
 
 TOSTR      sfi mn
 TOSTRf     sfi mn OBJ

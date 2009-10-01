@@ -1241,7 +1241,6 @@ knh_Stmt_t* new_StmtLETEXPR(Ctx *ctx, knh_tkc_t *tc, int isData)
 			knh_Token_perror(ctx, expr->ts[idx],
 				KERR_ERRATA, _("%s => ="), sToken(expr->ts[idx]));
 		}
-		DBG2_P("lc=%d, %s rc=%d", lc, sToken(expr->ts[idx]), rc);
 		if(lc > 0) {
 			knh_Stmt_t *stmt;
 			if(rc == 0) {
@@ -1579,7 +1578,6 @@ static Term *new_TermEXPR(Ctx *ctx, knh_tkc_t *tc, int isData)
 
 	/* LET */ {
 		int idx = knh_tokens_findLETIDX(tc);
-		DBG2_P("LET idx=%d", idx);
 		if(idx != -1) {
 			return TM(new_StmtLET(ctx, tc, idx, isData));
 		}

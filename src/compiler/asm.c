@@ -150,7 +150,10 @@ void knh_Asm_prepare(Ctx *ctx, knh_Asm_t *abr, knh_Method_t *mtd, knh_Stmt_t *st
 	DP(abr)->flag = 0;
 	KNH_SETv(ctx, DP(abr)->mtd, mtd);
 	DP(abr)->this_cid = DP(mtd)->cid;
-	DP(abr)->rtype = knh_pmztype_totype(ctx, knh_Method_rztype(DP(abr)->mtd), DP(abr)->this_cid);
+	DP(abr)->rtype = knh_Method_rztype(DP(abr)->mtd);
+	if(DP(abr)->rtype != TYPE_var) {
+		DP(abr)->rtype = knh_pmztype_totype(ctx, DP(abr)->rtype, DP(abr)->this_cid);
+	}
 	DP(abr)->level = 0;
 
 	knh_Asm_initGamma(ctx, abr, 0);
@@ -181,12 +184,13 @@ void knh_Asm_prepare(Ctx *ctx, knh_Asm_t *abr, knh_Method_t *mtd, knh_Stmt_t *st
 void knh_Asm_initThis(Ctx *ctx, knh_Asm_t *abr, knh_class_t cid)
 {
 	KNH_ASSERT_cid(cid);
+	int xstack_size = DP(abr)->xstack_size;
 	DP(abr)->this_cid = cid;
-	DP(abr)->gamma[0].flag = 0;
-	DP(abr)->gamma[0].type = NNTYPE_cid(cid);
-	DP(abr)->gamma[0].fn   = FIELDN_this;
-	DBG2_ASSERT(DP(abr)->gamma[0].value == NULL);
-	DP(abr)->gamma_size = 1;
+	DP(abr)->gamma[xstack_size].flag = 0;
+	DP(abr)->gamma[xstack_size].type = NNTYPE_cid(cid);
+	DP(abr)->gamma[xstack_size].fn   = FIELDN_this;
+	DBG2_ASSERT(DP(abr)->gamma[xstack_size].value == NULL);
+	DP(abr)->gamma_size = xstack_size + 1;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -577,10 +581,12 @@ void KNH_ASM_SMOV(Ctx *ctx, knh_Asm_t *abr, knh_type_t atype, int a, knh_Token_t
 			mtd = knh_Class_getMethod(ctx, CLASS_Closure, METHODN_new);
 			DBG2_ASSERT(IS_Method(mtd));
 			KNH_ASM_NEW_(ctx, abr, local, 0, CLASS_type(DP(tkb)->type), 2, UP(mtd));
+			if(knh_Token_isOUTERCLOSURE(tkb)) {
+				KNH_ASM_COPYSFP_(ctx, abr, local);
+			}
 			MOVL(ctx, abr, local, a);
 			break;
 		}
-
 		default: {
 			DBG2_P("unknown TT=%s", knh_token_tochar(TT_(tkb)));
 			KNH_ASSERT(ctx == NULL);
@@ -2313,7 +2319,7 @@ void knh_StmtFOREACH_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr)
 			if(STT_(stmtDECL) == STT_LET) {
 				knh_StmtLET_asm(ctx, stmtDECL, abr, TYPE_void, 0);
 			}
-			stmtDECL = DP(stmt)->next;
+			stmtDECL = DP(stmtDECL)->next;
 		}
 	}
 	else {
@@ -2656,16 +2662,17 @@ void KNH_ASM_INITLOCAL(Ctx *ctx, knh_Asm_t *abr)
 	KNH_ASM_INITCODE_(ctx, abr, sfi_(DP(abr)->stack));
 	DP(abr)->nnrtti0 = 0;
 	DP(abr)->nnrtti = 0;
-	KNH_ASSERT(IS_Method(mtd));
+	DBG2_ASSERT(IS_Method(mtd));
 
-	size_t i = 1;
+	size_t i = 1, xi;
 	for(;i < knh_Method_psize(mtd) + 1; i++) {
+		xi = i + DP(abr)->xstack_size;
 		knh_type_t ztype = knh_Method_pztype(mtd, i - 1);
-		knh_type_t ptype = DP(abr)->gamma[i].type;
+		knh_type_t ptype = DP(abr)->gamma[xi].type;
+		DBG2_P("PARAM TYPE %s%s (%s%s) i=%ld, xi=%ld %s", TYPEQN(ztype), TYPEQN(ptype), i, xi, FIELDN(DP(abr)->gamma[xi].fn));
 		DBG2_ASSERT(CLASS_type(ztype) == CLASS_type(ptype));
-		DBG2_P("PARAM TYPE %s%s %s", TYPEQN(ptype), FIELDN(DP(abr)->gamma[i].fn));
-		if(IS_NATYPE(ptype)) {
-			Object *value = DP(abr)->gamma[i].value;
+		if(IS_NATYPE(ztype)) {
+			Object *value = DP(abr)->gamma[xi].value;
 			if(value == NULL) {
 				KNH_ASM_PINIDEF_(ctx, abr, sfi_(i), CLASS_type(ptype));
 			}
@@ -2675,31 +2682,33 @@ void KNH_ASM_INITLOCAL(Ctx *ctx, knh_Asm_t *abr)
 		}
 	}
 
-	if(DP(abr)->gamma[i].fn == FIELDN_vargs) {
-		knh_class_t cid = ClassTable(CLASS_type(DP(abr)->gamma[i].type)).p1;
+	xi = i + DP(abr)->xstack_size;
+	if(DP(abr)->gamma[xi].fn == FIELDN_vargs) {
+		knh_class_t cid = ClassTable(CLASS_type(DP(abr)->gamma[xi].type)).p1;
 		KNH_ASSERT_cid(cid);
 		KNH_ASM_PARAMS_(ctx, abr, i, cid); i++;
 	}
 
-	for(; i < DP(abr)->gamma_size; i++) {
-		knh_type_t ptype = DP(abr)->gamma[i].type;
-		DBG2_P("LOCAL VARIABLE %s%s %s", TYPEQN(ptype), FIELDN(DP(abr)->gamma[i].fn));
+	for(; i < DP(abr)->gamma_size - DP(abr)->xstack_size; i++) {
+		xi = i + DP(abr)->xstack_size;
+		knh_type_t ptype = DP(abr)->gamma[xi].type;
+		DBG2_P("LOCAL VARIABLE %s%s %s", TYPEQN(ptype), FIELDN(DP(abr)->gamma[xi].fn));
 		if(ptype == TYPE_void) continue;
 		if(IS_NNTYPE(ptype)) {
-			if(DP(abr)->gamma[i].value == NULL) {
+			if(DP(abr)->gamma[xi].value == NULL) {
 				KNH_ASM_MOVDEF_(ctx, abr, sfi_(i), CLASS_type(ptype));
 			}
 			else {
-				KNH_ASM_MOVo_(ctx, abr, sfi_(i), DP(abr)->gamma[i].value);
+				KNH_ASM_MOVo_(ctx, abr, sfi_(i), DP(abr)->gamma[xi].value);
 			}
 		}
 		else {
-			if(DP(abr)->gamma[i].value == NULL) {
+			if(DP(abr)->gamma[xi].value == NULL) {
 				KNH_ASM_MOVo_(ctx, abr, sfi_(i), KNH_NULL);
 			}
 			else {
-				KNH_ASM_MOVo_(ctx, abr, sfi_(i), DP(abr)->gamma[i].value);
-				if(IS_NOTNULL(DP(abr)->gamma[i].value)) {
+				KNH_ASM_MOVo_(ctx, abr, sfi_(i), DP(abr)->gamma[xi].value);
+				if(IS_NOTNULL(DP(abr)->gamma[xi].value)) {
 					knh_rtti_nullChecked(abr, (int)i);
 				}
 			}

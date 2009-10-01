@@ -63,6 +63,7 @@ knh_hashcode_t knh_mparam_hcode(knh_hashcode_t h, knh_type_t type, knh_fieldn_t 
 
 void knh_MethodField_set(knh_MethodField_t *o, size_t n, knh_type_t type, knh_fieldn_t fn)
 {
+	DBG2_P("o->psize =%d, n=%d", o->psize, n);
 	if(o->psize > KNH_METHODFIELD_2) {
 		DBG2_ASSERT(n < o->psize);
 		o->mparams[n].type = type;
@@ -264,11 +265,14 @@ int knh_methodn_isNew(Ctx *ctx, knh_methodn_t mn)
 
 int knh_Method_isConstructor(Ctx *ctx, knh_Method_t *o)
 {
-	knh_class_t rtype = CLASS_type(knh_Method_rztype(o));
-	if(rtype != DP(o)->cid) {
-		return 0;
+	if(IS_Method(o)) {
+		knh_class_t rtype = CLASS_type(knh_Method_rztype(o));
+		if(rtype != DP(o)->cid) {
+			return 0;
+		}
+		return knh_methodn_isNew(ctx, DP(o)->mn);
 	}
-	return knh_methodn_isNew(ctx, DP(o)->mn);
+	return 0;
 }
 
 /* ------------------------------------------------------------------------ */

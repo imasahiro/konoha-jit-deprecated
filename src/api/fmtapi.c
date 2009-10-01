@@ -517,7 +517,7 @@ void knh_HashMap__k(Ctx *ctx, knh_Hash_t *o, knh_OutputStream_t *w, knh_String_t
 static
 void knh_Class__k(Ctx *ctx, knh_Class_t *o, knh_OutputStream_t *w, knh_String_t *m)
 {
-	knh_write_cid(ctx, w, o->cid);
+	knh_write_type(ctx, w, o->type);
 }
 
 /* ------------------------------------------------------------------------ */

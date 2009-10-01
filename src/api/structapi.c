@@ -2096,10 +2096,9 @@ static void knh_Asm_init(Ctx *ctx, knh_Asm_t *abr, int init)
 	b->globalidx = -1;
 
 	b->xflag = 0;
-	b->xthis_cid = 0;
 	b->xrtype = 0;
 	b->xstack_size = 0;
-	KNH_INITv(b->xmtd,   KNH_NULL);
+	KNH_INITv(b->xmtd, KNH_NULL);
 
 	b->regs = (knh_asmreg_t*)KNH_MALLOC(ctx, KNH_ASM_REGMAX * sizeof(knh_asmreg_t));
 	knh_bzero(b->regs, KNH_ASM_REGMAX * sizeof(knh_asmreg_t));

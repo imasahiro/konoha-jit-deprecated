@@ -300,28 +300,27 @@ void knh_sfp_copy(Ctx *ctx, knh_sfp_t *dst, knh_sfp_t *src, size_t size)
 	}
 }
 
+///* ------------------------------------------------------------------------ */
+//
+//knh_Closure_t* new_Closure(Ctx *ctx, knh_sfp_t *sfp, knh_Method_t *mtd)
+//{
+//	knh_class_t cid = knh_class_MethodClosure(ctx, knh_Object_cid(sfp[0].o), mtd);
+//	knh_Closure_t *cc = (knh_Closure_t*)new_Object_init(ctx, FLAG_Closure, cid, 0);
+//	KNH_INITv((cc)->mtd, mtd);
+//	(cc)->self = cc;   // TO AVOID CYCLIC REFERENCE
+//	(cc)->envsfp = sfp;
+//	return cc;
+//}
+
 /* ------------------------------------------------------------------------ */
 
-knh_Closure_t* new_Closure(Ctx *ctx, knh_sfp_t *sfp, knh_Method_t *mtd)
+void knh_Closure_copyEnv(Ctx *ctx, knh_Closure_t *cc, knh_sfp_t *sfp)
 {
-	knh_class_t cid = knh_class_MethodClosure(ctx, knh_Object_cid(sfp[0].o), mtd);
-	knh_Closure_t *cc = (knh_Closure_t*)new_Object_init(ctx, FLAG_Closure, cid, 0);
-	KNH_INITv((cc)->mtd, mtd);
-	(cc)->self = cc;   // TO AVOID CYCLIC REFERENCE
-	(cc)->envsfp = sfp;
-	return cc;
-}
-
-/* ------------------------------------------------------------------------ */
-
-void knh_Closure_storeEnv(Ctx *ctx, knh_Closure_t *cc, knh_sfp_t *sfp)
-{
-	size_t stacksize = ctx->esp - (cc)->envsfp;
+	size_t stacksize = ctx->esp - sfp;
 	size_t* hstack = (size_t*)KNH_MALLOC(ctx, (sizeof(knh_sfp_t) * stacksize) + sizeof(size_t));
 	knh_sfp_t *envsfp = (knh_sfp_t*)(&hstack[1]);
-	KNH_ASSERT(cc->envsfp == sfp);
 	hstack[0] = stacksize;
-	knh_sfp_copy(ctx, (cc)->envsfp, envsfp, stacksize);
+	knh_sfp_copy(ctx, sfp, envsfp, stacksize);
 	(cc)->envsfp = envsfp;
 	knh_Closure_setStoredEnv(cc, 1);
 	DBG2_P("STORED %d", (int)stacksize);

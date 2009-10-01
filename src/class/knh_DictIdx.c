@@ -128,7 +128,10 @@ knh_index_t knh_DictIdx_add__b(Ctx *ctx, knh_DictIdx_t *o, knh_bytes_t term)
 knh_String_t* knh_DictIdx_get__fast(knh_DictIdx_t *o, knh_intptr_t termid)
 {
 	size_t n = termid_toarrayn(termid);
-	KNH_ASSERT(/*0 <= n &&*/ n < knh_Array_size(o->terms));
+	if(unlikely(n >= knh_Array_size(o->terms))) {
+		DBG2_P("outof index %ld >= %ld", n, knh_Array_size(o->terms));
+		n = 0;
+	}
 	return (knh_String_t*)knh_Array_n(o->terms, n);
 }
 
@@ -141,7 +144,7 @@ knh_String_t* knh_DictIdx_get(Ctx *ctx, knh_DictIdx_t *o, knh_intptr_t termid)
 	if(/*0 <= n &&*/ n < knh_Array_size(o->terms)) {
 		return (knh_String_t*)knh_Array_n(o->terms, n);
 	}
-	return (knh_String_t*)KNH_NULL;
+	return TS_EMPTY;
 }
 
 /* ------------------------------------------------------------------------ */

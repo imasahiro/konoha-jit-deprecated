@@ -457,6 +457,8 @@ typedef struct knh_Class_t {
 //## flag ClassStruct Key        4 (%s)->fields[n].flag is set * *;
 //## flag ClassStruct Volatile   5 (%s)->fields[n].flag is set * *;
 //## flag ClassStruct ReadOnly   6 (%s)->fields[n].flag is set * *;
+//## flag ClassStruct Identity   8 (%s)->fields[n].flag is set * *;
+
 
 typedef struct knh_cfield_t {
 	knh_flag_t    flag  ;
@@ -1050,8 +1052,17 @@ typedef knh_ushort_t   knh_stmt_t;
 #define knh_Token_isPNAME(o)  knh_Token_isTailWildCard(o)
 #define knh_Token_setPNAME(o, b) knh_Token_setTailWildCard(o, b)
 
+// TT_LOCAL,
 #define knh_Token_isSUPER(o)      knh_Token_isTailWildCard(o)
 #define knh_Token_setSUPER(o, b)  knh_Token_setTailWildCard(o, b)
+
+// TT_LOCAL, TT_FIELD, TT_SCRIPT
+#define knh_Token_isReadOnly(tk)   knh_Token_isBOL(tk)
+#define knh_Token_setReadOnly(tk, b)   knh_Token_setBOL(tk, b)
+
+// TT_CLOSURE
+#define knh_Token_isOUTERCLOSURE(o)      knh_Token_isTailWildCard(o)
+#define knh_Token_setOUTERCLOSURE(o, b)  knh_Token_setTailWildCard(o, b)
 
 /* ------------------------------------------------------------------------ */
 
@@ -1203,6 +1214,10 @@ typedef struct {
 //## flag Asm PROCEED    1 DP(%s)->flag has found * *;
 //## flag Asm RETURN     2 DP(%s)->flag has found * *;
 //## flag Asm YEILD      3 DP(%s)->flag has found * *;
+//## flag Asm FIELD      4 DP(%s)->flag has found * *;
+//## flag Asm STACK      5 DP(%s)->flag has found * *;
+//## flag Asm SCRIPT     6 DP(%s)->flag has found * *;
+
 
 #ifndef KONOHA_LOCALSIZE
 #define KONOHA_LOCALSIZE 128
@@ -1242,10 +1257,9 @@ typedef struct knh_Asm {
 
 	/* closure */
 	knh_flag_t             xflag;
-	knh_class_t            xthis_cid;
-	struct knh_Method_t   *xmtd;
 	knh_type_t             xrtype;
 	knh_ushort_t           xstack_size;
+	struct knh_Method_t   *xmtd;
 
 	/* regisiter */
 	knh_asmreg_t *regs;

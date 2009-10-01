@@ -503,6 +503,11 @@ int knh_Method_pctoline(knh_Method_t *mtd, knh_code_t *pc);
 
 /* this is used only for Closure.invoke */
 
+#define KLR_COPYSFP(ctx, n) { \
+		DBG2_ASSERT(IS_bClosure(sfp[n].cc));\
+		knh_Closure_copyEnv(ctx, sfp[n].cc, sfp);\
+	} \
+
 /* ------------------------------------------------------------------------- */
 
 #define KLR_TOSTRf(ctx, n, mn, fmt) { \

@@ -50,9 +50,9 @@
 #else
 #define KONOHA_NAME     "konoha"
 #define KONOHA_MAJOR_VERSION  0
-#define KONOHA_MIDDLE_VERSION 7
-#define KONOHA_MINER_VERSION  0
-#define KONOHA_VERSION  "0.7"
+#define KONOHA_MINER_VERSION  7
+#define KONOHA_PATCH_VERSION  0
+#define KONOHA_VERSION  "0.7b"
 #endif
 
 #define LIBKONOHA_VERSION "0.7"

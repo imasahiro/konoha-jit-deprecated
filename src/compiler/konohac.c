@@ -905,7 +905,7 @@ int knh_NameSpace_compile(Ctx *ctx, knh_NameSpace_t *ns, knh_Stmt_t *stmt, int i
 //			break;
 		case STT_DECL: {
 				knh_Asm_initThisScript(ctx, abr);
-				tm = knh_StmtDECL_typing(ctx, cur, abr, ns);
+				tm = knh_StmtDECL_typing(ctx, cur, abr, ns, DECL_SCRIPT);
 				break;
 			}
 		case STT_LET: {
@@ -921,6 +921,11 @@ int knh_NameSpace_compile(Ctx *ctx, knh_NameSpace_t *ns, knh_Stmt_t *stmt, int i
 		case STT_SEPARATOR: {
 				knh_Asm_initThisScript(ctx, abr);
 				tm = knh_StmtSEPARATOR_typing(ctx, cur, abr, ns);
+				break;
+			}
+		case STT_FUNCTION: {
+				knh_Asm_initThisScript(ctx, abr);
+				tm = knh_StmtFUNCTION_typing(ctx, cur, abr, ns, TYPE_void);
 				break;
 			}
 		}

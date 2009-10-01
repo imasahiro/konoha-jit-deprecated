@@ -2,7 +2,7 @@
 
 /* ======================================================================== */
 /* MACROS */
-#define KONOHA_BUILDID                  700
+#define KONOHA_BUILDID                  703
 
 /* ======================================================================== */
 /* STRUCT */
@@ -925,6 +925,11 @@
 #define knh_ClassStruct_isReadOnly(o,n)  (((o)->fields[n].flag & FLAG_ClassStruct_ReadOnly) == FLAG_ClassStruct_ReadOnly)
 
 #define knh_ClassStruct_setReadOnly(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassStruct_ReadOnly; else (o)->fields[n].flag &= ~(FLAG_ClassStruct_ReadOnly);
+#define FLAG_ClassStruct_Identity       (knh_flag_t)(1<<8)
+
+#define knh_ClassStruct_isIdentity(o,n)  (((o)->fields[n].flag & FLAG_ClassStruct_Identity) == FLAG_ClassStruct_Identity)
+
+#define knh_ClassStruct_setIdentity(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassStruct_Identity; else (o)->fields[n].flag &= ~(FLAG_ClassStruct_Identity);
 #define FLAG_Method_Private             (knh_flag_t)(1<<0)
 
 #define knh_Method_isPrivate(o)  ((DP(o)->flag & FLAG_Method_Private) == FLAG_Method_Private)
@@ -1215,6 +1220,21 @@
 #define knh_Asm_hasYEILD(o)  ((DP(o)->flag & FLAG_Asm_YEILD) == FLAG_Asm_YEILD)
 
 #define knh_Asm_foundYEILD(o,b) if(b) DP(o)->flag |= FLAG_Asm_YEILD; else DP(o)->flag &= ~(FLAG_Asm_YEILD);
+#define FLAG_Asm_FIELD                  (knh_flag_t)(1<<4)
+
+#define knh_Asm_hasFIELD(o)  ((DP(o)->flag & FLAG_Asm_FIELD) == FLAG_Asm_FIELD)
+
+#define knh_Asm_foundFIELD(o,b) if(b) DP(o)->flag |= FLAG_Asm_FIELD; else DP(o)->flag &= ~(FLAG_Asm_FIELD);
+#define FLAG_Asm_STACK                  (knh_flag_t)(1<<5)
+
+#define knh_Asm_hasSTACK(o)  ((DP(o)->flag & FLAG_Asm_STACK) == FLAG_Asm_STACK)
+
+#define knh_Asm_foundSTACK(o,b) if(b) DP(o)->flag |= FLAG_Asm_STACK; else DP(o)->flag &= ~(FLAG_Asm_STACK);
+#define FLAG_Asm_SCRIPT                 (knh_flag_t)(1<<6)
+
+#define knh_Asm_hasSCRIPT(o)  ((DP(o)->flag & FLAG_Asm_SCRIPT) == FLAG_Asm_SCRIPT)
+
+#define knh_Asm_foundSCRIPT(o,b) if(b) DP(o)->flag |= FLAG_Asm_SCRIPT; else DP(o)->flag &= ~(FLAG_Asm_SCRIPT);
 
 /* ======================================================================== */
 /* EXPT */

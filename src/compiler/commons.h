@@ -58,11 +58,12 @@ extern "C" {
 #define _(s)           s
 
 
-#define OUTERPARAMS -1
-#define INNERPARAMS -2
-#define SCRIPTLEVEL  0
-#define CLASSLEVEL   1
-#define LOCALLEVEL   2
+#define DECL_OUTERPARAM  0
+#define DECL_INNERPARAM  1
+#define DECL_FOREACH     2
+#define DECL_LOCAL       3
+#define DECL_FIELD       4
+#define DECL_SCRIPT      5
 
 /* ------------------------------------------------------------------------ */
 
