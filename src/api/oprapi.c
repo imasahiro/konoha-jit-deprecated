@@ -408,6 +408,38 @@ static METHOD Object_opCase(Ctx *ctx, knh_sfp_t *sfp)
 	KNH_RETURN_Boolean(ctx, sfp, knh_Object_compareTo(ctx, sfp[0].o, sfp[1].o) == 0);
 }
 
+/* ------------------------------------------------------------------------ */
+//## @Const @NullBase method Boolean! Int.opCase(Any v);
+
+static METHOD Int_opCase(Ctx *ctx, knh_sfp_t *sfp)
+{
+	int res = 0;
+	if(IS_bInt(sfp[1].o)) {
+		knh_int_t n = Int_to(knh_int_t, sfp[1]);
+		if(knh_Object_cid(sfp[0].o) == CLASS_Int ||
+				knh_Object_bcid(sfp[0].o) == knh_Object_bcid(sfp[0].o)) {
+			res = (n == Int_to(knh_int_t, sfp[0]));
+		}
+	}
+	KNH_RETURN_Boolean(ctx, sfp, res);
+}
+
+/* ------------------------------------------------------------------------ */
+//## @Const @NullBase method Boolean! Float.opCase(Any v);
+
+static METHOD Float_opCase(Ctx *ctx, knh_sfp_t *sfp)
+{
+	int res = 0;
+	if(IS_bFloat(sfp[1].o)) {
+		knh_float_t n = Float_to(knh_float_t, sfp[1]);
+		if(knh_Object_cid(sfp[0].o) == CLASS_Float ||
+				knh_Object_bcid(sfp[0].o) == knh_Object_bcid(sfp[0].o)) {
+			res = (n == Float_to(knh_float_t, sfp[0]));
+		}
+	}
+	KNH_RETURN_Boolean(ctx, sfp, res);
+}
+
 /* ======================================================================== */
 /* [Semantic Comparator] */
 

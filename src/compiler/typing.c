@@ -576,7 +576,6 @@ knh_cfield_t *knh_Asm_getLocalField(knh_Asm_t *abr, knh_index_t idx)
 static int knh_Asm_globalIndex(Ctx *ctx, knh_Asm_t *abr, knh_Script_t *scr)
 {
 	if(DP(abr)->globalidx == -1) {
-		DBG2_ABORT();
 		knh_cfield_t decl = {0, NNTYPE_cid(knh_Object_cid(scr)), FIELDN_, NULL};
 		DP(abr)->globalidx = knh_Asm_declareLocalVariable(ctx, abr, &decl);
 		if(DP(abr)->globalidx == -1) return 0;
@@ -1353,10 +1352,9 @@ knh_flag_t knh_StmtDECL_flag(Ctx *ctx, knh_Stmt_t *o)
 static
 knh_index_t knh_Asm_addVariableTable(Ctx *ctx, knh_Asm_t *abr, knh_cfield_t *tbl, size_t max, knh_cfield_t *decl, int isLocal)
 {
-	DBG2_ASSERT(decl->fn != FIELDN_/*register*/);
 	knh_index_t idx;
 	if(decl->type == TYPE_var) {
-		DBG2_P("********* var %s", FIELDN(decl->fn));
+		//DBG2_P("********* var %s", FIELDN(decl->fn));
 		knh_foundKonohaStyle(1);
 	}
 	for(idx = 0; idx < max - 1; idx++) {
@@ -4111,11 +4109,12 @@ knh_methodn_t knh_StmtMETHOD_name(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, in
 static
 int knh_Stmt_initParams(Ctx *ctx, knh_Stmt_t *pstmt, knh_Asm_t *abr, knh_NameSpace_t *ns, int declClass)
 {
-//	knh_Asm_initGamma(ctx, abr, 0);
-//	DP(abr)->gamma[0].flag = 0;
-//	DP(abr)->gamma[0].type = NNTYPE_cid(DP(abr)->this_cid);
-//	DP(abr)->gamma[0].fn   = FIELDN_this;
-//	DP(abr)->gamma_size = 1;
+	int xstack_size = DP(abr)->xstack_size;
+	knh_Asm_initGamma(ctx, abr, xstack_size);
+	DP(abr)->gamma[xstack_size].flag = 0;
+	DP(abr)->gamma[xstack_size].type = NNTYPE_cid(DP(abr)->this_cid);
+	DP(abr)->gamma[xstack_size].fn   = FIELDN_this;
+	DP(abr)->gamma_size = xstack_size + 1;
 	while(IS_Stmt(pstmt)) {
 		if(SP(pstmt)->stt == STT_DECL) {
 			Term *tm = knh_StmtDECL_typing(ctx, pstmt, abr, ns, declClass);
@@ -4274,7 +4273,7 @@ knh_fmethod knh_Asm_loadMethodFunc(Ctx *ctx, knh_Asm_t *abr, knh_class_t cid, kn
 
 void knh_StmtMETHOD_typingBODY(Ctx *ctx, knh_Asm_t *abr, knh_NameSpace_t *ns, knh_Method_t *mtd, knh_Stmt_t *stmtPARAMS, knh_Stmt_t *stmtBODY, int isIteration)
 {
-	DBG2_P("START TYPING BODY %s%s OF FUNCTION..", TYPEQN(DP(stmtBODY)->type));
+	DBG2_P(">>> TYPING BODY %s%s OF FUNCTION..", TYPEQN(DP(stmtBODY)->type));
 	knh_Method_toAbstract(ctx, mtd);
 	knh_Asm_prepare(ctx, abr, mtd, stmtBODY);
 	knh_Asm_initThis(ctx, abr, DP(abr)->this_cid);
@@ -4291,7 +4290,6 @@ void knh_StmtMETHOD_typingBODY(Ctx *ctx, knh_Asm_t *abr, knh_NameSpace_t *ns, kn
 	if(isIteration == 2) {
 		knh_Stmt_checkLastReturn(ctx, stmtBODY, mtd, abr, ns);
 	}
-	DBG2_P("END TYPING BODY OF FUNCTION..");
 }
 
 /* ------------------------------------------------------------------------ */

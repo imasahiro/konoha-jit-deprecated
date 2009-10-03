@@ -608,6 +608,7 @@ knh_code_t* KNH_ASM_AINVOKE_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_ushort_t a2
 knh_code_t* KNH_ASM_CALL_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_ushort_t a2,knh_methodn_t a3);
 knh_code_t* KNH_ASM_ACALL_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_ushort_t a2,knh_methodn_t a3);
 knh_code_t* KNH_ASM_NEW_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_flag_t a2,knh_class_t a3,knh_ushort_t a4,knh_Object_t* a5);
+knh_code_t* KNH_ASM_COPYSFP_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1);
 knh_code_t* KNH_ASM_TOSTR_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_methodn_t a2);
 knh_code_t* KNH_ASM_TOSTRf_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_methodn_t a2,knh_Object_t* a3);
 knh_code_t* KNH_ASM_SMAP_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_Object_t* a2);

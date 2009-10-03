@@ -1773,7 +1773,7 @@ static Term *new_TermEXPR(Ctx *ctx, knh_tkc_t *tc, int isData)
 	}
 	else {
 		DBG2_P("** Unexpected funcname %s **", knh_token_tochar(TT_(ts[fc])));
-		knh_Token_perror(ctx, ts[fc], KERR_ERROR, _("method? %s"), sToken(ts[fc]));
+		knh_Token_perror(ctx, ts[fc], KERR_ERROR, _("not method call %s"), sToken(ts[fc]));
 		knh_Stmt_add(ctx, stmt, TM(ts[fc]));
 		tc->c = tc->e;
 	}
@@ -1782,10 +1782,10 @@ static Term *new_TermEXPR(Ctx *ctx, knh_tkc_t *tc, int isData)
 	/** third *************************************************************/
 
 	L_PARAM:;
-	KNH_ASSERT(stmt != NULL);
-	KNH_ASSERT(pc > 0);
+	DBG2_ASSERT(stmt != NULL);
+	DBG2_ASSERT(pc > 0);
 	//DBG2_P("oc=%d, fc=%d, pc=%d %s", oc, fc, pc, knh_token_tochar(TT_(ts[pc])));
-	KNH_ASSERT(TT_(ts[pc]) == TT_PARENTHESIS);
+	DBG2_ASSERT(TT_(ts[pc]) == TT_PARENTHESIS);
 	{
 		knh_tkc_t ptc;
 		knh_Token_tc(ctx, ts[pc], &ptc);
