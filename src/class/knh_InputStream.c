@@ -287,83 +287,16 @@ KNHAPI(knh_InputStream_t*) new_StringInputStream(Ctx *ctx, knh_String_t *str, si
 {
 	knh_InputStream_t* o = (knh_InputStream_t*)new_Object_bcid(ctx, CLASS_InputStream, 0);
 	DP(o)->fd = -1;
-	KNH_ASSERT(IS_Bytes(str));
+	DBG2_ASSERT(IS_Bytes(str));
 	KNH_SETv(ctx, DP(o)->str, str);
 	DP(o)->buf = (char*)(str)->str;
 	DP(o)->bufsiz = (str)->size;
-	KNH_ASSERT(e <= (str)->size);
-	KNH_ASSERT(s <= e);
+	DBG2_ASSERT(e <= (str)->size);
+	DBG2_ASSERT(s <= e);
 	DP(o)->bufpos   = s;
 	DP(o)->bufend   = e;
 	return o;
 }
-
-/* ======================================================================== */
-/* [Data] */
-
-int knh_bytes_checkStmtLine(knh_bytes_t line)
-{
-	char *ln = (char*)line.buf;
-	size_t i = 0, len = line.len;
-	int ch, quote = 0, nest =0;
-	L_NORMAL:
-	for(; i < len; i++) {
-		ch = ln[i];
-		if(ch == '{' || ch == '[' || ch == '(') nest++;
-		if(ch == '}' || ch == ']' || ch == ')') nest--;
-		if(ch == '\'' || ch == '"' || ch == '`') {
-			quote = ch; i++;
-			goto L_QUOTE;
-		}
-	}
-	return nest;
-
-	L_QUOTE:
-	KNH_ASSERT(i > 0);
-	for(; i < len; i++) {
-		ch = ln[i];
-		if(ln[i-1] != '\\' && ch == quote) {
-			i++;
-			goto L_NORMAL;
-		}
-	}
-	return 1;
-}
-
-///* ------------------------------------------------------------------------ */
-//
-//KNHAPI(Object*) knh_InputStream_readData(Ctx *ctx, InputStream *in, knh_class_t reqc)
-//{
-//	int ch, linenum = DP(in)->line;
-//	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-//	L_AGAIN:;
-//	while((ch = knh_InputStream_getc(ctx, in)) != EOF) {
-//		if(ch == '\r' || ch == '`') {
-//			int prev = DP(in)->prev;
-//			if(prev == '\r' || prev == '\n') continue;
-//			if(prev == ']' || prev == '}' || knh_bytes_checkStmtLine(knh_cwb_tobytes(cwb)) == 0) {
-//				break;
-//			}
-//		}
-//		knh_Bytes_putc(ctx, cwb->ba, ch);
-//	}
-//	if(knh_cwb_size(cwb) == 0) {
-//		if(ch == EOF) return KNH_NULL;
-//		goto L_AGAIN;
-//	}
-//
-//	{
-//		InputStream *bin = new_BytesInputStream(ctx, cwb->ba, cwb->pos, knh_Bytes_size(cwb->ba));
-//		Object *value = NULL;
-//		DP(bin)->uri = URI_EVAL;
-//		DP(bin)->line = linenum;
-//		knh_InputStream_setEncoding(ctx, bin, DP(in)->enc);
-//		value = konohac_data(ctx, bin, reqc);
-//		knh_cwb_close(cwb);
-//		if(IS_NULL(value)) goto L_AGAIN;
-//		return value;
-//	}
-//}
 
 /* ------------------------------------------------------------------------ */
 

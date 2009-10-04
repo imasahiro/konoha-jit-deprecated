@@ -335,25 +335,6 @@ knh_NameSpace_t *knh_NameSpace_newPackageNULL(Ctx *ctx, knh_bytes_t pkgname)
 	return ns;
 }
 
-///* ------------------------------------------------------------------------ */
-//
-//Object *konohac_data(Ctx *ctx, InputStream *in, knh_class_t reqc)
-//{
-//	knh_sfp_t *lsfp = KNH_LOCAL(ctx);
-//	KNH_LPUSH(ctx, in);
-//	KNH_LPUSH(ctx, new_ExceptionHandler(ctx));
-//	KNH_TRY(ctx, L_CATCH, lsfp, 1);
-//	{
-//		Stmt *stmt = knh_InputStream_parseStmt(ctx, in, 1/*isData*/);
-//		KNH_LPUSH(ctx, stmt);
-//		return knh_Stmt_toData(ctx, stmt, reqc);
-//	}
-//	/* catch */
-//	L_CATCH:;
-//	KNH_LOCALBACK(ctx, lsfp);
-//	//KNH_PRINT_STACKTRACE(ctx, lsfp, 1);
-//	return KNH_NULL;
-//}
 
 /* ======================================================================== */
 /* [CLASS] */
@@ -756,8 +737,8 @@ int knh_Stmt_eval(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace_t *n
 	knh_sfp_t *lsfp = KNH_LOCAL(ctx);
 
 	int isExpr = knh_stmt_isExpr(SP(stmt)->stt);
-
 	knh_methodn_t mt = METHODN__k;
+
 	if(SP(stmt)->stt == STT_MT) {
 		knh_Token_t *tk0 = DP(stmt)->tokens[0];
 		knh_methodn_t mn = knh_getmn(ctx, knh_Token_tobytes(ctx, tk0), METHODN_NEWID);
@@ -780,9 +761,9 @@ int knh_Stmt_eval(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace_t *n
 			}
 			SP(stmt)->stt = STT_RETURN;
 		}
-//		else if(SP(stmt)->stt == STT_LET) {
-//			isExpr = 0;
-//		}
+		else if(SP(stmt)->stt == STT_LET) {
+			isExpr = 0;
+		}
 		else {
 			knh_Stmt_t *newstmt = new_Stmt(ctx, 0, STT_RETURN);
 			knh_Stmt_add(ctx, newstmt, UP(stmt));
@@ -976,28 +957,114 @@ int knh_NameSpace_compile(Ctx *ctx, knh_NameSpace_t *ns, knh_Stmt_t *stmt, int i
 	return 0;
 }
 
-/* ------------------------------------------------------------------------ */
+/* ======================================================================== */
+/* [Data] */
 
-Object *knh_Stmt_toData(Ctx *ctx, knh_Stmt_t *stmt, knh_class_t reqc)
+int knh_bytes_checkStmtLine(knh_bytes_t line)
 {
-//	Asm *abr = knh_Context_getAsm(ctx);
-//	DP(abr)->level = 0;
-//	NameSpace *ns = ctx->ns;
-//	if(IS_Stmt(stmt)) {
-//		KNH_ASM_SETLINE(ctx, abr, SP(stmt)->line);
-//		if(knh_stmt_isExpr(SP(stmt)->stt)) {
-//			Token *tk = knh_StmtEXPR_typing(ctx, stmt, abr, ns, reqc);
-//			if(tk == NULL || IS_Stmt(tk)) return KNH_NULL;
-//		}
-//		else {
-//			knh_Stmt_done(ctx, stmt);
-//		}
-//	}
-	TODO();
-	return KNH_NULL;
+	char *ln = (char*)line.buf;
+	size_t i = 0, len = line.len;
+	int ch, quote = 0, nest =0;
+	L_NORMAL:
+	for(; i < len; i++) {
+		ch = ln[i];
+		if(ch == '{' || ch == '[' || ch == '(') nest++;
+		if(ch == '}' || ch == ']' || ch == ')') nest--;
+		if(ch == '\'' || ch == '"' || ch == '`') {
+			quote = ch; i++;
+			goto L_QUOTE;
+		}
+	}
+	return nest;
+
+	L_QUOTE:
+	DBG2_ASSERT(i > 0);
+	for(; i < len; i++) {
+		ch = ln[i];
+		if(ln[i-1] != '\\' && ch == quote) {
+			i++;
+			goto L_NORMAL;
+		}
+	}
+	return 1;
 }
 
+/* ------------------------------------------------------------------------ */
 
+static
+Object *knh_InputStream_parseDataNULL(Ctx *ctx, knh_InputStream_t *in)
+{
+	knh_sfp_t *lsfp = KNH_LOCAL(ctx);
+	Object *rVALUE = NULL;
+	knh_Stmt_t *stmt = knh_InputStream_parseStmt(ctx, in, 1/*isData*/);
+	KNH_LPUSH(ctx, in); //lsfp[0]
+	KNH_LPUSH(ctx, stmt); // lsfp[1]
+	if(knh_stmt_isExpr(STT_(stmt)) && STT_(stmt) != STT_LET) {
+		knh_Asm_t *abr = knh_Context_getAsm(ctx);
+		knh_Script_t *scr = knh_getAsmScript(ctx);
+		knh_Method_t *mtd = knh_Class_getMethod(ctx, knh_Object_cid(scr), METHODN_LAMBDA);
+		KNH_ASM_METHOD(ctx, abr, mtd, NULL, stmt, 0 /* isIteration */);
+		if(knh_Method_isAbstract(mtd) || SP(stmt)->stt == STT_ERR) {
+			goto L_RETURN;
+		}
+		DBG_P("rtype=%s%s", TYPEQN(DP(stmt)->type));
+		//knh_ExceptionHandler_t *hdr = new_ExceptionHandler(ctx);
+		//KNH_MOV(ctx, lsfp[0].o, hdr);
+		//KNH_TRY(ctx, L_CATCH, lsfp, 0);
+		KNH_MOV(ctx, lsfp[1].o, DP(mtd)->code); // TO AVOID RCGC
+		KNH_MOV(ctx, lsfp[3].o, scr);
+		KNH_SCALL(ctx, lsfp, 2, mtd, 0/*args*/);
+		rVALUE = lsfp[2].o;
+		//L_CATCH:;
+		//KNH_PRINT_STACKTRACE(ctx, lsfp, 0);
+	}
+	L_RETURN:
+	KNH_LOCALBACK(ctx, lsfp);
+	return rVALUE;
+}
+
+/* ------------------------------------------------------------------------ */
+
+Object* knh_InputStream_readData(Ctx *ctx, knh_InputStream_t *in)
+{
+	int ch, linenum = DP(in)->line;
+	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
+	L_READLINE:;
+	while((ch = knh_InputStream_getc(ctx, in)) != EOF) {
+		if(ch == '\r') {
+			DP(in)->prev = ch;
+			goto L_STMT;
+		}
+		else if(ch == '\n') {
+			if(DP(in)->prev == '\r') continue;
+			DP(in)->prev = ch;
+			goto L_STMT;
+		}
+		else {
+			knh_Bytes_putc(ctx, cwb->ba, ch);
+		}
+	}
+	return KNH_NULL;
+	L_STMT:;
+	{
+		int nest = knh_bytes_checkStmtLine(knh_cwb_tobytes(cwb));
+		if(nest == 0) {
+			knh_InputStream_t *bin = new_BytesInputStream(ctx, cwb->ba, cwb->pos, knh_Bytes_size(cwb->ba));
+			Object *value = NULL;
+			DP(bin)->uri = DP(in)->uri;
+			DP(bin)->line = linenum;
+			knh_InputStream_setEncoding(ctx, bin, DP(in)->enc);
+			value = knh_InputStream_parseDataNULL(ctx, bin);
+			knh_cwb_close(cwb);
+			if(value == NULL) goto L_READLINE;
+			return value;
+		}
+		if(nest < 0) {
+			knh_cwb_subclear(cwb, 0);
+		}
+		goto L_READLINE;
+	}
+}
 
 /* ------------------------------------------------------------------------ */
 /* [Extension] */

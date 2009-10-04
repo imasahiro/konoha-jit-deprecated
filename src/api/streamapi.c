@@ -122,6 +122,15 @@ static METHOD InputStream_readLine(Ctx *ctx, knh_sfp_t *sfp)
 	KNH_RETURN(ctx, sfp, s);
 }
 
+/* ------------------------------------------------------------------------ */
+//## method Any? InputStream.readData();
+
+static METHOD InputStream_readData(Ctx *ctx, knh_sfp_t *sfp)
+{
+	Object *v = knh_InputStream_readData(ctx, (knh_InputStream_t*)sfp[0].o);
+	KNH_RETURN(ctx, sfp, v);
+}
+
 /* ======================================================================== */
 /* [iterators] */
 

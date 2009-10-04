@@ -2,7 +2,7 @@
 
 /* ======================================================================== */
 /* MACROS */
-#define KONOHA_BUILDID                  705
+#define KONOHA_BUILDID                  707
 
 /* ======================================================================== */
 /* STRUCT */
@@ -925,11 +925,11 @@
 #define knh_ClassStruct_isReadOnly(o,n)  (((o)->fields[n].flag & FLAG_ClassStruct_ReadOnly) == FLAG_ClassStruct_ReadOnly)
 
 #define knh_ClassStruct_setReadOnly(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassStruct_ReadOnly; else (o)->fields[n].flag &= ~(FLAG_ClassStruct_ReadOnly);
-#define FLAG_ClassStruct_Identity       (knh_flag_t)(1<<8)
+#define FLAG_ClassStruct_Principle      (knh_flag_t)(1<<8)
 
-#define knh_ClassStruct_isIdentity(o,n)  (((o)->fields[n].flag & FLAG_ClassStruct_Identity) == FLAG_ClassStruct_Identity)
+#define knh_ClassStruct_isPrinciple(o,n)  (((o)->fields[n].flag & FLAG_ClassStruct_Principle) == FLAG_ClassStruct_Principle)
 
-#define knh_ClassStruct_setIdentity(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassStruct_Identity; else (o)->fields[n].flag &= ~(FLAG_ClassStruct_Identity);
+#define knh_ClassStruct_setPrinciple(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassStruct_Principle; else (o)->fields[n].flag &= ~(FLAG_ClassStruct_Principle);
 #define FLAG_Method_Private             (knh_flag_t)(1<<0)
 
 #define knh_Method_isPrivate(o)  ((DP(o)->flag & FLAG_Method_Private) == FLAG_Method_Private)
@@ -1512,74 +1512,76 @@
 #define FIELDN_randomseed 181
 #define FIELDN_re       182
 #define FIELDN_read     183
-#define FIELDN_readLine 184
-#define FIELDN_readline 184
-#define FIELDN_release  185
-#define FIELDN_remove   186
-#define FIELDN_rename   187
-#define FIELDN_replace  188
-#define FIELDN_reverse  189
-#define FIELDN_s        190
-#define FIELDN_script   191
-#define FIELDN_second   192
-#define FIELDN_seed     193
-#define FIELDN_shared   194
-#define FIELDN_shuffle  195
-#define FIELDN_significant 196
-#define FIELDN_singleton 197
-#define FIELDN_size     198
-#define FIELDN_sort     199
-#define FIELDN_split    200
-#define FIELDN_start    201
-#define FIELDN_startsWith 202
-#define FIELDN_startswith 202
-#define FIELDN_startsWith__IgnoreCase 203
-#define FIELDN_startswith__ignorecase 203
-#define FIELDN_static   204
-#define FIELDN_status   205
-#define FIELDN_stmt     206
-#define FIELDN_storingBuffer 207
-#define FIELDN_storingbuffer 207
-#define FIELDN_strict   208
-#define FIELDN_string   209
-#define FIELDN_substring 210
-#define FIELDN_sudo     211
-#define FIELDN_super    212
-#define FIELDN_swap     213
-#define FIELDN_synonym  214
-#define FIELDN_system   215
-#define FIELDN_temporal 216
-#define FIELDN_this     217
-#define FIELDN_times    218
-#define FIELDN_toLower  219
-#define FIELDN_tolower  219
-#define FIELDN_total    220
-#define FIELDN_toUpper  221
-#define FIELDN_toupper  221
-#define FIELDN_trim     222
-#define FIELDN_twofold  223
-#define FIELDN_typeof   224
-#define FIELDN_u        225
-#define FIELDN_uCS4     226
-#define FIELDN_ucs4     226
-#define FIELDN_undefined 227
-#define FIELDN_unique   228
-#define FIELDN_unlikely 229
-#define FIELDN_unlink   230
-#define FIELDN_urn      231
-#define FIELDN_v        232
-#define FIELDN_value    233
-#define FIELDN_varArgs  234
-#define FIELDN_varargs  234
-#define FIELDN_vargs    235
-#define FIELDN_verbose  236
-#define FIELDN_virtual  237
-#define FIELDN_w        238
-#define FIELDN_write    239
-#define FIELDN_x        240
-#define FIELDN_y        241
-#define FIELDN_z        242
-#define KNH_TFIELDN_SIZE 243
+#define FIELDN_readData 184
+#define FIELDN_readdata 184
+#define FIELDN_readLine 185
+#define FIELDN_readline 185
+#define FIELDN_release  186
+#define FIELDN_remove   187
+#define FIELDN_rename   188
+#define FIELDN_replace  189
+#define FIELDN_reverse  190
+#define FIELDN_s        191
+#define FIELDN_script   192
+#define FIELDN_second   193
+#define FIELDN_seed     194
+#define FIELDN_shared   195
+#define FIELDN_shuffle  196
+#define FIELDN_significant 197
+#define FIELDN_singleton 198
+#define FIELDN_size     199
+#define FIELDN_sort     200
+#define FIELDN_split    201
+#define FIELDN_start    202
+#define FIELDN_startsWith 203
+#define FIELDN_startswith 203
+#define FIELDN_startsWith__IgnoreCase 204
+#define FIELDN_startswith__ignorecase 204
+#define FIELDN_static   205
+#define FIELDN_status   206
+#define FIELDN_stmt     207
+#define FIELDN_storingBuffer 208
+#define FIELDN_storingbuffer 208
+#define FIELDN_strict   209
+#define FIELDN_string   210
+#define FIELDN_substring 211
+#define FIELDN_sudo     212
+#define FIELDN_super    213
+#define FIELDN_swap     214
+#define FIELDN_synonym  215
+#define FIELDN_system   216
+#define FIELDN_temporal 217
+#define FIELDN_this     218
+#define FIELDN_times    219
+#define FIELDN_toLower  220
+#define FIELDN_tolower  220
+#define FIELDN_total    221
+#define FIELDN_toUpper  222
+#define FIELDN_toupper  222
+#define FIELDN_trim     223
+#define FIELDN_twofold  224
+#define FIELDN_typeof   225
+#define FIELDN_u        226
+#define FIELDN_uCS4     227
+#define FIELDN_ucs4     227
+#define FIELDN_undefined 228
+#define FIELDN_unique   229
+#define FIELDN_unlikely 230
+#define FIELDN_unlink   231
+#define FIELDN_urn      232
+#define FIELDN_v        233
+#define FIELDN_value    234
+#define FIELDN_varArgs  235
+#define FIELDN_varargs  235
+#define FIELDN_vargs    236
+#define FIELDN_verbose  237
+#define FIELDN_virtual  238
+#define FIELDN_w        239
+#define FIELDN_write    240
+#define FIELDN_x        241
+#define FIELDN_y        242
+#define FIELDN_z        243
+#define KNH_TFIELDN_SIZE 244
 
 /* ======================================================================== */
 /* METHODN */
@@ -1626,7 +1628,7 @@
 #define METHODN_get3D   METHODN_TO_GETTER(FIELDN_3d)
 #define METHODN_setMethodTypingListener METHODN_TO_SETTER(FIELDN_methodtypinglistener)
 #define METHODN_equals__IgnoreCase FIELDN_equals__ignorecase
-#define METHODN_setProperty METHODN_TO_SETTER(FIELDN_property)
+#define METHODN_readData FIELDN_readdata
 #define METHODN_setStoringBuffer METHODN_TO_SETTER(FIELDN_storingbuffer)
 #define METHODN_hasLib  FIELDN_haslib
 #define METHODN_opN     FIELDN_opn
@@ -1668,6 +1670,7 @@
 #define METHODN_opHas   FIELDN_ophas
 #define METHODN_isLossLess METHODN_TO_GETTER(FIELDN_lossless)
 #define METHODN_isInteractive METHODN_TO_GETTER(FIELDN_interactive)
+#define METHODN_setProperty METHODN_TO_SETTER(FIELDN_property)
 #define METHODN_this    FIELDN_this
 #define METHODN_isSignificant METHODN_TO_GETTER(FIELDN_significant)
 #define METHODN_new__array2D FIELDN_new__array2d

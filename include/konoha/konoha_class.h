@@ -457,7 +457,7 @@ typedef struct knh_Class_t {
 //## flag ClassStruct Key        4 (%s)->fields[n].flag is set * *;
 //## flag ClassStruct Volatile   5 (%s)->fields[n].flag is set * *;
 //## flag ClassStruct ReadOnly   6 (%s)->fields[n].flag is set * *;
-//## flag ClassStruct Identity   8 (%s)->fields[n].flag is set * *;
+//## flag ClassStruct Principle  8 (%s)->fields[n].flag is set * *;
 
 
 typedef struct knh_cfield_t {
