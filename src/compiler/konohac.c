@@ -530,8 +530,10 @@ int knh_StmtIMPORT_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpac
 		knh_bytes_t t = knh_String_tobytes(knh_getResourceName(ctx, SP(stmt)->uri));
 		if(t.buf[0] != '(') {  /* NOT (eval) */
 			knh_cwb_write(ctx, cwb, t);
-			knh_cwb_parentpath(ctx, cwb, NULL);
-			knh_cwb_putc(ctx, cwb, '/');
+			knh_bool_t ret = knh_cwb_parentpath(ctx, cwb, NULL);
+			if (ret) {
+			  knh_cwb_putc(ctx, cwb, '/');
+			}
 		}
 	}
 	knh_cwb_write(ctx, cwb, path);
