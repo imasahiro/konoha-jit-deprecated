@@ -816,7 +816,7 @@ static knh_StructData_t StructData[] = {
 
 static knh_ClassData_t ClassData[] = {
 	{"Object", CLASS_Object, FLAG_Object, 
-	   CLASS_ObjectField, CLASS_Object, 28, 5, 2,
+	   CLASS_ObjectField, CLASS_Object, 29, 5, 2,
 	   TYPE_void, TYPE_void, TYPE_void, TYPE_void},
 	{"Boolean", CLASS_Boolean, FLAG_Boolean, 
 	   CLASS_Boolean, CLASS_Object, 2, 2, 1,
@@ -1087,6 +1087,7 @@ static knh_FieldNameData_t FieldNameData[] = {
 	{"gc", FIELDN_gc},
 	{"hasDir", FIELDN_hasDir},
 	{"hasFile", FIELDN_hasFile},
+	{"hashCode", FIELDN_hashCode},
 	{"hasLib", FIELDN_hasLib},
 	{"host", FIELDN_host},
 	{"iCast", FIELDN_iCast},
@@ -1612,6 +1613,7 @@ static knh_MethodData_t MethodData[] = {
 	{Float_floatToIntBits, FLAG_Method_Static, CLASS_Float, METHODN_floatToIntBits, 0, 73, NULL},
 	{Float_intToFloatBits, FLAG_Method_Static, CLASS_Float, METHODN_intToFloatBits, 0, 74, NULL},
 	{Object_getClass, FLAG_Method_Const|FLAG_Method_NullBase, CLASS_Object, METHODN_getClass, 0, 75, NULL},
+	{Object_hashCode, FLAG_Method_NullBase, CLASS_Object, METHODN_hashCode, 0, 26, NULL},
 	{Object_isNull, FLAG_Method_Const|FLAG_Method_Hidden|FLAG_Method_NullBase, CLASS_Object, METHODN_isNull, 0, 27, NULL},
 	{Object_isNotNull, FLAG_Method_Const|FLAG_Method_Hidden|FLAG_Method_NullBase, CLASS_Object, METHODN_isNotNull, 0, 27, NULL},
 	{Object_getKey, FLAG_Method_Const, CLASS_Object, METHODN_getKey, 0, 76, NULL},

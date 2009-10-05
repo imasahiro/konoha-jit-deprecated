@@ -49,6 +49,22 @@ static METHOD Object_getClass(Ctx *ctx, knh_sfp_t *sfp)
 }
 
 /* ------------------------------------------------------------------------ */
+//## @NullBase method Int Object.hashCode();
+
+static METHOD Object_hashCode(Ctx *ctx, knh_sfp_t *sfp)
+{
+	knh_hashcode_t h = 0;
+	knh_Object_t *o = sfp[0].o;
+	if(IS_bInt(o) || IS_bFloat(o) || IS_bBoolean(o)) {
+		h = (knh_hashcode_t)sfp[0].ivalue;
+	}
+	else {
+		h = StructTable(o->h.bcid).fhashCode(ctx, o);
+	}
+	KNH_RETURN_Int(ctx, sfp, h);
+}
+
+/* ------------------------------------------------------------------------ */
 //## @Const @NullBase @Hidden method Boolean! Object.isNull();
 
 static METHOD Object_isNull(Ctx *ctx, knh_sfp_t *sfp)
