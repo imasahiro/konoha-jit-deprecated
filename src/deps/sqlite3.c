@@ -281,7 +281,7 @@ void knh_mysql_perror(Ctx *ctx, MYSQL *db, int r)
 static
 knh_db_t *knh_dbopen__mysql(Ctx *ctx, knh_bytes_t url)
 {
-    MYSQL *db = NULL,sql;
+    MYSQL *db = NULL;
     char* server = "localhost";
     char* user   = "user";
     char* passwd = "passwd";
@@ -290,8 +290,8 @@ knh_db_t *knh_dbopen__mysql(Ctx *ctx, knh_bytes_t url)
 
     url = knh_bytes_skipscheme(url);
     db  = mysql_init(NULL);
-    if((db = mysql_connect(&sql, server ,user, passwd, dbname)) == NULL) {
-        return NULL;
+    if(mysql_real_connect(db,  server, user, passwd, dbname, port, NULL, 0)==NULL) {
+        KNH_THROWs(ctx, "SQL!!: connection error");
     }
     return (knh_db_t*)db;
 }
@@ -301,44 +301,39 @@ knh_db_t *knh_dbopen__mysql(Ctx *ctx, knh_bytes_t url)
 static
 int knh_dbcurnext__mysql(Ctx *ctx, knh_dbcur_t *dbcur, struct knh_ResultSet_t *rs)
 {
-//	sqlite3_stmt *stmt = (sqlite3_stmt*)dbcur;
-//	int r = sqlite3_step(stmt);
-//	if(SQLITE_ROW == r) {
-//		size_t i;
-//		knh_ResultSet_initData(ctx, rs);
-//		for(i = 0; i < DP(rs)->column_size; i++) {
-//			int type = sqlite3_column_type(stmt, i);
-//			switch(type) {
-//				case SQLITE_INTEGER: {
-//					knh_ResultSet_setInt(ctx, rs, i, (knh_int_t)sqlite3_column_int64(stmt, i));
-//					break;
-//				}
-//				case SQLITE_FLOAT: {
-//					knh_ResultSet_setFloat(ctx, rs, i, (knh_float_t)sqlite3_column_double(stmt, i));
-//					break;
-//				}
-//				case SQLITE_TEXT: {
-//					knh_bytes_t t = {(knh_uchar_t*)sqlite3_column_text(stmt,i), sqlite3_column_bytes(stmt, i)};
-//					knh_ResultSet_setText(ctx, rs, i, t);
-//					break;
-//				}
-//				case SQLITE_BLOB: {
-//					knh_bytes_t t = {(knh_uchar_t*)sqlite3_column_blob(stmt,i), sqlite3_column_bytes(stmt, i)};
-//					knh_ResultSet_setBlob(ctx, rs, i, t);
-//					break;
-//				}
-//				case SQLITE_NULL:
-//				default: {
-//					knh_ResultSet_setNULL(ctx, rs, i);
-//				}
-//			}
-//		}
-//		return 1;
-//	}
-//	else if (r != SQLITE_DONE) {
-//	   //
-//	}
-	return 0;  /* NOMORE */
+    MYSQL_ROW row;
+    int i = 0;
+    if((row = mysql_fetch_row((MYSQL_RES*) dbcur)) != NULL) {
+        knh_ResultSet_initData(ctx, rs); /* DO NOT TOUCH */
+        for(i = 0; i < rs->column_size; i++) {
+            if(row[i] == NULL) {
+                knh_ResultSet_setNull(ctx, rs, i);
+                continue;
+            }
+            switch(rs->column[i].dbtype) {
+                case MYSQL_TYPE_TINY:
+                case MYSQL_TYPE_SHORT:
+                case MYSQL_TYPE_LONG:
+                case MYSQL_TYPE_INT24:
+                case MYSQL_TYPE_BIT:
+                    knh_ResultSet_setInt(ctx, rs, i, knh_bytes_toint(B(row[i])));
+                    break;
+                case MYSQL_TYPE_DECIMAL:
+                case MYSQL_TYPE_FLOAT:
+                case MYSQL_TYPE_DOUBLE:
+                    knh_ResultSet_setFloat(ctx, rs, i, knh_bytes_tofloat(B(row[i])));
+                    break;
+                case MYSQL_TYPE_LONGLONG:
+                    knh_ResultSet_setInt(ctx, rs, i, knh_bytes_toint64(B(row[i])));
+                    break;
+                default:
+                    knh_ResultSet_setBytes(ctx, rs, i, B(row[i]));
+                    break;
+            }
+        }
+        return 1; /* if you have a tuple */
+    }
+    return 0;  /* NOMORE */
 }
 
 
@@ -348,30 +343,31 @@ static
 knh_dbcur_t *knh_dbquery__mysql(Ctx *ctx, knh_db_t *hdr, knh_bytes_t sql, knh_ResultSet_t *rs)
 {
     if(rs == NULL) {
-        int r = mysql_query((MYSQL*)hdr, (const char*)sql.buf);
-        if(r > 0) {
-            knh_mysql_perror(ctx, (MYSQL*)hdr, r);
-        }
-        return NULL;
+        // rs is NULL
+        knh_mysql_perror(ctx, (MYSQL*)hdr, r);
     }
     else {
-//        sqlite3_stmt *stmt = NULL;
-//        sqlite3_prepare((sqlite3*)hdr, (char*)sql.buf, sql.len, &stmt, NULL);
-//        size_t column_size = (size_t)sqlite3_column_count(stmt);
-//        //DBG2_P("column_size=%d", column_size);
-//        knh_ResultSet_initColumn(ctx, rs, column_size);
-//        if(column_size > 0) {
-//            size_t i;
-//            for(i = 0; i < DP(rs)->column_size; i++) {
-//                char *n = (char*)sqlite3_column_name(stmt, i);
-//                //DBG2_P("(%d) name = '%s'", i, n);
-//                if(n != NULL) {
-//                    knh_ResultSet_setName(ctx, rs, i, new_String(ctx, B(n), NULL));
-//                }
-//            }
-//        }
-//        return (knh_dbcur_t*)stmt;
-        return NULL;
+        MYSQL_RES *res = NULL;
+        MYSQL_FIELD *field = NULL;
+        int i = 0;
+        int r = mysql_query((MYSQL*)hdr, (const char*)sql.buf);
+        if(r > 0) {
+            // query error
+            knh_mysql_perror(ctx, (MYSQL*)hdr, r);
+        }
+        res = mysql_store_result((MYSQL*)hdr);
+        if(res == NULL) {
+            if(mysql_error((MYSQL*)hdr)) {
+                KNH_THROWs(ctx, "result is NULL");
+            } else {
+                KNH_THROWs(ctx, "unknown error");
+            }
+        }
+        while((field = mysql_fetch_field(res)) != NULL) {
+            rs->column[i].dbtype = field->type;
+            i++;
+        }
+        return (knh_dbcur_t *) res;
     }
 }
 
@@ -380,7 +376,7 @@ knh_dbcur_t *knh_dbquery__mysql(Ctx *ctx, knh_db_t *hdr, knh_bytes_t sql, knh_Re
 static
 void knh_dbclose__mysql(Ctx *ctx, knh_db_t *hdr)
 {
-	mysql_close((MYSQL*)hdr);
+    mysql_close((MYSQL*)hdr);
 }
 
 
