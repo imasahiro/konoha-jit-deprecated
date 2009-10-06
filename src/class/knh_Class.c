@@ -466,23 +466,19 @@ void knh_ClassMap_sort(Ctx *ctx, knh_ClassMap_t *cmap)
 
 /* ------------------------------------------------------------------------ */
 
-void knh_ClassMap_add(Ctx *ctx, knh_ClassMap_t *cmap, knh_Mapper_t *map)
+void knh_ClassMap_add(Ctx *ctx, knh_ClassMap_t *cmap, knh_Mapper_t *mpr)
 {
-	KNH_ASSERT(!knh_ClassMap_isDefault(ctx, cmap));
+	DBG2_ASSERT(!knh_ClassMap_isDefault(ctx, cmap));
 	if((cmap)->size == (cmap)->capacity) {
 		knh_ClassMap_resize(ctx, cmap, (cmap)->capacity + 8);
 	}
-	KNH_ASSERT((cmap)->maplist[(cmap)->size] == NULL);
-	KNH_INITv((cmap)->maplist[(cmap)->size], map);
+	DBG2_ASSERT((cmap)->size < (cmap)->capacity);
+	DBG2_ASSERT((cmap)->maplist[(cmap)->size] == NULL);
+	KNH_INITv((cmap)->maplist[(cmap)->size], mpr);
 	(cmap)->size++;
 }
 
 /* ======================================================================== */
-/* [movabletext] */
-
-
-
-/* ------------------------------------------------------------------------ */
 /* [DataPool] */
 /* ------------------------------------------------------------------------ */
 
