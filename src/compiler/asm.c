@@ -2633,7 +2633,7 @@ void knh_Stmt_asmBLOCK(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, int isIterati
 			knh_StmtASSERT_asm(ctx, cur, abr); break;
 		case STT_ERR:
 			knh_StmtERR_asm(ctx, cur, abr); break;
-
+		case STT_DECL:
 		case STT_CALL1:
 		case STT_DONE:
 			break;
