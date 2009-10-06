@@ -266,8 +266,8 @@ knh_class_t knh_NameSpace_getcid(Ctx *ctx, knh_NameSpace_t *o, knh_bytes_t name)
 			}
 			knh_type_t t1 = TYPE_void, t2 = TYPE_void, t3 = TYPE_void;
 			knh_bytes_t nsub = knh_NameSpace_firstType(ctx, o, knh_bytes_last(name, loc+1), &t1);
-			name = knh_NameSpace_firstType(ctx, o, nsub, &t2);
-			knh_NameSpace_firstType(ctx, o, nsub, &t3);
+			nsub = knh_NameSpace_firstType(ctx, o, nsub, &t2);
+			nsub = knh_NameSpace_firstType(ctx, o, nsub, &t3);
 			knh_class_t cid = knh_class_Closure(ctx, r0, t1, t2, t3);
 			if(cid != CLASS_unknown) {
 				knh_NameSpace_setcid(ctx, o, new_String(ctx, name, NULL), cid);

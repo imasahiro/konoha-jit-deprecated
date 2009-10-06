@@ -258,7 +258,7 @@ knh_class_t knh_class_Closure(Ctx *ctx, knh_type_t r0, knh_type_t p1, knh_type_t
 		goto L_CLOSE;
 	}
 	knh_putc(ctx, cwb->w, ',');
-	knh_write_ltype(ctx, cwb->w, p2);
+	knh_write_ltype(ctx, cwb->w, p3);
 	L_CLOSE:;
 	knh_putc(ctx, cwb->w, ')');
 

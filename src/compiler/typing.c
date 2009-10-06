@@ -4604,16 +4604,21 @@ void knh_Asm_initClassTableField(Ctx *ctx, knh_Asm_t *abr, knh_class_t cid)
 
 #ifdef KNH_DBGMODE2
 static
-void knh_cfield_dump(Ctx *ctx, knh_cfield_t *f, size_t offset, size_t fsize, knh_OutputStream_t *w)
+void knh_cfield_dump(Ctx *ctx, knh_cfield_t *cf, size_t offset, size_t fsize, knh_OutputStream_t *w)
 {
 	size_t idx = 0;
 	for(idx = 0; idx < fsize; idx++) {
-		if(f[idx].fn == FIELDN_NONAME) {
+		if(cf[idx].fn == FIELDN_NONAME) {
 			knh_printf(ctx, w, "[%d] -\n", (offset+idx));
 			continue;
 		}
-		if(f[idx].fn == FIELDN_/*register*/ || f[idx].type == CLASS_unknown) continue;
-		knh_printf(ctx, w, "[%d] %T %N = %O\n", (offset+idx), f[idx].type, f[idx].fn, f[idx].value);
+		if(cf[idx].fn == FIELDN_/*register*/ || cf[idx].type == CLASS_unknown) continue;
+		if(cf[idx].value != NULL) {
+			knh_printf(ctx, w, "[%d] %T %N = %O\n", (offset+idx), cf[idx].type, cf[idx].fn, cf[idx].value);
+		}
+		else {
+			knh_printf(ctx, w, "[%d] %T %N = default\n", (offset+idx), cf[idx].type, cf[idx].fn);
+		}
 	}
 }
 #endif
@@ -4640,7 +4645,7 @@ void knh_Asm_declareClassField(Ctx *ctx, knh_Asm_t *abr, knh_NameSpace_t* ns, kn
 	(t->cstruct)->fsize = fsize;
 	t->sid = BSIZE_TOSID(fsize);
 	if(t->supcid != CLASS_Object) {
-		t->offset = ctx->share->ClassTable[t->supcid].bsize;
+		t->offset = ClassTable(t->supcid).bsize;
 		//DBG2_P("offset extending 0 -> %d", TC->offset);
 	}
 	t->bsize = fsize + t->offset;

@@ -265,15 +265,13 @@ void knh_write_TokenTYPEN(Ctx *ctx, knh_OutputStream_t *w, knh_Token_t *tk)
 	else {
 		knh_write(ctx, w, knh_Token_tobytes(ctx, tk));
 	}
-	if(knh_Token_isNotNullType(tk)) {
-		knh_putc(ctx, w, '!');
-	}
+//	if(knh_Token_isNotNullType(tk)) {
+//		knh_putc(ctx, w, '!');
+//	}
 	if(knh_Token_isNullableType(tk)) {
 		knh_putc(ctx, w, '?');
 	}
 }
-
-/* ------------------------------------------------------------------------ */
 
 static
 int knh_Token_toClosureType(Ctx *ctx, knh_Token_t *tk0, knh_Token_t *tk1)
@@ -297,7 +295,7 @@ int knh_Token_toClosureType(Ctx *ctx, knh_Token_t *tk0, knh_Token_t *tk1)
 		c++;
 	}
 	if(c > 3) {
-		KNH_SETv(ctx, DP(tk0)->data, ctx->share->ClassTable[CLASS_Closure].sname);
+		KNH_SETv(ctx, DP(tk0)->data, ClassTable(CLASS_Closure).sname);
 		knh_cwb_close(cwb);
 		return 1;
 	}
