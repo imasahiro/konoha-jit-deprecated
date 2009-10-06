@@ -392,7 +392,7 @@ knh_cfield_t *knh_Class_fieldAt(Ctx *ctx, knh_class_t cid, size_t n)
 
 knh_ClassMap_t* new_ClassMap0(Ctx *ctx, knh_ushort_t capacity)
 {
-	if(capacity < KNH_FASTMALLOC_SIZE) capacity = KNH_FASTMALLOC_BSIZE;
+	if(capacity < KNH_FASTMALLOC_BSIZE) capacity = KNH_FASTMALLOC_BSIZE;
 	knh_ClassMap_t *o = (knh_ClassMap_t*)new_Object_bcid(ctx, CLASS_ClassMap, capacity);
 	knh_ClassMap_setSorted(o, 1);
 	return o;
@@ -433,9 +433,10 @@ void knh_readyClassMap(Ctx *ctx, knh_class_t cid)
 
 void knh_ClassMap_resize(Ctx *ctx, knh_ClassMap_t *cmap, size_t newsize)
 {
-	knh_Mapper_t **newlist = (knh_Mapper_t**)KNH_MALLOC(ctx, newsize * sizeof(knh_Mapper_t*));
-	knh_bzero(newlist, newsize);
 	knh_intptr_t i;
+	knh_Mapper_t **newlist =
+		(knh_Mapper_t**)KNH_MALLOC(ctx, newsize * sizeof(knh_Mapper_t*));
+	knh_bzero(newlist, newsize);
 	for(i = 0; i < (cmap)->size; i++) {
 		newlist[i] = (cmap)->maplist[i];
 	}

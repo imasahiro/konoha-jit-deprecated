@@ -1201,7 +1201,7 @@ static knh_String_t *knh_Mapper_getkey(Ctx *ctx, knh_sfp_t *lsfp)
 static void knh_ClassMap_init(Ctx *ctx, knh_ClassMap_t *cmap, int init)
 {
 	cmap->size   = 0;
-	cmap->capacity = (init <= 3) ? 4 : init;
+	cmap->capacity = (init < KNH_FASTMALLOC_BSIZE) ? KNH_FASTMALLOC_BSIZE : init;
 	cmap->maplist   = (knh_Mapper_t**)KNH_MALLOC(ctx, cmap->capacity * sizeof(knh_Mapper_t*));
 	knh_bzero(cmap->maplist, cmap->capacity * sizeof(knh_Mapper_t*));
 }
