@@ -944,7 +944,7 @@ static
 int knh_TokenTSTR_typing(Ctx *ctx, knh_Token_t *tk, knh_NameSpace_t *ns, knh_class_t reqt)
 {
 	knh_bytes_t tag, t = knh_Token_tobytes(ctx, tk);
-	if(CLASS_type(reqt) != CLASS_String && t.len > 0) {
+	if(CLASS_type(reqt) != CLASS_String && knh_bytes_mlen(t) == 1) {
 		/* 'A' ==> int if not String */
 		knh_bytes_t sub = knh_bytes_mofflen(t, 0, 1);
 		knh_Token_setCONST(ctx, tk, UP(new_Int(ctx, knh_uchar_toucs4(&sub.buf[0]))));
