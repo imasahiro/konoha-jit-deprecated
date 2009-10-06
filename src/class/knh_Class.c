@@ -436,7 +436,7 @@ void knh_ClassMap_resize(Ctx *ctx, knh_ClassMap_t *cmap, size_t newsize)
 	knh_intptr_t i;
 	knh_Mapper_t **newlist =
 		(knh_Mapper_t**)KNH_MALLOC(ctx, newsize * sizeof(knh_Mapper_t*));
-	knh_bzero(newlist, newsize);
+	knh_bzero(newlist, newsize * sizeof(knh_Mapper_t*));
 	for(i = 0; i < (cmap)->size; i++) {
 		newlist[i] = (cmap)->maplist[i];
 	}
