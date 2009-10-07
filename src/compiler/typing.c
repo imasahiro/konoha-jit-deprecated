@@ -614,6 +614,7 @@ static int knh_TokenNAME_typing(Ctx *ctx, knh_Token_t *tk, knh_Asm_t *abr, knh_N
 		if(cf->type == TYPE_var) type = TYPE_var;
 		if(checkClosure && !knh_type_isClosure(ctx, type)) goto L_FIELD;
 		if(idx < DP(abr)->xstack_size) {
+			DBG2_P("idx=%d, xstack_size=%d", idx, DP(abr)->xstack_size);
 			knh_Asm_foundSTACK(abr, 1);
 			knh_Token_toSTACK(ctx, tk, type, idx);
 			knh_Token_setReadOnly(tk, 1);

@@ -72,6 +72,8 @@ void knh_Object__s(Ctx *ctx, Object *b, knh_OutputStream_t *w, knh_String_t *m)
 
 /* ------------------------------------------------------------------------ */
 //## method void Boolean.%s(OutputStream w, String? fmt);
+//## method void Boolean.%k(OutputStream w, String? fmt);
+//## method void Boolean.%data(OutputStream w, String? fmt);
 
 static METHOD Boolean__s(Ctx *ctx, knh_sfp_t *sfp)
 {
@@ -205,20 +207,8 @@ void knh_Object__k(Ctx *ctx, Object *o, knh_OutputStream_t *w, knh_String_t *m)
 }
 
 /* ------------------------------------------------------------------------ */
-//## method void Boolean.%k(OutputStream w, String? fmt);
-
-static METHOD Boolean__k(Ctx *ctx, knh_sfp_t *sfp)
-{
-	if(p_bool(sfp[0])) {
-		knh_write(ctx, sfp[1].w, knh_String_tobytes(TS_true));
-	}
-	else {
-		knh_write(ctx, sfp[1].w, knh_String_tobytes(TS_false));
-	}
-}
-
-/* ------------------------------------------------------------------------ */
 //## method void Int.%k(OutputStream w, String? fmt);
+//## method void Int.%data(OutputStream w, String? fmt);
 
 static METHOD Int__k(Ctx *ctx, knh_sfp_t *sfp)
 {
@@ -228,6 +218,7 @@ static METHOD Int__k(Ctx *ctx, knh_sfp_t *sfp)
 
 /* ------------------------------------------------------------------------ */
 //## method void Float.%k(OutputStream w, String? fmt);
+//## method void Float.%data(OutputStream w, String? fmt);
 
 static METHOD Float__k(Ctx *ctx, knh_sfp_t *sfp)
 {
@@ -847,6 +838,172 @@ void knh_Script__dump(Ctx *ctx, knh_Script_t *o, knh_OutputStream_t *w, knh_Stri
 }
 
 /* ======================================================================== */
+/* [data] */
+
+/* ------------------------------------------------------------------------ */
+//## method void Object.%data(OutputStream w, String? fmt);
+
+static
+void knh_Object__data(Ctx *ctx, Object *b, knh_OutputStream_t *w, knh_String_t *m)
+{
+	if(knh_Object_isUndefined(b)) {
+		knh_write(ctx, w, STEXT("null/*undefined*/"));
+	}
+	else if(knh_Object_bcid(b) == CLASS_Object && knh_Object_cid(b) > KNH_TSTRUCT_SIZE) {
+		knh_intptr_t i;
+		knh_class_t cid = knh_Object_cid(b);
+		Object **v = (Object**)b->ref;
+		knh_write_cid(ctx, w, cid);
+		knh_putc(ctx, w, ' ');
+		knh_write_begin(ctx, w, '{');
+		for(i = 0; i < ClassTable(cid).bsize; i++) {
+			knh_cfield_t *cf = knh_Class_fieldAt(ctx, cid, i);
+			if(cf->fn == FIELDN_/*register*/) continue;
+			if(cf->fn == FIELDN_NONAME
+				|| KNH_FLAG_IS(cf->flag, FLAG_ClassStruct_Volatile)) continue;
+			knh_write_indent(ctx, w);
+			knh_printf(ctx, w, "\"%s\": ", FIELDN(cf->fn));
+			//
+#ifdef KNH_USING_UNBOXFIELD
+			if(IS_ubxint(cf->type)) {
+				knh_int_t *data = (knh_int_t*)(v + i);
+				knh_write_ifmt(ctx, w, KNH_INT_FMT, data[0]);
+			}
+			else if(IS_ubxfloat(cf->type)) {
+				knh_float_t *data = (knh_float_t*)(v + i);
+				knh_write_ffmt(ctx, w, KNH_FLOAT_FMT, data[0]);
+			}
+			else if(IS_ubxboolean(cf->type)) {
+				knh_bool_t *data = (knh_bool_t*)(v + i);
+				if(data[0]) knh_write(ctx, w, STEXT("true"));
+				else knh_write(ctx, w, STEXT("false"));
+			}
+			else
+#endif
+			{
+				knh_format(ctx, w, METHODN__data, KNH_FIELDn(b, i), KNH_NULL);
+			}
+			knh_write_EOL(ctx, w);
+		}
+		knh_write_end(ctx, w, '}');
+	}
+	else{
+		knh_printf(ctx, w, "null/*%C*/", knh_Object_cid(b));
+	}
+}
+
+/* ------------------------------------------------------------------------ */
+//## method void String.%data(OutputStream w, String? fmt);
+
+static
+void knh_String__data(Ctx *ctx, knh_String_t *o, knh_OutputStream_t *w, knh_String_t *m)
+{
+	knh_putc(ctx, w, '@');
+	knh_putc(ctx, w, '"');
+	knh_print(ctx, w, knh_String_tobytes(o));
+	knh_putc(ctx, w, '"');
+}
+
+/* ------------------------------------------------------------------------ */
+//## method void Bytes.%data(OutputStream w, String? fmt);
+
+static
+void knh_Bytes__data(Ctx *ctx, knh_Bytes_t *o, knh_OutputStream_t *w, knh_String_t *m)
+{
+
+}
+
+/* ------------------------------------------------------------------------ */
+//## method void Array.%data(OutputStream w, String? fmt);
+
+static
+void knh_Array__data(Ctx *ctx, knh_Array_t *a, knh_OutputStream_t *w, knh_String_t *m)
+{
+	knh_intptr_t i, size = knh_Array_size(a);
+	knh_write_begin(ctx, w, '[');
+	for(i = 0; i < size; i++) {
+		Object *v = knh_Array_n(a, i);
+		knh_write_indent(ctx, w);
+		knh_format(ctx, w, METHODN__data, v, KNH_NULL);
+		knh_putc(ctx, w, ',');
+		knh_write_EOL(ctx, w);
+	}
+	knh_write_end(ctx, w, ']');
+}
+
+/* ------------------------------------------------------------------------ */
+//## method void IArray.%data(OutputStream w, String? fmt);
+
+static METHOD IArray__data(Ctx *ctx, knh_sfp_t *sfp)
+{
+	knh_intptr_t i, size = knh_Array_size(sfp[0].ia);
+	knh_OutputStream_t *w = sfp[1].w;
+	KNH_SETv(ctx, sfp[-1].o, sfp[0].o);
+	KNH_SETv(ctx, sfp[0].o, KNH_DEF(ctx, knh_Object_p1(sfp[-1].ia)));
+	knh_write_begin(ctx, w, '[');
+	for(i = 0; i < size; i++) {
+		sfp[0].ivalue = (sfp[-1].ia)->ilist[i];
+		knh_write_indent(ctx, w);
+		Int__k(ctx, sfp);
+		knh_putc(ctx, w, ',');
+		knh_write_EOL(ctx, w);
+	}
+	knh_write_end(ctx, w, ']');
+}
+
+/* ------------------------------------------------------------------------ */
+//## method void FArray.%data(OutputStream w, String? fmt);
+
+static METHOD FArray__data(Ctx *ctx, knh_sfp_t *sfp)
+{
+	knh_intptr_t i, size = knh_Array_size(sfp[0].ia);
+	knh_OutputStream_t *w = sfp[1].w;
+	KNH_SETv(ctx, sfp[-1].o, sfp[0].o);
+	KNH_SETv(ctx, sfp[0].o, KNH_DEF(ctx, knh_Object_p1(sfp[-1].ia)));
+	knh_write_begin(ctx, w, '[');
+	for(i = 0; i < size; i++) {
+		knh_write_indent(ctx, w);
+		sfp[0].fvalue = (sfp[-1].fa)->flist[i];
+		Float__k(ctx, sfp);
+		knh_write_EOL(ctx, w);
+	}
+	knh_write_end(ctx, w, ']');
+}
+
+/* ------------------------------------------------------------------------ */
+//## method void DictMap.%data(OutputStream w, String? fmt);
+
+static
+void knh_DictMap__data(Ctx *ctx, knh_DictMap_t *o, knh_OutputStream_t *w, knh_String_t *m)
+{
+	knh_intptr_t i, size = knh_DictMap_size(o);
+	knh_DictMap_sort(o);
+	knh_write_begin(ctx, w, '{');
+	for(i = 0; i < size; i++) {
+		Object *v = knh_DictMap_valueAt(o, i);
+		if(IS_NOTNULL(v)) {
+			knh_write_indent(ctx, w);
+			knh_format(ctx, w, METHODN__k, UP(knh_DictMap_keyAt(o, i)), KNH_NULL);
+			knh_putc(ctx, w, ':'); knh_putc(ctx, w, ' ');
+			knh_format(ctx, w, METHODN__data, v, KNH_NULL);
+			knh_putc(ctx, w, ',');
+			knh_write_EOL(ctx, w);
+		}
+	}
+	knh_write_end(ctx, w, '}');
+}
+
+/* ------------------------------------------------------------------------ */
+//## method void Exception.%data(OutputStream w, String? fmt);
+
+static
+void knh_Exception__data(Ctx *ctx, knh_Exception_t *o, knh_OutputStream_t *w, knh_String_t *m)
+{
+	DBG2_ASSERT(IS_Exception(o));
+	knh_write(ctx, w, knh_String_tobytes(DP(o)->msg));
+}
+
+/* ======================================================================== */
 /* [man] */
 
 static
@@ -913,8 +1070,6 @@ void knh_ClassMap__man(Ctx *ctx, knh_ClassMap_t *cmap, knh_OutputStream_t *w, kn
 		goto L_TAIL;
 	}
 }
-
-/* ------------------------------------------------------------------------ */
 
 /* ------------------------------------------------------------------------ */
 

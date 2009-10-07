@@ -278,7 +278,7 @@ static METHOD OutputStream_println(Ctx *ctx, knh_sfp_t *sfp)
 		else {
 			KNH_SETv(ctx, esp1[0].o, v[i].o);
 			esp1[0].data = v[i].data;
-			KNH_ASSERT(ctx->esp + 1 == esp1);
+			DBG2_ASSERT(ctx->esp + 1 == esp1);
 			knh_esp1_format(ctx, METHODN__s, out, KNH_NULL);
 		}
 	}
@@ -286,6 +286,31 @@ static METHOD OutputStream_println(Ctx *ctx, knh_sfp_t *sfp)
 	if(knh_OutputStream_isAutoFlush(out)) {
 		knh_OutputStream_flush(ctx, out);
 	}
+	KNH_RETURN_void(ctx, sfp);
+}
+
+/* ------------------------------------------------------------------------ */
+//## method void OutputStream.writeData(Any data, ...);
+
+static METHOD OutputStream_writeData(Ctx *ctx, knh_sfp_t *sfp)
+{
+	knh_OutputStream_t *out = (knh_OutputStream_t*)sfp[0].o;
+	knh_sfp_t *v = sfp + 1, *esp1 = ctx->esp + 1;
+	int i, ac = knh_stack_argc(ctx, v);
+	knh_intptr_t indent = DP(out)->indent;
+	for(i = 0; i < ac; i++) {
+		KNH_SETv(ctx, esp1[0].o, v[i].o);
+		esp1[0].data = v[i].data;
+		DBG2_ASSERT(ctx->esp + 1 == esp1);
+		DP(out)->indent = 0;
+		knh_esp1_format(ctx, METHODN__data, out, KNH_NULL);
+	}
+	knh_putc(ctx, out, ';');
+	knh_write_EOL(ctx, out);
+	if(knh_OutputStream_isAutoFlush(out)) {
+		knh_OutputStream_flush(ctx, out);
+	}
+	DP(out)->indent = indent;
 	KNH_RETURN_void(ctx, sfp);
 }
 

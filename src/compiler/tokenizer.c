@@ -415,7 +415,7 @@ void knh_Token_join(Ctx *ctx, knh_Token_t *o)
 				}
 			}
 		}
-		else if(TT_(tk0) == TT_STR || TT_(tk0) == TT_TSTR || TT_(tk0) == TT_TSTR) {
+		else if(TT_(tk0) == TT_STR || TT_(tk0) == TT_TSTR || TT_(tk0) == TT_ESTR) {
 			/* @TEST "hello" "world" */
 			knh_Token_t *tkP = tk0, *tkN = (knh_Token_t*)knh_Array_n(a, i+1);
 			int c = 0;

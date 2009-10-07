@@ -190,23 +190,32 @@ void knh_OutputStream_setEncoding(Ctx *ctx, knh_OutputStream_t *o, knh_String_t 
 
 /* ------------------------------------------------------------------------ */
 
-void knh_OutputStream_indent_inc(Ctx *ctx, knh_OutputStream_t *o)
+void knh_write_begin(Ctx *ctx, knh_OutputStream_t *w, int ch)
 {
-	DP(o)->indent++;
+	if(ch != 0) {
+		knh_putc(ctx, w, ch);
+		knh_write_EOL(ctx, w);
+	}
+	DP(w)->indent++;
 }
 
 /* ------------------------------------------------------------------------ */
 
-void knh_OutputStream_indent_dec(Ctx *ctx, knh_OutputStream_t *o)
+void knh_write_end(Ctx *ctx, knh_OutputStream_t *w, int ch)
 {
-	DP(o)->indent--;
+	DP(w)->indent--;
+	if(ch != 0) {
+		knh_write_indent(ctx, w);
+		knh_putc(ctx, w, ch);
+		//knh_write_EOL(ctx, w);
+	}
 }
 
 /* ------------------------------------------------------------------------ */
 
-void knh_OutputStream_write_indent(Ctx *ctx, knh_OutputStream_t *o)
+void knh_write_indent(Ctx *ctx, knh_OutputStream_t *o)
 {
-	int i;
+	knh_intptr_t i;
 	for(i = 0; i < DP(o)->indent; i++) {
 		knh_OutputStream_write(ctx, o, knh_String_tobytes(DP(o)->TAB));
 	}

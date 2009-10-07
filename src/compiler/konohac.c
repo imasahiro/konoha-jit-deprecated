@@ -1032,39 +1032,40 @@ Object* knh_InputStream_readData(Ctx *ctx, knh_InputStream_t *in)
 	int ch, linenum = DP(in)->line;
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 	L_READLINE:;
+	int quote = 0, prev = 0;
+	knh_cwb_subclear(cwb, 0);
 	while((ch = knh_InputStream_getc(ctx, in)) != EOF) {
-		if(ch == '\r') {
-			DP(in)->prev = ch;
-			goto L_STMT;
+		if(ch == ';' && quote == 0) {
+			if(knh_cwb_size(cwb) > 0) {
+				goto L_STMT;
+			}
 		}
-		else if(ch == '\n') {
-			if(DP(in)->prev == '\r') continue;
-			DP(in)->prev = ch;
-			goto L_STMT;
+		knh_Bytes_putc(ctx, cwb->ba, ch);
+		if(quote == ch && prev != '\\') {
+			quote = 0;
+			continue;
 		}
-		else {
-			knh_Bytes_putc(ctx, cwb->ba, ch);
+		if(quote == 0) {
+			if(ch == '"' || ch == '\'' || ch == '`') {
+				quote = ch;
+			}
+			if(ch == '#') {
+				quote = '\n';
+			}
 		}
 	}
 	return KNH_NULL;
 	L_STMT:;
 	{
-		int nest = knh_bytes_checkStmtLine(knh_cwb_tobytes(cwb));
-		if(nest == 0) {
-			knh_InputStream_t *bin = new_BytesInputStream(ctx, cwb->ba, cwb->pos, knh_Bytes_size(cwb->ba));
-			Object *value = NULL;
-			DP(bin)->uri = DP(in)->uri;
-			DP(bin)->line = linenum;
-			knh_InputStream_setEncoding(ctx, bin, DP(in)->enc);
-			value = knh_InputStream_parseDataNULL(ctx, bin);
-			knh_cwb_close(cwb);
-			if(value == NULL) goto L_READLINE;
-			return value;
-		}
-		if(nest < 0) {
-			knh_cwb_subclear(cwb, 0);
-		}
-		goto L_READLINE;
+		knh_InputStream_t *bin = new_BytesInputStream(ctx, cwb->ba, cwb->pos, knh_Bytes_size(cwb->ba));
+		Object *value = NULL;
+		DP(bin)->uri = DP(in)->uri;
+		DP(bin)->line = linenum;
+		knh_InputStream_setEncoding(ctx, bin, DP(in)->enc);
+		value = knh_InputStream_parseDataNULL(ctx, bin);
+		knh_cwb_close(cwb);
+		if(value == NULL) goto L_READLINE;
+		return value;
 	}
 }
 
