@@ -1521,10 +1521,9 @@ static Term *new_TermEXPR(Ctx *ctx, knh_tkc_t *tc, int isData)
 	if(!(oc < e)) {
 		knh_Token_t *tke = new_Token(ctx, 0, SP(tc->ts[e-1])->uri, SP(tc->ts[e-1])->line, TT_ERR);
 		if(!isData) {
-			knh_perror(ctx, SP(tc->ts[e-1])->uri, SP(tc->ts[e-1])->line, KERR_ERROR, _("empty ??"));
+			knh_perror(ctx, SP(tc->ts[e-1])->uri, SP(tc->ts[e-1])->line, KERR_ERROR, _("syntax error"));
 		}
-		DBG2_P("tc->c=%d, tc->e=%d", (int)oc, (int)e);
-		DBG2_ABORT();
+		DBG2_P("empty??: tc->c=%d, tc->e=%d", (int)oc, (int)e);
 		return TM(tke);
 	}
 

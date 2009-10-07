@@ -3157,8 +3157,8 @@ Term *knh_StmtAND_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpa
 		if(!TERMs_typing(ctx, stmt, i, abr, ns, NNTYPE_Boolean, TCHECK_)) {
 			return NULL;
 		}
-		if(TERMs_isTRUE(stmt, i)) {
-			return new_TermCONST(ctx, UP(stmt), KNH_TRUE);
+		if(TERMs_isFALSE(stmt, i)) {
+			return new_TermCONST(ctx, UP(stmt), KNH_FALSE);
 		}
 	}
 	knh_Stmt_typed(ctx, stmt, NNTYPE_Boolean);
