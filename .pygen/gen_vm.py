@@ -676,9 +676,12 @@ def gen_vm_c(bdir):
 	close_c(f, fname)
 	
 	f = open('include/konoha/konoha_code_.h', 'w')
+	f.write('#ifndef %s\n' % 'konoha_code_h_'.upper());
+	f.write('#define %s\n' % 'konoha_code_h_'.upper());
 	f.write('''// THIS FILE WAS AUTOMATICALLY GENERATED
 ''')
 	write_define_h(f)
+	f.write('#endif /* %s */\n' % 'konoha_code_h_'.upper());
 	f.close()
 
 #------------------------------------------------------------------------------

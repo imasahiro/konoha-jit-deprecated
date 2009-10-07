@@ -1,3 +1,5 @@
+#ifndef KONOHA_CODE_H_
+#define KONOHA_CODE_H_
 // THIS FILE WAS AUTOMATICALLY GENERATED
 knh_code_t* KNH_ASM_HALT_(Ctx *ctx, knh_Asm_t *o);
 knh_code_t* KNH_ASM_MOVa_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2);
@@ -2272,3 +2274,4 @@ typedef struct {
 } klr_nop_t;
 
 #define OPSIZE_NOP  (sizeof(klr_nop_t)-sizeof(void*))
+#endif /* KONOHA_CODE_H_ */
