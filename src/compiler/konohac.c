@@ -1014,9 +1014,9 @@ Object *knh_InputStream_parseDataNULL(Ctx *ctx, knh_InputStream_t *in)
 		//KNH_MOV(ctx, lsfp[0].o, hdr);
 		//KNH_TRY(ctx, L_CATCH, lsfp, 0);
 		KNH_MOV(ctx, lsfp[1].o, DP(mtd)->code); // TO AVOID RCGC
-		KNH_MOV(ctx, lsfp[3].o, scr);
+		KNH_MOV(ctx, lsfp[2].o, scr);
 		KNH_SCALL(ctx, lsfp, 2, mtd, 0/*args*/);
-		rVALUE = lsfp[2].o;
+		rVALUE = lsfp[4].o;
 		//L_CATCH:;
 		//KNH_PRINT_STACKTRACE(ctx, lsfp, 0);
 	}
