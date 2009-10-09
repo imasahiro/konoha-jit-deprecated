@@ -52,9 +52,12 @@ int knh_Method_pctoline(knh_Method_t *mtd, knh_code_t *pc);
 	}\
 
 #ifndef KONOHA_ON_LKM
-#define KNH_THROW_fZERODIV(n)  \
-	if(unlikely(n == 0.0)) { \
-		KNH_THROWs(ctx, "Arithmetic!!: Zero Divided"); \
+#define KNH_THROW_fZERODIV(n)  {\
+		knh_float_t x = n;\
+		*(((int *) &x) + 1) &= 0x7fffffff;\
+		if(unlikely(x - 0.0 <= __DBL_EPSILON__)) { \
+			KNH_THROWs(ctx, "Arithmetic!!: Zero Divided"); \
+		}\
 	}\
 
 #else
@@ -855,8 +858,18 @@ int knh_Method_pctoline(knh_Method_t *mtd, knh_code_t *pc);
 
 #define KLR_fDIVn(ctx, c, a, n)  SFf(c) = (SFf(a) / n)
 
-#define KLR_fEQ(ctx, c, a, b)  SFb(c) = (SFf(a) == SFf(b))
-#define KLR_fEQn(ctx, c, a, n)  SFb(c) = (SFf(a) == n)
+#define KLR_fEQ(ctx, c, a, b) { \
+		knh_float_t x = SFf(a) - SFf(b);\
+		*(((int *) &x) + 1) &= 0x7fffffff;\
+		SFb(c) = (x <= __DBL_EPSILON__); \
+	} \
+
+#define KLR_fEQn(ctx, c, a, n) { \
+		knh_float_t x = SFf(a) - n;\
+		*(((int *) &x) + 1) &= 0x7fffffff;\
+		SFb(c) = (x <= __DBL_EPSILON__); \
+	} \
+
 #define KLR_fNEQ(ctx, c, a, b)  SFb(c) = (SFf(a) != SFf(b))
 #define KLR_fNEQn(ctx, c, a, n)  SFb(c) = (SFf(a) != n)
 #define KLR_fLT(ctx, c, a, b)  SFb(c) = (SFf(a) < SFf(b))

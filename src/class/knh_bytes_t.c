@@ -641,7 +641,7 @@ KNHAPI(int) knh_bytes_parseURL(knh_bytes_t url, char *buf, size_t bufsiz)
 		knh_bytes_t t = knh_bytes_last(url, loc+3);
 		loc = knh_bytes_index(t, '@');
 		if(loc > 0) {
-			knh_bytes_t t = knh_bytes_last(t, loc+1);
+			t = knh_bytes_last(t, loc+1);
 		}
 		knh_format_join2(buf, bufsiz, scheme, t);
 		return 1;
