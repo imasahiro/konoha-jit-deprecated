@@ -270,7 +270,7 @@ class State extends Logger {
 
 	void initDirsWINDOWS()
 	{
-		_klipdir = "./klip/"; // is there any problem? umm...
+		_klipdir = $konoha.path + "/klip/";
 		_tmpdir = _klipdir + "tmp/";
 		_instdir = $konoha.package.path;
 		_instdir += "/";
