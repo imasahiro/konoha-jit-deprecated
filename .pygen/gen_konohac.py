@@ -50,7 +50,6 @@ block {:block @stmt @new
 
 if pexpr:bool {:truecase else.. {:falsecase  @stmt @token @eos
 else @token
-
 switch pexpr:bool {:case @token @stmt @eos
 case expr:const {:instmt @token @eos
 
@@ -67,6 +66,8 @@ try {:try catch.. {:catch {:finally   @stmt  @token @eos
 catch EXPTN:type VARN:name {:catch   @token @stmt
 finally @token
 throw expr:expt ;   @stmt  @token @new @name @cmpl @eos
+
+test ANY:msg {:testcase @stmt @token @eos
 err ANY:msg     @stmt @cmpl
 
 let        VARN:lvalue expr:rvalue     @stmt  @expr  @P0
@@ -90,7 +91,6 @@ separator  STT_DECL:decls expr:value   @stmt
 
 print  expr*:values[] ;  @stmt @token @eos
 assert pexpr:bool ;    @token @stmt @eos
-utest  expr:test expr:spec @stmt
 '''
 
 TOKEN = '''
@@ -102,7 +102,7 @@ TOKEN = '''
 ; SEMICOLON      @stmt     @eos
 , COMMA          @P0
 => FUNCMAP       @P99
-==>  Test        @op   @P1   @A2
+must Must        @op   @P1   @top   @A1
 it   IT          @P99
 = LET            @P2   @A2
 <<= lshifte      

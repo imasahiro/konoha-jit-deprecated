@@ -79,27 +79,27 @@ static void knh_stack_utest(Ctx *ctx, knh_sfp_t *sfp, int result, Object *o)
 }
 
 /* ------------------------------------------------------------------------ */
-//## @Hidden @NullBase method Any Object.opTest(Any it);
+//## @Hidden @NullBase method Any Object.opMust(Any it);
 
-static METHOD Object_opTest(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Object_opMust(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_stack_utest(ctx, sfp, knh_Object_compareTo(ctx, sfp[0].o, sfp[1].o) != 0, sfp[1].o);
 	KNH_RETURN(ctx, sfp, sfp[1].o);
 }
 
 /* ------------------------------------------------------------------------ */
-//## @Hidden method Any Boolean.opTest(Any it);
+//## @Hidden method Any Boolean.opMust(Any it);
 
-static METHOD Boolean_opTest(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Boolean_opMust(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_stack_utest(ctx, sfp, sfp[0].bvalue, sfp[1].o);
 	KNH_RETURN(ctx, sfp, sfp[1].o);
 }
 
 /* ------------------------------------------------------------------------ */
-//## @Hidden method Any Exception.opTest(Any it);
+//## @Hidden method Any Exception.opMust(Any it);
 
-static METHOD Exception_opTest(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Exception_opMust(Ctx *ctx, knh_sfp_t *sfp)
 {
 	KNH_ASSERT(IS_bString(sfp[0].s));
 	if(IS_Exception(sfp[1].o)) {

@@ -6,6 +6,6 @@ a ==> it is a;
 a ==> Exception!!
 a.add(a) ==> IO!!|a| == 1
 
- System.opTest(a, 
+ System.opMust(a, 
  if typeof(a) == void:
 

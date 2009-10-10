@@ -1735,6 +1735,7 @@ Term *knh_StmtLET_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpa
 			knh_Stmt_addT(ctx, stmt, new_TokenASIS(ctx, FL(tkN)));
 			knh_Stmt_swap(ctx, stmt, 0, 1);
 			knh_Stmt_swap(ctx, stmt, 0, 2);
+			if(level > 2) level = 2;
 			return knh_StmtDECL_typing(ctx, stmt, abr, ns, DECL_SCRIPT - level);
 		}
 		else {
@@ -2354,7 +2355,7 @@ L_LOOKUPMETHOD:;
     }
 
     // sometime, mtd is KNH_NULL. NULL check for mtd to avoid NULL Pointer ref.
-    DBG2_P("call mn=%s mtd_cid='%s' DP(mtd)->cid=%s", METHODN(mn), CLASSN(mtd_cid), 
+    DBG2_P("call mn=%s mtd_cid='%s' DP(mtd)->cid=%s", METHODN(mn), CLASSN(mtd_cid),
             (IS_NULL(mtd))?"null":CLASSN(DP(mtd)->cid));
     knh_Token_toMTD(ctx, DP(stmt)->tokens[0], mn, mtd);
 
@@ -2758,7 +2759,7 @@ char *METHODN_op(knh_methodn_t mn)
 	case METHODN_opRangeUntil : return "until";
 	case METHODN_opRshift : return "<<";
 	case METHODN_opSub : return "-";
-	case METHODN_opTest : return "==>";
+	case METHODN_opMust : return "==>";
 	case METHODN_opXor : return "^";
 	}
 	DBG2_P("unknown operator mn=%d", mn);

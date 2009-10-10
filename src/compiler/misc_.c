@@ -66,6 +66,7 @@ static char* knh_token_array_tochar[] = {
     "catch",  /* catch */ 
     "finally",  /* finally */ 
     "throw",  /* throw */ 
+    "test",  /* test */ 
     "register",  /* register */ 
     "print",  /* print */ 
     "assert",  /* assert */ 
@@ -76,7 +77,7 @@ static char* knh_token_array_tochar[] = {
     ";",  /* SEMICOLON */ 
     ",",  /* COMMA */ 
     "=>",  /* FUNCMAP */ 
-    "==>",  /* Test */ 
+    "must",  /* Must */ 
     "it",  /* IT */ 
     "=",  /* LET */ 
     "<<=",  /* lshifte */ 
@@ -200,6 +201,7 @@ static knh_methodn_t knh_token_array_tomethodn[] = {
     METHODN_NONAME,  /* catch */ 
     METHODN_NONAME,  /* finally */ 
     METHODN_NONAME,  /* throw */ 
+    METHODN_NONAME,  /* test */ 
     METHODN_NONAME,  /* register */ 
     METHODN_NONAME,  /* print */ 
     METHODN_NONAME,  /* assert */ 
@@ -210,7 +212,7 @@ static knh_methodn_t knh_token_array_tomethodn[] = {
     METHODN_NONAME,  /* SEMICOLON */ 
     METHODN_NONAME,  /* COMMA */ 
     METHODN_NONAME,  /* FUNCMAP */ 
-    METHODN_opTest,  /* Test */ 
+    METHODN_opMust,  /* Must */ 
     METHODN_NONAME,  /* IT */ 
     METHODN_NONAME,  /* LET */ 
     METHODN_NONAME,  /* lshifte */ 
@@ -334,6 +336,7 @@ static int knh_token_array_getOpPriority[] = {
     0,  /* catch */ 
     0,  /* finally */ 
     0,  /* throw */ 
+    0,  /* test */ 
     0,  /* register */ 
     0,  /* print */ 
     0,  /* assert */ 
@@ -344,7 +347,7 @@ static int knh_token_array_getOpPriority[] = {
     0,  /* SEMICOLON */ 
     0,  /* COMMA */ 
     99,  /* FUNCMAP */ 
-    1,  /* Test */ 
+    1,  /* Must */ 
     99,  /* IT */ 
     2,  /* LET */ 
     0,  /* lshifte */ 
@@ -468,6 +471,7 @@ static int knh_token_array_getOpSize[] = {
     0,  /* catch */ 
     0,  /* finally */ 
     0,  /* throw */ 
+    0,  /* test */ 
     0,  /* register */ 
     0,  /* print */ 
     0,  /* assert */ 
@@ -478,7 +482,7 @@ static int knh_token_array_getOpSize[] = {
     0,  /* SEMICOLON */ 
     0,  /* COMMA */ 
     0,  /* FUNCMAP */ 
-    2,  /* Test */ 
+    1,  /* Must */ 
     0,  /* IT */ 
     2,  /* LET */ 
     0,  /* lshifte */ 
@@ -602,6 +606,7 @@ static knh_bool_t knh_token_array_isBeginOfStmt[] = {
     0,  /* catch */ 
     0,  /* finally */ 
     1,  /* throw */ 
+    1,  /* test */ 
     1,  /* register */ 
     1,  /* print */ 
     1,  /* assert */ 
@@ -612,7 +617,7 @@ static knh_bool_t knh_token_array_isBeginOfStmt[] = {
     1,  /* SEMICOLON */ 
     0,  /* COMMA */ 
     0,  /* FUNCMAP */ 
-    0,  /* Test */ 
+    0,  /* Must */ 
     0,  /* IT */ 
     0,  /* LET */ 
     0,  /* lshifte */ 
@@ -795,7 +800,6 @@ knh_cwb_parseToken(Ctx *ctx, knh_cwb_t *cwb, knh_flag_t flag, knh_InputStream_t 
     break;
     case '=':
         if(ISB(t, "=>")) { tt = TT_FUNCMAP; break; }
-        if(ISB(t, "==>")) { tt = TT_TEST; break; }
         if(ISB(t, "=")) { tt = TT_LET; break; }
         if(ISB(t, "===")) { tt = TT_SAME; break; }
         if(ISB(t, "==")) { tt = TT_EQ; break; }
@@ -888,6 +892,7 @@ knh_cwb_parseToken(Ctx *ctx, knh_cwb_t *cwb, knh_flag_t flag, knh_InputStream_t 
     break;
     case 'm':
         if(ISB(t, "mapmap")) { tt = TT_MAPMAP; break; }
+        if(ISB(t, "must")) { tt = TT_MUST; break; }
         if(ISB(t, "mod")) { tt = TT_MOD; break; }
     break;
     case 'n':
@@ -916,6 +921,7 @@ knh_cwb_parseToken(Ctx *ctx, knh_cwb_t *cwb, knh_flag_t flag, knh_InputStream_t 
     case 't':
         if(ISB(t, "try")) { tt = TT_TRY; break; }
         if(ISB(t, "throw")) { tt = TT_THROW; break; }
+        if(ISB(t, "test")) { tt = TT_TEST; break; }
         if(ISB(t, "to")) { tt = TT_TO; break; }
     break;
     case 'u':
@@ -1003,7 +1009,6 @@ int knh_bytes_istoken(knh_bytes_t t, int ch)
         return 0; 
     case '>':
         if(ISB(t, "=")) { return 1; }
-        if(ISB(t, "==")) { return 1; }
         if(ISB(t, ">")) { return 1; }
         return 0; 
     case '?':
@@ -1063,6 +1068,7 @@ static char* knh_stmt_array_tochar[] = {
     "catch",  /* catch */ 
     "finally",  /* finally */ 
     "throw",  /* throw */ 
+    "test",  /* test */ 
     "err",  /* err */ 
     "let",  /* let */ 
     "letm",  /* letm */ 
@@ -1082,7 +1088,6 @@ static char* knh_stmt_array_tochar[] = {
     "or",  /* or */ 
     "print",  /* print */ 
     "assert",  /* assert */ 
-    "utest",  /* utest */ 
     //(char*)0
 };
 
@@ -1135,6 +1140,7 @@ static int knh_stmt_array_isExpr[] = {
     0,  /* catch */ 
     0,  /* finally */ 
     0,  /* throw */ 
+    0,  /* test */ 
     0,  /* err */ 
     1,  /* let */ 
     0,  /* letm */ 
@@ -1154,7 +1160,6 @@ static int knh_stmt_array_isExpr[] = {
     1,  /* or */ 
     0,  /* print */ 
     0,  /* assert */ 
-    0,  /* utest */ 
     //(int)0
 };
 
