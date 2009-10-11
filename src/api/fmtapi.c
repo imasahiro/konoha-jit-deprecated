@@ -861,9 +861,8 @@ void knh_Object__data(Ctx *ctx, Object *b, knh_OutputStream_t *w, knh_String_t *
 			if(cf->fn == FIELDN_/*register*/) continue;
 			if(cf->fn == FIELDN_NONAME
 				|| KNH_FLAG_IS(cf->flag, FLAG_ClassStruct_Volatile)) continue;
-			knh_write_indent(ctx, w);
+			knh_write_BOL(ctx, w);
 			knh_printf(ctx, w, "\"%s\": ", FIELDN(cf->fn));
-			//
 #ifdef KNH_USING_UNBOXFIELD
 			if(IS_ubxint(cf->type)) {
 				knh_int_t *data = (knh_int_t*)(v + i);
@@ -883,7 +882,7 @@ void knh_Object__data(Ctx *ctx, Object *b, knh_OutputStream_t *w, knh_String_t *
 			{
 				knh_format(ctx, w, METHODN__data, KNH_FIELDn(b, i), KNH_NULL);
 			}
-			knh_write_EOL(ctx, w);
+			knh_putc(ctx, w, ',');
 		}
 		knh_write_end(ctx, w, '}');
 	}
@@ -923,10 +922,9 @@ void knh_Array__data(Ctx *ctx, knh_Array_t *a, knh_OutputStream_t *w, knh_String
 	knh_write_begin(ctx, w, '[');
 	for(i = 0; i < size; i++) {
 		Object *v = knh_Array_n(a, i);
-		knh_write_indent(ctx, w);
+		knh_write_BOL(ctx, w);
 		knh_format(ctx, w, METHODN__data, v, KNH_NULL);
 		knh_putc(ctx, w, ',');
-		knh_write_EOL(ctx, w);
 	}
 	knh_write_end(ctx, w, ']');
 }
@@ -943,10 +941,9 @@ static METHOD IArray__data(Ctx *ctx, knh_sfp_t *sfp)
 	knh_write_begin(ctx, w, '[');
 	for(i = 0; i < size; i++) {
 		sfp[0].ivalue = (sfp[-1].ia)->ilist[i];
-		knh_write_indent(ctx, w);
+		knh_write_BOL(ctx, w);
 		Int__k(ctx, sfp);
 		knh_putc(ctx, w, ',');
-		knh_write_EOL(ctx, w);
 	}
 	knh_write_end(ctx, w, ']');
 }
@@ -962,10 +959,9 @@ static METHOD FArray__data(Ctx *ctx, knh_sfp_t *sfp)
 	KNH_SETv(ctx, sfp[0].o, KNH_DEF(ctx, knh_Object_p1(sfp[-1].ia)));
 	knh_write_begin(ctx, w, '[');
 	for(i = 0; i < size; i++) {
-		knh_write_indent(ctx, w);
+		knh_write_BOL(ctx, w);
 		sfp[0].fvalue = (sfp[-1].fa)->flist[i];
 		Float__k(ctx, sfp);
-		knh_write_EOL(ctx, w);
 	}
 	knh_write_end(ctx, w, ']');
 }
@@ -982,12 +978,11 @@ void knh_DictMap__data(Ctx *ctx, knh_DictMap_t *o, knh_OutputStream_t *w, knh_St
 	for(i = 0; i < size; i++) {
 		Object *v = knh_DictMap_valueAt(o, i);
 		if(IS_NOTNULL(v)) {
-			knh_write_indent(ctx, w);
+			knh_write_BOL(ctx, w);
 			knh_format(ctx, w, METHODN__k, UP(knh_DictMap_keyAt(o, i)), KNH_NULL);
 			knh_putc(ctx, w, ':'); knh_putc(ctx, w, ' ');
 			knh_format(ctx, w, METHODN__data, v, KNH_NULL);
 			knh_putc(ctx, w, ',');
-			knh_write_EOL(ctx, w);
 		}
 	}
 	knh_write_end(ctx, w, '}');

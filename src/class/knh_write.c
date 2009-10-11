@@ -79,7 +79,6 @@ KNHAPI(void) knh_println(Ctx *ctx, knh_OutputStream_t *w, knh_bytes_t s)
 
 KNHAPI(void) knh_write_EOL(Ctx *ctx, knh_OutputStream_t *w)
 {
-	DBG2_ASSERT(IS_OutputStream(w));
 	knh_OutputStream_write(ctx, w, knh_String_tobytes(DP(w)->NEWLINE));
 	if(knh_OutputStream_isAutoFlush(w)) {
 		knh_OutputStream_flush(ctx, w);
@@ -91,7 +90,6 @@ KNHAPI(void) knh_write_EOL(Ctx *ctx, knh_OutputStream_t *w)
 
 KNHAPI(void) knh_write_TAB(Ctx *ctx, knh_OutputStream_t *w)
 {
-	DBG2_ASSERT(IS_OutputStream(w));
 	knh_OutputStream_write(ctx, w, knh_String_tobytes(DP(w)->TAB));
 }
 
@@ -100,8 +98,38 @@ KNHAPI(void) knh_write_TAB(Ctx *ctx, knh_OutputStream_t *w)
 KNHAPI(void) knh_write_BOL(Ctx *ctx, knh_OutputStream_t *w)
 {
 	knh_intptr_t i, n = DP(w)->indent;
-	for(i = 0; i < n; i++) knh_write_TAB(ctx, w);
+	if(!knh_OutputStream_isBOL(w)) {
+		knh_write_EOL(ctx, w);
+	}
+	for(i = 0; i < n; i++) {
+		//knh_write(ctx, w, STEXT("/*"));
+		//knh_write_ifmt(ctx, w, KNH_INT_FMT, i);
+		//knh_write(ctx, w, STEXT("*/"));
+		knh_OutputStream_write(ctx, w, knh_String_tobytes(DP(w)->TAB));
+	}
 	knh_OutputStream_setBOL(w, 0);
+}
+
+/* ------------------------------------------------------------------------ */
+
+void knh_write_begin(Ctx *ctx, knh_OutputStream_t *w, int ch)
+{
+	if(ch != 0) {
+		knh_putc(ctx, w, ch);
+		knh_write_EOL(ctx, w);
+	}
+	DP(w)->indent++;
+}
+
+/* ------------------------------------------------------------------------ */
+
+void knh_write_end(Ctx *ctx, knh_OutputStream_t *w, int ch)
+{
+	DP(w)->indent--;
+	if(ch != 0) {
+		knh_write_BOL(ctx, w);
+		knh_putc(ctx, w, ch);
+	}
 }
 
 /* ======================================================================== */

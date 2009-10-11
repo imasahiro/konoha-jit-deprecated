@@ -174,7 +174,7 @@ static
 void knh_Token__dump(Ctx *ctx, knh_Token_t *o, knh_OutputStream_t *w, knh_String_t *m)
 {
 	KNH_ASSERT(IS_Token(o));
-	knh_write_indent(ctx, w);
+	knh_write_BOL(ctx, w);
 	knh_printf(ctx, w, "%s[%d]", knh_token_tochar(SP(o)->tt), (knh_intptr_t)SP(o)->line);
 	knh_putc(ctx, w, ' ');
 	knh_Token__s(ctx, o, w, m);

@@ -1581,7 +1581,8 @@ void knh_StmtCALL_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_type_t req
 	knh_class_t mtd_cid = IS_Method(mtd) ? DP(mtd)->cid : CLASS_Any;
 	size_t i;
 	/* UNTYPED CLOSURE */
-	if(mtd_cid == CLASS_Closure && DP(mtd)->mn == METHODN_invoke) {
+	if(cid == CLASS_Closure && DP(mtd)->mn == METHODN_invoke) {
+		DBG2_P("mtd_cid=%s, cid=%s", CLASSN(mtd_cid), CLASSN(cid));
 		for(i = 1; i < DP(stmt)->size; i++) {
 			TERMs_asm(ctx, stmt, i, abr, TYPE_Any, local + i);
 		}

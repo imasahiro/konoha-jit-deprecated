@@ -204,7 +204,6 @@ void knh_ObjectField_init(Ctx *ctx, knh_ObjectField_t *of, int init)
 
 /* ------------------------------------------------------------------------ */
 
-static
 void knh_ObjectField_traverse(Ctx *ctx, knh_ObjectField_t *of, knh_ftraverse ftr)
 {
 	knh_class_t cid = knh_Object_cid(of);

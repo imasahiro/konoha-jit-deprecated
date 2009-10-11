@@ -80,7 +80,7 @@ Object *knh_OutputStream_open(Ctx *ctx, knh_OutputStream_t *o, knh_String_t *urn
 	else {
 		DP(o)->driver = knh_getIODriver(ctx, knh_bytes_first(fname, loc));
 	}
-	char *mode = "r";
+	char *mode = "w";
 	if(IS_NOTNULL(m)) mode = knh_String_tochar(m);
 	DP(o)->fd = DP(o)->driver->fopen(ctx, fname, mode, knh_Context_isStrict(ctx));
 	if(DP(o)->fd != -1) {
@@ -188,38 +188,6 @@ void knh_OutputStream_setEncoding(Ctx *ctx, knh_OutputStream_t *o, knh_String_t 
 	}
 }
 
-/* ------------------------------------------------------------------------ */
-
-void knh_write_begin(Ctx *ctx, knh_OutputStream_t *w, int ch)
-{
-	if(ch != 0) {
-		knh_putc(ctx, w, ch);
-		knh_write_EOL(ctx, w);
-	}
-	DP(w)->indent++;
-}
-
-/* ------------------------------------------------------------------------ */
-
-void knh_write_end(Ctx *ctx, knh_OutputStream_t *w, int ch)
-{
-	DP(w)->indent--;
-	if(ch != 0) {
-		knh_write_indent(ctx, w);
-		knh_putc(ctx, w, ch);
-		//knh_write_EOL(ctx, w);
-	}
-}
-
-/* ------------------------------------------------------------------------ */
-
-void knh_write_indent(Ctx *ctx, knh_OutputStream_t *o)
-{
-	knh_intptr_t i;
-	for(i = 0; i < DP(o)->indent; i++) {
-		knh_OutputStream_write(ctx, o, knh_String_tobytes(DP(o)->TAB));
-	}
-}
 
 /* ------------------------------------------------------------------------ */
 

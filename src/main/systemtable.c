@@ -220,7 +220,7 @@ void knh_Context_traverseCommon(Ctx *ctx, knh_Context_t *o, knh_ftraverse ftr)
 	} else {
 	  ftr(ctx, UP(o->lines));
 	}
-		  
+
 }
 
 /* ------------------------------------------------------------------------ */
@@ -687,11 +687,19 @@ void knh_traverseAll(Ctx* ctx, knh_ftraverse ftr)
 KNHAPI(void) konoha_close(konoha_t konoha)
 {
 	KONOHA_CHECK_(konoha);
-	if(konoha.ctx->share->threadCounter > 1) {
-		fprintf(stderr, "Many threads are still running... Found %d threads", (int)konoha.ctx->share->threadCounter);
+	knh_Context_t *ctx = (knh_Context_t*)konoha.ctx;
+	if(ctx->share->threadCounter > 1) {
+		fprintf(stderr, "Many threads are still running... Found %d threads", (int)ctx->share->threadCounter);
 		return;
 	}
-	knh_Context_traverse(konoha.ctx, (knh_Context_t*)konoha.ctx, konoha.ctx->fsweep);
+	{
+		knh_ObjectField_t *scr = (knh_ObjectField_t*)knh_NameSpace_getScript(ctx, ctx->share->mainns);
+		knh_ObjectField_traverse(konoha.ctx, scr, ctx->fsweep);
+		(scr)->h.cid = CLASS_Object;
+		(scr)->h.bcid = CLASS_Object;
+		KNH_FREE(ctx, scr->fields, sizeof(Object*) * KNH_SCRIPT_FIELDSIZE);
+	}
+	knh_Context_traverse(konoha.ctx, ctx, ctx->fsweep);
 }
 
 /* ------------------------------------------------------------------------ */

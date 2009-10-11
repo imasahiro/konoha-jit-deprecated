@@ -157,14 +157,14 @@ METHOD System_stackdump(Ctx *ctx, knh_sfp_t *sfp)
 /* ======================================================================== */
 /* [call] */
 
-void knh_sfp_typecheck(Ctx *ctx, knh_sfp_t *sfp, knh_Method_t *mtd, knh_code_t *pc)
+void knh_stack_typecheck(Ctx *ctx, knh_sfp_t *sfp, knh_Method_t *mtd, knh_code_t *pc)
 {
 	DBG2_ASSERT(IS_Method(sfp[-1].mtd));
 	char *emsg;
 	knh_class_t this_cid = knh_Object_cid(sfp[0].o);
 	int i, argc = knh_Method_isVarArgs(mtd) ? (ctx->esp - sfp) : knh_Method_psize(mtd);
 	for(i = 1; i < argc; i++) {
-		knh_type_t type = knh_Method_ptype(ctx, mtd, this_cid, i);
+		knh_type_t type = knh_Method_ptype(ctx, mtd, this_cid, i - 1);
 		if(IS_NULL(sfp[i].o)) {
 			if(IS_NNTYPE(type)) {
 				emsg = "Null!!: the parameter %d of %M"; goto L_THROWERR;
@@ -173,7 +173,7 @@ void knh_sfp_typecheck(Ctx *ctx, knh_sfp_t *sfp, knh_Method_t *mtd, knh_code_t *
 		else {
 			knh_class_t reqc = CLASS_type(type);
 			if(!knh_class_instanceof(ctx, knh_Object_cid(sfp[i].o), reqc)) {
-				emsg = "Null!!: the parameter %d of %M"; goto L_THROWERR;
+				emsg = "Type!!: the parameter %d of %M"; goto L_THROWERR;
 			}
 		}
 	}

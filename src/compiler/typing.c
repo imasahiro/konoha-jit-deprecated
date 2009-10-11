@@ -4731,7 +4731,6 @@ static
 Term *knh_Stmt_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace_t *ns, knh_type_t reqt)
 {
 	if(knh_Stmt_isTyped(stmt)) {
-		TODO();
 		return TM(stmt);
 	}
 	if(knh_stmt_isExpr(SP(stmt)->stt)) {

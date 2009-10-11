@@ -473,7 +473,7 @@ int knh_Method_pctoline(knh_Method_t *mtd, knh_code_t *pc);
 		knh_Method_t *mtd_ = knh_lookupMethod(ctx, knh_Object_cid(sfp[n+1].o), mn);\
 		KLR_MOV(ctx, sfp[n].o, mtd_); \
 		((knh_Context_t*)ctx)->esp = &(sfp[n + shift]); \
-		knh_sfp_typecheck(ctx, sfp + n + 1, mtd_, pc); \
+		knh_stack_typecheck(ctx, sfp + n + 1, mtd_, pc); \
 		sfp[-1].pc = pc; \
 		sfp[n].pc = (sfp[n].mtd)->pc_start; \
 		(mtd_)->fcall_1(ctx, sfp + n + 1); \
@@ -486,7 +486,7 @@ int knh_Method_pctoline(knh_Method_t *mtd, knh_code_t *pc);
 		DBG2_ASSERT(IS_bClosure(sfp[n+1].o));\
 		KLR_MOV(ctx, sfp[n].o, (sfp[n+1].cc)->mtd); \
 		KLR_MOV(ctx, sfp[n+1].o, (sfp[n+1].cc)->base); \
-		knh_sfp_typecheck(ctx, sfp + n + 1, (sfp[n].mtd), pc); \
+		knh_stack_typecheck(ctx, sfp + n + 1, (sfp[n].mtd), pc); \
 		((knh_Context_t*)ctx)->esp = &(sfp[n + shift]); \
 		sfp[-1].pc = pc; \
 		sfp[n].pc = (sfp[n].mtd)->pc_start; \
