@@ -1581,6 +1581,19 @@ Term * knh_StmtDECL_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameS
 					knh_Asm_perror(ctx, abr, KERR_EWARN, _("%T is not for key"), decl->type);
 				}
 			}
+			if(IS_Stmt(DP(stmt)->terms[2]) && knh_Stmt_isPROPN(DP(stmt)->stmts[2])) {
+				knh_String_t *pn = knh_Term_getPropertyNameNULL(ctx, DP(stmt)->terms[2]);
+				if(pn != NULL) {
+					if(DP(DP(stmt)->stmts[2])->type != TYPE_Any) {
+						decl->flag |= FLAG_ClassStruct_Property;
+						decl->value = (knh_Object_t*)pn;
+					}
+					else {
+						knh_Asm_perror(ctx, abr, KERR_ERROR, _("$%s: not defined"), knh_String_tochar(pn));
+						return NULL;
+					}
+				}
+			}
 			if(decl->value == NULL && !isDeclOnly) {
 				knh_Asm_perror(ctx, abr, KERR_EWARN, _("%N must be initialized in constructor"), decl->fn);
 			}
@@ -1993,7 +2006,15 @@ Term *knh_StmtPARAMS_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_Name
 			}
 		}
 	}
-
+	if((mtd_cid == CLASS_Context || mtd_cid == CLASS_System) && DP(mtd)->mn == METHODN_getProperty) {
+		knh_String_t *pn = knh_Term_getPropertyNameNULL(ctx, TM(stmt));
+		if(pn != NULL) {
+			rtype = knh_getPropertyType(ctx, knh_String_tobytes(pn));
+			if(rtype != TYPE_Any) {
+				knh_Asm_perror(ctx, abr, KERR_TINFO, _("specialized: $%s => %T"), knh_String_tochar(pn), rtype);
+			}
+		}
+	}
 	knh_Stmt_typed(ctx, stmt, rtype);
 	for(i = 0; i < knh_Method_psize(mtd); i++) {
 		knh_type_t reqt = knh_pmztype_totype(ctx, knh_Method_pztype(mtd, i), mtd_cid);
@@ -2304,79 +2325,79 @@ Term *knh_StmtCALLBASE_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_Na
 static
 Term *knh_StmtCALL_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace_t *ns, knh_class_t reqt)
 {
-    DBG2_ASSERT(DP(abr)->this_cid == CLASS_type(DP(abr)->gamma[0].type));
-    knh_Token_t *tk0 = DP(stmt)->tokens[0];
-    knh_Method_t *mtd = NULL;
-    knh_class_t mtd_cid = CLASS_Object;
-    knh_methodn_t mn = knh_Token_getmn(ctx, tk0);
+	//DBG2_ASSERT(DP(abr)->this_cid == CLASS_type(DP(abr)->gamma[0].type));
+	knh_Token_t *tk0 = DP(stmt)->tokens[0];
+	knh_Method_t *mtd = NULL;
+	knh_class_t mtd_cid = CLASS_Object;
+	knh_methodn_t mn = knh_Token_getmn(ctx, tk0);
 
-    if(mn == METHODN_new) {
-        /* reported by Dr. Maeda */
-        knh_Asm_perror(ctx, abr, KERR_ERROR, _("don't call a %M method"), mn);
-        return NULL;
-    }
+	if(mn == METHODN_new) {
+		/* reported by Dr. Maeda */
+		knh_Asm_perror(ctx, abr, KERR_ERROR, _("don't call a %M method"), mn);
+		return NULL;
+	}
 
-    {
-        Term *tm = knh_StmtCALLBASE_typing(ctx, stmt, abr, ns, mn);
-        if(tm == NULL || IS_Token(tm) || knh_Stmt_isTyped((knh_Stmt_t*)tm)) {
-            return tm;
-        }
-    }
+	{
+		Term *tm = knh_StmtCALLBASE_typing(ctx, stmt, abr, ns, mn);
+		if(tm == NULL || IS_Token(tm) || knh_Stmt_isTyped((knh_Stmt_t*)tm)) {
+			return tm;
+		}
+	}
 
-    if(TT_(tk0) == TT_MN && IS_Method(DP(tk0)->mtd)) {
-        mtd = DP(tk0)->mtd;
-        mtd_cid = DP(mtd)->cid;
-        goto L_TYPING_PARAMS;
-    }
+	if(TT_(tk0) == TT_MN && IS_Method(DP(tk0)->mtd)) {
+		mtd = DP(tk0)->mtd;
+		mtd_cid = DP(mtd)->cid;
+		goto L_TYPING_PARAMS;
+	}
 
-    //	if(mn == METHODN_super || mn == METHODN_this) {
-    //		mn = METHODN_new;
-    //	}
+	//	if(mn == METHODN_super || mn == METHODN_this) {
+	//		mn = METHODN_new;
+	//	}
 
-    mtd_cid = CLASS_type(TERMs_gettype(stmt, 1));
-    if(mtd_cid == CLASS_type(TYPE_var)) {
-        if(IS_Token(DP(stmt)->tokens[1])) {
-            knh_Token_t *tkVAR = DP(stmt)->tokens[1];
-            DBG2_ASSERT(TT_(tkVAR) == TT_LOCAL || TT_(tkVAR) == TT_STACK);
-            mtd_cid = knh_Token_unifyClass(ctx, tkVAR, reqt, stmt);
-            if(mtd_cid != TYPE_var) {
-                goto L_LOOKUPMETHOD;
-            }
-        }
-        return TM(stmt);
-    }
+	mtd_cid = CLASS_type(TERMs_gettype(stmt, 1));
+	if(mtd_cid == CLASS_type(TYPE_var)) {
+		if(IS_Token(DP(stmt)->tokens[1])) {
+			knh_Token_t *tkVAR = DP(stmt)->tokens[1];
+			DBG2_ASSERT(TT_(tkVAR) == TT_LOCAL || TT_(tkVAR) == TT_STACK);
+			mtd_cid = knh_Token_unifyClass(ctx, tkVAR, reqt, stmt);
+			if(mtd_cid != TYPE_var) {
+				goto L_LOOKUPMETHOD;
+			}
+		}
+		return TM(stmt);
+	}
 
-L_LOOKUPMETHOD:;
-    DBG2_ASSERT(mtd_cid != CLASS_type(TYPE_var));
-    mtd = knh_Class_getMethod(ctx, mtd_cid, mn);
-    if(mtd_cid != CLASS_Any && IS_NULL(mtd)) {
-        knh_Asm_perror(ctx, abr, KERR_ERROR, _("undefined method: %C.%M"), mtd_cid, mn);
-        return NULL;
-    }
+	L_LOOKUPMETHOD:;
+	DBG2_ASSERT(mtd_cid != CLASS_type(TYPE_var));
+	mtd = knh_Class_getMethod(ctx, mtd_cid, mn);
+	if(mtd_cid != CLASS_Any && IS_NULL(mtd)) {
+		knh_Asm_perror(ctx, abr, KERR_ERROR, _("undefined method: %C.%M"), mtd_cid, mn);
+		return NULL;
+	}
 
-    // sometime, mtd is KNH_NULL. NULL check for mtd to avoid NULL Pointer ref.
-    DBG2_P("call mn=%s mtd_cid='%s' DP(mtd)->cid=%s", METHODN(mn), CLASSN(mtd_cid),
-            (IS_NULL(mtd))?"null":CLASSN(DP(mtd)->cid));
-    knh_Token_toMTD(ctx, DP(stmt)->tokens[0], mn, mtd);
+	// sometime, mtd is KNH_NULL. NULL check for mtd to avoid NULL Pointer ref.
+	DBG2_P("call mn=%s mtd_cid='%s' DP(mtd)->cid=%s", METHODN(mn), CLASSN(mtd_cid),
+			(IS_NULL(mtd))?"null":CLASSN(DP(mtd)->cid));
+	knh_Token_toMTD(ctx, DP(stmt)->tokens[0], mn, mtd);
 
-    if(IS_Token(DP(stmt)->tokens[1]) && knh_Token_isSUPER(DP(stmt)->tokens[1])) {
-        knh_Token_setSUPER(tk0, 1);
-    }
+	if(IS_Token(DP(stmt)->tokens[1]) && knh_Token_isSUPER(DP(stmt)->tokens[1])) {
+		knh_Token_setSUPER(tk0, 1);
+	}
 
-L_TYPING_PARAMS:
-    if(IS_NOTNULL(mtd) && knh_Method_rztype(mtd) == TYPE_var && reqt != TYPE_Any) {
-        knh_Asm_derivedReturnType(ctx, abr, mtd, reqt);
-    }
-    if(IS_NULL(mtd)) {
-        int i;
-        for(i = 2; i < DP(stmt)->size; i++) {
-            if(!TERMs_typing(ctx, stmt, i, abr, ns, TYPE_Any, TWARN_)) {
-                return NULL;
-            }
-        }
-        return knh_Stmt_typed(ctx, stmt, TYPE_Any);
-    }
-    return knh_StmtPARAMS_typing(ctx, stmt, abr, ns, mtd_cid, mtd);
+	L_TYPING_PARAMS:
+	if(IS_NOTNULL(mtd) && knh_Method_rztype(mtd) == TYPE_var && reqt != TYPE_Any) {
+		knh_Asm_derivedReturnType(ctx, abr, mtd, reqt);
+	}
+	if(IS_NULL(mtd)) {
+		int i;
+		for(i = 2; i < DP(stmt)->size; i++) {
+			if(!TERMs_typing(ctx, stmt, i, abr, ns, TYPE_Any, TWARN_)) {
+				return NULL;
+			}
+		}
+		return knh_Stmt_typed(ctx, stmt, TYPE_Any);
+	}
+	return knh_StmtPARAMS_typing(ctx, stmt, abr, ns, mtd_cid, mtd);
 }
 
 /* ------------------------------------------------------------------------ */

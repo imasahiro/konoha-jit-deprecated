@@ -1071,8 +1071,26 @@ Term* new_TermPROPN(Ctx *ctx, knh_Token_t *tk, int isData)
 		knh_Stmt_addT(ctx, stmt, new_TokenCID(ctx, FL(tk), CLASS_Context));
 		knh_Token_toCONST(ctx, tk);
 		knh_Stmt_addT(ctx, stmt, tk);
+		if(mn != METHODN_listProperties) {
+			knh_Stmt_setPROPN(stmt, 1);
+		}
 		return TM(stmt);
 	}
+}
+
+/* ------------------------------------------------------------------------ */
+
+knh_String_t* knh_Term_getPropertyNameNULL(Ctx *ctx, Term *tm)
+{
+	if(IS_Stmt(tm)) {
+		knh_Stmt_t *stmt = (knh_Stmt_t*)tm;
+		knh_Token_t *tkPROPN = DP(stmt)->tokens[2];
+		if(IS_Token(tkPROPN) && TT_(tkPROPN) == TT_CONST) {
+			DBG2_ASSERT(IS_String(DP(tkPROPN)->text));
+			return DP(tkPROPN)->text;
+		}
+	}
+	return NULL;
 }
 
 /* ======================================================================== */

@@ -457,6 +457,7 @@ typedef struct knh_Class_t {
 //## flag ClassStruct Key        4 (%s)->fields[n].flag is set * *;
 //## flag ClassStruct Volatile   5 (%s)->fields[n].flag is set * *;
 //## flag ClassStruct ReadOnly   6 (%s)->fields[n].flag is set * *;
+//## flag ClassStruct Property   7 (%s)->fields[n].flag is set * *;
 //## flag ClassStruct Principle  8 (%s)->fields[n].flag is set * *;
 
 
@@ -1133,6 +1134,9 @@ typedef struct {
 /* STT_METHOD*/
 #define knh_Stmt_isVARARGS(s)      knh_Stmt_isMemo1(s)
 #define knh_Stmt_setVARARGS(s,b)   knh_Stmt_setMemo1(s,b)
+/* STT_CALL*/
+#define knh_Stmt_isPROPN(s)      knh_Stmt_isMemo1(s)
+#define knh_Stmt_setPROPN(s,b)   knh_Stmt_setMemo1(s,b)
 
 /* ------------------------------------------------------------------------ */
 

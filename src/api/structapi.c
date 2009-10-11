@@ -143,38 +143,44 @@ void knh_ClassStruct_initField(Ctx *ctx, knh_ClassStruct_t *cs, knh_class_t self
 	knh_cfield_t *cf = cs->fields;
 	for(i = 0; i < cs->fsize; i++) {
 		knh_type_t type = cf[i].type;
+		Object *value = cf[i].value;
+		if(KNH_FLAG_IS(cf[i].flag, FLAG_ClassStruct_Property)) {
+			value = knh_Context_getProperty(ctx, (knh_Context_t*)ctx,
+				knh_String_tobytes((knh_String_t*)value));
+			DBG2_P("type=%s%s object=%s", TYPEQN(cf[i].type), CLASSNo(value));
+		}
 #ifdef KNH_USING_UNBOXFIELD
 		if(type == TYPE_void) {
 			continue;
 		}
 		else if(IS_ubxint(type)) {
 			knh_int_t *data = (knh_int_t*)(v + i);
-			data[0] = cf[i].value == NULL ? 0 : toint(cf[i].value);
+			data[0] = value == NULL ? 0 : toint(value);
 			continue;
 		}
 		else if(IS_ubxfloat(type)) {
 			knh_float_t *data = (knh_float_t*)(v + i);
 #ifdef KNH_USING_NOFLOAT
-			data[0] = cf[i].value == NULL ? 0 : tofloat(cf[i].value);
+			data[0] = value == NULL ? 0 : tofloat(value);
 #else
-			data[0] = cf[i].value == NULL ? 0.0 : tofloat(cf[i].value);
+			data[0] = value == NULL ? 0.0 : tofloat(value);
 #endif
 			continue;
 		}
 		else if(IS_ubxboolean(type)) {
 			knh_bool_t *data = (knh_bool_t*)(v + i);
-			data[0] = cf[i].value == NULL ? 0 : tobool(cf[i].value);
+			data[0] = value == NULL ? 0 : tobool(value);
 			continue;
 		}
 		else
 #endif/*KNH_USING_UNBOXFIELD*/
-		if(cf[i].value == NULL) {
+		if(value == NULL) {
 			knh_class_t cid = knh_pmztype_toclass(ctx, type, self_cid);
 			DBG2_ASSERT(IS_NNTYPE(type));
 			KNH_INITv(v[i], KNH_DEF(ctx, cid));
 		}
 		else {
-			KNH_INITv(v[i], cf[i].value);
+			KNH_INITv(v[i], value);
 		}
 	}
 }

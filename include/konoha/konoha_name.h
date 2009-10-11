@@ -2,7 +2,7 @@
 
 /* ======================================================================== */
 /* MACROS */
-#define KONOHA_BUILDID                  715
+#define KONOHA_BUILDID                  717
 
 /* ======================================================================== */
 /* STRUCT */
@@ -925,6 +925,11 @@
 #define knh_ClassStruct_isReadOnly(o,n)  (((o)->fields[n].flag & FLAG_ClassStruct_ReadOnly) == FLAG_ClassStruct_ReadOnly)
 
 #define knh_ClassStruct_setReadOnly(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassStruct_ReadOnly; else (o)->fields[n].flag &= ~(FLAG_ClassStruct_ReadOnly);
+#define FLAG_ClassStruct_Property       (knh_flag_t)(1<<7)
+
+#define knh_ClassStruct_isProperty(o,n)  (((o)->fields[n].flag & FLAG_ClassStruct_Property) == FLAG_ClassStruct_Property)
+
+#define knh_ClassStruct_setProperty(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassStruct_Property; else (o)->fields[n].flag &= ~(FLAG_ClassStruct_Property);
 #define FLAG_ClassStruct_Principle      (knh_flag_t)(1<<8)
 
 #define knh_ClassStruct_isPrinciple(o,n)  (((o)->fields[n].flag & FLAG_ClassStruct_Principle) == FLAG_ClassStruct_Principle)

@@ -160,6 +160,23 @@ KNHAPI(knh_bool_t) knh_bytes_endsWith(knh_bytes_t v1, knh_bytes_t v2)
 
 /* ------------------------------------------------------------------------ */
 
+KNHAPI(knh_bool_t) knh_bytes_matchWildCard(knh_bytes_t t, knh_bytes_t p)
+{
+	if(p.len == 0 || (p.len == 1 && p.buf[0] == '*')) {
+		return 1;
+	}
+	else if(p.buf[p.len-1] == '*') {
+		p.len -= 1;
+		return knh_bytes_startsWith(t, p);
+	}
+	else {
+		TODO();
+		return 0;
+	}
+}
+
+/* ------------------------------------------------------------------------ */
+
 KNHAPI(knh_index_t) knh_bytes_index(knh_bytes_t v, knh_intptr_t ch)
 {
 	size_t i;

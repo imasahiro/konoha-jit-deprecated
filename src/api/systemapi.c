@@ -278,12 +278,13 @@ static METHOD Context_listProperties(Ctx *ctx, knh_sfp_t *sfp)
 	if(IS_NULL(sfp[1].s)) {
 		KNH_MOV(ctx, sfp[1].o, TS_EMPTY);
 	}
+	knh_bytes_t prefix = knh_String_tobytes(sfp[1].s);
 	knh_DictMap_t *map = DP(ctx->sys)->props;
 	size_t i;
 	for(i = 0; i < map->size; i++) {
 		if(IS_NOTNULL(knh_DictMap_valueAt(map, i))) {
 			knh_String_t *key = knh_DictMap_keyAt(map, i);
-			if(knh_String_startsWith(key, knh_String_tobytes(sfp[1].s))) {
+			if(knh_bytes_matchWildCard(knh_String_tobytes(key), prefix)) {
 				knh_DictSet_add(ctx, ds, key);
 			}
 		}
@@ -292,7 +293,7 @@ static METHOD Context_listProperties(Ctx *ctx, knh_sfp_t *sfp)
 	for(i = 0; i < map->size; i++) {
 		if(IS_NOTNULL(knh_DictMap_valueAt(map, i))) {
 			knh_String_t *key = knh_DictMap_keyAt(map, i);
-			if(knh_String_startsWith(key, knh_String_tobytes(sfp[1].s))) {
+			if(knh_bytes_matchWildCard(knh_String_tobytes(key), prefix)) {
 				knh_DictSet_add(ctx, ds, key);
 			}
 		}
