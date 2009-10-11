@@ -498,7 +498,7 @@ typedef struct knh_MethodField_t {
 //## @Struct class Method Object;
 //## flag Method Private!Public  0 DP(%s)->flag is set is *;
 //## flag Method Virtual!Final   1 DP(%s)->flag is set is *;
-//## flag Method Release!Debug   2 DP(%s)->flag is set * *;
+//## flag Method Debug           2 DP(%s)->flag is set * *;
 //## flag Method Const           3 DP(%s)->flag is * is *;
 //## flag Method Static          4 DP(%s)->flag is * is *;
 //## flag Method NullBase        5 DP(%s)->flag is * * *;

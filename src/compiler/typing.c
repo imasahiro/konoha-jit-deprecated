@@ -4749,6 +4749,8 @@ Term *knh_Stmt_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace_
 		}
 		switch(STT_(stmt)) {
 		case STT_BLOCK:
+			DBG2_P("************************ BLOCK **************************");
+
 			if(!TERMs_typingBLOCK(ctx, stmt, 0, abr, ns, knh_Stmt_isAutoReturn(stmt) ? 2 : 1)) {
 				return NULL;
 			}

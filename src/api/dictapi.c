@@ -49,7 +49,7 @@ static METHOD DictMap_opHas(Ctx *ctx, knh_sfp_t *sfp)
 }
 
 /* ------------------------------------------------------------------------ */
-//## method T1 DictMap.get(String! key);
+//## method T1? DictMap.get(String! key);
 
 static METHOD DictMap_get(Ctx *ctx, knh_sfp_t *sfp)
 {
@@ -57,7 +57,7 @@ static METHOD DictMap_get(Ctx *ctx, knh_sfp_t *sfp)
 }
 
 /* ------------------------------------------------------------------------ */
-//## method void DictMap.set(String! key, T1 value);
+//## method void DictMap.set(String! key, T1? value);
 
 static METHOD DictMap_set(Ctx *ctx, knh_sfp_t *sfp)
 {
@@ -86,9 +86,6 @@ static METHOD DictMap_clear(Ctx *ctx, knh_sfp_t *sfp)
 	knh_DictMap_clear(ctx, o);
 	KNH_RETURN_void(ctx, sfp);
 }
-
-/* ------------------------------------------------------------------------ */
-
 
 ///* ======================================================================== */
 ///* [DictSet] */

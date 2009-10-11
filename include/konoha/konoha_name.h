@@ -2,7 +2,7 @@
 
 /* ======================================================================== */
 /* MACROS */
-#define KONOHA_BUILDID                  714
+#define KONOHA_BUILDID                  715
 
 /* ======================================================================== */
 /* STRUCT */
@@ -948,15 +948,11 @@
 #define knh_Method_setVirtual(o,b) if(b) DP(o)->flag |= FLAG_Method_Virtual; else DP(o)->flag &= ~(FLAG_Method_Virtual);
 
 #define knh_Method_setFinal(o,b)  if(b) DP(o)->flag &= ~(FLAG_Method_Virtual); else DP(o)->flag |= FLAG_Method_Virtual;
-#define FLAG_Method_Release             (knh_flag_t)(1<<2)
+#define FLAG_Method_Debug               (knh_flag_t)(1<<2)
 
-#define knh_Method_isRelease(o)  ((DP(o)->flag & FLAG_Method_Release) == FLAG_Method_Release)
+#define knh_Method_isDebug(o)  ((DP(o)->flag & FLAG_Method_Debug) == FLAG_Method_Debug)
 
-#define knh_Method_isDebug(o)  ((DP(o)->flag & FLAG_Method_Release) != FLAG_Method_Release)
-
-#define knh_Method_setRelease(o,b) if(b) DP(o)->flag |= FLAG_Method_Release; else DP(o)->flag &= ~(FLAG_Method_Release);
-
-#define knh_Method_setDebug(o,b)  if(b) DP(o)->flag &= ~(FLAG_Method_Release); else DP(o)->flag |= FLAG_Method_Release;
+#define knh_Method_setDebug(o,b) if(b) DP(o)->flag |= FLAG_Method_Debug; else DP(o)->flag &= ~(FLAG_Method_Debug);
 #define FLAG_Method_Const               (knh_flag_t)(1<<3)
 
 #define knh_Method_isConst(o)  ((DP(o)->flag & FLAG_Method_Const) == FLAG_Method_Const)

@@ -2482,14 +2482,20 @@ void knh_StmtERR_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr)
 
 static int knh_Asm_isDEBUG(Ctx *ctx, knh_Asm_t *abr)
 {
-	if(knh_Method_isRelease(DP(abr)->mtd)) return 0;
+	if(knh_Method_isDebug(DP(abr)->mtd)) return 1;
 	return knh_Context_isDebug(ctx);
+}
+
+static void KNH_ASM_SKIP(Ctx *ctx, knh_Asm_t *abr, knh_labelid_t lbskip)
+{
+	if(!knh_Method_isDebug(DP(abr)->mtd)) {
+		KNH_ASM_SKIP_(ctx, abr, lbskip);
+	}
 }
 
 /* ------------------------------------------------------------------------ */
 
-static
-knh_methodn_t knh_Stmt_getMT(Ctx *ctx, knh_Stmt_t *stmt, size_t n)
+static knh_methodn_t knh_Stmt_getMT(Ctx *ctx, knh_Stmt_t *stmt, size_t n)
 {
 	knh_methodn_t mn = METHODN__k;
 	knh_Stmt_t *o = DP(stmt)->stmts[n];
@@ -2510,7 +2516,7 @@ void knh_StmtPRINT_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr)
 	}
 	knh_flag_t flag = knh_StmtPRINT_flag(ctx, stmt);
 	knh_labelid_t lbskip = knh_Asm_newLabelId(ctx, abr, NULL);
-	KNH_ASM_SKIP_(ctx, abr, lbskip);
+	KNH_ASM_SKIP(ctx, abr, lbskip);
 	if(konoha_debugLevel() > 1) {
 		char buf[128];
 		knh_snprintf(buf, sizeof(buf), "[%s:%d]", FILEN(DP(abr)->uri), DP(abr)->line);
@@ -2582,14 +2588,15 @@ void knh_Stmt_asmBLOCK(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, int isIterati
 		KNH_ASM_SETLINE(ctx, abr, SP(cur)->line);
 		switch(SP(cur)->stt) {
 		case STT_BLOCK:
-			if(!knh_Stmt_isDEBUG(stmt)) {
+			DBG2_P("************************ BLOCK **************************");
+//			if(!knh_Stmt_isDEBUG(stmt)) {
 				knh_Stmt_asmBLOCK(ctx, DP(stmt)->stmts[0], abr, 1); break;
-			}
-			else {
-				if(knh_Asm_isDEBUG(ctx, abr)) {
-					knh_Stmt_asmBLOCK(ctx, DP(stmt)->stmts[0], abr, 1); break;
-				}
-			}
+//			}
+//			else {
+//				if(knh_Asm_isDEBUG(ctx, abr)) {
+//					knh_Stmt_asmBLOCK(ctx, DP(stmt)->stmts[0], abr, 1); break;
+//				}
+//			}
 		case STT_LET:
 			knh_StmtLET_asm(ctx, cur, abr, TYPE_void, DP(abr)->stack); break;
 		case STT_LETM:
