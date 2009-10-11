@@ -75,7 +75,16 @@ Any* knh_System_getProperty(Ctx *ctx, knh_System_t *o, knh_bytes_t key)
 
 void knh_System_setProperty(Ctx *ctx, knh_System_t *o, knh_String_t *key, Any *value)
 {
-	knh_DictMap_set(ctx, DP(o)->props, key, value);
+	knh_type_t type = knh_getPropertyType(ctx, knh_String_tobytes(key));
+	if(type == TYPE_Any || knh_Object_cid(value) == CLASS_type(type)) {
+		knh_DictMap_set(ctx, DP(o)->props, key, value);
+	}
+	else {
+		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
+		knh_printf(ctx, cwb->w, "PropertyType!!: $%s must be %T", knh_String_text(ctx, key), type);
+		knh_String_t *s = knh_cwb_newString(ctx, cwb);
+		KNH_THROW(ctx, s);
+	}
 }
 
 /* ------------------------------------------------------------------------ */
