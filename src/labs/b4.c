@@ -52,7 +52,7 @@ METHOD Script_changeChannel(Ctx *ctx, knh_sfp_t *sfp)
 
 METHOD Script_hook(Ctx *ctx, knh_sfp_t *sfp)
 {
-	char *funcname = knh_String_tochar(sfp[1].s);
+	char *funcname = __tochar(sfp[1].s);
 	fprintf(stdout, "hooking security point at %s\n", funcname);
 }
 

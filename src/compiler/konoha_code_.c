@@ -196,11 +196,11 @@ size_t knh_code_opsize(int opcode)
 }
 
 
-knh_code_t* KNH_ASM_HALT_(Ctx *ctx, knh_Asm_t *o)
+knh_code_t* KNH_ASM_HALT_(Ctx *ctx, knh_Gamma_t *o)
 {
 	klr_halt_t *op = NULL;
 	if(1) {
-		op = (klr_halt_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_HALT);
+		op = (klr_halt_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_HALT);
 		op->opcode = 0;
 		DP(o)->prev_op = (knh_kode_t*)op;
 	}
@@ -209,11 +209,11 @@ knh_code_t* KNH_ASM_HALT_(Ctx *ctx, knh_Asm_t *o)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_MOVa_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2)
+knh_code_t* KNH_ASM_MOVa_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2)
 {
 	klr_mova_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_mova_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_MOVA);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_mova_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_MOVA);
 		op->opcode = 1;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -224,11 +224,11 @@ knh_code_t* KNH_ASM_MOVa_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_MOVn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2)
+knh_code_t* KNH_ASM_MOVn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2)
 {
 	klr_movn_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_movn_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_MOVN);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_movn_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_MOVN);
 		op->opcode = 2;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -239,11 +239,11 @@ knh_code_t* KNH_ASM_MOVn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_MOVo_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_Object_t* a2)
+knh_code_t* KNH_ASM_MOVo_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_Object_t* a2)
 {
 	klr_movo_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_movo_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_MOVO);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_movo_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_MOVO);
 		op->opcode = 3;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_Object_t*)*/a2;
@@ -255,11 +255,11 @@ knh_code_t* KNH_ASM_MOVo_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_Object_t* a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_MOVx_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfx_t a2)
+knh_code_t* KNH_ASM_MOVx_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfx_t a2)
 {
 	klr_movx_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_movx_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_MOVX);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_movx_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_MOVX);
 		op->opcode = 4;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfx_t)*/a2;
@@ -270,11 +270,11 @@ knh_code_t* KNH_ASM_MOVx_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfx_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_MOVDEF_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_class_t a2)
+knh_code_t* KNH_ASM_MOVDEF_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_class_t a2)
 {
 	klr_movdef_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_movdef_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_MOVDEF);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_movdef_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_MOVDEF);
 		op->opcode = 5;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		KNH_ASSERT_cid(a2);
@@ -286,11 +286,11 @@ knh_code_t* KNH_ASM_MOVDEF_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_class_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_MOVSYS_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_ushort_t a2)
+knh_code_t* KNH_ASM_MOVSYS_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_ushort_t a2)
 {
 	klr_movsys_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_movsys_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_MOVSYS);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_movsys_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_MOVSYS);
 		op->opcode = 6;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_ushort_t)*/a2;
@@ -301,11 +301,11 @@ knh_code_t* KNH_ASM_MOVSYS_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_ushort_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_XMOVs_(Ctx *ctx, knh_Asm_t *o,knh_sfx_t a1,knh_sfi_t a2)
+knh_code_t* KNH_ASM_XMOVs_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1,knh_sfi_t a2)
 {
 	klr_xmovs_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_xmovs_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_XMOVS);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_xmovs_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_XMOVS);
 		op->opcode = 7;
 		op->a1 = /*(knh_sfx_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -316,11 +316,11 @@ knh_code_t* KNH_ASM_XMOVs_(Ctx *ctx, knh_Asm_t *o,knh_sfx_t a1,knh_sfi_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_XMOVo_(Ctx *ctx, knh_Asm_t *o,knh_sfx_t a1,knh_Object_t* a2)
+knh_code_t* KNH_ASM_XMOVo_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1,knh_Object_t* a2)
 {
 	klr_xmovo_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_xmovo_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_XMOVO);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_xmovo_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_XMOVO);
 		op->opcode = 8;
 		op->a1 = /*(knh_sfx_t)*/a1;
 		op->a2 = /*(knh_Object_t*)*/a2;
@@ -332,11 +332,11 @@ knh_code_t* KNH_ASM_XMOVo_(Ctx *ctx, knh_Asm_t *o,knh_sfx_t a1,knh_Object_t* a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_XMOVx_(Ctx *ctx, knh_Asm_t *o,knh_sfx_t a1,knh_sfx_t a2)
+knh_code_t* KNH_ASM_XMOVx_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1,knh_sfx_t a2)
 {
 	klr_xmovx_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_xmovx_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_XMOVX);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_xmovx_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_XMOVX);
 		op->opcode = 9;
 		op->a1 = /*(knh_sfx_t)*/a1;
 		op->a2 = /*(knh_sfx_t)*/a2;
@@ -347,11 +347,11 @@ knh_code_t* KNH_ASM_XMOVx_(Ctx *ctx, knh_Asm_t *o,knh_sfx_t a1,knh_sfx_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_XMOVDEF_(Ctx *ctx, knh_Asm_t *o,knh_sfx_t a1,knh_class_t a2)
+knh_code_t* KNH_ASM_XMOVDEF_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1,knh_class_t a2)
 {
 	klr_xmovdef_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_xmovdef_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_XMOVDEF);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_xmovdef_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_XMOVDEF);
 		op->opcode = 10;
 		op->a1 = /*(knh_sfx_t)*/a1;
 		KNH_ASSERT_cid(a2);
@@ -363,11 +363,11 @@ knh_code_t* KNH_ASM_XMOVDEF_(Ctx *ctx, knh_Asm_t *o,knh_sfx_t a1,knh_class_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_XMOVSYS_(Ctx *ctx, knh_Asm_t *o,knh_sfx_t a1,knh_ushort_t a2)
+knh_code_t* KNH_ASM_XMOVSYS_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1,knh_ushort_t a2)
 {
 	klr_xmovsys_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_xmovsys_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_XMOVSYS);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_xmovsys_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_XMOVSYS);
 		op->opcode = 11;
 		op->a1 = /*(knh_sfx_t)*/a1;
 		op->a2 = /*(knh_ushort_t)*/a2;
@@ -378,11 +378,11 @@ knh_code_t* KNH_ASM_XMOVSYS_(Ctx *ctx, knh_Asm_t *o,knh_sfx_t a1,knh_ushort_t a2
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_MOVxi_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfx_t a2)
+knh_code_t* KNH_ASM_MOVxi_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfx_t a2)
 {
 	klr_movxi_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_movxi_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_MOVXI);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_movxi_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_MOVXI);
 		op->opcode = 12;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfx_t)*/a2;
@@ -393,11 +393,11 @@ knh_code_t* KNH_ASM_MOVxi_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfx_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_XMOVsi_(Ctx *ctx, knh_Asm_t *o,knh_sfx_t a1,knh_sfi_t a2)
+knh_code_t* KNH_ASM_XMOVsi_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1,knh_sfi_t a2)
 {
 	klr_xmovsi_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_xmovsi_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_XMOVSI);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_xmovsi_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_XMOVSI);
 		op->opcode = 13;
 		op->a1 = /*(knh_sfx_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -408,11 +408,11 @@ knh_code_t* KNH_ASM_XMOVsi_(Ctx *ctx, knh_Asm_t *o,knh_sfx_t a1,knh_sfi_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_XMOVoi_(Ctx *ctx, knh_Asm_t *o,knh_sfx_t a1,knh_Object_t* a2)
+knh_code_t* KNH_ASM_XMOVoi_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1,knh_Object_t* a2)
 {
 	klr_xmovoi_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_xmovoi_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_XMOVOI);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_xmovoi_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_XMOVOI);
 		op->opcode = 14;
 		op->a1 = /*(knh_sfx_t)*/a1;
 		op->a2 = /*(knh_Object_t*)*/a2;
@@ -424,11 +424,11 @@ knh_code_t* KNH_ASM_XMOVoi_(Ctx *ctx, knh_Asm_t *o,knh_sfx_t a1,knh_Object_t* a2
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_XMOVxi_(Ctx *ctx, knh_Asm_t *o,knh_sfx_t a1,knh_sfx_t a2)
+knh_code_t* KNH_ASM_XMOVxi_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1,knh_sfx_t a2)
 {
 	klr_xmovxi_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_xmovxi_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_XMOVXI);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_xmovxi_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_XMOVXI);
 		op->opcode = 15;
 		op->a1 = /*(knh_sfx_t)*/a1;
 		op->a2 = /*(knh_sfx_t)*/a2;
@@ -439,11 +439,11 @@ knh_code_t* KNH_ASM_XMOVxi_(Ctx *ctx, knh_Asm_t *o,knh_sfx_t a1,knh_sfx_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_XMOVxio_(Ctx *ctx, knh_Asm_t *o,knh_sfx_t a1,knh_sfx_t a2)
+knh_code_t* KNH_ASM_XMOVxio_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1,knh_sfx_t a2)
 {
 	klr_xmovxio_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_xmovxio_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_XMOVXIO);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_xmovxio_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_XMOVXIO);
 		op->opcode = 16;
 		op->a1 = /*(knh_sfx_t)*/a1;
 		op->a2 = /*(knh_sfx_t)*/a2;
@@ -454,11 +454,11 @@ knh_code_t* KNH_ASM_XMOVxio_(Ctx *ctx, knh_Asm_t *o,knh_sfx_t a1,knh_sfx_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_XMOVxBXi_(Ctx *ctx, knh_Asm_t *o,knh_sfx_t a1,knh_sfx_t a2,knh_class_t a3)
+knh_code_t* KNH_ASM_XMOVxBXi_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1,knh_sfx_t a2,knh_class_t a3)
 {
 	klr_xmovxbxi_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_xmovxbxi_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_XMOVXBXI);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_xmovxbxi_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_XMOVXBXI);
 		op->opcode = 17;
 		op->a1 = /*(knh_sfx_t)*/a1;
 		op->a2 = /*(knh_sfx_t)*/a2;
@@ -471,11 +471,11 @@ knh_code_t* KNH_ASM_XMOVxBXi_(Ctx *ctx, knh_Asm_t *o,knh_sfx_t a1,knh_sfx_t a2,k
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_MOVxf_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfx_t a2)
+knh_code_t* KNH_ASM_MOVxf_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfx_t a2)
 {
 	klr_movxf_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_movxf_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_MOVXF);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_movxf_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_MOVXF);
 		op->opcode = 18;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfx_t)*/a2;
@@ -486,11 +486,11 @@ knh_code_t* KNH_ASM_MOVxf_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfx_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_XMOVsf_(Ctx *ctx, knh_Asm_t *o,knh_sfx_t a1,knh_sfi_t a2)
+knh_code_t* KNH_ASM_XMOVsf_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1,knh_sfi_t a2)
 {
 	klr_xmovsf_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_xmovsf_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_XMOVSF);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_xmovsf_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_XMOVSF);
 		op->opcode = 19;
 		op->a1 = /*(knh_sfx_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -501,11 +501,11 @@ knh_code_t* KNH_ASM_XMOVsf_(Ctx *ctx, knh_Asm_t *o,knh_sfx_t a1,knh_sfi_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_XMOVof_(Ctx *ctx, knh_Asm_t *o,knh_sfx_t a1,knh_Object_t* a2)
+knh_code_t* KNH_ASM_XMOVof_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1,knh_Object_t* a2)
 {
 	klr_xmovof_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_xmovof_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_XMOVOF);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_xmovof_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_XMOVOF);
 		op->opcode = 20;
 		op->a1 = /*(knh_sfx_t)*/a1;
 		op->a2 = /*(knh_Object_t*)*/a2;
@@ -517,11 +517,11 @@ knh_code_t* KNH_ASM_XMOVof_(Ctx *ctx, knh_Asm_t *o,knh_sfx_t a1,knh_Object_t* a2
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_XMOVxf_(Ctx *ctx, knh_Asm_t *o,knh_sfx_t a1,knh_sfx_t a2)
+knh_code_t* KNH_ASM_XMOVxf_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1,knh_sfx_t a2)
 {
 	klr_xmovxf_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_xmovxf_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_XMOVXF);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_xmovxf_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_XMOVXF);
 		op->opcode = 21;
 		op->a1 = /*(knh_sfx_t)*/a1;
 		op->a2 = /*(knh_sfx_t)*/a2;
@@ -532,11 +532,11 @@ knh_code_t* KNH_ASM_XMOVxf_(Ctx *ctx, knh_Asm_t *o,knh_sfx_t a1,knh_sfx_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_XMOVxfo_(Ctx *ctx, knh_Asm_t *o,knh_sfx_t a1,knh_sfx_t a2)
+knh_code_t* KNH_ASM_XMOVxfo_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1,knh_sfx_t a2)
 {
 	klr_xmovxfo_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_xmovxfo_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_XMOVXFO);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_xmovxfo_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_XMOVXFO);
 		op->opcode = 22;
 		op->a1 = /*(knh_sfx_t)*/a1;
 		op->a2 = /*(knh_sfx_t)*/a2;
@@ -547,11 +547,11 @@ knh_code_t* KNH_ASM_XMOVxfo_(Ctx *ctx, knh_Asm_t *o,knh_sfx_t a1,knh_sfx_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_XMOVxBXf_(Ctx *ctx, knh_Asm_t *o,knh_sfx_t a1,knh_sfx_t a2,knh_class_t a3)
+knh_code_t* KNH_ASM_XMOVxBXf_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1,knh_sfx_t a2,knh_class_t a3)
 {
 	klr_xmovxbxf_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_xmovxbxf_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_XMOVXBXF);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_xmovxbxf_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_XMOVXBXF);
 		op->opcode = 23;
 		op->a1 = /*(knh_sfx_t)*/a1;
 		op->a2 = /*(knh_sfx_t)*/a2;
@@ -564,11 +564,11 @@ knh_code_t* KNH_ASM_XMOVxBXf_(Ctx *ctx, knh_Asm_t *o,knh_sfx_t a1,knh_sfx_t a2,k
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_MOVxb_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfx_t a2)
+knh_code_t* KNH_ASM_MOVxb_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfx_t a2)
 {
 	klr_movxb_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_movxb_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_MOVXB);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_movxb_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_MOVXB);
 		op->opcode = 24;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfx_t)*/a2;
@@ -579,11 +579,11 @@ knh_code_t* KNH_ASM_MOVxb_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfx_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_XMOVsb_(Ctx *ctx, knh_Asm_t *o,knh_sfx_t a1,knh_sfi_t a2)
+knh_code_t* KNH_ASM_XMOVsb_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1,knh_sfi_t a2)
 {
 	klr_xmovsb_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_xmovsb_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_XMOVSB);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_xmovsb_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_XMOVSB);
 		op->opcode = 25;
 		op->a1 = /*(knh_sfx_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -594,11 +594,11 @@ knh_code_t* KNH_ASM_XMOVsb_(Ctx *ctx, knh_Asm_t *o,knh_sfx_t a1,knh_sfi_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_XMOVob_(Ctx *ctx, knh_Asm_t *o,knh_sfx_t a1,knh_Object_t* a2)
+knh_code_t* KNH_ASM_XMOVob_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1,knh_Object_t* a2)
 {
 	klr_xmovob_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_xmovob_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_XMOVOB);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_xmovob_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_XMOVOB);
 		op->opcode = 26;
 		op->a1 = /*(knh_sfx_t)*/a1;
 		op->a2 = /*(knh_Object_t*)*/a2;
@@ -610,11 +610,11 @@ knh_code_t* KNH_ASM_XMOVob_(Ctx *ctx, knh_Asm_t *o,knh_sfx_t a1,knh_Object_t* a2
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_XMOVxb_(Ctx *ctx, knh_Asm_t *o,knh_sfx_t a1,knh_sfx_t a2)
+knh_code_t* KNH_ASM_XMOVxb_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1,knh_sfx_t a2)
 {
 	klr_xmovxb_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_xmovxb_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_XMOVXB);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_xmovxb_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_XMOVXB);
 		op->opcode = 27;
 		op->a1 = /*(knh_sfx_t)*/a1;
 		op->a2 = /*(knh_sfx_t)*/a2;
@@ -625,11 +625,11 @@ knh_code_t* KNH_ASM_XMOVxb_(Ctx *ctx, knh_Asm_t *o,knh_sfx_t a1,knh_sfx_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_EMOVs_(Ctx *ctx, knh_Asm_t *o,knh_sfe_t a1,knh_sfe_t a2)
+knh_code_t* KNH_ASM_EMOVs_(Ctx *ctx, knh_Gamma_t *o,knh_sfe_t a1,knh_sfe_t a2)
 {
 	klr_emovs_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_emovs_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_EMOVS);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_emovs_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_EMOVS);
 		op->opcode = 28;
 		op->a1 = /*(knh_sfe_t)*/a1;
 		op->a2 = /*(knh_sfe_t)*/a2;
@@ -640,11 +640,11 @@ knh_code_t* KNH_ASM_EMOVs_(Ctx *ctx, knh_Asm_t *o,knh_sfe_t a1,knh_sfe_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_EMOVo_(Ctx *ctx, knh_Asm_t *o,knh_sfe_t a1,knh_Object_t* a2)
+knh_code_t* KNH_ASM_EMOVo_(Ctx *ctx, knh_Gamma_t *o,knh_sfe_t a1,knh_Object_t* a2)
 {
 	klr_emovo_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_emovo_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_EMOVO);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_emovo_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_EMOVO);
 		op->opcode = 29;
 		op->a1 = /*(knh_sfe_t)*/a1;
 		op->a2 = /*(knh_Object_t*)*/a2;
@@ -656,11 +656,11 @@ knh_code_t* KNH_ASM_EMOVo_(Ctx *ctx, knh_Asm_t *o,knh_sfe_t a1,knh_Object_t* a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_EMOVe_(Ctx *ctx, knh_Asm_t *o,knh_sfe_t a1,knh_sfe_t a2)
+knh_code_t* KNH_ASM_EMOVe_(Ctx *ctx, knh_Gamma_t *o,knh_sfe_t a1,knh_sfe_t a2)
 {
 	klr_emove_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_emove_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_EMOVE);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_emove_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_EMOVE);
 		op->opcode = 30;
 		op->a1 = /*(knh_sfe_t)*/a1;
 		op->a2 = /*(knh_sfe_t)*/a2;
@@ -671,11 +671,11 @@ knh_code_t* KNH_ASM_EMOVe_(Ctx *ctx, knh_Asm_t *o,knh_sfe_t a1,knh_sfe_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_EMOVDEF_(Ctx *ctx, knh_Asm_t *o,knh_sfe_t a1,knh_class_t a2)
+knh_code_t* KNH_ASM_EMOVDEF_(Ctx *ctx, knh_Gamma_t *o,knh_sfe_t a1,knh_class_t a2)
 {
 	klr_emovdef_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_emovdef_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_EMOVDEF);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_emovdef_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_EMOVDEF);
 		op->opcode = 31;
 		op->a1 = /*(knh_sfe_t)*/a1;
 		KNH_ASSERT_cid(a2);
@@ -687,11 +687,11 @@ knh_code_t* KNH_ASM_EMOVDEF_(Ctx *ctx, knh_Asm_t *o,knh_sfe_t a1,knh_class_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_EMOVSYS_(Ctx *ctx, knh_Asm_t *o,knh_sfe_t a1,knh_ushort_t a2)
+knh_code_t* KNH_ASM_EMOVSYS_(Ctx *ctx, knh_Gamma_t *o,knh_sfe_t a1,knh_ushort_t a2)
 {
 	klr_emovsys_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_emovsys_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_EMOVSYS);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_emovsys_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_EMOVSYS);
 		op->opcode = 32;
 		op->a1 = /*(knh_sfe_t)*/a1;
 		op->a2 = /*(knh_ushort_t)*/a2;
@@ -702,11 +702,11 @@ knh_code_t* KNH_ASM_EMOVSYS_(Ctx *ctx, knh_Asm_t *o,knh_sfe_t a1,knh_ushort_t a2
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_SWAP_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2)
+knh_code_t* KNH_ASM_SWAP_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2)
 {
 	klr_swap_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_swap_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_SWAP);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_swap_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_SWAP);
 		op->opcode = 33;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -717,11 +717,11 @@ knh_code_t* KNH_ASM_SWAP_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_PINIDEF_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_class_t a2)
+knh_code_t* KNH_ASM_PINIDEF_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_class_t a2)
 {
 	klr_pinidef_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_pinidef_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_PINIDEF);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_pinidef_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_PINIDEF);
 		op->opcode = 34;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		KNH_ASSERT_cid(a2);
@@ -733,11 +733,11 @@ knh_code_t* KNH_ASM_PINIDEF_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_class_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_PINIo_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_Object_t* a2)
+knh_code_t* KNH_ASM_PINIo_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_Object_t* a2)
 {
 	klr_pinio_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_pinio_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_PINIO);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_pinio_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_PINIO);
 		op->opcode = 35;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_Object_t*)*/a2;
@@ -749,11 +749,11 @@ knh_code_t* KNH_ASM_PINIo_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_Object_t* a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_PARAMS_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_class_t a2)
+knh_code_t* KNH_ASM_PARAMS_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_class_t a2)
 {
 	klr_params_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_params_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_PARAMS);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_params_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_PARAMS);
 		op->opcode = 36;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		KNH_ASSERT_cid(a2);
@@ -765,11 +765,11 @@ knh_code_t* KNH_ASM_PARAMS_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_class_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_SETESP_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1)
+knh_code_t* KNH_ASM_SETESP_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1)
 {
 	klr_setesp_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_setesp_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_SETESP);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_setesp_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_SETESP);
 		op->opcode = 37;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		DP(o)->prev_op = (knh_kode_t*)op;
@@ -779,11 +779,11 @@ knh_code_t* KNH_ASM_SETESP_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_CHECKESP_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1)
+knh_code_t* KNH_ASM_CHECKESP_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1)
 {
 	klr_checkesp_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_checkesp_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_CHECKESP);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_checkesp_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_CHECKESP);
 		op->opcode = 38;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		DP(o)->prev_op = (knh_kode_t*)op;
@@ -793,11 +793,11 @@ knh_code_t* KNH_ASM_CHECKESP_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_RET_(Ctx *ctx, knh_Asm_t *o)
+knh_code_t* KNH_ASM_RET_(Ctx *ctx, knh_Gamma_t *o)
 {
 	klr_ret_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_ret_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_RET);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_ret_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_RET);
 		op->opcode = 39;
 		DP(o)->prev_op = (knh_kode_t*)op;
 	}
@@ -806,11 +806,11 @@ knh_code_t* KNH_ASM_RET_(Ctx *ctx, knh_Asm_t *o)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_RETn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2)
+knh_code_t* KNH_ASM_RETn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2)
 {
 	klr_retn_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_retn_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_RETN);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_retn_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_RETN);
 		op->opcode = 40;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -821,11 +821,11 @@ knh_code_t* KNH_ASM_RETn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_RETa_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2)
+knh_code_t* KNH_ASM_RETa_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2)
 {
 	klr_reta_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_reta_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_RETA);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_reta_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_RETA);
 		op->opcode = 41;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -836,11 +836,11 @@ knh_code_t* KNH_ASM_RETa_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_RETo_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_Object_t* a2)
+knh_code_t* KNH_ASM_RETo_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_Object_t* a2)
 {
 	klr_reto_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_reto_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_RETO);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_reto_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_RETO);
 		op->opcode = 42;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_Object_t*)*/a2;
@@ -852,11 +852,11 @@ knh_code_t* KNH_ASM_RETo_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_Object_t* a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_RETx_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfx_t a2)
+knh_code_t* KNH_ASM_RETx_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfx_t a2)
 {
 	klr_retx_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_retx_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_RETX);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_retx_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_RETX);
 		op->opcode = 43;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfx_t)*/a2;
@@ -867,11 +867,11 @@ knh_code_t* KNH_ASM_RETx_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfx_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_YEILDBREAK_(Ctx *ctx, knh_Asm_t *o)
+knh_code_t* KNH_ASM_YEILDBREAK_(Ctx *ctx, knh_Gamma_t *o)
 {
 	klr_yeildbreak_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_yeildbreak_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_YEILDBREAK);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_yeildbreak_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_YEILDBREAK);
 		op->opcode = 44;
 		DP(o)->prev_op = (knh_kode_t*)op;
 	}
@@ -880,11 +880,11 @@ knh_code_t* KNH_ASM_YEILDBREAK_(Ctx *ctx, knh_Asm_t *o)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_BOX_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_class_t a2)
+knh_code_t* KNH_ASM_BOX_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_class_t a2)
 {
 	klr_box_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_box_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_BOX);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_box_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_BOX);
 		op->opcode = 45;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		KNH_ASSERT_cid(a2);
@@ -896,11 +896,11 @@ knh_code_t* KNH_ASM_BOX_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_class_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_BOXnc_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_class_t a2)
+knh_code_t* KNH_ASM_BOXnc_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_class_t a2)
 {
 	klr_boxnc_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_boxnc_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_BOXNC);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_boxnc_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_BOXNC);
 		op->opcode = 46;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		KNH_ASSERT_cid(a2);
@@ -912,11 +912,11 @@ knh_code_t* KNH_ASM_BOXnc_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_class_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_NNBOX_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_class_t a2)
+knh_code_t* KNH_ASM_NNBOX_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_class_t a2)
 {
 	klr_nnbox_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_nnbox_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_NNBOX);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_nnbox_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_NNBOX);
 		op->opcode = 47;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		KNH_ASSERT_cid(a2);
@@ -928,11 +928,11 @@ knh_code_t* KNH_ASM_NNBOX_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_class_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_NNBOXnc_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_class_t a2)
+knh_code_t* KNH_ASM_NNBOXnc_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_class_t a2)
 {
 	klr_nnboxnc_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_nnboxnc_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_NNBOXNC);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_nnboxnc_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_NNBOXNC);
 		op->opcode = 48;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		KNH_ASSERT_cid(a2);
@@ -944,11 +944,11 @@ knh_code_t* KNH_ASM_NNBOXnc_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_class_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_UNBOX_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1)
+knh_code_t* KNH_ASM_UNBOX_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1)
 {
 	klr_unbox_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_unbox_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_UNBOX);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_unbox_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_UNBOX);
 		op->opcode = 49;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		DP(o)->prev_op = (knh_kode_t*)op;
@@ -958,11 +958,11 @@ knh_code_t* KNH_ASM_UNBOX_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_CHECKNULL_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1)
+knh_code_t* KNH_ASM_CHECKNULL_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1)
 {
 	klr_checknull_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_checknull_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_CHECKNULL);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_checknull_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_CHECKNULL);
 		op->opcode = 50;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		DP(o)->prev_op = (knh_kode_t*)op;
@@ -972,11 +972,11 @@ knh_code_t* KNH_ASM_CHECKNULL_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_CHECKNULLx_(Ctx *ctx, knh_Asm_t *o,knh_sfx_t a1)
+knh_code_t* KNH_ASM_CHECKNULLx_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1)
 {
 	klr_checknullx_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_checknullx_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_CHECKNULLX);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_checknullx_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_CHECKNULLX);
 		op->opcode = 51;
 		op->a1 = /*(knh_sfx_t)*/a1;
 		DP(o)->prev_op = (knh_kode_t*)op;
@@ -986,11 +986,11 @@ knh_code_t* KNH_ASM_CHECKNULLx_(Ctx *ctx, knh_Asm_t *o,knh_sfx_t a1)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_CHECKTYPE_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_class_t a2)
+knh_code_t* KNH_ASM_CHECKTYPE_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_class_t a2)
 {
 	klr_checktype_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_checktype_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_CHECKTYPE);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_checktype_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_CHECKTYPE);
 		op->opcode = 52;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		KNH_ASSERT_cid(a2);
@@ -1002,11 +1002,11 @@ knh_code_t* KNH_ASM_CHECKTYPE_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_class_t a
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_CHECKNNTYPE_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_type_t a2)
+knh_code_t* KNH_ASM_CHECKNNTYPE_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_type_t a2)
 {
 	klr_checknntype_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_checknntype_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_CHECKNNTYPE);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_checknntype_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_CHECKNNTYPE);
 		op->opcode = 53;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_type_t)*/a2;
@@ -1017,11 +1017,11 @@ knh_code_t* KNH_ASM_CHECKNNTYPE_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_type_t 
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_FCALL_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_ushort_t a2,knh_sfi_t a3,knh_Object_t* a4)
+knh_code_t* KNH_ASM_FCALL_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_ushort_t a2,knh_sfi_t a3,knh_Object_t* a4)
 {
 	klr_fcall_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_fcall_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_FCALL);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_fcall_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_FCALL);
 		op->opcode = 54;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_ushort_t)*/a2;
@@ -1035,11 +1035,11 @@ knh_code_t* KNH_ASM_FCALL_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_ushort_t a2,k
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_SCALL_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_ushort_t a2,knh_Object_t* a3)
+knh_code_t* KNH_ASM_SCALL_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_ushort_t a2,knh_Object_t* a3)
 {
 	klr_scall_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_scall_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_SCALL);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_scall_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_SCALL);
 		op->opcode = 55;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_ushort_t)*/a2;
@@ -1052,11 +1052,11 @@ knh_code_t* KNH_ASM_SCALL_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_ushort_t a2,k
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_AINVOKE_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_ushort_t a2)
+knh_code_t* KNH_ASM_AINVOKE_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_ushort_t a2)
 {
 	klr_ainvoke_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_ainvoke_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_AINVOKE);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_ainvoke_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_AINVOKE);
 		op->opcode = 56;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_ushort_t)*/a2;
@@ -1067,11 +1067,11 @@ knh_code_t* KNH_ASM_AINVOKE_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_ushort_t a2
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_CALL_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_ushort_t a2,knh_methodn_t a3)
+knh_code_t* KNH_ASM_CALL_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_ushort_t a2,knh_methodn_t a3)
 {
 	klr_call_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_call_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_CALL);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_call_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_CALL);
 		op->opcode = 57;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_ushort_t)*/a2;
@@ -1083,11 +1083,11 @@ knh_code_t* KNH_ASM_CALL_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_ushort_t a2,kn
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_ACALL_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_ushort_t a2,knh_methodn_t a3)
+knh_code_t* KNH_ASM_ACALL_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_ushort_t a2,knh_methodn_t a3)
 {
 	klr_acall_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_acall_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_ACALL);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_acall_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_ACALL);
 		op->opcode = 58;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_ushort_t)*/a2;
@@ -1099,11 +1099,11 @@ knh_code_t* KNH_ASM_ACALL_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_ushort_t a2,k
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_NEW_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_flag_t a2,knh_class_t a3,knh_ushort_t a4,knh_Object_t* a5)
+knh_code_t* KNH_ASM_NEW_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_flag_t a2,knh_class_t a3,knh_ushort_t a4,knh_Object_t* a5)
 {
 	klr_new_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_new_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_NEW);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_new_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_NEW);
 		op->opcode = 59;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_flag_t)*/a2;
@@ -1119,11 +1119,11 @@ knh_code_t* KNH_ASM_NEW_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_flag_t a2,knh_c
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_COPYSFP_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1)
+knh_code_t* KNH_ASM_COPYSFP_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1)
 {
 	klr_copysfp_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_copysfp_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_COPYSFP);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_copysfp_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_COPYSFP);
 		op->opcode = 60;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		DP(o)->prev_op = (knh_kode_t*)op;
@@ -1133,11 +1133,11 @@ knh_code_t* KNH_ASM_COPYSFP_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_TOSTR_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_methodn_t a2)
+knh_code_t* KNH_ASM_TOSTR_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_methodn_t a2)
 {
 	klr_tostr_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_tostr_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_TOSTR);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_tostr_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_TOSTR);
 		op->opcode = 61;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_methodn_t)*/a2;
@@ -1148,11 +1148,11 @@ knh_code_t* KNH_ASM_TOSTR_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_methodn_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_TOSTRf_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_methodn_t a2,knh_Object_t* a3)
+knh_code_t* KNH_ASM_TOSTRf_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_methodn_t a2,knh_Object_t* a3)
 {
 	klr_tostrf_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_tostrf_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_TOSTRF);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_tostrf_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_TOSTRF);
 		op->opcode = 62;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_methodn_t)*/a2;
@@ -1165,11 +1165,11 @@ knh_code_t* KNH_ASM_TOSTRf_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_methodn_t a2
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_SMAP_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_Object_t* a2)
+knh_code_t* KNH_ASM_SMAP_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_Object_t* a2)
 {
 	klr_smap_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_smap_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_SMAP);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_smap_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_SMAP);
 		op->opcode = 63;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_Object_t*)*/a2;
@@ -1181,11 +1181,11 @@ knh_code_t* KNH_ASM_SMAP_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_Object_t* a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_SMAPnc_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_Object_t* a2)
+knh_code_t* KNH_ASM_SMAPnc_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_Object_t* a2)
 {
 	klr_smapnc_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_smapnc_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_SMAPNC);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_smapnc_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_SMAPNC);
 		op->opcode = 64;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_Object_t*)*/a2;
@@ -1197,11 +1197,11 @@ knh_code_t* KNH_ASM_SMAPnc_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_Object_t* a2
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_MAP_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_class_t a2)
+knh_code_t* KNH_ASM_MAP_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_class_t a2)
 {
 	klr_map_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_map_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_MAP);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_map_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_MAP);
 		op->opcode = 65;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		KNH_ASSERT_cid(a2);
@@ -1213,11 +1213,11 @@ knh_code_t* KNH_ASM_MAP_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_class_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_MAPnc_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_class_t a2)
+knh_code_t* KNH_ASM_MAPnc_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_class_t a2)
 {
 	klr_mapnc_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_mapnc_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_MAPNC);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_mapnc_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_MAPNC);
 		op->opcode = 66;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		KNH_ASSERT_cid(a2);
@@ -1229,11 +1229,11 @@ knh_code_t* KNH_ASM_MAPnc_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_class_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_AMAP_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_class_t a2)
+knh_code_t* KNH_ASM_AMAP_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_class_t a2)
 {
 	klr_amap_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_amap_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_AMAP);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_amap_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_AMAP);
 		op->opcode = 67;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		KNH_ASSERT_cid(a2);
@@ -1245,11 +1245,11 @@ knh_code_t* KNH_ASM_AMAP_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_class_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_NNMAP_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_class_t a2)
+knh_code_t* KNH_ASM_NNMAP_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_class_t a2)
 {
 	klr_nnmap_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_nnmap_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_NNMAP);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_nnmap_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_NNMAP);
 		op->opcode = 68;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		KNH_ASSERT_cid(a2);
@@ -1261,11 +1261,11 @@ knh_code_t* KNH_ASM_NNMAP_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_class_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_JMP_(Ctx *ctx, knh_Asm_t *o,knh_labelid_t a1)
+knh_code_t* KNH_ASM_JMP_(Ctx *ctx, knh_Gamma_t *o,knh_labelid_t a1)
 {
 	klr_jmp_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_jmp_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_JMP);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_jmp_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_JMP);
 		op->opcode = 69;
 		op->a1 = /*(knh_labelid_t)*/a1;
 		DP(o)->prev_op = (knh_kode_t*)op;
@@ -1275,11 +1275,11 @@ knh_code_t* KNH_ASM_JMP_(Ctx *ctx, knh_Asm_t *o,knh_labelid_t a1)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_SKIP_(Ctx *ctx, knh_Asm_t *o,knh_labelid_t a1)
+knh_code_t* KNH_ASM_SKIP_(Ctx *ctx, knh_Gamma_t *o,knh_labelid_t a1)
 {
 	klr_skip_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_skip_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_SKIP);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_skip_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_SKIP);
 		op->opcode = 70;
 		op->a1 = /*(knh_labelid_t)*/a1;
 		DP(o)->prev_op = (knh_kode_t*)op;
@@ -1289,11 +1289,11 @@ knh_code_t* KNH_ASM_SKIP_(Ctx *ctx, knh_Asm_t *o,knh_labelid_t a1)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_bJIFT_(Ctx *ctx, knh_Asm_t *o,knh_labelid_t a1,knh_sfi_t a2)
+knh_code_t* KNH_ASM_bJIFT_(Ctx *ctx, knh_Gamma_t *o,knh_labelid_t a1,knh_sfi_t a2)
 {
 	klr_bjift_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_bjift_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_BJIFT);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_bjift_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_BJIFT);
 		op->opcode = 71;
 		op->a1 = /*(knh_labelid_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -1304,11 +1304,11 @@ knh_code_t* KNH_ASM_bJIFT_(Ctx *ctx, knh_Asm_t *o,knh_labelid_t a1,knh_sfi_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_bJIFF_(Ctx *ctx, knh_Asm_t *o,knh_labelid_t a1,knh_sfi_t a2)
+knh_code_t* KNH_ASM_bJIFF_(Ctx *ctx, knh_Gamma_t *o,knh_labelid_t a1,knh_sfi_t a2)
 {
 	klr_bjiff_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_bjiff_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_BJIFF);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_bjiff_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_BJIFF);
 		op->opcode = 72;
 		op->a1 = /*(knh_labelid_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -1319,11 +1319,11 @@ knh_code_t* KNH_ASM_bJIFF_(Ctx *ctx, knh_Asm_t *o,knh_labelid_t a1,knh_sfi_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_bJIFF_LOOP_(Ctx *ctx, knh_Asm_t *o,knh_labelid_t a1,knh_sfi_t a2)
+knh_code_t* KNH_ASM_bJIFF_LOOP_(Ctx *ctx, knh_Gamma_t *o,knh_labelid_t a1,knh_sfi_t a2)
 {
 	klr_bjiff_loop_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_bjiff_loop_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_BJIFF_LOOP);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_bjiff_loop_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_BJIFF_LOOP);
 		op->opcode = 73;
 		op->a1 = /*(knh_labelid_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -1334,11 +1334,11 @@ knh_code_t* KNH_ASM_bJIFF_LOOP_(Ctx *ctx, knh_Asm_t *o,knh_labelid_t a1,knh_sfi_
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_JIFNUL_(Ctx *ctx, knh_Asm_t *o,knh_labelid_t a1,knh_sfi_t a2)
+knh_code_t* KNH_ASM_JIFNUL_(Ctx *ctx, knh_Gamma_t *o,knh_labelid_t a1,knh_sfi_t a2)
 {
 	klr_jifnul_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_jifnul_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_JIFNUL);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_jifnul_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_JIFNUL);
 		op->opcode = 74;
 		op->a1 = /*(knh_labelid_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -1349,11 +1349,11 @@ knh_code_t* KNH_ASM_JIFNUL_(Ctx *ctx, knh_Asm_t *o,knh_labelid_t a1,knh_sfi_t a2
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_JIFNN_(Ctx *ctx, knh_Asm_t *o,knh_labelid_t a1,knh_sfi_t a2)
+knh_code_t* KNH_ASM_JIFNN_(Ctx *ctx, knh_Gamma_t *o,knh_labelid_t a1,knh_sfi_t a2)
 {
 	klr_jifnn_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_jifnn_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_JIFNN);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_jifnn_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_JIFNN);
 		op->opcode = 75;
 		op->a1 = /*(knh_labelid_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -1364,11 +1364,11 @@ knh_code_t* KNH_ASM_JIFNN_(Ctx *ctx, knh_Asm_t *o,knh_labelid_t a1,knh_sfi_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_NEXT_(Ctx *ctx, knh_Asm_t *o,knh_labelid_t a1,knh_sfi_t a2,knh_sfi_t a3)
+knh_code_t* KNH_ASM_NEXT_(Ctx *ctx, knh_Gamma_t *o,knh_labelid_t a1,knh_sfi_t a2,knh_sfi_t a3)
 {
 	klr_next_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_next_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_NEXT);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_next_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_NEXT);
 		op->opcode = 76;
 		op->a1 = /*(knh_labelid_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -1380,11 +1380,11 @@ knh_code_t* KNH_ASM_NEXT_(Ctx *ctx, knh_Asm_t *o,knh_labelid_t a1,knh_sfi_t a2,k
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_INEXT_(Ctx *ctx, knh_Asm_t *o,knh_labelid_t a1,knh_class_t a2,knh_sfi_t a3,knh_sfi_t a4)
+knh_code_t* KNH_ASM_INEXT_(Ctx *ctx, knh_Gamma_t *o,knh_labelid_t a1,knh_class_t a2,knh_sfi_t a3,knh_sfi_t a4)
 {
 	klr_inext_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_inext_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_INEXT);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_inext_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_INEXT);
 		op->opcode = 77;
 		op->a1 = /*(knh_labelid_t)*/a1;
 		KNH_ASSERT_cid(a2);
@@ -1398,11 +1398,11 @@ knh_code_t* KNH_ASM_INEXT_(Ctx *ctx, knh_Asm_t *o,knh_labelid_t a1,knh_class_t a
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_MAPNEXT_(Ctx *ctx, knh_Asm_t *o,knh_labelid_t a1,knh_class_t a2,knh_sfi_t a3,knh_sfi_t a4)
+knh_code_t* KNH_ASM_MAPNEXT_(Ctx *ctx, knh_Gamma_t *o,knh_labelid_t a1,knh_class_t a2,knh_sfi_t a3,knh_sfi_t a4)
 {
 	klr_mapnext_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_mapnext_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_MAPNEXT);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_mapnext_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_MAPNEXT);
 		op->opcode = 78;
 		op->a1 = /*(knh_labelid_t)*/a1;
 		KNH_ASSERT_cid(a2);
@@ -1416,11 +1416,11 @@ knh_code_t* KNH_ASM_MAPNEXT_(Ctx *ctx, knh_Asm_t *o,knh_labelid_t a1,knh_class_t
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_SMAPNEXT_(Ctx *ctx, knh_Asm_t *o,knh_labelid_t a1,knh_sfi_t a2,knh_sfi_t a3,knh_Object_t* a4)
+knh_code_t* KNH_ASM_SMAPNEXT_(Ctx *ctx, knh_Gamma_t *o,knh_labelid_t a1,knh_sfi_t a2,knh_sfi_t a3,knh_Object_t* a4)
 {
 	klr_smapnext_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_smapnext_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_SMAPNEXT);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_smapnext_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_SMAPNEXT);
 		op->opcode = 79;
 		op->a1 = /*(knh_labelid_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -1434,11 +1434,11 @@ knh_code_t* KNH_ASM_SMAPNEXT_(Ctx *ctx, knh_Asm_t *o,knh_labelid_t a1,knh_sfi_t 
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_TRY_(Ctx *ctx, knh_Asm_t *o,knh_labelid_t a1,knh_sfi_t a2)
+knh_code_t* KNH_ASM_TRY_(Ctx *ctx, knh_Gamma_t *o,knh_labelid_t a1,knh_sfi_t a2)
 {
 	klr_try_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_try_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_TRY);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_try_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_TRY);
 		op->opcode = 80;
 		op->a1 = /*(knh_labelid_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -1449,11 +1449,11 @@ knh_code_t* KNH_ASM_TRY_(Ctx *ctx, knh_Asm_t *o,knh_labelid_t a1,knh_sfi_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_TRYEND_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1)
+knh_code_t* KNH_ASM_TRYEND_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1)
 {
 	klr_tryend_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_tryend_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_TRYEND);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_tryend_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_TRYEND);
 		op->opcode = 81;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		DP(o)->prev_op = (knh_kode_t*)op;
@@ -1463,11 +1463,11 @@ knh_code_t* KNH_ASM_TRYEND_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_CATCH_(Ctx *ctx, knh_Asm_t *o,knh_labelid_t a1,knh_sfi_t a2,knh_sfi_t a3,knh_Object_t* a4)
+knh_code_t* KNH_ASM_CATCH_(Ctx *ctx, knh_Gamma_t *o,knh_labelid_t a1,knh_sfi_t a2,knh_sfi_t a3,knh_Object_t* a4)
 {
 	klr_catch_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_catch_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_CATCH);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_catch_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_CATCH);
 		op->opcode = 82;
 		op->a1 = /*(knh_labelid_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -1481,11 +1481,11 @@ knh_code_t* KNH_ASM_CATCH_(Ctx *ctx, knh_Asm_t *o,knh_labelid_t a1,knh_sfi_t a2,
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_PUSH_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1)
+knh_code_t* KNH_ASM_PUSH_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1)
 {
 	klr_push_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_push_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_PUSH);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_push_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_PUSH);
 		op->opcode = 83;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		DP(o)->prev_op = (knh_kode_t*)op;
@@ -1495,11 +1495,11 @@ knh_code_t* KNH_ASM_PUSH_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_POP_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1)
+knh_code_t* KNH_ASM_POP_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1)
 {
 	klr_pop_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_pop_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_POP);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_pop_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_POP);
 		op->opcode = 84;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		DP(o)->prev_op = (knh_kode_t*)op;
@@ -1509,11 +1509,11 @@ knh_code_t* KNH_ASM_POP_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_THROW_(Ctx *ctx, knh_Asm_t *o,knh_ushort_t a1,knh_sfi_t a2)
+knh_code_t* KNH_ASM_THROW_(Ctx *ctx, knh_Gamma_t *o,knh_ushort_t a1,knh_sfi_t a2)
 {
 	klr_throw_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_throw_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_THROW);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_throw_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_THROW);
 		op->opcode = 85;
 		op->a1 = /*(knh_ushort_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -1524,11 +1524,11 @@ knh_code_t* KNH_ASM_THROW_(Ctx *ctx, knh_Asm_t *o,knh_ushort_t a1,knh_sfi_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_THROWs_(Ctx *ctx, knh_Asm_t *o,knh_ushort_t a1,knh_Object_t* a2)
+knh_code_t* KNH_ASM_THROWs_(Ctx *ctx, knh_Gamma_t *o,knh_ushort_t a1,knh_Object_t* a2)
 {
 	klr_throws_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_throws_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_THROWS);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_throws_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_THROWS);
 		op->opcode = 86;
 		op->a1 = /*(knh_ushort_t)*/a1;
 		op->a2 = /*(knh_Object_t*)*/a2;
@@ -1540,11 +1540,11 @@ knh_code_t* KNH_ASM_THROWs_(Ctx *ctx, knh_Asm_t *o,knh_ushort_t a1,knh_Object_t*
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_THROW_AGAIN_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1)
+knh_code_t* KNH_ASM_THROW_AGAIN_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1)
 {
 	klr_throw_again_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_throw_again_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_THROW_AGAIN);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_throw_again_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_THROW_AGAIN);
 		op->opcode = 87;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		DP(o)->prev_op = (knh_kode_t*)op;
@@ -1554,11 +1554,11 @@ knh_code_t* KNH_ASM_THROW_AGAIN_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_P_(Ctx *ctx, knh_Asm_t *o,knh_flag_t a1,knh_methodn_t a2,knh_sfi_t a3)
+knh_code_t* KNH_ASM_P_(Ctx *ctx, knh_Gamma_t *o,knh_flag_t a1,knh_methodn_t a2,knh_sfi_t a3)
 {
 	klr_p_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_p_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_P);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_p_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_P);
 		op->opcode = 88;
 		op->a1 = /*(knh_flag_t)*/a1;
 		op->a2 = /*(knh_methodn_t)*/a2;
@@ -1570,11 +1570,11 @@ knh_code_t* KNH_ASM_P_(Ctx *ctx, knh_Asm_t *o,knh_flag_t a1,knh_methodn_t a2,knh
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_PMSG_(Ctx *ctx, knh_Asm_t *o,knh_flag_t a1,knh_Object_t* a2)
+knh_code_t* KNH_ASM_PMSG_(Ctx *ctx, knh_Gamma_t *o,knh_flag_t a1,knh_Object_t* a2)
 {
 	klr_pmsg_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_pmsg_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_PMSG);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_pmsg_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_PMSG);
 		op->opcode = 89;
 		op->a1 = /*(knh_flag_t)*/a1;
 		op->a2 = /*(knh_Object_t*)*/a2;
@@ -1586,11 +1586,11 @@ knh_code_t* KNH_ASM_PMSG_(Ctx *ctx, knh_Asm_t *o,knh_flag_t a1,knh_Object_t* a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_iCAST_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1)
+knh_code_t* KNH_ASM_iCAST_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1)
 {
 	klr_icast_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_icast_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_ICAST);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_icast_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_ICAST);
 		op->opcode = 90;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		DP(o)->prev_op = (knh_kode_t*)op;
@@ -1600,11 +1600,11 @@ knh_code_t* KNH_ASM_iCAST_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_inCAST_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1)
+knh_code_t* KNH_ASM_inCAST_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1)
 {
 	klr_incast_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_incast_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_INCAST);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_incast_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_INCAST);
 		op->opcode = 91;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		DP(o)->prev_op = (knh_kode_t*)op;
@@ -1614,11 +1614,11 @@ knh_code_t* KNH_ASM_inCAST_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_fCAST_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1)
+knh_code_t* KNH_ASM_fCAST_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1)
 {
 	klr_fcast_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_fcast_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_FCAST);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_fcast_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_FCAST);
 		op->opcode = 92;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		DP(o)->prev_op = (knh_kode_t*)op;
@@ -1628,11 +1628,11 @@ knh_code_t* KNH_ASM_fCAST_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_fnCAST_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1)
+knh_code_t* KNH_ASM_fnCAST_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1)
 {
 	klr_fncast_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_fncast_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_FNCAST);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_fncast_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_FNCAST);
 		op->opcode = 93;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		DP(o)->prev_op = (knh_kode_t*)op;
@@ -1642,11 +1642,11 @@ knh_code_t* KNH_ASM_fnCAST_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_bNOT_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2)
+knh_code_t* KNH_ASM_bNOT_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2)
 {
 	klr_bnot_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_bnot_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_BNOT);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_bnot_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_BNOT);
 		op->opcode = 94;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -1657,11 +1657,11 @@ knh_code_t* KNH_ASM_bNOT_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_iNEG_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2)
+knh_code_t* KNH_ASM_iNEG_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2)
 {
 	klr_ineg_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_ineg_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_INEG);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_ineg_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_INEG);
 		op->opcode = 95;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -1672,11 +1672,11 @@ knh_code_t* KNH_ASM_iNEG_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_iADD_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
+knh_code_t* KNH_ASM_iADD_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
 {
 	klr_iadd_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_iadd_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_IADD);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_iadd_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_IADD);
 		op->opcode = 96;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -1688,11 +1688,11 @@ knh_code_t* KNH_ASM_iADD_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_s
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_iADDn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_int_t a3)
+knh_code_t* KNH_ASM_iADDn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_int_t a3)
 {
 	klr_iaddn_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_iaddn_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_IADDN);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_iaddn_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_IADDN);
 		op->opcode = 97;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -1704,11 +1704,11 @@ knh_code_t* KNH_ASM_iADDn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_iSUB_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
+knh_code_t* KNH_ASM_iSUB_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
 {
 	klr_isub_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_isub_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_ISUB);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_isub_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_ISUB);
 		op->opcode = 98;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -1720,11 +1720,11 @@ knh_code_t* KNH_ASM_iSUB_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_s
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_iSUBn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_int_t a3)
+knh_code_t* KNH_ASM_iSUBn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_int_t a3)
 {
 	klr_isubn_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_isubn_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_ISUBN);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_isubn_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_ISUBN);
 		op->opcode = 99;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -1736,11 +1736,11 @@ knh_code_t* KNH_ASM_iSUBn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_iMUL_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
+knh_code_t* KNH_ASM_iMUL_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
 {
 	klr_imul_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_imul_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_IMUL);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_imul_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_IMUL);
 		op->opcode = 100;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -1752,11 +1752,11 @@ knh_code_t* KNH_ASM_iMUL_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_s
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_iMULn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_int_t a3)
+knh_code_t* KNH_ASM_iMULn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_int_t a3)
 {
 	klr_imuln_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_imuln_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_IMULN);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_imuln_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_IMULN);
 		op->opcode = 101;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -1768,11 +1768,11 @@ knh_code_t* KNH_ASM_iMULn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_iDIV_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
+knh_code_t* KNH_ASM_iDIV_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
 {
 	klr_idiv_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_idiv_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_IDIV);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_idiv_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_IDIV);
 		op->opcode = 102;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -1784,11 +1784,11 @@ knh_code_t* KNH_ASM_iDIV_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_s
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_iDIVn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_int_t a3)
+knh_code_t* KNH_ASM_iDIVn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_int_t a3)
 {
 	klr_idivn_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_idivn_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_IDIVN);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_idivn_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_IDIVN);
 		op->opcode = 103;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -1800,11 +1800,11 @@ knh_code_t* KNH_ASM_iDIVn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_iMOD_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
+knh_code_t* KNH_ASM_iMOD_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
 {
 	klr_imod_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_imod_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_IMOD);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_imod_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_IMOD);
 		op->opcode = 104;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -1816,11 +1816,11 @@ knh_code_t* KNH_ASM_iMOD_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_s
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_iMODn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_int_t a3)
+knh_code_t* KNH_ASM_iMODn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_int_t a3)
 {
 	klr_imodn_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_imodn_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_IMODN);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_imodn_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_IMODN);
 		op->opcode = 105;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -1832,11 +1832,11 @@ knh_code_t* KNH_ASM_iMODn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_iEQ_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
+knh_code_t* KNH_ASM_iEQ_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
 {
 	klr_ieq_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_ieq_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_IEQ);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_ieq_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_IEQ);
 		op->opcode = 106;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -1848,11 +1848,11 @@ knh_code_t* KNH_ASM_iEQ_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sf
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_iEQn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_int_t a3)
+knh_code_t* KNH_ASM_iEQn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_int_t a3)
 {
 	klr_ieqn_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_ieqn_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_IEQN);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_ieqn_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_IEQN);
 		op->opcode = 107;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -1864,11 +1864,11 @@ knh_code_t* KNH_ASM_iEQn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_i
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_iNEQ_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
+knh_code_t* KNH_ASM_iNEQ_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
 {
 	klr_ineq_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_ineq_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_INEQ);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_ineq_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_INEQ);
 		op->opcode = 108;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -1880,11 +1880,11 @@ knh_code_t* KNH_ASM_iNEQ_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_s
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_iNEQn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_int_t a3)
+knh_code_t* KNH_ASM_iNEQn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_int_t a3)
 {
 	klr_ineqn_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_ineqn_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_INEQN);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_ineqn_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_INEQN);
 		op->opcode = 109;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -1896,11 +1896,11 @@ knh_code_t* KNH_ASM_iNEQn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_iLT_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
+knh_code_t* KNH_ASM_iLT_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
 {
 	klr_ilt_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_ilt_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_ILT);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_ilt_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_ILT);
 		op->opcode = 110;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -1912,11 +1912,11 @@ knh_code_t* KNH_ASM_iLT_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sf
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_iLTn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_int_t a3)
+knh_code_t* KNH_ASM_iLTn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_int_t a3)
 {
 	klr_iltn_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_iltn_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_ILTN);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_iltn_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_ILTN);
 		op->opcode = 111;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -1928,11 +1928,11 @@ knh_code_t* KNH_ASM_iLTn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_i
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_iLTE_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
+knh_code_t* KNH_ASM_iLTE_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
 {
 	klr_ilte_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_ilte_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_ILTE);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_ilte_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_ILTE);
 		op->opcode = 112;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -1944,11 +1944,11 @@ knh_code_t* KNH_ASM_iLTE_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_s
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_iLTEn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_int_t a3)
+knh_code_t* KNH_ASM_iLTEn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_int_t a3)
 {
 	klr_ilten_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_ilten_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_ILTEN);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_ilten_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_ILTEN);
 		op->opcode = 113;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -1960,11 +1960,11 @@ knh_code_t* KNH_ASM_iLTEn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_iGT_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
+knh_code_t* KNH_ASM_iGT_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
 {
 	klr_igt_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_igt_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_IGT);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_igt_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_IGT);
 		op->opcode = 114;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -1976,11 +1976,11 @@ knh_code_t* KNH_ASM_iGT_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sf
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_iGTn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_int_t a3)
+knh_code_t* KNH_ASM_iGTn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_int_t a3)
 {
 	klr_igtn_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_igtn_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_IGTN);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_igtn_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_IGTN);
 		op->opcode = 115;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -1992,11 +1992,11 @@ knh_code_t* KNH_ASM_iGTn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_i
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_iGTE_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
+knh_code_t* KNH_ASM_iGTE_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
 {
 	klr_igte_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_igte_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_IGTE);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_igte_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_IGTE);
 		op->opcode = 116;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -2008,11 +2008,11 @@ knh_code_t* KNH_ASM_iGTE_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_s
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_iGTEn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_int_t a3)
+knh_code_t* KNH_ASM_iGTEn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_int_t a3)
 {
 	klr_igten_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_igten_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_IGTEN);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_igten_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_IGTEN);
 		op->opcode = 117;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -2024,11 +2024,11 @@ knh_code_t* KNH_ASM_iGTEn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_fNEG_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2)
+knh_code_t* KNH_ASM_fNEG_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2)
 {
 	klr_fneg_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_fneg_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_FNEG);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_fneg_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_FNEG);
 		op->opcode = 118;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -2039,11 +2039,11 @@ knh_code_t* KNH_ASM_fNEG_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_fADD_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
+knh_code_t* KNH_ASM_fADD_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
 {
 	klr_fadd_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_fadd_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_FADD);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_fadd_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_FADD);
 		op->opcode = 119;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -2055,11 +2055,11 @@ knh_code_t* KNH_ASM_fADD_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_s
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_fADDn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_float_t a3)
+knh_code_t* KNH_ASM_fADDn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_float_t a3)
 {
 	klr_faddn_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_faddn_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_FADDN);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_faddn_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_FADDN);
 		op->opcode = 120;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -2071,11 +2071,11 @@ knh_code_t* KNH_ASM_fADDn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_fSUB_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
+knh_code_t* KNH_ASM_fSUB_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
 {
 	klr_fsub_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_fsub_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_FSUB);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_fsub_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_FSUB);
 		op->opcode = 121;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -2087,11 +2087,11 @@ knh_code_t* KNH_ASM_fSUB_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_s
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_fSUBn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_float_t a3)
+knh_code_t* KNH_ASM_fSUBn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_float_t a3)
 {
 	klr_fsubn_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_fsubn_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_FSUBN);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_fsubn_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_FSUBN);
 		op->opcode = 122;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -2103,11 +2103,11 @@ knh_code_t* KNH_ASM_fSUBn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_fMUL_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
+knh_code_t* KNH_ASM_fMUL_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
 {
 	klr_fmul_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_fmul_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_FMUL);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_fmul_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_FMUL);
 		op->opcode = 123;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -2119,11 +2119,11 @@ knh_code_t* KNH_ASM_fMUL_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_s
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_fMULn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_float_t a3)
+knh_code_t* KNH_ASM_fMULn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_float_t a3)
 {
 	klr_fmuln_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_fmuln_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_FMULN);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_fmuln_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_FMULN);
 		op->opcode = 124;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -2135,11 +2135,11 @@ knh_code_t* KNH_ASM_fMULn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_fDIV_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
+knh_code_t* KNH_ASM_fDIV_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
 {
 	klr_fdiv_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_fdiv_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_FDIV);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_fdiv_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_FDIV);
 		op->opcode = 125;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -2151,11 +2151,11 @@ knh_code_t* KNH_ASM_fDIV_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_s
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_fDIVn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_float_t a3)
+knh_code_t* KNH_ASM_fDIVn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_float_t a3)
 {
 	klr_fdivn_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_fdivn_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_FDIVN);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_fdivn_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_FDIVN);
 		op->opcode = 126;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -2167,11 +2167,11 @@ knh_code_t* KNH_ASM_fDIVn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_fEQ_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
+knh_code_t* KNH_ASM_fEQ_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
 {
 	klr_feq_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_feq_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_FEQ);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_feq_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_FEQ);
 		op->opcode = 127;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -2183,11 +2183,11 @@ knh_code_t* KNH_ASM_fEQ_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sf
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_fEQn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_float_t a3)
+knh_code_t* KNH_ASM_fEQn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_float_t a3)
 {
 	klr_feqn_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_feqn_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_FEQN);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_feqn_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_FEQN);
 		op->opcode = 128;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -2199,11 +2199,11 @@ knh_code_t* KNH_ASM_fEQn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_f
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_fNEQ_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
+knh_code_t* KNH_ASM_fNEQ_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
 {
 	klr_fneq_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_fneq_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_FNEQ);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_fneq_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_FNEQ);
 		op->opcode = 129;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -2215,11 +2215,11 @@ knh_code_t* KNH_ASM_fNEQ_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_s
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_fNEQn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_float_t a3)
+knh_code_t* KNH_ASM_fNEQn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_float_t a3)
 {
 	klr_fneqn_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_fneqn_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_FNEQN);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_fneqn_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_FNEQN);
 		op->opcode = 130;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -2231,11 +2231,11 @@ knh_code_t* KNH_ASM_fNEQn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_fLT_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
+knh_code_t* KNH_ASM_fLT_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
 {
 	klr_flt_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_flt_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_FLT);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_flt_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_FLT);
 		op->opcode = 131;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -2247,11 +2247,11 @@ knh_code_t* KNH_ASM_fLT_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sf
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_fLTn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_float_t a3)
+knh_code_t* KNH_ASM_fLTn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_float_t a3)
 {
 	klr_fltn_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_fltn_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_FLTN);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_fltn_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_FLTN);
 		op->opcode = 132;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -2263,11 +2263,11 @@ knh_code_t* KNH_ASM_fLTn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_f
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_fLTE_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
+knh_code_t* KNH_ASM_fLTE_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
 {
 	klr_flte_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_flte_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_FLTE);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_flte_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_FLTE);
 		op->opcode = 133;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -2279,11 +2279,11 @@ knh_code_t* KNH_ASM_fLTE_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_s
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_fLTEn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_float_t a3)
+knh_code_t* KNH_ASM_fLTEn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_float_t a3)
 {
 	klr_flten_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_flten_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_FLTEN);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_flten_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_FLTEN);
 		op->opcode = 134;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -2295,11 +2295,11 @@ knh_code_t* KNH_ASM_fLTEn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_fGT_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
+knh_code_t* KNH_ASM_fGT_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
 {
 	klr_fgt_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_fgt_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_FGT);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_fgt_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_FGT);
 		op->opcode = 135;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -2311,11 +2311,11 @@ knh_code_t* KNH_ASM_fGT_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sf
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_fGTn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_float_t a3)
+knh_code_t* KNH_ASM_fGTn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_float_t a3)
 {
 	klr_fgtn_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_fgtn_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_FGTN);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_fgtn_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_FGTN);
 		op->opcode = 136;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -2327,11 +2327,11 @@ knh_code_t* KNH_ASM_fGTn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_f
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_fGTE_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
+knh_code_t* KNH_ASM_fGTE_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
 {
 	klr_fgte_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_fgte_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_FGTE);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_fgte_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_FGTE);
 		op->opcode = 137;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -2343,11 +2343,11 @@ knh_code_t* KNH_ASM_fGTE_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_s
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_fGTEn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_float_t a3)
+knh_code_t* KNH_ASM_fGTEn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_float_t a3)
 {
 	klr_fgten_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_fgten_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_FGTEN);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_fgten_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_FGTEN);
 		op->opcode = 138;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -2359,11 +2359,11 @@ knh_code_t* KNH_ASM_fGTEn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_AGET_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
+knh_code_t* KNH_ASM_AGET_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
 {
 	klr_aget_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_aget_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_AGET);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_aget_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_AGET);
 		op->opcode = 139;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -2375,11 +2375,11 @@ knh_code_t* KNH_ASM_AGET_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_s
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_AGETn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_intptr_t a3)
+knh_code_t* KNH_ASM_AGETn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_intptr_t a3)
 {
 	klr_agetn_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_agetn_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_AGETN);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_agetn_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_AGETN);
 		op->opcode = 140;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -2391,11 +2391,11 @@ knh_code_t* KNH_ASM_AGETn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_IAGET_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
+knh_code_t* KNH_ASM_IAGET_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
 {
 	klr_iaget_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_iaget_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_IAGET);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_iaget_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_IAGET);
 		op->opcode = 141;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -2407,11 +2407,11 @@ knh_code_t* KNH_ASM_IAGET_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_IAGETn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_intptr_t a3)
+knh_code_t* KNH_ASM_IAGETn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_intptr_t a3)
 {
 	klr_iagetn_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_iagetn_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_IAGETN);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_iagetn_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_IAGETN);
 		op->opcode = 142;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -2423,11 +2423,11 @@ knh_code_t* KNH_ASM_IAGETn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_FAGET_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
+knh_code_t* KNH_ASM_FAGET_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
 {
 	klr_faget_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_faget_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_FAGET);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_faget_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_FAGET);
 		op->opcode = 143;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -2439,11 +2439,11 @@ knh_code_t* KNH_ASM_FAGET_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_FAGETn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_intptr_t a3)
+knh_code_t* KNH_ASM_FAGETn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_intptr_t a3)
 {
 	klr_fagetn_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_fagetn_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_FAGETN);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_fagetn_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_FAGETN);
 		op->opcode = 144;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -2455,11 +2455,11 @@ knh_code_t* KNH_ASM_FAGETn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_ASET_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
+knh_code_t* KNH_ASM_ASET_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
 {
 	klr_aset_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_aset_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_ASET);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_aset_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_ASET);
 		op->opcode = 145;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -2471,11 +2471,11 @@ knh_code_t* KNH_ASM_ASET_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_s
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_ASETn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_intptr_t a3)
+knh_code_t* KNH_ASM_ASETn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_intptr_t a3)
 {
 	klr_asetn_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_asetn_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_ASETN);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_asetn_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_ASETN);
 		op->opcode = 146;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -2487,11 +2487,11 @@ knh_code_t* KNH_ASM_ASETn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_IASET_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
+knh_code_t* KNH_ASM_IASET_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
 {
 	klr_iaset_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_iaset_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_IASET);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_iaset_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_IASET);
 		op->opcode = 147;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -2503,11 +2503,11 @@ knh_code_t* KNH_ASM_IASET_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_IASETn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_intptr_t a3)
+knh_code_t* KNH_ASM_IASETn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_intptr_t a3)
 {
 	klr_iasetn_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_iasetn_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_IASETN);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_iasetn_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_IASETN);
 		op->opcode = 148;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -2519,11 +2519,11 @@ knh_code_t* KNH_ASM_IASETn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_FASET_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
+knh_code_t* KNH_ASM_FASET_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3)
 {
 	klr_faset_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_faset_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_FASET);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_faset_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_FASET);
 		op->opcode = 149;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -2535,11 +2535,11 @@ knh_code_t* KNH_ASM_FASET_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_FASETn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_intptr_t a3)
+knh_code_t* KNH_ASM_FASETn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_intptr_t a3)
 {
 	klr_fasetn_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_fasetn_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_FASETN);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_fasetn_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_FASETN);
 		op->opcode = 150;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_sfi_t)*/a2;
@@ -2551,11 +2551,11 @@ knh_code_t* KNH_ASM_FASETn_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1,knh_sfi_t a2,knh
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_INITCODE_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1)
+knh_code_t* KNH_ASM_INITCODE_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1)
 {
 	klr_initcode_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_initcode_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_INITCODE);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_initcode_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_INITCODE);
 		op->opcode = 151;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		DP(o)->prev_op = (knh_kode_t*)op;
@@ -2565,11 +2565,11 @@ knh_code_t* KNH_ASM_INITCODE_(Ctx *ctx, knh_Asm_t *o,knh_sfi_t a1)
 
 /* ------------------------------------------------------------------------ */
 
-knh_code_t* KNH_ASM_NOP_(Ctx *ctx, knh_Asm_t *o)
+knh_code_t* KNH_ASM_NOP_(Ctx *ctx, knh_Gamma_t *o)
 {
 	klr_nop_t *op = NULL;
-	if(!knh_Asm_isCancelled(o)) {
-		op = (klr_nop_t*)knh_Asm_asmmalloc(ctx, o, OPSIZE_NOP);
+	if(!knh_Gamma_isCancelled(o)) {
+		op = (klr_nop_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_NOP);
 		op->opcode = 152;
 		DP(o)->prev_op = (knh_kode_t*)op;
 	}
@@ -2582,14 +2582,14 @@ knh_code_t* KNH_ASM_NOP_(Ctx *ctx, knh_Asm_t *o)
 /* [label] */
 
 
-typedef void (*frewrite)(Ctx *ctx, knh_Asm_t *o, knh_code_t *pc_start, knh_kode_t *op);
+typedef void (*frewrite)(Ctx *ctx, knh_Gamma_t *o, knh_code_t *pc_start, knh_kode_t *op);
 
-void knh_rewrite_addr(Ctx *ctx, knh_Asm_t *o, knh_code_t *pc_start, knh_kode_t *op)
+void knh_rewrite_addr(Ctx *ctx, knh_Gamma_t *o, knh_code_t *pc_start, knh_kode_t *op)
 {
 	int offset = DP(o)->labels[op->a1].offset;
 	if(offset == -1) {
-		DBG_P("Asm!!: unknown Labelid=%d", op->a1);
-		knh_Asm_setCancelled(o, 1);
+		DBG_P("Gamma!!: unknown Labelid=%d", op->a1);
+		knh_Gamma_setCancelled(o, 1);
 	}else {
 		op->jumppc = pc_start + offset;
 		//DBG2_P("%p, op=%d, jmp=%p", op, op->opcode, op->jumpaddr);
@@ -2598,7 +2598,7 @@ void knh_rewrite_addr(Ctx *ctx, knh_Asm_t *o, knh_code_t *pc_start, knh_kode_t *
 
 /* ------------------------------------------------------------------------ */
 
-void knh_rewrite_NOP(Ctx *ctx, knh_Asm_t *o, knh_code_t *pc_start, knh_kode_t *op)
+void knh_rewrite_NOP(Ctx *ctx, knh_Gamma_t *o, knh_code_t *pc_start, knh_kode_t *op)
 {
 	//DBG2_P("%p, op=%d", op, op->opcode);
 }
@@ -2763,7 +2763,7 @@ static frewrite OPREWRITE[] = {
 
 /* ------------------------------------------------------------------------ */
 
-void knh_Asm_writeAddress(Ctx *ctx, knh_Asm_t *o, knh_code_t *pc_start)
+void knh_Gamma_writeAddress(Ctx *ctx, knh_Gamma_t *o, knh_code_t *pc_start)
 {
 	knh_code_t *pc = pc_start;
 	while(1) {

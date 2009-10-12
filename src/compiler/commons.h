@@ -85,7 +85,7 @@ extern "C" {
 #ifdef KNH_DBGMODE3
 #define SAFE_ASSERT(ctx, abr, c)  KNH_ASSERT(c)
 #else
-#define SAFE_ASSERT(ctx, abr, c)  if(!(c)) knh_Asm_assert(ctx, abr, c)
+#define SAFE_ASSERT(ctx, abr, c)  if(!(c)) knh_Gamma_assert(ctx, abr, c)
 #endif
 
 /* ------------------------------------------------------------------------ */

@@ -340,7 +340,7 @@ knh_Object_t *new_Object_init(Ctx *ctx, knh_flag_t flag, knh_class_t cid, int in
 		knh_stat_incUsedObjectSize(ctx, 1);
 		o->h.magic = KNH_OBJECT_MAGIC;
 		knh_Object_RCset(o, KNH_RCGC_INIT);
-		KNH_ASSERT_cid(cid);
+		DBG2_ASSERT_cid(cid);
 		knh_class_t bcid = ClassTable(cid).bcid;
 		o->h.bcid = bcid;
 		o->h.flag = ClassTable(cid).oflag | flag;

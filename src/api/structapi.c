@@ -146,7 +146,7 @@ void knh_ClassStruct_initField(Ctx *ctx, knh_ClassStruct_t *cs, knh_class_t self
 		Object *value = cf[i].value;
 		if(KNH_FLAG_IS(cf[i].flag, FLAG_ClassStruct_Property)) {
 			value = knh_Context_getProperty(ctx, (knh_Context_t*)ctx,
-				knh_String_tobytes((knh_String_t*)value));
+				__tobytes((knh_String_t*)value));
 			DBG2_P("type=%s%s object=%s", TYPEQN(cf[i].type), CLASSNo(value));
 		}
 #ifdef KNH_USING_UNBOXFIELD
@@ -196,7 +196,7 @@ void knh_ObjectField_init(Ctx *ctx, knh_ObjectField_t *of, int init)
 		while((offset = ClassTable(cid).offset) != 0) {
 			knh_ClassStruct_initField(ctx, ClassTable(cid).cstruct, of->h.cid, v + offset);
 			cid = ClassTable(cid).supcid;
-			KNH_ASSERT_cid(cid);
+			DBG2_ASSERT_cid(cid);
 		}
 		knh_ClassStruct_initField(ctx, ClassTable(cid).cstruct, of->h.cid, v + offset);
 		of->fields = v;
@@ -451,7 +451,7 @@ static int knh_String_compareTo(Ctx *ctx, knh_String_t *o, knh_String_t *o2)
 	else {
 		if(o->h.cid == o2->h.cid) {
 			knh_ClassSpec_t *u = knh_getClassSpec(ctx, o->h.cid);
-			return DP(u)->fscmp(u, knh_String_tobytes(o), knh_String_tobytes(o2));
+			return DP(u)->fscmp(u, __tobytes(o), __tobytes(o2));
 		}
 		return (int)(o - o2);
 	}
@@ -576,7 +576,7 @@ static MAPPER Range_Iterator(Ctx *ctx, knh_sfp_t *sfp);
 
 static void knh_Range_newClass(Ctx *ctx, knh_class_t cid)
 {
-	KNH_ASSERT_cid(cid);
+	DBG2_ASSERT_cid(cid);
 	knh_class_t p1 = ClassTable(cid).p1;
 	knh_class_t icid = knh_class_Iterator(ctx, p1);
 	DBG2_P("*** %s, %s", CLASSN(p1), CLASSN(icid));
@@ -624,7 +624,7 @@ static void knh_Array_traverse(Ctx *ctx, knh_Array_t *a, knh_ftraverse ftr)
 
 static void knh_Array_newClass(Ctx *ctx, knh_class_t cid)
 {
-	KNH_ASSERT_cid(cid);
+	DBG2_ASSERT_cid(cid);
 	knh_class_t p1 = ClassTable(cid).p1;
 	knh_class_t icid = knh_class_Iterator(ctx, p1);
 	DBG2_P("*** %s, %s", CLASSN(p1), CLASSN(icid));
@@ -761,7 +761,7 @@ static MAPPER Iterator_Iterator(Ctx *ctx, knh_sfp_t *sfp)
 static void knh_Iterator_newClass(Ctx *ctx, knh_class_t cid)
 {
 	if(cid != CLASS_Iterator) {
-		KNH_ASSERT_cid(cid);
+		DBG2_ASSERT_cid(cid);
 		DBG2_P("*** %s", CLASSN(cid));
 		knh_addMapperFunc(ctx, FLAG_Mapper_Iteration, CLASS_Iterator, cid, Iterator_Iterator, KNH_NULL);
 	}
@@ -994,7 +994,7 @@ static void knh_Class_newClass(Ctx *ctx, knh_class_t cid)
 static knh_String_t *knh_Class_getkey(Ctx *ctx,knh_sfp_t *lsfp)
 {
 	knh_Class_t *c = (knh_Class_t*)lsfp[0].o;
-	KNH_ASSERT_cid(c->cid);
+	DBG2_ASSERT_cid(c->cid);
 	return ClassTable(c->cid).lname;
 }
 
@@ -2067,19 +2067,19 @@ Term *knh_Stmt_done(Ctx *ctx, knh_Stmt_t *o)
 }
 
 /* ======================================================================== */
-/* Asm */
+/* Gamma */
 
-#define knh_Asm_init_ NULL
-#define knh_Asm_copy NULL
-#define knh_Asm_traverse_ NULL
-#define knh_Asm_compareTo NULL
-#define knh_Asm_hashCode NULL
-#define knh_Asm_newClass NULL
-#define knh_Asm_getkey NULL
+#define knh_Gamma_init_ NULL
+#define knh_Gamma_copy NULL
+#define knh_Gamma_traverse_ NULL
+#define knh_Gamma_compareTo NULL
+#define knh_Gamma_hashCode NULL
+#define knh_Gamma_newClass NULL
+#define knh_Gamma_getkey NULL
 
-static void knh_Asm_init(Ctx *ctx, knh_Asm_t *abr, int init)
+static void knh_Gamma_init(Ctx *ctx, knh_Gamma_t *abr, int init)
 {
-	knh_Asm_struct *b = DP(abr);
+	knh_Gamma_struct *b = DP(abr);
 	b->flag = 0;
 	b->this_cid = CLASS_Object;
 
@@ -2088,22 +2088,17 @@ static void knh_Asm_init(Ctx *ctx, knh_Asm_t *abr, int init)
 	b->level = 0;
 
 	knh_intptr_t i;
-	b->gamma = (knh_cfield_t*)KNH_MALLOC(ctx, KONOHA_LOCALSIZE * sizeof(knh_cfield_t));
-	knh_bzero(b->gamma, KONOHA_LOCALSIZE * sizeof(knh_cfield_t));
-	b->gamma_size = 0;
+	b->gfields = (knh_cfield_t*)KNH_MALLOC(ctx, KONOHA_LOCALSIZE * sizeof(knh_cfield_t));
+	knh_bzero(b->gfields, KONOHA_LOCALSIZE * sizeof(knh_cfield_t));
+	b->gsize = 0;
 	for(i = 0; i < KONOHA_LOCALSIZE; i++) {
-		b->gamma[i].flag  = 0;
-		b->gamma[i].type  = TYPE_void;
-		b->gamma[i].fn    = FIELDN_NONAME;
-		b->gamma[i].value = NULL;
+		b->gfields[i].flag  = 0;
+		b->gfields[i].type  = TYPE_void;
+		b->gfields[i].fn    = FIELDN_NONAME;
+		b->gfields[i].value = NULL;
 	}
 	b->stack = 0;
 	b->globalidx = -1;
-
-	b->xflag = 0;
-	b->xrtype = 0;
-	b->xstack_size = 0;
-	KNH_INITv(b->xmtd, KNH_NULL);
 
 	b->regs = (knh_asmreg_t*)KNH_MALLOC(ctx, KNH_ASM_REGMAX * sizeof(knh_asmreg_t));
 	knh_bzero(b->regs, KNH_ASM_REGMAX * sizeof(knh_asmreg_t));
@@ -2117,8 +2112,6 @@ static void knh_Asm_init(Ctx *ctx, knh_Asm_t *abr, int init)
 	KNH_INITv(b->lstacks, new_Array(ctx, CLASS_String, 8));
 	KNH_INITv(b->finallyStmt, KNH_NULL);
 
-	b->uri = 0;
-	b->line = 0;
 	KNH_INITv(b->elf, new_Bytes(ctx, 4096));
 	KNH_INITv(b->dwarf, new_Bytes(ctx, 1024));
 
@@ -2128,20 +2121,20 @@ static void knh_Asm_init(Ctx *ctx, knh_Asm_t *abr, int init)
 	KNH_INITv(b->exportsMethods, KNH_NULL);
 }
 
-static void knh_Asm_traverse(Ctx *ctx, knh_Asm_t *abr, knh_ftraverse ftr)
+static void knh_Gamma_traverse(Ctx *ctx, knh_Gamma_t *abr, knh_ftraverse ftr)
 {
-	knh_Asm_struct *b = DP(abr);
+	knh_Gamma_struct *b = DP(abr);
 	size_t i;
 	for(i = 0; i < KONOHA_LOCALSIZE; i++) {
-		if(b->gamma[i].value != NULL) {
-			ftr(ctx, b->gamma[i].value);
+		if(b->gfields[i].value != NULL) {
+			ftr(ctx, b->gfields[i].value);
 		}
 	}
 	for(i = 0; i < b->labelcapacity; i++) {
 		ftr(ctx, UP(b->labels[i].tklabel));
 	}
 	if(IS_SWEEP(ftr)) {
-		KNH_FREE(ctx, b->gamma, KONOHA_LOCALSIZE * sizeof(knh_cfield_t));
+		KNH_FREE(ctx, b->gfields, KONOHA_LOCALSIZE * sizeof(knh_cfield_t));
 		if(b->labels != NULL) {
 			KNH_FREE(ctx, b->labels, b->labelcapacity * sizeof(knh_labeltbl_t));
 		}
@@ -2151,7 +2144,6 @@ static void knh_Asm_traverse(Ctx *ctx, knh_Asm_t *abr, knh_ftraverse ftr)
 
 	ftr(ctx, UP(b->ns));
 	ftr(ctx, UP(b->mtd));
-	ftr(ctx, UP(b->xmtd));
 	ftr(ctx, UP(b->elf));
 	ftr(ctx, UP(b->dwarf));
 
@@ -2424,7 +2416,7 @@ void knh_loadFieldNameData(Ctx *ctx, knh_FieldNameData_t *data)
 		knh_String_t *name = T__(data->name);
 #if defined(KNH_DBGMODE2)
 		knh_fieldn_t fn = (knh_fieldn_t)knh_DictIdx_add__fast(ctx, DP(ctx->sys)->FieldNameDictIdx, name);
-			//DEBUG("'%s' %d %d", knh_String_tochar(name), fn, fn2);
+			//DEBUG("'%s' %d %d", __tochar(name), fn, fn2);
 		KNH_ASSERT(fn == data->fn);
 #else
 		knh_DictIdx_add__fast(ctx, DP(ctx->sys)->FieldNameDictIdx, name);
@@ -2479,7 +2471,7 @@ static
 void knh_loadMethodData(Ctx *ctx, knh_MethodData_t *data, knh_MethodField_t **pools)
 {
 	while(data->func != NULL) {
-		KNH_ASSERT_cid(data->cid);
+		DBG2_ASSERT_cid(data->cid);
 		knh_Method_t *mtd = new_Method(ctx, data->flag, data->cid, data->mn, data->func);
 		DP(mtd)->code  = data->optfunc;
 		DP(mtd)->delta = data->delta;

@@ -73,7 +73,7 @@ extern "C" {
 #define p_double(a)      ((double)(a).fvalue)
 #endif
 #define p_bool(a)        ((a).bvalue)
-#define p_char(a)        (knh_String_tochar(a.s))
+#define p_char(a)        (__tochar(a.s))
 #define p_bytes(a)       (knh_Bytes_tobytes(a.s))
 #define p_cid(a)         ((a.c)->cid)
 #define ARG_Object_cid(a)  knh_Object_cid(a.o)

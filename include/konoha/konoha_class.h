@@ -152,7 +152,7 @@ typedef struct knh_Bytes_t {
 #define knh_Bytes_size(o)      (o)->size
 #define knh_Bytes_value(o)     (o)->buf
 #define knh_Bytes_last(o)      ((o)->buf + (o)->size)
-#define knh_Bytes_tochar(b)  (char*)knh_Bytes_value(b)
+#define knh_Bytes__tochar(b)  (char*)knh_Bytes_value(b)
 #define KNH_SIZE(v)         knh_size(v)
 
 /* ------------------------------------------------------------------------ */
@@ -1096,7 +1096,7 @@ typedef struct knh_Token_t {
 	knh_flag_t flag; knh_token_t  tt;
 } knh_Token_t;
 
-#define sToken(o)  knh_Token_tochar(ctx, o)
+#define sToken(o)  knh_Token__tochar(ctx, o)
 
 /* ------------------------------------------------------------------------ */
 
@@ -1213,14 +1213,16 @@ typedef struct {
 	}\
 
 /* ------------------------------------------------------------------------ */
-//## @Struct @Private class Asm Object;
-//## flag Asm Cancelled  0 DP(%s)->flag is set * *;
-//## flag Asm PROCEED    1 DP(%s)->flag has found * *;
-//## flag Asm RETURN     2 DP(%s)->flag has found * *;
-//## flag Asm YEILD      3 DP(%s)->flag has found * *;
-//## flag Asm FIELD      4 DP(%s)->flag has found * *;
-//## flag Asm STACK      5 DP(%s)->flag has found * *;
-//## flag Asm SCRIPT     6 DP(%s)->flag has found * *;
+//## @Struct @Private class Gamma Object;
+//## flag Gamma Cancelled  0 DP(%s)->flag is  set   * *;
+//## flag Gamma PROCEED    1 DP(%s)->flag has found * *;
+//## flag Gamma RETURN     2 DP(%s)->flag has found * *;
+//## flag Gamma YEILD      3 DP(%s)->flag has found * *;
+//## flag Gamma FIELD      4 DP(%s)->flag has found * *;
+//## flag Gamma STACK      5 DP(%s)->flag has found * *;
+//## flag Gamma SCRIPT     6 DP(%s)->flag has found * *;
+
+//## flag Gamma Data       0 DP(%s)->eflag is set   * *;
 
 
 #ifndef KONOHA_LOCALSIZE
@@ -1240,30 +1242,28 @@ typedef struct {
 	struct knh_Token_t *tklabel;
 } knh_labeltbl_t ;
 
-typedef knh_uint64_t  knh_rtti_t;
-
-typedef struct knh_Asm {
+typedef struct {
 	knh_flag_t             flag;
-	knh_class_t            this_cid;
+	knh_flag_t             eflag;
 	struct knh_NameSpace_t *ns;
 	struct knh_Method_t    *mtd;
+	knh_class_t            this_cid;
 	knh_type_t             rtype;
-	knh_ushort_t           gamma_size;
-	knh_cfield_t*          gamma;   /* type environment */
 
-	knh_rtti_t             nnrtti0;
-	knh_rtti_t             nnrtti;
+	/*stack*/
+	knh_ushort_t           goffset;
+	knh_ushort_t           gsize;
+	knh_cfield_t*          gfields;   /* type environment */
 
 	int                    level; /* 0.3 */
 	int stack;
 	int globalidx;
 	int llstep;
 
-	/* closure */
-	knh_flag_t             xflag;
-	knh_type_t             xrtype;
-	knh_ushort_t           xstack_size;
-	struct knh_Method_t   *xmtd;
+//	/* closure */
+//	knh_flag_t             xflag;
+//	knh_type_t             xrtype;
+//	struct knh_Method_t   *xmtd;
 
 	/* regisiter */
 	knh_asmreg_t *regs;
@@ -1278,8 +1278,8 @@ typedef struct knh_Asm {
 	knh_Array_t*          lstacks;
 	struct knh_Stmt_t*    finallyStmt;
 
-	knh_uri_t            uri;
-	knh_sline_t          line;
+//	knh_uri_t            uri;
+//	knh_sline_t          line;
 	struct knh_Bytes_t*  elf;
 	struct knh_Bytes_t*  dwarf;
 	knh_kode_t          *prev_op;
@@ -1288,15 +1288,29 @@ typedef struct knh_Asm {
 	struct knh_DictMap_t  *symbolDictMap;
 	struct knh_Array_t    *constPools;
 	struct knh_Array_t    *exportsMethods;
-} knh_Asm_struct;
+} knh_Gamma_struct;
 
-typedef struct knh_Asm_t {
+typedef struct knh_Gamma_t {
 	knh_hObject_t h;
-	knh_Asm_struct *b;
+	knh_Gamma_struct *b;
 	knh_uri_t uri; knh_ushort_t line;
-} knh_Asm_t;
+} knh_Gamma_t;
 
-#define knh_Context_getAsm(ctx)    (ctx)->abr
+#define knh_Context_getGamma(ctx)    (ctx)->abr
+
+/* ------------------------------------------------------------------------ */
+
+typedef struct {
+	knh_hObject_t h;
+	knh_code_t *code;
+	knh_uri_t uri;      knh_ushort_t line;
+	knh_short_t opcode;
+	union {
+		knh_labelid_t label;
+		knh_ushort_t size;
+	};
+} knh_KLRInst_t;
+
 
 /* ------------------------------------------------------------------------ */
 //## @Struct class KLRCode Object;

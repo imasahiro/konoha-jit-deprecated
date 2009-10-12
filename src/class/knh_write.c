@@ -79,7 +79,7 @@ KNHAPI(void) knh_println(Ctx *ctx, knh_OutputStream_t *w, knh_bytes_t s)
 
 KNHAPI(void) knh_write_EOL(Ctx *ctx, knh_OutputStream_t *w)
 {
-	knh_OutputStream_write(ctx, w, knh_String_tobytes(DP(w)->NEWLINE));
+	knh_OutputStream_write(ctx, w, __tobytes(DP(w)->NEWLINE));
 	if(knh_OutputStream_isAutoFlush(w)) {
 		knh_OutputStream_flush(ctx, w);
 	}
@@ -90,7 +90,7 @@ KNHAPI(void) knh_write_EOL(Ctx *ctx, knh_OutputStream_t *w)
 
 KNHAPI(void) knh_write_TAB(Ctx *ctx, knh_OutputStream_t *w)
 {
-	knh_OutputStream_write(ctx, w, knh_String_tobytes(DP(w)->TAB));
+	knh_OutputStream_write(ctx, w, __tobytes(DP(w)->TAB));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -105,7 +105,7 @@ KNHAPI(void) knh_write_BOL(Ctx *ctx, knh_OutputStream_t *w)
 		//knh_write(ctx, w, STEXT("/*"));
 		//knh_write_ifmt(ctx, w, KNH_INT_FMT, i);
 		//knh_write(ctx, w, STEXT("*/"));
-		knh_OutputStream_write(ctx, w, knh_String_tobytes(DP(w)->TAB));
+		knh_OutputStream_write(ctx, w, __tobytes(DP(w)->TAB));
 	}
 	knh_OutputStream_setBOL(w, 0);
 }
@@ -207,8 +207,8 @@ void knh_write_cid(Ctx *ctx, knh_OutputStream_t *w, knh_class_t cid)
 
 void knh_write_lcid(Ctx *ctx, knh_OutputStream_t *w, knh_class_t cid)
 {
-	KNH_ASSERT_cid(cid);
-	knh_write(ctx, w, knh_String_tobytes(ClassTable(cid).lname));
+	DBG2_ASSERT_cid(cid);
+	knh_write(ctx, w, __tobytes(ClassTable(cid).lname));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -244,7 +244,7 @@ void knh_write_mn(Ctx *ctx, knh_OutputStream_t *w, knh_type_t rtype, knh_methodn
 void knh_write_type_(Ctx *ctx, knh_OutputStream_t *w, knh_type_t type, int isLongName)
 {
 	knh_class_t cid = CLASS_type(type);
-	KNH_ASSERT_cid(cid);
+	DBG2_ASSERT_cid(cid);
 	if(type == TYPE_void) {
 		knh_write(ctx, w, STEXT("void"));
 	}

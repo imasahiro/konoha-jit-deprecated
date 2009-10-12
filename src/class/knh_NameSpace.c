@@ -83,7 +83,7 @@ knh_NameSpace_t *knh_NameSpace_getImportedNameSpace(Ctx *ctx, knh_NameSpace_t *n
 knh_Script_t *knh_NameSpace_getScript(Ctx *ctx, knh_NameSpace_t *ns)
 {
 	if(IS_NULL(DP(ns)->script)) {
-		KNH_SETv(ctx, DP(ns)->script, new_Script(ctx, knh_String_tobytes(DP(ns)->nsname)));
+		KNH_SETv(ctx, DP(ns)->script, new_Script(ctx, __tobytes(DP(ns)->nsname)));
 	}
 	return DP(ns)->script;
 }
@@ -169,7 +169,7 @@ knh_bytes_t knh_NameSpace_firstType(Ctx *ctx, knh_NameSpace_t *o, knh_bytes_t na
 void knh_NameSpace_setLocalName(Ctx *ctx, knh_NameSpace_t *o, knh_class_t cid)
 {
 	KNH_ASSERT(IS_NameSpace(o));
-	KNH_ASSERT_cid(cid);
+	DBG2_ASSERT_cid(cid);
 	knh_DictSet_set(ctx, DP(o)->name2cidDictSet, ClassTable(cid).sname, (knh_uintptr_t)(cid+1));
 }
 
@@ -243,7 +243,7 @@ knh_class_t knh_NameSpace_getcid(Ctx *ctx, knh_NameSpace_t *o, knh_bytes_t name)
 			if(bcid == CLASS_unknown) {
 				return CLASS_unknown;
 			}
-			KNH_ASSERT_cid(bcid);
+			DBG2_ASSERT_cid(bcid);
 			if(!knh_class_isGenerics(bcid)) return bcid;
 			knh_class_t p1 = CLASS_Any, p2 = ClassTable(bcid).p2;
 			knh_bytes_t nsub = knh_NameSpace_firstType(ctx, o, knh_bytes_last(name, loc+1), &p1);
@@ -286,16 +286,16 @@ knh_class_t knh_NameSpace_getcid(Ctx *ctx, knh_NameSpace_t *o, knh_bytes_t name)
 
 char* knh_Context_CLASSN(Ctx *ctx, knh_class_t cid)
 {
-	KNH_ASSERT_cid(cid);
+	DBG2_ASSERT_cid(cid);
 	knh_String_t *name = ClassTable(cid).lname;
 	if(knh_String_startsWith(name, STEXT("konoha."))) {
-		return knh_String_tochar(ClassTable(cid).sname);
+		return __tochar(ClassTable(cid).sname);
 	}
 	else {
 		knh_uintptr_t cid2 =
-			knh_DictSet_get__b(DP(ctx->share->mainns)->name2cidDictSet, knh_String_tobytes(ClassTable(cid).sname));
+			knh_DictSet_get__b(DP(ctx->share->mainns)->name2cidDictSet, __tobytes(ClassTable(cid).sname));
 		if(cid2 > 0 && cid == cid2 - 1) {
-			return knh_String_tochar(ClassTable(cid).sname);
+			return __tochar(ClassTable(cid).sname);
 		}
 		return CLASSN(cid);
 	}
@@ -313,7 +313,7 @@ void knh_NameSpace_importClass(Ctx *ctx, knh_NameSpace_t *o, knh_bytes_t pkgname
 		if(ClassTable(i).sname == NULL) continue;
 		KNH_ASSERT(IS_bString(ClassTable(i).lname));
 		if(knh_class_isPrivate(i)) continue;
-		knh_bytes_t cname = knh_String_tobytes(ClassTable(i).lname);
+		knh_bytes_t cname = __tobytes(ClassTable(i).lname);
 		if(knh_bytes_startsWith(cname, pkgname)
 				&& cname.buf[pkgname.len] == '.'
 					&& isupper(cname.buf[pkgname.len+1])) {
@@ -388,7 +388,7 @@ void knh_NameSpace_addConst(Ctx *ctx, knh_NameSpace_t *ns, knh_String_t *name, O
 {
 	DBG2_ASSERT(IS_NameSpace(ns));
 	DBG2_ASSERT(IS_String(name));
-	knh_bytes_t t = knh_String_tobytes(name);
+	knh_bytes_t t = __tobytes(name);
 	knh_index_t loc = knh_bytes_rindex(t, '.');
 	if(loc > 0) {
 		knh_class_t cid = knh_NameSpace_getcid(ctx, ns, knh_bytes_first(t, loc));
@@ -434,7 +434,7 @@ knh_NameSpace_getFuncClass(Ctx *ctx, knh_NameSpace_t *o, knh_methodn_t mn)
 
 	}
 	else {
-		knh_bytes_t name = knh_String_tobytes(knh_getFieldName(ctx, METHODN_TOFIELDN(mn)));
+		knh_bytes_t name = __tobytes(knh_getFieldName(ctx, METHODN_TOFIELDN(mn)));
 		if(IS_NOTNULL(DP(o)->func2cidDictSet)) {
 			knh_uintptr_t cid = knh_DictSet_get__b(DP(o)->func2cidDictSet, name);
 			if(cid != 0) {

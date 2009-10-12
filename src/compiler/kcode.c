@@ -133,14 +133,14 @@ int knh_Method_pctoline(knh_Method_t *mtd, knh_code_t *pc)
 
 /* ------------------------------------------------------------------------ */
 
-void knh_Asm_loadCompiledMethod(Ctx *ctx, knh_Asm_t *abr)
+void knh_Gamma_loadCompiledMethod(Ctx *ctx, knh_Gamma_t *abr)
 {
 
 }
 
 /* ------------------------------------------------------------------------ */
 
-knh_fmethod knh_Asm_getCompiledMethod(Ctx *ctx, knh_Asm_t *abr, knh_bytes_t cname, knh_bytes_t mname)
+knh_fmethod knh_Gamma_getCompiledMethod(Ctx *ctx, knh_Gamma_t *abr, knh_bytes_t cname, knh_bytes_t mname)
 {
 	return NULL;
 }

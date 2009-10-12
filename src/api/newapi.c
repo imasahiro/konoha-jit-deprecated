@@ -60,8 +60,8 @@ void knh_ObjectField_setValue(Ctx *ctx, knh_ObjectField_t *of, knh_index_t idx, 
 	else {
 		knh_class_t tcid = CLASS_type(type);
 		knh_class_t scid = knh_Object_cid(value);
-		KNH_ASSERT_cid(tcid);
-		KNH_ASSERT_cid(scid);
+		DBG2_ASSERT_cid(tcid);
+		DBG2_ASSERT_cid(scid);
 		if(scid == tcid || knh_class_instanceof(ctx, scid, tcid)) {
 			goto L_SET;
 		}
@@ -109,14 +109,14 @@ static METHOD Object_new__dictmap(Ctx *ctx, knh_sfp_t *sfp)
 	size_t i;
 	for(i = 0; i < ac; i+= 2) {
 		if(IS_bString(v[i].s)) {
-			knh_fieldn_t fn = knh_getfnq(ctx, knh_String_tobytes(v[i].s), FIELDN_NONAME);
+			knh_fieldn_t fn = knh_getfnq(ctx, __tobytes(v[i].s), FIELDN_NONAME);
 			if(fn == FIELDN_NONAME) continue;
 			knh_index_t idx = knh_Class_queryField(ctx, cid, fn);
 			if(idx == -1) continue;
 			knh_cfield_t *cf = knh_Class_fieldAt(ctx, cid, idx);
 			knh_type_t type = knh_pmztype_totype(ctx, cf->type, cid);
 			if(type == TYPE_void) continue;
-			DBG2_P("[%d] %s%s %s", (int)(idx), TYPEQN(type), knh_String_tochar(v[i].s));
+			DBG2_P("[%d] %s%s %s", (int)(idx), TYPEQN(type), __tochar(v[i].s));
 			knh_ObjectField_setValue(ctx, of, idx, type, v[i+1].o);
 		}
 	}
@@ -151,7 +151,7 @@ static METHOD String_new(Ctx *ctx, knh_sfp_t *sfp)
 		s = new_String(ctx, knh_Bytes_tobytes(sfp[1].ba), NULL);
 	}
 	else {
-		knh_BytesConv_t *bc = new_BytesConv__in(ctx, knh_String_tochar(sfp[2].s));
+		knh_BytesConv_t *bc = new_BytesConv__in(ctx, __tochar(sfp[2].s));
 		KNH_SETv(ctx, sfp[3].o, bc);
 		s = new_String__bconv(ctx, knh_Bytes_tobytes(sfp[1].ba), bc);
 	}
@@ -165,7 +165,7 @@ static
 METHOD Regex_new(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_Regex_t *o = (knh_Regex_t*)sfp[0].o;
-	knh_bytes_t p = knh_String_tobytes(sfp[1].s);
+	knh_bytes_t p = __tobytes(sfp[1].s);
 	knh_index_t loc = knh_bytes_index(p, ':');
 	KNH_SETv(ctx, o->pattern, sfp[1].s);
 	if(loc == -1) {
@@ -177,7 +177,7 @@ METHOD Regex_new(Ctx *ctx, knh_sfp_t *sfp)
 	o->reg = o->df->regmalloc(ctx);
 	{
 		char *ptn = (char*)(knh_bytes_last(p, loc+1).buf);
-		char *opt = IS_NULL(sfp[2].o) ? "" : knh_String_tochar(sfp[2].s);
+		char *opt = IS_NULL(sfp[2].o) ? "" : __tochar(sfp[2].s);
 		o->df->regcomp(ctx, o->reg, ptn, opt);
 	}
 	KNH_RETURN(ctx, sfp, sfp[0].o);
@@ -479,7 +479,7 @@ static METHOD Exception_new(Ctx *ctx, knh_sfp_t *sfp)
 	knh_write_char(ctx, cwb->w, "Exception!!");
 	if(IS_NOTNULL(sfp[1].o)) {
 		knh_write_char(ctx, cwb->w, ": ");
-		knh_write(ctx, cwb->w, knh_String_tobytes(sfp[1].s));
+		knh_write(ctx, cwb->w, __tobytes(sfp[1].s));
 	}
 	KNH_SETv(ctx, DP(o)->msg, knh_cwb_newString(ctx, cwb));
 	KNH_SETv(ctx, DP(o)->bag, sfp[2].o);

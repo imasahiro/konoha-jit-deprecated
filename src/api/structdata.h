@@ -345,7 +345,7 @@ static char * StructNameData[] = {
 	"Context",
 	"Token",
 	"Stmt",
-	"Asm",
+	"Gamma",
 	"KLRCode",
 	NULL
 };
@@ -792,14 +792,14 @@ static knh_StructData_t StructData[] = {
 		knh_Stmt_getkey
 	},
 	{
-		"Asm", STRUCT_Asm, FLAG_Asm, sizeof(knh_Asm_struct),
-		(knh_fstruct_init)knh_Asm_init,
-		(knh_fstruct_copy)knh_Asm_copy, 
-		(knh_fstruct_traverse)knh_Asm_traverse,
-		(knh_fstruct_compareTo)knh_Asm_compareTo,
-		(knh_fstruct_hashCode)knh_Asm_hashCode,
-		(knh_fstruct_newClass)knh_Asm_newClass,
-		knh_Asm_getkey
+		"Gamma", STRUCT_Gamma, FLAG_Gamma, sizeof(knh_Gamma_struct),
+		(knh_fstruct_init)knh_Gamma_init,
+		(knh_fstruct_copy)knh_Gamma_copy, 
+		(knh_fstruct_traverse)knh_Gamma_traverse,
+		(knh_fstruct_compareTo)knh_Gamma_compareTo,
+		(knh_fstruct_hashCode)knh_Gamma_hashCode,
+		(knh_fstruct_newClass)knh_Gamma_newClass,
+		knh_Gamma_getkey
 	},
 	{
 		"KLRCode", STRUCT_KLRCode, FLAG_KLRCode, sizeof(knh_KLRCode_struct),
@@ -947,8 +947,8 @@ static knh_ClassData_t ClassData[] = {
 	{"Stmt", CLASS_Stmt, FLAG_Stmt, 
 	   CLASS_Stmt, CLASS_Object, 0, 2, 0,
 	   TYPE_void, TYPE_void, TYPE_void, TYPE_void},
-	{"Asm", CLASS_Asm, FLAG_Asm, 
-	   CLASS_Asm, CLASS_Object, 0, 0, 0,
+	{"Gamma", CLASS_Gamma, FLAG_Gamma, 
+	   CLASS_Gamma, CLASS_Object, 0, 0, 0,
 	   TYPE_void, TYPE_void, TYPE_void, TYPE_void},
 	{"KLRCode", CLASS_KLRCode, FLAG_KLRCode, 
 	   CLASS_KLRCode, CLASS_Object, 0, 0, 0,
@@ -1630,7 +1630,7 @@ static knh_MethodData_t MethodData[] = {
 	{Object_hashCode, FLAG_Method_NullBase, CLASS_Object, METHODN_hashCode, 0, 26, NULL},
 	{Object_isNull, FLAG_Method_Const|FLAG_Method_Hidden|FLAG_Method_NullBase, CLASS_Object, METHODN_isNull, 0, 27, NULL},
 	{Object_isNotNull, FLAG_Method_Const|FLAG_Method_Hidden|FLAG_Method_NullBase, CLASS_Object, METHODN_isNotNull, 0, 27, NULL},
-	{Object_getKey, FLAG_Method_Const, CLASS_Object, METHODN_getKey, 0, 76, NULL},
+	{Object_getKey, FLAG_Method_Const|FLAG_Method_Virtual, CLASS_Object, METHODN_getKey, 0, 76, NULL},
 	{Class_domain, FLAG_Method_Hidden, CLASS_Class, METHODN_domain, 0, 77, NULL},
 	{Method_isAbstract, FLAG_Method_Const, CLASS_Method, METHODN_isAbstract, 0, 27, NULL},
 	{Method_getName, FLAG_Method_Const, CLASS_Method, METHODN_getName, 0, 76, NULL},

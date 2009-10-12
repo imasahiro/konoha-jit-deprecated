@@ -40,7 +40,7 @@ extern "C" {
 
 Object *knh_getClassConstNULL(Ctx *ctx, knh_class_t cid, knh_bytes_t name)
 {
-	KNH_ASSERT_cid(cid);
+	DBG2_ASSERT_cid(cid);
 	if(ClassTable(cid).constPool == NULL) return NULL;
 	knh_DictMap_t *cmap = ClassTable(cid).constPool;
 	Object *value = NULL;
@@ -57,7 +57,7 @@ Object *knh_getClassConstNULL(Ctx *ctx, knh_class_t cid, knh_bytes_t name)
 
 int knh_addClassConst(Ctx *ctx, knh_class_t cid, knh_String_t* name, Object *value)
 {
-	KNH_ASSERT_cid(cid);
+	DBG2_ASSERT_cid(cid);
 	if(ClassTable(cid).constPool == NULL) {
 		knh_ClassTable_t *t = pClassTable(cid);
 		KNH_INITv(t->constPool, new_DictMap0(ctx, 0));
@@ -65,7 +65,7 @@ int knh_addClassConst(Ctx *ctx, knh_class_t cid, knh_String_t* name, Object *val
 	knh_DictMap_t *cmap = ClassTable(cid).constPool;
 	KNH_ASSERT(IS_DictMap(cmap));
 	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
-	int res = knh_DictMap_index(cmap, knh_String_tobytes(name));
+	int res = knh_DictMap_index(cmap, __tobytes(name));
 	if(res != -1) return 0;
 	knh_DictMap_append(ctx, cmap, name, value);
 	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
@@ -83,8 +83,8 @@ void knh_addConstData(Ctx *ctx, char *dname, Object *value)
 	knh_String_t *name = T__(dname + (loc+1));
 	knh_class_t cid = CLASS_Any;
 	if(loc != -1) {
-		if(ctx->abr != NULL && IS_Asm(ctx->abr)) {
-			DBG2_P("nsname=%s", knh_String_tochar(DP(DP(ctx->abr)->ns)->nsname));
+		if(ctx->abr != NULL && IS_Gamma(ctx->abr)) {
+			DBG2_P("nsname=%s", __tochar(DP(DP(ctx->abr)->ns)->nsname));
 			cid = knh_NameSpace_getcid(ctx, DP(ctx->abr)->ns, knh_bytes_first(n, loc));
 		}
 		else {
@@ -481,7 +481,7 @@ knh_uri_t knh_cwb_getResourceId(Ctx *ctx, knh_cwb_t *cwb)
 		if(idx == -1) {
 			knh_String_t *s = knh_cwb_newString(ctx, cwb);
 			idx = knh_DictIdx_add__fast(ctx, DP(ctx->sys)->ResourceDictIdx, s);
-			t = knh_String_tobytes(s);
+			t = __tobytes(s);
 			knh_cwb_write(ctx, cwb, t);
 		}
 		uri = (knh_uri_t)idx;

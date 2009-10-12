@@ -45,7 +45,7 @@ extern "C" {
 
 static MAPPER String_Boolean(Ctx *ctx, knh_sfp_t *sfp)
 {
-	knh_bytes_t t = knh_String_tobytes(sfp[0].s);
+	knh_bytes_t t = __tobytes(sfp[0].s);
 	int b = (knh_bytes_equalsIgnoreCase(t, STEXT("true")) ||
 				knh_bytes_equalsIgnoreCase(t, STEXT("yes")));
 	KNH_MAPPED_Boolean(ctx, sfp, b);
@@ -69,7 +69,7 @@ static MAPPER Float_Int(Ctx *ctx, knh_sfp_t *sfp)
 static MAPPER String_Int(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_int_t v = 0;
-	if(knh_bytes_parseint(knh_String_tobytes(sfp[0].s), &v)) {
+	if(knh_bytes_parseint(__tobytes(sfp[0].s), &v)) {
 		KNH_MAPPED_Int(ctx, sfp, v);
 	}
 	KNH_MAPPED(ctx, sfp, KNH_NULL);
@@ -97,7 +97,7 @@ static MAPPER String_Float(Ctx *ctx, knh_sfp_t *sfp)
 #else 
 	knh_float_t f = 0;
 #endif
-	if(knh_bytes_parsefloat(knh_String_tobytes(sfp[0].s), &f)) {
+	if(knh_bytes_parsefloat(__tobytes(sfp[0].s), &f)) {
 		KNH_MAPPED_Float(ctx, sfp, f);
 	}
 	else {
@@ -177,7 +177,7 @@ static MAPPER Bytes_String(Ctx *ctx, knh_sfp_t *sfp)
 static MAPPER String_Bytes(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_Bytes_t *b = new_Bytes(ctx, knh_String_strlen(sfp[0].s) + 1);
-	knh_Bytes_write(ctx, b, knh_String_tobytes(sfp[0].s));
+	knh_Bytes_write(ctx, b, __tobytes(sfp[0].s));
 	KNH_MAPPED(ctx, sfp, b);
 }
 

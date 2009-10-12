@@ -756,7 +756,7 @@ char *knh_rl_name(const char *text, int state)
 			knh_DictMap_sort(symbolDictMap);
 		}
 		for(; index < knh_DictMap_size(symbolDictMap); ) {
-			char *name = knh_String_tochar(knh_DictMap_keyAt(symbolDictMap, index));
+			char *name = __tochar(knh_DictMap_keyAt(symbolDictMap, index));
 			index++;
 			if (strncmp(name, (char*)t.buf, t.len) == 0) {
 				return (dupstr(name));
@@ -771,7 +771,7 @@ char *knh_rl_name(const char *text, int state)
 static
 void knh_Context_initSymbolTable(Ctx *ctx)
 {
-	knh_Context_initAsm(ctx);
+	knh_Context_initGamma(ctx);
 	knh_DictMap_t *symbolDictMap = DP((ctx)->abr)->symbolDictMap;
 	int i, j;
 	for(i = 0; i < KNH_TCLASS_SIZE; i++) {
@@ -904,7 +904,7 @@ void knh_clearScriptLine(Ctx *ctx)
 //				w = new_FileOutputStream(ctx, B(buff), "w", 0);
 //				KNH_LPUSH(ctx, w);
 //				for(i = 0; i < knh_Array_size(ctx->lines); i++) {
-//					knh_bytes_t line = knh_String_tobytes((knh_String_t*)knh_Array_n(ctx->lines, i));
+//					knh_bytes_t line = __tobytes((knh_String_t*)knh_Array_n(ctx->lines, i));
 //					if(knh_bytes_startsWith(line, STEXT("man ")) || knh_bytes_startsWith(line, STEXT("dump "))) {
 //						knh_write(ctx, w, STEXT("// "));
 //					}

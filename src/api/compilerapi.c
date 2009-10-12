@@ -59,16 +59,16 @@ void knh_Token__s(Ctx *ctx, knh_Token_t *o, knh_OutputStream_t *w, knh_String_t 
 	}else if(IS_String(DP(o)->text)) {
 		if(SP(o)->tt == TT_STR) {
 			knh_putc(ctx, w, '"');
-			knh_write_char(ctx, w, knh_String_tochar(DP(o)->text));
+			knh_write_char(ctx, w, __tochar(DP(o)->text));
 			knh_putc(ctx, w, '"');
 		}
 		else if(SP(o)->tt == TT_TSTR) {
 			knh_putc(ctx, w, '\'');
-			knh_write_char(ctx, w, knh_String_tochar(DP(o)->text));
+			knh_write_char(ctx, w, __tochar(DP(o)->text));
 			knh_putc(ctx, w, '\'');
 		}
 		else {
-			knh_write_char(ctx, w, knh_String_tochar(DP(o)->text));
+			knh_write_char(ctx, w, __tochar(DP(o)->text));
 		}
 	}else if(IS_NULL(DP(o)->data)) {
 		knh_write_char(ctx, w, "null");
@@ -235,10 +235,10 @@ void knh_StmtMETA_dump(Ctx *ctx, knh_Stmt_t *o, knh_OutputStream_t *w, knh_Strin
 		knh_String_t *k = (knh_String_t*)knh_DictMap_keyAt(DP(o)->metaDictMap, i);
 		knh_String_t *v = (knh_String_t*)knh_DictMap_valueAt(DP(o)->metaDictMap, i);
 		if(k == v) {
-			knh_printf(ctx, w, "@%s ", knh_String_tochar(k));
+			knh_printf(ctx, w, "@%s ", __tochar(k));
 		}
 		else {
-			knh_printf(ctx, w, "@%s(%O) ", knh_String_tochar(k), v);
+			knh_printf(ctx, w, "@%s(%O) ", __tochar(k), v);
 		}
 	}
 	if(size > 0) {

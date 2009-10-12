@@ -48,10 +48,10 @@ knh_bool_t knh_isKeyUniqueClass(Ctx *ctx, knh_class_t cid)
 Object *knh_getKeyObject(Ctx *ctx, knh_String_t *key)
 {
 	knh_class_t cid;
-	knh_bytes_t k = knh_String_tobytes(key);
+	knh_bytes_t k = __tobytes(key);
 	k = knh_bytes_parsecid(ctx, k, ':', &cid);
 	if(cid == CLASS_unknown) cid = CLASS_Object;
-	KNH_ASSERT_cid(cid);
+	DBG2_ASSERT_cid(cid);
 	{
 		knh_ClassTable_t *t = (knh_ClassTable_t*)(&ClassTable(cid));
 		if(t->dataKeyMap == NULL) return KNH_NULL;
@@ -64,7 +64,7 @@ Object *knh_getKeyObject(Ctx *ctx, knh_String_t *key)
 void knh_addKeyObject(Ctx *ctx, Object *value)
 {
 	knh_String_t *key = knh_Object_key(ctx, value);
-	knh_bytes_t k = knh_String_tobytes(key);
+	knh_bytes_t k = __tobytes(key);
 	knh_class_t cid;
 	if(knh_bytes_index(k, ':') > 0) {
 		knh_bytes_parsecid(ctx, k, ':', &cid);

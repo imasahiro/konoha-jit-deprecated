@@ -353,14 +353,14 @@ int knh_Token_joinT(Ctx *ctx, knh_Array_t *a, knh_Token_t *tkT, int n)
 		}
 		if(TT_(tkN) == TT_BRANCET && IS_NULL(DP(tkN)->data)) { /* T[] */
 			knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-			knh_Bytes_write(ctx, cwb->ba, knh_String_tobytes(DP(tkT)->text));
+			knh_Bytes_write(ctx, cwb->ba, __tobytes(DP(tkT)->text));
 			knh_Bytes_write(ctx, cwb->ba, STEXT("[]"));
 			KNH_SETv(ctx, DP(tkT)->data, knh_cwb_newString(ctx, cwb));
 			continue;
 		}
 		if(TT_(tkN) == TT_ITR) {  /* T.. */
 			knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-			knh_Bytes_write(ctx, cwb->ba, knh_String_tobytes(DP(tkT)->text));
+			knh_Bytes_write(ctx, cwb->ba, __tobytes(DP(tkT)->text));
 			knh_Bytes_write(ctx, cwb->ba, STEXT(".."));
 			KNH_SETv(ctx, DP(tkT)->data, knh_cwb_newString(ctx, cwb));
 			continue;
@@ -422,13 +422,13 @@ void knh_Token_join(Ctx *ctx, knh_Token_t *o)
 			knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 			while(TT_(tkN) == TT_STR || TT_(tkN) == TT_TSTR || TT_(tkN) == TT_ESTR) {
 				if(c == 0) {
-					knh_Bytes_write(ctx, cwb->ba, knh_String_tobytes(DP(tk0)->text));
+					knh_Bytes_write(ctx, cwb->ba, __tobytes(DP(tk0)->text));
 					c++;
 				}
 				if(SP(tkP)->line < SP(tkN)->line) {
 					knh_Bytes_putc(ctx, cwb->ba, '\n');
 				}
-				knh_Bytes_write(ctx, cwb->ba, knh_String_tobytes(DP(tkN)->text));
+				knh_Bytes_write(ctx, cwb->ba, __tobytes(DP(tkN)->text));
 				tkP = tkN;
 				i++;
 				if(i+1 < knh_Array_size(a)) {

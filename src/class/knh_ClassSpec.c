@@ -137,7 +137,7 @@ void knh_write_intx(Ctx *ctx, knh_OutputStream_t *w, knh_ClassSpec_t *u, knh_int
 	}
 	knh_snprintf(buf, sizeof(buf), fmt, v);
 	knh_write(ctx, w, B(buf));
-	knh_bytes_t tag = knh_String_tobytes(DP(u)->tag);
+	knh_bytes_t tag = __tobytes(DP(u)->tag);
 	if(tag.len > 0) {
 		knh_putc(ctx, w, '[');
 		knh_write(ctx, w, tag);
@@ -207,7 +207,7 @@ void knh_write_floatx(Ctx *ctx, knh_OutputStream_t *w, knh_ClassSpec_t *u, knh_f
 	}
 #endif
 	knh_write_ffmt(ctx, w, FMT, v);
-	knh_bytes_t tag = knh_String_tobytes(DP(u)->tag);
+	knh_bytes_t tag = __tobytes(DP(u)->tag);
 	if(tag.len > 0) {
 		knh_putc(ctx, w, '[');
 		knh_write(ctx, w, tag);
@@ -252,7 +252,7 @@ knh_String_t *knh_ClassSpec_getVocabAt(Ctx *ctx, knh_ClassSpec_t *u, size_t n)
 static
 knh_int_t knh_ClassSpec_getVocabIdx(Ctx *ctx, knh_ClassSpec_t *u, knh_String_t *s)
 {
-	return knh_DictIdx_index(ctx, DP(u)->vocabDictIdx, knh_String_tobytes(s)) + DP(u)->imin;
+	return knh_DictIdx_index(ctx, DP(u)->vocabDictIdx, __tobytes(s)) + DP(u)->imin;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -495,7 +495,7 @@ KNHAPI(knh_ClassSpec_t*) new_Vocab(Ctx *ctx, char *tag, knh_bytes_t urn, int bas
 //	KNH_ASSERT(IS_ClassSpec(u2));
 //	KNH_ASSERT(IS_DictIdx(DP(u2)->vocabDictIdx));
 //
-//	size_t n = (size_t)knh_DictIdx_index(ctx, DP(u)->vocabDictIdx, knh_String_tobytes(s));
+//	size_t n = (size_t)knh_DictIdx_index(ctx, DP(u)->vocabDictIdx, __tobytes(s));
 //	KNH_ASSERT(n < knh_DictIdx_size(DP(u2)->vocabDictIdx));
 //	KNH_MAPPED(ctx, sfp, knh_DictIdx_get__fast(DP(u2)->vocabDictIdx, n));
 //}
@@ -504,7 +504,7 @@ KNHAPI(knh_ClassSpec_t*) new_Vocab(Ctx *ctx, char *tag, knh_bytes_t urn, int bas
 //
 //KNHAPI(void) knh_addVocabularyMapper(Ctx *ctx, knh_class_t scid, char *text)
 //{
-//	KNH_ASSERT_cid(scid);
+//	DBG2_ASSERT_cid(scid);
 //	knh_class_t tcid = knh_findcid(ctx, B(text));
 //
 //	if(tcid != CLASS_unknown || ctx->share->ClassTable[tcid].bcid != tcid) {
@@ -547,7 +547,7 @@ knh_bytes_t knh_getURNAlias(Ctx *ctx, knh_bytes_t aurn)
 {
 	knh_String_t *s = (knh_String_t*)knh_DictMap_get__b(ctx,  DP(ctx->sys)->URNAliasDictMap, aurn);
 	if(IS_NOTNULL(s)) {
-		return knh_String_tobytes(s);
+		return __tobytes(s);
 	}
 	return aurn;
 }
@@ -557,9 +557,9 @@ knh_bytes_t knh_getURNAlias(Ctx *ctx, knh_bytes_t aurn)
 //void knh_setAliasURN(Ctx *ctx, String *alias, String *urn)
 //{
 //	if(knh_Context_isVerbose(ctx)) {
-//		String *s =(String*)knh_DictMap_get__b(ctx,  DP(ctx->sys)->URNAliasDictMap, knh_String_tobytes(urn));
+//		String *s =(String*)knh_DictMap_get__b(ctx,  DP(ctx->sys)->URNAliasDictMap, __tobytes(urn));
 //		if(IS_NOTNULL(s)) {
-//			KNH_WARNING(ctx, "Overriding %s %s", knh_String_tochar(alias), knh_String_tochar(s));
+//			KNH_WARNING(ctx, "Overriding %s %s", __tochar(alias), __tochar(s));
 //		}
 //	}
 //	knh_DictMap_set(ctx, DP(ctx->sys)->URNAliasDictMap, alias, UP(urn));
@@ -574,7 +574,7 @@ KNHAPI(void) knh_loadURNAliasData(Ctx *ctx, knh_StringConstData_t *data)
 	while(d->name != NULL) {
 		knh_String_t *s =(knh_String_t*)knh_DictMap_get__b(ctx,  map, B(d->name));
 		if(IS_NOTNULL(s) && !knh_String_equals(s, B(d->value))) {
-			KNH_WARNING(ctx, _("overriding alias %s %s as %s"), d->name, knh_String_tochar(s), d->value);
+			KNH_WARNING(ctx, _("overriding alias %s %s as %s"), d->name, __tochar(s), d->value);
 		}
 		d++;
 	}
@@ -674,15 +674,15 @@ knh_class_t knh_addSpecializedType(Ctx *ctx, knh_class_t cid, knh_class_t bcid, 
 	if(cid == CLASS_newid) {
 		cid = knh_ClassTable_newId(ctx);
 	}
-	knh_snprintf(bufcn, sizeof(bufcn), KNH_CLASSSPEC_FMT, CLASSN(bcid), knh_String_tochar(DP(u)->urn));
+	knh_snprintf(bufcn, sizeof(bufcn), KNH_CLASSSPEC_FMT, CLASSN(bcid), __tochar(DP(u)->urn));
 	knh_setClassName(ctx, cid, new_String(ctx, B(bufcn), NULL));
 	{
 		knh_ClassTable_t *t = pClassTable(cid);
 		if((DP(u)->tag)->size > 0) {
-			knh_snprintf(bufcn, sizeof(bufcn), "%s:%s", CLASSN(bcid), knh_String_tochar(DP(u)->tag));
+			knh_snprintf(bufcn, sizeof(bufcn), "%s:%s", CLASSN(bcid), __tochar(DP(u)->tag));
 			KNH_SETv(ctx, t->sname, new_String(ctx, B(bufcn), NULL));
 		}
-		DBG2_P("added %d, '%s'", cid, knh_String_tochar(t->lname));
+		DBG2_P("added %d, '%s'", cid, __tochar(t->lname));
 
 		t->bcid   = bcid;
 		t->supcid = bcid;

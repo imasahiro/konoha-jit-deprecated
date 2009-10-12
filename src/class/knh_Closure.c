@@ -204,7 +204,7 @@ knh_addClosureClass(Ctx *ctx, knh_class_t cid, knh_String_t *name, knh_type_t r0
 			knh_class_isTypeVariable(CLASS_type(p2)) ||
 			knh_class_isTypeVariable(CLASS_type(p3))) {
 		mask = FLAG_Class_TypeVariable;
-		DBG2_P("TypeVarable: %s", knh_String_tochar(name));
+		DBG2_P("TypeVarable: %s", __tochar(name));
 	}
 
 	knh_setClassName(ctx, cid, name);
@@ -334,7 +334,7 @@ knh_class_t knh_Method_gencid(Ctx *ctx, knh_Method_t *mtd, knh_class_t cid)
 {
 	knh_type_t rtype = knh_pmztype_totype(ctx, knh_Method_rztype(mtd), cid);
 	cid = CLASS_type(rtype);
-	KNH_ASSERT_cid(cid);
+	DBG2_ASSERT_cid(cid);
 	KNH_ASSERT(ClassTable(cid).bcid == CLASS_Iterator);
 	return ClassTable(cid).p1;
 }

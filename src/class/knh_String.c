@@ -142,7 +142,7 @@ knh_String_t *new_StringX(Ctx *ctx, knh_class_t cid, knh_bytes_t t, knh_String_t
 		return new_String(ctx, t, orign);
 	}
 	else {
-		KNH_ASSERT_cid(cid);
+		DBG2_ASSERT_cid(cid);
 		TODO();
 		return new_String(ctx, t, orign);
 	}
@@ -191,7 +191,7 @@ knh_String_t *new_String__float(Ctx *ctx, knh_float_t n)
 /* ======================================================================== */
 /* [misc] */
 
-KNHAPI(knh_bytes_t) knh_String_tobytes(knh_String_t *o)
+KNHAPI(knh_bytes_t) __tobytes(knh_String_t *o)
 {
 	knh_bytes_t bt = {o->str, o->size};
 	return bt;
@@ -219,7 +219,7 @@ KNHAPI(char*) knh_String_text(Ctx *ctx, knh_String_t *s)
 
 knh_bool_t knh_String_equals(knh_String_t *o, knh_bytes_t s)
 {
-//	knh_bytes_t t = knh_String_tobytes(o);
+//	knh_bytes_t t = __tobytes(o);
 	return (o->size == s.len && knh_strncmp((char*)o->str, (char*)s.buf, s.len) == 0);
 }
 
@@ -227,14 +227,14 @@ knh_bool_t knh_String_equals(knh_String_t *o, knh_bytes_t s)
 
 knh_bool_t knh_String_startsWith(knh_String_t *b, knh_bytes_t s)
 {
-	return knh_bytes_startsWith(knh_String_tobytes(b), s);
+	return knh_bytes_startsWith(__tobytes(b), s);
 }
 
 /* ------------------------------------------------------------------------ */
 
 knh_bool_t knh_String_endsWith(knh_String_t *b, knh_bytes_t s)
 {
-	return knh_bytes_endsWith(knh_String_tobytes(b), s);
+	return knh_bytes_endsWith(__tobytes(b), s);
 }
 
 /* ======================================================================== */
@@ -299,7 +299,7 @@ int knh_bytes_splitTag(knh_bytes_t t, knh_bytes_t *tag, knh_bytes_t *body)
 
 Object *new_Object_parseOf(Ctx *ctx, knh_String_t *s)
 {
-	knh_bytes_t t = knh_String_tobytes(s);
+	knh_bytes_t t = __tobytes(s);
 	knh_index_t loc = knh_bytes_index(t, ':');
 	if(loc <= 0) {
 		return UP(s);

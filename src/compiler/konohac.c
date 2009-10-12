@@ -79,7 +79,7 @@ int knh_NameSpace_isLoaded(Ctx *ctx, knh_NameSpace_t *ns, knh_uri_t uri)
 {
 	if(IS_NOTNULL(DP(ns)->pathTrustDictSet)) {
 		knh_String_t *s = knh_getResourceName(ctx, uri);
-		knh_uintptr_t n = knh_DictSet_get__b(DP(ns)->pathTrustDictSet, knh_String_tobytes(s));
+		knh_uintptr_t n = knh_DictSet_get__b(DP(ns)->pathTrustDictSet, __tobytes(s));
 		return (n != 0);
 	}
 	return 0;
@@ -105,7 +105,7 @@ knh_InputStream_t* new_ScriptInputStream(Ctx *ctx, knh_bytes_t path, knh_cwb_t *
 			knh_String_t *spath = (knh_String_t*)knh_Context_getProperty(ctx, (knh_Context_t*)ctx, STEXT("konoha.script.path"));
 			if(IS_bString(spath)) {
 				knh_cwb_subclear(cwb, 0);
-				knh_cwb_write(ctx, cwb, knh_String_tobytes(spath));
+				knh_cwb_write(ctx, cwb, __tobytes(spath));
 				knh_cwb_putc(ctx, cwb, '/');
 				knh_cwb_write(ctx, cwb, path);
 				knh_cwb_ospath(ctx, cwb);
@@ -118,7 +118,7 @@ knh_InputStream_t* new_ScriptInputStream(Ctx *ctx, knh_bytes_t path, knh_cwb_t *
 			spath = (knh_String_t*)knh_Context_getProperty(ctx, (knh_Context_t*)ctx, STEXT("user.script.path"));
 			if(IS_bString(spath) && uri == 0) {
 				knh_cwb_subclear(cwb, 0);
-				knh_cwb_write(ctx, cwb, knh_String_tobytes(spath));
+				knh_cwb_write(ctx, cwb, __tobytes(spath));
 				knh_cwb_putc(ctx, cwb, '/');
 				knh_cwb_write(ctx, cwb, path);
 				knh_cwb_ospath(ctx, cwb);
@@ -145,7 +145,7 @@ knh_InputStream_t* new_ScriptInputStream(Ctx *ctx, knh_bytes_t path, knh_cwb_t *
 	}
 	{
 		knh_String_t *spath = knh_getResourceName(ctx, uri);
-		path = knh_String_tobytes(spath);
+		path = __tobytes(spath);
 		KNH_NOTICE(ctx, "importing script: %s", path.buf);
 		knh_io_t fd = drv->fopen(ctx, path, "r", isThrowable);
 		knh_InputStream_t *in = new_InputStream__io(ctx, spath, fd, drv);
@@ -177,9 +177,9 @@ knh_Stmt_t *knh_InputStream_parseStmt(Ctx *ctx, knh_InputStream_t *in, int isDat
 /* ------------------------------------------------------------------------ */
 
 static
-void knh_Asm_openDynamicLinkLibrary(Ctx *ctx, knh_Asm_t *abr, knh_uri_t uri)
+void knh_Gamma_openDynamicLinkLibrary(Ctx *ctx, knh_Gamma_t *abr, knh_uri_t uri)
 {
-	knh_bytes_t path = knh_String_tobytes(knh_getResourceName(ctx, uri));
+	knh_bytes_t path = __tobytes(knh_getResourceName(ctx, uri));
 	if(path.buf[0] != '(' && !knh_bytes_startsWith(path, STEXT("http://"))) {  // check "(eval)", "(shell)", or o
 		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 		knh_index_t idx = knh_bytes_rindex(path, '.');
@@ -190,11 +190,11 @@ void knh_Asm_openDynamicLinkLibrary(Ctx *ctx, knh_Asm_t *abr, knh_uri_t uri)
 		knh_cwb_ospath(ctx, cwb);
 		DP(abr)->dlhdr =knh_cwb_dlopen(ctx, cwb);
 		if(DP(abr)->dlhdr != NULL) {
-			KNH_NOTICE(ctx, "opened dynamic library: %s", knh_cwb_tochar(ctx, cwb));
+			KNH_NOTICE(ctx, "opened dynamic library: %s", knh_cwb__tochar(ctx, cwb));
 		}
 		else {
 			if(knh_cwb_isfile(ctx, cwb)) {
-				KNH_WARNING(ctx, "cannot open dynamic library: %s", knh_cwb_tochar(ctx, cwb));
+				KNH_WARNING(ctx, "cannot open dynamic library: %s", knh_cwb__tochar(ctx, cwb));
 			}
 		}
 		knh_cwb_close(cwb);
@@ -215,7 +215,7 @@ int knh_NameSpace_load(Ctx *ctx, knh_NameSpace_t *ns, knh_InputStream_t *in, int
 	KNH_ASSERT(!knh_InputStream_isClosed(ctx, in));
 	KNH_LPUSH(ctx, new_ExceptionHandler(ctx));
 	KNH_TRY(ctx, L_CATCH, lsfp, 1);
-	knh_Context_initAsm(ctx);   // initialization
+	knh_Context_initGamma(ctx);   // initialization
 	{
 		knh_Stmt_t *stmt = knh_InputStream_parseStmt(ctx, in, 0/*isData*/);
 		KNH_LPUSH(ctx, stmt);
@@ -223,7 +223,7 @@ int knh_NameSpace_load(Ctx *ctx, knh_NameSpace_t *ns, knh_InputStream_t *in, int
 			DBG_DUMP(ctx, stmt, KNH_NULL, "stmt");
 		}
 		if(isEval) {
-			knh_Asm_openDynamicLinkLibrary(ctx, ctx->abr, uri);
+			knh_Gamma_openDynamicLinkLibrary(ctx, ctx->abr, uri);
 		}
 		res = knh_NameSpace_compile(ctx, ns, stmt, isEval);
 		if(URI_UNMASK(uri) != 0) {
@@ -263,7 +263,7 @@ char *knh_cwb_packageScript(Ctx *ctx, knh_cwb_t *cwb, knh_bytes_t rootdir, knh_b
 	knh_cwb_write(ctx, cwb, STEXT(".k"));
 	knh_cwb_ospath(ctx, cwb);
 	if(knh_cwb_isfile(ctx, cwb)) {
-		return knh_cwb_tochar(ctx, cwb);
+		return knh_cwb__tochar(ctx, cwb);
 	}
 	return NULL;
 }
@@ -281,12 +281,12 @@ char *knh_lookupPackageScript(Ctx *ctx, knh_cwb_t *cwb, knh_bytes_t pkgname)
 	}
 	spath = (knh_String_t*)knh_Context_getProperty(ctx, (knh_Context_t*)ctx, STEXT("konoha.package.path"));
 	if(IS_bString(spath)) {
-		path = knh_cwb_packageScript(ctx, cwb, knh_String_tobytes(spath), pkgname);
+		path = knh_cwb_packageScript(ctx, cwb, __tobytes(spath), pkgname);
 		if(path != NULL) return path;
 	}
 	spath = (knh_String_t*)knh_Context_getProperty(ctx, (knh_Context_t*)ctx, STEXT("user.package.path"));
 	if(IS_bString(spath)){
-		path = knh_cwb_packageScript(ctx, cwb, knh_String_tobytes(spath), pkgname);
+		path = knh_cwb_packageScript(ctx, cwb, __tobytes(spath), pkgname);
 		if(path != NULL) return path;
 	}
 	if(knh_hasScriptFunc(ctx, "getKonohaPackage")) {
@@ -303,10 +303,10 @@ knh_NameSpace_t *knh_NameSpace_newPackageNULL(Ctx *ctx, knh_bytes_t pkgname)
 	knh_uri_t uri = knh_getResourceId(ctx, pkgname);
 	knh_String_t *nsname = knh_getResourceName(ctx, uri);
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-	char *fpath = knh_lookupPackageScript(ctx, cwb, knh_String_tobytes(nsname));
+	char *fpath = knh_lookupPackageScript(ctx, cwb, __tobytes(nsname));
 	knh_NameSpace_t *ns = NULL;
 	if(fpath != NULL) {
-		pkgname = knh_String_tobytes(nsname);
+		pkgname = __tobytes(nsname);
 		KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
 		ns = (knh_NameSpace_t*)knh_DictMap_get__b(ctx,  DP(ctx->sys)->NameSpaceTableDictMap, pkgname);
 		if(IS_NULL(ns)) {
@@ -314,7 +314,7 @@ knh_NameSpace_t *knh_NameSpace_newPackageNULL(Ctx *ctx, knh_bytes_t pkgname)
 			knh_DictMap_set(ctx, DP(ctx->sys)->NameSpaceTableDictMap, nsname, UP(ns));
 			KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
 			knh_sfp_t *lsfp = KNH_LOCAL(ctx);
-			knh_NameSpace_t *curns = knh_switchAsmNameSpace(ctx, ns);
+			knh_NameSpace_t *curns = knh_switchGammaNameSpace(ctx, ns);
 			knh_InputStream_t *in = new_ScriptInputStream(ctx, knh_cwb_tobytes(cwb), cwb, ctx->share->mainns, 0);
 			KNH_LPUSH(ctx, in);
 			if(!knh_InputStream_isClosed(ctx, in)) {
@@ -324,7 +324,7 @@ knh_NameSpace_t *knh_NameSpace_newPackageNULL(Ctx *ctx, knh_bytes_t pkgname)
 				KNH_WARNING(ctx, "package script does not exist");
 				ns = NULL;
 			}
-			knh_switchAsmNameSpace(ctx, curns);
+			knh_switchGammaNameSpace(ctx, curns);
 			KNH_LOCALBACK(ctx, lsfp);
 		}
 		else {
@@ -440,17 +440,17 @@ void knh_class_addInterface(Ctx *ctx, knh_class_t cid, knh_class_t icid)
 /* ------------------------------------------------------------------------ */
 
 static
-int knh_StmtCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace_t *ns)
+int knh_StmtCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Gamma_t *abr, knh_NameSpace_t *ns)
 {
 	char bufn[CLASSNAME_BUFSIZ];
-	knh_snprintf(bufn, sizeof(bufn), "%s.%s", knh_String_tochar(DP(ns)->nsname), sToken(StmtCLASS_class(stmt)));
+	knh_snprintf(bufn, sizeof(bufn), "%s.%s", __tochar(DP(ns)->nsname), sToken(StmtCLASS_class(stmt)));
 	knh_class_t cid  = knh_NameSpace_getcid(ctx, ns, B(bufn));
 	if(cid == CLASS_unknown) {
 		cid = knh_ClassTable_newId(ctx);
 		KNH_ASSERT(ClassTable(cid).sname == NULL);
 	}
 	else {
-		knh_Asm_perror(ctx, abr, KERR_ERROR, _("re-definition of %C"), cid);
+		knh_Gamma_perror(ctx, abr, KERR_ERROR, _("re-definition of %C"), cid);
 		knh_Stmt_done(ctx, stmt);
 		return 0;
 	}
@@ -460,10 +460,10 @@ int knh_StmtCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace
 		supcid = knh_NameSpace_getcid(ctx, ns, knh_Token_tobytes(ctx, StmtCLASS_superclass(stmt)));
 		if(supcid == CLASS_unknown) {
 			supcid = CLASS_Object;
-			knh_Asm_perror(ctx, abr, KERR_ERRATA, _("unknown class: %s ==> %C"), sToken(StmtCLASS_superclass(stmt)), supcid);
+			knh_Gamma_perror(ctx, abr, KERR_ERRATA, _("unknown class: %s ==> %C"), sToken(StmtCLASS_superclass(stmt)), supcid);
 		}
 		else if(knh_class_isFinal(supcid)) {
-			knh_Asm_perror(ctx, abr, KERR_ERROR, _("cannot extends %C: this class is final"), supcid);
+			knh_Gamma_perror(ctx, abr, KERR_ERROR, _("cannot extends %C: this class is final"), supcid);
 			knh_Stmt_done(ctx, stmt);
 			return 0;
 		}
@@ -482,7 +482,7 @@ int knh_StmtCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace
 		}
 		t->supcid = supcid;
 		t->offset = 0; /* will be extended in CLASS_typing */
-		KNH_ASSERT_cid(supcid);
+		DBG2_ASSERT_cid(supcid);
 		t->keyidx = ClassTable(supcid).keyidx;
 		KNH_ASSERT(t->sname == NULL);
 		knh_setClassName(ctx, cid, new_String(ctx, B(bufn), NULL));
@@ -521,13 +521,13 @@ int knh_StmtCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace
 /* ------------------------------------------------------------------------ */
 
 static
-int knh_StmtIMPORT_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace_t *ns)
+int knh_StmtIMPORT_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Gamma_t *abr, knh_NameSpace_t *ns)
 {
 	int res = 1;
-	knh_bytes_t path = knh_String_tobytes(DP(StmtIMPORT_file(stmt))->text);
+	knh_bytes_t path = __tobytes(DP(StmtIMPORT_file(stmt))->text);
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 	if(path.buf[0] != '/' && path.buf[0] != '\\' && !knh_bytes_startsWith(path, STEXT("http://"))) {
-		knh_bytes_t t = knh_String_tobytes(knh_getResourceName(ctx, SP(stmt)->uri));
+		knh_bytes_t t = __tobytes(knh_getResourceName(ctx, SP(stmt)->uri));
 		if(t.buf[0] != '(') {  /* NOT (eval) */
 			knh_cwb_write(ctx, cwb, t);
 			knh_bool_t ret = knh_cwb_parentpath(ctx, cwb, NULL);
@@ -556,7 +556,7 @@ int knh_StmtIMPORT_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpac
 /* ------------------------------------------------------------------------ */
 
 static
-int knh_StmtUCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace_t *ns)
+int knh_StmtUCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Gamma_t *abr, knh_NameSpace_t *ns)
 {
 	knh_Token_t *tk = DP(stmt)->tokens[0];
 	knh_bytes_t name = knh_Token_tobytes(ctx, tk);
@@ -590,7 +590,7 @@ int knh_StmtUCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpac
 /* ------------------------------------------------------------------------ */
 
 static
-int knh_StmtUALIAS_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace_t *ns)
+int knh_StmtUALIAS_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Gamma_t *abr, knh_NameSpace_t *ns)
 {
 	DBG2_DUMP(ctx, stmt, KNH_NULL, "decl");
 	TODO();
@@ -612,9 +612,9 @@ static
 void knh_NameSpace_setTagName(Ctx *ctx, knh_NameSpace_t *o, knh_String_t *name, knh_class_t cid)
 {
 	KNH_ASSERT(IS_NameSpace(o));
-	KNH_ASSERT_cid(cid);
+	DBG2_ASSERT_cid(cid);
 	knh_DictSet_set(ctx, DP(o)->name2cidDictSet, name, (knh_uintptr_t)(cid+1));
-//	knh_bytes_t n = knh_String_tobytes(name);
+//	knh_bytes_t n = __tobytes(name);
 //	knh_index_t loc = knh_bytes_index(n, ':');
 //	if(loc != -1) {
 //		n = knh_bytes_last(n, loc+1);
@@ -627,7 +627,7 @@ void knh_NameSpace_setTagName(Ctx *ctx, knh_NameSpace_t *o, knh_String_t *name, 
 /* ------------------------------------------------------------------------ */
 
 static
-int knh_StmtXCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace_t *ns, knh_class_t bcid)
+int knh_StmtXCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Gamma_t *abr, knh_NameSpace_t *ns, knh_class_t bcid)
 {
 	knh_Token_t *tkclassn = DP(stmt)->tokens[0];
 	knh_Token_t *tkurn = DP(stmt)->tokens[1];
@@ -654,7 +654,7 @@ int knh_StmtXCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpac
 /* ------------------------------------------------------------------------ */
 
 static
-int knh_StmtUVOCAB_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace_t *ns)
+int knh_StmtUVOCAB_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Gamma_t *abr, knh_NameSpace_t *ns)
 {
 	return knh_StmtXCLASS_decl(ctx, stmt, abr, ns, CLASS_String);
 }
@@ -662,7 +662,7 @@ int knh_StmtUVOCAB_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpac
 /* ------------------------------------------------------------------------ */
 
 static
-int knh_StmtUENUM_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace_t *ns)
+int knh_StmtUENUM_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Gamma_t *abr, knh_NameSpace_t *ns)
 {
 	return knh_StmtXCLASS_decl(ctx, stmt, abr, ns, CLASS_Int);
 }
@@ -670,7 +670,7 @@ int knh_StmtUENUM_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace
 /* ------------------------------------------------------------------------ */
 
 static
-int knh_StmtUUNIT_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace_t *ns)
+int knh_StmtUUNIT_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Gamma_t *abr, knh_NameSpace_t *ns)
 {
 	return knh_StmtXCLASS_decl(ctx, stmt, abr, ns, CLASS_Float);
 }
@@ -678,7 +678,7 @@ int knh_StmtUUNIT_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace
 /* ------------------------------------------------------------------------ */
 
 static
-int knh_StmtUFUNC_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace_t *ns)
+int knh_StmtUFUNC_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Gamma_t *abr, knh_NameSpace_t *ns)
 {
 	knh_Token_t *tk = DP(stmt)->tokens[0];
 	knh_bytes_t name = knh_Token_tobytes(ctx, tk);
@@ -703,7 +703,7 @@ int knh_StmtUFUNC_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace
 			return 0;
 		}
 		else {
-			KNH_ASSERT_cid(cid);
+			DBG2_ASSERT_cid(cid);
 			knh_Array_t *a = (ClassTable(cid).cstruct)->methods;
 			size_t i;
 			for(i = 0; i < knh_Array_size(a); i++) {
@@ -723,7 +723,7 @@ int knh_StmtUFUNC_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace
 /* ------------------------------------------------------------------------ */
 
 static
-int knh_StmtUMAPMAP_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace_t *ns)
+int knh_StmtUMAPMAP_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Gamma_t *abr, knh_NameSpace_t *ns)
 {
 	DBG2_DUMP(ctx, stmt, KNH_NULL, "decl");
 	return 1;
@@ -732,9 +732,9 @@ int knh_StmtUMAPMAP_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpa
 /* ------------------------------------------------------------------------ */
 
 static
-int knh_Stmt_eval(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace_t *ns, int isEval)
+int knh_Stmt_eval(Ctx *ctx, knh_Stmt_t *stmt, knh_Gamma_t *abr, knh_NameSpace_t *ns, int isEval)
 {
-	knh_Script_t *scr = knh_getAsmScript(ctx);
+	knh_Script_t *scr = knh_getGammaScript(ctx);
 	knh_Method_t *mtd = knh_Class_getMethod(ctx, knh_Object_cid(scr), METHODN_LAMBDA);
 	knh_sfp_t *lsfp = KNH_LOCAL(ctx);
 
@@ -753,7 +753,7 @@ int knh_Stmt_eval(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace_t *n
 			knh_Token_t *tk0 = DP(stmt)->tokens[0];
 			if(SP(tk0)->tt == TT_STR) {
 				if(isEval) {
-					knh_write(ctx, KNH_STDOUT, knh_String_tobytes(DP(tk0)->text));
+					knh_write(ctx, KNH_STDOUT, __tobytes(DP(tk0)->text));
 					knh_write_EOL(ctx, KNH_STDOUT);
 				}
 				return 1;
@@ -816,15 +816,15 @@ int knh_Stmt_eval(Ctx *ctx, knh_Stmt_t *stmt, knh_Asm_t *abr, knh_NameSpace_t *n
 static
 int knh_NameSpace_compile(Ctx *ctx, knh_NameSpace_t *ns, knh_Stmt_t *stmt, int isEval)
 {
-	knh_Asm_t *abr = knh_Context_getAsm(ctx);
+	knh_Gamma_t *abr = knh_Context_getGamma(ctx);
 	knh_sfp_t *lsfp = KNH_LOCAL(ctx);
 	KNH_LPUSH(ctx, stmt);
 
 	knh_Stmt_t *cur = stmt;
-	DP(abr)->uri = SP(stmt)->uri;
+	SP(abr)->uri = SP(stmt)->uri;
 	while(IS_Stmt(cur)) {
 		knh_stmt_t stt = SP(cur)->stt;
-		DP(abr)->line = SP(cur)->line;
+		SP(abr)->line = SP(cur)->line;
 		DP(abr)->level = 0;
 		int res = 1;
 		switch(stt) {
@@ -873,7 +873,7 @@ int knh_NameSpace_compile(Ctx *ctx, knh_NameSpace_t *ns, knh_Stmt_t *stmt, int i
 	cur = stmt;
 	while(IS_Stmt(cur)) {
 		knh_stmt_t stt = SP(cur)->stt;
-		DP(abr)->line = SP(cur)->line;
+		SP(abr)->line = SP(cur)->line;
 		DP(abr)->level = 0;
 		Term *tm = TM(cur);
 		switch(stt) {
@@ -887,27 +887,27 @@ int knh_NameSpace_compile(Ctx *ctx, knh_NameSpace_t *ns, knh_Stmt_t *stmt, int i
 //			tm = knh_StmtFORMAT_typing(ctx, cur, abr, ns);
 //			break;
 		case STT_DECL: {
-				knh_Asm_initThisScript(ctx, abr);
+				knh_Gamma_initThisScript(ctx, abr);
 				tm = knh_StmtDECL_typing(ctx, cur, abr, ns, DECL_SCRIPT);
 				break;
 			}
 		case STT_LET: {
-				knh_Asm_initThisScript(ctx, abr);
+				knh_Gamma_initThisScript(ctx, abr);
 				tm = knh_StmtLET_typing(ctx, cur, abr, ns, TYPE_void);
 				break;
 			}
 		case STT_LETM: {
-				knh_Asm_initThisScript(ctx, abr);
+				knh_Gamma_initThisScript(ctx, abr);
 				tm = knh_StmtLETM_typing(ctx, cur, abr, ns);
 				break;
 			}
 		case STT_SEPARATOR: {
-				knh_Asm_initThisScript(ctx, abr);
+				knh_Gamma_initThisScript(ctx, abr);
 				tm = knh_StmtSEPARATOR_typing(ctx, cur, abr, ns);
 				break;
 			}
 		case STT_FUNCTION: {
-				knh_Asm_initThisScript(ctx, abr);
+				knh_Gamma_initThisScript(ctx, abr);
 				tm = knh_StmtFUNCTION_typing(ctx, cur, abr, ns, TYPE_void);
 				break;
 			}
@@ -1002,8 +1002,8 @@ Object *knh_InputStream_parseDataNULL(Ctx *ctx, knh_InputStream_t *in)
 	KNH_LPUSH(ctx, in); //lsfp[0]
 	KNH_LPUSH(ctx, stmt); // lsfp[1]
 	if(knh_stmt_isExpr(STT_(stmt)) && STT_(stmt) != STT_LET) {
-		knh_Asm_t *abr = knh_Context_getAsm(ctx);
-		knh_Script_t *scr = knh_getAsmScript(ctx);
+		knh_Gamma_t *abr = knh_Context_getGamma(ctx);
+		knh_Script_t *scr = knh_getGammaScript(ctx);
 		knh_Method_t *mtd = knh_Class_getMethod(ctx, knh_Object_cid(scr), METHODN_LAMBDA);
 		KNH_ASM_METHOD(ctx, abr, mtd, NULL, stmt, 0 /* isIteration */);
 		if(knh_Method_isAbstract(mtd) || SP(stmt)->stt == STT_ERR) {
@@ -1134,7 +1134,7 @@ void knh_invokeMethodListener(Ctx *ctx, knh_DictMap_t *meta, knh_Method_t *mtd, 
 		KNH_LPUSH(ctx, a); // TO AVOID GC;
 		for(i = 0; i < knh_Array_size(a); i+=2) {
 			knh_String_t *key = (knh_String_t*)knh_Array_n(a, i);
-			knh_bytes_t anno = knh_bytes_rmod(knh_String_tobytes(key), '@');
+			knh_bytes_t anno = knh_bytes_rmod(__tobytes(key), '@');
 			if(IS_NOTNULL(knh_DictMap_get__b(ctx, meta, anno))) {
 				cc = (knh_Closure_t*)knh_Array_n(a, i+1);
 				KNH_SETv(ctx, lsfp[3].o, meta);   /* cc(DictMap, Method) */

@@ -255,7 +255,7 @@ static int isCLASSN(Ctx *ctx, knh_Token_t *tk)
 static int isVARN(Ctx *ctx, knh_Token_t *tk)
 {
 	if(TT_(tk) == TT_NAME) {
-		knh_bytes_t t = knh_String_tobytes(DP(tk)->text);
+		knh_bytes_t t = __tobytes(DP(tk)->text);
 		size_t i;
 		for(i = 0; i < t.len; i++) {
 			if(t.buf[i] == '.' || t.buf[i] == ':') return 0;
@@ -1057,7 +1057,7 @@ static
 Term* new_TermPROPN(Ctx *ctx, knh_Token_t *tk, int isData)
 {
 	DBG2_ASSERT(IS_String(DP(tk)->text));
-	knh_bytes_t t = knh_String_tobytes(DP(tk)->text);
+	knh_bytes_t t = __tobytes(DP(tk)->text);
 	if(isData) {
 		Object *o = knh_Context_getProperty(ctx, (knh_Context_t*)ctx, t);
 		knh_Token_setCONST(ctx, tk, o);
@@ -1080,15 +1080,12 @@ Term* new_TermPROPN(Ctx *ctx, knh_Token_t *tk, int isData)
 
 /* ------------------------------------------------------------------------ */
 
-knh_String_t* knh_Term_getPropertyNameNULL(Ctx *ctx, Term *tm)
+knh_String_t* knh_Stmt_getPropertyNameNULL(Ctx *ctx, knh_Stmt_t *stmt)
 {
-	if(IS_Stmt(tm)) {
-		knh_Stmt_t *stmt = (knh_Stmt_t*)tm;
-		knh_Token_t *tkPROPN = DP(stmt)->tokens[2];
-		if(IS_Token(tkPROPN) && TT_(tkPROPN) == TT_CONST) {
-			DBG2_ASSERT(IS_String(DP(tkPROPN)->text));
-			return DP(tkPROPN)->text;
-		}
+	knh_Token_t *tkPROPN = DP(stmt)->tokens[2];
+	if(IS_Token(tkPROPN) && TT_(tkPROPN) == TT_CONST) {
+		DBG2_ASSERT(IS_String(DP(tkPROPN)->text));
+		return DP(tkPROPN)->text;
 	}
 	return NULL;
 }
@@ -1634,7 +1631,7 @@ static Term *new_TermEXPR(Ctx *ctx, knh_tkc_t *tc, int isData)
 				{
 					knh_Token_t *tk0 = ts[oc+1];
 					knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-					knh_Bytes_write(ctx, cwb->ba, knh_String_tobytes(DP(tk0)->text));
+					knh_Bytes_write(ctx, cwb->ba, __tobytes(DP(tk0)->text));
 					knh_Bytes_write(ctx, cwb->ba, STEXT("[]"));
 					KNH_SETv(ctx, DP(tk0)->data, knh_cwb_newString(ctx, cwb));
 				}
@@ -2335,7 +2332,7 @@ static void knh_Stmt_add_CASEs(Ctx *ctx, knh_Stmt_t *o, knh_tkc_t *tc)
 			if(TT_(TK0(tc)) == TT_LABEL) {
 				expr = knh_tokens_firstEXPR(tc, tc->c, &tcbuf);
 				DBG2_ASSERT(TT_(TK0(expr)) == TT_LABEL);
-				if(knh_bytes_index(knh_String_tobytes(DP(TK0(expr))->text), '.') == -1) {
+				if(knh_bytes_index(__tobytes(DP(TK0(expr))->text), '.') == -1) {
 					TT_(TK0(expr)) = TT_CONSTN;
 				}
 				else {
@@ -2768,7 +2765,7 @@ static int knh_Token_isDEBUG(knh_Token_t *tk)
 	if(TTn_(tk) == TT_BRACE) {
 		knh_String_t *s = DP(tk)->text;
 		if(IS_String(s)) {
-			return (knh_bytes_strcasecmp(knh_String_tobytes(s), STEXT("DEBUG")) == 0);
+			return (knh_bytes_strcasecmp(__tobytes(s), STEXT("DEBUG")) == 0);
 		}
 	}
 	return 0;

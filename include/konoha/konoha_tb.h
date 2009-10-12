@@ -5,7 +5,7 @@
 
 #define PRIdPTR "d"
 #define PRIuPTR "u"
-#undef knh_Asm_t
+#undef knh_Gamma_t
 char* ALT_getenv(const char* name);
 
 #endif

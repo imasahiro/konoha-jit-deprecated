@@ -56,7 +56,7 @@ static METHOD Connection_query(Ctx *ctx, knh_sfp_t *sfp)
 	knh_String_t *query = (knh_String_t*)sfp[1].o;
 	knh_ResultSet_t *rs = new_ResultSet(ctx);
 	KNH_RCSETv(ctx, sfp[2].o, rs);
-	knh_dbcur_t *dbcur = (c)->df->dbquery(ctx, (c)->conn, knh_String_tobytes(query), rs);
+	knh_dbcur_t *dbcur = (c)->df->dbquery(ctx, (c)->conn, __tobytes(query), rs);
 	if(dbcur != NULL) {
 		DP(rs)->dbcur = dbcur;
 		DP(rs)->dbcur_free = (c)->df->dbcurfree;
@@ -76,7 +76,7 @@ static METHOD Connection_exec(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_Connection_t *c = (knh_Connection_t*)sfp[0].o;
 	knh_String_t *query = (knh_String_t*)sfp[1].o;
-	(c)->df->dbquery(ctx, (c)->conn, knh_String_tobytes(query), NULL);
+	(c)->df->dbquery(ctx, (c)->conn, __tobytes(query), NULL);
 	KNH_RETURN_void(ctx, sfp);
 }
 
@@ -138,7 +138,7 @@ int knh_ResultSet_indexof_(Ctx *ctx, knh_sfp_t *sfp)
 		return n;
 	}
 	else if(IS_bString(sfp[1].o)) {
-		int loc = knh_ResultSet_findColumn(ctx, o, knh_String_tobytes(sfp[1].s));
+		int loc = knh_ResultSet_findColumn(ctx, o, __tobytes(sfp[1].s));
 		if(loc == -1) {
 			KNH_STUPID(ctx, o, STUPID_NOTFOUND);
 		}
@@ -157,7 +157,7 @@ static METHOD ResultSet_getInt(Ctx *ctx, knh_sfp_t *sfp)
 	knh_int_t res = 0;
 	if(n >= 0) {
 		knh_ResultSet_t *o = (knh_ResultSet_t*)sfp[0].o;
-		char *p = knh_Bytes_tochar(DP(o)->databuf) + DP(o)->column[n].start;
+		char *p = knh_Bytes__tochar(DP(o)->databuf) + DP(o)->column[n].start;
 		switch(DP(o)->column[n].ctype) {
 		case knh_ResultSet_CTYPE__integer :
 			res = *((knh_int_t*)p);
@@ -183,7 +183,7 @@ static METHOD ResultSet_getFloat(Ctx *ctx, knh_sfp_t *sfp)
 	knh_float_t res = 0;
 	if(n >= 0) {
 		knh_ResultSet_t *o = (knh_ResultSet_t*)sfp[0].o;
-		char *p = knh_Bytes_tochar(DP(o)->databuf) + DP(o)->column[n].start;
+		char *p = knh_Bytes__tochar(DP(o)->databuf) + DP(o)->column[n].start;
 		switch(DP(o)->column[n].ctype) {
 		case knh_ResultSet_CTYPE__integer :
 			res = (knh_float_t)(*((knh_int_t*)p));
@@ -222,19 +222,19 @@ static METHOD ResultSet_get(Ctx *ctx, knh_sfp_t *sfp)
 	Object *v = KNH_NULL;
 	if(n >= 0) {
 		knh_ResultSet_t *o = (knh_ResultSet_t*)sfp[0].o;
-		char *p = knh_Bytes_tochar(DP(o)->databuf) + DP(o)->column[n].start;
+		char *p = knh_Bytes__tochar(DP(o)->databuf) + DP(o)->column[n].start;
 		switch(DP(o)->column[n].ctype) {
 		case knh_ResultSet_CTYPE__integer :
 			KNH_RETURN_NNInt(ctx, sfp, (*((knh_int_t*)p)));
 		case knh_ResultSet_CTYPE__float :
 			KNH_RETURN_NNFloat(ctx, sfp, (*((knh_float_t*)p)));
 		case knh_ResultSet_CTYPE__text :
-			v = UP(new_String(ctx, B2(knh_Bytes_tochar(DP(o)->databuf) + DP(o)->column[n].start, DP(o)->column[n].len), NULL));
+			v = UP(new_String(ctx, B2(knh_Bytes__tochar(DP(o)->databuf) + DP(o)->column[n].start, DP(o)->column[n].len), NULL));
 			break;
 		case knh_ResultSet_CTYPE__bytes :
 			{
 				knh_Bytes_t *ba = new_Bytes(ctx, DP(o)->column[n].len);
-				knh_Bytes_write(ctx, ba, B2(knh_Bytes_tochar(DP(o)->databuf) + DP(o)->column[n].start, DP(o)->column[n].len));
+				knh_Bytes_write(ctx, ba, B2(knh_Bytes__tochar(DP(o)->databuf) + DP(o)->column[n].start, DP(o)->column[n].len));
 				v = UP(ba);
 			}
 			break;
@@ -256,9 +256,9 @@ static void knh_ResultSet__dump(Ctx *ctx, knh_ResultSet_t *o, knh_OutputStream_t
 		if(n > 0) {
 			knh_write_delim(ctx,w);
 		}
-		knh_write(ctx, w, knh_String_tobytes(DP(o)->column[n].name));
+		knh_write(ctx, w, __tobytes(DP(o)->column[n].name));
 		knh_printf(ctx, w, "(%d): ", n);
-		char *p = knh_Bytes_tochar(DP(o)->databuf) + DP(o)->column[n].start;
+		char *p = knh_Bytes__tochar(DP(o)->databuf) + DP(o)->column[n].start;
 		switch(DP(o)->column[n].ctype) {
 			case knh_ResultSet_CTYPE__null :
 				knh_write(ctx, w, STEXT("null"));

@@ -40,8 +40,8 @@ extern "C" {
 
 knh_bool_t knh_class_instanceof(Ctx *ctx, knh_class_t scid, knh_class_t tcid)
 {
-	KNH_ASSERT_cid(scid);
-	KNH_ASSERT_cid(tcid);
+	DBG2_ASSERT_cid(scid);
+	DBG2_ASSERT_cid(tcid);
 	if(scid == tcid || tcid == CLASS_Object || tcid == CLASS_Any ) return 1;
 	if(ClassTable(scid).bcid == tcid) return 1; /* Int:km Int */
 	if(knh_class_isGenerics(scid)) {
@@ -83,8 +83,8 @@ knh_bool_t knh_Object_opTypeOf(Ctx *ctx, Object *o, knh_type_t t)
 knh_class_t knh_class_parent(Ctx *ctx, knh_class_t c1, knh_class_t c2)
 {
 	knh_class_t p1, p2;
-	KNH_ASSERT_cid(c1);
-	KNH_ASSERT_cid(c2);
+	DBG2_ASSERT_cid(c1);
+	DBG2_ASSERT_cid(c2);
 	if(c1 == c2) return c1;
 	p1 = ClassTable(c1).supcid;
 	p2 = ClassTable(c2).supcid;
@@ -100,8 +100,8 @@ knh_class_t knh_class_parent(Ctx *ctx, knh_class_t c1, knh_class_t c2)
 //
 //knh_bool_t knh_class_isSynonym(Ctx *ctx, knh_class_t scid, knh_class_t tcid)
 //{
-//	KNH_ASSERT_cid(scid);
-//	KNH_ASSERT_cid(tcid);
+//	DBG2_ASSERT_cid(scid);
+//	DBG2_ASSERT_cid(tcid);
 //	return 0;
 //}
 
@@ -121,7 +121,7 @@ knh_class_t knh_class_parent(Ctx *ctx, knh_class_t c1, knh_class_t c2)
 //
 //Object* knh_Object_opAs(Ctx *ctx, Object *o, knh_class_t tcid)
 //{
-//	KNH_ASSERT_cid(tcid);
+//	DBG2_ASSERT_cid(tcid);
 //	if(IS_NULL(o)) {
 //		return o;  /* @see */
 //	}
@@ -133,7 +133,7 @@ knh_class_t knh_class_parent(Ctx *ctx, knh_class_t c1, knh_class_t c2)
 //		else if(ClassTable(tcid).bcid == scid) {
 //			if(IS_String(o)) {
 //				String *s = (String*)o;
-//				return UP(new_StringX(ctx, tcid, knh_String_tobytes(s), s));
+//				return UP(new_StringX(ctx, tcid, __tobytes(s), s));
 //			}
 //			return o;
 //		}

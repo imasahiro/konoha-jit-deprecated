@@ -58,10 +58,10 @@ void knh_Token_setFL(knh_Token_t *o, Any *fln)
 		SP(o)->uri =  SP(tk)->uri;
 		SP(o)->line =  SP(tk)->line;
 	}
-	else if(IS_Asm((Object*)fln)) {
-		knh_Asm_t *abr = (knh_Asm_t*)fln;
-		SP(o)->uri =  DP(abr)->uri;
-		SP(o)->line =  DP(abr)->line;
+	else if(IS_Gamma((Object*)fln)) {
+		knh_Gamma_t *abr = (knh_Gamma_t*)fln;
+		SP(o)->uri =  SP(abr)->uri;
+		SP(o)->line =  SP(abr)->line;
 	}
 	else {
 		knh_Stmt_t *stmt = (knh_Stmt_t*)fln;
@@ -177,7 +177,7 @@ void knh_Token_tokens_empty(Ctx *ctx, knh_Token_t *o)
 /* ======================================================================== */
 /* [movabletext] */
 
-char *knh_Token_tochar(Ctx *ctx, knh_Token_t *o)
+char *knh_Token__tochar(Ctx *ctx, knh_Token_t *o)
 {
 	KNH_ASSERT(IS_Token(o));
 	if(SP(o)->tt == TT_ASIS) { return "_"; }
@@ -185,7 +185,7 @@ char *knh_Token_tochar(Ctx *ctx, knh_Token_t *o)
 		return knh_token_tochar(SP(o)->tt);
 	}
 	if(IS_String(DP(o)->text)) {
-		return knh_String_tochar(DP(o)->text);
+		return __tochar(DP(o)->text);
 	}
 	if(SP(o)->tt == TT_CID) {
 		return CLASSN(DP(o)->cid);

@@ -325,16 +325,16 @@ size_t knh_code_opsize(int opcode)
 #------------------------------------------------------------------------------
 
 def write_KCODE_asm_c(f, kc):
-	proto = 'knh_code_t* KNH_ASM_%s_(Ctx *ctx, knh_Asm_t *o%s)' % (kc.name, kc.args())
+	proto = 'knh_code_t* KNH_ASM_%s_(Ctx *ctx, knh_Gamma_t *o%s)' % (kc.name, kc.args())
 	CPROTO.append(proto)
-	COND = '!knh_Asm_isCancelled(o)'
+	COND = '!knh_Gamma_isCancelled(o)'
 	if kc.opcode == 0: COND = '1'
 	f.write('''
 %s
 {
 	%s *op = NULL;
 	if(%s) {
-		op = (%s*)knh_Asm_asmmalloc(ctx, o, %s);
+		op = (%s*)knh_Gamma_asmmalloc(ctx, o, %s);
 		op->opcode = %s;''' % (proto, kc.ctype, COND, kc.ctype, kc.SIZE, kc.opcode))
 	c = 1;
 	for a in kc.tokens[1:]:
@@ -370,17 +370,17 @@ def write_asm_c(f):
 
 def write_label(f):
 	write_chapter(f, '[label]')
-	CPROTO.append('void knh_Asm_remapAddress(Ctx *ctx, knh_Asm_t *o)')
+	CPROTO.append('void knh_Gamma_remapAddress(Ctx *ctx, knh_Gamma_t *o)')
 	f.write('''
 
-typedef void (*frewrite)(Ctx *ctx, knh_Asm_t *o, knh_code_t *pc_start, knh_kode_t *op);
+typedef void (*frewrite)(Ctx *ctx, knh_Gamma_t *o, knh_code_t *pc_start, knh_kode_t *op);
 
-void knh_rewrite_addr(Ctx *ctx, knh_Asm_t *o, knh_code_t *pc_start, knh_kode_t *op)
+void knh_rewrite_addr(Ctx *ctx, knh_Gamma_t *o, knh_code_t *pc_start, knh_kode_t *op)
 {
 	int offset = DP(o)->labels[op->a1].offset;
 	if(offset == -1) {
-		DBG_P("Asm!!: unknown Labelid=%d", op->a1);
-		knh_Asm_setCancelled(o, 1);
+		DBG_P("Gamma!!: unknown Labelid=%d", op->a1);
+		knh_Gamma_setCancelled(o, 1);
 	}else {
 		op->jumppc = pc_start + offset;
 		//DBG2_P("%p, op=%d, jmp=%p", op, op->opcode, op->jumpaddr);
@@ -389,7 +389,7 @@ void knh_rewrite_addr(Ctx *ctx, knh_Asm_t *o, knh_code_t *pc_start, knh_kode_t *
 
 /* ------------------------------------------------------------------------ */
 
-void knh_rewrite_NOP(Ctx *ctx, knh_Asm_t *o, knh_code_t *pc_start, knh_kode_t *op)
+void knh_rewrite_NOP(Ctx *ctx, knh_Gamma_t *o, knh_code_t *pc_start, knh_kode_t *op)
 {
 	//DBG2_P("%p, op=%d", op, op->opcode);
 }
@@ -409,7 +409,7 @@ static frewrite OPREWRITE[] = {''')
 
 /* ------------------------------------------------------------------------ */
 
-void knh_Asm_writeAddress(Ctx *ctx, knh_Asm_t *o, knh_code_t *pc_start)
+void knh_Gamma_writeAddress(Ctx *ctx, knh_Gamma_t *o, knh_code_t *pc_start)
 {
 	knh_code_t *pc = pc_start;
 	while(1) {

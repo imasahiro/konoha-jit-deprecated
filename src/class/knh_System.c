@@ -75,7 +75,7 @@ Any* knh_System_getProperty(Ctx *ctx, knh_System_t *o, knh_bytes_t key)
 
 void knh_System_setProperty(Ctx *ctx, knh_System_t *o, knh_String_t *key, Any *value)
 {
-	knh_type_t type = knh_getPropertyType(ctx, knh_String_tobytes(key));
+	knh_type_t type = knh_getPropertyType(ctx, __tobytes(key));
 	if(type == TYPE_Any || knh_Object_cid(value) == CLASS_type(type)) {
 		knh_DictMap_set(ctx, DP(o)->props, key, value);
 	}

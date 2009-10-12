@@ -78,10 +78,10 @@ void knh_Object__s(Ctx *ctx, Object *b, knh_OutputStream_t *w, knh_String_t *m)
 static METHOD Boolean__s(Ctx *ctx, knh_sfp_t *sfp)
 {
 	if(p_bool(sfp[0])) {
-		knh_write(ctx, sfp[1].w, knh_String_tobytes(TS_true));
+		knh_write(ctx, sfp[1].w, __tobytes(TS_true));
 	}
 	else {
-		knh_write(ctx, sfp[1].w, knh_String_tobytes(TS_false));
+		knh_write(ctx, sfp[1].w, __tobytes(TS_false));
 	}
 }
 
@@ -99,7 +99,7 @@ static METHOD Int__s(Ctx *ctx, knh_sfp_t *sfp)
 static
 void knh_String__s(Ctx *ctx, knh_String_t *b, knh_OutputStream_t *w, knh_String_t *m)
 {
-	knh_print(ctx, w, knh_String_tobytes(b));
+	knh_print(ctx, w, __tobytes(b));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -108,7 +108,7 @@ void knh_String__s(Ctx *ctx, knh_String_t *b, knh_OutputStream_t *w, knh_String_
 void knh_Regex__s(Ctx *ctx, knh_Regex_t *o, knh_OutputStream_t *w, knh_String_t *m)
 {
 	knh_putc(ctx, w, '\'');
-	knh_write(ctx, w, knh_String_tobytes(o->pattern));
+	knh_write(ctx, w, __tobytes(o->pattern));
 	knh_putc(ctx, w, '\'');
 }
 
@@ -235,7 +235,7 @@ void knh_String__k(Ctx *ctx, knh_String_t *o, knh_OutputStream_t *w, knh_String_
 	int quote = '\'';
 	if(knh_Object_cid(o) == CLASS_String) quote = '"';
 	knh_putc(ctx, w, quote);
-	knh_bytes_t t = knh_String_tobytes(o);
+	knh_bytes_t t = __tobytes(o);
 	knh_bytes_t sub = t;
 	size_t i, s = 0;
 	for(i = 0; i < o->size; i++) {
@@ -442,7 +442,7 @@ void knh_DictMap__k(Ctx *ctx, knh_DictMap_t *o, knh_OutputStream_t *w, knh_Strin
 		if(c > 0) {
 			knh_write_delim(ctx, w);
 		}
-		knh_write(ctx, w, knh_String_tobytes(o->list[c].key));
+		knh_write(ctx, w, __tobytes(o->list[c].key));
 		knh_putc(ctx, w, ':');	knh_putc(ctx, w, ' ');
 		knh_format(ctx, w, METHODN__k, o->list[c].value, KNH_NULL);
 	}
@@ -462,7 +462,7 @@ void knh_DictSet__k(Ctx *ctx, knh_DictSet_t *o, knh_OutputStream_t *w, knh_Strin
 		if(c > 0) {
 			knh_write_delim(ctx, w);
 		}
-		knh_write(ctx, w, knh_String_tobytes(o->list[c].key));
+		knh_write(ctx, w, __tobytes(o->list[c].key));
 //		knh_putc(ctx, w, ':');	knh_putc(ctx, w, ' ');
 //		knh_format(ctx, w, static METHODN__k, o->list[c].value, KNH_NULL);
 	}
@@ -522,7 +522,7 @@ void knh_Method__k(Ctx *ctx, knh_Method_t *o, knh_OutputStream_t *w, knh_String_
 		knh_putc(ctx, w, ' ');
 	}
 	if(knh_Method_rztype(o) == TYPE_void) {
-		knh_write(ctx, w, knh_String_tobytes(TS_void));
+		knh_write(ctx, w, __tobytes(TS_void));
 	}else{
 		knh_write_type(ctx, w, knh_Method_rztype(o));
 	}
@@ -583,7 +583,7 @@ void knh_Exception__k(Ctx *ctx, knh_Exception_t *o, knh_OutputStream_t *w, knh_S
 {
 	KNH_ASSERT(IS_Exception(o));
 	knh_putc(ctx, w, '\'');
-	knh_write(ctx, w, knh_String_tobytes(DP(o)->msg));
+	knh_write(ctx, w, __tobytes(DP(o)->msg));
 	knh_putc(ctx, w, '\'');
 }
 
@@ -594,7 +594,7 @@ static
 void knh_InputStream__k(Ctx *ctx, knh_InputStream_t *o, knh_OutputStream_t *w, knh_String_t *m)
 {
 	knh_putc(ctx, w, '\'');
-	knh_print(ctx, w, knh_String_tobytes(DP(o)->urn));
+	knh_print(ctx, w, __tobytes(DP(o)->urn));
 	knh_putc(ctx, w, '\'');
 }
 
@@ -605,7 +605,7 @@ static
 void knh_OutputStream__k(Ctx *ctx, knh_OutputStream_t *o, knh_OutputStream_t *w, knh_String_t *m)
 {
 	knh_putc(ctx, w, '\'');
-	knh_print(ctx, w, knh_String_tobytes(DP(o)->urn));
+	knh_print(ctx, w, __tobytes(DP(o)->urn));
 	knh_putc(ctx, w, '\'');
 }
 
@@ -633,7 +633,7 @@ void knh_Script__k(Ctx *ctx, knh_Script_t *o, knh_OutputStream_t *w, knh_String_
 static
 void knh_Any__k(Ctx *ctx, knh_Any_t *o, knh_OutputStream_t *w, knh_String_t *m)
 {
-	knh_write(ctx, w, knh_String_tobytes(TS_null));
+	knh_write(ctx, w, __tobytes(TS_null));
 }
 
 /* ======================================================================== */
@@ -721,7 +721,7 @@ void knh_DictSet__dump(Ctx *ctx, knh_DictSet_t *o, knh_OutputStream_t *w, knh_St
 		if(c > 0) {
 			knh_write_delim(ctx, w);
 		}
-		knh_write(ctx, w, knh_String_tobytes(o->list[c].key));
+		knh_write(ctx, w, __tobytes(o->list[c].key));
 		knh_putc(ctx, w, ':');	knh_putc(ctx, w, ' ');
 		knh_write_dfmt(ctx, w, KNH_INTPTR_FMT, o->list[c].value);
 	}
@@ -763,7 +763,7 @@ void knh_Exception__dump(Ctx *ctx, knh_Exception_t *o, knh_OutputStream_t *w, kn
 	if(DP(o)->line != 0) {
 		knh_printf(ctx, w, "[%s:%d] ", DP(o)->file, DP(o)->line);
 	}
-	knh_write(ctx, w, knh_String_tobytes(DP(o)->msg));
+	knh_write(ctx, w, __tobytes(DP(o)->msg));
 	if(IS_bArray(DP(o)->traces)) {
 		size_t i, size = knh_Array_size(DP(o)->traces), c = 0;
 		knh_bytes_t prev = STEXT("?");
@@ -777,8 +777,8 @@ void knh_Exception__dump(Ctx *ctx, knh_Exception_t *o, knh_OutputStream_t *w, kn
 				knh_printf(ctx, w, "\n    ** called %d times recursively **", c);
 				c = 0;
 			}
-			knh_printf(ctx, w, "\n  at %s", knh_String_tochar(s));
-			prev = knh_String_tobytes(s);
+			knh_printf(ctx, w, "\n  at %s", __tochar(s));
+			prev = __tobytes(s);
 			prev = knh_bytes_first(prev, knh_bytes_rindex(prev, '('));
 		}
 	}
@@ -899,7 +899,7 @@ void knh_String__data(Ctx *ctx, knh_String_t *o, knh_OutputStream_t *w, knh_Stri
 {
 	knh_putc(ctx, w, '@');
 	knh_putc(ctx, w, '"');
-	knh_print(ctx, w, knh_String_tobytes(o));
+	knh_print(ctx, w, __tobytes(o));
 	knh_putc(ctx, w, '"');
 }
 
@@ -995,7 +995,7 @@ static
 void knh_Exception__data(Ctx *ctx, knh_Exception_t *o, knh_OutputStream_t *w, knh_String_t *m)
 {
 	DBG2_ASSERT(IS_Exception(o));
-	knh_write(ctx, w, knh_String_tobytes(DP(o)->msg));
+	knh_write(ctx, w, __tobytes(DP(o)->msg));
 }
 
 /* ======================================================================== */
@@ -1004,7 +1004,7 @@ void knh_Exception__data(Ctx *ctx, knh_Exception_t *o, knh_OutputStream_t *w, kn
 static
 void knh_ClassCONST__man(Ctx *ctx, knh_class_t cid, knh_OutputStream_t *w)
 {
-	KNH_ASSERT_cid(cid);
+	DBG2_ASSERT_cid(cid);
 	if(ClassTable(cid).constPool == NULL) return ;
 	knh_DictMap_t *tcmap = ClassTable(cid).constPool;
 	size_t i, size = knh_DictMap_size(tcmap);
@@ -1017,7 +1017,7 @@ void knh_ClassCONST__man(Ctx *ctx, knh_class_t cid, knh_OutputStream_t *w)
 			hasCaption = 1;
 		}
 		knh_printf(ctx, w, "\t%s.%s: %O\n", CLASSN(cid),
-				knh_String_tochar(knh_DictMap_keyAt(tcmap, i)),
+				__tochar(knh_DictMap_keyAt(tcmap, i)),
 				knh_DictMap_valueAt(tcmap, i));
 	}
 	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
@@ -1069,7 +1069,7 @@ void knh_ClassMap__man(Ctx *ctx, knh_ClassMap_t *cmap, knh_OutputStream_t *w, kn
 /* ------------------------------------------------------------------------ */
 
 static
-char *knh_methodop_tochar(knh_methodn_t mn)
+char *knh_methodop__tochar(knh_methodn_t mn)
 {
 	switch(mn) {
 	case METHODN_opNot: return "!x";
@@ -1128,14 +1128,14 @@ void knh_ClassNAME__man(Ctx *ctx, knh_class_t cid, knh_OutputStream_t *w)
 	knh_write_EOL(ctx, w);
 
 	knh_write_TAB(ctx, w);
-	knh_write(ctx, w, knh_String_tobytes(ClassTable(cid).lname));
+	knh_write(ctx, w, __tobytes(ClassTable(cid).lname));
 	knh_write_EOL(ctx, w);
 
 	while(ClassTable(cid).supcid != CLASS_Object) {
 		cid = ClassTable(cid).supcid;
 		knh_write_TAB(ctx, w);
 		knh_write(ctx, w, STEXT("extends "));
-		knh_write(ctx, w, knh_String_tobytes(ClassTable(cid).lname));
+		knh_write(ctx, w, __tobytes(ClassTable(cid).lname));
 		knh_write_EOL(ctx, w);
 	}
 }
@@ -1194,7 +1194,7 @@ void knh_Class__man(Ctx *ctx, knh_Class_t *o, knh_OutputStream_t *w, knh_String_
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 	KNH_LPUSH(ctx, dm);
 
-	KNH_ASSERT_cid(cid);
+	DBG2_ASSERT_cid(cid);
 	knh_ClassNAME__man(ctx, cid, w);
 	knh_ClassCONST__man(ctx, cid, w);
 
@@ -1202,7 +1202,7 @@ void knh_Class__man(Ctx *ctx, knh_Class_t *o, knh_OutputStream_t *w, knh_String_
 		knh_Array_t *a = ClassTable(cid).cstruct->methods;
 		for(i = 0; i < knh_Array_size(a); i++) {
 			knh_Method_t *mtd = (knh_Method_t*)knh_Array_n(a, i);
-			char *op = knh_methodop_tochar(DP(mtd)->mn);
+			char *op = knh_methodop__tochar(DP(mtd)->mn);
 			if(op == NULL) {
 				knh_cwb_subclear(cwb, 0);
 				knh_write_mn(ctx, cwb->w, knh_Method_rztype(mtd), DP(mtd)->mn);
@@ -1229,7 +1229,7 @@ void knh_Class__man(Ctx *ctx, knh_Class_t *o, knh_OutputStream_t *w, knh_String_
 	for(i = 0; i < knh_DictMap_size(dm); i++) {
 		knh_Method_t *mtd = (knh_Method_t*)knh_DictMap_valueAt(dm, i);
 		if(IS_Method(mtd)) {
-			char *op = knh_methodop_tochar(DP(mtd)->mn);
+			char *op = knh_methodop__tochar(DP(mtd)->mn);
 			if(op == NULL) continue;
 			knh_DictMap_removeAt(ctx, dm, i);
 			if(DP(mtd)->cid == CLASS_Object && cid != CLASS_Object) continue;
@@ -1295,7 +1295,7 @@ void knh_Class__man(Ctx *ctx, knh_Class_t *o, knh_OutputStream_t *w, knh_String_
 				knh_write_TAB(ctx, w);
 				hasCaption = 1;
 			}
-			knh_bytes_t k = knh_String_tobytes(knh_DictMap_keyAt(dm, i));
+			knh_bytes_t k = __tobytes(knh_DictMap_keyAt(dm, i));
 			if(cnt + k.len > 72) {
 				knh_write_EOL(ctx, w);
 				knh_write_TAB(ctx, w);
@@ -1353,7 +1353,7 @@ static METHOD Int__d(Ctx *ctx, knh_sfp_t *sfp)
 {
 	if(IS_String(sfp[2].s)) {
 		char fmt[40];
-		knh_format_newFMT(fmt, sizeof(fmt), knh_String_tobytes(sfp[2].s), 0, KNH_INT_FMT);
+		knh_format_newFMT(fmt, sizeof(fmt), __tobytes(sfp[2].s), 0, KNH_INT_FMT);
 		knh_write_ifmt(ctx, sfp[1].w, fmt, sfp[0].ivalue);
 	}
 	else {
@@ -1368,7 +1368,7 @@ static METHOD Int__u(Ctx *ctx, knh_sfp_t *sfp)
 {
 	if(IS_String(sfp[2].s)) {
 		char fmt[40];
-		knh_format_newFMT(fmt, sizeof(fmt), knh_String_tobytes(sfp[2].s), 0, KNH_UINT_FMT);
+		knh_format_newFMT(fmt, sizeof(fmt), __tobytes(sfp[2].s), 0, KNH_UINT_FMT);
 		knh_write_ifmt(ctx, sfp[1].w, fmt, sfp[0].ivalue);
 	}
 	else {
@@ -1383,7 +1383,7 @@ static METHOD Int__f(Ctx *ctx, knh_sfp_t *sfp)
 {
 	if(IS_String(sfp[2].s)) {
 		char fmt[40];
-		knh_format_newFMT(fmt, sizeof(fmt), knh_String_tobytes(sfp[2].s), 1, KNH_FLOAT_FMT);
+		knh_format_newFMT(fmt, sizeof(fmt), __tobytes(sfp[2].s), 1, KNH_FLOAT_FMT);
 		knh_write_ffmt(ctx, sfp[1].w, fmt, (knh_float_t)sfp[0].ivalue);
 	}
 	else {
@@ -1398,7 +1398,7 @@ static METHOD Int__x(Ctx *ctx, knh_sfp_t *sfp)
 {
     if(IS_String(sfp[2].s)) {
         char fmt[40];
-        knh_format_newFMT(fmt, sizeof(fmt), knh_String_tobytes(sfp[2].s), 1, KNH_INT_XFMT);
+        knh_format_newFMT(fmt, sizeof(fmt), __tobytes(sfp[2].s), 1, KNH_INT_XFMT);
         knh_write_ifmt(ctx, sfp[1].w, fmt, sfp[0].ivalue);
     }
     else {
@@ -1449,7 +1449,7 @@ static METHOD Float__d(Ctx *ctx, knh_sfp_t *sfp)
 {
 	if(IS_String(sfp[2].s)) {
 		char fmt[40];
-		knh_format_newFMT(fmt, sizeof(fmt), knh_String_tobytes(sfp[2].s), 0, KNH_INT_FMT);
+		knh_format_newFMT(fmt, sizeof(fmt), __tobytes(sfp[2].s), 0, KNH_INT_FMT);
 		//DBG_P("fmt='%s'", fmt);
 		knh_write_ifmt(ctx, sfp[1].w, fmt, (knh_int_t)p_float(sfp[0]));
 	}
@@ -1465,7 +1465,7 @@ static METHOD Float__f(Ctx *ctx, knh_sfp_t *sfp)
 {
 	if(IS_String(sfp[2].s)) {
 		char fmt[40];
-		knh_format_newFMT(fmt, sizeof(fmt), knh_String_tobytes(sfp[2].s), 1, KNH_FLOAT_FMT);
+		knh_format_newFMT(fmt, sizeof(fmt), __tobytes(sfp[2].s), 1, KNH_FLOAT_FMT);
 		//DBG_P("fmt='%s'", fmt);
 		knh_write_ffmt(ctx, sfp[1].w, fmt, p_float(sfp[0]));
 	}

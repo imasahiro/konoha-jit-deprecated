@@ -300,7 +300,7 @@ void knh_iodrv_init__HTTP(Ctx *ctx, Object *stream, char *mode)
 		do {
 			knh_String_t *s = knh_InputStream_readLine(ctx, in);
 			KNH_SETv(ctx, esp[0].o, s);  // TO AVOID GC
-			knh_bytes_t t = knh_String_tobytes(s);
+			knh_bytes_t t = __tobytes(s);
 			int loc = knh_bytes_indexOf(t, STEXT("charset="));
 			if(loc > 0) {
 				DBG_P("charset='%s'", t.buf + 8);

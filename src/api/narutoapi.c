@@ -45,7 +45,7 @@ extern "C" {
 
 static METHOD Script_isStmt(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURN_Boolean(ctx, sfp, !(knh_bytes_checkStmtLine(knh_String_tobytes(sfp[1].s))));
+	KNH_RETURN_Boolean(ctx, sfp, !(knh_bytes_checkStmtLine(__tobytes(sfp[1].s))));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -56,7 +56,7 @@ static METHOD Script_eval(Ctx *ctx, knh_sfp_t *sfp)
 	if(IS_NOTNULL(sfp[1].s)) {
 		knh_sfp_t *lsfp = KNH_LOCAL(ctx);
 		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-		knh_cwb_write(ctx, cwb, knh_String_tobytes(sfp[1].s));
+		knh_cwb_write(ctx, cwb, __tobytes(sfp[1].s));
 		knh_cwb_putc(ctx, cwb, '\n');
 		knh_InputStream_t *in = new_BytesInputStream(ctx, cwb->ba, cwb->pos, knh_Bytes_size(cwb->ba));
 		KNH_LPUSH(ctx, in);
@@ -94,7 +94,7 @@ static METHOD Script_readLine(Ctx *ctx, knh_sfp_t *sfp)
 
 static METHOD Script_addHistory(Ctx *ctx, knh_sfp_t *sfp)
 {
-	knh_add_history(knh_String_tochar(sfp[1].s));
+	knh_add_history(__tochar(sfp[1].s));
 	KNH_RETURN_void(ctx, sfp);
 }
 
@@ -109,7 +109,7 @@ static METHOD System_setMethodTypingListener(Ctx *ctx, knh_sfp_t *sfp)
 	}
 	else {
 		knh_cwb_t cwbbuf, *cwb = knh_cwb_openinit(ctx, &cwbbuf, STEXT("MethodT"));
-		knh_bytes_t anno = knh_String_tobytes(sfp[2].s);
+		knh_bytes_t anno = __tobytes(sfp[2].s);
 		if(anno.buf[0] != '@') {
 			knh_cwb_putc(ctx, cwb, '@');
 		}
@@ -136,7 +136,7 @@ static METHOD System_setMethodCompilationListener(Ctx *ctx, knh_sfp_t *sfp)
 	}
 	else {
 		knh_cwb_t cwbbuf, *cwb = knh_cwb_openinit(ctx, &cwbbuf, STEXT("MethodC"));
-		knh_bytes_t anno = knh_String_tobytes(sfp[2].s);
+		knh_bytes_t anno = __tobytes(sfp[2].s);
 		if(anno.buf[0] != '@') {
 			knh_cwb_putc(ctx, cwb, '@');
 		}

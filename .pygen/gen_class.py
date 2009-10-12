@@ -39,12 +39,12 @@ TYPES = {
 	'float/Float':		'new_Float(ctx, (knh_float_t)%s)',
 	'double/Float':	   'new_Float(ctx, (knh_float_t)%s)',
 
-	'String!/char*':	   'knh_String_tochar((String*)%s)',
-	'String!/knh_bytes_t': 'knh_String_tobytes((String*)%s)', 
-	'String/char*':	   'knh_StringNULL_tochar((String*)%s)',
+	'String!/char*':	   '__tochar((String*)%s)',
+	'String!/knh_bytes_t': '__tobytes((String*)%s)', 
+	'String/char*':	   'knh_StringNULL__tochar((String*)%s)',
 	'String/knh_bytes_t': 'knh_StringNULL_tobytes((String*)%s)', 
 	'String!/knh_methodn_t' : 
-		'knh_tmethodn_forname(ctx, knh_String_tobytes((String*)%s), METHODN_NONAME)', 
+		'knh_tmethodn_forname(ctx, __tobytes((String*)%s), METHODN_NONAME)', 
 
 	'char*/String':	   'new_String(ctx, %s)',
 	'knh_bytes_t/String': 'new_String(ctx, CLASS_String, %s)', 
@@ -286,9 +286,9 @@ def gen_class_h(bdir, data):
 #			if c.cname == 'Closure': op = '\tknh_sfp_t *envsfp;\n\tsize_t *envsfp;\n'
 			if c.cname == 'Token':    op = '\tknh_uri_t uri;\n\tknh_ushort_t line;\n\tknh_flag_t flag;\n\tknh_token_t  tt;\n'
 			if c.cname == 'Stmt':     op = '\tknh_uri_t uri;\n\tknh_ushort_t line;\n\tknh_flag_t flag;\n\tknh_stmt_t  stt;\n'
-			if c.cname == 'Asm':    op = '\tknh_uri_t uri;\n\tknh_ushort_t line;\n'
+			if c.cname == 'Gamma':    op = '\tknh_uri_t uri;\n\tknh_ushort_t line;\n'
 			if c.cname == 'KLRCode':     op = '\tknh_uri_t uri;\n\tknh_ushort_t line;\n'
-			#if c.cname == 'Asm': op = '\tknh_uri_t uri;\n\tknh_ushort_t line;\n\tknh_flag_t flag;\n\tknh_ushort_t dummy;\n'
+			#if c.cname == 'Gamma': op = '\tknh_uri_t uri;\n\tknh_ushort_t line;\n\tknh_flag_t flag;\n\tknh_ushort_t dummy;\n'
 			f.write('''
 typedef struct knh_%s_t {
 \tknh_hObject_t h;

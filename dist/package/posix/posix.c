@@ -142,7 +142,7 @@ METHOD System_getCwd(Ctx *ctx, knh_sfp_t *sfp)
 METHOD System_chDir(Ctx *ctx, knh_sfp_t *sfp)
 {
     char dirname[FILEPATH_BUFSIZ];
-    knh_format_ospath(ctx, dirname, sizeof(dirname), knh_String_tobytes(sfp[1].s));
+    knh_format_ospath(ctx, dirname, sizeof(dirname), __tobytes(sfp[1].s));
     if(chdir(dirname) == -1) {
         KNH_PERRNO(ctx, "OS!!", "chdir", knh_Context_isStrict(ctx));
     }

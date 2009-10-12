@@ -45,7 +45,7 @@ extern "C" {
 
 static METHOD DictMap_opHas(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURN_Boolean(ctx, sfp, knh_DictMap_index((knh_DictMap_t*)sfp[0].o, knh_String_tobytes(sfp[1].s)) != -1);
+	KNH_RETURN_Boolean(ctx, sfp, knh_DictMap_index((knh_DictMap_t*)sfp[0].o, __tobytes(sfp[1].s)) != -1);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -132,7 +132,7 @@ static METHOD DictMap_clear(Ctx *ctx, knh_sfp_t *sfp)
 //
 //static METHOD DictSet_opHas(Ctx *ctx, knh_sfp_t *sfp)
 //{
-//	KNH_RETURN_Boolean(ctx, sfp, knh_DictSet_get__b((DictSet*)sfp[0].o, knh_String_tobytes(sfp[1].s)) != 0);
+//	KNH_RETURN_Boolean(ctx, sfp, knh_DictSet_get__b((DictSet*)sfp[0].o, __tobytes(sfp[1].s)) != 0);
 //}
 //
 ///* ------------------------------------------------------------------------ */

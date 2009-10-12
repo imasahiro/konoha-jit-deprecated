@@ -91,7 +91,7 @@ static char* knh_system_lang[] = {
 ''' % (func))
     write_line(f)
 
-    func = 'void knh_Asm_setLang(char *lang)'
+    func = 'void knh_Gamma_setLang(char *lang)'
     CPROTO.append(func+';')
     f.write('''
 %s
@@ -179,7 +179,7 @@ static char* knh_message_data[] = {''')
 ''' % (func))
     write_line(f)
 
-    func = 'char *knh_message_tochar(int e)'
+    func = 'char *knh_message__tochar(int e)'
     CPROTO.append(func+';')
     f.write('''
 %s

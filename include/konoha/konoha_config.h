@@ -52,7 +52,7 @@
 #define KONOHA_MAJOR_VERSION  0
 #define KONOHA_MINER_VERSION  7
 #define KONOHA_PATCH_VERSION  0
-#define KONOHA_VERSION  "0.7b"
+#define KONOHA_VERSION  "0.7b2"
 #endif
 
 #define LIBKONOHA_VERSION "0.7"

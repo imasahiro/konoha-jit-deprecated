@@ -187,7 +187,7 @@ static
 knh_Regex_t *new_Regex(Ctx *ctx, knh_String_t *pattern, knh_String_t *option)
 {
 	knh_Regex_t *o = (knh_Regex_t*)new_hObject(ctx, FLAG_Regex, CLASS_Regex, CLASS_Regex);
-	knh_bytes_t p = knh_String_tobytes(pattern);
+	knh_bytes_t p = __tobytes(pattern);
 	knh_index_t loc = knh_bytes_index(p, ':');
 	KNH_INITv(o->pattern, pattern);
 	if(loc == -1) {
@@ -199,7 +199,7 @@ knh_Regex_t *new_Regex(Ctx *ctx, knh_String_t *pattern, knh_String_t *option)
 	o->reg = o->df->regmalloc(ctx);
 	{
 		char *ptn = (char*)(knh_bytes_last(p, loc+1).buf);
-		char *opt = IS_NULL(option) ? "" : knh_String_tochar(option);
+		char *opt = IS_NULL(option) ? "" : __tochar(option);
 		o->df->regcomp(ctx, o->reg, ptn, opt);
 	}
 	return o;

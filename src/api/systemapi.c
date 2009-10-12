@@ -73,7 +73,7 @@ static METHOD System_getErr(Ctx *ctx, knh_sfp_t *sfp)
 static METHOD System_getProperty(Ctx *ctx, knh_sfp_t *sfp)
 {
 	KNH_RETURN(ctx, sfp,
-		knh_System_getProperty(ctx,(knh_System_t*)sfp[0].o, knh_String_tobytes(sfp[1].s)));
+		knh_System_getProperty(ctx,(knh_System_t*)sfp[0].o, __tobytes(sfp[1].s)));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -113,7 +113,7 @@ static METHOD Script_system(Ctx *ctx, knh_sfp_t *sfp)
 static METHOD System_hasLib(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-	knh_bytes_t libname = knh_String_tobytes(sfp[1].s);
+	knh_bytes_t libname = __tobytes(sfp[1].s);
 	knh_cwb_write(ctx, cwb, libname);
 	knh_cwb_ospath(ctx, cwb);
 	void *p = knh_cwb_dlopen(ctx, cwb);
@@ -157,12 +157,12 @@ static METHOD System_listDir(Ctx *ctx, knh_sfp_t *sfp)
 #if defined(KNH_USING_POSIX)
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 	knh_Array_t *a = new_Array(ctx, CLASS_String, 0);
-	knh_bytes_t t = (IS_NULL(sfp[1].s)) ? STEXT(".") : knh_String_tobytes(sfp[1].s);
+	knh_bytes_t t = (IS_NULL(sfp[1].s)) ? STEXT(".") : __tobytes(sfp[1].s);
 	knh_cwb_write(ctx, cwb, t);
 	knh_cwb_ospath(ctx, cwb);
 	KNH_SETv(ctx, sfp[2].o, a);
 	DIR *dirptr;
-	char *dirname = knh_cwb_tochar(ctx, cwb);
+	char *dirname = knh_cwb__tochar(ctx, cwb);
 	if ((dirptr = opendir(dirname)) == NULL) {
 		KNH_PERRNO(ctx, cwb, "OS!!", "opendir", knh_Context_isStrict(ctx));
 	} else {
@@ -184,7 +184,7 @@ static METHOD System_listDir(Ctx *ctx, knh_sfp_t *sfp)
 
 static METHOD System_hasDir(Ctx *ctx, knh_sfp_t *sfp)
 {
-	knh_cwb_t cwbbuf, *cwb = knh_cwb_openinit(ctx, &cwbbuf, knh_String_tobytes(sfp[1].s));
+	knh_cwb_t cwbbuf, *cwb = knh_cwb_openinit(ctx, &cwbbuf, __tobytes(sfp[1].s));
 	knh_cwb_ospath(ctx, cwb);
 	knh_bool_t res = knh_cwb_isdir(ctx, cwb);
 	knh_cwb_close(cwb);
@@ -196,7 +196,7 @@ static METHOD System_hasDir(Ctx *ctx, knh_sfp_t *sfp)
 
 static METHOD System_hasFile(Ctx *ctx, knh_sfp_t *sfp)
 {
-	knh_cwb_t cwbbuf, *cwb = knh_cwb_openinit(ctx, &cwbbuf, knh_String_tobytes(sfp[1].s));
+	knh_cwb_t cwbbuf, *cwb = knh_cwb_openinit(ctx, &cwbbuf, __tobytes(sfp[1].s));
 	knh_cwb_ospath(ctx, cwb);
 	knh_bool_t res = knh_cwb_isfile(ctx, cwb);
 	knh_cwb_close(cwb);
@@ -210,7 +210,7 @@ static METHOD System_mkdir(Ctx *ctx, knh_sfp_t *sfp)
 {
 	KNH_SECURE(ctx, sfp);
 	KNH_RETURN_Boolean(ctx, sfp,
-		knh_mkdir(ctx, knh_String_tobytes(sfp[1].s), knh_Context_isStrict(ctx))
+		knh_mkdir(ctx, __tobytes(sfp[1].s), knh_Context_isStrict(ctx))
 	);
 }
 
@@ -221,7 +221,7 @@ static METHOD System_unlink(Ctx *ctx, knh_sfp_t *sfp)
 {
 	KNH_SECURE(ctx, sfp);
 	KNH_RETURN_Boolean(ctx, sfp,
-		knh_unlink(ctx, knh_String_tobytes(sfp[1].s), knh_Context_isStrict(ctx))
+		knh_unlink(ctx, __tobytes(sfp[1].s), knh_Context_isStrict(ctx))
 	);
 }
 
@@ -232,8 +232,8 @@ static METHOD System_rename(Ctx *ctx, knh_sfp_t *sfp)
 {
 	KNH_SECURE(ctx, sfp);
 	KNH_RETURN_Boolean(ctx, sfp,
-		knh_rename(ctx, knh_String_tobytes(sfp[1].s),
-			knh_String_tobytes(sfp[2].s), knh_Context_isStrict(ctx))
+		knh_rename(ctx, __tobytes(sfp[1].s),
+			__tobytes(sfp[2].s), knh_Context_isStrict(ctx))
 	);
 }
 
@@ -247,7 +247,7 @@ static METHOD Context_getProperty(Ctx *ctx, knh_sfp_t *sfp)
 {
 	KNH_RETURN(ctx, sfp,
 		knh_Context_getProperty(ctx, (knh_Context_t*)sfp[0].o,
-				knh_String_tobytes(sfp[1].s)));
+				__tobytes(sfp[1].s)));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -278,13 +278,13 @@ static METHOD Context_listProperties(Ctx *ctx, knh_sfp_t *sfp)
 	if(IS_NULL(sfp[1].s)) {
 		KNH_MOV(ctx, sfp[1].o, TS_EMPTY);
 	}
-	knh_bytes_t prefix = knh_String_tobytes(sfp[1].s);
+	knh_bytes_t prefix = __tobytes(sfp[1].s);
 	knh_DictMap_t *map = DP(ctx->sys)->props;
 	size_t i;
 	for(i = 0; i < map->size; i++) {
 		if(IS_NOTNULL(knh_DictMap_valueAt(map, i))) {
 			knh_String_t *key = knh_DictMap_keyAt(map, i);
-			if(knh_bytes_matchWildCard(knh_String_tobytes(key), prefix)) {
+			if(knh_bytes_matchWildCard(__tobytes(key), prefix)) {
 				knh_DictSet_add(ctx, ds, key);
 			}
 		}
@@ -293,7 +293,7 @@ static METHOD Context_listProperties(Ctx *ctx, knh_sfp_t *sfp)
 	for(i = 0; i < map->size; i++) {
 		if(IS_NOTNULL(knh_DictMap_valueAt(map, i))) {
 			knh_String_t *key = knh_DictMap_keyAt(map, i);
-			if(knh_bytes_matchWildCard(knh_String_tobytes(key), prefix)) {
+			if(knh_bytes_matchWildCard(__tobytes(key), prefix)) {
 				knh_DictSet_add(ctx, ds, key);
 			}
 		}

@@ -94,7 +94,7 @@ void knh_stack_pmsg(Ctx *ctx, knh_sfp_t *sfp, knh_flag_t flag, knh_String_t *s)
 	knh_stack_beginPRINT(ctx, sfp, flag, w);
 	KNH_ASSERT(IS_bString(s));
 	if((s)->size > 0) {  /* remove TS_EMPTY */
-		knh_print(ctx, w, knh_String_tobytes(s));
+		knh_print(ctx, w, __tobytes(s));
 	}
 	else {
 		flag = (flag & ~(KNH_FLAG_PF_BOL));

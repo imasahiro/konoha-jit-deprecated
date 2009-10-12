@@ -70,7 +70,7 @@ knh_type_t knh_getPropertyType(Ctx *ctx, knh_bytes_t key)
 
 void knh_Context_setProperty(Ctx *ctx, knh_Context_t *b, knh_String_t *key, Any *value)
 {
-	knh_type_t type = knh_getPropertyType(ctx, knh_String_tobytes(key));
+	knh_type_t type = knh_getPropertyType(ctx, __tobytes(key));
 	if(type == TYPE_Any || knh_Object_cid(value) == CLASS_type(type)) {
 		knh_DictMap_set(ctx, b->props, key, value);
 	}
@@ -90,16 +90,16 @@ void knh_Context_setEncoding(Ctx *ctx, knh_Context_t *o, knh_String_t *enc)
 		enc = KNH_ENC;
 	}
 	KNH_SETv(ctx, o->enc, enc);
-	if(knh_bytes_strcasecmp(knh_String_tobytes(enc), STEXT(KONOHA_ENCODING))==0) {
+	if(knh_bytes_strcasecmp(__tobytes(enc), STEXT(KONOHA_ENCODING))==0) {
 		KNH_SETv(ctx, DP(o->in)->bconv, KNH_NULL);
 		KNH_SETv(ctx, DP(o->out)->bconv, KNH_NULL);
 		KNH_SETv(ctx, DP(o->err)->bconv, KNH_NULL);
 	}
 	else {
-		knh_BytesConv_t *bin = new_BytesConv__in(ctx, knh_String_tochar(enc));
-		knh_BytesConv_t *bout = new_BytesConv__out(ctx, knh_String_tochar(enc));
+		knh_BytesConv_t *bin = new_BytesConv__in(ctx, __tochar(enc));
+		knh_BytesConv_t *bout = new_BytesConv__out(ctx, __tochar(enc));
 		if(IS_NULL(bin) || IS_NULL(bout)) {
-			KNH_WARNING(ctx, "unsupported character encoding: %s", knh_String_tochar(enc));
+			KNH_WARNING(ctx, "unsupported character encoding: %s", __tochar(enc));
 		}
 		KNH_SETv(ctx, DP(o->in)->bconv, bin);
 		KNH_SETv(ctx, DP(o->out)->bconv, bout);

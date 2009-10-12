@@ -235,7 +235,7 @@ static METHOD OutputStream_print(Ctx *ctx, knh_sfp_t *sfp)
 				DP(out)->indent--;
 			}
 			else {
-				knh_OutputStream_print_(ctx, out, knh_String_tobytes(v[i].s), 0);
+				knh_OutputStream_print_(ctx, out, __tobytes(v[i].s), 0);
 			}
 		}
 		else {
@@ -272,7 +272,7 @@ static METHOD OutputStream_println(Ctx *ctx, knh_sfp_t *sfp)
 				DP(out)->indent--;
 			}
 			else {
-				knh_OutputStream_print_(ctx, out, knh_String_tobytes(v[i].s), 0);
+				knh_OutputStream_print_(ctx, out, __tobytes(v[i].s), 0);
 			}
 		}
 		else {
@@ -367,7 +367,7 @@ static METHOD OutputStream_setEncoding(Ctx *ctx, knh_sfp_t *sfp)
 METHOD Socket_new(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_Socket_t *so = (knh_Socket_t*)sfp[0].o;
-	knh_bytes_t urn = knh_String_tobytes(sfp[1].s);
+	knh_bytes_t urn = __tobytes(sfp[1].s);
 	char *ip_or_host = NULL;
 	if(knh_bytes_startsWith(urn, STEXT("socket:"))) {
 		ip_or_host = (char*)(knh_bytes_last(urn, 7)).buf;

@@ -38,6 +38,9 @@
 #ifdef KONOHA_MACROS
 #define T__(msg)          new_StringX__T(ctx, CLASS_String, msg)
 #define S__(msg)          new_String(ctx, B(msg), NULL)
+
+#define __tochar(s)       (char*)((s)->str)
+#define __tobytes(s)      knh_String_tobytes(s)
 #endif
 
 /* ------------------------------------------------------------------------ */

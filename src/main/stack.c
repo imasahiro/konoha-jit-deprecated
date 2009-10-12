@@ -50,7 +50,7 @@ int knh_stack_argc(Ctx *ctx, knh_sfp_t *v)
 
 knh_Array_t* knh_stack_toArray(Ctx *ctx, knh_sfp_t *sfp, knh_class_t cid)
 {
-	KNH_ASSERT_cid(cid);
+	DBG2_ASSERT_cid(cid);
 	if(cid == CLASS_Any) {
 		knh_Array_t *a = new_Array0(ctx, ctx->esp - sfp);
 		while(sfp < ctx->esp) {
@@ -288,7 +288,7 @@ knh_String_t *knh_stack_newStackTrace(Ctx *ctx, knh_sfp_t *sfp, knh_Exception_t 
 		knh_putc(ctx, cwb->w, ')');
 	}
 	knh_String_t *s = knh_cwb_newString(ctx, cwb);
-	//DBG2_P("stacktrace=%s", knh_String_tochar(s));
+	//DBG2_P("stacktrace=%s", __tochar(s));
 	return s;
 }
 
@@ -314,7 +314,7 @@ KNHAPI(void) knh_throwException(Ctx *ctx, knh_Exception_t *e, char *file, int li
 	}
 
 	fprintf(stderr, "********** USE STACKTRACE IN YOUR C/C++ DEBUGGER ************\n");
-	fprintf(stderr, "Uncaught Exception: %s\n", knh_String_tochar(DP(e)->msg));
+	fprintf(stderr, "Uncaught Exception: %s\n", __tochar(DP(e)->msg));
 	fprintf(stderr, "*************************************************************\n");
 	exit(0);
 }

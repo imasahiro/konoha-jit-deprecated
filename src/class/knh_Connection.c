@@ -40,7 +40,7 @@ extern "C" {
 
 void knh_Connection_open(Ctx *ctx, knh_Connection_t *c, knh_String_t *urn)
 {
-	knh_bytes_t u = knh_String_tobytes(urn);
+	knh_bytes_t u = __tobytes(urn);
 	knh_index_t idx = knh_bytes_index(u, ':');
 	KNH_SETv(ctx, (c)->urn, urn);
 	if(idx == -1) {

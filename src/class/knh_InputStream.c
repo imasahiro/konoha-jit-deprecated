@@ -79,7 +79,7 @@ KNHAPI(knh_InputStream_t*) new_InputStream__FILE(Ctx *ctx, knh_String_t *urn, FI
 
 Object *knh_InputStream_open(Ctx *ctx, knh_InputStream_t *o, knh_String_t *urn, knh_String_t *m)
 {
-	knh_bytes_t fname = knh_String_tobytes(urn);
+	knh_bytes_t fname = __tobytes(urn);
 	knh_index_t loc = knh_bytes_index(fname, ':');
 	if(loc == -1 || (loc == 1 && isalpha(fname.buf[0]))) {  /* 'C:/' */
 		DP(o)->driver = knh_getIODriver(ctx, STEXT("file"));
@@ -89,7 +89,7 @@ Object *knh_InputStream_open(Ctx *ctx, knh_InputStream_t *o, knh_String_t *urn, 
 	}
 	KNH_SETv(ctx, DP(o)->urn, new_String(ctx, fname, NULL));
 	char *mode = "r";
-	if(IS_NOTNULL(m)) mode = knh_String_tochar(m);
+	if(IS_NOTNULL(m)) mode = __tochar(m);
 	DP(o)->fd = DP(o)->driver->fopen(ctx, fname, mode, knh_Context_isStrict(ctx));
 	if(DP(o)->fd != -1) {
 		KNH_SETv(ctx, DP(o)->urn, urn);
@@ -226,15 +226,15 @@ void knh_InputStream_setEncoding(Ctx *ctx, knh_InputStream_t *o, knh_String_t *e
 		KNH_SETv(ctx, DP(o)->enc, TS_ENCODING);
 		KNH_SETv(ctx, DP(o)->bconv, KNH_NULL);
 	}
-	else if(knh_bytes_strcasecmp(knh_String_tobytes(enc), STEXT(KONOHA_ENCODING)) == 0) {
+	else if(knh_bytes_strcasecmp(__tobytes(enc), STEXT(KONOHA_ENCODING)) == 0) {
 		KNH_SETv(ctx, DP(o)->enc, TS_ENCODING);
 		KNH_SETv(ctx, DP(o)->bconv, KNH_NULL);
 	}
 	else {
-		knh_BytesConv_t *bin = new_BytesConv__in(ctx, knh_String_tochar(enc));
+		knh_BytesConv_t *bin = new_BytesConv__in(ctx, __tochar(enc));
 		if(IS_NULL(bin)) {
 			KNH_SETv(ctx, DP(o)->enc, TS_ENCODING);
-			KNH_WARNING(ctx, "unsupported character encoding: %s", knh_String_tochar(enc));
+			KNH_WARNING(ctx, "unsupported character encoding: %s", __tochar(enc));
 		}
 		else {
 			KNH_SETv(ctx, DP(o)->enc, enc);

@@ -356,7 +356,7 @@ void knh_Class_addMethod(Ctx *ctx, knh_class_t cid, knh_Method_t *mtd)
 {
 	KNH_ASSERT(IS_Method(mtd));
 	KNH_ASSERT(cid == DP(mtd)->cid);
-	KNH_ASSERT_cid(cid);
+	DBG2_ASSERT_cid(cid);
 	knh_ClassStruct_t *cs = ClassTable(cid).cstruct;;
 	size_t i;
 	for(i = 0; i < knh_Array_size(cs->methods); i++) {
@@ -629,7 +629,7 @@ knh_Method_t *new_Method_setter(Ctx *ctx, knh_class_t cid, knh_methodn_t mn, knh
 static knh_methodn_t knh_methodn_base(Ctx *ctx, knh_methodn_t mn)
 {
 	size_t i;
-	knh_bytes_t n = knh_String_tobytes(knh_getFieldName(ctx, METHODN_TOFIELDN(mn)));
+	knh_bytes_t n = __tobytes(knh_getFieldName(ctx, METHODN_TOFIELDN(mn)));
 	for(i = 0; i < n.len; i++) {
 		if(n.buf[i] == ':') {
 			n.len = i;
@@ -647,7 +647,7 @@ knh_Class_getMethod__(Ctx *ctx, knh_class_t this_cid, knh_methodn_t mn, knh_bool
 {
 	knh_class_t cid = this_cid;
 	TAIL_RECURSION:;
-	KNH_ASSERT_cid(cid);
+	DBG2_ASSERT_cid(cid);
 	{
 		knh_ClassStruct_t *cs = ClassTable(cid).cstruct;;
 		size_t i;

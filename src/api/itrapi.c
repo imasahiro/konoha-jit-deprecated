@@ -44,7 +44,7 @@ static ITRNEXT knh_String_nextChar(Ctx *ctx, knh_sfp_t *sfp, int n)
 {
 	knh_Iterator_t *itr = sfp[0].it;
 	knh_String_t *s = (knh_String_t*)DP(itr)->source;
-	knh_bytes_t base = knh_String_tobytes(s);
+	knh_bytes_t base = __tobytes(s);
 	size_t pos = (size_t)DP(itr)->pos;
 	if(pos < knh_bytes_mlen(base)) {
 		DP(itr)->pos = pos+1;

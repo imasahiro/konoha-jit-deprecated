@@ -143,7 +143,7 @@ KNHAPI(knh_Float_t*) new_FloatX__fast(Ctx *ctx, knh_class_t cid, knh_float_t val
 
 KNHAPI(knh_Float_t*) new_FloatX(Ctx *ctx, knh_class_t cid, knh_float_t value)
 {
-	KNH_ASSERT_cid(cid);
+	DBG2_ASSERT_cid(cid);
 	knh_ClassSpec_t *u = knh_getClassSpec(ctx, cid);
 	if(DP(u)->ffchk(u, value)) {
 		knh_Float_t *f = (knh_Float_t*)new_hObject(ctx, FLAG_Float, CLASS_Float, cid);
@@ -247,7 +247,7 @@ void KNH_TAFFINE(Ctx *ctx, knh_class_t scid, knh_class_t tcid, knh_float_t scale
 
 KNHAPI(void) knh_addAffineMapper(Ctx *ctx, knh_class_t scid, char *text, knh_float_t scale, knh_float_t shift)
 {
-	//KNH_ASSERT_cid(scid);
+	//DBG2_ASSERT_cid(scid);
 	knh_class_t tcid = knh_findcid(ctx, B(text));
 	if(tcid != CLASS_unknown && ctx->share->ClassTable[tcid].bcid != tcid) {
 		KNH_TAFFINE(ctx, scid, tcid, scale, shift);

@@ -136,7 +136,7 @@ KNHAPI(void) knh_addMapper(Ctx *ctx, knh_Mapper_t *mpr)
 void knh_addMapperFunc(Ctx *ctx, knh_flag_t flag, knh_type_t stype, knh_type_t ttype, knh_fmapper fmap, Object *mapdata)
 {
 	knh_class_t cid = CLASS_type(stype);
-	KNH_ASSERT_cid(cid);
+	DBG2_ASSERT_cid(cid);
 	knh_readyClassMap(ctx, cid);
 	knh_ClassMap_add(ctx, ClassTable(cid).cmap,
 		new_Mapper(ctx, flag, CLASS_type(stype), CLASS_type(ttype), fmap, mapdata));
@@ -216,8 +216,8 @@ knh_bool_t knh_Mapper_isNoSuchMapping(knh_Mapper_t *mpr)
 
 knh_Mapper_t *knh_findMapper_(Ctx *ctx, knh_class_t scid, knh_class_t tcid, int isgen)
 {
-	KNH_ASSERT_cid(scid);
-	KNH_ASSERT_cid(tcid);
+	DBG2_ASSERT_cid(scid);
+	DBG2_ASSERT_cid(tcid);
 	if(scid == CLASS_Any) {
 		if(isgen == 0) return (knh_Mapper_t*)KNH_NULL;
 		KNH_ASSERT(scid != CLASS_Any);
@@ -248,7 +248,7 @@ knh_Mapper_t *knh_findMapper_(Ctx *ctx, knh_class_t scid, knh_class_t tcid, int 
 			if(sbcid == CLASS_Object) break;
 			for(i = 0; i < (cmap)->size; i++) {
 				knh_class_t mcid = DP((cmap)->maplist[i])->tcid;
-				KNH_ASSERT_cid(mcid);
+				DBG2_ASSERT_cid(mcid);
 				if(mcid <= CLASS_String) {
 					DBG_P("forbid lowlevel transitivity %s", CLASSN(mcid));
 					continue;   /* Stop lowlevel inference */

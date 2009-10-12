@@ -45,11 +45,11 @@ static METHOD String_getBytes(Ctx *ctx, knh_sfp_t *sfp)
 	knh_Bytes_t *ba;
 	if(IS_NULL(sfp[1].o)) {
 		ba = new_Bytes(ctx, (sfp[0].s)->size + 1);
-		knh_Bytes_write(ctx, ba, knh_String_tobytes(sfp[0].s));
+		knh_Bytes_write(ctx, ba, __tobytes(sfp[0].s));
 	}
 	else {
-		knh_bytes_t t = knh_String_tobytes(sfp[0].s);
-		knh_BytesConv_t *bc = new_BytesConv__out(ctx, knh_String_tochar(sfp[1].s));
+		knh_bytes_t t = __tobytes(sfp[0].s);
+		knh_BytesConv_t *bc = new_BytesConv__out(ctx, __tochar(sfp[1].s));
 		KNH_SETv(ctx, sfp[2].o, bc);
 		ba = new_Bytes(ctx, t.len);
 		bc->fbconv(ctx, bc, t, ba);
@@ -64,7 +64,7 @@ static METHOD String_equals(Ctx *ctx, knh_sfp_t *sfp)
 {
 	KNH_RETURN_Boolean(ctx, sfp,
 		((sfp[0].s)->size == (sfp[1].s)->size &&
-		knh_bytes_strcmp(knh_String_tobytes(sfp[0].s), knh_String_tobytes(sfp[1].s)) == 0));
+		knh_bytes_strcmp(__tobytes(sfp[0].s), __tobytes(sfp[1].s)) == 0));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -74,7 +74,7 @@ static METHOD String_equals__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp)
 {
 	KNH_RETURN_Boolean(ctx, sfp,
 		((sfp[0].s)->size == (sfp[1].s)->size &&
-		knh_bytes_strcasecmp(knh_String_tobytes(sfp[0].s), knh_String_tobytes(sfp[1].s))== 0));
+		knh_bytes_strcasecmp(__tobytes(sfp[0].s), __tobytes(sfp[1].s))== 0));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -82,7 +82,7 @@ static METHOD String_equals__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp)
 
 static METHOD String_startsWith(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURN_Boolean(ctx, sfp, knh_bytes_startsWith(knh_String_tobytes(sfp[0].s), knh_String_tobytes(sfp[1].s)));
+	KNH_RETURN_Boolean(ctx, sfp, knh_bytes_startsWith(__tobytes(sfp[0].s), __tobytes(sfp[1].s)));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -90,8 +90,8 @@ static METHOD String_startsWith(Ctx *ctx, knh_sfp_t *sfp)
 
 static METHOD String_startsWith__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp)
 {
-	knh_bytes_t base = knh_String_tobytes(sfp[0].s);
-	knh_bytes_t expr = knh_String_tobytes(sfp[1].s);
+	knh_bytes_t base = __tobytes(sfp[0].s);
+	knh_bytes_t expr = __tobytes(sfp[1].s);
 	int res = 0;
 	if(expr.len < base.len) {
 		base = knh_bytes_first(base, expr.len);
@@ -105,7 +105,7 @@ static METHOD String_startsWith__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp)
 
 static METHOD String_endsWith(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURN_Boolean(ctx, sfp, knh_bytes_endsWith(knh_String_tobytes(sfp[0].s), knh_String_tobytes(sfp[1].s)));
+	KNH_RETURN_Boolean(ctx, sfp, knh_bytes_endsWith(__tobytes(sfp[0].s), __tobytes(sfp[1].s)));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -113,8 +113,8 @@ static METHOD String_endsWith(Ctx *ctx, knh_sfp_t *sfp)
 
 static METHOD String_endsWith__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp)
 {
-	knh_bytes_t base = knh_String_tobytes(sfp[0].s);
-	knh_bytes_t expr = knh_String_tobytes(sfp[1].s);
+	knh_bytes_t base = __tobytes(sfp[0].s);
+	knh_bytes_t expr = __tobytes(sfp[1].s);
 	int res = 0;
 	if(expr.len < base.len) {
 		base = knh_bytes_last(base, base.len - expr.len);
@@ -128,8 +128,8 @@ static METHOD String_endsWith__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp)
 
 static METHOD String_indexOf(Ctx *ctx, knh_sfp_t *sfp)
 {
-	knh_bytes_t base = knh_String_tobytes(sfp[0].s);
-	knh_bytes_t delim = knh_String_tobytes(sfp[1].s);
+	knh_bytes_t base = __tobytes(sfp[0].s);
+	knh_bytes_t delim = __tobytes(sfp[1].s);
 	int loc = knh_bytes_indexOf(base, delim);
 	if (knh_String_isAscii(sfp[0].s) || loc == -1) {
 		KNH_RETURN_Int(ctx, sfp, loc);
@@ -144,8 +144,8 @@ static METHOD String_indexOf(Ctx *ctx, knh_sfp_t *sfp)
 
 static METHOD String_indexOf__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp)
 {
-	knh_bytes_t base = knh_String_tobytes(sfp[0].s);
-	knh_bytes_t delim = knh_String_tobytes(sfp[1].s);
+	knh_bytes_t base = __tobytes(sfp[0].s);
+	knh_bytes_t delim = __tobytes(sfp[1].s);
 	knh_intptr_t loc = base.len - delim.len;
 	for(loc = 0; loc < base.len - delim.len; loc++) {
 		if(base.buf[loc] != delim.buf[loc]) continue;
@@ -165,8 +165,8 @@ static METHOD String_indexOf__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp)
 
 static METHOD String_lastIndexOf(Ctx *ctx, knh_sfp_t *sfp)
 {
-	knh_bytes_t base = knh_String_tobytes(sfp[0].s);
-	knh_bytes_t delim = knh_String_tobytes(sfp[1].s);
+	knh_bytes_t base = __tobytes(sfp[0].s);
+	knh_bytes_t delim = __tobytes(sfp[1].s);
 	knh_intptr_t loc = base.len - delim.len;
 	for(; loc >= 0; loc--) {
 		if(base.buf[loc] != delim.buf[loc]) continue;
@@ -185,8 +185,8 @@ static METHOD String_lastIndexOf(Ctx *ctx, knh_sfp_t *sfp)
 
 static METHOD String_lastIndexOf__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp)
 {
-	knh_bytes_t base = knh_String_tobytes(sfp[0].s);
-	knh_bytes_t delim = knh_String_tobytes(sfp[1].s);
+	knh_bytes_t base = __tobytes(sfp[0].s);
+	knh_bytes_t delim = __tobytes(sfp[1].s);
 	knh_intptr_t loc = base.len - delim.len;
 	for(; loc >= 0; loc--) {
 		if(base.buf[loc] != delim.buf[loc]) continue;
@@ -210,7 +210,7 @@ static METHOD String_concat(Ctx *ctx, knh_sfp_t *sfp)
 	knh_sfp_t *esp = KNH_LOCAL(ctx);
 	for(i = 0; i < ac; i++) {
 		if(IS_bString(sfp[i].o)) {
-			knh_Bytes_write(ctx, cwb->ba, knh_String_tobytes(sfp[i].s));
+			knh_Bytes_write(ctx, cwb->ba, __tobytes(sfp[i].s));
 		}
 		else {
 			KNH_ASSERT(esp == ctx->esp);
@@ -234,7 +234,7 @@ static METHOD String_times(Ctx *ctx, knh_sfp_t *sfp)
 		res = sfp[0].s;
 	}
 	else {
-		knh_bytes_t base = knh_String_tobytes(sfp[0].s);
+		knh_bytes_t base = __tobytes(sfp[0].s);
 		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 		knh_intptr_t i;
 		for(i = 0; i < n; i++) {
@@ -250,8 +250,8 @@ static METHOD String_times(Ctx *ctx, knh_sfp_t *sfp)
 
 static METHOD String_twofold(Ctx *ctx, knh_sfp_t *sfp)
 {
-	knh_bytes_t base = knh_String_tobytes(sfp[0].s);
-	knh_bytes_t delim = knh_String_tobytes(sfp[1].s);
+	knh_bytes_t base = __tobytes(sfp[0].s);
+	knh_bytes_t delim = __tobytes(sfp[1].s);
 	knh_index_t index = knh_bytes_indexOf(base, delim);
 	knh_String_t *first, *second;
 	knh_Pair_t *p;
@@ -279,7 +279,7 @@ static METHOD String_twofold(Ctx *ctx, knh_sfp_t *sfp)
 
 static METHOD String_format(Ctx *ctx, knh_sfp_t *sfp)
 {
-	knh_bytes_t fmt = knh_String_tobytes(sfp[0].s);
+	knh_bytes_t fmt = __tobytes(sfp[0].s);
 	knh_sfp_t *param = sfp + 1;
 	int ac = knh_stack_argc(ctx, param);
 	knh_bytes_t mt, expr, next;
@@ -345,9 +345,9 @@ int knh_bytes_equals_(knh_bytes_t base, size_t s, knh_bytes_t target)
 
 static METHOD String_replace(Ctx *ctx, knh_sfp_t *sfp)
 {
-	knh_bytes_t base = knh_String_tobytes(sfp[0].s);
-	knh_bytes_t target = knh_String_tobytes(sfp[1].s);
-	knh_bytes_t alt = knh_String_tobytes(sfp[2].s);
+	knh_bytes_t base = __tobytes(sfp[0].s);
+	knh_bytes_t target = __tobytes(sfp[1].s);
+	knh_bytes_t alt = __tobytes(sfp[2].s);
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 	int search_flag= 0, ch = target.buf[0], i;
 
@@ -376,7 +376,7 @@ static METHOD String_replace(Ctx *ctx, knh_sfp_t *sfp)
 
 static METHOD String_getUCS4(Ctx *ctx, knh_sfp_t *sfp)
 {
-	knh_bytes_t base = knh_String_tobytes(sfp[0].s);
+	knh_bytes_t base = __tobytes(sfp[0].s);
 	knh_intptr_t index = IS_NULL(sfp[1].o) ? 0 : (knh_intptr_t)sfp[1].ivalue;
 	if(knh_String_isAscii(sfp[0].s)) {
 		size_t n = knh_array_index(ctx, index, knh_String_strlen(sfp[0].s));
@@ -444,7 +444,7 @@ static METHOD String_toUpper(Ctx *ctx, knh_sfp_t *sfp)
 
 static METHOD String_trim(Ctx *ctx, knh_sfp_t *sfp)
 {
-	knh_bytes_t t = knh_String_tobytes(sfp[0].s);
+	knh_bytes_t t = __tobytes(sfp[0].s);
 	knh_bytes_t t2 = knh_bytes_trim(t);
 	knh_String_t *s = sfp[0].s;
 	if(t.len > t2.len) {
@@ -457,7 +457,7 @@ static METHOD String_trim(Ctx *ctx, knh_sfp_t *sfp)
 
 static knh_Array_t *knh_String_toCharArray(Ctx *ctx, knh_String_t *bs, int istrim)
 {
-	knh_bytes_t base = knh_String_tobytes(bs);
+	knh_bytes_t base = __tobytes(bs);
 	if(knh_String_isAscii(bs)) {
 		size_t i, n = base.len;
 		knh_Array_t *a = new_Array(ctx, CLASS_String, n);
@@ -491,12 +491,12 @@ static METHOD String_split(Ctx *ctx, knh_sfp_t *sfp)
 		a = knh_String_toCharArray(ctx, sfp[0].s, istrim);
 	}
 	else {
-		knh_bytes_t delim = knh_String_tobytes(sfp[1].s);
+		knh_bytes_t delim = __tobytes(sfp[1].s);
 		if(delim.len == 0) {
 			a = knh_String_toCharArray(ctx, sfp[0].s, istrim);
 		}
 		else {
-			knh_bytes_t base = knh_String_tobytes(sfp[0].s);
+			knh_bytes_t base = __tobytes(sfp[0].s);
 			a = new_Array(ctx, CLASS_String, 8);
 			while(1) {
 				knh_index_t loc = knh_bytes_indexOf(base, delim);
@@ -529,7 +529,7 @@ static METHOD String_split(Ctx *ctx, knh_sfp_t *sfp)
 static
 int knh_String_opMatch(Ctx *ctx, knh_String_t *o, knh_Regex_t *re)
 {
-	char *str = knh_String_tochar(o);
+	char *str = __tochar(o);
 	knh_regmatch_t pmatch[KNH_REGEX_NMATCH_SIZE];
 	int res = re->df->regexec(ctx, re->reg, str, KNH_REGEX_NMATCH_SIZE, pmatch, 0);
 	return (res == 0);
@@ -557,12 +557,12 @@ METHOD Regex_opMatch(Ctx *ctx, knh_sfp_t *sfp)
 
 knh_Array_t *knh_Regex_split(Ctx *ctx, knh_Regex_t *o, knh_String_t *s)
 {
-	char *str = knh_String_tochar(s);
+	char *str = __tochar(s);
 	knh_regmatch_t pmatch[KNH_REGEX_NMATCH_SIZE];
 	int res = o->df->regexec(ctx, o->reg, str, KNH_REGEX_NMATCH_SIZE, pmatch, 0);
 	if(res == 0) {
 		knh_Array_t *a = new_Array(ctx, CLASS_String, KNH_REGEX_NMATCH_SIZE);
-		knh_bytes_t sub = knh_String_tobytes(s);
+		knh_bytes_t sub = __tobytes(s);
 		int i;
 		for(i = 1; i < KNH_REGEX_NMATCH_SIZE; i++) {
 			if(pmatch[i].rm_so == -1) break;

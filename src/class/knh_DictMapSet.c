@@ -211,13 +211,13 @@ knh_index_t knh_dict_findb_between(knh_dict_t *a, knh_fbytescmp fcmp, knh_bytes_
 	if(ep - sp < UNSORTED_MAXSIZ) {
 		size_t i;
 		for(i = sp; i < ep; i++) {
-			if(fcmp(knh_String_tobytes(a[i].key), key) == 0) return i;
+			if(fcmp(__tobytes(a[i].key), key) == 0) return i;
 		}
 		return -1;
 	}
 	else {
 		size_t cp = KNH_MID(sp, ep);
-		int i = fcmp(key, knh_String_tobytes(a[cp].key));
+		int i = fcmp(key, __tobytes(a[cp].key));
 		if(i == 0) {
 			return cp;
 		}
@@ -316,7 +316,7 @@ int knh_dict_fcmp(const void *p, const void *p2)
 {
 	knh_dict_t *e = (knh_dict_t*)p;
 	knh_dict_t *e2 = (knh_dict_t*)p2;
-	return knh_bytes_strcmp(knh_String_tobytes(e->key), knh_String_tobytes(e2->key));
+	return knh_bytes_strcmp(__tobytes(e->key), __tobytes(e2->key));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -326,7 +326,7 @@ int knh_dict_fcasecmp(const void *p, const void *p2)
 {
 	knh_dict_t *e = (knh_dict_t*)p;
 	knh_dict_t *e2 = (knh_dict_t*)p2;
-	return knh_bytes_strcasecmp(knh_String_tobytes(e->key), knh_String_tobytes(e2->key));
+	return knh_bytes_strcasecmp(__tobytes(e->key), __tobytes(e2->key));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -441,14 +441,14 @@ knh_index_t knh_dict_first(knh_dict_t *a, knh_fbytescmp fcmp, knh_bytes_t key, s
 	if(ep - sp < UNSORTED_MAXSIZ) {
 		size_t i;
 		for(i = sp; i < ep; i++) {
-			int res = fcmp(knh_String_tobytes(a[i].key), key);
+			int res = fcmp(__tobytes(a[i].key), key);
 			if(res >= 0) return i;
 		}
 		return -1;
 	}
 	else {
 		size_t cp = KNH_MID(sp, ep);
-		int i = fcmp(key, knh_String_tobytes(a[cp].key));
+		int i = fcmp(key, __tobytes(a[cp].key));
 		if(i == 0) {
 			return cp;
 		}
@@ -498,7 +498,7 @@ Object *knh_DictMap_get__b(Ctx *ctx, knh_DictMap_t *o, knh_bytes_t key)
 Object *knh_DictMap_get(Ctx *ctx, knh_DictMap_t *o, knh_String_t *key)
 {
 	KNH_ASSERT(IS_bDictMap(o));
-	knh_intptr_t loc = knh_dict_index_b(o->_list, o->size, o->fcmp, knh_String_tobytes(key));
+	knh_intptr_t loc = knh_dict_index_b(o->_list, o->size, o->fcmp, __tobytes(key));
 	return (loc == -1) ? KNH_NULL : o->list[loc].value;
 }
 
@@ -527,7 +527,7 @@ void knh_DictMap_append(Ctx *ctx, knh_DictMap_t *o, knh_String_t *key, Any *valu
 void knh_DictMap_set(Ctx *ctx, knh_DictMap_t *o, knh_String_t *key, Any *v)
 {
 	knh_Object_t *value = v;
-	int loc = knh_dict_index_b(o->_list, o->size, o->fcmp, knh_String_tobytes(key));
+	int loc = knh_dict_index_b(o->_list, o->size, o->fcmp, __tobytes(key));
 	if(loc != -1) {
 		KNH_SETv(ctx, o->list[loc].key, key);  /* To avoid losing key */
 		KNH_SETv(ctx, o->list[loc].value, value);
@@ -541,7 +541,7 @@ void knh_DictMap_set(Ctx *ctx, knh_DictMap_t *o, knh_String_t *key, Any *v)
 
 void knh_DictMap_remove(Ctx *ctx, knh_DictMap_t *o, knh_String_t *key)
 {
-	int loc = knh_dict_index_b(o->_list, o->size, o->fcmp, knh_String_tobytes(key));
+	int loc = knh_dict_index_b(o->_list, o->size, o->fcmp, __tobytes(key));
 	if(loc != 1) {
 		KNH_SETv(ctx, o->list[loc].key, key);  /* To avoid losing key */
 		KNH_SETv(ctx, o->list[loc].value, KNH_NULL);
@@ -637,7 +637,7 @@ knh_uintptr_t knh_DictSet_get__b(knh_DictSet_t *o, knh_bytes_t key)
 
 knh_uintptr_t knh_DictSet_get(Ctx *ctx, knh_DictSet_t *o, knh_String_t *key)
 {
-	knh_intptr_t loc = knh_dict_index_b(o->_list, o->size, o->fcmp, knh_String_tobytes(key));
+	knh_intptr_t loc = knh_dict_index_b(o->_list, o->size, o->fcmp, __tobytes(key));
 	return (loc == -1) ? 0 : o->list[loc].value;
 }
 
@@ -664,7 +664,7 @@ void knh_DictSet_append(Ctx *ctx, knh_DictSet_t *o, knh_String_t *key, knh_uintp
 
 void knh_DictSet_set(Ctx *ctx, knh_DictSet_t *o, knh_String_t *key, knh_uintptr_t n)
 {
-	int loc = knh_dict_index_b(o->_list, o->size, o->fcmp, knh_String_tobytes(key));
+	int loc = knh_dict_index_b(o->_list, o->size, o->fcmp, __tobytes(key));
 	if(loc != -1) {
 		KNH_SETv(ctx, o->list[loc].key, key);  /* To avoid losing key */
 		o->list[loc].value = n;
@@ -678,7 +678,7 @@ void knh_DictSet_set(Ctx *ctx, knh_DictSet_t *o, knh_String_t *key, knh_uintptr_
 
 void knh_DictSet_add(Ctx *ctx, knh_DictSet_t *o, knh_String_t *key)
 {
-	int loc = knh_dict_index_b(o->_list, o->size, o->fcmp, knh_String_tobytes(key));
+	int loc = knh_dict_index_b(o->_list, o->size, o->fcmp, __tobytes(key));
 	if(loc != -1) {
 		KNH_SETv(ctx, o->list[loc].key, key);  /* To avoid losing key */
 		o->list[loc].value += 1;
@@ -692,7 +692,7 @@ void knh_DictSet_add(Ctx *ctx, knh_DictSet_t *o, knh_String_t *key)
 
 void knh_DictSet_remove(Ctx *ctx, knh_DictSet_t *o, knh_String_t *key)
 {
-	int loc = knh_dict_index_b(o->_list, o->size, o->fcmp, knh_String_tobytes(key));
+	int loc = knh_dict_index_b(o->_list, o->size, o->fcmp, __tobytes(key));
 	if(loc != 1) {
 		KNH_SETv(ctx, o->list[loc].key, key);  /* To avoid losing key */
 		o->list[loc].value = 0;

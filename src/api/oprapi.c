@@ -104,7 +104,7 @@ static METHOD Exception_opMust(Ctx *ctx, knh_sfp_t *sfp)
 	KNH_ASSERT(IS_bString(sfp[0].s));
 	if(IS_Exception(sfp[1].o)) {
 		knh_expt_t eid =  (IS_Exception(sfp[0].o)) ?
-			DP(sfp[0].e)->eid : knh_geteid(ctx, knh_String_tobytes(sfp[0].s), EXPT_newid);
+			DP(sfp[0].e)->eid : knh_geteid(ctx, __tobytes(sfp[0].s), EXPT_newid);
 		if(knh_expt_isa(ctx, DP(sfp[1].e)->eid, eid)) {
 			knh_stack_utest(ctx, sfp, 1, sfp[1].o);
 			KNH_RETURN(ctx, sfp, KNH_NULL);
@@ -271,7 +271,7 @@ static METHOD Float_opGte(Ctx *ctx, knh_sfp_t *sfp)
 static METHOD String_opHas(Ctx *ctx, knh_sfp_t *sfp)
 {
 	KNH_RETURN_Boolean(ctx, sfp,
-		knh_bytes_indexOf(knh_String_tobytes(sfp[0].s), knh_String_tobytes(sfp[1].s)) != -1);
+		knh_bytes_indexOf(__tobytes(sfp[0].s), __tobytes(sfp[1].s)) != -1);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -606,14 +606,14 @@ static METHOD String_opAdd(Ctx *ctx, knh_sfp_t *sfp)
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 	knh_sfp_t *esp = KNH_LOCAL(ctx);
 	if(IS_bString(sfp[0].o)) {
-		knh_Bytes_write(ctx, cwb->ba, knh_String_tobytes(sfp[0].s));
+		knh_Bytes_write(ctx, cwb->ba, __tobytes(sfp[0].s));
 	}
 	else {
 		KNH_SETv(ctx, esp[1].o, sfp[0].o); esp[1].data = sfp[0].data;
 		knh_esp1_format(ctx, METHODN__s, cwb->w, KNH_NULL);
 	}
 	if(IS_bString(sfp[1].o)) {
-		knh_Bytes_write(ctx, cwb->ba, knh_String_tobytes(sfp[1].s));
+		knh_Bytes_write(ctx, cwb->ba, __tobytes(sfp[1].s));
 	}
 	else {
 		KNH_ASSERT(esp == ctx->esp);
@@ -628,8 +628,8 @@ static METHOD String_opAdd(Ctx *ctx, knh_sfp_t *sfp)
 
 static METHOD String_opSub(Ctx *ctx, knh_sfp_t *sfp)
 {
-	knh_bytes_t base = knh_String_tobytes(sfp[0].s);
-	knh_bytes_t t = knh_String_tobytes(sfp[1].s);
+	knh_bytes_t base = __tobytes(sfp[0].s);
+	knh_bytes_t t = __tobytes(sfp[1].s);
 	knh_uchar_t c = t.buf[0];
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 	size_t i;
@@ -868,7 +868,7 @@ static METHOD String_getSize(Ctx *ctx, knh_sfp_t *sfp)
 {
 	size_t size = IS_bString(sfp[0].s) ? (sfp[0].s)->size : 0;
 	if(!knh_String_isAscii(sfp[0].s)) {
-		size = knh_bytes_mlen(knh_String_tobytes(sfp[0].s));
+		size = knh_bytes_mlen(__tobytes(sfp[0].s));
 	}
 	KNH_RETURN_Int(ctx, sfp, size);
 }
@@ -968,7 +968,7 @@ static METHOD Bytes_setAll(Ctx *ctx, knh_sfp_t *sfp)
 
 static METHOD String_get(Ctx *ctx, knh_sfp_t *sfp)
 {
-	knh_bytes_t base = knh_String_tobytes(sfp[0].s);
+	knh_bytes_t base = __tobytes(sfp[0].s);
 	knh_String_t *s;
 	if(knh_String_isAscii(sfp[0].s)) {
 		size_t n = knh_array_index(ctx, p_int(sfp[1]), knh_String_strlen(sfp[0].s));
@@ -1180,7 +1180,7 @@ static METHOD Bytes_opRangeTo(Ctx *ctx, knh_sfp_t *sfp)
 
 static METHOD String_substring(Ctx *ctx, knh_sfp_t *sfp)
 {
-	knh_bytes_t base = knh_String_tobytes(sfp[0].s);
+	knh_bytes_t base = __tobytes(sfp[0].s);
 	knh_bytes_t sub;
 	if(knh_String_isAscii(sfp[0].s)) {
 		size_t offset = IS_NULL(sfp[1].o) ? 0 : knh_array_index(ctx, sfp[1].ivalue, base.len);
@@ -1337,15 +1337,15 @@ int knh_fbytescmp_1(knh_bytes_t t1, knh_bytes_t t2)
 static
 knh_DictMap_t *knh_DictMap_subset(Ctx *ctx, knh_DictMap_t *d, knh_String_t* ss, knh_String_t *es, int isInclusive)
 {
-	knh_bytes_t s = IS_bString(ss) ? knh_String_tobytes(ss) : STEXT("");
-	knh_bytes_t e = IS_bString(es) ? knh_String_tobytes(es) : STEXT("");
+	knh_bytes_t s = IS_bString(ss) ? __tobytes(ss) : STEXT("");
+	knh_bytes_t e = IS_bString(es) ? __tobytes(es) : STEXT("");
 	size_t i, dsize = d->size;
 	knh_DictMap_t *newd = new_DictMap(ctx, knh_Object_p1(d), 0);
 	int zero = (isInclusive) ?  0 : 1;
 	knh_fbytescmp f1 = (s.len > 0) ? d->fcmp : knh_fbytescmp_1;
 	knh_fbytescmp f2 = (e.len > 0) ? d->fcmp : knh_fbytescmp_1;
 	for(i = 0; i < dsize; i++) {
-		knh_bytes_t key = knh_String_tobytes(knh_DictMap_keyAt(d, i));
+		knh_bytes_t key = __tobytes(knh_DictMap_keyAt(d, i));
 		if(f1(key, s) <= 0 && f2(e, key) >= zero) {
 			knh_DictMap_append(ctx, newd, knh_DictMap_keyAt(d, i), knh_DictMap_valueAt(d, i));
 		}

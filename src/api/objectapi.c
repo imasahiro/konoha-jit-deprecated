@@ -81,7 +81,7 @@ static METHOD Object_isNotNull(Ctx *ctx, knh_sfp_t *sfp)
 }
 
 /* ------------------------------------------------------------------------ */
-//## @Const method String! Object.getKey();
+//## @Const @Virtual method String! Object.getKey();
 
 static METHOD Object_getKey(Ctx *ctx, knh_sfp_t *sfp)
 {

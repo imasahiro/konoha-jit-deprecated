@@ -309,7 +309,7 @@ typedef knh_uint16_t       knh_expt_t;    /* knh_expt_t */
 #define CLASS_newid                ((knh_class_t)-1)
 #define CLASS_unknown              ((knh_class_t)-2)
 
-#define KNH_ASSERT_cid(cid)        KNH_ASSERT(cid < KNH_TCLASS_SIZE)
+#define DBG2_ASSERT_cid(cid)        KNH_ASSERT(cid < KNH_TCLASS_SIZE)
 #define CLASSN(cid)                knh_ClassTable_CLASSN(ctx, cid)
 #define CLASSNo(o)                 knh_ClassTable_CLASSN(ctx, knh_Object_cid(o))
 #define CTXCLASSN(cid)     knh_Context_CLASSN(ctx,cid)
@@ -344,7 +344,7 @@ typedef knh_uint16_t       knh_expt_t;    /* knh_expt_t */
 #define EXPT_unknown  ((knh_expt_t)-1)
 #define EXPT_newid    ((knh_expt_t)0)
 #define KNH_ASSERT_eid(eid)    KNH_ASSERT(eid < ctx->share->ExptTableSize + 1)
-#define EXPTN(eid)   knh_String_tochar(knh_getExptName(ctx, eid))
+#define EXPTN(eid)   __tochar(knh_getExptName(ctx, eid))
 
 
 /* ------------------------------------------------------------------------ */
@@ -385,8 +385,8 @@ typedef knh_ushort_t          knh_methodn_t;
 
 #define METHODN_LAMBDA          FIELDN_
 
-#define FIELDN(fn) knh_String_tochar(knh_getFieldName(ctx, fn))
-#define METHODN(mn) knh_String_tochar(knh_getFieldName(ctx, METHODN_TOFIELDN(mn)))
+#define FIELDN(fn) __tochar(knh_getFieldName(ctx, fn))
+#define METHODN(mn) __tochar(knh_getFieldName(ctx, METHODN_TOFIELDN(mn)))
 
 /* src/compiler/misc_.c */
 #define METHODN_opALT    METHODN_NONAME
@@ -460,7 +460,7 @@ typedef knh_ushort_t              knh_uri_t;
 #define FILEN_unknown      0
 #define KNH_ASM_JMP(ctx, abr, l)  KNH_ASM_JMP_(ctx, abr, l);
 
-#define URIDN(uri) knh_String_tochar(knh_getResourceName(ctx, uri))
+#define URIDN(uri) __tochar(knh_getResourceName(ctx, uri))
 #define FILEN(uri) knh_safefile(URIDN(uri))
 
 typedef knh_ushort_t              knh_sline_t;
@@ -823,7 +823,7 @@ typedef struct knh_Context_t {
 	struct knh_OutputStream_t*   bufw;
 	struct knh_Bytes_t*          bconvbuf;
 	struct knh_DictMap_t*        props;
-	struct knh_Asm_t            *abr;
+	struct knh_Gamma_t            *abr;
 	struct knh_Array_t          *lines;
 
 	int    hasError;

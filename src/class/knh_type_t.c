@@ -41,8 +41,8 @@ extern "C" {
 knh_class_t knh_pmztype_toclass(Ctx *ctx, knh_type_t t, knh_class_t this_cid)
 {
 	knh_class_t cid = CLASS_type(t);
-	KNH_ASSERT_cid(cid);
-	KNH_ASSERT_cid(this_cid);
+	DBG2_ASSERT_cid(cid);
+	DBG2_ASSERT_cid(this_cid);
 	if(cid == CLASS_This) {
 		return this_cid;
 	}
@@ -87,8 +87,8 @@ knh_class_t knh_pmztype_toclass(Ctx *ctx, knh_type_t t, knh_class_t this_cid)
 knh_type_t knh_pmztype_totype(Ctx *ctx, knh_type_t t, knh_class_t this_cid)
 {
 	knh_class_t cid = CLASS_type(t), mask = (t & KNH_FLAG_TF_NA);
-	KNH_ASSERT_cid(cid);
-	KNH_ASSERT_cid(this_cid);
+	DBG2_ASSERT_cid(cid);
+	DBG2_ASSERT_cid(this_cid);
 	if(cid == CLASS_This) {
 		return this_cid | mask;
 	}
@@ -144,7 +144,7 @@ knh_class_t knh_class_Array(Ctx *ctx, knh_class_t p1)
 {
 	knh_class_t bcid = CLASS_Array, cid = CLASS_unknown;
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-	KNH_ASSERT_cid(p1);
+	DBG2_ASSERT_cid(p1);
 	if(p1 == CLASS_Any) return CLASS_Array;
 	if(ClassTable(p1).bcid == CLASS_Int) {
 		bcid = CLASS_IArray;

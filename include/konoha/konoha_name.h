@@ -2,7 +2,7 @@
 
 /* ======================================================================== */
 /* MACROS */
-#define KONOHA_BUILDID                  717
+#define KONOHA_BUILDID                  720
 
 /* ======================================================================== */
 /* STRUCT */
@@ -535,16 +535,16 @@
 #define FLAG_Stmt               knh_flag_oflag(CFLAG_Stmt)
 
 /* ------------------------------------------------------------------------ */
-/* Asm */
-#define CLASS_Asm               ((knh_class_t)44)
-#define STRUCT_Asm              ((knh_struct_t)44)
-#define IS_Asm(o)               ((o)->h.cid == CLASS_Asm)
-#define IS_bAsm(o)              ((o)->h.bcid == CLASS_Asm)
-#define TYPE_Asm                CLASS_Asm
-#define NNTYPE_Asm              NNTYPE_cid(CLASS_Asm)
-#define NATYPE_Asm              NATYPE_cid(CLASS_Asm)
-#define CFLAG_Asm               ((knh_flag_t)FLAG_Class_Private)
-#define FLAG_Asm                knh_flag_oflag(CFLAG_Asm)
+/* Gamma */
+#define CLASS_Gamma             ((knh_class_t)44)
+#define STRUCT_Gamma            ((knh_struct_t)44)
+#define IS_Gamma(o)             ((o)->h.cid == CLASS_Gamma)
+#define IS_bGamma(o)            ((o)->h.bcid == CLASS_Gamma)
+#define TYPE_Gamma              CLASS_Gamma
+#define NNTYPE_Gamma            NNTYPE_cid(CLASS_Gamma)
+#define NATYPE_Gamma            NATYPE_cid(CLASS_Gamma)
+#define CFLAG_Gamma             ((knh_flag_t)FLAG_Class_Private)
+#define FLAG_Gamma              knh_flag_oflag(CFLAG_Gamma)
 
 /* ------------------------------------------------------------------------ */
 /* KLRCode */
@@ -1201,41 +1201,46 @@
 #define knh_Stmt_isMemo1(o)  ((SP(o)->flag & FLAG_Stmt_Memo1) == FLAG_Stmt_Memo1)
 
 #define knh_Stmt_setMemo1(o,b) if(b) SP(o)->flag |= FLAG_Stmt_Memo1; else SP(o)->flag &= ~(FLAG_Stmt_Memo1);
-#define FLAG_Asm_Cancelled              (knh_flag_t)(1<<0)
+#define FLAG_Gamma_Cancelled            (knh_flag_t)(1<<0)
 
-#define knh_Asm_isCancelled(o)  ((DP(o)->flag & FLAG_Asm_Cancelled) == FLAG_Asm_Cancelled)
+#define knh_Gamma_isCancelled(o)  ((DP(o)->flag & FLAG_Gamma_Cancelled) == FLAG_Gamma_Cancelled)
 
-#define knh_Asm_setCancelled(o,b) if(b) DP(o)->flag |= FLAG_Asm_Cancelled; else DP(o)->flag &= ~(FLAG_Asm_Cancelled);
-#define FLAG_Asm_PROCEED                (knh_flag_t)(1<<1)
+#define knh_Gamma_setCancelled(o,b) if(b) DP(o)->flag |= FLAG_Gamma_Cancelled; else DP(o)->flag &= ~(FLAG_Gamma_Cancelled);
+#define FLAG_Gamma_PROCEED              (knh_flag_t)(1<<1)
 
-#define knh_Asm_hasPROCEED(o)  ((DP(o)->flag & FLAG_Asm_PROCEED) == FLAG_Asm_PROCEED)
+#define knh_Gamma_hasPROCEED(o)  ((DP(o)->flag & FLAG_Gamma_PROCEED) == FLAG_Gamma_PROCEED)
 
-#define knh_Asm_foundPROCEED(o,b) if(b) DP(o)->flag |= FLAG_Asm_PROCEED; else DP(o)->flag &= ~(FLAG_Asm_PROCEED);
-#define FLAG_Asm_RETURN                 (knh_flag_t)(1<<2)
+#define knh_Gamma_foundPROCEED(o,b) if(b) DP(o)->flag |= FLAG_Gamma_PROCEED; else DP(o)->flag &= ~(FLAG_Gamma_PROCEED);
+#define FLAG_Gamma_RETURN               (knh_flag_t)(1<<2)
 
-#define knh_Asm_hasRETURN(o)  ((DP(o)->flag & FLAG_Asm_RETURN) == FLAG_Asm_RETURN)
+#define knh_Gamma_hasRETURN(o)  ((DP(o)->flag & FLAG_Gamma_RETURN) == FLAG_Gamma_RETURN)
 
-#define knh_Asm_foundRETURN(o,b) if(b) DP(o)->flag |= FLAG_Asm_RETURN; else DP(o)->flag &= ~(FLAG_Asm_RETURN);
-#define FLAG_Asm_YEILD                  (knh_flag_t)(1<<3)
+#define knh_Gamma_foundRETURN(o,b) if(b) DP(o)->flag |= FLAG_Gamma_RETURN; else DP(o)->flag &= ~(FLAG_Gamma_RETURN);
+#define FLAG_Gamma_YEILD                (knh_flag_t)(1<<3)
 
-#define knh_Asm_hasYEILD(o)  ((DP(o)->flag & FLAG_Asm_YEILD) == FLAG_Asm_YEILD)
+#define knh_Gamma_hasYEILD(o)  ((DP(o)->flag & FLAG_Gamma_YEILD) == FLAG_Gamma_YEILD)
 
-#define knh_Asm_foundYEILD(o,b) if(b) DP(o)->flag |= FLAG_Asm_YEILD; else DP(o)->flag &= ~(FLAG_Asm_YEILD);
-#define FLAG_Asm_FIELD                  (knh_flag_t)(1<<4)
+#define knh_Gamma_foundYEILD(o,b) if(b) DP(o)->flag |= FLAG_Gamma_YEILD; else DP(o)->flag &= ~(FLAG_Gamma_YEILD);
+#define FLAG_Gamma_FIELD                (knh_flag_t)(1<<4)
 
-#define knh_Asm_hasFIELD(o)  ((DP(o)->flag & FLAG_Asm_FIELD) == FLAG_Asm_FIELD)
+#define knh_Gamma_hasFIELD(o)  ((DP(o)->flag & FLAG_Gamma_FIELD) == FLAG_Gamma_FIELD)
 
-#define knh_Asm_foundFIELD(o,b) if(b) DP(o)->flag |= FLAG_Asm_FIELD; else DP(o)->flag &= ~(FLAG_Asm_FIELD);
-#define FLAG_Asm_STACK                  (knh_flag_t)(1<<5)
+#define knh_Gamma_foundFIELD(o,b) if(b) DP(o)->flag |= FLAG_Gamma_FIELD; else DP(o)->flag &= ~(FLAG_Gamma_FIELD);
+#define FLAG_Gamma_STACK                (knh_flag_t)(1<<5)
 
-#define knh_Asm_hasSTACK(o)  ((DP(o)->flag & FLAG_Asm_STACK) == FLAG_Asm_STACK)
+#define knh_Gamma_hasSTACK(o)  ((DP(o)->flag & FLAG_Gamma_STACK) == FLAG_Gamma_STACK)
 
-#define knh_Asm_foundSTACK(o,b) if(b) DP(o)->flag |= FLAG_Asm_STACK; else DP(o)->flag &= ~(FLAG_Asm_STACK);
-#define FLAG_Asm_SCRIPT                 (knh_flag_t)(1<<6)
+#define knh_Gamma_foundSTACK(o,b) if(b) DP(o)->flag |= FLAG_Gamma_STACK; else DP(o)->flag &= ~(FLAG_Gamma_STACK);
+#define FLAG_Gamma_SCRIPT               (knh_flag_t)(1<<6)
 
-#define knh_Asm_hasSCRIPT(o)  ((DP(o)->flag & FLAG_Asm_SCRIPT) == FLAG_Asm_SCRIPT)
+#define knh_Gamma_hasSCRIPT(o)  ((DP(o)->flag & FLAG_Gamma_SCRIPT) == FLAG_Gamma_SCRIPT)
 
-#define knh_Asm_foundSCRIPT(o,b) if(b) DP(o)->flag |= FLAG_Asm_SCRIPT; else DP(o)->flag &= ~(FLAG_Asm_SCRIPT);
+#define knh_Gamma_foundSCRIPT(o,b) if(b) DP(o)->flag |= FLAG_Gamma_SCRIPT; else DP(o)->flag &= ~(FLAG_Gamma_SCRIPT);
+#define FLAG_Gamma_Data                 (knh_flag_t)(1<<0)
+
+#define knh_Gamma_isData(o)  ((DP(o)->eflag & FLAG_Gamma_Data) == FLAG_Gamma_Data)
+
+#define knh_Gamma_setData(o,b) if(b) DP(o)->eflag |= FLAG_Gamma_Data; else DP(o)->eflag &= ~(FLAG_Gamma_Data);
 
 /* ======================================================================== */
 /* EXPT */

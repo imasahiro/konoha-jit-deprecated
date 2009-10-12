@@ -105,7 +105,7 @@ knh_index_t knh_DictIdx_add__fast(Ctx *ctx, knh_DictIdx_t *o, knh_String_t *term
 knh_index_t knh_DictIdx_add(Ctx *ctx, knh_DictIdx_t *o, knh_String_t *term)
 {
 	knh_index_t dictid =
-		(knh_index_t)knh_DictSet_get__b(o->termsDictSet, knh_String_tobytes(term));
+		(knh_index_t)knh_DictSet_get__b(o->termsDictSet, __tobytes(term));
 	if(dictid != 0) {
 		knh_DictSet_set(ctx, o->termsDictSet, term, dictid); /* TO AVOID GC HERE */
 		return dictid_totermid(dictid);
