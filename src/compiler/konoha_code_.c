@@ -277,7 +277,7 @@ knh_code_t* KNH_ASM_MOVDEF_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_class_t a2
 		op = (klr_movdef_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_MOVDEF);
 		op->opcode = 5;
 		op->a1 = /*(knh_sfi_t)*/a1;
-		KNH_ASSERT_cid(a2);
+		DBG2_ASSERT_cid(a2);
 		op->a2 = /*(knh_class_t)*/a2;
 		DP(o)->prev_op = (knh_kode_t*)op;
 	}
@@ -354,7 +354,7 @@ knh_code_t* KNH_ASM_XMOVDEF_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1,knh_class_t a
 		op = (klr_xmovdef_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_XMOVDEF);
 		op->opcode = 10;
 		op->a1 = /*(knh_sfx_t)*/a1;
-		KNH_ASSERT_cid(a2);
+		DBG2_ASSERT_cid(a2);
 		op->a2 = /*(knh_class_t)*/a2;
 		DP(o)->prev_op = (knh_kode_t*)op;
 	}
@@ -462,7 +462,7 @@ knh_code_t* KNH_ASM_XMOVxBXi_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1,knh_sfx_t a2
 		op->opcode = 17;
 		op->a1 = /*(knh_sfx_t)*/a1;
 		op->a2 = /*(knh_sfx_t)*/a2;
-		KNH_ASSERT_cid(a3);
+		DBG2_ASSERT_cid(a3);
 		op->a3 = /*(knh_class_t)*/a3;
 		DP(o)->prev_op = (knh_kode_t*)op;
 	}
@@ -555,7 +555,7 @@ knh_code_t* KNH_ASM_XMOVxBXf_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1,knh_sfx_t a2
 		op->opcode = 23;
 		op->a1 = /*(knh_sfx_t)*/a1;
 		op->a2 = /*(knh_sfx_t)*/a2;
-		KNH_ASSERT_cid(a3);
+		DBG2_ASSERT_cid(a3);
 		op->a3 = /*(knh_class_t)*/a3;
 		DP(o)->prev_op = (knh_kode_t*)op;
 	}
@@ -678,7 +678,7 @@ knh_code_t* KNH_ASM_EMOVDEF_(Ctx *ctx, knh_Gamma_t *o,knh_sfe_t a1,knh_class_t a
 		op = (klr_emovdef_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_EMOVDEF);
 		op->opcode = 31;
 		op->a1 = /*(knh_sfe_t)*/a1;
-		KNH_ASSERT_cid(a2);
+		DBG2_ASSERT_cid(a2);
 		op->a2 = /*(knh_class_t)*/a2;
 		DP(o)->prev_op = (knh_kode_t*)op;
 	}
@@ -724,7 +724,7 @@ knh_code_t* KNH_ASM_PINIDEF_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_class_t a
 		op = (klr_pinidef_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_PINIDEF);
 		op->opcode = 34;
 		op->a1 = /*(knh_sfi_t)*/a1;
-		KNH_ASSERT_cid(a2);
+		DBG2_ASSERT_cid(a2);
 		op->a2 = /*(knh_class_t)*/a2;
 		DP(o)->prev_op = (knh_kode_t*)op;
 	}
@@ -756,7 +756,7 @@ knh_code_t* KNH_ASM_PARAMS_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_class_t a2
 		op = (klr_params_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_PARAMS);
 		op->opcode = 36;
 		op->a1 = /*(knh_sfi_t)*/a1;
-		KNH_ASSERT_cid(a2);
+		DBG2_ASSERT_cid(a2);
 		op->a2 = /*(knh_class_t)*/a2;
 		DP(o)->prev_op = (knh_kode_t*)op;
 	}
@@ -887,7 +887,7 @@ knh_code_t* KNH_ASM_BOX_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_class_t a2)
 		op = (klr_box_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_BOX);
 		op->opcode = 45;
 		op->a1 = /*(knh_sfi_t)*/a1;
-		KNH_ASSERT_cid(a2);
+		DBG2_ASSERT_cid(a2);
 		op->a2 = /*(knh_class_t)*/a2;
 		DP(o)->prev_op = (knh_kode_t*)op;
 	}
@@ -903,7 +903,7 @@ knh_code_t* KNH_ASM_BOXnc_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_class_t a2)
 		op = (klr_boxnc_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_BOXNC);
 		op->opcode = 46;
 		op->a1 = /*(knh_sfi_t)*/a1;
-		KNH_ASSERT_cid(a2);
+		DBG2_ASSERT_cid(a2);
 		op->a2 = /*(knh_class_t)*/a2;
 		DP(o)->prev_op = (knh_kode_t*)op;
 	}
@@ -919,7 +919,7 @@ knh_code_t* KNH_ASM_NNBOX_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_class_t a2)
 		op = (klr_nnbox_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_NNBOX);
 		op->opcode = 47;
 		op->a1 = /*(knh_sfi_t)*/a1;
-		KNH_ASSERT_cid(a2);
+		DBG2_ASSERT_cid(a2);
 		op->a2 = /*(knh_class_t)*/a2;
 		DP(o)->prev_op = (knh_kode_t*)op;
 	}
@@ -935,7 +935,7 @@ knh_code_t* KNH_ASM_NNBOXnc_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_class_t a
 		op = (klr_nnboxnc_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_NNBOXNC);
 		op->opcode = 48;
 		op->a1 = /*(knh_sfi_t)*/a1;
-		KNH_ASSERT_cid(a2);
+		DBG2_ASSERT_cid(a2);
 		op->a2 = /*(knh_class_t)*/a2;
 		DP(o)->prev_op = (knh_kode_t*)op;
 	}
@@ -993,7 +993,7 @@ knh_code_t* KNH_ASM_CHECKTYPE_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_class_t
 		op = (klr_checktype_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_CHECKTYPE);
 		op->opcode = 52;
 		op->a1 = /*(knh_sfi_t)*/a1;
-		KNH_ASSERT_cid(a2);
+		DBG2_ASSERT_cid(a2);
 		op->a2 = /*(knh_class_t)*/a2;
 		DP(o)->prev_op = (knh_kode_t*)op;
 	}
@@ -1107,7 +1107,7 @@ knh_code_t* KNH_ASM_NEW_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_flag_t a2,knh
 		op->opcode = 59;
 		op->a1 = /*(knh_sfi_t)*/a1;
 		op->a2 = /*(knh_flag_t)*/a2;
-		KNH_ASSERT_cid(a3);
+		DBG2_ASSERT_cid(a3);
 		op->a3 = /*(knh_class_t)*/a3;
 		op->a4 = /*(knh_ushort_t)*/a4;
 		op->a5 = /*(knh_Object_t*)*/a5;
@@ -1204,7 +1204,7 @@ knh_code_t* KNH_ASM_MAP_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_class_t a2)
 		op = (klr_map_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_MAP);
 		op->opcode = 65;
 		op->a1 = /*(knh_sfi_t)*/a1;
-		KNH_ASSERT_cid(a2);
+		DBG2_ASSERT_cid(a2);
 		op->a2 = /*(knh_class_t)*/a2;
 		DP(o)->prev_op = (knh_kode_t*)op;
 	}
@@ -1220,7 +1220,7 @@ knh_code_t* KNH_ASM_MAPnc_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_class_t a2)
 		op = (klr_mapnc_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_MAPNC);
 		op->opcode = 66;
 		op->a1 = /*(knh_sfi_t)*/a1;
-		KNH_ASSERT_cid(a2);
+		DBG2_ASSERT_cid(a2);
 		op->a2 = /*(knh_class_t)*/a2;
 		DP(o)->prev_op = (knh_kode_t*)op;
 	}
@@ -1236,7 +1236,7 @@ knh_code_t* KNH_ASM_AMAP_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_class_t a2)
 		op = (klr_amap_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_AMAP);
 		op->opcode = 67;
 		op->a1 = /*(knh_sfi_t)*/a1;
-		KNH_ASSERT_cid(a2);
+		DBG2_ASSERT_cid(a2);
 		op->a2 = /*(knh_class_t)*/a2;
 		DP(o)->prev_op = (knh_kode_t*)op;
 	}
@@ -1252,7 +1252,7 @@ knh_code_t* KNH_ASM_NNMAP_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_class_t a2)
 		op = (klr_nnmap_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_NNMAP);
 		op->opcode = 68;
 		op->a1 = /*(knh_sfi_t)*/a1;
-		KNH_ASSERT_cid(a2);
+		DBG2_ASSERT_cid(a2);
 		op->a2 = /*(knh_class_t)*/a2;
 		DP(o)->prev_op = (knh_kode_t*)op;
 	}
@@ -1387,7 +1387,7 @@ knh_code_t* KNH_ASM_INEXT_(Ctx *ctx, knh_Gamma_t *o,knh_labelid_t a1,knh_class_t
 		op = (klr_inext_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_INEXT);
 		op->opcode = 77;
 		op->a1 = /*(knh_labelid_t)*/a1;
-		KNH_ASSERT_cid(a2);
+		DBG2_ASSERT_cid(a2);
 		op->a2 = /*(knh_class_t)*/a2;
 		op->a3 = /*(knh_sfi_t)*/a3;
 		op->a4 = /*(knh_sfi_t)*/a4;
@@ -1405,7 +1405,7 @@ knh_code_t* KNH_ASM_MAPNEXT_(Ctx *ctx, knh_Gamma_t *o,knh_labelid_t a1,knh_class
 		op = (klr_mapnext_t*)knh_Gamma_asmmalloc(ctx, o, OPSIZE_MAPNEXT);
 		op->opcode = 78;
 		op->a1 = /*(knh_labelid_t)*/a1;
-		KNH_ASSERT_cid(a2);
+		DBG2_ASSERT_cid(a2);
 		op->a2 = /*(knh_class_t)*/a2;
 		op->a3 = /*(knh_sfi_t)*/a3;
 		op->a4 = /*(knh_sfi_t)*/a4;
