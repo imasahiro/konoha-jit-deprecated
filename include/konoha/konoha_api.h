@@ -120,6 +120,7 @@ KNHAPI(int) knh_fflush(Ctx *ctx, FILE *fp);
 KNHAPI(int) knh_fclose(Ctx *ctx, FILE *fp);
 KNHAPI(void) knh_addIODriver(Ctx *ctx, char *alias, knh_iodrv_t *d);
 KNHAPI(void) knh_addRegexDriver(Ctx *ctx, char *alias, knh_regex_drvapi_t *d);
+KNHAPI(knh_Socket_t*) new_Socket(Ctx *ctx, knh_intptr_t sd);
 KNHAPI(knh_intptr_t) knh_socket_open(Ctx *ctx, char *ip_or_host, int port, int isThrowable);
 KNHAPI(int) knh_socket_send(Ctx *ctx, knh_intptr_t sd, char *buf, size_t bufsiz, int flags);
 KNHAPI(int) knh_socket_recv(Ctx *ctx, knh_intptr_t sd, char *buf, size_t bufsiz, int flags);

@@ -54,6 +54,16 @@
 extern "C" {
 #endif
 
+/* ------------------------------------------------------------------------ */
+
+KNHAPI(knh_Socket_t*) new_Socket(Ctx *ctx, knh_intptr_t sd)
+{
+	knh_Socket_t *o = (knh_Socket_t*)new_Object_bcid(ctx, CLASS_Socket, 0);
+	DP(o)->sd = sd;
+	return o;
+}
+
+
 /* ======================================================================== */
 /* [SOCKET] */
 

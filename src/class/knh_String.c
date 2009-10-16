@@ -203,6 +203,7 @@ KNHAPI(knh_bytes_t) __tobytes(knh_String_t *o)
 
 KNHAPI(char*) knh_String_text(Ctx *ctx, knh_String_t *s)
 {
+	KNH_ASSERT(s->str);
 	if(s->str[s->size] != '\0') {
 		knh_uchar_t *newstr = (knh_uchar_t*)KNH_MALLOC(ctx, KNH_SIZE(s->size+1));
 		knh_memcpy(newstr, s->str, s->size);
