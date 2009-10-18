@@ -322,7 +322,7 @@ static char * StructNameData[] = {
 	"HashSet",
 	"DictIdx",
 	"Class",
-	"ClassStruct",
+	"ClassField",
 	"MethodField",
 	"Method",
 	"Mapper",
@@ -346,6 +346,7 @@ static char * StructNameData[] = {
 	"Token",
 	"Stmt",
 	"Gamma",
+	"KLRInst",
 	"KLRCode",
 	NULL
 };
@@ -562,14 +563,14 @@ static knh_StructData_t StructData[] = {
 		knh_Class_getkey
 	},
 	{
-		"ClassStruct", STRUCT_ClassStruct, FLAG_ClassStruct, 0,
-		(knh_fstruct_init)knh_ClassStruct_init,
-		(knh_fstruct_copy)knh_ClassStruct_copy, 
-		(knh_fstruct_traverse)knh_ClassStruct_traverse,
-		(knh_fstruct_compareTo)knh_ClassStruct_compareTo,
-		(knh_fstruct_hashCode)knh_ClassStruct_hashCode,
-		(knh_fstruct_newClass)knh_ClassStruct_newClass,
-		knh_ClassStruct_getkey
+		"ClassField", STRUCT_ClassField, FLAG_ClassField, 0,
+		(knh_fstruct_init)knh_ClassField_init,
+		(knh_fstruct_copy)knh_ClassField_copy, 
+		(knh_fstruct_traverse)knh_ClassField_traverse,
+		(knh_fstruct_compareTo)knh_ClassField_compareTo,
+		(knh_fstruct_hashCode)knh_ClassField_hashCode,
+		(knh_fstruct_newClass)knh_ClassField_newClass,
+		knh_ClassField_getkey
 	},
 	{
 		"MethodField", STRUCT_MethodField, FLAG_MethodField, 0,
@@ -802,6 +803,16 @@ static knh_StructData_t StructData[] = {
 		knh_Gamma_getkey
 	},
 	{
+		"KLRInst", STRUCT_KLRInst, FLAG_KLRInst, 0,
+		(knh_fstruct_init)knh_KLRInst_init,
+		(knh_fstruct_copy)knh_KLRInst_copy, 
+		(knh_fstruct_traverse)knh_KLRInst_traverse,
+		(knh_fstruct_compareTo)knh_KLRInst_compareTo,
+		(knh_fstruct_hashCode)knh_KLRInst_hashCode,
+		(knh_fstruct_newClass)knh_KLRInst_newClass,
+		knh_KLRInst_getkey
+	},
+	{
 		"KLRCode", STRUCT_KLRCode, FLAG_KLRCode, sizeof(knh_KLRCode_struct),
 		(knh_fstruct_init)knh_KLRCode_init,
 		(knh_fstruct_copy)knh_KLRCode_copy, 
@@ -878,8 +889,8 @@ static knh_ClassData_t ClassData[] = {
 	{"Class", CLASS_Class, FLAG_Class, 
 	   CLASS_Class, CLASS_Object, 11, 4, 0,
 	   TYPE_void, TYPE_void, TYPE_void, TYPE_void},
-	{"ClassStruct", CLASS_ClassStruct, FLAG_ClassStruct, 
-	   CLASS_ClassStruct, CLASS_Object, 0, 0, 0,
+	{"ClassField", CLASS_ClassField, FLAG_ClassField, 
+	   CLASS_ClassField, CLASS_Object, 0, 0, 0,
 	   TYPE_void, TYPE_void, TYPE_void, TYPE_void},
 	{"MethodField", CLASS_MethodField, FLAG_MethodField, 
 	   CLASS_MethodField, CLASS_Object, 0, 0, 0,
@@ -949,6 +960,9 @@ static knh_ClassData_t ClassData[] = {
 	   TYPE_void, TYPE_void, TYPE_void, TYPE_void},
 	{"Gamma", CLASS_Gamma, FLAG_Gamma, 
 	   CLASS_Gamma, CLASS_Object, 0, 0, 0,
+	   TYPE_void, TYPE_void, TYPE_void, TYPE_void},
+	{"KLRInst", CLASS_KLRInst, FLAG_KLRInst, 
+	   CLASS_KLRInst, CLASS_Object, 0, 0, 0,
 	   TYPE_void, TYPE_void, TYPE_void, TYPE_void},
 	{"KLRCode", CLASS_KLRCode, FLAG_KLRCode, 
 	   CLASS_KLRCode, CLASS_Object, 0, 0, 0,

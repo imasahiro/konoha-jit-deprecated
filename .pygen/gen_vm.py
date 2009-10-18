@@ -9,255 +9,272 @@ INSTRUCTIONS = """
 HALT
 
 ##MOV
-MOVa sfi sfi
-MOVn sfi sfi
-MOVo sfi OBJ
-MOVx sfi sfx
-MOVDEF sfi cid
-MOVSYS sfi ushort
+MOVa sfpidx sfpidx
+MOVn sfpidx sfpidx
+MOVo sfpidx Object
+MOVx sfpidx sfx
+MOVDEF sfpidx cid
+MOVSYS sfpidx ushort 
 
-XMOVs sfx sfi
-XMOVo sfx OBJ
+XMOVs sfx sfpidx
+XMOVo sfx Object
 XMOVx sfx sfx
 XMOVDEF sfx cid
 XMOVSYS sfx ushort
 
-MOVxi sfi sfx
-XMOVsi sfx sfi
-XMOVoi sfx OBJ
+MOVxi sfpidx sfx
+XMOVsi sfx sfpidx
+XMOVoi sfx Object
 XMOVxi sfx sfx
 XMOVxio sfx sfx
 XMOVxBXi sfx sfx cid
 
-MOVxf  sfi sfx
-XMOVsf sfx sfi
-XMOVof sfx OBJ
+MOVxf  sfpidx sfx
+XMOVsf sfx sfpidx
+XMOVof sfx Object
 XMOVxf sfx sfx
 XMOVxfo sfx sfx
 XMOVxBXf sfx sfx cid
 
-MOVxb  sfi sfx
-XMOVsb sfx sfi
-XMOVob sfx OBJ
+MOVxb  sfpidx sfx
+XMOVsb sfx sfpidx
+XMOVob sfx Object
 XMOVxb sfx sfx
 
 EMOVs sfe sfe
-EMOVo sfe OBJ
+EMOVo sfe Object
 EMOVe sfe sfe
 EMOVDEF sfe cid
 EMOVSYS sfe ushort
 
-SWAP  sfi sfi
+SWAP  sfpidx sfpidx
 
-PINIDEF sfi cid
-PINIo sfi OBJ
-PARAMS sfi cid
+PINIDEF sfpidx cid
+PINIo sfpidx Object
+PARAMS sfpidx cid
 
-SETESP sfi
-CHECKESP sfi
+SETESP sfpidx
+CHECKESP sfpidx
 RET
-RETn sfi sfi
-RETa sfi sfi
-RETo sfi OBJ
-RETx sfi sfx
+RETn sfpidx sfpidx
+RETa sfpidx sfpidx
+RETo sfpidx Object
+RETx sfpidx sfx
 YEILDBREAK
 
-BOX sfi cid
-BOXnc sfi cid
-NNBOX sfi cid
-NNBOXnc sfi cid
-UNBOX sfi
+BOX sfpidx cid
+BOXnc sfpidx cid
+NNBOX sfpidx cid
+NNBOXnc sfpidx cid
+UNBOX sfpidx
 
-CHECKNULL sfi
+CHECKNULL sfpidx
 CHECKNULLx sfx
-CHECKTYPE sfi cid
-CHECKNNTYPE sfi type
+CHECKTYPE sfpidx cid
+CHECKNNTYPE sfpidx type
 
-FCALL sfi ushort sfi mtd
-SCALL sfi ushort mtd 
-AINVOKE sfi ushort
-CALL  sfi ushort mn 
-ACALL sfi ushort mn
-NEW   sfi flag cid ushort mtd
-COPYSFP sfi
+FCALL sfpidx ushort sfpidx Method
+SCALL sfpidx ushort Method
+AINVOKE sfpidx ushort
+CALL  sfpidx ushort mn 
+ACALL sfpidx ushort mn
+NEW   sfpidx flag cid ushort Method
+COPYSFP sfpidx
 
-TOSTR      sfi mn
-TOSTRf     sfi mn OBJ
+TOSTR      sfpidx mn
+TOSTRf     sfpidx mn Object
 
-SMAP   sfi mpr
-SMAPnc   sfi mpr
-MAP    sfi cid
-MAPnc   sfi cid
-AMAP   sfi cid
-#DCAST  sfi cid
-NNMAP   sfi cid
-
-#MAP2   cid
+SMAP   sfpidx Mapper
+SMAPnc   sfpidx Mapper
+MAP    sfpidx cid
+MAPnc   sfpidx cid
+AMAP   sfpidx cid
+NNMAP   sfpidx cid
 
 JMP     addr
 SKIP    addr
-bJIFT    addr sfi
-bJIFF    addr sfi
-bJIFF_LOOP addr sfi
-JIFNUL  addr sfi
-JIFNN   addr sfi
+bJIFT    addr sfpidx
+bJIFF    addr sfpidx
+bJIFF_LOOP addr sfpidx
+JIFNUL  addr sfpidx
+JIFNN   addr sfpidx
 
-NEXT addr sfi sfi
-INEXT addr cid sfi sfi 
-MAPNEXT addr cid sfi sfi 
-SMAPNEXT addr sfi sfi OBJ
+NEXT addr sfpidx sfpidx
+INEXT addr cid sfpidx sfpidx 
+#MAPNEXT addr cid sfpidx sfpidx 
+#SMAPNEXT addr sfpidx sfpidx OBJ
 
-TRY     addr sfi
-TRYEND  sfi
-CATCH   addr sfi sfi OBJ
+TRY     addr sfpidx
+TRYEND  sfpidx
+CATCH   addr sfpidx sfpidx String
 
-PUSH   sfi
-POP    sfi
+PUSH   sfpidx
+POP    sfpidx
 
-THROW   ushort sfi 
-THROWs  ushort OBJ 
-THROW_AGAIN sfi
+THROW   ushort sfpidx 
+THROWs  ushort String
+THROW_AGAIN sfpidx
 
-P  flag mn sfi
-PMSG flag OBJ
+P  flag mn sfpidx
+PMSG flag Object
 
+iCAST sfpidx
+inCAST sfpidx
+fCAST sfpidx
+fnCAST sfpidx
 
-iCAST sfi
-inCAST sfi
-fCAST sfi
-fnCAST sfi
+bNOT sfpidx sfpidx
 
-bNOT sfi sfi
+iNEG sfpidx sfpidx
+iADD sfpidx sfpidx sfpidx
+iADDn sfpidx sfpidx int
+iSUB sfpidx sfpidx sfpidx
+iSUBn sfpidx sfpidx int
+iMUL sfpidx sfpidx sfpidx
+iMULn sfpidx sfpidx int
+iDIV  sfpidx sfpidx sfpidx
+iDIVn  sfpidx sfpidx int
+iMOD  sfpidx sfpidx sfpidx
+iMODn  sfpidx sfpidx int
 
-iNEG sfi sfi
-iADD sfi sfi sfi
-iADDn sfi sfi integer
-iSUB sfi sfi sfi
-iSUBn sfi sfi integer
-iMUL sfi sfi sfi
-iMULn sfi sfi integer
-iDIV  sfi sfi sfi
-iDIVn  sfi sfi integer
-iMOD  sfi sfi sfi
-iMODn  sfi sfi integer
+iEQ   sfpidx sfpidx sfpidx
+iEQn  sfpidx sfpidx int
+iNEQ   sfpidx sfpidx sfpidx
+iNEQn  sfpidx sfpidx int
 
-iEQ   sfi sfi sfi
-iEQn  sfi sfi integer
-iNEQ   sfi sfi sfi
-iNEQn  sfi sfi integer
+iLT   sfpidx sfpidx sfpidx
+iLTn   sfpidx sfpidx int
+iLTE  sfpidx sfpidx sfpidx
+iLTEn  sfpidx sfpidx int
+iGT   sfpidx sfpidx sfpidx
+iGTn  sfpidx sfpidx int
+iGTE  sfpidx sfpidx sfpidx
+iGTEn  sfpidx sfpidx int
 
-iLT   sfi sfi sfi
-iLTn   sfi sfi integer
-iLTE  sfi sfi sfi
-iLTEn  sfi sfi integer
-iGT   sfi sfi sfi
-iGTn  sfi sfi integer
-iGTE  sfi sfi sfi
-iGTEn  sfi sfi integer
+fNEG sfpidx sfpidx
+fADD sfpidx sfpidx sfpidx
+fADDn sfpidx sfpidx float
+fSUB sfpidx sfpidx sfpidx
+fSUBn sfpidx sfpidx float
+fMUL sfpidx sfpidx sfpidx
+fMULn sfpidx sfpidx float
+fDIV  sfpidx sfpidx sfpidx
+fDIVn  sfpidx sfpidx float
 
-fNEG sfi sfi
-fADD sfi sfi sfi
-fADDn sfi sfi float
-fSUB sfi sfi sfi
-fSUBn sfi sfi float
-fMUL sfi sfi sfi
-fMULn sfi sfi float
-fDIV  sfi sfi sfi
-fDIVn  sfi sfi float
+fEQ   sfpidx sfpidx sfpidx
+fEQn  sfpidx sfpidx float
+fNEQ   sfpidx sfpidx sfpidx
+fNEQn  sfpidx sfpidx float
 
-fEQ   sfi sfi sfi
-fEQn  sfi sfi float
-fNEQ   sfi sfi sfi
-fNEQn  sfi sfi float
+fLT   sfpidx sfpidx sfpidx
+fLTn   sfpidx sfpidx float
+fLTE  sfpidx sfpidx sfpidx
+fLTEn  sfpidx sfpidx float
+fGT   sfpidx sfpidx sfpidx
+fGTn  sfpidx sfpidx float
+fGTE  sfpidx sfpidx sfpidx
+fGTEn  sfpidx sfpidx float
 
-fLT   sfi sfi sfi
-fLTn   sfi sfi float
-fLTE  sfi sfi sfi
-fLTEn  sfi sfi float
-fGT   sfi sfi sfi
-fGTn  sfi sfi float
-fGTE  sfi sfi sfi
-fGTEn  sfi sfi float
+AGET    sfpidx sfpidx sfpidx
+AGETn   sfpidx sfpidx intptr
+IAGET   sfpidx sfpidx sfpidx
+IAGETn  sfpidx sfpidx intptr
+FAGET   sfpidx sfpidx sfpidx
+FAGETn  sfpidx sfpidx intptr
 
-AGET    sfi sfi sfi
-AGETn   sfi sfi intptr
-IAGET   sfi sfi sfi
-IAGETn  sfi sfi intptr
-FAGET   sfi sfi sfi
-FAGETn  sfi sfi intptr
+ASET    sfpidx sfpidx sfpidx
+ASETn   sfpidx sfpidx intptr
+IASET   sfpidx sfpidx sfpidx
+IASETn  sfpidx sfpidx intptr
+FASET   sfpidx sfpidx sfpidx
+FASETn  sfpidx sfpidx intptr
 
-ASET    sfi sfi sfi
-ASETn   sfi sfi intptr
-IASET   sfi sfi sfi
-IASETn  sfi sfi intptr
-FASET   sfi sfi sfi
-FASETn  sfi sfi intptr
-
-
-INITCODE  sfi
+INITCODE  sfpidx
 NOP
 """
 
-class KCODE:
-	def __init__(self, c, t):
-		self.tokens = t.split()
-		self.name = self.tokens[0]
-		self.NAME = self.name.upper()
-		self.opcode = c
-		self.OPCODE = 'OPCODE_%s' % self.NAME
-		self.SIZE = 'OPSIZE_%s' % self.NAME
-		self.OPLABEL = 'L_%s' % self.NAME
-		self.ctype = 'klr_%s_t' % self.name.lower()
-	
-	def hasObject(self):
-		for a in self.tokens[1:]:
-			ctype = getctype(a)
-			if ctype.find('Object') >= 0: return True
-		return False
-		
-	def args(self):
-		args = ''
-		c = 1
-		for a in self.tokens[1:]:
-			ctype = getctype(a)
-			args = args + ',%s a%d' % (ctype, c)
-			c += 1
-		return args
-
-KCODE_LIST = []
-
-c = 0
-for line in INSTRUCTIONS.split('\n'):
-	if line.startswith("#") or len(line) == 0: continue
-	KCODE_LIST.append(KCODE(c, line))
-	c += 1
-
-#------------------------------------------------------------------------------
-
 CTYPE = {
-	'sfi' : 'knh_sfi_t', 
+	'sfpidx' : 'knh_sfpidx_t', 
 	'sfx' : 'knh_sfx_t',
 	'sfe' : 'knh_sfe_t', 
-	'boolean': 'knh_bool_t',
-	'integer': 'knh_int_t',
+	'bool': 'knh_bool_t',
+	'int': 'knh_int_t',
 	'float': 'knh_float_t',
 	'intptr': 'knh_intptr_t',
 	'cid': 'knh_class_t',
 	'type': 'knh_type_t',
 	'mn': 'knh_methodn_t',
 	'flag': 'knh_flag_t',
-	'addr': 'knh_labelid_t',
+	'addr': 'knh_KLRInst_t*',
 	'short': 'knh_short_t',
 	'ushort': 'knh_ushort_t',
 }
 
 def getctype(a):
 	if CTYPE.has_key(a): return CTYPE[a]
-	return 'knh_Object_t*'
+	return 'knh_%s_t*' % a
 
 def getfmt(a):
 	if CTYPE.has_key(a): return "knh_write__%s(ctx, w, %%s);" % a
-	return "knh_write__OBJ(ctx, w, %s);"
+	return "knh_write__OBJ(ctx, w, UP(%s));"
+
+
+class KCODE:
+	def __init__(self, opcode, line):
+		self.tokens = line.split()
+		self.name = self.tokens[0]
+		self.NAME = self.name.upper()
+		self.opcode = opcode
+		self.OPCODE = 'OPCODE_%s' % self.name
+		self.SIZE = 'OPSIZE_%s' % self.name
+		self.OPLABEL = 'L_%s' % self.name
+		self.ctype = 'klr_%s_t' % self.name
+
+		self.args = '('
+		self.targs = ''
+		self.hasLabel = False
+		self.label = '0'
+		self.hasObject = False
+		self.ftr = 'HALT_traverse'
+		self.struct = ''
+		c = 1
+		for a in self.tokens[1:]:
+			ctype = getctype(a)
+			if a[0].isupper(): 
+				self.hasObject = True 
+				self.ftr = '%s_traverse' % (self.name)
+			if a == 'addr': 
+				self.hasLabel = True
+				self.label = '1'
+			self.targs = self.targs + ',%s a%d' % (ctype, c)
+			self.args = self.args + 'a%d,' % (c)
+			self.struct = self.struct + a
+			c += 1
+		if self.args[len(self.args) - 1] == ',':
+			self.args = self.args[len(self.args)-2:] + ')'
+
+#####################################################################
+
+CPROTO = []
+
+KCODE_LIST = []
+KSTRUCT_LIST = []
+KCODE_STRUCT ={}
+
+c = 0
+for line in INSTRUCTIONS.split('\n'):
+	if line.startswith("#") or len(line) == 0: continue
+	kc = KCODE(c, line)
+	KCODE_LIST.append(kc)
+	if KCODE_STRUCT.has_key(kc.struct):
+		kc.dump = '%s_dump' % KCODE_STRUCT[kc.struct].name
+	else:
+		KCODE_STRUCT[kc.struct] = kc
+		KSTRUCT_LIST.append(kc)
+		kc.dump = '%s_dump' % kc.name
+	c += 1
+
+#------------------------------------------------------------------------------
 
 def write_KCODE_h(f, kc):
 	f.write('''
@@ -265,38 +282,27 @@ def write_KCODE_h(f, kc):
 
 	f.write('''
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/''')
-	f.write('''
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;''')
 	c = 0
 	for a in kc.tokens[1:]:
 		c += 1
 		if a == "addr" : 
 			f.write('''
-#ifdef KNH_USING_THREADEDCODE
-	void *jumpaddr;
-#endif/*KNH_USING_THREADEDCODE*/
-	union {
-		knh_labelid_t a1;  /* labelid */
-		knh_code_t *jumppc;
-	};''')
+	THREADEDCODE(void *jumpaddr;)
+	knh_KLRInst_t* a1;  /* label */''')
 		else: 
 			f.write('''
 	%s a%d;''' % (getctype(a), c))
 	
 	f.write('''
-	void *nextaddr;
+	void *nextaddr;   /* sameas next codeaddr */
 } %s;
 ''' % kc.ctype)
 	f.write('''
 #define %s  (sizeof(%s)-sizeof(void*))
-''' % (kc.SIZE, kc.ctype))
-
-#------------------------------------------------------------------------------
-
-CPROTO = []
+''' % (kc.SIZE, kc.ctype))	
+	#proto = 'knh_code_t* KNH_ASM_%s_(Ctx *ctx, knh_Gamma_t *o%s)' % (kc.name, kc.args())
 
 def write_define_h(f):
 	for p in CPROTO:
@@ -306,246 +312,173 @@ def write_define_h(f):
 
 #------------------------------------------------------------------------------
 
-def write_data_c(f):
+
+def write_common_c(f):
+	write_chapter(f, '[common]')
 	f.write('''
-static size_t OPSIZE[] = {''')
+	
+static void knh_write_opcode(Ctx *ctx, knh_OutputStream_t* w, int opcode)
+{
+	knh_printf(ctx, w, "%s(%d)", knh_opcode_tochar(opcode), (knh_intptr_t)opcode);
+}
+static void knh_write__addr(Ctx *ctx, knh_OutputStream_t* w, void *a)
+{
+	knh_putc(ctx, w, ' '); knh_printf(ctx, w, "%p", a);
+}
+static void knh_write__cid(Ctx *ctx, knh_OutputStream_t* w, knh_class_t cid)
+{
+	knh_putc(ctx, w, ' '); knh_write_cid(ctx, w, cid);
+}
+static void knh_write__float(Ctx *ctx, knh_OutputStream_t* w, knh_float_t a)
+{
+	knh_putc(ctx, w, ' '); knh_write_ffmt(ctx, w, KNH_FLOAT_FMT, a);
+}
+static void knh_write__int(Ctx *ctx, knh_OutputStream_t* w, knh_int_t a)
+{
+	knh_putc(ctx, w, ' '); knh_write_ifmt(ctx, w, KNH_INT_FMT, a);
+}
+static void knh_write__intptr(Ctx *ctx, knh_OutputStream_t* w, knh_intptr_t a)
+{
+	knh_putc(ctx, w, ' '); knh_write_dfmt(ctx, w, KNH_INTPTR_FMT, a);
+}
+static void knh_write__OBJ(Ctx *ctx, knh_OutputStream_t* w, Object *a)
+{
+	knh_putc(ctx, w, ' ');knh_format(ctx, w, METHODN__k, a, KNH_NULL);
+}
+static void knh_write__sfpidx(Ctx *ctx, knh_OutputStream_t* w, knh_sfpidx_t a)
+{
+	knh_printf(ctx, w, " sfp[%d]", (knh_intptr_t)a);
+}
+static void knh_write__sfe(Ctx *ctx, knh_OutputStream_t* w, knh_sfe_t a)
+{
+	knh_printf(ctx, w, " sfe[%d]", (knh_intptr_t)a);
+}
+static void knh_write__sfx(Ctx *ctx, knh_OutputStream_t* w, knh_sfx_t a)
+{
+	knh_printf(ctx, w, " sfx[%d]+%d", (knh_intptr_t)a.i, (knh_intptr_t)a.n);
+}
+static void knh_write__ushort(Ctx *ctx, knh_OutputStream_t* w, knh_ushort_t a)
+{
+	knh_putc(ctx, w, ' ');
+	knh_write_dfmt(ctx, w, KNH_INTPTR_FMT, (knh_intptr_t)a);
+}
+static void knh_write__mn(Ctx *ctx, knh_OutputStream_t* w, knh_methodn_t a)
+{
+	knh_putc(ctx, w, ' '); knh_write_mn(ctx, w, TYPE_void, (knh_methodn_t)a);
+}
+static void knh_write__type(Ctx *ctx, knh_OutputStream_t* w, knh_type_t a)
+{
+	knh_putc(ctx, w, ' '); knh_write_type(ctx, w, (knh_type_t)a);
+}
+
+static void HALT_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
+{
+}
+''')
+
+def write_data_c(f):
+	write_chapter(f, '[data]')
+	f.write('''
+typedef void (*codeftr)(Ctx *, knh_inst_t*, knh_ftraverse);
+typedef void (*codedump)(Ctx *, knh_inst_t*, knh_OutputStream_t*);
+
+typedef struct knh_OPDATA_t {
+	char *name;
+	size_t size;
+	knh_bool_t hasjump;
+	codeftr cftr;
+	codedump cdump;
+} knh_OPDATA_t;
+
+static knh_OPDATA_t OPDATA[] = {''')
 	for kc in KCODE_LIST:
 		f.write('''
-	%s,''' % kc.SIZE)
+	{"%s", %s, %s, %s, %s}, ''' % (kc.name, kc.SIZE, kc.label, kc.ftr, kc.dump))
 	f.write('''
 };
 
-size_t knh_code_opsize(int opcode)
+/* ------------------------------------------------------------------------ */
+
+char *knh_opcode_tochar(int opcode)
 {
-	return OPSIZE[opcode];
+	return OPDATA[opcode].name;
+}
+
+/* ------------------------------------------------------------------------ */
+
+size_t knh_opcode_size(int opcode)
+{
+	return OPDATA[opcode].size;
+}
+
+/* ------------------------------------------------------------------------ */
+
+knh_bool_t knh_opcode_hasjump(int opcode)
+{
+	return OPDATA[opcode].hasjump;
+}
+
+/* ------------------------------------------------------------------------ */
+
+void knh_opcode_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
+{
+	int opcode = KNH_OPCODE(c);
+	OPDATA[opcode].cftr(ctx, c, ftr);
+}
+
+/* ------------------------------------------------------------------------ */
+
+void knh_opcode_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
+{
+	int opcode = KNH_OPCODE(c);
+	OPDATA[opcode].cdump(ctx, c, w);
 }
 
 ''')
 
-#------------------------------------------------------------------------------
 
-def write_KCODE_asm_c(f, kc):
-	proto = 'knh_code_t* KNH_ASM_%s_(Ctx *ctx, knh_Gamma_t *o%s)' % (kc.name, kc.args())
-	CPROTO.append(proto)
-	COND = '!knh_Gamma_isCancelled(o)'
-	if kc.opcode == 0: COND = '1'
+	
+def write_kcftr(f, kc):
 	f.write('''
-%s
+static void %s_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 {
-	%s *op = NULL;
-	if(%s) {
-		op = (%s*)knh_Gamma_asmmalloc(ctx, o, %s);
-		op->opcode = %s;''' % (proto, kc.ctype, COND, kc.ctype, kc.SIZE, kc.opcode))
+	%s *op = (%s*)c; 
+	DBG2_ASSERT(op->opcode == %s);''' % (kc.name, kc.ctype, kc.ctype, kc.opcode))
 	c = 1;
 	for a in kc.tokens[1:]:
-		ctype = getctype(a)
-		if a == 'cid':
+		if a[0].isupper(): 
 			f.write('''
-		KNH_ASSERT_%s(a%d);''' % (a, c))
-		f.write('''
-		op->a%d = /*(%s)*/a%d;''' % (c, ctype,c))
-		if ctype.find('Object') >= 0:
-			f.write('''
-		knh_Object_RCinc(op->a%d);''' % c)
+	ftr(ctx, UP(op->a%d));''' % c)
 		c += 1
 	f.write('''
-		DP(o)->prev_op = (knh_kode_t*)op;
-	}
-	return (knh_code_t*)op;
-}
-''')
-	write_line(f)
-
-def write_asm_c(f):
-	write_data_c(f)
-	for kc in KCODE_LIST:
-		write_KCODE_asm_c(f, kc)
-
-#----------------------------------------------------------------------------
-#------------------------------------------------------------------------------
-
-###############################################################################
-#------------------------------------------------------------------------------
-#------------------------------------------------------------------------------
-
-def write_label(f):
-	write_chapter(f, '[label]')
-	CPROTO.append('void knh_Gamma_remapAddress(Ctx *ctx, knh_Gamma_t *o)')
-	f.write('''
-
-typedef void (*frewrite)(Ctx *ctx, knh_Gamma_t *o, knh_code_t *pc_start, knh_kode_t *op);
-
-void knh_rewrite_addr(Ctx *ctx, knh_Gamma_t *o, knh_code_t *pc_start, knh_kode_t *op)
-{
-	int offset = DP(o)->labels[op->a1].offset;
-	if(offset == -1) {
-		DBG_P("Gamma!!: unknown Labelid=%d", op->a1);
-		knh_Gamma_setCancelled(o, 1);
-	}else {
-		op->jumppc = pc_start + offset;
-		//DBG2_P("%p, op=%d, jmp=%p", op, op->opcode, op->jumpaddr);
-	}
-}
-
-/* ------------------------------------------------------------------------ */
-
-void knh_rewrite_NOP(Ctx *ctx, knh_Gamma_t *o, knh_code_t *pc_start, knh_kode_t *op)
-{
-	//DBG2_P("%p, op=%d", op, op->opcode);
-}
-
-/* ------------------------------------------------------------------------ */
-
-static frewrite OPREWRITE[] = {''')
-
-	for kc in KCODE_LIST:
-		func = 'knh_rewrite_NOP'
-		if len(kc.tokens)>1 and kc.tokens[1] == 'addr' :
-			func = 'knh_rewrite_addr'
-		f.write('''
-	%s, /* %s */''' % (func, kc.name))
-	f.write('''
-};
-
-/* ------------------------------------------------------------------------ */
-
-void knh_Gamma_writeAddress(Ctx *ctx, knh_Gamma_t *o, knh_code_t *pc_start)
-{
-	knh_code_t *pc = pc_start;
-	while(1) {
-		int opcode = KNH_OPCODE(pc);
-		if(opcode == OPCODE_HALT) return ; 
-		OPREWRITE[opcode](ctx, o, pc_start, (knh_kode_t*)pc);
-		pc += OPSIZE[opcode];
-	}
 }
 ''')
 
-	write_chapter(f, '[vmc]')
-	proto = 'void knh_code_traverse(Ctx *ctx, knh_code_t *pc, knh_ftraverse ftr)'
-	CPROTO.append(proto)
+def write_kcdump(f, kc):
+	##########
 	f.write('''
-%s
+static void %s_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
 {
-	L_NEXT:
-	switch(KNH_OPCODE(pc)) {
-		case OPCODE_HALT:
-			return;''' % proto)
-	for kc in KCODE_LIST[1:]:
-		if not kc.hasObject(): continue
-		f.write('''
-		case %s :''' % (kc.OPCODE))
-		c = 1
-		for a in kc.tokens[1:]:
-			ctype = getctype(a)
-			if ctype.find('Object') >= 0:
-				f.write('''
-			ftr(ctx, ((%s*)pc)->a%d);''' % (kc.ctype, c))
-			c += 1
-		f.write('''
-			break;''')
-	f.write('''
-	}
-	pc += OPSIZE[KNH_OPCODE(pc)];
-	goto L_NEXT;
-}
-''')
-
-#------------------------------------------------------------------------------
-
-def write_KCODE_dump(f, kc):
-	LC = ''
-	if len(kc.tokens) == 1: LC = '//'	
-	f.write('''
-static
-void KNH_DUMP_%s(Ctx *ctx, knh_code_t *pc, int flag, knh_OutputStream_t *w, knh_Method_t *mtd)
-{
-	%s%s *op = (%s*)pc;
-	KNH_DUMP_OPCODE(ctx, pc, w, mtd, "%s");'''  % (kc.name, LC, kc.ctype, kc.ctype, kc.name))
+	%s *op = (%s*)c; 
+	knh_write_opcode(ctx, w, op->opcode);''' % (kc.name, kc.ctype, kc.ctype))
 	c = 1
 	for a in kc.tokens[1:]:
 		f.write('''
-	knh_putc(ctx, w, ' '); ''')
+	''')
 		f.write(getfmt(a) % ('(op->a%d)' % c))
-		c += 1
-	
+		c += 1	
 	f.write('''
-	knh_write_EOL(ctx, w);
 }
 ''')
-	write_line(f)
 
-def write_dump(f):
-	write_chapter(f, '[dump]')
-	f.write('''
-#define knh_write__addr(ctx, w, a)  knh_printf(ctx, w, "%p", a)
-#define knh_write__boolean(ctx, w, a)  knh_write_char(ctx, w, (a) ? "true" : "false")
-#define knh_write__cid(ctx, w, a) knh_write_cid(ctx, w, a)
-#define knh_write__float(ctx, w, a) knh_write_ffmt(ctx, w, KNH_FLOAT_FMT, a)
-#define knh_write__integer(ctx, w, a) knh_write_ifmt(ctx, w, KNH_INT_FMT, a)
-#define knh_write__intptr(ctx, w, a)  knh_write_dfmt(ctx, w, KNH_INTPTR_FMT, a)
-#define knh_write__OBJ(ctx, w, a)  knh_format(ctx, w, METHODN__k, a, KNH_NULL)
-#define knh_write__sfi(ctx, w, a)  knh_printf(ctx, w, "sfp[%d]", (knh_intptr_t)a);
-#define knh_write__sfe(ctx, w, a)  knh_printf(ctx, w, "sfe[%d]", (knh_intptr_t)a);
-#define knh_write__sfx(ctx, w, a)  knh_printf(ctx, w, "sfp[%d]+%d", (knh_intptr_t)a.i, (knh_intptr_t)a.n)
-#define knh_write__ushort(ctx, w, a)    knh_write_dfmt(ctx, w, KNH_INTPTR_FMT, (knh_intptr_t)a)
-#define knh_write__mn(ctx, w, a)    knh_write_mn(ctx, w, TYPE_void, (knh_methodn_t)a)
-#define knh_write__type(ctx, w, a)    knh_write_type(ctx, w, (knh_type_t)a)
-
-static
-void KNH_DUMP_OPCODE(Ctx *ctx, knh_code_t *pc, knh_OutputStream_t*w, knh_Method_t *mtd, char *name)
-{
-	knh_kode_t *op = (knh_kode_t*)pc;
-	int line = 0;
-	if(IS_Method(mtd)) {
-		line = knh_Method_pctoline(mtd, pc);
-	}
-	if(line == 0) {
-		knh_printf(ctx, w, " [%p] %s(%d)", pc, name, (knh_intptr_t)op->opcode);
-	}else{
-		knh_printf(ctx, w, " [%d:%p] %s(%d)", line, pc, name, (knh_intptr_t)op->opcode);
-	}
-}
-
-/* ------------------------------------------------------------------------ */
-
-''')
-
+def write_inst_c(f):
+	write_common_c(f)
 	for kc in KCODE_LIST:
-		write_KCODE_dump(f, kc)
-	
-	f.write('''
-/* ------------------------------------------------------------------------ */
-
-typedef void (*fdump)(Ctx *ctx, knh_code_t *pc, int flag, knh_OutputStream_t *w, knh_Method_t *mtd);
-
-static fdump OPDUMP[] = {''')
-
-	for kc in KCODE_LIST:
-		f.write('''
-	KNH_DUMP_%s,''' % (kc.name))
-	
-	f.write('''
-};
-
-/* ------------------------------------------------------------------------ */
-
-void knh_KLRCode__dumpmtd(Ctx *ctx, knh_KLRCode_t *o, knh_OutputStream_t *w, knh_Method_t *mtd)
-{
-	knh_bytes_t vmc = knh_KLRCode_tobytes(o);
-	knh_code_t *pc = (knh_code_t*)vmc.buf;
-	while(1) {
-		int opcode = KNH_OPCODE(pc);
-		if(opcode == OPCODE_HALT) return;
-		KNH_ASSERT_OPCODE(opcode);
-		OPDUMP[opcode](ctx, pc, 0, w, mtd);
-		pc += OPSIZE[opcode];
-	}
-}
-
-/* ------------------------------------------------------------------------ */
-
-''');
+		if not kc.hasObject: continue
+		write_kcftr(f, kc)
+	for kc in KSTRUCT_LIST:
+		write_kcdump(f, kc)
+	write_data_c(f)
 
 #############################################################################
 
@@ -554,7 +487,7 @@ def getmacro(kc, label):
 	c = 1
 	for a in kc.tokens[1:]:
 		if a == 'addr':
-			m += ', pc = op->jumppc, %s' % (label)
+			m += ', pc = ((knh_inst_t*)op)->jumppc, %s' % (label)
 		else:
 			m += ', op->a%d' % (c)
 		c += 1
@@ -562,106 +495,61 @@ def getmacro(kc, label):
 	return m
 
 def write_exec(f):
-	CPROTO.append('METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp)')
 	write_chapter(f, '[exec]')
-
 	f.write('''
-/* ------------------------------------------------------------------------ */
-
-#ifndef DBG2_OPDUMP
-#define DBG2_OPDUMP(ctx, pc)
-#endif
-
-static
-void knh_code_thread(Ctx *ctx, knh_code_t *pc, void **codeaddr)
-{
 #ifdef KNH_USING_THREADEDCODE
-	while(1) {
-		knh_kode_t *op = (knh_kode_t*)pc;
-		KNH_ASSERT_OPCODE(op->opcode);
-		//DBG2_P("%p opcode=%d next=%p", op, op->opcode, op->nextaddr);
-		op->codeaddr = codeaddr[op->opcode];
-		if(op->opcode == OPCODE_HALT) {
-			return;
-		}
-		switch(op->opcode) {''');
-	for kc in KCODE_LIST:
-		if len(kc.tokens)>1 and kc.tokens[1] == 'addr' :
-			f.write('''
-		case %s : ''' % kc.OPCODE)
-	f.write('''
-			DBG2_P("%p GOTO %p", op, op->jumppc);
-			op->jumpaddr = codeaddr[((knh_kode_t*)(op->jumppc))->opcode];
-			break;
-		}
-		pc += OPSIZE[op->opcode];
-	}
-#endif/*KNH_USING_THREADEDCODE*/
-}
-
-''')
-
-	f.write('''
-#ifndef KNH_USING_THREADEDCODE
+#define CASE(L, OP)   L:
+#define NEXT  *(op->nextaddr)
+#define JUMP  *(op->jumpaddr)
+#define TC(c)   c
+#else
 #define OPJUMP NULL
-METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp)
-{
-	static void **globalMachineToJump = NULL;
-	register knh_code_t *pc = sfp[-1].pc;
-	L_HEAD:;
-	switch(((knh_kode_t*)pc)->opcode) {
-''');
-	for kc in KCODE_LIST:
-		LC = ''
-		if len(kc.tokens) == 1: LC = '//'
-		f.write('''
-	case %s :
-		{
-			%sconst %s* op = (%s*)pc;
-			DBG2_OPDUMP(ctx, pc);
-			%s;
-			pc += %s;
-			goto L_HEAD;
-		}
-''' % (kc.OPCODE, LC, kc.ctype, kc.ctype, getmacro(kc, 'L_HEAD'), kc.SIZE))
-	f.write('''
-	}
-	KNH_WARNING(ctx, "unknown opcode=%d", ((knh_kode_t*)pc)->opcode);
-	goto L_HEAD;
-}
+#define CASE(L, OP)   case OP :
+#define NEXT L_HEAD
+#define JUMP L_HEAD
+#define TC(c)    
 #endif/*KNH_USING_THREADEDCODE*/
-''')
 
-	write_line(f)
-	f.write('''
-#ifdef KNH_USING_THREADEDCODE
 METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp)
 {
+#ifdef KNH_USING_THREADEDCODE
 	static void *OPJUMP[] = {''')
+	c = 0
 	for kc in KCODE_LIST:
-		f.write('''
-		&&%s,''' % kc.OPLABEL)
+		if c % 4 == 0: f.write('\n\t\t')
+		f.write('''&&%s, ''' % kc.OPLABEL)
+		c += 1
 	f.write('''
 	};
 	register knh_code_t *pc = sfp[-1].pc;
 	goto *OPJUMP[KNH_OPCODE(pc)]; /* this is needed to init */
-
+#else
+	register knh_code_t *pc = sfp[-1].pc;
+	L_HEAD:;
+	switch(KNH_OPCODE(pc)) {
+#endif
 ''')
 	for kc in KCODE_LIST:
+		LB = ''
+		LE = ''
+		if len(kc.tokens) == 1: 
+			LB = 'TC('
+			LE = ')'
 		f.write('''
-	%s:; {
-		const %s *op = (%s*)pc;
-		DBG2_OPDUMP(ctx, pc);
+	CASE(%s, %s) {
+		%sconst %s *op = (%s*)pc;%s
 		%s;
 		pc += %s;
-		goto *(op->nextaddr);
-	}
-''' % (kc.OPLABEL, kc.ctype, kc.ctype, getmacro(kc, '*(op->jumpaddr)'), kc.SIZE))
+		goto NEXT;
+	} ''' % (kc.OPLABEL, kc.OPCODE, LB, kc.ctype, kc.ctype, LE, getmacro(kc, 'JUMP'), kc.SIZE))
 
 	f.write('''
-}
+#ifndef KNH_USING_THREADEDCODE
+	}
+	KNH_WARNING(ctx, "unknown opcode=%d", KNH_OPCODE(pc));
+	goto L_HEAD;
 #endif
-
+}
 ''')
 
 #------------------------------------------------------------------------------
@@ -669,9 +557,7 @@ METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp)
 def gen_vm_c(bdir):
 	fname = '%s/src/compiler/konoha_code_.c' % bdir
 	f = open_c(fname, ['"commons.h"'])
-	write_asm_c(f)
-	write_label(f)
-	write_dump(f)
+	write_inst_c(f)
 	write_exec(f)
 	close_c(f, fname)
 	

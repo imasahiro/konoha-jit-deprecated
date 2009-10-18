@@ -37,8 +37,6 @@ extern "C" {
 
 #ifdef KNH_CC_METHODAPI
 
-void knh_KLRCode__dumpmtd(Ctx *ctx, knh_KLRCode_t* cmap, knh_OutputStream_t *w, knh_Method_t *mtd);
-
 /* ======================================================================== */
 /* [%empty] */
 
@@ -741,13 +739,19 @@ void knh_Class__dump(Ctx *ctx, knh_Class_t *o, knh_OutputStream_t *w, knh_String
 //## method void Method.%dump(OutputStream w, String? fmt);
 
 static
-void knh_Method__dump(Ctx *ctx, knh_Method_t *o, knh_OutputStream_t *w, knh_String_t *m)
+void knh_Method__dump(Ctx *ctx, knh_Method_t *mtd, knh_OutputStream_t *w, knh_String_t *m)
 {
-	knh_Method__k(ctx, o, w, m);
+	knh_Method__k(ctx, mtd, w, m);
 	knh_println(ctx, w, STEXT(""));
-	if(knh_Method_isObjectCode(o)) {
-		if(IS_KLRCode((Object*)DP(o)->code)) {
-			knh_KLRCode__dumpmtd(ctx, (knh_KLRCode_t*)DP(o)->code, w, o);
+	if(knh_Method_isObjectCode(mtd)) {
+		if(IS_KLRCode(DP(mtd)->kcode)) {
+			knh_code_t *pc = SP(mtd)->pc_start;
+			while(KNH_OPCODE(pc) != OPCODE_HALT) {
+				knh_printf(ctx, w, "[%p:%d] ", pc, knh_Method_pcline(mtd, pc));
+				knh_opcode_dump(ctx, (knh_inst_t*)pc, w);
+				knh_write_EOL(ctx, w);
+				pc += knh_opcode_size(KNH_OPCODE(pc));
+			}
 		}
 	}
 }
@@ -860,7 +864,7 @@ void knh_Object__data(Ctx *ctx, Object *b, knh_OutputStream_t *w, knh_String_t *
 			knh_cfield_t *cf = knh_Class_fieldAt(ctx, cid, i);
 			if(cf->fn == FIELDN_/*register*/) continue;
 			if(cf->fn == FIELDN_NONAME
-				|| KNH_FLAG_IS(cf->flag, FLAG_ClassStruct_Volatile)) continue;
+				|| KNH_FLAG_IS(cf->flag, FLAG_ClassField_Volatile)) continue;
 			knh_write_BOL(ctx, w);
 			knh_printf(ctx, w, "\"%s\": ", FIELDN(cf->fn));
 #ifdef KNH_USING_UNBOXFIELD

@@ -6,7 +6,7 @@
 AM_CFLAGS = -g -pipe
 lib_LTLIBRARIES = libkonoha.la
 
-libkonoha_la_LDFLAGS = -no-undefined -release 0 -version-info 5:0:0
+libkonoha_la_LDFLAGS = -no-undefined -release 0 -version-info 7:0:0
 #if LDL
 #libkonoha_la_LDFLAGS += -ldl
 #endif
@@ -138,29 +138,12 @@ dist_sample_SCRIPTS += ../dist/sample/readfile.k
 dist_sample_SCRIPTS += ../dist/sample/sort.k
 pkgmathdir = $(prefix)/konoha/package/math
 dist_pkgmath_DATA =
-dist_pkgmath_DATA += ../dist/package/math/math.k
-dist_pkgmath_DATA += ../dist/package/math/math_linux_32.so
-dist_pkgmath_DATA += ../dist/package/math/math_macosx_32.dylib
-dist_pkgmath_DATA += ../dist/package/math/math_macosx_64.dylib
 pkgposixdir = $(prefix)/konoha/package/posix
 dist_pkgposix_DATA =
-dist_pkgposix_DATA += ../dist/package/posix/posix.k
-dist_pkgposix_DATA += ../dist/package/posix/posix_linux_32.so
-dist_pkgposix_DATA += ../dist/package/posix/posix_macosx_32.dylib
 pkgxmldir = $(prefix)/konoha/package/xml
 dist_pkgxml_DATA =
-dist_pkgxml_DATA += ../dist/package/xml/libxml2.k
-dist_pkgxml_DATA += ../dist/package/xml/libxml2_linux_32.so
-dist_pkgxml_DATA += ../dist/package/xml/libxml2_macosx_32.dylib
-dist_pkgxml_DATA += ../dist/package/xml/sample/xml_1.k
-dist_pkgxml_DATA += ../dist/package/xml/sample/xmlreader_1.k
-dist_pkgxml_DATA += ../dist/package/xml/sample/xmlreader_2.k
-dist_pkgxml_DATA += ../dist/package/xml/src/xml.k
-dist_pkgxml_DATA += ../dist/package/xml/src/xmlreader.k
 pkgdemodir = $(prefix)/konoha/package/demo
 dist_pkgdemo_DATA =
-dist_pkgdemo_DATA += ../dist/package/demo/demo.k
-dist_pkgdemo_DATA += ../dist/package/demo/demo_macosx_32.dylib
 scriptklipdir = $(prefix)/konoha/script/klip
 dist_scriptklip_SCRIPTS = ../dist/bin/klip.k
 klipdir = $(bindir)

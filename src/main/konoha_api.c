@@ -384,7 +384,7 @@ KNHAPI(int) konoha_runMain(konoha_t konoha, int argc, char **argv)
         knh_NameSpace_t *ns = ctx->share->mainns;
         knh_Script_t *scr = knh_NameSpace_getScript(ctx, ns);
         knh_Method_t *mtd = knh_Class_getMethod(ctx, knh_Object_cid(scr), METHODN_main);
-        
+
         knh_setArgv(ctx, argc, argv);
 
         if(IS_NULL(mtd)) {
@@ -751,7 +751,7 @@ char *knh_rl_name(const char *text, int state)
 		index = 0;
 	}
 	if(ctx != NULL) {
-		knh_DictMap_t *symbolDictMap = DP(ctx->abr)->symbolDictMap;
+		knh_DictMap_t *symbolDictMap = DP(ctx->kc)->symbolDictMap;
 		if(state == 0) {
 			knh_DictMap_sort(symbolDictMap);
 		}
@@ -766,13 +766,9 @@ char *knh_rl_name(const char *text, int state)
 	return NULL;
 }
 
-/* ------------------------------------------------------------------------ */
-
-static
-void knh_Context_initSymbolTable(Ctx *ctx)
+static void knh_Context_initSymbolTable(Ctx *ctx)
 {
-	knh_Context_initGamma(ctx);
-	knh_DictMap_t *symbolDictMap = DP((ctx)->abr)->symbolDictMap;
+	knh_DictMap_t *symbolDictMap = DP((ctx)->kc)->symbolDictMap;
 	int i, j;
 	for(i = 0; i < KNH_TCLASS_SIZE; i++) {
 		knh_String_t *sname = ClassTable(i).sname;

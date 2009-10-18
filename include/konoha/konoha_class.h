@@ -449,17 +449,19 @@ typedef struct knh_Class_t {
 #define knh_class_isGenerics(cid)    (ClassTable(cid).p1 != TYPE_Tvoid)
 
 /* ------------------------------------------------------------------------ */
-//## @Private class ClassStruct Object;
-//## flag ClassStruct Hidden     0 (%s)->fields[n].flag is set * *;
-//## flag ClassStruct Protected  1 (%s)->fields[n].flag is set * *;
-//## flag ClassStruct Getter     2 (%s)->fields[n].flag is set * *;
-//## flag ClassStruct Setter     3 (%s)->fields[n].flag is set * *;
-//## flag ClassStruct Key        4 (%s)->fields[n].flag is set * *;
-//## flag ClassStruct Volatile   5 (%s)->fields[n].flag is set * *;
-//## flag ClassStruct ReadOnly   6 (%s)->fields[n].flag is set * *;
-//## flag ClassStruct Property   7 (%s)->fields[n].flag is set * *;
-//## flag ClassStruct Principle  8 (%s)->fields[n].flag is set * *;
+//## @Private class ClassField Object;
+//## flag ClassField Hidden     0 (%s)->fields[n].flag is set * *;
+//## flag ClassField Protected  1 (%s)->fields[n].flag is set * *;
+//## flag ClassField Getter     2 (%s)->fields[n].flag is set * *;
+//## flag ClassField Setter     3 (%s)->fields[n].flag is set * *;
+//## flag ClassField Key        4 (%s)->fields[n].flag is set * *;
+//## flag ClassField Volatile   5 (%s)->fields[n].flag is set * *;
+//## flag ClassField ReadOnly   6 (%s)->fields[n].flag is set * *;
+//## flag ClassField Property   7 (%s)->fields[n].flag is set * *;
+//## flag ClassField Principle  8 (%s)->fields[n].flag is set * *;
 
+#define FLAG_GAMMA_Register    FLAG_ClassField_Getter
+#define FLAG_GAMMA_FuncScope   FLAG_ClassField_Setter
 
 typedef struct knh_cfield_t {
 	knh_flag_t    flag  ;
@@ -468,12 +470,12 @@ typedef struct knh_cfield_t {
 	Object        *value;
 } knh_cfield_t ;
 
-typedef struct knh_ClassStruct_t {
+typedef struct knh_ClassField_t {
 	knh_hObject_t h;
 	knh_cfield_t* fields;
 	size_t fsize;
 	knh_Array_t*  methods;
-} knh_ClassStruct_t;
+} knh_ClassField_t;
 
 /* ------------------------------------------------------------------------ */
 //## @Private class MethodField Object;
@@ -513,12 +515,15 @@ typedef struct knh_MethodField_t {
 typedef struct {
 	knh_flag_t     flag;  knh_ushort_t   delta;
 	knh_class_t    cid;   knh_methodn_t  mn;
-	knh_uri_t     uri;  knh_uri_t    domain;
+	knh_uri_t     uri;    knh_uri_t    domain;
 	struct knh_MethodField_t* mf;
 	knh_fmethod       fproceed;
-	void*             code;
-	knh_uintptr_t    prof_count;  /*recode how many times called */
-	knh_uintptr_t    prof_time;   /*recode how long spending */
+	union {
+		void*             code;
+		struct knh_KLRCode_t *kcode;
+	};
+//	knh_uintptr_t    prof_count;  /*recode how many times called */
+//	knh_uintptr_t    prof_time;   /*recode how long spending */
 } knh_Method_struct;
 
 typedef struct knh_Method_t {
@@ -1121,8 +1126,11 @@ typedef struct {
 #define knh_Stmt_isVOID(s)         knh_Stmt_isMemo1(s)
 #define knh_Stmt_setVOID(s,b)      knh_Stmt_setMemo1(s,b)
 
+/* STT_DECL */
+#define knh_Stmt_isFuncScope(s)       knh_Stmt_isMemo1(s)
+#define knh_Stmt_setFuncScope(s,b)    knh_Stmt_setMemo1(s,b)
 /* MAPCAST */
-/* DEBUG {} */
+/* STT_BLOCK {} */
 #define knh_Stmt_isDEBUG(s)       knh_Stmt_isMemo1(s)
 #define knh_Stmt_setDEBUG(s,b)    knh_Stmt_setMemo1(s,b)
 /* STT_MAPCAST */
@@ -1169,8 +1177,6 @@ typedef struct knh_Stmt_t {
 #define Term         Any
 #define IS_Term(o)   (IS_Token((Object*)o)||IS_Stmt((Object*)o))
 
-#define KNH_LOCALSIZE 64
-
 #define new_TermCONST(ctx, fln, d)   TM(new_TokenCONST(ctx, fln, d))
 #define TERMs_getcid(stmt, n)    CLASS_type(TERMs_gettype(stmt, n))
 #define TERMs_getbcid(stmt, n)   ctx->share->ClassTable[TERMs_getcid(stmt,n)].bcid
@@ -1179,38 +1185,6 @@ typedef struct knh_Stmt_t {
 /* KLRCode */
 /* ------------------------------------------------------------------------ */
 
-typedef unsigned char          knh_opcode_t;
-typedef int                    knh_labelid_t;
-typedef knh_short_t            knh_sfi_t;
-typedef knh_short_t            knh_sfe_t;
-
-typedef struct {
-	knh_sfi_t i;
-	size_t    n;
-} knh_sfx_t;
-
-typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
-	knh_opcode_t opcode;
-#ifdef KNH_USING_THREADEDCODE
-	void *jumpaddr;
-#endif/*KNH_USING_THREADEDCODE*/
-	union {
-		knh_labelid_t a1;  /* labelid */
-		knh_code_t *jumppc;
-	};
-	void *nextaddr;
-} knh_kode_t;
-
-#define KNH_OPCODE(pc)          ((knh_kode_t*)pc)->opcode
-
-#define KNH_ASSERT_OPCODE(c) \
-	if(c > OPCODE_NOP) {\
-		DBG_P("Invalid opcode=%d", (int)c); \
-		KNH_ASSERT(c <= OPCODE_NOP); \
-	}\
 
 /* ------------------------------------------------------------------------ */
 //## @Struct @Private class Gamma Object;
@@ -1222,72 +1196,48 @@ typedef struct {
 //## flag Gamma STACK      5 DP(%s)->flag has found * *;
 //## flag Gamma SCRIPT     6 DP(%s)->flag has found * *;
 
-//## flag Gamma Data       0 DP(%s)->eflag is set   * *;
+//## flag Gamma Data       0 DP(%s)->pflag is set   * *;
 
-
-#ifndef KONOHA_LOCALSIZE
-#define KONOHA_LOCALSIZE 128
+#ifndef K_GAMMASIZE
+#define K_GAMMASIZE 64
 #endif
 
-#define KNH_ASM_REGMAX 32
+#define SCOPE_PARAM       0
+#define SCOPE_INNERPARAM  1
+#define DECL_FOREACH      2
+#define SCOPE_LOCAL       3
+#define SCOPE_FIELD       4
+#define SCOPE_SCRIPT      5
+#define SCOPE_DATA        6
 
 typedef struct {
-	knh_short_t level;
-	knh_short_t varidx;
-	struct knh_Stmt_t *stmt;
-} knh_asmreg_t ;
-
-typedef struct {
-	int offset;
-	struct knh_Token_t *tklabel;
-} knh_labeltbl_t ;
-
-typedef struct {
-	knh_flag_t             flag;
-	knh_flag_t             eflag;
-	struct knh_NameSpace_t *ns;
-	struct knh_Method_t    *mtd;
-	knh_class_t            this_cid;
-	knh_type_t             rtype;
+	knh_flag_t               flag;
+	knh_flag_t               pflag;
+	struct knh_NameSpace_t*  ns;
+	struct knh_Method_t*     mtd;
+	knh_class_t              this_cid;
+	knh_type_t               rtype;
 
 	/*stack*/
 	knh_ushort_t           goffset;
-	knh_ushort_t           gsize;
-	knh_cfield_t*          gfields;   /* type environment */
+	knh_short_t            psize; /* param size */
+	knh_cfield_t*          gamma; /* type environment */
 
-	int                    level; /* 0.3 */
-	int stack;
-	int globalidx;
-	int llstep;
+	knh_ushort_t           scope;
+	knh_short_t            esp;
+	knh_short_t            globalidx;
+	knh_short_t            testidx;
 
-//	/* closure */
-//	knh_flag_t             xflag;
-//	knh_type_t             xrtype;
-//	struct knh_Method_t   *xmtd;
-
-	/* regisiter */
-	knh_asmreg_t *regs;
-	knh_ushort_t regs_size;
-	knh_ushort_t regs_usedsize;
-
-	/* label */
-	struct knh_DictSet_t* name2labelIdDictSet;
-	size_t labelmax;
-	size_t labelcapacity;
-	knh_labeltbl_t       *labels;
-	knh_Array_t*          lstacks;
+	struct knh_Array_t    *constPools;
+	struct knh_Array_t    *insts;
+	struct knh_Array_t*   lstacks;
+	struct knh_Array_t*   decls;
+	struct knh_Array_t*   untypes;
 	struct knh_Stmt_t*    finallyStmt;
 
-//	knh_uri_t            uri;
-//	knh_sline_t          line;
-	struct knh_Bytes_t*  elf;
-	struct knh_Bytes_t*  dwarf;
-	knh_kode_t          *prev_op;
-
-	void *dlhdr;
+	void                  *dlhdr;
 	struct knh_DictMap_t  *symbolDictMap;
-	struct knh_Array_t    *constPools;
-	struct knh_Array_t    *exportsMethods;
+
 } knh_Gamma_struct;
 
 typedef struct knh_Gamma_t {
@@ -1296,21 +1246,51 @@ typedef struct knh_Gamma_t {
 	knh_uri_t uri; knh_ushort_t line;
 } knh_Gamma_t;
 
-#define knh_Context_getGamma(ctx)    (ctx)->abr
-
 /* ------------------------------------------------------------------------ */
+//## class KLRInst Object;
+
+typedef unsigned char          knh_opcode_t;
+typedef knh_short_t            knh_sfpidx_t;
+#define knh_sfi_t              knh_sfpidx_t
+typedef knh_short_t            knh_sfe_t;
 
 typedef struct {
-	knh_hObject_t h;
-	knh_code_t *code;
-	knh_uri_t uri;      knh_ushort_t line;
-	knh_short_t opcode;
-	union {
-		knh_labelid_t label;
-		knh_ushort_t size;
-	};
-} knh_KLRInst_t;
+	knh_sfpidx_t i;
+	size_t    n;
+} knh_sfx_t;
 
+#if defined(KNH_USING_THREADEDCODE)
+#define THREADEDCODE(code)   code
+#else
+#define THREADEDCODE(code)
+#endif/*KNH_USING_THREADEDCODE*/
+
+typedef struct {
+	THREADEDCODE(void *codeaddr;)
+	knh_opcode_t opcode;
+	THREADEDCODE(void *jumpaddr;)
+	union {
+		struct knh_KLRInst_t* a1;
+		knh_code_t *jumppc;
+	};
+	void *nextaddr;
+} knh_inst_t;
+
+#define KNH_OPCODE(pc)          ((knh_inst_t*)pc)->opcode
+
+#define DBG2_ASSERT_OPCODE(c) \
+	if(((knh_opcode_t)c) > OPCODE_NOP) {\
+		DBG2_P("Invalid opcode=%d", (int)c); \
+		DBG2_ASSERT(c <= OPCODE_NOP); \
+	}\
+
+typedef struct knh_KLRInst_t {
+	knh_hObject_t h;
+	knh_inst_t *op;
+	knh_ushort_t opcode;
+	knh_ushort_t line;
+	knh_code_t *code_pos;
+} knh_KLRInst_t;
 
 /* ------------------------------------------------------------------------ */
 //## @Struct class KLRCode Object;
@@ -1320,13 +1300,18 @@ typedef struct {
 	knh_ushort_t line;
 } knh_dwarf_t;
 
+typedef struct {
+	knh_type_t    type;
+	knh_fieldn_t  fn;
+} knh_dwarf2_t;
+
 typedef struct knh_KLRCode {
 	knh_code_t* code;
 	size_t size;
 	knh_uri_t uri;
 	knh_uri_t domain;
-	size_t dsize;
-	knh_dwarf_t* dwarf;
+	size_t dwarf_size;
+	size_t dwarf2_size;
 } knh_KLRCode_struct;
 
 typedef struct knh_KLRCode_t {

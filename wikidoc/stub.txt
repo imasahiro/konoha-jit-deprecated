@@ -731,7 +731,7 @@ false
 true
 }}}
 
-これらの演算子は、マッピング機能を応用して実現されています。詳しくは、「第¥ref{chapter:semanticprogramming}章 セマンティックプログラミング」で述べます。
+これらの演算子は、マッピング機能を応用して実現されています。詳しくは、「第¥ref{chapter:semantikcogramming}章 セマンティックプログラミング」で述べます。
 
 [[include(KbookIndex)]]
 [[include(KbookFooter)]]

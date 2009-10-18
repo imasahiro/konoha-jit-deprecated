@@ -38,11 +38,11 @@ extern "C" {
 /* KCODE */
 /* ======================================================================== */
 
-int knh_Method_pctoline(knh_Method_t *mtd, knh_code_t *pc);
-#define _HERE_    knh_Method_file(ctx, sfp[-1].mtd), knh_Method_pctoline(sfp[-1].mtd, pc)
+int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
+#define _HERE_    knh_Method_file(ctx, sfp[-1].mtd), knh_Method_pcline(sfp[-1].mtd, pc)
 
 #define KFUNC FIELDN(DP(sfp[-1].mtd)->mn)
-#define KLINE knh_Method_pctoline(sfp[-1].mtd, pc)
+#define KLINE knh_Method_pcline(sfp[-1].mtd, pc)
 
 /* ------------------------------------------------------------------------ */
 
@@ -111,7 +111,7 @@ int knh_Method_pctoline(knh_Method_t *mtd, knh_code_t *pc);
 
 #define KNH_SETESP(ctx, sfp, n) \
 	((knh_Context_t*)ctx)->esp = &(sfp[n]);\
-	if(unlikely((ctx)->stacksize - ((ctx)->esp - (ctx)->stack) < KNH_LOCALSIZE)) {\
+	if(unlikely((ctx)->stacksize - ((ctx)->esp - (ctx)->stack) < K_GAMMASIZE)) {\
 		KNH_THROWs(ctx, "StackOverflow!!"); \
 	}\
 
@@ -309,18 +309,18 @@ int knh_Method_pctoline(knh_Method_t *mtd, knh_code_t *pc);
 
 #define KLR_INITCODE(ctx, n) { \
 		knh_code_thread(ctx, pc, OPJUMP); \
-		((knh_kode_t*)pc)->opcode = OPCODE_SETESP;\
+		((knh_inst_t*)pc)->opcode = OPCODE_SETESP;\
 		return; \
 	}\
 
 #define KLR_SETESP(ctx, n) \
 	((knh_Context_t*)ctx)->esp = &(sfp[n]);\
-	if(unlikely((ctx)->stacksize - ((ctx)->esp - (ctx)->stack) < KNH_LOCALSIZE)) {\
+	if(unlikely((ctx)->stacksize - ((ctx)->esp - (ctx)->stack) < K_GAMMASIZE)) {\
 		KNH_THROWs(ctx, "StackOverflow!!"); \
 	}\
 
 #define KLR_CHECKESP(ctx, n) \
-	if(unlikely((ctx)->stacksize - (&sfp[n] - (ctx)->stack) < KNH_LOCALSIZE)) {\
+	if(unlikely((ctx)->stacksize - (&sfp[n] - (ctx)->stack) < K_GAMMASIZE)) {\
 		KNH_THROWs(ctx, "StackOverflow!!"); \
 	}\
 

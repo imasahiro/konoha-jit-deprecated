@@ -83,9 +83,9 @@ void knh_addConstData(Ctx *ctx, char *dname, Object *value)
 	knh_String_t *name = T__(dname + (loc+1));
 	knh_class_t cid = CLASS_Any;
 	if(loc != -1) {
-		if(ctx->abr != NULL && IS_Gamma(ctx->abr)) {
-			DBG2_P("nsname=%s", __tochar(DP(DP(ctx->abr)->ns)->nsname));
-			cid = knh_NameSpace_getcid(ctx, DP(ctx->abr)->ns, knh_bytes_first(n, loc));
+		if(ctx->kc != NULL && IS_Gamma(ctx->kc)) {
+			DBG2_P("nsname=%s", __tochar(DP(DP(ctx->kc)->ns)->nsname));
+			cid = knh_NameSpace_getcid(ctx, DP(ctx->kc)->ns, knh_bytes_first(n, loc));
 		}
 		else {
 			cid = knh_getcid(ctx, knh_bytes_first(n, loc));

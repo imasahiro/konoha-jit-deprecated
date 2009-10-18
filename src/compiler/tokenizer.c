@@ -64,7 +64,7 @@ void knh_InputStream_perror(Ctx *ctx, knh_InputStream_t *in, int pe, char *fmt, 
 
 knh_String_t *new_StringSYMBOL(Ctx *ctx, knh_bytes_t t)
 {
-	knh_DictMap_t *symbolDictMap = DP((ctx)->abr)->symbolDictMap;
+	knh_DictMap_t *symbolDictMap = DP((ctx)->kc)->symbolDictMap;
 	knh_index_t idx = knh_DictMap_index(symbolDictMap, t);
 	if(idx == -1) {
 		knh_String_t *s = new_String(ctx, t, NULL);

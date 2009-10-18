@@ -144,11 +144,11 @@ void knh_Token_perror(Ctx *ctx, knh_Token_t *tk, int pe, char *fmt, ...)
 
 /* ------------------------------------------------------------------------ */
 
-void knh_Gamma_perror(Ctx *ctx, knh_Gamma_t *abr, int pe, char *fmt, ...)
+void knh_Gamma_perror(Ctx *ctx, int pe, char *fmt, ...)
 {
 	va_list ap;
 	va_start(ap, fmt);
-	knh_vperror(ctx, SP(abr)->uri, (int)SP(abr)->line, pe, fmt, ap);
+	knh_vperror(ctx, SP(ctx->kc)->uri, (int)SP(ctx->kc)->line, pe, fmt, ap);
 	va_end(ap);
 }
 

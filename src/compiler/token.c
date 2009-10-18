@@ -59,9 +59,9 @@ void knh_Token_setFL(knh_Token_t *o, Any *fln)
 		SP(o)->line =  SP(tk)->line;
 	}
 	else if(IS_Gamma((Object*)fln)) {
-		knh_Gamma_t *abr = (knh_Gamma_t*)fln;
-		SP(o)->uri =  SP(abr)->uri;
-		SP(o)->line =  SP(abr)->line;
+		knh_Gamma_t *kc = (knh_Gamma_t*)fln;
+		SP(o)->uri =  SP(kc)->uri;
+		SP(o)->line =  SP(kc)->line;
 	}
 	else {
 		knh_Stmt_t *stmt = (knh_Stmt_t*)fln;

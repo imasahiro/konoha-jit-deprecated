@@ -29,6 +29,7 @@
 
 #include"commons.h"
 #include"../../include/konoha/konoha_stmt_.h"
+#include"../../include/konoha/konoha_code_.h"
 
 /* ************************************************************************ */
 
@@ -137,14 +138,14 @@ typedef struct {
 /* ------------------------------------------------------------------------ */
 
 static
-void knh_ClassStruct_initField(Ctx *ctx, knh_ClassStruct_t *cs, knh_class_t self_cid, Object **v)
+void knh_ClassField_initField(Ctx *ctx, knh_ClassField_t *cs, knh_class_t self_cid, Object **v)
 {
 	size_t i;
 	knh_cfield_t *cf = cs->fields;
 	for(i = 0; i < cs->fsize; i++) {
 		knh_type_t type = cf[i].type;
 		Object *value = cf[i].value;
-		if(KNH_FLAG_IS(cf[i].flag, FLAG_ClassStruct_Property)) {
+		if(KNH_FLAG_IS(cf[i].flag, FLAG_ClassField_Property)) {
 			value = knh_Context_getProperty(ctx, (knh_Context_t*)ctx,
 				__tobytes((knh_String_t*)value));
 			DBG2_P("type=%s%s object=%s", TYPEQN(cf[i].type), CLASSNo(value));
@@ -194,11 +195,11 @@ void knh_ObjectField_init(Ctx *ctx, knh_ObjectField_t *of, int init)
 		Object **v = (Object**)of->fields;
 		size_t offset;
 		while((offset = ClassTable(cid).offset) != 0) {
-			knh_ClassStruct_initField(ctx, ClassTable(cid).cstruct, of->h.cid, v + offset);
+			knh_ClassField_initField(ctx, ClassTable(cid).cstruct, of->h.cid, v + offset);
 			cid = ClassTable(cid).supcid;
 			DBG2_ASSERT_cid(cid);
 		}
-		knh_ClassStruct_initField(ctx, ClassTable(cid).cstruct, of->h.cid, v + offset);
+		knh_ClassField_initField(ctx, ClassTable(cid).cstruct, of->h.cid, v + offset);
 		of->fields = v;
 		of->bsize = ctx->share->ClassTable[of->h.cid].bsize;
 	}
@@ -214,7 +215,7 @@ void knh_ObjectField_traverse(Ctx *ctx, knh_ObjectField_t *of, knh_ftraverse ftr
 {
 	knh_class_t cid = knh_Object_cid(of);
 	while(cid != CLASS_Object) {
-		knh_ClassStruct_t *cs = ClassTable(cid).cstruct;
+		knh_ClassField_t *cs = ClassTable(cid).cstruct;
 		size_t i, offset = ClassTable(cid).offset;
 		for(i = 0; i < cs->fsize; i++) {
 			knh_type_t type = cs->fields[i].type;
@@ -999,18 +1000,18 @@ static knh_String_t *knh_Class_getkey(Ctx *ctx,knh_sfp_t *lsfp)
 }
 
 /* ======================================================================== */
-/* ClassStruct */
+/* ClassField */
 
-#define knh_ClassStruct_init_ NULL
-#define knh_ClassStruct_copy NULL
-#define knh_ClassStruct_traverse_ NULL
-#define knh_ClassStruct_compareTo NULL
-#define knh_ClassStruct_hashCode NULL
-#define knh_ClassStruct_newClass NULL
-#define knh_ClassStruct_getkey NULL
+#define knh_ClassField_init_ NULL
+#define knh_ClassField_copy NULL
+#define knh_ClassField_traverse_ NULL
+#define knh_ClassField_compareTo NULL
+#define knh_ClassField_hashCode NULL
+#define knh_ClassField_newClass NULL
+#define knh_ClassField_getkey NULL
 
 static
-void knh_ClassStruct_init(Ctx *ctx, knh_ClassStruct_t *b, int init)
+void knh_ClassField_init(Ctx *ctx, knh_ClassField_t *b, int init)
 {
 	b->fsize = init;
 	if(b->fsize == 0) {
@@ -1028,7 +1029,7 @@ void knh_ClassStruct_init(Ctx *ctx, knh_ClassStruct_t *b, int init)
 	KNH_INITv(b->methods, KNH_NULL);
 }
 
-static void knh_ClassStruct_traverse(Ctx *ctx, knh_ClassStruct_t *b, knh_ftraverse ftr)
+static void knh_ClassField_traverse(Ctx *ctx, knh_ClassField_t *b, knh_ftraverse ftr)
 {
 	ftr(ctx, UP(b->methods));
 	if(b->fields != NULL) {
@@ -1128,8 +1129,8 @@ static void knh_Method_init(Ctx *ctx, knh_Method_t *mtd, int init)
 	KNH_INITv(b->mf, knh_findMethodField0(ctx, TYPE_void));
 	b->code  = NULL;
 	b->uri  = 0;  b->domain = 0;
-	b->prof_count = 0;
-	b->prof_time = 0;
+//	b->prof_count = 0;
+//	b->prof_time = 0;
 }
 
 static void knh_Method_traverse(Ctx *ctx, knh_Method_t *mtd, knh_ftraverse ftr)
@@ -2077,86 +2078,97 @@ Term *knh_Stmt_done(Ctx *ctx, knh_Stmt_t *o)
 #define knh_Gamma_newClass NULL
 #define knh_Gamma_getkey NULL
 
-static void knh_Gamma_init(Ctx *ctx, knh_Gamma_t *abr, int init)
+static void knh_Gamma_init(Ctx *ctx, knh_Gamma_t *kc, int init)
 {
-	knh_Gamma_struct *b = DP(abr);
+	knh_Gamma_struct *b = DP(kc);
 	b->flag = 0;
 	b->this_cid = CLASS_Object;
-
 	KNH_INITv(b->ns, ctx->share->mainns);
+	DBG2_ASSERT(IS_NameSpace(b->ns));
 	KNH_INITv(b->mtd,   KNH_NULL);
-	b->level = 0;
 
 	knh_intptr_t i;
-	b->gfields = (knh_cfield_t*)KNH_MALLOC(ctx, KONOHA_LOCALSIZE * sizeof(knh_cfield_t));
-	knh_bzero(b->gfields, KONOHA_LOCALSIZE * sizeof(knh_cfield_t));
-	b->gsize = 0;
-	for(i = 0; i < KONOHA_LOCALSIZE; i++) {
-		b->gfields[i].flag  = 0;
-		b->gfields[i].type  = TYPE_void;
-		b->gfields[i].fn    = FIELDN_NONAME;
-		b->gfields[i].value = NULL;
+	b->gamma = (knh_cfield_t*)KNH_MALLOC(ctx, K_GAMMASIZE * sizeof(knh_cfield_t));
+	knh_bzero(b->gamma, K_GAMMASIZE * sizeof(knh_cfield_t));
+	for(i = 0; i < K_GAMMASIZE; i++) {
+		b->gamma[i].flag  = 0;
+		b->gamma[i].type  = TYPE_void;
+		b->gamma[i].fn    = FIELDN_NONAME;
+		b->gamma[i].value = NULL;
 	}
-	b->stack = 0;
-	b->globalidx = -1;
+	b->psize = 0;
 
-	b->regs = (knh_asmreg_t*)KNH_MALLOC(ctx, KNH_ASM_REGMAX * sizeof(knh_asmreg_t));
-	knh_bzero(b->regs, KNH_ASM_REGMAX * sizeof(knh_asmreg_t));
-	b->regs_size = 0;
-
-	b->labels = NULL;
-	b->labelmax = 0;
-	b->labelcapacity = 0;
-	KNH_INITv(b->name2labelIdDictSet, new_DictSet(ctx, 256));
-
-	KNH_INITv(b->lstacks, new_Array(ctx, CLASS_String, 8));
+	KNH_INITv(b->lstacks, new_Array0(ctx, 0));
+	KNH_INITv(b->insts, new_Array0(ctx, 256));
+	KNH_INITv(b->decls, new_Array0(ctx, 0));
+	KNH_INITv(b->untypes, new_Array0(ctx, 0));
 	KNH_INITv(b->finallyStmt, KNH_NULL);
-
-	KNH_INITv(b->elf, new_Bytes(ctx, 4096));
-	KNH_INITv(b->dwarf, new_Bytes(ctx, 1024));
 
 	b->dlhdr = NULL;
 	KNH_INITv(b->symbolDictMap, new_DictMap0(ctx, 256));
 	KNH_INITv(b->constPools, KNH_NULL);
-	KNH_INITv(b->exportsMethods, KNH_NULL);
 }
 
-static void knh_Gamma_traverse(Ctx *ctx, knh_Gamma_t *abr, knh_ftraverse ftr)
+static void knh_Gamma_traverse(Ctx *ctx, knh_Gamma_t *kc, knh_ftraverse ftr)
 {
-	knh_Gamma_struct *b = DP(abr);
 	size_t i;
-	for(i = 0; i < KONOHA_LOCALSIZE; i++) {
-		if(b->gfields[i].value != NULL) {
-			ftr(ctx, b->gfields[i].value);
+	knh_Gamma_struct *b = DP(kc);
+	for(i = 0; i < K_GAMMASIZE; i++) {
+		if(b->gamma[i].value != NULL) {
+			ftr(ctx, b->gamma[i].value);
 		}
-	}
-	for(i = 0; i < b->labelcapacity; i++) {
-		ftr(ctx, UP(b->labels[i].tklabel));
 	}
 	if(IS_SWEEP(ftr)) {
-		KNH_FREE(ctx, b->gfields, KONOHA_LOCALSIZE * sizeof(knh_cfield_t));
-		if(b->labels != NULL) {
-			KNH_FREE(ctx, b->labels, b->labelcapacity * sizeof(knh_labeltbl_t));
-		}
-		KNH_FREE(ctx, b->regs, KNH_ASM_REGMAX * sizeof(knh_asmreg_t));
-		b->regs_size = 0;
-	}
-
-	ftr(ctx, UP(b->ns));
-	ftr(ctx, UP(b->mtd));
-	ftr(ctx, UP(b->elf));
-	ftr(ctx, UP(b->dwarf));
-
-	ftr(ctx, UP(b->name2labelIdDictSet));
-	ftr(ctx, UP(b->lstacks));
-	ftr(ctx, UP(b->finallyStmt));
-
-	if(IS_SWEEP(ftr) && b->dlhdr != NULL) {
+		KNH_FREE(ctx, b->gamma, K_GAMMASIZE * sizeof(knh_cfield_t));
 		b->dlhdr = NULL;
 	}
+	ftr(ctx, UP(b->ns));
+	ftr(ctx, UP(b->mtd));
+	ftr(ctx, UP(b->lstacks));
+	ftr(ctx, UP(b->insts));
+	ftr(ctx, UP(b->decls));
+	ftr(ctx, UP(b->untypes));
+	ftr(ctx, UP(b->finallyStmt));
 	ftr(ctx, UP(b->symbolDictMap));
-	ftr(ctx, UP(b->exportsMethods));
 	ftr(ctx, UP(b->constPools));
+}
+
+/* ======================================================================== */
+/* KLRInst */
+
+#define knh_KLRInst_init_ NULL
+#define knh_KLRInst_copy NULL
+#define knh_KLRInst_traverse_ NULL
+#define knh_KLRInst_compareTo NULL
+#define knh_KLRInst_hashCode NULL
+#define knh_KLRInst_newClass NULL
+#define knh_KLRInst_getkey NULL
+
+static void knh_KLRInst_init(Ctx *ctx, knh_KLRInst_t *inst, int opcode)
+{
+	if(opcode < OPCODE_NOP) {
+		size_t size = knh_opcode_size(opcode);
+		inst->op = (knh_inst_t*)KNH_MALLOC(ctx, size);
+		knh_bzero(inst->op, size);
+		inst->op->opcode = opcode;
+	}
+	else {
+		inst->op = NULL;
+	}
+	inst->opcode = opcode;
+	inst->line   = 0;
+	inst->code_pos = NULL;
+}
+
+static void knh_KLRInst_traverse(Ctx *ctx, knh_KLRInst_t *inst, knh_ftraverse ftr)
+{
+	if(inst->opcode <= OPCODE_NOP) {
+		knh_opcode_traverse(ctx, inst->op, ftr);
+		if(IS_SWEEP(ftr)) {
+			KNH_FREE(ctx, inst->op, knh_opcode_size(inst->opcode));
+			inst->op = NULL;
+		}
+	}
 }
 
 /* ======================================================================== */
@@ -2170,33 +2182,30 @@ static void knh_Gamma_traverse(Ctx *ctx, knh_Gamma_t *abr, knh_ftraverse ftr)
 #define knh_KLRCode_newClass NULL
 #define knh_KLRCode_getkey NULL
 
-void knh_code_traverse(Ctx *ctx, knh_code_t *pc, knh_ftraverse ftr);
-
 static void knh_KLRCode_init(Ctx *ctx, knh_KLRCode_t *o, int init)
 {
 	knh_KLRCode_struct *b = DP(o);
 	b->size = 0;
 	b->code = (knh_code_t*)"";
 	b->uri = 0;
-//	b->nsid = 0;
-	b->dwarf = NULL;
-	b->dsize = 0;
+	b->dwarf_size  = 0;
+	b->dwarf2_size = 0;
 }
 
 static void knh_KLRCode_traverse(Ctx *ctx, knh_KLRCode_t *o, knh_ftraverse ftr)
 {
 	knh_KLRCode_struct *b = DP(o);
-	knh_code_traverse(ctx, b->code, ftr);
+	knh_code_t *pc = DP(o)->code;
+	while(KNH_OPCODE(pc) != OPCODE_HALT) {
+		knh_opcode_traverse(ctx, (knh_inst_t*)pc, ftr);
+		pc += knh_opcode_size(KNH_OPCODE(pc));
+	}
 	if(IS_SWEEP(ftr)) {
 		KNH_FREE(ctx, b->code, KNH_SIZE(b->size));
-		if(b->dwarf != NULL) {
-			KNH_FREE(ctx, b->dwarf, b->dsize * sizeof(knh_dwarf_t));
-		}
 	}
 }
 
 /* ======================================================================== */
-/* [commons] */
 
 #ifdef __cplusplus
 }
@@ -2381,7 +2390,7 @@ static void knh_loadClassData(Ctx *ctx, knh_ClassData_t *data)
 			t->bsize  = t->size / sizeof(knh_Object_t*);
 			DBG2_ASSERT(t->cstruct == NULL);
 			if(data->method_size + data->formatter_size > 0) {
-				KNH_INITv(t->cstruct, new_ClassStruct0(ctx, 0, data->method_size + data->formatter_size));
+				KNH_INITv(t->cstruct, new_ClassField0(ctx, 0, data->method_size + data->formatter_size));
 			}
 			else {
 				//DBG2_P("no method %s, %d,%d", data->name, data->method_size, data->formatter_size);
@@ -2483,7 +2492,7 @@ void knh_loadMethodData(Ctx *ctx, knh_MethodData_t *data, knh_MethodField_t **po
 			DP(mtd)->flag = DP(mtd)->flag | FLAG_Method_Static;
 		}
 		{
-			knh_ClassStruct_t *cs = ClassTable(data->cid).cstruct;
+			knh_ClassField_t *cs = ClassTable(data->cid).cstruct;
 			knh_Array_add(ctx, cs->methods, UP(mtd));
 		}
 		data++;

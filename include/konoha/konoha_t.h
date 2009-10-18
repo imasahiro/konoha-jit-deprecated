@@ -458,7 +458,7 @@ typedef knh_ushort_t              knh_uri_t;
 
 #define NSN_main           0
 #define FILEN_unknown      0
-#define KNH_ASM_JMP(ctx, abr, l)  KNH_ASM_JMP_(ctx, abr, l);
+#define KNH_ASM_JMP(ctx, l)  KNH_ASM_JMP_(ctx, l);
 
 #define URIDN(uri) __tochar(knh_getResourceName(ctx, uri))
 #define FILEN(uri) knh_safefile(URIDN(uri))
@@ -653,7 +653,7 @@ typedef struct {
 	struct knh_String_t       *lname;
 	struct knh_Class_t        *class_cid;
 	struct knh_Class_t        *class_natype;
-	struct knh_ClassStruct_t  *cstruct;
+	struct knh_ClassField_t  *cstruct;
 	struct knh_ClassMap_t     *cmap;
 	struct knh_Object_t       *cspec;
 	struct knh_DictMap_t      *constPool;
@@ -823,7 +823,7 @@ typedef struct knh_Context_t {
 	struct knh_OutputStream_t*   bufw;
 	struct knh_Bytes_t*          bconvbuf;
 	struct knh_DictMap_t*        props;
-	struct knh_Gamma_t            *abr;
+	struct knh_Gamma_t            *kc;
 	struct knh_Array_t          *lines;
 
 	int    hasError;

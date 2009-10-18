@@ -30,7 +30,7 @@
 #include"commons.h"
 #include"../../include/konoha/konoha_code_.h"
 
-size_t knh_code_opsize(int opcode);
+size_t knh_opcode_size(int opcode);
 
 /* ************************************************************************ */
 
@@ -344,9 +344,9 @@ knh_class_t knh_Method_gencid(Ctx *ctx, knh_Method_t *mtd, knh_class_t cid)
 static
 knh_code_t *knh_KLRCode_yeildingNext(knh_code_t *pc)
 {
-	knh_kode_t *op = (knh_kode_t*)pc;
+	knh_inst_t *op = (knh_inst_t*)pc;
 	if(op->opcode != OPCODE_NOP) return NULL;
-	pc += knh_code_opsize(op->opcode);
+	pc += knh_opcode_size(op->opcode);
 	return pc;
 }
 
@@ -365,7 +365,7 @@ ITRNEXT knh_Generator_fnext(Ctx *ctx, knh_sfp_t *sfp, int n)
 		size_t stacksize = (cc)->hstacksize[-1];
 		knh_sfp_copy(ctx, (cc)->envsfp, sfp+1, stacksize);
 		KNH_CALLGEN(ctx, sfp, 1, mtd, pc, stacksize);  /* args is reset to esp size */
-		if(((knh_kode_t*)pc)->opcode == OPCODE_YEILDBREAK) {
+		if(((knh_inst_t*)pc)->opcode == OPCODE_YEILDBREAK) {
 			KNH_ITREND(ctx, sfp, n);
 		}
 		DBG2_P("stacksize=%d, %d", (int)stacksize, (int)(cc)->hstacksize[-1]);
@@ -387,8 +387,8 @@ knh_Iterator_t* new_Generator(Ctx *ctx, knh_sfp_t *sfp)
 		knh_class_t cid = knh_Method_gencid(ctx, sfp[-1].mtd, knh_Object_cid(sfp[0].o));
 		knh_Iterator_t *it = new_Iterator(ctx, cid, UP(cc), knh_Generator_fnext);
 		knh_code_t *pc = (sfp[-1].mtd)->pc_start;
-		KNH_ASSERT(((klr_setesp_t*)pc)->opcode == OPCODE_SETESP);
-		size_t stacksize = 1 + ((klr_setesp_t*)pc)->a1;
+		KNH_ASSERT(((klr_SETESP_t*)pc)->opcode == OPCODE_SETESP);
+		size_t stacksize = 1 + ((klr_SETESP_t*)pc)->a1;
 		size_t* hstack = (size_t*)KNH_MALLOC(ctx, (sizeof(knh_sfp_t) * stacksize) + sizeof(size_t));
 		knh_sfp_t *envsfp = (knh_sfp_t*)(&hstack[1]);
 		hstack[0] = stacksize;

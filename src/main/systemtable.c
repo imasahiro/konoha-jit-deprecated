@@ -177,7 +177,7 @@ void knh_Context_initCommon(Ctx *ctx, knh_Context_t *o, size_t stacksize)
 	KNH_INITv(o->in,  DP(ctx->sys)->in);
 	KNH_INITv(o->out, DP(ctx->sys)->out);
 	KNH_INITv(o->err, DP(ctx->sys)->err);
-	KNH_INITv(o->abr, KNH_NULL);
+	KNH_INITv(o->kc, new_Object_bcid(ctx, CLASS_Gamma, 0));
 	KNH_INITv(o->msgError, UP(TS_EMPTY));
 }
 
@@ -200,7 +200,7 @@ void knh_Context_traverseCommon(Ctx *ctx, knh_Context_t *o, knh_ftraverse ftr)
 	ftr(ctx, UP(o->in));
 	ftr(ctx, UP(o->out));
 	ftr(ctx, UP(o->err));
-	ftr(ctx, UP(o->abr));
+	ftr(ctx, UP(o->kc));
 	ftr(ctx, UP(o->msgError));
 
 	if(IS_SWEEP(ftr)) {
@@ -382,7 +382,7 @@ Ctx *knh_createRootContext(size_t stacksize)
 /* ------------------------------------------------------------------------ */
 
 static
-void knh_ClassStruct_toAbstractAll(Ctx *ctx, knh_ClassStruct_t *cs)
+void knh_ClassField_toAbstractAll(Ctx *ctx, knh_ClassField_t *cs)
 {
 	knh_Array_t *a = cs->methods;
 	if(IS_bArray(a)) {
@@ -440,11 +440,11 @@ void knh_traverseSharedData(Ctx *ctx, knh_SharedData_t *share, knh_ftraverse ftr
 	if(IS_SWEEP(ftr)) {
 		for(i = 0; i < share->StructTableSize; i++) {
 			DBG2_ASSERT(ClassTable(i).sname != NULL);
-			knh_ClassStruct_toAbstractAll(ctx, ClassTable(i).cstruct);
+			knh_ClassField_toAbstractAll(ctx, ClassTable(i).cstruct);
 		}
 		for(i = share->ClassTableSize; i < KNH_TCLASS_SIZE; i++) {
 			DBG2_ASSERT(ClassTable(i).sname != NULL);
-			knh_ClassStruct_toAbstractAll(ctx, ClassTable(i).cstruct);
+			knh_ClassField_toAbstractAll(ctx, ClassTable(i).cstruct);
 		}
 	}
 
@@ -617,7 +617,7 @@ Ctx *new_ThreadContext(Ctx *parent)
 			KNH_SETv(root, ctx->in,  DP(root->sys)->in);
 			KNH_SETv(root, ctx->out, DP(root->sys)->out);
 			KNH_SETv(root, ctx->err, DP(root->sys)->err);
-			KNH_SETv(root, ctx->abr, KNH_NULL);
+			KNH_SETv(root, ctx->kc, KNH_NULL);
 		}
 	}
 	if(ctx == NULL) {

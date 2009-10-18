@@ -62,7 +62,7 @@ knh_Script_t *new_Script(Ctx *ctx, knh_bytes_t nsname)
 	t->size = t->bsize * sizeof(knh_Object_t*);
 
 	knh_setClassName(ctx, cid, new_String(ctx, B(buf), NULL));
-	KNH_INITv(t->cstruct, new_ClassStruct0(ctx, KNH_SCRIPT_FIELDSIZE, KNH_SCRIPT_FIELDSIZE/2));
+	KNH_INITv(t->cstruct, new_ClassField0(ctx, KNH_SCRIPT_FIELDSIZE, KNH_SCRIPT_FIELDSIZE/2));
 
 	KNH_ASSERT(t->cmap == NULL);
 	KNH_INITv(t->cmap, ctx->share->ClassTable[CLASS_Script].cmap);

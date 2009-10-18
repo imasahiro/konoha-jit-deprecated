@@ -1210,7 +1210,7 @@ int knh_Term_checkLVALUE(Ctx *ctx, Term *tm)
 			}
 		}
 		knh_perror(ctx, SP(stmt)->uri, SP(stmt)->line, KERR_ERROR, _("not l-value"));
-		DBG2_P("stt=%s", knh_stmt_tochar(STT_(stmt)));
+		DBG2_P("stt=%s", cSTT_((stmt)));
 		STT_(stmt) = STT_ERR;
 
 	}

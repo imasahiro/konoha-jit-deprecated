@@ -177,7 +177,7 @@ knh_Stmt_t *knh_InputStream_parseStmt(Ctx *ctx, knh_InputStream_t *in, int isDat
 /* ------------------------------------------------------------------------ */
 
 static
-void knh_Gamma_openDynamicLinkLibrary(Ctx *ctx, knh_Gamma_t *abr, knh_uri_t uri)
+void knh_Gamma_openDynamicLinkLibrary(Ctx *ctx, knh_uri_t uri)
 {
 	knh_bytes_t path = __tobytes(knh_getResourceName(ctx, uri));
 	if(path.buf[0] != '(' && !knh_bytes_startsWith(path, STEXT("http://"))) {  // check "(eval)", "(shell)", or o
@@ -188,19 +188,19 @@ void knh_Gamma_openDynamicLinkLibrary(Ctx *ctx, knh_Gamma_t *abr, knh_uri_t uri)
 		knh_cwb_putc(ctx, cwb, '_');
 		knh_cwb_write(ctx, cwb, STEXT(KONOHA_PLATFORM));
 		knh_cwb_ospath(ctx, cwb);
-		DP(abr)->dlhdr =knh_cwb_dlopen(ctx, cwb);
-		if(DP(abr)->dlhdr != NULL) {
-			KNH_NOTICE(ctx, "opened dynamic library: %s", knh_cwb__tochar(ctx, cwb));
+		DP(ctx->kc)->dlhdr =knh_cwb_dlopen(ctx, cwb);
+		if(DP(ctx->kc)->dlhdr != NULL) {
+			KNH_NOTICE(ctx, "opened dynamic library: %s", knh_cwb_tochar(ctx, cwb));
 		}
 		else {
 			if(knh_cwb_isfile(ctx, cwb)) {
-				KNH_WARNING(ctx, "cannot open dynamic library: %s", knh_cwb__tochar(ctx, cwb));
+				KNH_WARNING(ctx, "cannot open dynamic library: %s", knh_cwb_tochar(ctx, cwb));
 			}
 		}
 		knh_cwb_close(cwb);
 	}
 	else {
-		DP(abr)->dlhdr = NULL;
+		DP(ctx->kc)->dlhdr = NULL;
 	}
 }
 
@@ -215,7 +215,6 @@ int knh_NameSpace_load(Ctx *ctx, knh_NameSpace_t *ns, knh_InputStream_t *in, int
 	KNH_ASSERT(!knh_InputStream_isClosed(ctx, in));
 	KNH_LPUSH(ctx, new_ExceptionHandler(ctx));
 	KNH_TRY(ctx, L_CATCH, lsfp, 1);
-	knh_Context_initGamma(ctx);   // initialization
 	{
 		knh_Stmt_t *stmt = knh_InputStream_parseStmt(ctx, in, 0/*isData*/);
 		KNH_LPUSH(ctx, stmt);
@@ -223,7 +222,7 @@ int knh_NameSpace_load(Ctx *ctx, knh_NameSpace_t *ns, knh_InputStream_t *in, int
 			DBG_DUMP(ctx, stmt, KNH_NULL, "stmt");
 		}
 		if(isEval) {
-			knh_Gamma_openDynamicLinkLibrary(ctx, ctx->abr, uri);
+			knh_Gamma_openDynamicLinkLibrary(ctx, uri);
 		}
 		res = knh_NameSpace_compile(ctx, ns, stmt, isEval);
 		if(URI_UNMASK(uri) != 0) {
@@ -263,7 +262,7 @@ char *knh_cwb_packageScript(Ctx *ctx, knh_cwb_t *cwb, knh_bytes_t rootdir, knh_b
 	knh_cwb_write(ctx, cwb, STEXT(".k"));
 	knh_cwb_ospath(ctx, cwb);
 	if(knh_cwb_isfile(ctx, cwb)) {
-		return knh_cwb__tochar(ctx, cwb);
+		return knh_cwb_tochar(ctx, cwb);
 	}
 	return NULL;
 }
@@ -390,7 +389,7 @@ void knh_class_addInterface(Ctx *ctx, knh_class_t cid, knh_class_t icid)
 		knh_class_t isupcid = icid;
 		int allchecked = 1;
 		while(isupcid != CLASS_Object) {
-			knh_ClassStruct_t *cs = ctx->share->ClassTable[isupcid].cstruct;
+			knh_ClassField_t *cs = ctx->share->ClassTable[isupcid].cstruct;
 			size_t i;
 			for(i = 0; i < knh_Array_size(cs->methods); i++) {
 				knh_Method_t *imtd = (knh_Method_t*)knh_Array_n(cs->methods, i);
@@ -412,7 +411,7 @@ void knh_class_addInterface(Ctx *ctx, knh_class_t cid, knh_class_t icid)
 		if(allchecked) {
 			isupcid = icid;
 			while(isupcid != CLASS_Object) {
-				knh_ClassStruct_t *cs = ctx->share->ClassTable[isupcid].cstruct;
+				knh_ClassField_t *cs = ctx->share->ClassTable[isupcid].cstruct;
 				size_t i;
 				for(i = 0; i < knh_Array_size(cs->methods); i++) {
 					knh_Method_t *imtd = (knh_Method_t*)knh_Array_n(cs->methods, i);
@@ -440,8 +439,9 @@ void knh_class_addInterface(Ctx *ctx, knh_class_t cid, knh_class_t icid)
 /* ------------------------------------------------------------------------ */
 
 static
-int knh_StmtCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Gamma_t *abr, knh_NameSpace_t *ns)
+int knh_StmtCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt)
 {
+	knh_NameSpace_t *ns = DP(ctx->kc)->ns;
 	char bufn[CLASSNAME_BUFSIZ];
 	knh_snprintf(bufn, sizeof(bufn), "%s.%s", __tochar(DP(ns)->nsname), sToken(StmtCLASS_class(stmt)));
 	knh_class_t cid  = knh_NameSpace_getcid(ctx, ns, B(bufn));
@@ -450,7 +450,7 @@ int knh_StmtCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Gamma_t *abr, knh_NameSpa
 		KNH_ASSERT(ClassTable(cid).sname == NULL);
 	}
 	else {
-		knh_Gamma_perror(ctx, abr, KERR_ERROR, _("re-definition of %C"), cid);
+		knh_Gamma_perror(ctx, KERR_ERROR, _("re-definition of %C"), cid);
 		knh_Stmt_done(ctx, stmt);
 		return 0;
 	}
@@ -460,10 +460,10 @@ int knh_StmtCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Gamma_t *abr, knh_NameSpa
 		supcid = knh_NameSpace_getcid(ctx, ns, knh_Token_tobytes(ctx, StmtCLASS_superclass(stmt)));
 		if(supcid == CLASS_unknown) {
 			supcid = CLASS_Object;
-			knh_Gamma_perror(ctx, abr, KERR_ERRATA, _("unknown class: %s ==> %C"), sToken(StmtCLASS_superclass(stmt)), supcid);
+			knh_Gamma_perror(ctx, KERR_ERRATA, _("unknown class: %s ==> %C"), sToken(StmtCLASS_superclass(stmt)), supcid);
 		}
 		else if(knh_class_isFinal(supcid)) {
-			knh_Gamma_perror(ctx, abr, KERR_ERROR, _("cannot extends %C: this class is final"), supcid);
+			knh_Gamma_perror(ctx, KERR_ERROR, _("cannot extends %C: this class is final"), supcid);
 			knh_Stmt_done(ctx, stmt);
 			return 0;
 		}
@@ -486,7 +486,7 @@ int knh_StmtCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Gamma_t *abr, knh_NameSpa
 		t->keyidx = ClassTable(supcid).keyidx;
 		KNH_ASSERT(t->sname == NULL);
 		knh_setClassName(ctx, cid, new_String(ctx, B(bufn), NULL));
-		KNH_INITv(t->cstruct, new_ClassStruct0(ctx, 0, 8));
+		KNH_INITv(t->cstruct, new_ClassField0(ctx, 0, 8));
 		KNH_INITv(t->cmap, ctx->share->ClassTable[CLASS_Any].cmap);
 		knh_setClassDefaultValue(ctx, cid, new_hObject(ctx, t->oflag | FLAG_Object_Undefined, t->bcid, cid), NULL);
 		if(t->bcid == CLASS_Any) {
@@ -521,7 +521,7 @@ int knh_StmtCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Gamma_t *abr, knh_NameSpa
 /* ------------------------------------------------------------------------ */
 
 static
-int knh_StmtIMPORT_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Gamma_t *abr, knh_NameSpace_t *ns)
+int knh_StmtIMPORT_decl(Ctx *ctx, knh_Stmt_t *stmt)
 {
 	int res = 1;
 	knh_bytes_t path = __tobytes(DP(StmtIMPORT_file(stmt))->text);
@@ -556,8 +556,9 @@ int knh_StmtIMPORT_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Gamma_t *abr, knh_NameSp
 /* ------------------------------------------------------------------------ */
 
 static
-int knh_StmtUCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Gamma_t *abr, knh_NameSpace_t *ns)
+int knh_StmtUCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt)
 {
+	knh_NameSpace_t *ns = DP(ctx->kc)->ns;
 	knh_Token_t *tk = DP(stmt)->tokens[0];
 	knh_bytes_t name = knh_Token_tobytes(ctx, tk);
 	knh_index_t loc = knh_bytes_rindex(name, '.');
@@ -590,7 +591,7 @@ int knh_StmtUCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Gamma_t *abr, knh_NameSp
 /* ------------------------------------------------------------------------ */
 
 static
-int knh_StmtUALIAS_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Gamma_t *abr, knh_NameSpace_t *ns)
+int knh_StmtUALIAS_decl(Ctx *ctx, knh_Stmt_t *stmt)
 {
 	DBG2_DUMP(ctx, stmt, KNH_NULL, "decl");
 	TODO();
@@ -626,9 +627,9 @@ void knh_NameSpace_setTagName(Ctx *ctx, knh_NameSpace_t *o, knh_String_t *name, 
 
 /* ------------------------------------------------------------------------ */
 
-static
-int knh_StmtXCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Gamma_t *abr, knh_NameSpace_t *ns, knh_class_t bcid)
+static int knh_StmtXCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_class_t bcid)
 {
+	knh_NameSpace_t *ns = DP(ctx->kc)->ns;
 	knh_Token_t *tkclassn = DP(stmt)->tokens[0];
 	knh_Token_t *tkurn = DP(stmt)->tokens[1];
 
@@ -653,33 +654,30 @@ int knh_StmtXCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Gamma_t *abr, knh_NameSp
 
 /* ------------------------------------------------------------------------ */
 
-static
-int knh_StmtUVOCAB_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Gamma_t *abr, knh_NameSpace_t *ns)
+static int knh_StmtUVOCAB_decl(Ctx *ctx, knh_Stmt_t *stmt)
 {
-	return knh_StmtXCLASS_decl(ctx, stmt, abr, ns, CLASS_String);
+	return knh_StmtXCLASS_decl(ctx, stmt, CLASS_String);
 }
 
 /* ------------------------------------------------------------------------ */
 
-static
-int knh_StmtUENUM_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Gamma_t *abr, knh_NameSpace_t *ns)
+static int knh_StmtUENUM_decl(Ctx *ctx, knh_Stmt_t *stmt)
 {
-	return knh_StmtXCLASS_decl(ctx, stmt, abr, ns, CLASS_Int);
+	return knh_StmtXCLASS_decl(ctx, stmt, CLASS_Int);
 }
 
 /* ------------------------------------------------------------------------ */
 
-static
-int knh_StmtUUNIT_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Gamma_t *abr, knh_NameSpace_t *ns)
+static int knh_StmtUUNIT_decl(Ctx *ctx, knh_Stmt_t *stmt)
 {
-	return knh_StmtXCLASS_decl(ctx, stmt, abr, ns, CLASS_Float);
+	return knh_StmtXCLASS_decl(ctx, stmt, CLASS_Float);
 }
 
 /* ------------------------------------------------------------------------ */
 
-static
-int knh_StmtUFUNC_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Gamma_t *abr, knh_NameSpace_t *ns)
+static int knh_StmtUFUNC_decl(Ctx *ctx, knh_Stmt_t *stmt)
 {
+	knh_NameSpace_t *ns = DP(ctx->kc)->ns;
 	knh_Token_t *tk = DP(stmt)->tokens[0];
 	knh_bytes_t name = knh_Token_tobytes(ctx, tk);
 	if(SP(tk)->tt == TT_CMETHODN) {
@@ -722,8 +720,7 @@ int knh_StmtUFUNC_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Gamma_t *abr, knh_NameSpa
 
 /* ------------------------------------------------------------------------ */
 
-static
-int knh_StmtUMAPMAP_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Gamma_t *abr, knh_NameSpace_t *ns)
+static int knh_StmtUMAPMAP_decl(Ctx *ctx, knh_Stmt_t *stmt)
 {
 	DBG2_DUMP(ctx, stmt, KNH_NULL, "decl");
 	return 1;
@@ -731,8 +728,7 @@ int knh_StmtUMAPMAP_decl(Ctx *ctx, knh_Stmt_t *stmt, knh_Gamma_t *abr, knh_NameS
 
 /* ------------------------------------------------------------------------ */
 
-static
-int knh_Stmt_eval(Ctx *ctx, knh_Stmt_t *stmt, knh_Gamma_t *abr, knh_NameSpace_t *ns, int isEval)
+static int knh_Stmt_eval(Ctx *ctx, knh_Stmt_t *stmt, int isEval)
 {
 	knh_Script_t *scr = knh_getGammaScript(ctx);
 	knh_Method_t *mtd = knh_Class_getMethod(ctx, knh_Object_cid(scr), METHODN_LAMBDA);
@@ -778,7 +774,7 @@ int knh_Stmt_eval(Ctx *ctx, knh_Stmt_t *stmt, knh_Gamma_t *abr, knh_NameSpace_t 
 		KNH_LOCALBACK(ctx, lsfp);
 		return 0;
 	}
-	KNH_ASM_METHOD(ctx, abr, mtd, NULL, stmt, 0 /* isIteration */);
+	KNH_ASM_METHOD(ctx, mtd, NULL, stmt, 0 /* isIteration */);
 	if(knh_Method_isAbstract(mtd) || SP(stmt)->stt == STT_ERR) {
 		KNH_LOCALBACK(ctx, lsfp);
 		return 0;
@@ -813,54 +809,62 @@ int knh_Stmt_eval(Ctx *ctx, knh_Stmt_t *stmt, knh_Gamma_t *abr, knh_NameSpace_t 
 
 /* ------------------------------------------------------------------------ */
 
+static void knh_Gamma_initThisScript(Ctx *ctx)
+{
+	knh_Gamma_initThis(ctx, knh_Object_cid(knh_getGammaScript(ctx)));
+	DP(ctx->kc)->scope = SCOPE_SCRIPT;
+}
+
 static
 int knh_NameSpace_compile(Ctx *ctx, knh_NameSpace_t *ns, knh_Stmt_t *stmt, int isEval)
 {
-	knh_Gamma_t *abr = knh_Context_getGamma(ctx);
+	knh_Gamma_t *kc = ctx->kc;
 	knh_sfp_t *lsfp = KNH_LOCAL(ctx);
-	KNH_LPUSH(ctx, stmt);
-
 	knh_Stmt_t *cur = stmt;
-	SP(abr)->uri = SP(stmt)->uri;
+	knh_NameSpace_t *oldns = DP(kc)->ns;
+	KNH_SETv(ctx, DP(kc)->ns, ns);
+	KNH_LPUSH(ctx, stmt);
+	SP(kc)->uri = SP(stmt)->uri;
+
 	while(IS_Stmt(cur)) {
 		knh_stmt_t stt = SP(cur)->stt;
-		SP(abr)->line = SP(cur)->line;
-		DP(abr)->level = 0;
 		int res = 1;
+		SP(kc)->line = SP(cur)->line;
+		DP(kc)->scope = SCOPE_SCRIPT;
 		switch(stt) {
 		case STT_CLASS:
-			res = knh_StmtCLASS_decl(ctx, cur, abr, ns);
+			res = knh_StmtCLASS_decl(ctx, cur);
 			break;
 		case STT_IMPORT:
-			res = knh_StmtIMPORT_decl(ctx, cur, abr, ns);
+			res = knh_StmtIMPORT_decl(ctx, cur);
 			knh_Stmt_done(ctx, cur);
 			break;
 		case STT_UCLASS:
-			res = knh_StmtUCLASS_decl(ctx, cur, abr, ns);
+			res = knh_StmtUCLASS_decl(ctx, cur);
 			knh_Stmt_done(ctx, cur);
 			break;
 		case STT_UALIAS:
-			res = knh_StmtUALIAS_decl(ctx, cur, abr, ns);
+			res = knh_StmtUALIAS_decl(ctx, cur);
 			knh_Stmt_done(ctx, cur);
 			break;
 		case STT_UVOCAB:
-			res = knh_StmtUVOCAB_decl(ctx, cur, abr, ns);
+			res = knh_StmtUVOCAB_decl(ctx, cur);
 			knh_Stmt_done(ctx, cur);
 			break;
 		case STT_UENUM:
-			res = knh_StmtUENUM_decl(ctx, cur, abr, ns);
+			res = knh_StmtUENUM_decl(ctx, cur);
 			knh_Stmt_done(ctx, cur);
 			break;
 		case STT_UUNIT:
-			res = knh_StmtUUNIT_decl(ctx, cur, abr, ns);
+			res = knh_StmtUUNIT_decl(ctx, cur);
 			knh_Stmt_done(ctx, cur);
 			break;
 		case STT_UFUNC:
-			res = knh_StmtUFUNC_decl(ctx, cur, abr, ns);
+			res = knh_StmtUFUNC_decl(ctx, cur);
 			knh_Stmt_done(ctx, cur);
 			break;
 		case STT_UMAPMAP:
-			res = knh_StmtUMAPMAP_decl(ctx, cur, abr, ns);
+			res = knh_StmtUMAPMAP_decl(ctx, cur);
 			knh_Stmt_done(ctx, cur);
 			break;
 		}
@@ -873,42 +877,42 @@ int knh_NameSpace_compile(Ctx *ctx, knh_NameSpace_t *ns, knh_Stmt_t *stmt, int i
 	cur = stmt;
 	while(IS_Stmt(cur)) {
 		knh_stmt_t stt = SP(cur)->stt;
-		SP(abr)->line = SP(cur)->line;
-		DP(abr)->level = 0;
+		SP(kc)->line = SP(cur)->line;
+		DP(kc)->scope = SCOPE_SCRIPT;
 		Term *tm = TM(cur);
 		switch(stt) {
 		case STT_CLASS:
-			tm = knh_StmtCLASS_typing(ctx, cur, abr, ns);
+			tm = knh_StmtCLASS_typing(ctx, cur);
 			break;
 		case STT_METHOD:
-			tm = knh_StmtMETHOD_typing(ctx, cur, abr, ns);
+			tm = knh_StmtMETHOD_typing(ctx, cur);
 			break;
 //		case STT_FORMAT:
-//			tm = knh_StmtFORMAT_typing(ctx, cur, abr, ns);
+//			tm = knh_StmtFORMAT_typing(ctx, cur);
 //			break;
 		case STT_DECL: {
-				knh_Gamma_initThisScript(ctx, abr);
-				tm = knh_StmtDECL_typing(ctx, cur, abr, ns, DECL_SCRIPT);
+				knh_Gamma_initThisScript(ctx);
+				tm = knh_StmtDECL_typing(ctx, cur);
 				break;
 			}
 		case STT_LET: {
-				knh_Gamma_initThisScript(ctx, abr);
-				tm = knh_StmtLET_typing(ctx, cur, abr, ns, TYPE_void);
+				knh_Gamma_initThisScript(ctx);
+				tm = knh_StmtLET_typing(ctx, cur, TYPE_void);
 				break;
 			}
 		case STT_LETM: {
-				knh_Gamma_initThisScript(ctx, abr);
-				tm = knh_StmtLETM_typing(ctx, cur, abr, ns);
+				knh_Gamma_initThisScript(ctx);
+				tm = knh_StmtLETM_typing(ctx, cur);
 				break;
 			}
 		case STT_SEPARATOR: {
-				knh_Gamma_initThisScript(ctx, abr);
-				tm = knh_StmtSEPARATOR_typing(ctx, cur, abr, ns);
+				knh_Gamma_initThisScript(ctx);
+				tm = knh_StmtSEPARATOR_typing(ctx, cur);
 				break;
 			}
 		case STT_FUNCTION: {
-				knh_Gamma_initThisScript(ctx, abr);
-				tm = knh_StmtFUNCTION_typing(ctx, cur, abr, ns, TYPE_void);
+				knh_Gamma_initThisScript(ctx);
+				tm = knh_StmtFUNCTION_typing(ctx, cur, TYPE_void);
 				break;
 			}
 		}
@@ -918,43 +922,40 @@ int knh_NameSpace_compile(Ctx *ctx, knh_NameSpace_t *ns, knh_Stmt_t *stmt, int i
 		}
 		cur = DP(cur)->next;
 	}
-
-	if(DP(abr)->dlhdr != NULL) {
-		DBG2_P("init function");
-		knh_finit finit = (knh_finit)knh_dlsym(ctx, DP(abr)->dlhdr, "init");
+	if(DP(kc)->dlhdr != NULL) {
+		knh_finit finit = (knh_finit)knh_dlsym(ctx, DP(kc)->dlhdr, "init");
 		if(finit != NULL) {
 			finit(ctx);
 		}
-		DP(abr)->dlhdr = NULL;
+		DP(kc)->dlhdr = NULL;
 	}
-
 	cur = stmt;
 	while(IS_Stmt(cur)) {
 		knh_stmt_t stt = SP(cur)->stt;
-		KNH_ASM_SETLINE(ctx, abr, SP(cur)->line);
-		DP(abr)->level = 0;
+		DP(kc)->scope = SCOPE_SCRIPT;
 		switch(stt) {
 		case STT_CLASS:
-			knh_StmtCLASS_asm(ctx, cur, abr); break;
+			knh_StmtCLASS_asm(ctx, cur); break;
 		case STT_METHOD:
-			knh_StmtMETHOD_asm(ctx, cur, abr); break;
+			knh_StmtMETHOD_asm(ctx, cur); break;
 		case STT_FORMAT:
-			knh_StmtFORMAT_asm(ctx, cur, abr); break;
+			knh_StmtFORMAT_asm(ctx, cur); break;
 		case STT_DONE:
 			break;
 		default:
-			if(!knh_Stmt_eval(ctx, cur, abr, ns, isEval)) {
+			if(!knh_Stmt_eval(ctx, cur, isEval)) {
 				goto L_FAILED;
 			}
 		}
 		knh_Stmt_done(ctx, cur);
 		cur = DP(cur)->next;
 	}
-
+	KNH_SETv(ctx, DP(kc)->ns, oldns);
 	KNH_LOCALBACK(ctx, lsfp);
 	return 1;
 
 	L_FAILED:;
+	KNH_SETv(ctx, DP(kc)->ns, oldns);
 	KNH_LOCALBACK(ctx, lsfp);
 	return 0;
 }
@@ -1002,10 +1003,9 @@ Object *knh_InputStream_parseDataNULL(Ctx *ctx, knh_InputStream_t *in)
 	KNH_LPUSH(ctx, in); //lsfp[0]
 	KNH_LPUSH(ctx, stmt); // lsfp[1]
 	if(knh_stmt_isExpr(STT_(stmt)) && STT_(stmt) != STT_LET) {
-		knh_Gamma_t *abr = knh_Context_getGamma(ctx);
 		knh_Script_t *scr = knh_getGammaScript(ctx);
 		knh_Method_t *mtd = knh_Class_getMethod(ctx, knh_Object_cid(scr), METHODN_LAMBDA);
-		KNH_ASM_METHOD(ctx, abr, mtd, NULL, stmt, 0 /* isIteration */);
+		KNH_ASM_METHOD(ctx, mtd, NULL, stmt, 0 /* isIteration */);
 		if(knh_Method_isAbstract(mtd) || SP(stmt)->stt == STT_ERR) {
 			goto L_RETURN;
 		}

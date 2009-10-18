@@ -1,2277 +1,1722 @@
 #ifndef KONOHA_CODE_H_
 #define KONOHA_CODE_H_
 // THIS FILE WAS AUTOMATICALLY GENERATED
-knh_code_t* KNH_ASM_HALT_(Ctx *ctx, knh_Gamma_t *o);
-knh_code_t* KNH_ASM_MOVa_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2);
-knh_code_t* KNH_ASM_MOVn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2);
-knh_code_t* KNH_ASM_MOVo_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_Object_t* a2);
-knh_code_t* KNH_ASM_MOVx_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfx_t a2);
-knh_code_t* KNH_ASM_MOVDEF_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_class_t a2);
-knh_code_t* KNH_ASM_MOVSYS_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_ushort_t a2);
-knh_code_t* KNH_ASM_XMOVs_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1,knh_sfi_t a2);
-knh_code_t* KNH_ASM_XMOVo_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1,knh_Object_t* a2);
-knh_code_t* KNH_ASM_XMOVx_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1,knh_sfx_t a2);
-knh_code_t* KNH_ASM_XMOVDEF_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1,knh_class_t a2);
-knh_code_t* KNH_ASM_XMOVSYS_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1,knh_ushort_t a2);
-knh_code_t* KNH_ASM_MOVxi_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfx_t a2);
-knh_code_t* KNH_ASM_XMOVsi_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1,knh_sfi_t a2);
-knh_code_t* KNH_ASM_XMOVoi_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1,knh_Object_t* a2);
-knh_code_t* KNH_ASM_XMOVxi_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1,knh_sfx_t a2);
-knh_code_t* KNH_ASM_XMOVxio_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1,knh_sfx_t a2);
-knh_code_t* KNH_ASM_XMOVxBXi_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1,knh_sfx_t a2,knh_class_t a3);
-knh_code_t* KNH_ASM_MOVxf_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfx_t a2);
-knh_code_t* KNH_ASM_XMOVsf_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1,knh_sfi_t a2);
-knh_code_t* KNH_ASM_XMOVof_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1,knh_Object_t* a2);
-knh_code_t* KNH_ASM_XMOVxf_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1,knh_sfx_t a2);
-knh_code_t* KNH_ASM_XMOVxfo_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1,knh_sfx_t a2);
-knh_code_t* KNH_ASM_XMOVxBXf_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1,knh_sfx_t a2,knh_class_t a3);
-knh_code_t* KNH_ASM_MOVxb_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfx_t a2);
-knh_code_t* KNH_ASM_XMOVsb_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1,knh_sfi_t a2);
-knh_code_t* KNH_ASM_XMOVob_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1,knh_Object_t* a2);
-knh_code_t* KNH_ASM_XMOVxb_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1,knh_sfx_t a2);
-knh_code_t* KNH_ASM_EMOVs_(Ctx *ctx, knh_Gamma_t *o,knh_sfe_t a1,knh_sfe_t a2);
-knh_code_t* KNH_ASM_EMOVo_(Ctx *ctx, knh_Gamma_t *o,knh_sfe_t a1,knh_Object_t* a2);
-knh_code_t* KNH_ASM_EMOVe_(Ctx *ctx, knh_Gamma_t *o,knh_sfe_t a1,knh_sfe_t a2);
-knh_code_t* KNH_ASM_EMOVDEF_(Ctx *ctx, knh_Gamma_t *o,knh_sfe_t a1,knh_class_t a2);
-knh_code_t* KNH_ASM_EMOVSYS_(Ctx *ctx, knh_Gamma_t *o,knh_sfe_t a1,knh_ushort_t a2);
-knh_code_t* KNH_ASM_SWAP_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2);
-knh_code_t* KNH_ASM_PINIDEF_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_class_t a2);
-knh_code_t* KNH_ASM_PINIo_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_Object_t* a2);
-knh_code_t* KNH_ASM_PARAMS_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_class_t a2);
-knh_code_t* KNH_ASM_SETESP_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1);
-knh_code_t* KNH_ASM_CHECKESP_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1);
-knh_code_t* KNH_ASM_RET_(Ctx *ctx, knh_Gamma_t *o);
-knh_code_t* KNH_ASM_RETn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2);
-knh_code_t* KNH_ASM_RETa_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2);
-knh_code_t* KNH_ASM_RETo_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_Object_t* a2);
-knh_code_t* KNH_ASM_RETx_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfx_t a2);
-knh_code_t* KNH_ASM_YEILDBREAK_(Ctx *ctx, knh_Gamma_t *o);
-knh_code_t* KNH_ASM_BOX_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_class_t a2);
-knh_code_t* KNH_ASM_BOXnc_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_class_t a2);
-knh_code_t* KNH_ASM_NNBOX_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_class_t a2);
-knh_code_t* KNH_ASM_NNBOXnc_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_class_t a2);
-knh_code_t* KNH_ASM_UNBOX_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1);
-knh_code_t* KNH_ASM_CHECKNULL_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1);
-knh_code_t* KNH_ASM_CHECKNULLx_(Ctx *ctx, knh_Gamma_t *o,knh_sfx_t a1);
-knh_code_t* KNH_ASM_CHECKTYPE_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_class_t a2);
-knh_code_t* KNH_ASM_CHECKNNTYPE_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_type_t a2);
-knh_code_t* KNH_ASM_FCALL_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_ushort_t a2,knh_sfi_t a3,knh_Object_t* a4);
-knh_code_t* KNH_ASM_SCALL_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_ushort_t a2,knh_Object_t* a3);
-knh_code_t* KNH_ASM_AINVOKE_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_ushort_t a2);
-knh_code_t* KNH_ASM_CALL_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_ushort_t a2,knh_methodn_t a3);
-knh_code_t* KNH_ASM_ACALL_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_ushort_t a2,knh_methodn_t a3);
-knh_code_t* KNH_ASM_NEW_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_flag_t a2,knh_class_t a3,knh_ushort_t a4,knh_Object_t* a5);
-knh_code_t* KNH_ASM_COPYSFP_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1);
-knh_code_t* KNH_ASM_TOSTR_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_methodn_t a2);
-knh_code_t* KNH_ASM_TOSTRf_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_methodn_t a2,knh_Object_t* a3);
-knh_code_t* KNH_ASM_SMAP_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_Object_t* a2);
-knh_code_t* KNH_ASM_SMAPnc_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_Object_t* a2);
-knh_code_t* KNH_ASM_MAP_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_class_t a2);
-knh_code_t* KNH_ASM_MAPnc_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_class_t a2);
-knh_code_t* KNH_ASM_AMAP_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_class_t a2);
-knh_code_t* KNH_ASM_NNMAP_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_class_t a2);
-knh_code_t* KNH_ASM_JMP_(Ctx *ctx, knh_Gamma_t *o,knh_labelid_t a1);
-knh_code_t* KNH_ASM_SKIP_(Ctx *ctx, knh_Gamma_t *o,knh_labelid_t a1);
-knh_code_t* KNH_ASM_bJIFT_(Ctx *ctx, knh_Gamma_t *o,knh_labelid_t a1,knh_sfi_t a2);
-knh_code_t* KNH_ASM_bJIFF_(Ctx *ctx, knh_Gamma_t *o,knh_labelid_t a1,knh_sfi_t a2);
-knh_code_t* KNH_ASM_bJIFF_LOOP_(Ctx *ctx, knh_Gamma_t *o,knh_labelid_t a1,knh_sfi_t a2);
-knh_code_t* KNH_ASM_JIFNUL_(Ctx *ctx, knh_Gamma_t *o,knh_labelid_t a1,knh_sfi_t a2);
-knh_code_t* KNH_ASM_JIFNN_(Ctx *ctx, knh_Gamma_t *o,knh_labelid_t a1,knh_sfi_t a2);
-knh_code_t* KNH_ASM_NEXT_(Ctx *ctx, knh_Gamma_t *o,knh_labelid_t a1,knh_sfi_t a2,knh_sfi_t a3);
-knh_code_t* KNH_ASM_INEXT_(Ctx *ctx, knh_Gamma_t *o,knh_labelid_t a1,knh_class_t a2,knh_sfi_t a3,knh_sfi_t a4);
-knh_code_t* KNH_ASM_MAPNEXT_(Ctx *ctx, knh_Gamma_t *o,knh_labelid_t a1,knh_class_t a2,knh_sfi_t a3,knh_sfi_t a4);
-knh_code_t* KNH_ASM_SMAPNEXT_(Ctx *ctx, knh_Gamma_t *o,knh_labelid_t a1,knh_sfi_t a2,knh_sfi_t a3,knh_Object_t* a4);
-knh_code_t* KNH_ASM_TRY_(Ctx *ctx, knh_Gamma_t *o,knh_labelid_t a1,knh_sfi_t a2);
-knh_code_t* KNH_ASM_TRYEND_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1);
-knh_code_t* KNH_ASM_CATCH_(Ctx *ctx, knh_Gamma_t *o,knh_labelid_t a1,knh_sfi_t a2,knh_sfi_t a3,knh_Object_t* a4);
-knh_code_t* KNH_ASM_PUSH_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1);
-knh_code_t* KNH_ASM_POP_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1);
-knh_code_t* KNH_ASM_THROW_(Ctx *ctx, knh_Gamma_t *o,knh_ushort_t a1,knh_sfi_t a2);
-knh_code_t* KNH_ASM_THROWs_(Ctx *ctx, knh_Gamma_t *o,knh_ushort_t a1,knh_Object_t* a2);
-knh_code_t* KNH_ASM_THROW_AGAIN_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1);
-knh_code_t* KNH_ASM_P_(Ctx *ctx, knh_Gamma_t *o,knh_flag_t a1,knh_methodn_t a2,knh_sfi_t a3);
-knh_code_t* KNH_ASM_PMSG_(Ctx *ctx, knh_Gamma_t *o,knh_flag_t a1,knh_Object_t* a2);
-knh_code_t* KNH_ASM_iCAST_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1);
-knh_code_t* KNH_ASM_inCAST_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1);
-knh_code_t* KNH_ASM_fCAST_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1);
-knh_code_t* KNH_ASM_fnCAST_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1);
-knh_code_t* KNH_ASM_bNOT_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2);
-knh_code_t* KNH_ASM_iNEG_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2);
-knh_code_t* KNH_ASM_iADD_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3);
-knh_code_t* KNH_ASM_iADDn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_int_t a3);
-knh_code_t* KNH_ASM_iSUB_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3);
-knh_code_t* KNH_ASM_iSUBn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_int_t a3);
-knh_code_t* KNH_ASM_iMUL_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3);
-knh_code_t* KNH_ASM_iMULn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_int_t a3);
-knh_code_t* KNH_ASM_iDIV_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3);
-knh_code_t* KNH_ASM_iDIVn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_int_t a3);
-knh_code_t* KNH_ASM_iMOD_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3);
-knh_code_t* KNH_ASM_iMODn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_int_t a3);
-knh_code_t* KNH_ASM_iEQ_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3);
-knh_code_t* KNH_ASM_iEQn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_int_t a3);
-knh_code_t* KNH_ASM_iNEQ_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3);
-knh_code_t* KNH_ASM_iNEQn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_int_t a3);
-knh_code_t* KNH_ASM_iLT_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3);
-knh_code_t* KNH_ASM_iLTn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_int_t a3);
-knh_code_t* KNH_ASM_iLTE_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3);
-knh_code_t* KNH_ASM_iLTEn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_int_t a3);
-knh_code_t* KNH_ASM_iGT_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3);
-knh_code_t* KNH_ASM_iGTn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_int_t a3);
-knh_code_t* KNH_ASM_iGTE_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3);
-knh_code_t* KNH_ASM_iGTEn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_int_t a3);
-knh_code_t* KNH_ASM_fNEG_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2);
-knh_code_t* KNH_ASM_fADD_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3);
-knh_code_t* KNH_ASM_fADDn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_float_t a3);
-knh_code_t* KNH_ASM_fSUB_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3);
-knh_code_t* KNH_ASM_fSUBn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_float_t a3);
-knh_code_t* KNH_ASM_fMUL_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3);
-knh_code_t* KNH_ASM_fMULn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_float_t a3);
-knh_code_t* KNH_ASM_fDIV_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3);
-knh_code_t* KNH_ASM_fDIVn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_float_t a3);
-knh_code_t* KNH_ASM_fEQ_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3);
-knh_code_t* KNH_ASM_fEQn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_float_t a3);
-knh_code_t* KNH_ASM_fNEQ_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3);
-knh_code_t* KNH_ASM_fNEQn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_float_t a3);
-knh_code_t* KNH_ASM_fLT_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3);
-knh_code_t* KNH_ASM_fLTn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_float_t a3);
-knh_code_t* KNH_ASM_fLTE_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3);
-knh_code_t* KNH_ASM_fLTEn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_float_t a3);
-knh_code_t* KNH_ASM_fGT_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3);
-knh_code_t* KNH_ASM_fGTn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_float_t a3);
-knh_code_t* KNH_ASM_fGTE_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3);
-knh_code_t* KNH_ASM_fGTEn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_float_t a3);
-knh_code_t* KNH_ASM_AGET_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3);
-knh_code_t* KNH_ASM_AGETn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_intptr_t a3);
-knh_code_t* KNH_ASM_IAGET_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3);
-knh_code_t* KNH_ASM_IAGETn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_intptr_t a3);
-knh_code_t* KNH_ASM_FAGET_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3);
-knh_code_t* KNH_ASM_FAGETn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_intptr_t a3);
-knh_code_t* KNH_ASM_ASET_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3);
-knh_code_t* KNH_ASM_ASETn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_intptr_t a3);
-knh_code_t* KNH_ASM_IASET_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3);
-knh_code_t* KNH_ASM_IASETn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_intptr_t a3);
-knh_code_t* KNH_ASM_FASET_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_sfi_t a3);
-knh_code_t* KNH_ASM_FASETn_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1,knh_sfi_t a2,knh_intptr_t a3);
-knh_code_t* KNH_ASM_INITCODE_(Ctx *ctx, knh_Gamma_t *o,knh_sfi_t a1);
-knh_code_t* KNH_ASM_NOP_(Ctx *ctx, knh_Gamma_t *o);
-void knh_Gamma_remapAddress(Ctx *ctx, knh_Gamma_t *o);
-void knh_code_traverse(Ctx *ctx, knh_code_t *pc, knh_ftraverse ftr);
-METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp);
 
 #define OPCODE_HALT ((knh_opcode_t)0)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	void *nextaddr;
-} klr_halt_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_HALT_t;
 
-#define OPSIZE_HALT  (sizeof(klr_halt_t)-sizeof(void*))
+#define OPSIZE_HALT  (sizeof(klr_HALT_t)-sizeof(void*))
 
-#define OPCODE_MOVA ((knh_opcode_t)1)
+#define OPCODE_MOVa ((knh_opcode_t)1)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
-	void *nextaddr;
-} klr_mova_t;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_MOVa_t;
 
-#define OPSIZE_MOVA  (sizeof(klr_mova_t)-sizeof(void*))
+#define OPSIZE_MOVa  (sizeof(klr_MOVa_t)-sizeof(void*))
 
-#define OPCODE_MOVN ((knh_opcode_t)2)
+#define OPCODE_MOVn ((knh_opcode_t)2)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
-	void *nextaddr;
-} klr_movn_t;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_MOVn_t;
 
-#define OPSIZE_MOVN  (sizeof(klr_movn_t)-sizeof(void*))
+#define OPSIZE_MOVn  (sizeof(klr_MOVn_t)-sizeof(void*))
 
-#define OPCODE_MOVO ((knh_opcode_t)3)
+#define OPCODE_MOVo ((knh_opcode_t)3)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
+	knh_sfpidx_t a1;
 	knh_Object_t* a2;
-	void *nextaddr;
-} klr_movo_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_MOVo_t;
 
-#define OPSIZE_MOVO  (sizeof(klr_movo_t)-sizeof(void*))
+#define OPSIZE_MOVo  (sizeof(klr_MOVo_t)-sizeof(void*))
 
-#define OPCODE_MOVX ((knh_opcode_t)4)
+#define OPCODE_MOVx ((knh_opcode_t)4)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
+	knh_sfpidx_t a1;
 	knh_sfx_t a2;
-	void *nextaddr;
-} klr_movx_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_MOVx_t;
 
-#define OPSIZE_MOVX  (sizeof(klr_movx_t)-sizeof(void*))
+#define OPSIZE_MOVx  (sizeof(klr_MOVx_t)-sizeof(void*))
 
 #define OPCODE_MOVDEF ((knh_opcode_t)5)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
+	knh_sfpidx_t a1;
 	knh_class_t a2;
-	void *nextaddr;
-} klr_movdef_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_MOVDEF_t;
 
-#define OPSIZE_MOVDEF  (sizeof(klr_movdef_t)-sizeof(void*))
+#define OPSIZE_MOVDEF  (sizeof(klr_MOVDEF_t)-sizeof(void*))
 
 #define OPCODE_MOVSYS ((knh_opcode_t)6)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
+	knh_sfpidx_t a1;
 	knh_ushort_t a2;
-	void *nextaddr;
-} klr_movsys_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_MOVSYS_t;
 
-#define OPSIZE_MOVSYS  (sizeof(klr_movsys_t)-sizeof(void*))
+#define OPSIZE_MOVSYS  (sizeof(klr_MOVSYS_t)-sizeof(void*))
 
-#define OPCODE_XMOVS ((knh_opcode_t)7)
+#define OPCODE_XMOVs ((knh_opcode_t)7)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
 	knh_sfx_t a1;
-	knh_sfi_t a2;
-	void *nextaddr;
-} klr_xmovs_t;
+	knh_sfpidx_t a2;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_XMOVs_t;
 
-#define OPSIZE_XMOVS  (sizeof(klr_xmovs_t)-sizeof(void*))
+#define OPSIZE_XMOVs  (sizeof(klr_XMOVs_t)-sizeof(void*))
 
-#define OPCODE_XMOVO ((knh_opcode_t)8)
+#define OPCODE_XMOVo ((knh_opcode_t)8)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
 	knh_sfx_t a1;
 	knh_Object_t* a2;
-	void *nextaddr;
-} klr_xmovo_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_XMOVo_t;
 
-#define OPSIZE_XMOVO  (sizeof(klr_xmovo_t)-sizeof(void*))
+#define OPSIZE_XMOVo  (sizeof(klr_XMOVo_t)-sizeof(void*))
 
-#define OPCODE_XMOVX ((knh_opcode_t)9)
+#define OPCODE_XMOVx ((knh_opcode_t)9)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
 	knh_sfx_t a1;
 	knh_sfx_t a2;
-	void *nextaddr;
-} klr_xmovx_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_XMOVx_t;
 
-#define OPSIZE_XMOVX  (sizeof(klr_xmovx_t)-sizeof(void*))
+#define OPSIZE_XMOVx  (sizeof(klr_XMOVx_t)-sizeof(void*))
 
 #define OPCODE_XMOVDEF ((knh_opcode_t)10)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
 	knh_sfx_t a1;
 	knh_class_t a2;
-	void *nextaddr;
-} klr_xmovdef_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_XMOVDEF_t;
 
-#define OPSIZE_XMOVDEF  (sizeof(klr_xmovdef_t)-sizeof(void*))
+#define OPSIZE_XMOVDEF  (sizeof(klr_XMOVDEF_t)-sizeof(void*))
 
 #define OPCODE_XMOVSYS ((knh_opcode_t)11)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
 	knh_sfx_t a1;
 	knh_ushort_t a2;
-	void *nextaddr;
-} klr_xmovsys_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_XMOVSYS_t;
 
-#define OPSIZE_XMOVSYS  (sizeof(klr_xmovsys_t)-sizeof(void*))
+#define OPSIZE_XMOVSYS  (sizeof(klr_XMOVSYS_t)-sizeof(void*))
 
-#define OPCODE_MOVXI ((knh_opcode_t)12)
+#define OPCODE_MOVxi ((knh_opcode_t)12)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
+	knh_sfpidx_t a1;
 	knh_sfx_t a2;
-	void *nextaddr;
-} klr_movxi_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_MOVxi_t;
 
-#define OPSIZE_MOVXI  (sizeof(klr_movxi_t)-sizeof(void*))
+#define OPSIZE_MOVxi  (sizeof(klr_MOVxi_t)-sizeof(void*))
 
-#define OPCODE_XMOVSI ((knh_opcode_t)13)
+#define OPCODE_XMOVsi ((knh_opcode_t)13)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
 	knh_sfx_t a1;
-	knh_sfi_t a2;
-	void *nextaddr;
-} klr_xmovsi_t;
+	knh_sfpidx_t a2;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_XMOVsi_t;
 
-#define OPSIZE_XMOVSI  (sizeof(klr_xmovsi_t)-sizeof(void*))
+#define OPSIZE_XMOVsi  (sizeof(klr_XMOVsi_t)-sizeof(void*))
 
-#define OPCODE_XMOVOI ((knh_opcode_t)14)
+#define OPCODE_XMOVoi ((knh_opcode_t)14)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
 	knh_sfx_t a1;
 	knh_Object_t* a2;
-	void *nextaddr;
-} klr_xmovoi_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_XMOVoi_t;
 
-#define OPSIZE_XMOVOI  (sizeof(klr_xmovoi_t)-sizeof(void*))
+#define OPSIZE_XMOVoi  (sizeof(klr_XMOVoi_t)-sizeof(void*))
 
-#define OPCODE_XMOVXI ((knh_opcode_t)15)
+#define OPCODE_XMOVxi ((knh_opcode_t)15)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
 	knh_sfx_t a1;
 	knh_sfx_t a2;
-	void *nextaddr;
-} klr_xmovxi_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_XMOVxi_t;
 
-#define OPSIZE_XMOVXI  (sizeof(klr_xmovxi_t)-sizeof(void*))
+#define OPSIZE_XMOVxi  (sizeof(klr_XMOVxi_t)-sizeof(void*))
 
-#define OPCODE_XMOVXIO ((knh_opcode_t)16)
+#define OPCODE_XMOVxio ((knh_opcode_t)16)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
 	knh_sfx_t a1;
 	knh_sfx_t a2;
-	void *nextaddr;
-} klr_xmovxio_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_XMOVxio_t;
 
-#define OPSIZE_XMOVXIO  (sizeof(klr_xmovxio_t)-sizeof(void*))
+#define OPSIZE_XMOVxio  (sizeof(klr_XMOVxio_t)-sizeof(void*))
 
-#define OPCODE_XMOVXBXI ((knh_opcode_t)17)
+#define OPCODE_XMOVxBXi ((knh_opcode_t)17)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
 	knh_sfx_t a1;
 	knh_sfx_t a2;
 	knh_class_t a3;
-	void *nextaddr;
-} klr_xmovxbxi_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_XMOVxBXi_t;
 
-#define OPSIZE_XMOVXBXI  (sizeof(klr_xmovxbxi_t)-sizeof(void*))
+#define OPSIZE_XMOVxBXi  (sizeof(klr_XMOVxBXi_t)-sizeof(void*))
 
-#define OPCODE_MOVXF ((knh_opcode_t)18)
+#define OPCODE_MOVxf ((knh_opcode_t)18)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
+	knh_sfpidx_t a1;
 	knh_sfx_t a2;
-	void *nextaddr;
-} klr_movxf_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_MOVxf_t;
 
-#define OPSIZE_MOVXF  (sizeof(klr_movxf_t)-sizeof(void*))
+#define OPSIZE_MOVxf  (sizeof(klr_MOVxf_t)-sizeof(void*))
 
-#define OPCODE_XMOVSF ((knh_opcode_t)19)
+#define OPCODE_XMOVsf ((knh_opcode_t)19)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
 	knh_sfx_t a1;
-	knh_sfi_t a2;
-	void *nextaddr;
-} klr_xmovsf_t;
+	knh_sfpidx_t a2;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_XMOVsf_t;
 
-#define OPSIZE_XMOVSF  (sizeof(klr_xmovsf_t)-sizeof(void*))
+#define OPSIZE_XMOVsf  (sizeof(klr_XMOVsf_t)-sizeof(void*))
 
-#define OPCODE_XMOVOF ((knh_opcode_t)20)
+#define OPCODE_XMOVof ((knh_opcode_t)20)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
 	knh_sfx_t a1;
 	knh_Object_t* a2;
-	void *nextaddr;
-} klr_xmovof_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_XMOVof_t;
 
-#define OPSIZE_XMOVOF  (sizeof(klr_xmovof_t)-sizeof(void*))
+#define OPSIZE_XMOVof  (sizeof(klr_XMOVof_t)-sizeof(void*))
 
-#define OPCODE_XMOVXF ((knh_opcode_t)21)
+#define OPCODE_XMOVxf ((knh_opcode_t)21)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
 	knh_sfx_t a1;
 	knh_sfx_t a2;
-	void *nextaddr;
-} klr_xmovxf_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_XMOVxf_t;
 
-#define OPSIZE_XMOVXF  (sizeof(klr_xmovxf_t)-sizeof(void*))
+#define OPSIZE_XMOVxf  (sizeof(klr_XMOVxf_t)-sizeof(void*))
 
-#define OPCODE_XMOVXFO ((knh_opcode_t)22)
+#define OPCODE_XMOVxfo ((knh_opcode_t)22)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
 	knh_sfx_t a1;
 	knh_sfx_t a2;
-	void *nextaddr;
-} klr_xmovxfo_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_XMOVxfo_t;
 
-#define OPSIZE_XMOVXFO  (sizeof(klr_xmovxfo_t)-sizeof(void*))
+#define OPSIZE_XMOVxfo  (sizeof(klr_XMOVxfo_t)-sizeof(void*))
 
-#define OPCODE_XMOVXBXF ((knh_opcode_t)23)
+#define OPCODE_XMOVxBXf ((knh_opcode_t)23)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
 	knh_sfx_t a1;
 	knh_sfx_t a2;
 	knh_class_t a3;
-	void *nextaddr;
-} klr_xmovxbxf_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_XMOVxBXf_t;
 
-#define OPSIZE_XMOVXBXF  (sizeof(klr_xmovxbxf_t)-sizeof(void*))
+#define OPSIZE_XMOVxBXf  (sizeof(klr_XMOVxBXf_t)-sizeof(void*))
 
-#define OPCODE_MOVXB ((knh_opcode_t)24)
+#define OPCODE_MOVxb ((knh_opcode_t)24)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
+	knh_sfpidx_t a1;
 	knh_sfx_t a2;
-	void *nextaddr;
-} klr_movxb_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_MOVxb_t;
 
-#define OPSIZE_MOVXB  (sizeof(klr_movxb_t)-sizeof(void*))
+#define OPSIZE_MOVxb  (sizeof(klr_MOVxb_t)-sizeof(void*))
 
-#define OPCODE_XMOVSB ((knh_opcode_t)25)
+#define OPCODE_XMOVsb ((knh_opcode_t)25)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
 	knh_sfx_t a1;
-	knh_sfi_t a2;
-	void *nextaddr;
-} klr_xmovsb_t;
+	knh_sfpidx_t a2;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_XMOVsb_t;
 
-#define OPSIZE_XMOVSB  (sizeof(klr_xmovsb_t)-sizeof(void*))
+#define OPSIZE_XMOVsb  (sizeof(klr_XMOVsb_t)-sizeof(void*))
 
-#define OPCODE_XMOVOB ((knh_opcode_t)26)
+#define OPCODE_XMOVob ((knh_opcode_t)26)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
 	knh_sfx_t a1;
 	knh_Object_t* a2;
-	void *nextaddr;
-} klr_xmovob_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_XMOVob_t;
 
-#define OPSIZE_XMOVOB  (sizeof(klr_xmovob_t)-sizeof(void*))
+#define OPSIZE_XMOVob  (sizeof(klr_XMOVob_t)-sizeof(void*))
 
-#define OPCODE_XMOVXB ((knh_opcode_t)27)
+#define OPCODE_XMOVxb ((knh_opcode_t)27)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
 	knh_sfx_t a1;
 	knh_sfx_t a2;
-	void *nextaddr;
-} klr_xmovxb_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_XMOVxb_t;
 
-#define OPSIZE_XMOVXB  (sizeof(klr_xmovxb_t)-sizeof(void*))
+#define OPSIZE_XMOVxb  (sizeof(klr_XMOVxb_t)-sizeof(void*))
 
-#define OPCODE_EMOVS ((knh_opcode_t)28)
+#define OPCODE_EMOVs ((knh_opcode_t)28)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
 	knh_sfe_t a1;
 	knh_sfe_t a2;
-	void *nextaddr;
-} klr_emovs_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_EMOVs_t;
 
-#define OPSIZE_EMOVS  (sizeof(klr_emovs_t)-sizeof(void*))
+#define OPSIZE_EMOVs  (sizeof(klr_EMOVs_t)-sizeof(void*))
 
-#define OPCODE_EMOVO ((knh_opcode_t)29)
+#define OPCODE_EMOVo ((knh_opcode_t)29)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
 	knh_sfe_t a1;
 	knh_Object_t* a2;
-	void *nextaddr;
-} klr_emovo_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_EMOVo_t;
 
-#define OPSIZE_EMOVO  (sizeof(klr_emovo_t)-sizeof(void*))
+#define OPSIZE_EMOVo  (sizeof(klr_EMOVo_t)-sizeof(void*))
 
-#define OPCODE_EMOVE ((knh_opcode_t)30)
+#define OPCODE_EMOVe ((knh_opcode_t)30)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
 	knh_sfe_t a1;
 	knh_sfe_t a2;
-	void *nextaddr;
-} klr_emove_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_EMOVe_t;
 
-#define OPSIZE_EMOVE  (sizeof(klr_emove_t)-sizeof(void*))
+#define OPSIZE_EMOVe  (sizeof(klr_EMOVe_t)-sizeof(void*))
 
 #define OPCODE_EMOVDEF ((knh_opcode_t)31)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
 	knh_sfe_t a1;
 	knh_class_t a2;
-	void *nextaddr;
-} klr_emovdef_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_EMOVDEF_t;
 
-#define OPSIZE_EMOVDEF  (sizeof(klr_emovdef_t)-sizeof(void*))
+#define OPSIZE_EMOVDEF  (sizeof(klr_EMOVDEF_t)-sizeof(void*))
 
 #define OPCODE_EMOVSYS ((knh_opcode_t)32)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
 	knh_sfe_t a1;
 	knh_ushort_t a2;
-	void *nextaddr;
-} klr_emovsys_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_EMOVSYS_t;
 
-#define OPSIZE_EMOVSYS  (sizeof(klr_emovsys_t)-sizeof(void*))
+#define OPSIZE_EMOVSYS  (sizeof(klr_EMOVSYS_t)-sizeof(void*))
 
 #define OPCODE_SWAP ((knh_opcode_t)33)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
-	void *nextaddr;
-} klr_swap_t;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_SWAP_t;
 
-#define OPSIZE_SWAP  (sizeof(klr_swap_t)-sizeof(void*))
+#define OPSIZE_SWAP  (sizeof(klr_SWAP_t)-sizeof(void*))
 
 #define OPCODE_PINIDEF ((knh_opcode_t)34)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
+	knh_sfpidx_t a1;
 	knh_class_t a2;
-	void *nextaddr;
-} klr_pinidef_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_PINIDEF_t;
 
-#define OPSIZE_PINIDEF  (sizeof(klr_pinidef_t)-sizeof(void*))
+#define OPSIZE_PINIDEF  (sizeof(klr_PINIDEF_t)-sizeof(void*))
 
-#define OPCODE_PINIO ((knh_opcode_t)35)
+#define OPCODE_PINIo ((knh_opcode_t)35)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
+	knh_sfpidx_t a1;
 	knh_Object_t* a2;
-	void *nextaddr;
-} klr_pinio_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_PINIo_t;
 
-#define OPSIZE_PINIO  (sizeof(klr_pinio_t)-sizeof(void*))
+#define OPSIZE_PINIo  (sizeof(klr_PINIo_t)-sizeof(void*))
 
 #define OPCODE_PARAMS ((knh_opcode_t)36)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
+	knh_sfpidx_t a1;
 	knh_class_t a2;
-	void *nextaddr;
-} klr_params_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_PARAMS_t;
 
-#define OPSIZE_PARAMS  (sizeof(klr_params_t)-sizeof(void*))
+#define OPSIZE_PARAMS  (sizeof(klr_PARAMS_t)-sizeof(void*))
 
 #define OPCODE_SETESP ((knh_opcode_t)37)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	void *nextaddr;
-} klr_setesp_t;
+	knh_sfpidx_t a1;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_SETESP_t;
 
-#define OPSIZE_SETESP  (sizeof(klr_setesp_t)-sizeof(void*))
+#define OPSIZE_SETESP  (sizeof(klr_SETESP_t)-sizeof(void*))
 
 #define OPCODE_CHECKESP ((knh_opcode_t)38)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	void *nextaddr;
-} klr_checkesp_t;
+	knh_sfpidx_t a1;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_CHECKESP_t;
 
-#define OPSIZE_CHECKESP  (sizeof(klr_checkesp_t)-sizeof(void*))
+#define OPSIZE_CHECKESP  (sizeof(klr_CHECKESP_t)-sizeof(void*))
 
 #define OPCODE_RET ((knh_opcode_t)39)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	void *nextaddr;
-} klr_ret_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_RET_t;
 
-#define OPSIZE_RET  (sizeof(klr_ret_t)-sizeof(void*))
+#define OPSIZE_RET  (sizeof(klr_RET_t)-sizeof(void*))
 
-#define OPCODE_RETN ((knh_opcode_t)40)
+#define OPCODE_RETn ((knh_opcode_t)40)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
-	void *nextaddr;
-} klr_retn_t;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_RETn_t;
 
-#define OPSIZE_RETN  (sizeof(klr_retn_t)-sizeof(void*))
+#define OPSIZE_RETn  (sizeof(klr_RETn_t)-sizeof(void*))
 
-#define OPCODE_RETA ((knh_opcode_t)41)
+#define OPCODE_RETa ((knh_opcode_t)41)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
-	void *nextaddr;
-} klr_reta_t;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_RETa_t;
 
-#define OPSIZE_RETA  (sizeof(klr_reta_t)-sizeof(void*))
+#define OPSIZE_RETa  (sizeof(klr_RETa_t)-sizeof(void*))
 
-#define OPCODE_RETO ((knh_opcode_t)42)
+#define OPCODE_RETo ((knh_opcode_t)42)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
+	knh_sfpidx_t a1;
 	knh_Object_t* a2;
-	void *nextaddr;
-} klr_reto_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_RETo_t;
 
-#define OPSIZE_RETO  (sizeof(klr_reto_t)-sizeof(void*))
+#define OPSIZE_RETo  (sizeof(klr_RETo_t)-sizeof(void*))
 
-#define OPCODE_RETX ((knh_opcode_t)43)
+#define OPCODE_RETx ((knh_opcode_t)43)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
+	knh_sfpidx_t a1;
 	knh_sfx_t a2;
-	void *nextaddr;
-} klr_retx_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_RETx_t;
 
-#define OPSIZE_RETX  (sizeof(klr_retx_t)-sizeof(void*))
+#define OPSIZE_RETx  (sizeof(klr_RETx_t)-sizeof(void*))
 
 #define OPCODE_YEILDBREAK ((knh_opcode_t)44)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	void *nextaddr;
-} klr_yeildbreak_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_YEILDBREAK_t;
 
-#define OPSIZE_YEILDBREAK  (sizeof(klr_yeildbreak_t)-sizeof(void*))
+#define OPSIZE_YEILDBREAK  (sizeof(klr_YEILDBREAK_t)-sizeof(void*))
 
 #define OPCODE_BOX ((knh_opcode_t)45)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
+	knh_sfpidx_t a1;
 	knh_class_t a2;
-	void *nextaddr;
-} klr_box_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_BOX_t;
 
-#define OPSIZE_BOX  (sizeof(klr_box_t)-sizeof(void*))
+#define OPSIZE_BOX  (sizeof(klr_BOX_t)-sizeof(void*))
 
-#define OPCODE_BOXNC ((knh_opcode_t)46)
+#define OPCODE_BOXnc ((knh_opcode_t)46)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
+	knh_sfpidx_t a1;
 	knh_class_t a2;
-	void *nextaddr;
-} klr_boxnc_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_BOXnc_t;
 
-#define OPSIZE_BOXNC  (sizeof(klr_boxnc_t)-sizeof(void*))
+#define OPSIZE_BOXnc  (sizeof(klr_BOXnc_t)-sizeof(void*))
 
 #define OPCODE_NNBOX ((knh_opcode_t)47)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
+	knh_sfpidx_t a1;
 	knh_class_t a2;
-	void *nextaddr;
-} klr_nnbox_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_NNBOX_t;
 
-#define OPSIZE_NNBOX  (sizeof(klr_nnbox_t)-sizeof(void*))
+#define OPSIZE_NNBOX  (sizeof(klr_NNBOX_t)-sizeof(void*))
 
-#define OPCODE_NNBOXNC ((knh_opcode_t)48)
+#define OPCODE_NNBOXnc ((knh_opcode_t)48)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
+	knh_sfpidx_t a1;
 	knh_class_t a2;
-	void *nextaddr;
-} klr_nnboxnc_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_NNBOXnc_t;
 
-#define OPSIZE_NNBOXNC  (sizeof(klr_nnboxnc_t)-sizeof(void*))
+#define OPSIZE_NNBOXnc  (sizeof(klr_NNBOXnc_t)-sizeof(void*))
 
 #define OPCODE_UNBOX ((knh_opcode_t)49)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	void *nextaddr;
-} klr_unbox_t;
+	knh_sfpidx_t a1;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_UNBOX_t;
 
-#define OPSIZE_UNBOX  (sizeof(klr_unbox_t)-sizeof(void*))
+#define OPSIZE_UNBOX  (sizeof(klr_UNBOX_t)-sizeof(void*))
 
 #define OPCODE_CHECKNULL ((knh_opcode_t)50)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	void *nextaddr;
-} klr_checknull_t;
+	knh_sfpidx_t a1;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_CHECKNULL_t;
 
-#define OPSIZE_CHECKNULL  (sizeof(klr_checknull_t)-sizeof(void*))
+#define OPSIZE_CHECKNULL  (sizeof(klr_CHECKNULL_t)-sizeof(void*))
 
-#define OPCODE_CHECKNULLX ((knh_opcode_t)51)
+#define OPCODE_CHECKNULLx ((knh_opcode_t)51)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
 	knh_sfx_t a1;
-	void *nextaddr;
-} klr_checknullx_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_CHECKNULLx_t;
 
-#define OPSIZE_CHECKNULLX  (sizeof(klr_checknullx_t)-sizeof(void*))
+#define OPSIZE_CHECKNULLx  (sizeof(klr_CHECKNULLx_t)-sizeof(void*))
 
 #define OPCODE_CHECKTYPE ((knh_opcode_t)52)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
+	knh_sfpidx_t a1;
 	knh_class_t a2;
-	void *nextaddr;
-} klr_checktype_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_CHECKTYPE_t;
 
-#define OPSIZE_CHECKTYPE  (sizeof(klr_checktype_t)-sizeof(void*))
+#define OPSIZE_CHECKTYPE  (sizeof(klr_CHECKTYPE_t)-sizeof(void*))
 
 #define OPCODE_CHECKNNTYPE ((knh_opcode_t)53)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
+	knh_sfpidx_t a1;
 	knh_type_t a2;
-	void *nextaddr;
-} klr_checknntype_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_CHECKNNTYPE_t;
 
-#define OPSIZE_CHECKNNTYPE  (sizeof(klr_checknntype_t)-sizeof(void*))
+#define OPSIZE_CHECKNNTYPE  (sizeof(klr_CHECKNNTYPE_t)-sizeof(void*))
 
 #define OPCODE_FCALL ((knh_opcode_t)54)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
+	knh_sfpidx_t a1;
 	knh_ushort_t a2;
-	knh_sfi_t a3;
-	knh_Object_t* a4;
-	void *nextaddr;
-} klr_fcall_t;
+	knh_sfpidx_t a3;
+	knh_Method_t* a4;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_FCALL_t;
 
-#define OPSIZE_FCALL  (sizeof(klr_fcall_t)-sizeof(void*))
+#define OPSIZE_FCALL  (sizeof(klr_FCALL_t)-sizeof(void*))
 
 #define OPCODE_SCALL ((knh_opcode_t)55)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
+	knh_sfpidx_t a1;
 	knh_ushort_t a2;
-	knh_Object_t* a3;
-	void *nextaddr;
-} klr_scall_t;
+	knh_Method_t* a3;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_SCALL_t;
 
-#define OPSIZE_SCALL  (sizeof(klr_scall_t)-sizeof(void*))
+#define OPSIZE_SCALL  (sizeof(klr_SCALL_t)-sizeof(void*))
 
 #define OPCODE_AINVOKE ((knh_opcode_t)56)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
+	knh_sfpidx_t a1;
 	knh_ushort_t a2;
-	void *nextaddr;
-} klr_ainvoke_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_AINVOKE_t;
 
-#define OPSIZE_AINVOKE  (sizeof(klr_ainvoke_t)-sizeof(void*))
+#define OPSIZE_AINVOKE  (sizeof(klr_AINVOKE_t)-sizeof(void*))
 
 #define OPCODE_CALL ((knh_opcode_t)57)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
+	knh_sfpidx_t a1;
 	knh_ushort_t a2;
 	knh_methodn_t a3;
-	void *nextaddr;
-} klr_call_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_CALL_t;
 
-#define OPSIZE_CALL  (sizeof(klr_call_t)-sizeof(void*))
+#define OPSIZE_CALL  (sizeof(klr_CALL_t)-sizeof(void*))
 
 #define OPCODE_ACALL ((knh_opcode_t)58)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
+	knh_sfpidx_t a1;
 	knh_ushort_t a2;
 	knh_methodn_t a3;
-	void *nextaddr;
-} klr_acall_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_ACALL_t;
 
-#define OPSIZE_ACALL  (sizeof(klr_acall_t)-sizeof(void*))
+#define OPSIZE_ACALL  (sizeof(klr_ACALL_t)-sizeof(void*))
 
 #define OPCODE_NEW ((knh_opcode_t)59)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
+	knh_sfpidx_t a1;
 	knh_flag_t a2;
 	knh_class_t a3;
 	knh_ushort_t a4;
-	knh_Object_t* a5;
-	void *nextaddr;
-} klr_new_t;
+	knh_Method_t* a5;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_NEW_t;
 
-#define OPSIZE_NEW  (sizeof(klr_new_t)-sizeof(void*))
+#define OPSIZE_NEW  (sizeof(klr_NEW_t)-sizeof(void*))
 
 #define OPCODE_COPYSFP ((knh_opcode_t)60)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	void *nextaddr;
-} klr_copysfp_t;
+	knh_sfpidx_t a1;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_COPYSFP_t;
 
-#define OPSIZE_COPYSFP  (sizeof(klr_copysfp_t)-sizeof(void*))
+#define OPSIZE_COPYSFP  (sizeof(klr_COPYSFP_t)-sizeof(void*))
 
 #define OPCODE_TOSTR ((knh_opcode_t)61)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
+	knh_sfpidx_t a1;
 	knh_methodn_t a2;
-	void *nextaddr;
-} klr_tostr_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_TOSTR_t;
 
-#define OPSIZE_TOSTR  (sizeof(klr_tostr_t)-sizeof(void*))
+#define OPSIZE_TOSTR  (sizeof(klr_TOSTR_t)-sizeof(void*))
 
-#define OPCODE_TOSTRF ((knh_opcode_t)62)
+#define OPCODE_TOSTRf ((knh_opcode_t)62)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
+	knh_sfpidx_t a1;
 	knh_methodn_t a2;
 	knh_Object_t* a3;
-	void *nextaddr;
-} klr_tostrf_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_TOSTRf_t;
 
-#define OPSIZE_TOSTRF  (sizeof(klr_tostrf_t)-sizeof(void*))
+#define OPSIZE_TOSTRf  (sizeof(klr_TOSTRf_t)-sizeof(void*))
 
 #define OPCODE_SMAP ((knh_opcode_t)63)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_Object_t* a2;
-	void *nextaddr;
-} klr_smap_t;
+	knh_sfpidx_t a1;
+	knh_Mapper_t* a2;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_SMAP_t;
 
-#define OPSIZE_SMAP  (sizeof(klr_smap_t)-sizeof(void*))
+#define OPSIZE_SMAP  (sizeof(klr_SMAP_t)-sizeof(void*))
 
-#define OPCODE_SMAPNC ((knh_opcode_t)64)
+#define OPCODE_SMAPnc ((knh_opcode_t)64)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_Object_t* a2;
-	void *nextaddr;
-} klr_smapnc_t;
+	knh_sfpidx_t a1;
+	knh_Mapper_t* a2;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_SMAPnc_t;
 
-#define OPSIZE_SMAPNC  (sizeof(klr_smapnc_t)-sizeof(void*))
+#define OPSIZE_SMAPnc  (sizeof(klr_SMAPnc_t)-sizeof(void*))
 
 #define OPCODE_MAP ((knh_opcode_t)65)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
+	knh_sfpidx_t a1;
 	knh_class_t a2;
-	void *nextaddr;
-} klr_map_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_MAP_t;
 
-#define OPSIZE_MAP  (sizeof(klr_map_t)-sizeof(void*))
+#define OPSIZE_MAP  (sizeof(klr_MAP_t)-sizeof(void*))
 
-#define OPCODE_MAPNC ((knh_opcode_t)66)
+#define OPCODE_MAPnc ((knh_opcode_t)66)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
+	knh_sfpidx_t a1;
 	knh_class_t a2;
-	void *nextaddr;
-} klr_mapnc_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_MAPnc_t;
 
-#define OPSIZE_MAPNC  (sizeof(klr_mapnc_t)-sizeof(void*))
+#define OPSIZE_MAPnc  (sizeof(klr_MAPnc_t)-sizeof(void*))
 
 #define OPCODE_AMAP ((knh_opcode_t)67)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
+	knh_sfpidx_t a1;
 	knh_class_t a2;
-	void *nextaddr;
-} klr_amap_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_AMAP_t;
 
-#define OPSIZE_AMAP  (sizeof(klr_amap_t)-sizeof(void*))
+#define OPSIZE_AMAP  (sizeof(klr_AMAP_t)-sizeof(void*))
 
 #define OPCODE_NNMAP ((knh_opcode_t)68)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
+	knh_sfpidx_t a1;
 	knh_class_t a2;
-	void *nextaddr;
-} klr_nnmap_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_NNMAP_t;
 
-#define OPSIZE_NNMAP  (sizeof(klr_nnmap_t)-sizeof(void*))
+#define OPSIZE_NNMAP  (sizeof(klr_NNMAP_t)-sizeof(void*))
 
 #define OPCODE_JMP ((knh_opcode_t)69)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-#ifdef KNH_USING_THREADEDCODE
-	void *jumpaddr;
-#endif/*KNH_USING_THREADEDCODE*/
-	union {
-		knh_labelid_t a1;  /* labelid */
-		knh_code_t *jumppc;
-	};
-	void *nextaddr;
-} klr_jmp_t;
+	THREADEDCODE(void *jumpaddr;)
+	knh_KLRInst_t* a1;  /* label */
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_JMP_t;
 
-#define OPSIZE_JMP  (sizeof(klr_jmp_t)-sizeof(void*))
+#define OPSIZE_JMP  (sizeof(klr_JMP_t)-sizeof(void*))
 
 #define OPCODE_SKIP ((knh_opcode_t)70)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-#ifdef KNH_USING_THREADEDCODE
-	void *jumpaddr;
-#endif/*KNH_USING_THREADEDCODE*/
-	union {
-		knh_labelid_t a1;  /* labelid */
-		knh_code_t *jumppc;
-	};
-	void *nextaddr;
-} klr_skip_t;
+	THREADEDCODE(void *jumpaddr;)
+	knh_KLRInst_t* a1;  /* label */
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_SKIP_t;
 
-#define OPSIZE_SKIP  (sizeof(klr_skip_t)-sizeof(void*))
+#define OPSIZE_SKIP  (sizeof(klr_SKIP_t)-sizeof(void*))
 
-#define OPCODE_BJIFT ((knh_opcode_t)71)
+#define OPCODE_bJIFT ((knh_opcode_t)71)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-#ifdef KNH_USING_THREADEDCODE
-	void *jumpaddr;
-#endif/*KNH_USING_THREADEDCODE*/
-	union {
-		knh_labelid_t a1;  /* labelid */
-		knh_code_t *jumppc;
-	};
-	knh_sfi_t a2;
-	void *nextaddr;
-} klr_bjift_t;
+	THREADEDCODE(void *jumpaddr;)
+	knh_KLRInst_t* a1;  /* label */
+	knh_sfpidx_t a2;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_bJIFT_t;
 
-#define OPSIZE_BJIFT  (sizeof(klr_bjift_t)-sizeof(void*))
+#define OPSIZE_bJIFT  (sizeof(klr_bJIFT_t)-sizeof(void*))
 
-#define OPCODE_BJIFF ((knh_opcode_t)72)
+#define OPCODE_bJIFF ((knh_opcode_t)72)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-#ifdef KNH_USING_THREADEDCODE
-	void *jumpaddr;
-#endif/*KNH_USING_THREADEDCODE*/
-	union {
-		knh_labelid_t a1;  /* labelid */
-		knh_code_t *jumppc;
-	};
-	knh_sfi_t a2;
-	void *nextaddr;
-} klr_bjiff_t;
+	THREADEDCODE(void *jumpaddr;)
+	knh_KLRInst_t* a1;  /* label */
+	knh_sfpidx_t a2;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_bJIFF_t;
 
-#define OPSIZE_BJIFF  (sizeof(klr_bjiff_t)-sizeof(void*))
+#define OPSIZE_bJIFF  (sizeof(klr_bJIFF_t)-sizeof(void*))
 
-#define OPCODE_BJIFF_LOOP ((knh_opcode_t)73)
+#define OPCODE_bJIFF_LOOP ((knh_opcode_t)73)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-#ifdef KNH_USING_THREADEDCODE
-	void *jumpaddr;
-#endif/*KNH_USING_THREADEDCODE*/
-	union {
-		knh_labelid_t a1;  /* labelid */
-		knh_code_t *jumppc;
-	};
-	knh_sfi_t a2;
-	void *nextaddr;
-} klr_bjiff_loop_t;
+	THREADEDCODE(void *jumpaddr;)
+	knh_KLRInst_t* a1;  /* label */
+	knh_sfpidx_t a2;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_bJIFF_LOOP_t;
 
-#define OPSIZE_BJIFF_LOOP  (sizeof(klr_bjiff_loop_t)-sizeof(void*))
+#define OPSIZE_bJIFF_LOOP  (sizeof(klr_bJIFF_LOOP_t)-sizeof(void*))
 
 #define OPCODE_JIFNUL ((knh_opcode_t)74)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-#ifdef KNH_USING_THREADEDCODE
-	void *jumpaddr;
-#endif/*KNH_USING_THREADEDCODE*/
-	union {
-		knh_labelid_t a1;  /* labelid */
-		knh_code_t *jumppc;
-	};
-	knh_sfi_t a2;
-	void *nextaddr;
-} klr_jifnul_t;
+	THREADEDCODE(void *jumpaddr;)
+	knh_KLRInst_t* a1;  /* label */
+	knh_sfpidx_t a2;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_JIFNUL_t;
 
-#define OPSIZE_JIFNUL  (sizeof(klr_jifnul_t)-sizeof(void*))
+#define OPSIZE_JIFNUL  (sizeof(klr_JIFNUL_t)-sizeof(void*))
 
 #define OPCODE_JIFNN ((knh_opcode_t)75)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-#ifdef KNH_USING_THREADEDCODE
-	void *jumpaddr;
-#endif/*KNH_USING_THREADEDCODE*/
-	union {
-		knh_labelid_t a1;  /* labelid */
-		knh_code_t *jumppc;
-	};
-	knh_sfi_t a2;
-	void *nextaddr;
-} klr_jifnn_t;
+	THREADEDCODE(void *jumpaddr;)
+	knh_KLRInst_t* a1;  /* label */
+	knh_sfpidx_t a2;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_JIFNN_t;
 
-#define OPSIZE_JIFNN  (sizeof(klr_jifnn_t)-sizeof(void*))
+#define OPSIZE_JIFNN  (sizeof(klr_JIFNN_t)-sizeof(void*))
 
 #define OPCODE_NEXT ((knh_opcode_t)76)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-#ifdef KNH_USING_THREADEDCODE
-	void *jumpaddr;
-#endif/*KNH_USING_THREADEDCODE*/
-	union {
-		knh_labelid_t a1;  /* labelid */
-		knh_code_t *jumppc;
-	};
-	knh_sfi_t a2;
-	knh_sfi_t a3;
-	void *nextaddr;
-} klr_next_t;
+	THREADEDCODE(void *jumpaddr;)
+	knh_KLRInst_t* a1;  /* label */
+	knh_sfpidx_t a2;
+	knh_sfpidx_t a3;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_NEXT_t;
 
-#define OPSIZE_NEXT  (sizeof(klr_next_t)-sizeof(void*))
+#define OPSIZE_NEXT  (sizeof(klr_NEXT_t)-sizeof(void*))
 
 #define OPCODE_INEXT ((knh_opcode_t)77)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-#ifdef KNH_USING_THREADEDCODE
-	void *jumpaddr;
-#endif/*KNH_USING_THREADEDCODE*/
-	union {
-		knh_labelid_t a1;  /* labelid */
-		knh_code_t *jumppc;
-	};
+	THREADEDCODE(void *jumpaddr;)
+	knh_KLRInst_t* a1;  /* label */
 	knh_class_t a2;
-	knh_sfi_t a3;
-	knh_sfi_t a4;
-	void *nextaddr;
-} klr_inext_t;
+	knh_sfpidx_t a3;
+	knh_sfpidx_t a4;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_INEXT_t;
 
-#define OPSIZE_INEXT  (sizeof(klr_inext_t)-sizeof(void*))
+#define OPSIZE_INEXT  (sizeof(klr_INEXT_t)-sizeof(void*))
 
-#define OPCODE_MAPNEXT ((knh_opcode_t)78)
+#define OPCODE_TRY ((knh_opcode_t)78)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-#ifdef KNH_USING_THREADEDCODE
-	void *jumpaddr;
-#endif/*KNH_USING_THREADEDCODE*/
-	union {
-		knh_labelid_t a1;  /* labelid */
-		knh_code_t *jumppc;
-	};
-	knh_class_t a2;
-	knh_sfi_t a3;
-	knh_sfi_t a4;
-	void *nextaddr;
-} klr_mapnext_t;
+	THREADEDCODE(void *jumpaddr;)
+	knh_KLRInst_t* a1;  /* label */
+	knh_sfpidx_t a2;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_TRY_t;
 
-#define OPSIZE_MAPNEXT  (sizeof(klr_mapnext_t)-sizeof(void*))
+#define OPSIZE_TRY  (sizeof(klr_TRY_t)-sizeof(void*))
 
-#define OPCODE_SMAPNEXT ((knh_opcode_t)79)
+#define OPCODE_TRYEND ((knh_opcode_t)79)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-#ifdef KNH_USING_THREADEDCODE
-	void *jumpaddr;
-#endif/*KNH_USING_THREADEDCODE*/
-	union {
-		knh_labelid_t a1;  /* labelid */
-		knh_code_t *jumppc;
-	};
-	knh_sfi_t a2;
-	knh_sfi_t a3;
-	knh_Object_t* a4;
-	void *nextaddr;
-} klr_smapnext_t;
+	knh_sfpidx_t a1;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_TRYEND_t;
 
-#define OPSIZE_SMAPNEXT  (sizeof(klr_smapnext_t)-sizeof(void*))
+#define OPSIZE_TRYEND  (sizeof(klr_TRYEND_t)-sizeof(void*))
 
-#define OPCODE_TRY ((knh_opcode_t)80)
+#define OPCODE_CATCH ((knh_opcode_t)80)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-#ifdef KNH_USING_THREADEDCODE
-	void *jumpaddr;
-#endif/*KNH_USING_THREADEDCODE*/
-	union {
-		knh_labelid_t a1;  /* labelid */
-		knh_code_t *jumppc;
-	};
-	knh_sfi_t a2;
-	void *nextaddr;
-} klr_try_t;
+	THREADEDCODE(void *jumpaddr;)
+	knh_KLRInst_t* a1;  /* label */
+	knh_sfpidx_t a2;
+	knh_sfpidx_t a3;
+	knh_String_t* a4;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_CATCH_t;
 
-#define OPSIZE_TRY  (sizeof(klr_try_t)-sizeof(void*))
+#define OPSIZE_CATCH  (sizeof(klr_CATCH_t)-sizeof(void*))
 
-#define OPCODE_TRYEND ((knh_opcode_t)81)
+#define OPCODE_PUSH ((knh_opcode_t)81)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	void *nextaddr;
-} klr_tryend_t;
+	knh_sfpidx_t a1;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_PUSH_t;
 
-#define OPSIZE_TRYEND  (sizeof(klr_tryend_t)-sizeof(void*))
+#define OPSIZE_PUSH  (sizeof(klr_PUSH_t)-sizeof(void*))
 
-#define OPCODE_CATCH ((knh_opcode_t)82)
+#define OPCODE_POP ((knh_opcode_t)82)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-#ifdef KNH_USING_THREADEDCODE
-	void *jumpaddr;
-#endif/*KNH_USING_THREADEDCODE*/
-	union {
-		knh_labelid_t a1;  /* labelid */
-		knh_code_t *jumppc;
-	};
-	knh_sfi_t a2;
-	knh_sfi_t a3;
-	knh_Object_t* a4;
-	void *nextaddr;
-} klr_catch_t;
+	knh_sfpidx_t a1;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_POP_t;
 
-#define OPSIZE_CATCH  (sizeof(klr_catch_t)-sizeof(void*))
+#define OPSIZE_POP  (sizeof(klr_POP_t)-sizeof(void*))
 
-#define OPCODE_PUSH ((knh_opcode_t)83)
+#define OPCODE_THROW ((knh_opcode_t)83)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
-	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	void *nextaddr;
-} klr_push_t;
-
-#define OPSIZE_PUSH  (sizeof(klr_push_t)-sizeof(void*))
-
-#define OPCODE_POP ((knh_opcode_t)84)
-typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
-	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	void *nextaddr;
-} klr_pop_t;
-
-#define OPSIZE_POP  (sizeof(klr_pop_t)-sizeof(void*))
-
-#define OPCODE_THROW ((knh_opcode_t)85)
-typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
 	knh_ushort_t a1;
-	knh_sfi_t a2;
-	void *nextaddr;
-} klr_throw_t;
+	knh_sfpidx_t a2;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_THROW_t;
 
-#define OPSIZE_THROW  (sizeof(klr_throw_t)-sizeof(void*))
+#define OPSIZE_THROW  (sizeof(klr_THROW_t)-sizeof(void*))
 
-#define OPCODE_THROWS ((knh_opcode_t)86)
+#define OPCODE_THROWs ((knh_opcode_t)84)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
 	knh_ushort_t a1;
-	knh_Object_t* a2;
-	void *nextaddr;
-} klr_throws_t;
+	knh_String_t* a2;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_THROWs_t;
 
-#define OPSIZE_THROWS  (sizeof(klr_throws_t)-sizeof(void*))
+#define OPSIZE_THROWs  (sizeof(klr_THROWs_t)-sizeof(void*))
 
-#define OPCODE_THROW_AGAIN ((knh_opcode_t)87)
+#define OPCODE_THROW_AGAIN ((knh_opcode_t)85)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	void *nextaddr;
-} klr_throw_again_t;
+	knh_sfpidx_t a1;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_THROW_AGAIN_t;
 
-#define OPSIZE_THROW_AGAIN  (sizeof(klr_throw_again_t)-sizeof(void*))
+#define OPSIZE_THROW_AGAIN  (sizeof(klr_THROW_AGAIN_t)-sizeof(void*))
 
-#define OPCODE_P ((knh_opcode_t)88)
+#define OPCODE_P ((knh_opcode_t)86)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
 	knh_flag_t a1;
 	knh_methodn_t a2;
-	knh_sfi_t a3;
-	void *nextaddr;
-} klr_p_t;
+	knh_sfpidx_t a3;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_P_t;
 
-#define OPSIZE_P  (sizeof(klr_p_t)-sizeof(void*))
+#define OPSIZE_P  (sizeof(klr_P_t)-sizeof(void*))
 
-#define OPCODE_PMSG ((knh_opcode_t)89)
+#define OPCODE_PMSG ((knh_opcode_t)87)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
 	knh_flag_t a1;
 	knh_Object_t* a2;
-	void *nextaddr;
-} klr_pmsg_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_PMSG_t;
 
-#define OPSIZE_PMSG  (sizeof(klr_pmsg_t)-sizeof(void*))
+#define OPSIZE_PMSG  (sizeof(klr_PMSG_t)-sizeof(void*))
 
-#define OPCODE_ICAST ((knh_opcode_t)90)
+#define OPCODE_iCAST ((knh_opcode_t)88)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	void *nextaddr;
-} klr_icast_t;
+	knh_sfpidx_t a1;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_iCAST_t;
 
-#define OPSIZE_ICAST  (sizeof(klr_icast_t)-sizeof(void*))
+#define OPSIZE_iCAST  (sizeof(klr_iCAST_t)-sizeof(void*))
 
-#define OPCODE_INCAST ((knh_opcode_t)91)
+#define OPCODE_inCAST ((knh_opcode_t)89)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	void *nextaddr;
-} klr_incast_t;
+	knh_sfpidx_t a1;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_inCAST_t;
 
-#define OPSIZE_INCAST  (sizeof(klr_incast_t)-sizeof(void*))
+#define OPSIZE_inCAST  (sizeof(klr_inCAST_t)-sizeof(void*))
 
-#define OPCODE_FCAST ((knh_opcode_t)92)
+#define OPCODE_fCAST ((knh_opcode_t)90)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	void *nextaddr;
-} klr_fcast_t;
+	knh_sfpidx_t a1;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_fCAST_t;
 
-#define OPSIZE_FCAST  (sizeof(klr_fcast_t)-sizeof(void*))
+#define OPSIZE_fCAST  (sizeof(klr_fCAST_t)-sizeof(void*))
 
-#define OPCODE_FNCAST ((knh_opcode_t)93)
+#define OPCODE_fnCAST ((knh_opcode_t)91)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	void *nextaddr;
-} klr_fncast_t;
+	knh_sfpidx_t a1;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_fnCAST_t;
 
-#define OPSIZE_FNCAST  (sizeof(klr_fncast_t)-sizeof(void*))
+#define OPSIZE_fnCAST  (sizeof(klr_fnCAST_t)-sizeof(void*))
 
-#define OPCODE_BNOT ((knh_opcode_t)94)
+#define OPCODE_bNOT ((knh_opcode_t)92)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
-	void *nextaddr;
-} klr_bnot_t;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_bNOT_t;
 
-#define OPSIZE_BNOT  (sizeof(klr_bnot_t)-sizeof(void*))
+#define OPSIZE_bNOT  (sizeof(klr_bNOT_t)-sizeof(void*))
 
-#define OPCODE_INEG ((knh_opcode_t)95)
+#define OPCODE_iNEG ((knh_opcode_t)93)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
-	void *nextaddr;
-} klr_ineg_t;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_iNEG_t;
 
-#define OPSIZE_INEG  (sizeof(klr_ineg_t)-sizeof(void*))
+#define OPSIZE_iNEG  (sizeof(klr_iNEG_t)-sizeof(void*))
 
-#define OPCODE_IADD ((knh_opcode_t)96)
+#define OPCODE_iADD ((knh_opcode_t)94)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
-	knh_sfi_t a3;
-	void *nextaddr;
-} klr_iadd_t;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
+	knh_sfpidx_t a3;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_iADD_t;
 
-#define OPSIZE_IADD  (sizeof(klr_iadd_t)-sizeof(void*))
+#define OPSIZE_iADD  (sizeof(klr_iADD_t)-sizeof(void*))
 
-#define OPCODE_IADDN ((knh_opcode_t)97)
+#define OPCODE_iADDn ((knh_opcode_t)95)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
 	knh_int_t a3;
-	void *nextaddr;
-} klr_iaddn_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_iADDn_t;
 
-#define OPSIZE_IADDN  (sizeof(klr_iaddn_t)-sizeof(void*))
+#define OPSIZE_iADDn  (sizeof(klr_iADDn_t)-sizeof(void*))
 
-#define OPCODE_ISUB ((knh_opcode_t)98)
+#define OPCODE_iSUB ((knh_opcode_t)96)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
-	knh_sfi_t a3;
-	void *nextaddr;
-} klr_isub_t;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
+	knh_sfpidx_t a3;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_iSUB_t;
 
-#define OPSIZE_ISUB  (sizeof(klr_isub_t)-sizeof(void*))
+#define OPSIZE_iSUB  (sizeof(klr_iSUB_t)-sizeof(void*))
 
-#define OPCODE_ISUBN ((knh_opcode_t)99)
+#define OPCODE_iSUBn ((knh_opcode_t)97)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
 	knh_int_t a3;
-	void *nextaddr;
-} klr_isubn_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_iSUBn_t;
 
-#define OPSIZE_ISUBN  (sizeof(klr_isubn_t)-sizeof(void*))
+#define OPSIZE_iSUBn  (sizeof(klr_iSUBn_t)-sizeof(void*))
 
-#define OPCODE_IMUL ((knh_opcode_t)100)
+#define OPCODE_iMUL ((knh_opcode_t)98)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
-	knh_sfi_t a3;
-	void *nextaddr;
-} klr_imul_t;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
+	knh_sfpidx_t a3;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_iMUL_t;
 
-#define OPSIZE_IMUL  (sizeof(klr_imul_t)-sizeof(void*))
+#define OPSIZE_iMUL  (sizeof(klr_iMUL_t)-sizeof(void*))
 
-#define OPCODE_IMULN ((knh_opcode_t)101)
+#define OPCODE_iMULn ((knh_opcode_t)99)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
 	knh_int_t a3;
-	void *nextaddr;
-} klr_imuln_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_iMULn_t;
 
-#define OPSIZE_IMULN  (sizeof(klr_imuln_t)-sizeof(void*))
+#define OPSIZE_iMULn  (sizeof(klr_iMULn_t)-sizeof(void*))
 
-#define OPCODE_IDIV ((knh_opcode_t)102)
+#define OPCODE_iDIV ((knh_opcode_t)100)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
-	knh_sfi_t a3;
-	void *nextaddr;
-} klr_idiv_t;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
+	knh_sfpidx_t a3;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_iDIV_t;
 
-#define OPSIZE_IDIV  (sizeof(klr_idiv_t)-sizeof(void*))
+#define OPSIZE_iDIV  (sizeof(klr_iDIV_t)-sizeof(void*))
 
-#define OPCODE_IDIVN ((knh_opcode_t)103)
+#define OPCODE_iDIVn ((knh_opcode_t)101)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
 	knh_int_t a3;
-	void *nextaddr;
-} klr_idivn_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_iDIVn_t;
 
-#define OPSIZE_IDIVN  (sizeof(klr_idivn_t)-sizeof(void*))
+#define OPSIZE_iDIVn  (sizeof(klr_iDIVn_t)-sizeof(void*))
 
-#define OPCODE_IMOD ((knh_opcode_t)104)
+#define OPCODE_iMOD ((knh_opcode_t)102)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
-	knh_sfi_t a3;
-	void *nextaddr;
-} klr_imod_t;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
+	knh_sfpidx_t a3;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_iMOD_t;
 
-#define OPSIZE_IMOD  (sizeof(klr_imod_t)-sizeof(void*))
+#define OPSIZE_iMOD  (sizeof(klr_iMOD_t)-sizeof(void*))
 
-#define OPCODE_IMODN ((knh_opcode_t)105)
+#define OPCODE_iMODn ((knh_opcode_t)103)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
 	knh_int_t a3;
-	void *nextaddr;
-} klr_imodn_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_iMODn_t;
 
-#define OPSIZE_IMODN  (sizeof(klr_imodn_t)-sizeof(void*))
+#define OPSIZE_iMODn  (sizeof(klr_iMODn_t)-sizeof(void*))
 
-#define OPCODE_IEQ ((knh_opcode_t)106)
+#define OPCODE_iEQ ((knh_opcode_t)104)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
-	knh_sfi_t a3;
-	void *nextaddr;
-} klr_ieq_t;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
+	knh_sfpidx_t a3;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_iEQ_t;
 
-#define OPSIZE_IEQ  (sizeof(klr_ieq_t)-sizeof(void*))
+#define OPSIZE_iEQ  (sizeof(klr_iEQ_t)-sizeof(void*))
 
-#define OPCODE_IEQN ((knh_opcode_t)107)
+#define OPCODE_iEQn ((knh_opcode_t)105)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
 	knh_int_t a3;
-	void *nextaddr;
-} klr_ieqn_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_iEQn_t;
 
-#define OPSIZE_IEQN  (sizeof(klr_ieqn_t)-sizeof(void*))
+#define OPSIZE_iEQn  (sizeof(klr_iEQn_t)-sizeof(void*))
 
-#define OPCODE_INEQ ((knh_opcode_t)108)
+#define OPCODE_iNEQ ((knh_opcode_t)106)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
-	knh_sfi_t a3;
-	void *nextaddr;
-} klr_ineq_t;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
+	knh_sfpidx_t a3;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_iNEQ_t;
 
-#define OPSIZE_INEQ  (sizeof(klr_ineq_t)-sizeof(void*))
+#define OPSIZE_iNEQ  (sizeof(klr_iNEQ_t)-sizeof(void*))
 
-#define OPCODE_INEQN ((knh_opcode_t)109)
+#define OPCODE_iNEQn ((knh_opcode_t)107)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
 	knh_int_t a3;
-	void *nextaddr;
-} klr_ineqn_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_iNEQn_t;
 
-#define OPSIZE_INEQN  (sizeof(klr_ineqn_t)-sizeof(void*))
+#define OPSIZE_iNEQn  (sizeof(klr_iNEQn_t)-sizeof(void*))
 
-#define OPCODE_ILT ((knh_opcode_t)110)
+#define OPCODE_iLT ((knh_opcode_t)108)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
-	knh_sfi_t a3;
-	void *nextaddr;
-} klr_ilt_t;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
+	knh_sfpidx_t a3;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_iLT_t;
 
-#define OPSIZE_ILT  (sizeof(klr_ilt_t)-sizeof(void*))
+#define OPSIZE_iLT  (sizeof(klr_iLT_t)-sizeof(void*))
 
-#define OPCODE_ILTN ((knh_opcode_t)111)
+#define OPCODE_iLTn ((knh_opcode_t)109)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
 	knh_int_t a3;
-	void *nextaddr;
-} klr_iltn_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_iLTn_t;
 
-#define OPSIZE_ILTN  (sizeof(klr_iltn_t)-sizeof(void*))
+#define OPSIZE_iLTn  (sizeof(klr_iLTn_t)-sizeof(void*))
 
-#define OPCODE_ILTE ((knh_opcode_t)112)
+#define OPCODE_iLTE ((knh_opcode_t)110)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
-	knh_sfi_t a3;
-	void *nextaddr;
-} klr_ilte_t;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
+	knh_sfpidx_t a3;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_iLTE_t;
 
-#define OPSIZE_ILTE  (sizeof(klr_ilte_t)-sizeof(void*))
+#define OPSIZE_iLTE  (sizeof(klr_iLTE_t)-sizeof(void*))
 
-#define OPCODE_ILTEN ((knh_opcode_t)113)
+#define OPCODE_iLTEn ((knh_opcode_t)111)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
 	knh_int_t a3;
-	void *nextaddr;
-} klr_ilten_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_iLTEn_t;
 
-#define OPSIZE_ILTEN  (sizeof(klr_ilten_t)-sizeof(void*))
+#define OPSIZE_iLTEn  (sizeof(klr_iLTEn_t)-sizeof(void*))
 
-#define OPCODE_IGT ((knh_opcode_t)114)
+#define OPCODE_iGT ((knh_opcode_t)112)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
-	knh_sfi_t a3;
-	void *nextaddr;
-} klr_igt_t;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
+	knh_sfpidx_t a3;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_iGT_t;
 
-#define OPSIZE_IGT  (sizeof(klr_igt_t)-sizeof(void*))
+#define OPSIZE_iGT  (sizeof(klr_iGT_t)-sizeof(void*))
 
-#define OPCODE_IGTN ((knh_opcode_t)115)
+#define OPCODE_iGTn ((knh_opcode_t)113)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
 	knh_int_t a3;
-	void *nextaddr;
-} klr_igtn_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_iGTn_t;
 
-#define OPSIZE_IGTN  (sizeof(klr_igtn_t)-sizeof(void*))
+#define OPSIZE_iGTn  (sizeof(klr_iGTn_t)-sizeof(void*))
 
-#define OPCODE_IGTE ((knh_opcode_t)116)
+#define OPCODE_iGTE ((knh_opcode_t)114)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
-	knh_sfi_t a3;
-	void *nextaddr;
-} klr_igte_t;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
+	knh_sfpidx_t a3;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_iGTE_t;
 
-#define OPSIZE_IGTE  (sizeof(klr_igte_t)-sizeof(void*))
+#define OPSIZE_iGTE  (sizeof(klr_iGTE_t)-sizeof(void*))
 
-#define OPCODE_IGTEN ((knh_opcode_t)117)
+#define OPCODE_iGTEn ((knh_opcode_t)115)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
 	knh_int_t a3;
-	void *nextaddr;
-} klr_igten_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_iGTEn_t;
 
-#define OPSIZE_IGTEN  (sizeof(klr_igten_t)-sizeof(void*))
+#define OPSIZE_iGTEn  (sizeof(klr_iGTEn_t)-sizeof(void*))
 
-#define OPCODE_FNEG ((knh_opcode_t)118)
+#define OPCODE_fNEG ((knh_opcode_t)116)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
-	void *nextaddr;
-} klr_fneg_t;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_fNEG_t;
 
-#define OPSIZE_FNEG  (sizeof(klr_fneg_t)-sizeof(void*))
+#define OPSIZE_fNEG  (sizeof(klr_fNEG_t)-sizeof(void*))
 
-#define OPCODE_FADD ((knh_opcode_t)119)
+#define OPCODE_fADD ((knh_opcode_t)117)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
-	knh_sfi_t a3;
-	void *nextaddr;
-} klr_fadd_t;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
+	knh_sfpidx_t a3;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_fADD_t;
 
-#define OPSIZE_FADD  (sizeof(klr_fadd_t)-sizeof(void*))
+#define OPSIZE_fADD  (sizeof(klr_fADD_t)-sizeof(void*))
 
-#define OPCODE_FADDN ((knh_opcode_t)120)
+#define OPCODE_fADDn ((knh_opcode_t)118)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
 	knh_float_t a3;
-	void *nextaddr;
-} klr_faddn_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_fADDn_t;
 
-#define OPSIZE_FADDN  (sizeof(klr_faddn_t)-sizeof(void*))
+#define OPSIZE_fADDn  (sizeof(klr_fADDn_t)-sizeof(void*))
 
-#define OPCODE_FSUB ((knh_opcode_t)121)
+#define OPCODE_fSUB ((knh_opcode_t)119)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
-	knh_sfi_t a3;
-	void *nextaddr;
-} klr_fsub_t;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
+	knh_sfpidx_t a3;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_fSUB_t;
 
-#define OPSIZE_FSUB  (sizeof(klr_fsub_t)-sizeof(void*))
+#define OPSIZE_fSUB  (sizeof(klr_fSUB_t)-sizeof(void*))
 
-#define OPCODE_FSUBN ((knh_opcode_t)122)
+#define OPCODE_fSUBn ((knh_opcode_t)120)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
 	knh_float_t a3;
-	void *nextaddr;
-} klr_fsubn_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_fSUBn_t;
 
-#define OPSIZE_FSUBN  (sizeof(klr_fsubn_t)-sizeof(void*))
+#define OPSIZE_fSUBn  (sizeof(klr_fSUBn_t)-sizeof(void*))
 
-#define OPCODE_FMUL ((knh_opcode_t)123)
+#define OPCODE_fMUL ((knh_opcode_t)121)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
-	knh_sfi_t a3;
-	void *nextaddr;
-} klr_fmul_t;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
+	knh_sfpidx_t a3;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_fMUL_t;
 
-#define OPSIZE_FMUL  (sizeof(klr_fmul_t)-sizeof(void*))
+#define OPSIZE_fMUL  (sizeof(klr_fMUL_t)-sizeof(void*))
 
-#define OPCODE_FMULN ((knh_opcode_t)124)
+#define OPCODE_fMULn ((knh_opcode_t)122)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
 	knh_float_t a3;
-	void *nextaddr;
-} klr_fmuln_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_fMULn_t;
 
-#define OPSIZE_FMULN  (sizeof(klr_fmuln_t)-sizeof(void*))
+#define OPSIZE_fMULn  (sizeof(klr_fMULn_t)-sizeof(void*))
 
-#define OPCODE_FDIV ((knh_opcode_t)125)
+#define OPCODE_fDIV ((knh_opcode_t)123)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
-	knh_sfi_t a3;
-	void *nextaddr;
-} klr_fdiv_t;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
+	knh_sfpidx_t a3;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_fDIV_t;
 
-#define OPSIZE_FDIV  (sizeof(klr_fdiv_t)-sizeof(void*))
+#define OPSIZE_fDIV  (sizeof(klr_fDIV_t)-sizeof(void*))
 
-#define OPCODE_FDIVN ((knh_opcode_t)126)
+#define OPCODE_fDIVn ((knh_opcode_t)124)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
 	knh_float_t a3;
-	void *nextaddr;
-} klr_fdivn_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_fDIVn_t;
 
-#define OPSIZE_FDIVN  (sizeof(klr_fdivn_t)-sizeof(void*))
+#define OPSIZE_fDIVn  (sizeof(klr_fDIVn_t)-sizeof(void*))
 
-#define OPCODE_FEQ ((knh_opcode_t)127)
+#define OPCODE_fEQ ((knh_opcode_t)125)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
-	knh_sfi_t a3;
-	void *nextaddr;
-} klr_feq_t;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
+	knh_sfpidx_t a3;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_fEQ_t;
 
-#define OPSIZE_FEQ  (sizeof(klr_feq_t)-sizeof(void*))
+#define OPSIZE_fEQ  (sizeof(klr_fEQ_t)-sizeof(void*))
 
-#define OPCODE_FEQN ((knh_opcode_t)128)
+#define OPCODE_fEQn ((knh_opcode_t)126)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
 	knh_float_t a3;
-	void *nextaddr;
-} klr_feqn_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_fEQn_t;
 
-#define OPSIZE_FEQN  (sizeof(klr_feqn_t)-sizeof(void*))
+#define OPSIZE_fEQn  (sizeof(klr_fEQn_t)-sizeof(void*))
 
-#define OPCODE_FNEQ ((knh_opcode_t)129)
+#define OPCODE_fNEQ ((knh_opcode_t)127)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
-	knh_sfi_t a3;
-	void *nextaddr;
-} klr_fneq_t;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
+	knh_sfpidx_t a3;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_fNEQ_t;
 
-#define OPSIZE_FNEQ  (sizeof(klr_fneq_t)-sizeof(void*))
+#define OPSIZE_fNEQ  (sizeof(klr_fNEQ_t)-sizeof(void*))
 
-#define OPCODE_FNEQN ((knh_opcode_t)130)
+#define OPCODE_fNEQn ((knh_opcode_t)128)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
 	knh_float_t a3;
-	void *nextaddr;
-} klr_fneqn_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_fNEQn_t;
 
-#define OPSIZE_FNEQN  (sizeof(klr_fneqn_t)-sizeof(void*))
+#define OPSIZE_fNEQn  (sizeof(klr_fNEQn_t)-sizeof(void*))
 
-#define OPCODE_FLT ((knh_opcode_t)131)
+#define OPCODE_fLT ((knh_opcode_t)129)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
-	knh_sfi_t a3;
-	void *nextaddr;
-} klr_flt_t;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
+	knh_sfpidx_t a3;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_fLT_t;
 
-#define OPSIZE_FLT  (sizeof(klr_flt_t)-sizeof(void*))
+#define OPSIZE_fLT  (sizeof(klr_fLT_t)-sizeof(void*))
 
-#define OPCODE_FLTN ((knh_opcode_t)132)
+#define OPCODE_fLTn ((knh_opcode_t)130)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
 	knh_float_t a3;
-	void *nextaddr;
-} klr_fltn_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_fLTn_t;
 
-#define OPSIZE_FLTN  (sizeof(klr_fltn_t)-sizeof(void*))
+#define OPSIZE_fLTn  (sizeof(klr_fLTn_t)-sizeof(void*))
 
-#define OPCODE_FLTE ((knh_opcode_t)133)
+#define OPCODE_fLTE ((knh_opcode_t)131)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
-	knh_sfi_t a3;
-	void *nextaddr;
-} klr_flte_t;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
+	knh_sfpidx_t a3;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_fLTE_t;
 
-#define OPSIZE_FLTE  (sizeof(klr_flte_t)-sizeof(void*))
+#define OPSIZE_fLTE  (sizeof(klr_fLTE_t)-sizeof(void*))
 
-#define OPCODE_FLTEN ((knh_opcode_t)134)
+#define OPCODE_fLTEn ((knh_opcode_t)132)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
 	knh_float_t a3;
-	void *nextaddr;
-} klr_flten_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_fLTEn_t;
 
-#define OPSIZE_FLTEN  (sizeof(klr_flten_t)-sizeof(void*))
+#define OPSIZE_fLTEn  (sizeof(klr_fLTEn_t)-sizeof(void*))
 
-#define OPCODE_FGT ((knh_opcode_t)135)
+#define OPCODE_fGT ((knh_opcode_t)133)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
-	knh_sfi_t a3;
-	void *nextaddr;
-} klr_fgt_t;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
+	knh_sfpidx_t a3;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_fGT_t;
 
-#define OPSIZE_FGT  (sizeof(klr_fgt_t)-sizeof(void*))
+#define OPSIZE_fGT  (sizeof(klr_fGT_t)-sizeof(void*))
 
-#define OPCODE_FGTN ((knh_opcode_t)136)
+#define OPCODE_fGTn ((knh_opcode_t)134)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
 	knh_float_t a3;
-	void *nextaddr;
-} klr_fgtn_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_fGTn_t;
 
-#define OPSIZE_FGTN  (sizeof(klr_fgtn_t)-sizeof(void*))
+#define OPSIZE_fGTn  (sizeof(klr_fGTn_t)-sizeof(void*))
 
-#define OPCODE_FGTE ((knh_opcode_t)137)
+#define OPCODE_fGTE ((knh_opcode_t)135)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
-	knh_sfi_t a3;
-	void *nextaddr;
-} klr_fgte_t;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
+	knh_sfpidx_t a3;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_fGTE_t;
 
-#define OPSIZE_FGTE  (sizeof(klr_fgte_t)-sizeof(void*))
+#define OPSIZE_fGTE  (sizeof(klr_fGTE_t)-sizeof(void*))
 
-#define OPCODE_FGTEN ((knh_opcode_t)138)
+#define OPCODE_fGTEn ((knh_opcode_t)136)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
 	knh_float_t a3;
-	void *nextaddr;
-} klr_fgten_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_fGTEn_t;
 
-#define OPSIZE_FGTEN  (sizeof(klr_fgten_t)-sizeof(void*))
+#define OPSIZE_fGTEn  (sizeof(klr_fGTEn_t)-sizeof(void*))
 
-#define OPCODE_AGET ((knh_opcode_t)139)
+#define OPCODE_AGET ((knh_opcode_t)137)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
-	knh_sfi_t a3;
-	void *nextaddr;
-} klr_aget_t;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
+	knh_sfpidx_t a3;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_AGET_t;
 
-#define OPSIZE_AGET  (sizeof(klr_aget_t)-sizeof(void*))
+#define OPSIZE_AGET  (sizeof(klr_AGET_t)-sizeof(void*))
 
-#define OPCODE_AGETN ((knh_opcode_t)140)
+#define OPCODE_AGETn ((knh_opcode_t)138)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
 	knh_intptr_t a3;
-	void *nextaddr;
-} klr_agetn_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_AGETn_t;
 
-#define OPSIZE_AGETN  (sizeof(klr_agetn_t)-sizeof(void*))
+#define OPSIZE_AGETn  (sizeof(klr_AGETn_t)-sizeof(void*))
 
-#define OPCODE_IAGET ((knh_opcode_t)141)
+#define OPCODE_IAGET ((knh_opcode_t)139)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
-	knh_sfi_t a3;
-	void *nextaddr;
-} klr_iaget_t;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
+	knh_sfpidx_t a3;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_IAGET_t;
 
-#define OPSIZE_IAGET  (sizeof(klr_iaget_t)-sizeof(void*))
+#define OPSIZE_IAGET  (sizeof(klr_IAGET_t)-sizeof(void*))
 
-#define OPCODE_IAGETN ((knh_opcode_t)142)
+#define OPCODE_IAGETn ((knh_opcode_t)140)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
 	knh_intptr_t a3;
-	void *nextaddr;
-} klr_iagetn_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_IAGETn_t;
 
-#define OPSIZE_IAGETN  (sizeof(klr_iagetn_t)-sizeof(void*))
+#define OPSIZE_IAGETn  (sizeof(klr_IAGETn_t)-sizeof(void*))
 
-#define OPCODE_FAGET ((knh_opcode_t)143)
+#define OPCODE_FAGET ((knh_opcode_t)141)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
-	knh_sfi_t a3;
-	void *nextaddr;
-} klr_faget_t;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
+	knh_sfpidx_t a3;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_FAGET_t;
 
-#define OPSIZE_FAGET  (sizeof(klr_faget_t)-sizeof(void*))
+#define OPSIZE_FAGET  (sizeof(klr_FAGET_t)-sizeof(void*))
 
-#define OPCODE_FAGETN ((knh_opcode_t)144)
+#define OPCODE_FAGETn ((knh_opcode_t)142)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
 	knh_intptr_t a3;
-	void *nextaddr;
-} klr_fagetn_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_FAGETn_t;
 
-#define OPSIZE_FAGETN  (sizeof(klr_fagetn_t)-sizeof(void*))
+#define OPSIZE_FAGETn  (sizeof(klr_FAGETn_t)-sizeof(void*))
 
-#define OPCODE_ASET ((knh_opcode_t)145)
+#define OPCODE_ASET ((knh_opcode_t)143)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
-	knh_sfi_t a3;
-	void *nextaddr;
-} klr_aset_t;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
+	knh_sfpidx_t a3;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_ASET_t;
 
-#define OPSIZE_ASET  (sizeof(klr_aset_t)-sizeof(void*))
+#define OPSIZE_ASET  (sizeof(klr_ASET_t)-sizeof(void*))
 
-#define OPCODE_ASETN ((knh_opcode_t)146)
+#define OPCODE_ASETn ((knh_opcode_t)144)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
 	knh_intptr_t a3;
-	void *nextaddr;
-} klr_asetn_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_ASETn_t;
 
-#define OPSIZE_ASETN  (sizeof(klr_asetn_t)-sizeof(void*))
+#define OPSIZE_ASETn  (sizeof(klr_ASETn_t)-sizeof(void*))
 
-#define OPCODE_IASET ((knh_opcode_t)147)
+#define OPCODE_IASET ((knh_opcode_t)145)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
-	knh_sfi_t a3;
-	void *nextaddr;
-} klr_iaset_t;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
+	knh_sfpidx_t a3;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_IASET_t;
 
-#define OPSIZE_IASET  (sizeof(klr_iaset_t)-sizeof(void*))
+#define OPSIZE_IASET  (sizeof(klr_IASET_t)-sizeof(void*))
 
-#define OPCODE_IASETN ((knh_opcode_t)148)
+#define OPCODE_IASETn ((knh_opcode_t)146)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
 	knh_intptr_t a3;
-	void *nextaddr;
-} klr_iasetn_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_IASETn_t;
 
-#define OPSIZE_IASETN  (sizeof(klr_iasetn_t)-sizeof(void*))
+#define OPSIZE_IASETn  (sizeof(klr_IASETn_t)-sizeof(void*))
 
-#define OPCODE_FASET ((knh_opcode_t)149)
+#define OPCODE_FASET ((knh_opcode_t)147)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
-	knh_sfi_t a3;
-	void *nextaddr;
-} klr_faset_t;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
+	knh_sfpidx_t a3;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_FASET_t;
 
-#define OPSIZE_FASET  (sizeof(klr_faset_t)-sizeof(void*))
+#define OPSIZE_FASET  (sizeof(klr_FASET_t)-sizeof(void*))
 
-#define OPCODE_FASETN ((knh_opcode_t)150)
+#define OPCODE_FASETn ((knh_opcode_t)148)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	knh_sfi_t a2;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
 	knh_intptr_t a3;
-	void *nextaddr;
-} klr_fasetn_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_FASETn_t;
 
-#define OPSIZE_FASETN  (sizeof(klr_fasetn_t)-sizeof(void*))
+#define OPSIZE_FASETn  (sizeof(klr_FASETn_t)-sizeof(void*))
 
-#define OPCODE_INITCODE ((knh_opcode_t)151)
+#define OPCODE_INITCODE ((knh_opcode_t)149)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	knh_sfi_t a1;
-	void *nextaddr;
-} klr_initcode_t;
+	knh_sfpidx_t a1;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_INITCODE_t;
 
-#define OPSIZE_INITCODE  (sizeof(klr_initcode_t)-sizeof(void*))
+#define OPSIZE_INITCODE  (sizeof(klr_INITCODE_t)-sizeof(void*))
 
-#define OPCODE_NOP ((knh_opcode_t)152)
+#define OPCODE_NOP ((knh_opcode_t)150)
 typedef struct {
-#ifdef KNH_USING_THREADEDCODE
-	void *codeaddr;
-#endif/*KNH_USING_THREADEDCODE*/
+	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
-	void *nextaddr;
-} klr_nop_t;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_NOP_t;
 
-#define OPSIZE_NOP  (sizeof(klr_nop_t)-sizeof(void*))
+#define OPSIZE_NOP  (sizeof(klr_NOP_t)-sizeof(void*))
 #endif /* KONOHA_CODE_H_ */

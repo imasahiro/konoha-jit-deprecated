@@ -18,7 +18,8 @@ extern "C" {
 
 #undef IS_Stmt
 #define IS_Stmt(o)       (((knh_Stmt_t*)o)->h.cid == CLASS_Stmt)
-#define STMTNo(o)         knh_stmt_tochar(SP(o)->stt)
+//#define STMTNo(o)         knh_stmt_tochar(SP(o)->stt)
+#define cSTT_(o)          knh_stmt_tochar(SP(o)->stt)
 
 
 #define knh_token_isNested(tt)  \
@@ -57,14 +58,6 @@ extern "C" {
 
 #define _(s)           s
 
-
-#define DECL_OUTERPARAM  0
-#define DECL_INNERPARAM  1
-#define DECL_FOREACH     2
-#define DECL_LOCAL       3
-#define DECL_FIELD       4
-#define DECL_SCRIPT      5
-
 /* ------------------------------------------------------------------------ */
 
 #define TWARN_  0
@@ -74,75 +67,22 @@ extern "C" {
 
 /* ------------------------------------------------------------------------ */
 
-#define KNH_ASM_JMP(ctx, abr, l)  KNH_ASM_JMP_(ctx, abr, l);
+#define OPCODE_LABEL  (OPCODE_NOP+1)
 
 /* ------------------------------------------------------------------------ */
 
-#ifdef KNH_DBGMODE2
-#define KNH_DEBUG3
-#endif
-
-#ifdef KNH_DBGMODE3
-#define SAFE_ASSERT(ctx, abr, c)  KNH_ASSERT(c)
+#if defined(KNH_USING_THREADEDCODE)
+#define TADDR   NULL,
 #else
-#define SAFE_ASSERT(ctx, abr, c)  if(!(c)) knh_Gamma_assert(ctx, abr, c)
-#endif
+#define TADDR   ""
+#endif/*KNH_USING_THREADEDCODE*/
+
+#define KNH_ASM(T, ...) { \
+		klr_##T##_t op_ = {TADDR OPCODE_##T, ## __VA_ARGS__, NULL}; \
+		knh_asmop(ctx, (knh_inst_t*)(&op_)); \
+	}\
 
 /* ------------------------------------------------------------------------ */
-
-#ifdef KNH_DEBUG3
-
-#define DEBUG3(fmt, ...) \
-	fflush(stdout); \
-	fprintf(stderr, "\nDEBUG3[%s:%d/%s]: ", knh_safefile(__FILE__), __LINE__, __FUNCTION__); \
-	fprintf(stderr, fmt, ## __VA_ARGS__); \
-	fprintf(stderr, "\n"); \
-
-#define TODO3(fmt, ...) \
-	fflush(stdout); \
-	fprintf(stderr, "\nTODO3[%s:%d/%s]: ", knh_safefile(__FILE__), __LINE__, __FUNCTION__); \
-	fprintf(stderr, fmt, ## __VA_ARGS__); \
-	fprintf(stderr, "\n"); \
-
-#define DEBUG3_PTC(name, tc) \
-	fflush(stdout); \
-	fprintf(stderr, "\nDEBUG3[%s:%d/%s]: ", knh_safefile(__FILE__), __LINE__, __FUNCTION__); \
-	fprintf(stderr, "%s: c=%d, e=%d\n", name, (tc)->c, (tc)->e); \
-
-#define DEBUG3_STC(name, tc) \
-	fflush(stdout); \
-	fprintf(stderr, "\nDEBUG3[%s:%d/%s]: ", knh_safefile(__FILE__), __LINE__, __FUNCTION__); \
-	fprintf(stderr, "%s: c=%d, e=%d\n", name, (tc).c, (tc).e); \
-
-#else
-
-#define DEBUG3(fmt, ...)
-#define TODO3(fmt, ...)
-#define DEBUG3_PTC(name, tc)
-#define DEBUG3_STC(name, tc)
-
-#endif
-
-/* ------------------------------------------------------------------------ */
-/* @see(knh_Stmt_add_index) */
-
-#ifndef TT_SUBSETE
-#define TT_SUBSETE TT_ITR
-#endif
-
-/* ------------------------------------------------------------------------ */
-
-
-/* ------------------------------------------------------------------------ */
-
-#define LABEL_BUFSIZ         40
-
-//#ifndef KONOHAC_ERROR_BUFSIZ
-//#define KONOHAC_ERROR_BUFSIZ 512
-//#endif
-
-/* ------------------------------------------------------------------------ */
-/* [TE] */
 
 
 #ifdef __cplusplus

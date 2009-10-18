@@ -184,7 +184,7 @@ void knh_stack_typecheck(Ctx *ctx, knh_sfp_t *sfp, knh_Method_t *mtd, knh_code_t
 		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 		knh_printf(ctx, cwb->w, emsg, (knh_intptr_t)i, DP(mtd)->mn);
 		knh_String_t *s = knh_cwb_newString(ctx, cwb);
-		knh_throw(ctx, (Object*)s, knh_Method_file(ctx, sfp[-1].mtd), knh_Method_pctoline(sfp[-1].mtd, pc));
+		knh_throw(ctx, (Object*)s, knh_Method_file(ctx, sfp[-1].mtd), knh_Method_pcline(sfp[-1].mtd, pc));
 	}
 }
 
@@ -235,7 +235,7 @@ knh_String_t *knh_stack_newStackTrace(Ctx *ctx, knh_sfp_t *sfp, knh_Exception_t 
 	char *file = "-";
 	int  line = 0;
 	if(pc != NULL) {
-		line = knh_Method_pctoline(mtd, pc);
+		line = knh_Method_pcline(mtd, pc);
 		if(line > 0) {
 			file = knh_Method_file(ctx, mtd);
 			//DBG2_P("file=%s, line=%d", file, line);

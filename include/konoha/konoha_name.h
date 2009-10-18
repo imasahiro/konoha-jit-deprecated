@@ -2,7 +2,7 @@
 
 /* ======================================================================== */
 /* MACROS */
-#define KONOHA_BUILDID                  720
+#define KONOHA_BUILDID                  732
 
 /* ======================================================================== */
 /* STRUCT */
@@ -259,16 +259,16 @@
 #define FLAG_Class              knh_flag_oflag(CFLAG_Class)
 
 /* ------------------------------------------------------------------------ */
-/* ClassStruct */
-#define CLASS_ClassStruct       ((knh_class_t)21)
-#define STRUCT_ClassStruct      ((knh_struct_t)21)
-#define IS_ClassStruct(o)       ((o)->h.cid == CLASS_ClassStruct)
-#define IS_bClassStruct(o)      ((o)->h.bcid == CLASS_ClassStruct)
-#define TYPE_ClassStruct        CLASS_ClassStruct
-#define NNTYPE_ClassStruct      NNTYPE_cid(CLASS_ClassStruct)
-#define NATYPE_ClassStruct      NATYPE_cid(CLASS_ClassStruct)
-#define CFLAG_ClassStruct       ((knh_flag_t)FLAG_Class_Private)
-#define FLAG_ClassStruct        knh_flag_oflag(CFLAG_ClassStruct)
+/* ClassField */
+#define CLASS_ClassField        ((knh_class_t)21)
+#define STRUCT_ClassField       ((knh_struct_t)21)
+#define IS_ClassField(o)        ((o)->h.cid == CLASS_ClassField)
+#define IS_bClassField(o)       ((o)->h.bcid == CLASS_ClassField)
+#define TYPE_ClassField         CLASS_ClassField
+#define NNTYPE_ClassField       NNTYPE_cid(CLASS_ClassField)
+#define NATYPE_ClassField       NATYPE_cid(CLASS_ClassField)
+#define CFLAG_ClassField        ((knh_flag_t)FLAG_Class_Private)
+#define FLAG_ClassField         knh_flag_oflag(CFLAG_ClassField)
 
 /* ------------------------------------------------------------------------ */
 /* MethodField */
@@ -547,9 +547,21 @@
 #define FLAG_Gamma              knh_flag_oflag(CFLAG_Gamma)
 
 /* ------------------------------------------------------------------------ */
+/* KLRInst */
+#define CLASS_KLRInst           ((knh_class_t)45)
+#define STRUCT_KLRInst          ((knh_struct_t)45)
+#define IS_KLRInst(o)           ((o)->h.cid == CLASS_KLRInst)
+#define IS_bKLRInst(o)          ((o)->h.bcid == CLASS_KLRInst)
+#define TYPE_KLRInst            CLASS_KLRInst
+#define NNTYPE_KLRInst          NNTYPE_cid(CLASS_KLRInst)
+#define NATYPE_KLRInst          NATYPE_cid(CLASS_KLRInst)
+#define CFLAG_KLRInst           ((knh_flag_t)0)
+#define FLAG_KLRInst            knh_flag_oflag(CFLAG_KLRInst)
+
+/* ------------------------------------------------------------------------ */
 /* KLRCode */
-#define CLASS_KLRCode           ((knh_class_t)45)
-#define STRUCT_KLRCode          ((knh_struct_t)45)
+#define CLASS_KLRCode           ((knh_class_t)46)
+#define STRUCT_KLRCode          ((knh_struct_t)46)
 #define IS_KLRCode(o)           ((o)->h.cid == CLASS_KLRCode)
 #define IS_bKLRCode(o)          ((o)->h.bcid == CLASS_KLRCode)
 #define TYPE_KLRCode            CLASS_KLRCode
@@ -890,51 +902,51 @@
 #define knh_class_isTypeVariable(o)  (((pClassTable(o))->cflag & FLAG_Class_TypeVariable) == FLAG_Class_TypeVariable)
 
 #define knh_class_setTypeVariable(o,b) if(b) (pClassTable(o))->cflag |= FLAG_Class_TypeVariable; else (pClassTable(o))->cflag &= ~(FLAG_Class_TypeVariable);
-#define FLAG_ClassStruct_Hidden         (knh_flag_t)(1<<0)
+#define FLAG_ClassField_Hidden          (knh_flag_t)(1<<0)
 
-#define knh_ClassStruct_isHidden(o,n)  (((o)->fields[n].flag & FLAG_ClassStruct_Hidden) == FLAG_ClassStruct_Hidden)
+#define knh_ClassField_isHidden(o,n)  (((o)->fields[n].flag & FLAG_ClassField_Hidden) == FLAG_ClassField_Hidden)
 
-#define knh_ClassStruct_setHidden(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassStruct_Hidden; else (o)->fields[n].flag &= ~(FLAG_ClassStruct_Hidden);
-#define FLAG_ClassStruct_Protected      (knh_flag_t)(1<<1)
+#define knh_ClassField_setHidden(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassField_Hidden; else (o)->fields[n].flag &= ~(FLAG_ClassField_Hidden);
+#define FLAG_ClassField_Protected       (knh_flag_t)(1<<1)
 
-#define knh_ClassStruct_isProtected(o,n)  (((o)->fields[n].flag & FLAG_ClassStruct_Protected) == FLAG_ClassStruct_Protected)
+#define knh_ClassField_isProtected(o,n)  (((o)->fields[n].flag & FLAG_ClassField_Protected) == FLAG_ClassField_Protected)
 
-#define knh_ClassStruct_setProtected(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassStruct_Protected; else (o)->fields[n].flag &= ~(FLAG_ClassStruct_Protected);
-#define FLAG_ClassStruct_Getter         (knh_flag_t)(1<<2)
+#define knh_ClassField_setProtected(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassField_Protected; else (o)->fields[n].flag &= ~(FLAG_ClassField_Protected);
+#define FLAG_ClassField_Getter          (knh_flag_t)(1<<2)
 
-#define knh_ClassStruct_isGetter(o,n)  (((o)->fields[n].flag & FLAG_ClassStruct_Getter) == FLAG_ClassStruct_Getter)
+#define knh_ClassField_isGetter(o,n)  (((o)->fields[n].flag & FLAG_ClassField_Getter) == FLAG_ClassField_Getter)
 
-#define knh_ClassStruct_setGetter(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassStruct_Getter; else (o)->fields[n].flag &= ~(FLAG_ClassStruct_Getter);
-#define FLAG_ClassStruct_Setter         (knh_flag_t)(1<<3)
+#define knh_ClassField_setGetter(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassField_Getter; else (o)->fields[n].flag &= ~(FLAG_ClassField_Getter);
+#define FLAG_ClassField_Setter          (knh_flag_t)(1<<3)
 
-#define knh_ClassStruct_isSetter(o,n)  (((o)->fields[n].flag & FLAG_ClassStruct_Setter) == FLAG_ClassStruct_Setter)
+#define knh_ClassField_isSetter(o,n)  (((o)->fields[n].flag & FLAG_ClassField_Setter) == FLAG_ClassField_Setter)
 
-#define knh_ClassStruct_setSetter(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassStruct_Setter; else (o)->fields[n].flag &= ~(FLAG_ClassStruct_Setter);
-#define FLAG_ClassStruct_Key            (knh_flag_t)(1<<4)
+#define knh_ClassField_setSetter(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassField_Setter; else (o)->fields[n].flag &= ~(FLAG_ClassField_Setter);
+#define FLAG_ClassField_Key             (knh_flag_t)(1<<4)
 
-#define knh_ClassStruct_isKey(o,n)  (((o)->fields[n].flag & FLAG_ClassStruct_Key) == FLAG_ClassStruct_Key)
+#define knh_ClassField_isKey(o,n)  (((o)->fields[n].flag & FLAG_ClassField_Key) == FLAG_ClassField_Key)
 
-#define knh_ClassStruct_setKey(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassStruct_Key; else (o)->fields[n].flag &= ~(FLAG_ClassStruct_Key);
-#define FLAG_ClassStruct_Volatile       (knh_flag_t)(1<<5)
+#define knh_ClassField_setKey(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassField_Key; else (o)->fields[n].flag &= ~(FLAG_ClassField_Key);
+#define FLAG_ClassField_Volatile        (knh_flag_t)(1<<5)
 
-#define knh_ClassStruct_isVolatile(o,n)  (((o)->fields[n].flag & FLAG_ClassStruct_Volatile) == FLAG_ClassStruct_Volatile)
+#define knh_ClassField_isVolatile(o,n)  (((o)->fields[n].flag & FLAG_ClassField_Volatile) == FLAG_ClassField_Volatile)
 
-#define knh_ClassStruct_setVolatile(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassStruct_Volatile; else (o)->fields[n].flag &= ~(FLAG_ClassStruct_Volatile);
-#define FLAG_ClassStruct_ReadOnly       (knh_flag_t)(1<<6)
+#define knh_ClassField_setVolatile(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassField_Volatile; else (o)->fields[n].flag &= ~(FLAG_ClassField_Volatile);
+#define FLAG_ClassField_ReadOnly        (knh_flag_t)(1<<6)
 
-#define knh_ClassStruct_isReadOnly(o,n)  (((o)->fields[n].flag & FLAG_ClassStruct_ReadOnly) == FLAG_ClassStruct_ReadOnly)
+#define knh_ClassField_isReadOnly(o,n)  (((o)->fields[n].flag & FLAG_ClassField_ReadOnly) == FLAG_ClassField_ReadOnly)
 
-#define knh_ClassStruct_setReadOnly(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassStruct_ReadOnly; else (o)->fields[n].flag &= ~(FLAG_ClassStruct_ReadOnly);
-#define FLAG_ClassStruct_Property       (knh_flag_t)(1<<7)
+#define knh_ClassField_setReadOnly(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassField_ReadOnly; else (o)->fields[n].flag &= ~(FLAG_ClassField_ReadOnly);
+#define FLAG_ClassField_Property        (knh_flag_t)(1<<7)
 
-#define knh_ClassStruct_isProperty(o,n)  (((o)->fields[n].flag & FLAG_ClassStruct_Property) == FLAG_ClassStruct_Property)
+#define knh_ClassField_isProperty(o,n)  (((o)->fields[n].flag & FLAG_ClassField_Property) == FLAG_ClassField_Property)
 
-#define knh_ClassStruct_setProperty(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassStruct_Property; else (o)->fields[n].flag &= ~(FLAG_ClassStruct_Property);
-#define FLAG_ClassStruct_Principle      (knh_flag_t)(1<<8)
+#define knh_ClassField_setProperty(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassField_Property; else (o)->fields[n].flag &= ~(FLAG_ClassField_Property);
+#define FLAG_ClassField_Principle       (knh_flag_t)(1<<8)
 
-#define knh_ClassStruct_isPrinciple(o,n)  (((o)->fields[n].flag & FLAG_ClassStruct_Principle) == FLAG_ClassStruct_Principle)
+#define knh_ClassField_isPrinciple(o,n)  (((o)->fields[n].flag & FLAG_ClassField_Principle) == FLAG_ClassField_Principle)
 
-#define knh_ClassStruct_setPrinciple(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassStruct_Principle; else (o)->fields[n].flag &= ~(FLAG_ClassStruct_Principle);
+#define knh_ClassField_setPrinciple(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassField_Principle; else (o)->fields[n].flag &= ~(FLAG_ClassField_Principle);
 #define FLAG_Method_Private             (knh_flag_t)(1<<0)
 
 #define knh_Method_isPrivate(o)  ((DP(o)->flag & FLAG_Method_Private) == FLAG_Method_Private)
@@ -1238,9 +1250,9 @@
 #define knh_Gamma_foundSCRIPT(o,b) if(b) DP(o)->flag |= FLAG_Gamma_SCRIPT; else DP(o)->flag &= ~(FLAG_Gamma_SCRIPT);
 #define FLAG_Gamma_Data                 (knh_flag_t)(1<<0)
 
-#define knh_Gamma_isData(o)  ((DP(o)->eflag & FLAG_Gamma_Data) == FLAG_Gamma_Data)
+#define knh_Gamma_isData(o)  ((DP(o)->pflag & FLAG_Gamma_Data) == FLAG_Gamma_Data)
 
-#define knh_Gamma_setData(o,b) if(b) DP(o)->eflag |= FLAG_Gamma_Data; else DP(o)->eflag &= ~(FLAG_Gamma_Data);
+#define knh_Gamma_setData(o,b) if(b) DP(o)->pflag |= FLAG_Gamma_Data; else DP(o)->pflag &= ~(FLAG_Gamma_Data);
 
 /* ======================================================================== */
 /* EXPT */
