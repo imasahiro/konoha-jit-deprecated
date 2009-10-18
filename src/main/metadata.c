@@ -37,11 +37,11 @@ extern "C" {
 
 /* ======================================================================== */
 
-static
-knh_bool_t knh_isKeyUniqueClass(Ctx *ctx, knh_class_t cid)
-{
-	return 1;
-}
+//static
+//knh_bool_t knh_isKeyUniqueClass(Ctx *ctx, knh_class_t cid)
+//{
+//	return 1;
+//}
 
 /* ------------------------------------------------------------------------ */
 

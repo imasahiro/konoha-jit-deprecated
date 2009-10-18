@@ -162,7 +162,7 @@ static METHOD System_listDir(Ctx *ctx, knh_sfp_t *sfp)
 	knh_cwb_ospath(ctx, cwb);
 	KNH_SETv(ctx, sfp[2].o, a);
 	DIR *dirptr;
-	char *dirname = knh_cwb__tochar(ctx, cwb);
+	char *dirname = knh_cwb_tochar(ctx, cwb);
 	if ((dirptr = opendir(dirname)) == NULL) {
 		KNH_PERRNO(ctx, cwb, "OS!!", "opendir", knh_Context_isStrict(ctx));
 	} else {

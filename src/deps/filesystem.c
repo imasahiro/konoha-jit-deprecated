@@ -82,14 +82,14 @@ char* knh_cwb_ospath(Ctx *ctx, knh_cwb_t* cwb)
 	if(hasUTF8) {
 		TODO();
 	}
-	return knh_cwb__tochar(ctx, cwb);
+	return knh_cwb_tochar(ctx, cwb);
 }
 
 /* ------------------------------------------------------------------------ */
 
 char* knh_cwb_realpath(Ctx *ctx, knh_cwb_t *cwb)
 {
-	char *p = knh_cwb__tochar(ctx, cwb);
+	char *p = knh_cwb_tochar(ctx, cwb);
 #if defined(PATH_MAX)
 	char buf[PATH_MAX] = {0};
 #else
@@ -108,7 +108,7 @@ char* knh_cwb_realpath(Ctx *ctx, knh_cwb_t *cwb)
 #if !defined(PATH_MAX)
 		free(p);
 #endif
-		p = knh_cwb__tochar(ctx, cwb);
+		p = knh_cwb_tochar(ctx, cwb);
 	// FIXME realpath is always return NULL . if file isnt exsists.
 	//}
 #else
@@ -121,7 +121,7 @@ char* knh_cwb_realpath(Ctx *ctx, knh_cwb_t *cwb)
 
 knh_bool_t knh_cwb_isfile(Ctx *ctx, knh_cwb_t *cwb)
 {
-	char *pathname = knh_cwb__tochar(ctx, cwb);
+	char *pathname = knh_cwb_tochar(ctx, cwb);
 	DBG2_P("isfile='%s'", pathname);
 #if defined(KNH_USING_WINDOWS)
 	DWORD attr = GetFileAttributesA(pathname);
@@ -149,7 +149,7 @@ knh_bool_t knh_cwb_isfile(Ctx *ctx, knh_cwb_t *cwb)
 
 knh_bool_t knh_cwb_isdir(Ctx *ctx, knh_cwb_t *cwb)
 {
-	char *pathname = knh_cwb__tochar(ctx, cwb);
+	char *pathname = knh_cwb_tochar(ctx, cwb);
 #if defined(KNH_USING_WINDOWS)
 	DWORD attr = GetFileAttributesA(pathname);
 	if(attr == -1) return 0;
@@ -201,7 +201,7 @@ knh_bool_t knh_cwb_mkdir(Ctx *ctx, knh_cwb_t *cwb, char *subpath, int isThrowabl
 			}
 		}
 	}
-	pathname = knh_cwb__tochar(ctx, cwb);
+	pathname = knh_cwb_tochar(ctx, cwb);
 #if defined(KNH_USING_WINDOWS)
 	if(!CreateDirectoryA(pathname, NULL)) {
 		KNH_PERRNO(ctx, cwb, "OS!!", "CreateDirectory", isThrowable);

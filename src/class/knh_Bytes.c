@@ -252,7 +252,7 @@ knh_bytes_t knh_cwb_tobytes(knh_cwb_t *cwb)
 
 /* ------------------------------------------------------------------------ */
 
-char *knh_cwb__tochar(Ctx *ctx, knh_cwb_t *cwb)
+char *knh_cwb_tochar(Ctx *ctx, knh_cwb_t *cwb)
 {
 	knh_bytes_t t = {(cwb->ba)->buf + cwb->pos, (cwb->ba)->size - cwb->pos};
 	knh_Bytes_ensureZero(ctx, cwb->ba);
