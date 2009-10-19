@@ -673,7 +673,7 @@ knh_db_drvapi_t *knh_System_getDBDriver(Ctx *ctx, knh_bytes_t name);
 void knh_Connection_newClass(Ctx *ctx, knh_class_t cid);
 knh_thread_t knh_thread_self(void);
 int knh_thread_detach(Ctx *ctx, knh_thread_t th);
-int knh_thread_join(Ctx *ctx, knh_thread_t *thread, void **ret);
+int knh_thread_join(Ctx *ctx, knh_thread_t thread, void **ret);
 void knh_stack_threadRun(Ctx *ctx, knh_sfp_t *sfp);
 int knh_mutex_init(knh_mutex_t *m);
 int knh_mutex_lock(knh_mutex_t *m);

@@ -3,8 +3,8 @@
    add all list of "l0" at the end of "this" array.
    Not surport Int[],Float[] but Number[]
 */
-void Array.addAll(String[] list){
-    foreach(String l in list){
+void Array.addAll(Array list){
+    foreach(Any l in list){
         this.add(l);
     }
 }

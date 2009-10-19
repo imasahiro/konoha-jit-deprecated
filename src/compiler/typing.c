@@ -3811,6 +3811,8 @@ Term *knh_StmtFOREACH_typing(Ctx *ctx, knh_Stmt_t *stmt)
 	knh_Token_t *tkITR = knh_Stmt_addLOCAL(ctx, stmt, NNTYPE_Iterator, FOREACH_ITR);
 	knh_Token_t *tkSPR = NULL;
 	knh_methodn_t mn_opItr = METHODN_opItr;
+
+	KNH_ASSERT(tkITR);
 	if(knh_Stmt_isSEPARATOR(stmtDECL)) {
 		tkSPR = knh_Stmt_addLOCAL(ctx, stmt, TYPE_Any, FOREACH_SPR);
 		mn_opItr = METHODN_opItr__2;

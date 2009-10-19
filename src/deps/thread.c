@@ -135,11 +135,11 @@ int knh_thread_detach(Ctx *ctx, knh_thread_t th)
 
 /* ------------------------------------------------------------------------ */
 
-int knh_thread_join(Ctx *ctx, knh_thread_t *thread, void **ret)
+int knh_thread_join(Ctx *ctx, knh_thread_t thread, void **ret)
 {
 #if defined(KNH_USING_PTHREAD)
     // int pthread_join(pthread_t th, void **thread_return);
-    return pthread_join((pthread_t*)thread, ret);
+    return pthread_join((pthread_t)thread, ret);
 #else
     return -1;
 #endif

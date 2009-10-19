@@ -25,7 +25,7 @@ String[] System.walk(String path){
 /*
 void main(String[] args){
     String[] list = System.walk(args[1]);
-    String[] ret = [];
+    String[] ret = new String[]();
     foreach(String line in list) {
         if(line.indexOf(".svn") < 0){
             ret.add(line + " \\");

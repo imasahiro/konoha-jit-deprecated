@@ -12,10 +12,10 @@ import "walk.k"
 
 MAKEFILE = "../build/Makefile.am";
 
-int main(String[] args)
+void main(String[] args)
 {
-    OutputStream o = new OutputStream(MAKEFILE,"w");
-    o.print("""
+	OutputStream o = new OutputStream(MAKEFILE,"w");
+	o.print("""
 # this Makefile is generated from ../gensrc/gen_automake.k
 # masahiro@ynu(c)2009
 # shinpei@ynu(c)2008-09
@@ -36,72 +36,73 @@ AM_CPPFLAGS = -I../include
 libkonoha_la_SOURCES = 
 """);
 
-    foreach (String p in System.walk("../src")) {
-        if(p.indexOf(".svn") >= 0) continue;
-        if(p.endsWith(".c") == false ) continue;
-        if(p.endsWith("konoha.c")) continue;
-        //if(p.indexOf("/api") >= 0) continue;
+	foreach (String p in System.walk("../src")) {
+		if(p.indexOf(".svn") >= 0) continue;
+		if(p.endsWith(".c") == false ) continue;
+		if(p.endsWith("konoha.c")) continue;
+		//if(p.indexOf("/api") >= 0) continue;
 
-        OUT << p << EOL;
-        o.println(%("libkonoha_la_SOURCES += %s{0}",p));
-    }
+		OUT << p << EOL;
+		o.println(%("libkonoha_la_SOURCES += %s{0}",p));
+	}
 
-    o.println("libkonoha_la_includedir = $(includedir)");
-    o.println("libkonoha_la_include_HEADERS = ../include/konoha.h");
+	o.println("libkonoha_la_includedir = $(includedir)");
+	o.println("libkonoha_la_include_HEADERS = ../include/konoha.h");
 
-    o.println("libkonoha_la_includekonohadir = $(includedir)/../include/konoha");
-    o.println("libkonoha_la_includekonoha_HEADERS =");
+	o.println("libkonoha_la_includekonohadir = $(includedir)/../include/konoha");
+	o.println("libkonoha_la_includekonoha_HEADERS =");
 
-    foreach (String p in System.walk("../include/konoha")) {
-        if(p.indexOf(".svn") >= 0) continue;
-        if(p.endsWith(".h") == false ) continue;
-        if(p.endsWith("konoha.h")) continue;
+	foreach (String p in System.walk("../include/konoha")) {
+		if(p.indexOf(".svn") >= 0) continue;
+		if(p.endsWith(".h") == false ) continue;
+		if(p.endsWith("konoha.h")) continue;
 
-        o.println(%("libkonoha_la_includekonoha_HEADERS += %s{0}",p));
-    }
+		o.println(%("libkonoha_la_includekonoha_HEADERS += %s{0}",p));
+	}
 
-    o.println("libkonoha_la_includegendir = $(includedir)/../include/konoha/gen");
-    o.println("libkonoha_la_includegen_HEADERS =");
+	o.println("libkonoha_la_includegendir = $(includedir)/../include/konoha/gen");
+	o.println("libkonoha_la_includegen_HEADERS =");
 
-    foreach (String p in System.walk("../include/konoha/gen")) {
-        if(p.indexOf(".svn") >= 0) continue;
-        if(p.endsWith(".h") == false ) continue;
+	foreach (String p in System.walk("../include/konoha/gen")) {
+		if(p.indexOf(".svn") >= 0) continue;
+		if(p.endsWith(".h") == false ) continue;
 
-        o.println(%("libkonoha_la_includegen_HEADERS += %s{0}",p));
-    }
+		o.println(%("libkonoha_la_includegen_HEADERS += %s{0}",p));
+	}
 
-    o.println("sampledir = $(prefix)/konoha/sample");
-    o.println("dist_sample_SCRIPTS =");
+	o.println("sampledir = $(prefix)/konoha/sample");
+	o.println("dist_sample_SCRIPTS =");
 
-    foreach (String p in System.walk("../dist/sample")) {
-        if(p.indexOf(".svn") >= 0) continue;
-        if(p.endsWith(".k") == false ) continue;
-        if(p.endsWith("konoha.h")) continue;
+	foreach (String p in System.walk("../dist/sample")) {
+		if(p.indexOf(".svn") >= 0) continue;
+		if(p.endsWith(".k") == false ) continue;
+		if(p.endsWith("konoha.h")) continue;
 
-        o.println(%("dist_sample_SCRIPTS += %s{0}",p));
-    }
-    /* install packages */
-    // TODO: we need System.isdir() to check...
+		o.println(%("dist_sample_SCRIPTS += %s{0}",p));
+	}
+	/* install packages */
+	// TODO: we need System.isdir() to check...
+	/*
+	pkgs= ["math", "posix", "xml", "demo"];
+	foreach(String pname in pkgs) {
+		o.println(%("pkg%s{0}dir = $(prefix)/konoha/package/%s{0}", pname));
+		o.println(%("dist_pkg%s{0}_DATA =", pname));
 
-    pkgs= ["math", "posix", "xml", "demo"];
-    foreach(String pname in pkgs) {
-        o.println(%("pkg%s{0}dir = $(prefix)/konoha/package/%s{0}", pname));
-        o.println(%("dist_pkg%s{0}_DATA =", pname));
-
-        foreach (String p in System.walk(%("../dist/package/%s{0}", pname))) {
-            if(p.indexOf(".svn") >= 0) continue;
-            if((p.endsWith(".k") == false) and (p.endsWith(".so") == false) 
-                    and (p.endsWith(".dylib") == false)) continue;
-            if(p.endsWith("konoha.h")) continue;
-            // little bit tricky...
-            o.println(%("dist_pkg%s{0}_DATA += %s{1}", pname ,p));
-        }
-    }
-    o.println("""
+		foreach (String p in System.walk(%("../dist/package/%s{0}", pname))) {
+			if(p.indexOf(".svn") >= 0) continue;
+			if((p.endsWith(".k") == false) and (p.endsWith(".so") == false) 
+					and (p.endsWith(".dylib") == false)) continue;
+			if(p.endsWith("konoha.h")) continue;
+			// little bit tricky...
+			o.println(%("dist_pkg%s{0}_DATA += %s{1}", pname ,p));
+		}
+	}
+	*/
+	o.println("""
 scriptklipdir = $(prefix)/konoha/script/klip
 dist_scriptklip_SCRIPTS = ../dist/bin/klip.k""");
 
-    o.println("""
+	o.println("""
 klipdir = $(bindir)
 dist_klip_SCRIPTS = ../dist/bin/klip
 
@@ -113,7 +114,5 @@ konoha_INCLUDES = ../include
 konoha_LDADD = libkonoha.la
 """);
 
-    o.close();
-
-    return 0;
+	o.close();
 }
