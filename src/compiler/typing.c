@@ -42,14 +42,15 @@ static Term *knh_Stmt_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt);
 static Term *knh_StmtCALL_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_class_t reqt);
 static int TERMs_typing(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_type_t reqt, int mode);
 
-#define BEGIN_BLOCK(esp) \
-	size_t esp = knh_Gamma_unused(ctx);\
-	DBG2_ASSERT(DP(ctx->kc)->gamma[esp].fn == FIELDN_NONAME);\
+#define BEGIN_BLOCK(x) \
+	size_t x = knh_Gamma_unused(ctx);\
+	DBG2_ASSERT(DP(ctx->kc)->gamma[x].fn == FIELDN_NONAME);\
 
-#define END_BLOCK(esp) \
-	if(DP(ctx->kc)->gamma[esp].fn != FIELDN_NONAME) {\
-		DBG2_P("*** stt=%s release esp=%d ***", cSTT_(stmt), (int)esp);\
-		knh_Gamma_clear(ctx, esp, 0/*isAll*/);\
+#define END_BLOCK(x) \
+	if(DP(ctx->kc)->gamma[x].fn != FIELDN_NONAME) {\
+		DP(stmt)->esp = knh_Gamma_esp(ctx); \
+		DBG2_P("*** stt=%s release esp=%d ***", cSTT_(stmt), (int)x);\
+		knh_Gamma_clear(ctx, x, 0/*isAll*/);\
 	}\
 
 /* ======================================================================== */
@@ -1347,7 +1348,6 @@ knh_index_t knh_Gamma_addVariableTable(Ctx *ctx, knh_cfield_t *gamma, size_t max
 {
 	knh_index_t idx;
 	if(decl->type == TYPE_var) {
-		//DBG2_P("********* var %s", FIELDN(decl->fn));
 		knh_foundKonohaStyle(1);
 	}
 	for(idx = 0; idx < max - 1; idx++) {
@@ -1394,7 +1394,6 @@ knh_index_t knh_Gamma_addVariableTable(Ctx *ctx, knh_cfield_t *gamma, size_t max
 	return -1;
 }
 
-
 static size_t knh_Gamma_unused(Ctx *ctx)
 {
 	knh_Gamma_t *kc = ctx->kc;
@@ -1419,9 +1418,7 @@ static size_t knh_Gamma_top(Ctx *ctx)
 	return 0;
 }
 
-/* ------------------------------------------------------------------------ */
-
-int knh_Gamma_esp(Ctx *ctx)
+static int knh_Gamma_esp(Ctx *ctx)
 {
 	knh_Gamma_t *kc = ctx->kc;
 	if(DP(kc)->esp == -1) {
@@ -1484,6 +1481,7 @@ static
 knh_index_t knh_Gamma_declareLocalVariable(Ctx *ctx, knh_cfield_t *decl)
 {
 	knh_Gamma_t *kc = ctx->kc;
+	DP(kc)->esp = -1;
 	return knh_Gamma_addVariableTable(ctx, DP(kc)->gamma + DP(kc)->goffset, K_GAMMASIZE - DP(kc)->goffset, decl, 0/*isField*/);
 }
 
@@ -4871,6 +4869,9 @@ knh_Stmt_typingBLOCK(Ctx *ctx, knh_Stmt_t *stmt, int isIteration)
 			knh_Stmt_setAutoReturn(cur, 1);
 		}
 		tm = knh_Stmt_typing(ctx, cur, TYPE_void);
+		if(DP(stmt)->esp == 0) {
+			DP(stmt)->esp = knh_Gamma_esp(ctx);
+		}
 		if(tm == NULL) {
 			knh_Stmt_toERR(ctx, stmt, TM(cur));
 			res = 0;

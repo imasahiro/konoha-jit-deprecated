@@ -41,16 +41,16 @@ extern "C" {
 
 static int knh_Gamma_inTry(Ctx *ctx);
 
-#define ASML(idx)   (idx < knh_Gamma_esp(ctx)) ? (knh_Gamma_esp(ctx)) : idx
+#define ASML(idx)   (idx < DP(ctx->kc)->esp) ? (DP(ctx->kc)->esp) : idx
 
 #define MOVL(ctx, local, idx) {\
-		if(idx < knh_Gamma_esp(ctx)) { \
+		if(idx < DP(ctx->kc)->esp) { \
 			KNH_ASM(MOVa, sfi_(idx), sfi_(local));\
 		}\
 	}\
 
 #define nMOVL(ctx, local, idx) {\
-		if(idx < knh_Gamma_esp(ctx)) { \
+		if(idx < DP(ctx->kc)->esp) { \
 			KNH_ASM(MOVn, sfi_(idx), sfi_(local));\
 		}\
 	}\
@@ -127,7 +127,7 @@ void knh_Gamma_clear(Ctx *ctx, size_t offset, int isAll)
 			}
 		}
 	}
-	DP(kc)->esp = offset;
+	DP(kc)->esp = -1;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -478,23 +478,23 @@ void KNH_ASM_XMOVx(Ctx *ctx, knh_type_t atype, knh_sfx_t ax, knh_type_t btype, k
 	}
 	if(IS_ubxint(btype)) { // Any a = b; // int b;
 		DBG2_P("atype=%s%s", TYPEQN(atype));
-		KNH_ASM(MOVxi, knh_Gamma_esp(ctx), bx);
-		KNH_ASM(BOX, knh_Gamma_esp(ctx), CLASS_type(btype));
-		KNH_ASM(XMOVs, ax, knh_Gamma_esp(ctx));
+		KNH_ASM(MOVxi, DP(ctx->kc)->esp, bx);
+		KNH_ASM(BOX, DP(ctx->kc)->esp, CLASS_type(btype));
+		KNH_ASM(XMOVs, ax, DP(ctx->kc)->esp);
 		return;
 	}
 	if(IS_ubxfloat(btype)) { // Any a = b; // float b;
 		DBG2_P("atype=%s%s", TYPEQN(atype));
-		KNH_ASM(MOVxf, knh_Gamma_esp(ctx), bx);
-		KNH_ASM(BOX, knh_Gamma_esp(ctx), CLASS_type(btype));
-		KNH_ASM(XMOVs, ax, knh_Gamma_esp(ctx));
+		KNH_ASM(MOVxf, DP(ctx->kc)->esp, bx);
+		KNH_ASM(BOX, DP(ctx->kc)->esp, CLASS_type(btype));
+		KNH_ASM(XMOVs, ax, DP(ctx->kc)->esp);
 		return;
 	}
 	if(IS_ubxboolean(btype)) { // Any a = b; // boolean b;
 		DBG2_P("atype=%s%s", TYPEQN(atype));
-		KNH_ASM(MOVxb, knh_Gamma_esp(ctx), bx);
-		KNH_ASM(BOX, knh_Gamma_esp(ctx), CLASS_type(btype));
-		KNH_ASM(XMOVs, ax, knh_Gamma_esp(ctx));
+		KNH_ASM(MOVxb, DP(ctx->kc)->esp, bx);
+		KNH_ASM(BOX, DP(ctx->kc)->esp, CLASS_type(btype));
+		KNH_ASM(XMOVs, ax, DP(ctx->kc)->esp);
 		return;
 	}
 	KNH_ASM(XMOVx, ax, bx);
@@ -606,7 +606,7 @@ void KNH_ASM_XMOV(Ctx *ctx, knh_type_t atype, int a, size_t an, knh_Token_t *tkb
 
 		case TT_CLOSURE: {
 			knh_Gamma_t *kc = ctx->kc;
-			int local = knh_Gamma_esp(ctx);
+			int local = DP(ctx->kc)->esp;
 			knh_Method_t *mtd = DP(tkb)->mtd;
 			knh_class_t cid = DP(mtd)->cid;
 			if(cid == DP(kc)->this_cid || knh_class_instanceof(ctx, DP(kc)->this_cid, cid)) {
@@ -722,7 +722,7 @@ static
 void KNH_ASM_CALL(Ctx *ctx, knh_type_t reqt, int sfpidx, knh_Token_t *tkb, size_t args)
 {
 	KNH_ASSERT(IS_Token(tkb));
-	KNH_ASSERT(sfpidx >= knh_Gamma_esp(ctx));
+	KNH_ASSERT(sfpidx >= DP(ctx->kc)->esp);
 	knh_Method_t *mtd = DP(tkb)->mtd;
 	knh_type_t rtype = CLASS_Any;
 	if(IS_Method(mtd)) {
@@ -755,7 +755,7 @@ void KNH_ASM_NEW(Ctx *ctx, knh_type_t reqt, int sfpidx, knh_Token_t *tkb,
 		knh_flag_t flag, knh_class_t cid, size_t args)
 {
 	KNH_ASSERT(IS_Token(tkb));
-	KNH_ASSERT(sfpidx >= knh_Gamma_esp(ctx));
+	KNH_ASSERT(sfpidx >= DP(ctx->kc)->esp);
 	knh_Method_t *mtd = DP(tkb)->mtd;
 	KNH_ASM(NEW, sfpidx, flag, cid, args + 2, mtd);
 
@@ -771,7 +771,7 @@ static
 void KNH_ASM_MAP(Ctx *ctx, knh_type_t reqt, int sfpidx, knh_Token_t *tkb, knh_type_t srct, int isNonNullCast)
 {
 	KNH_ASSERT(IS_Token(tkb));
-	KNH_ASSERT(sfpidx >= knh_Gamma_esp(ctx));
+	KNH_ASSERT(sfpidx >= DP(ctx->kc)->esp);
 	knh_Mapper_t *mpr = (knh_Mapper_t*)DP(tkb)->data;
 
 	if(IS_Mapper(mpr)) {
@@ -880,8 +880,8 @@ void TERMs_ASM_JIFNUL(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_KLRInst_t* label
 		KNH_ASM(JIFNUL, TADDR label, sfi_(DP(tk)->index));
 	}
 	else {
-		TERMs_asm(ctx, stmt, n, TERMs_gettype(stmt, n), knh_Gamma_esp(ctx));
-		KNH_ASM(JIFNUL, TADDR label, sfi_(knh_Gamma_esp(ctx)));
+		TERMs_asm(ctx, stmt, n, TERMs_gettype(stmt, n), DP(ctx->kc)->esp);
+		KNH_ASM(JIFNUL, TADDR label, sfi_(DP(ctx->kc)->esp));
 	}
 }
 
@@ -895,8 +895,8 @@ void TERMs_ASM_JIFNN(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_KLRInst_t* label)
 		KNH_ASM(JIFNN, TADDR label, sfi_(DP(tk)->index));
 	}
 	else {
-		TERMs_asm(ctx, stmt, n, TERMs_gettype(stmt, n), knh_Gamma_esp(ctx));
-		KNH_ASM(JIFNN, TADDR label, sfi_(knh_Gamma_esp(ctx)));
+		TERMs_asm(ctx, stmt, n, TERMs_gettype(stmt, n), DP(ctx->kc)->esp);
+		KNH_ASM(JIFNN, TADDR label, sfi_(DP(ctx->kc)->esp));
 	}
 }
 
@@ -919,8 +919,8 @@ void TERMs_ASM_JIFF(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_KLRInst_t* label)
 			TERMs_ASM_JIFNUL(ctx, DP(stmt)->stmts[n], 1, label);
 			return;
 		}
-		TERMs_asm(ctx, stmt, n, NNTYPE_Boolean, knh_Gamma_esp(ctx));
-		KNH_ASM(bJIFF, TADDR label, sfi_(knh_Gamma_esp(ctx)));
+		TERMs_asm(ctx, stmt, n, NNTYPE_Boolean, DP(ctx->kc)->esp);
+		KNH_ASM(bJIFF, TADDR label, sfi_(DP(ctx->kc)->esp));
 	}
 }
 
@@ -943,8 +943,8 @@ void TERMs_ASM_JIFF_LOOP(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_KLRInst_t* la
 			TERMs_ASM_JIFNUL(ctx, DP(stmt)->stmts[n], 1, label);
 			return;
 		}
-		TERMs_asm(ctx, stmt, n, NNTYPE_Boolean, knh_Gamma_esp(ctx));
-		KNH_ASM(bJIFF_LOOP, TADDR label, sfi_(knh_Gamma_esp(ctx)));
+		TERMs_asm(ctx, stmt, n, NNTYPE_Boolean, DP(ctx->kc)->esp);
+		KNH_ASM(bJIFF_LOOP, TADDR label, sfi_(DP(ctx->kc)->esp));
 	}
 }
 
@@ -967,8 +967,8 @@ void TERMs_ASM_JIFT(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_KLRInst_t* label)
 			TERMs_ASM_JIFNUL(ctx, DP(stmt)->stmts[n], 1, label);
 			return;
 		}
-		TERMs_asm(ctx, stmt, n, NNTYPE_Boolean, knh_Gamma_esp(ctx));
-		KNH_ASM(bJIFT, TADDR label, sfi_(knh_Gamma_esp(ctx)));
+		TERMs_asm(ctx, stmt, n, NNTYPE_Boolean, DP(ctx->kc)->esp);
+		KNH_ASM(bJIFT, TADDR label, sfi_(DP(ctx->kc)->esp));
 	}
 }
 
@@ -983,8 +983,8 @@ void TERMs_ASM_THROW(Ctx *ctx, knh_Stmt_t *stmt, size_t n)
 		KNH_ASM(THROW, knh_Gamma_inTry(ctx), sfi_(DP(tk)->index));
 	}
 	else {
-		TERMs_asm(ctx, stmt, n, NNTYPE_Exception, knh_Gamma_esp(ctx));
-		KNH_ASM(THROW, knh_Gamma_inTry(ctx), sfi_(knh_Gamma_esp(ctx)));
+		TERMs_asm(ctx, stmt, n, NNTYPE_Exception, DP(ctx->kc)->esp);
+		KNH_ASM(THROW, knh_Gamma_inTry(ctx), sfi_(DP(ctx->kc)->esp));
 	}
 }
 
@@ -1956,7 +1956,7 @@ static knh_Token_t *new_TokenLOCAL(Ctx *ctx, knh_type_t type, int sfpidx)
 void knh_StmtLETM_asm(Ctx *ctx, knh_Stmt_t *stmt)
 {
 	size_t i, size = DP(stmt)->size / 2;
-	int local = knh_Gamma_esp(ctx);
+	int local = DP(ctx->kc)->esp;
 	for(i = 0; i < size; i++) {
 		int n = (i*2);
 		knh_type_t type = TERMs_gettype(stmt, n);
@@ -2161,7 +2161,7 @@ void knh_StmtRETURN_asm(Ctx *ctx, knh_Stmt_t *stmt)
 		knh_type_t rtype = TERMs_gettype(stmt, 0);
 		if(rtype == TYPE_void) {
 			// @see(konohac.c new Eval)
-			TERMs_asm(ctx, stmt, 0, DP(kc)->rtype, knh_Gamma_esp(ctx));
+			TERMs_asm(ctx, stmt, 0, DP(kc)->rtype, DP(ctx->kc)->esp);
 			knh_Stmt_setVOID(stmt, 1);
 		}
 		else {
@@ -2256,9 +2256,9 @@ void knh_StmtPRINT_asm(Ctx *ctx, knh_Stmt_t *stmt)
 				continue;
 			}
 		}
-		TERMs_asm(ctx, stmt, i, TYPE_Any, knh_Gamma_esp(ctx));
+		TERMs_asm(ctx, stmt, i, TYPE_Any, DP(ctx->kc)->esp);
 		knh_methodn_t mn = knh_Stmt_getMT(ctx, stmt, i);
-		KNH_ASM(P, flag | mask, mn, knh_Gamma_esp(ctx));
+		KNH_ASM(P, flag | mask, mn, DP(ctx->kc)->esp);
 	}
 	KNH_ASM_LABEL(ctx, lbskip);
 }
@@ -2292,11 +2292,12 @@ void knh_Stmt_asmBLOCK(Ctx *ctx, knh_Stmt_t *stmt, int isIteration)
 	knh_Stmt_t *cur = stmt;
 	while(IS_Stmt(cur)) {
 		SP(kc)->line = SP(cur)->line;
+		DP(kc)->esp = DP(stmt)->esp;
 		switch(SP(cur)->stt) {
 		case STT_BLOCK:
 			knh_Stmt_asmBLOCK(ctx, DP(cur)->stmts[0], 1); break;
 		case STT_LET:
-			knh_StmtLET_asm(ctx, cur, TYPE_void, knh_Gamma_esp(ctx)); break;
+			knh_StmtLET_asm(ctx, cur, TYPE_void, DP(ctx->kc)->esp); break;
 		case STT_LETM:
 			knh_StmtLETM_asm(ctx, cur); break;
 		case STT_SEPARATOR:
@@ -2306,7 +2307,7 @@ void knh_Stmt_asmBLOCK(Ctx *ctx, knh_Stmt_t *stmt, int isIteration)
 			size_t i;
 			for(i = 0; i < DP(cur)->size; i++) {
 				if(IS_Stmt(DP(cur)->terms[i]) && STT_(DP(cur)->stmts[i]) == STT_LET) {
-					knh_StmtLET_asm(ctx, DP(cur)->stmts[i], TYPE_void, knh_Gamma_esp(ctx));
+					knh_StmtLET_asm(ctx, DP(cur)->stmts[i], TYPE_void, DP(ctx->kc)->esp);
 				}
 			}
 			break;
@@ -2345,7 +2346,7 @@ void knh_Stmt_asmBLOCK(Ctx *ctx, knh_Stmt_t *stmt, int isIteration)
 			break;
 		default:
 			if(knh_stmt_isExpr(SP(cur)->stt)) {
-				knh_StmtEXPR_asm(ctx, cur, TYPE_void, knh_Gamma_esp(ctx));
+				knh_StmtEXPR_asm(ctx, cur, TYPE_void, DP(ctx->kc)->esp);
 			}
 			else {
 				KNH_ASM_PANIC(ctx, "stt=%s", cSTT_(cur));

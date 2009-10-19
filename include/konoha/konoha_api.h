@@ -626,7 +626,6 @@ int TERMs_isTRUE(knh_Stmt_t *stmt, size_t n);
 int TERMs_isFALSE(knh_Stmt_t *stmt, size_t n);
 int TERMs_isASIS(knh_Stmt_t *stmt, size_t n);
 knh_type_t TERMs_gettype(knh_Stmt_t *stmt, size_t n);
-int knh_Gamma_esp(Ctx *ctx);
 Term * knh_StmtDECL_typing(Ctx *ctx, knh_Stmt_t *stmt);
 Term *knh_StmtLET_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt);
 Term *knh_StmtLETM_typing(Ctx *ctx, knh_Stmt_t *stmt);

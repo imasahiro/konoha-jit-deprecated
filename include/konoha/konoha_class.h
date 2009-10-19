@@ -1150,7 +1150,7 @@ typedef struct {
 
 typedef struct knh_Stmt_struct {
 	knh_type_t   type;
-	knh_short_t  unused;
+	knh_ushort_t esp;  // used!!
 	knh_ushort_t size;
 	knh_ushort_t capacity;
 	union {
