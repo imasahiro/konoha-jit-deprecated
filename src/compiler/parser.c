@@ -1059,7 +1059,7 @@ Term* new_TermPROPN(Ctx *ctx, knh_Token_t *tk, int isData)
 	DBG2_ASSERT(IS_String(DP(tk)->text));
 	knh_bytes_t t = __tobytes(DP(tk)->text);
 	if(isData) {
-		Object *o = knh_Context_getProperty(ctx, (knh_Context_t*)ctx, t);
+		Object *o = knh_getProperty(ctx, t);
 		knh_Token_setCONST(ctx, tk, o);
 		return TM(tk);
 	}

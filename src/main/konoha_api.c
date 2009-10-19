@@ -398,7 +398,7 @@ KNHAPI(int) konoha_runMain(konoha_t konoha, int argc, char **argv)
             }
             else {
                 //KNH_MOV(ctx, lsfp[1].o, mtd);
-                knh_Array_t *a = (knh_Array_t *) knh_Context_getProperty(ctx, (knh_Context_t *)ctx, B("argv"));
+                knh_Array_t *a = (knh_Array_t*)knh_getProperty(ctx, B("argv"));
                 KNH_MOV(ctx, lsfp[2].o, scr);
                 KNH_MOV(ctx, lsfp[3].o, a);
                 KNH_SCALL(ctx, lsfp, 1, mtd, /* args*/ 1);

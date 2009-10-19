@@ -176,18 +176,18 @@ void knh_Method_setKLRCode(Ctx *ctx, knh_Method_t *mtd, knh_KLRCode_t *code)
 	mtd->pc_start = DP(code)->code;
 }
 
-/* ------------------------------------------------------------------------ */
-
-knh_code_t* knh_Method_pcstartNULL(knh_Method_t *mtd)
-{
-	if(knh_Method_isObjectCode(mtd)) {
-		knh_KLRCode_t *o = (knh_KLRCode_t*)DP(mtd)->code;
-		if(IS_KLRCode(o)) {
-			return DP(o)->code;
-		}
-	}
-	return NULL;
-}
+///* ------------------------------------------------------------------------ */
+//
+//knh_code_t* knh_Method_pcstartNULL(knh_Method_t *mtd)
+//{
+//	if(knh_Method_isObjectCode(mtd)) {
+//		knh_KLRCode_t *o = (knh_KLRCode_t*)DP(mtd)->code;
+//		if(IS_KLRCode(o)) {
+//			return DP(o)->code;
+//		}
+//	}
+//	return NULL;
+//}
 
 /* ------------------------------------------------------------------------ */
 

@@ -300,53 +300,53 @@ knh_String_t* knh_Method_getName(Ctx *ctx, knh_Method_t *o)
 	return knh_cwb_newString(ctx, cwb);
 }
 
-/* ======================================================================== */
-/* [Weaving] */
-
-int knh_Method_isWoven(knh_Method_t *mtd)
-{
-	return (mtd->fcall_1 != DP(mtd)->fproceed);
-}
-
-/* ------------------------------------------------------------------------ */
-
-int knh_Method_canWeave(Ctx *ctx, knh_Method_t *mtd, knh_Method_t *aspect)
-{
-	if(knh_Method_isGenerator(mtd) || knh_Method_isAspect(mtd)) {
-		TODO();
-		return 0;
-	}
-	if(!IS_Method(aspect)) return 1; /* remove aspect */
-	if(knh_Method_isWoven(aspect)) {
-		KNH_WARNING(ctx, "nested aspect is not supported");
-		return 0;
-	}
-	if(knh_Method_isAspect(aspect)) return 1;
-	if(knh_Method_isVarArgs(mtd)) {
-		KNH_WARNING(ctx, "variable length method can be woven");
-		return 0;
-	}
-	if(knh_MethodField_equalsType(DP(mtd)->mf, DP(aspect)->mf)) {
-		return 1;
-	}
-	return 0;
-}
-
-/* ------------------------------------------------------------------------ */
-
-void knh_Method_weave(Ctx *ctx, knh_Method_t *aspect, knh_Method_t *mtd)
-{
-	if(IS_Method(aspect)) {
-		mtd->fcall_1 = aspect->fcall_1;
-		mtd->pc_start = aspect->pc_start;
-	}
-	else { /* remove aspect */
-		mtd->fcall_1 = DP(mtd)->fproceed;
-		mtd->pc_start = knh_Method_pcstartNULL(mtd);
-	}
-}
-
-/* ------------------------------------------------------------------------ */
+///* ======================================================================== */
+///* [Weaving] */
+//
+//int knh_Method_isWoven(knh_Method_t *mtd)
+//{
+//	return (mtd->fcall_1 != DP(mtd)->fproceed);
+//}
+//
+///* ------------------------------------------------------------------------ */
+//
+//int knh_Method_canWeave(Ctx *ctx, knh_Method_t *mtd, knh_Method_t *aspect)
+//{
+//	if(knh_Method_isGenerator(mtd) || knh_Method_isAspect(mtd)) {
+//		TODO();
+//		return 0;
+//	}
+//	if(!IS_Method(aspect)) return 1; /* remove aspect */
+//	if(knh_Method_isWoven(aspect)) {
+//		KNH_WARNING(ctx, "nested aspect is not supported");
+//		return 0;
+//	}
+//	if(knh_Method_isAspect(aspect)) return 1;
+//	if(knh_Method_isVarArgs(mtd)) {
+//		KNH_WARNING(ctx, "variable length method can be woven");
+//		return 0;
+//	}
+//	if(knh_MethodField_equalsType(DP(mtd)->mf, DP(aspect)->mf)) {
+//		return 1;
+//	}
+//	return 0;
+//}
+//
+///* ------------------------------------------------------------------------ */
+//
+//void knh_Method_weave(Ctx *ctx, knh_Method_t *aspect, knh_Method_t *mtd)
+//{
+//	if(IS_Method(aspect)) {
+//		mtd->fcall_1 = aspect->fcall_1;
+//		mtd->pc_start = aspect->pc_start;
+//	}
+//	else { /* remove aspect */
+//		mtd->fcall_1 = DP(mtd)->fproceed;
+//		mtd->pc_start = knh_Method_pcstartNULL(mtd);
+//	}
+//}
+//
+///* ------------------------------------------------------------------------ */
 
 /* ======================================================================== */
 /* [Method] */

@@ -102,7 +102,7 @@ knh_InputStream_t* new_ScriptInputStream(Ctx *ctx, knh_bytes_t path, knh_cwb_t *
 		drv = knh_getIODriver(ctx, STEXT("file"));
 		knh_cwb_ospath(ctx, cwb);
 		if(!knh_cwb_isfile(ctx, cwb) && knh_bytes_isSystemScript(path)) {
-			knh_String_t *spath = (knh_String_t*)knh_Context_getProperty(ctx, (knh_Context_t*)ctx, STEXT("konoha.script.path"));
+			knh_String_t *spath = (knh_String_t*)knh_getProperty(ctx, STEXT("konoha.script.path"));
 			if(IS_bString(spath)) {
 				knh_cwb_subclear(cwb, 0);
 				knh_cwb_write(ctx, cwb, __tobytes(spath));
@@ -115,7 +115,7 @@ knh_InputStream_t* new_ScriptInputStream(Ctx *ctx, knh_bytes_t path, knh_cwb_t *
 					uri = URI_TRUSTED(uri);
 				}
 			}
-			spath = (knh_String_t*)knh_Context_getProperty(ctx, (knh_Context_t*)ctx, STEXT("user.script.path"));
+			spath = (knh_String_t*)knh_getProperty(ctx, STEXT("user.script.path"));
 			if(IS_bString(spath) && uri == 0) {
 				knh_cwb_subclear(cwb, 0);
 				knh_cwb_write(ctx, cwb, __tobytes(spath));
@@ -278,12 +278,12 @@ char *knh_lookupPackageScript(Ctx *ctx, knh_cwb_t *cwb, knh_bytes_t pkgname)
 		path = knh_cwb_packageScript(ctx, cwb, B(path), pkgname);
 		if(path != NULL) return path;
 	}
-	spath = (knh_String_t*)knh_Context_getProperty(ctx, (knh_Context_t*)ctx, STEXT("konoha.package.path"));
+	spath = (knh_String_t*)knh_getProperty(ctx, STEXT("konoha.package.path"));
 	if(IS_bString(spath)) {
 		path = knh_cwb_packageScript(ctx, cwb, __tobytes(spath), pkgname);
 		if(path != NULL) return path;
 	}
-	spath = (knh_String_t*)knh_Context_getProperty(ctx, (knh_Context_t*)ctx, STEXT("user.package.path"));
+	spath = (knh_String_t*)knh_getProperty(ctx, STEXT("user.package.path"));
 	if(IS_bString(spath)){
 		path = knh_cwb_packageScript(ctx, cwb, __tobytes(spath), pkgname);
 		if(path != NULL) return path;

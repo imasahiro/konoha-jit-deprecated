@@ -49,12 +49,13 @@ EMOVSYS sfe ushort
 
 SWAP  sfpidx sfpidx
 
-PINIDEF sfpidx cid
-PINIo sfpidx Object
+PARAMDEF sfpidx cid
+PARAMo sfpidx Object
+PARAMPROP sfpidx sfpidx
 PARAMS sfpidx cid
 
-SETESP sfpidx
-CHECKESP sfpidx
+CHKESP sfpidx
+
 RET
 RETn sfpidx sfpidx
 RETa sfpidx sfpidx
@@ -68,17 +69,19 @@ NNBOX sfpidx cid
 NNBOXnc sfpidx cid
 UNBOX sfpidx
 
-CHECKNULL sfpidx
-CHECKNULLx sfx
-CHECKTYPE sfpidx cid
-CHECKNNTYPE sfpidx type
+CHKNUL sfpidx
+CHKNULx sfx
+CHKTYPE sfpidx cid
+#CHECKNNTYPE sfpidx type
 
+NCALL 
 FCALL sfpidx ushort sfpidx Method
 SCALL sfpidx ushort Method
 AINVOKE sfpidx ushort
 CALL  sfpidx ushort mn 
 ACALL sfpidx ushort mn
 NEW   sfpidx flag cid ushort Method
+
 COPYSFP sfpidx
 
 TOSTR      sfpidx mn
@@ -175,21 +178,22 @@ fGTn  sfpidx sfpidx float
 fGTE  sfpidx sfpidx sfpidx
 fGTEn  sfpidx sfpidx float
 
-AGET    sfpidx sfpidx sfpidx
-AGETn   sfpidx sfpidx intptr
-IAGET   sfpidx sfpidx sfpidx
-IAGETn  sfpidx sfpidx intptr
-FAGET   sfpidx sfpidx sfpidx
-FAGETn  sfpidx sfpidx intptr
+ARYGET    sfpidx sfpidx sfpidx
+ARYGETn   sfpidx sfpidx intptr
+iARYGET   sfpidx sfpidx sfpidx
+iARYGETn  sfpidx sfpidx intptr
+fARYGET   sfpidx sfpidx sfpidx
+fARYGETn  sfpidx sfpidx intptr
 
-ASET    sfpidx sfpidx sfpidx
-ASETn   sfpidx sfpidx intptr
-IASET   sfpidx sfpidx sfpidx
-IASETn  sfpidx sfpidx intptr
-FASET   sfpidx sfpidx sfpidx
-FASETn  sfpidx sfpidx intptr
+ARYSET    sfpidx sfpidx sfpidx
+ARYSETn   sfpidx sfpidx intptr
+iARYSET   sfpidx sfpidx sfpidx
+iARYSETn  sfpidx sfpidx intptr
+fARYSET   sfpidx sfpidx sfpidx
+fARYSETn  sfpidx sfpidx intptr
 
-INITCODE  sfpidx
+THCODE  sfpidx
+
 NOP
 """
 
@@ -521,10 +525,10 @@ METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp)
 		c += 1
 	f.write('''
 	};
-	register knh_code_t *pc = sfp[-1].pc;
+	register knh_code_t *pc = (sfp[-1].mtd)->pc_start;
 	goto *OPJUMP[KNH_OPCODE(pc)]; /* this is needed to init */
 #else
-	register knh_code_t *pc = sfp[-1].pc;
+	register knh_code_t *pc = (sfp[-1].mtd)->pc_start;
 	L_HEAD:;
 	switch(KNH_OPCODE(pc)) {
 #endif

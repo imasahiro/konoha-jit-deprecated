@@ -138,9 +138,9 @@ static void EMOVo_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 	ftr(ctx, UP(op->a2));
 }
 
-static void PINIo_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
+static void PARAMo_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 {
-	klr_PINIo_t *op = (klr_PINIo_t*)c; 
+	klr_PARAMo_t *op = (klr_PARAMo_t*)c; 
 	DBG2_ASSERT(op->opcode == 35);
 	ftr(ctx, UP(op->a2));
 }
@@ -342,26 +342,18 @@ static void EMOVSYS_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
 	knh_write__ushort(ctx, w, (op->a2));
 }
 
-static void SETESP_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
+static void CHKESP_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
 {
-	klr_SETESP_t *op = (klr_SETESP_t*)c; 
+	klr_CHKESP_t *op = (klr_CHKESP_t*)c; 
 	knh_write_opcode(ctx, w, op->opcode);
 	knh_write__sfpidx(ctx, w, (op->a1));
 }
 
-static void CHECKNULLx_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
+static void CHKNULx_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
 {
-	klr_CHECKNULLx_t *op = (klr_CHECKNULLx_t*)c; 
+	klr_CHKNULx_t *op = (klr_CHKNULx_t*)c; 
 	knh_write_opcode(ctx, w, op->opcode);
 	knh_write__sfx(ctx, w, (op->a1));
-}
-
-static void CHECKNNTYPE_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
-{
-	klr_CHECKNNTYPE_t *op = (klr_CHECKNNTYPE_t*)c; 
-	knh_write_opcode(ctx, w, op->opcode);
-	knh_write__sfpidx(ctx, w, (op->a1));
-	knh_write__type(ctx, w, (op->a2));
 }
 
 static void FCALL_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
@@ -532,9 +524,9 @@ static void fADDn_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
 	knh_write__float(ctx, w, (op->a3));
 }
 
-static void AGETn_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
+static void ARYGETn_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
 {
-	klr_AGETn_t *op = (klr_AGETn_t*)c; 
+	klr_ARYGETn_t *op = (klr_ARYGETn_t*)c; 
 	knh_write_opcode(ctx, w, op->opcode);
 	knh_write__sfpidx(ctx, w, (op->a1));
 	knh_write__sfpidx(ctx, w, (op->a2));
@@ -590,11 +582,11 @@ static knh_OPDATA_t OPDATA[] = {
 	{"EMOVDEF", OPSIZE_EMOVDEF, 0, HALT_traverse, EMOVDEF_dump}, 
 	{"EMOVSYS", OPSIZE_EMOVSYS, 0, HALT_traverse, EMOVSYS_dump}, 
 	{"SWAP", OPSIZE_SWAP, 0, HALT_traverse, MOVa_dump}, 
-	{"PINIDEF", OPSIZE_PINIDEF, 0, HALT_traverse, MOVDEF_dump}, 
-	{"PINIo", OPSIZE_PINIo, 0, PINIo_traverse, MOVo_dump}, 
+	{"PARAMDEF", OPSIZE_PARAMDEF, 0, HALT_traverse, MOVDEF_dump}, 
+	{"PARAMo", OPSIZE_PARAMo, 0, PARAMo_traverse, MOVo_dump}, 
+	{"PARAMPROP", OPSIZE_PARAMPROP, 0, HALT_traverse, MOVa_dump}, 
 	{"PARAMS", OPSIZE_PARAMS, 0, HALT_traverse, MOVDEF_dump}, 
-	{"SETESP", OPSIZE_SETESP, 0, HALT_traverse, SETESP_dump}, 
-	{"CHECKESP", OPSIZE_CHECKESP, 0, HALT_traverse, SETESP_dump}, 
+	{"CHKESP", OPSIZE_CHKESP, 0, HALT_traverse, CHKESP_dump}, 
 	{"RET", OPSIZE_RET, 0, HALT_traverse, HALT_dump}, 
 	{"RETn", OPSIZE_RETn, 0, HALT_traverse, MOVa_dump}, 
 	{"RETa", OPSIZE_RETa, 0, HALT_traverse, MOVa_dump}, 
@@ -605,18 +597,18 @@ static knh_OPDATA_t OPDATA[] = {
 	{"BOXnc", OPSIZE_BOXnc, 0, HALT_traverse, MOVDEF_dump}, 
 	{"NNBOX", OPSIZE_NNBOX, 0, HALT_traverse, MOVDEF_dump}, 
 	{"NNBOXnc", OPSIZE_NNBOXnc, 0, HALT_traverse, MOVDEF_dump}, 
-	{"UNBOX", OPSIZE_UNBOX, 0, HALT_traverse, SETESP_dump}, 
-	{"CHECKNULL", OPSIZE_CHECKNULL, 0, HALT_traverse, SETESP_dump}, 
-	{"CHECKNULLx", OPSIZE_CHECKNULLx, 0, HALT_traverse, CHECKNULLx_dump}, 
-	{"CHECKTYPE", OPSIZE_CHECKTYPE, 0, HALT_traverse, MOVDEF_dump}, 
-	{"CHECKNNTYPE", OPSIZE_CHECKNNTYPE, 0, HALT_traverse, CHECKNNTYPE_dump}, 
+	{"UNBOX", OPSIZE_UNBOX, 0, HALT_traverse, CHKESP_dump}, 
+	{"CHKNUL", OPSIZE_CHKNUL, 0, HALT_traverse, CHKESP_dump}, 
+	{"CHKNULx", OPSIZE_CHKNULx, 0, HALT_traverse, CHKNULx_dump}, 
+	{"CHKTYPE", OPSIZE_CHKTYPE, 0, HALT_traverse, MOVDEF_dump}, 
+	{"NCALL", OPSIZE_NCALL, 0, HALT_traverse, HALT_dump}, 
 	{"FCALL", OPSIZE_FCALL, 0, FCALL_traverse, FCALL_dump}, 
 	{"SCALL", OPSIZE_SCALL, 0, SCALL_traverse, SCALL_dump}, 
 	{"AINVOKE", OPSIZE_AINVOKE, 0, HALT_traverse, MOVSYS_dump}, 
 	{"CALL", OPSIZE_CALL, 0, HALT_traverse, CALL_dump}, 
 	{"ACALL", OPSIZE_ACALL, 0, HALT_traverse, CALL_dump}, 
 	{"NEW", OPSIZE_NEW, 0, NEW_traverse, NEW_dump}, 
-	{"COPYSFP", OPSIZE_COPYSFP, 0, HALT_traverse, SETESP_dump}, 
+	{"COPYSFP", OPSIZE_COPYSFP, 0, HALT_traverse, CHKESP_dump}, 
 	{"TOSTR", OPSIZE_TOSTR, 0, HALT_traverse, TOSTR_dump}, 
 	{"TOSTRf", OPSIZE_TOSTRf, 0, TOSTRf_traverse, TOSTRf_dump}, 
 	{"SMAP", OPSIZE_SMAP, 0, SMAP_traverse, SMAP_dump}, 
@@ -635,19 +627,19 @@ static knh_OPDATA_t OPDATA[] = {
 	{"NEXT", OPSIZE_NEXT, 1, HALT_traverse, NEXT_dump}, 
 	{"INEXT", OPSIZE_INEXT, 1, HALT_traverse, INEXT_dump}, 
 	{"TRY", OPSIZE_TRY, 1, HALT_traverse, bJIFT_dump}, 
-	{"TRYEND", OPSIZE_TRYEND, 0, HALT_traverse, SETESP_dump}, 
+	{"TRYEND", OPSIZE_TRYEND, 0, HALT_traverse, CHKESP_dump}, 
 	{"CATCH", OPSIZE_CATCH, 1, CATCH_traverse, CATCH_dump}, 
-	{"PUSH", OPSIZE_PUSH, 0, HALT_traverse, SETESP_dump}, 
-	{"POP", OPSIZE_POP, 0, HALT_traverse, SETESP_dump}, 
+	{"PUSH", OPSIZE_PUSH, 0, HALT_traverse, CHKESP_dump}, 
+	{"POP", OPSIZE_POP, 0, HALT_traverse, CHKESP_dump}, 
 	{"THROW", OPSIZE_THROW, 0, HALT_traverse, THROW_dump}, 
 	{"THROWs", OPSIZE_THROWs, 0, THROWs_traverse, THROWs_dump}, 
-	{"THROW_AGAIN", OPSIZE_THROW_AGAIN, 0, HALT_traverse, SETESP_dump}, 
+	{"THROW_AGAIN", OPSIZE_THROW_AGAIN, 0, HALT_traverse, CHKESP_dump}, 
 	{"P", OPSIZE_P, 0, HALT_traverse, P_dump}, 
 	{"PMSG", OPSIZE_PMSG, 0, PMSG_traverse, PMSG_dump}, 
-	{"iCAST", OPSIZE_iCAST, 0, HALT_traverse, SETESP_dump}, 
-	{"inCAST", OPSIZE_inCAST, 0, HALT_traverse, SETESP_dump}, 
-	{"fCAST", OPSIZE_fCAST, 0, HALT_traverse, SETESP_dump}, 
-	{"fnCAST", OPSIZE_fnCAST, 0, HALT_traverse, SETESP_dump}, 
+	{"iCAST", OPSIZE_iCAST, 0, HALT_traverse, CHKESP_dump}, 
+	{"inCAST", OPSIZE_inCAST, 0, HALT_traverse, CHKESP_dump}, 
+	{"fCAST", OPSIZE_fCAST, 0, HALT_traverse, CHKESP_dump}, 
+	{"fnCAST", OPSIZE_fnCAST, 0, HALT_traverse, CHKESP_dump}, 
 	{"bNOT", OPSIZE_bNOT, 0, HALT_traverse, MOVa_dump}, 
 	{"iNEG", OPSIZE_iNEG, 0, HALT_traverse, MOVa_dump}, 
 	{"iADD", OPSIZE_iADD, 0, HALT_traverse, iADD_dump}, 
@@ -693,19 +685,19 @@ static knh_OPDATA_t OPDATA[] = {
 	{"fGTn", OPSIZE_fGTn, 0, HALT_traverse, fADDn_dump}, 
 	{"fGTE", OPSIZE_fGTE, 0, HALT_traverse, iADD_dump}, 
 	{"fGTEn", OPSIZE_fGTEn, 0, HALT_traverse, fADDn_dump}, 
-	{"AGET", OPSIZE_AGET, 0, HALT_traverse, iADD_dump}, 
-	{"AGETn", OPSIZE_AGETn, 0, HALT_traverse, AGETn_dump}, 
-	{"IAGET", OPSIZE_IAGET, 0, HALT_traverse, iADD_dump}, 
-	{"IAGETn", OPSIZE_IAGETn, 0, HALT_traverse, AGETn_dump}, 
-	{"FAGET", OPSIZE_FAGET, 0, HALT_traverse, iADD_dump}, 
-	{"FAGETn", OPSIZE_FAGETn, 0, HALT_traverse, AGETn_dump}, 
-	{"ASET", OPSIZE_ASET, 0, HALT_traverse, iADD_dump}, 
-	{"ASETn", OPSIZE_ASETn, 0, HALT_traverse, AGETn_dump}, 
-	{"IASET", OPSIZE_IASET, 0, HALT_traverse, iADD_dump}, 
-	{"IASETn", OPSIZE_IASETn, 0, HALT_traverse, AGETn_dump}, 
-	{"FASET", OPSIZE_FASET, 0, HALT_traverse, iADD_dump}, 
-	{"FASETn", OPSIZE_FASETn, 0, HALT_traverse, AGETn_dump}, 
-	{"INITCODE", OPSIZE_INITCODE, 0, HALT_traverse, SETESP_dump}, 
+	{"ARYGET", OPSIZE_ARYGET, 0, HALT_traverse, iADD_dump}, 
+	{"ARYGETn", OPSIZE_ARYGETn, 0, HALT_traverse, ARYGETn_dump}, 
+	{"iARYGET", OPSIZE_iARYGET, 0, HALT_traverse, iADD_dump}, 
+	{"iARYGETn", OPSIZE_iARYGETn, 0, HALT_traverse, ARYGETn_dump}, 
+	{"fARYGET", OPSIZE_fARYGET, 0, HALT_traverse, iADD_dump}, 
+	{"fARYGETn", OPSIZE_fARYGETn, 0, HALT_traverse, ARYGETn_dump}, 
+	{"ARYSET", OPSIZE_ARYSET, 0, HALT_traverse, iADD_dump}, 
+	{"ARYSETn", OPSIZE_ARYSETn, 0, HALT_traverse, ARYGETn_dump}, 
+	{"iARYSET", OPSIZE_iARYSET, 0, HALT_traverse, iADD_dump}, 
+	{"iARYSETn", OPSIZE_iARYSETn, 0, HALT_traverse, ARYGETn_dump}, 
+	{"fARYSET", OPSIZE_fARYSET, 0, HALT_traverse, iADD_dump}, 
+	{"fARYSETn", OPSIZE_fARYSETn, 0, HALT_traverse, ARYGETn_dump}, 
+	{"THCODE", OPSIZE_THCODE, 0, HALT_traverse, CHKESP_dump}, 
 	{"NOP", OPSIZE_NOP, 0, HALT_traverse, HALT_dump}, 
 };
 
@@ -775,12 +767,12 @@ METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp)
 		&&L_XMOVof, &&L_XMOVxf, &&L_XMOVxfo, &&L_XMOVxBXf, 
 		&&L_MOVxb, &&L_XMOVsb, &&L_XMOVob, &&L_XMOVxb, 
 		&&L_EMOVs, &&L_EMOVo, &&L_EMOVe, &&L_EMOVDEF, 
-		&&L_EMOVSYS, &&L_SWAP, &&L_PINIDEF, &&L_PINIo, 
-		&&L_PARAMS, &&L_SETESP, &&L_CHECKESP, &&L_RET, 
+		&&L_EMOVSYS, &&L_SWAP, &&L_PARAMDEF, &&L_PARAMo, 
+		&&L_PARAMPROP, &&L_PARAMS, &&L_CHKESP, &&L_RET, 
 		&&L_RETn, &&L_RETa, &&L_RETo, &&L_RETx, 
 		&&L_YEILDBREAK, &&L_BOX, &&L_BOXnc, &&L_NNBOX, 
-		&&L_NNBOXnc, &&L_UNBOX, &&L_CHECKNULL, &&L_CHECKNULLx, 
-		&&L_CHECKTYPE, &&L_CHECKNNTYPE, &&L_FCALL, &&L_SCALL, 
+		&&L_NNBOXnc, &&L_UNBOX, &&L_CHKNUL, &&L_CHKNULx, 
+		&&L_CHKTYPE, &&L_NCALL, &&L_FCALL, &&L_SCALL, 
 		&&L_AINVOKE, &&L_CALL, &&L_ACALL, &&L_NEW, 
 		&&L_COPYSFP, &&L_TOSTR, &&L_TOSTRf, &&L_SMAP, 
 		&&L_SMAPnc, &&L_MAP, &&L_MAPnc, &&L_AMAP, 
@@ -801,15 +793,15 @@ METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp)
 		&&L_fDIVn, &&L_fEQ, &&L_fEQn, &&L_fNEQ, 
 		&&L_fNEQn, &&L_fLT, &&L_fLTn, &&L_fLTE, 
 		&&L_fLTEn, &&L_fGT, &&L_fGTn, &&L_fGTE, 
-		&&L_fGTEn, &&L_AGET, &&L_AGETn, &&L_IAGET, 
-		&&L_IAGETn, &&L_FAGET, &&L_FAGETn, &&L_ASET, 
-		&&L_ASETn, &&L_IASET, &&L_IASETn, &&L_FASET, 
-		&&L_FASETn, &&L_INITCODE, &&L_NOP, 
+		&&L_fGTEn, &&L_ARYGET, &&L_ARYGETn, &&L_iARYGET, 
+		&&L_iARYGETn, &&L_fARYGET, &&L_fARYGETn, &&L_ARYSET, 
+		&&L_ARYSETn, &&L_iARYSET, &&L_iARYSETn, &&L_fARYSET, 
+		&&L_fARYSETn, &&L_THCODE, &&L_NOP, 
 	};
-	register knh_code_t *pc = sfp[-1].pc;
+	register knh_code_t *pc = (sfp[-1].mtd)->pc_start;
 	goto *OPJUMP[KNH_OPCODE(pc)]; /* this is needed to init */
 #else
-	register knh_code_t *pc = sfp[-1].pc;
+	register knh_code_t *pc = (sfp[-1].mtd)->pc_start;
 	L_HEAD:;
 	switch(KNH_OPCODE(pc)) {
 #endif
@@ -1018,16 +1010,22 @@ METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp)
 		pc += OPSIZE_SWAP;
 		goto NEXT;
 	} 
-	CASE(L_PINIDEF, OPCODE_PINIDEF) {
-		const klr_PINIDEF_t *op = (klr_PINIDEF_t*)pc;
-		KLR_PINIDEF(ctx, op->a1, op->a2);
-		pc += OPSIZE_PINIDEF;
+	CASE(L_PARAMDEF, OPCODE_PARAMDEF) {
+		const klr_PARAMDEF_t *op = (klr_PARAMDEF_t*)pc;
+		KLR_PARAMDEF(ctx, op->a1, op->a2);
+		pc += OPSIZE_PARAMDEF;
 		goto NEXT;
 	} 
-	CASE(L_PINIo, OPCODE_PINIo) {
-		const klr_PINIo_t *op = (klr_PINIo_t*)pc;
-		KLR_PINIo(ctx, op->a1, op->a2);
-		pc += OPSIZE_PINIo;
+	CASE(L_PARAMo, OPCODE_PARAMo) {
+		const klr_PARAMo_t *op = (klr_PARAMo_t*)pc;
+		KLR_PARAMo(ctx, op->a1, op->a2);
+		pc += OPSIZE_PARAMo;
+		goto NEXT;
+	} 
+	CASE(L_PARAMPROP, OPCODE_PARAMPROP) {
+		const klr_PARAMPROP_t *op = (klr_PARAMPROP_t*)pc;
+		KLR_PARAMPROP(ctx, op->a1, op->a2);
+		pc += OPSIZE_PARAMPROP;
 		goto NEXT;
 	} 
 	CASE(L_PARAMS, OPCODE_PARAMS) {
@@ -1036,16 +1034,10 @@ METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp)
 		pc += OPSIZE_PARAMS;
 		goto NEXT;
 	} 
-	CASE(L_SETESP, OPCODE_SETESP) {
-		const klr_SETESP_t *op = (klr_SETESP_t*)pc;
-		KLR_SETESP(ctx, op->a1);
-		pc += OPSIZE_SETESP;
-		goto NEXT;
-	} 
-	CASE(L_CHECKESP, OPCODE_CHECKESP) {
-		const klr_CHECKESP_t *op = (klr_CHECKESP_t*)pc;
-		KLR_CHECKESP(ctx, op->a1);
-		pc += OPSIZE_CHECKESP;
+	CASE(L_CHKESP, OPCODE_CHKESP) {
+		const klr_CHKESP_t *op = (klr_CHKESP_t*)pc;
+		KLR_CHKESP(ctx, op->a1);
+		pc += OPSIZE_CHKESP;
 		goto NEXT;
 	} 
 	CASE(L_RET, OPCODE_RET) {
@@ -1114,28 +1106,28 @@ METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp)
 		pc += OPSIZE_UNBOX;
 		goto NEXT;
 	} 
-	CASE(L_CHECKNULL, OPCODE_CHECKNULL) {
-		const klr_CHECKNULL_t *op = (klr_CHECKNULL_t*)pc;
-		KLR_CHECKNULL(ctx, op->a1);
-		pc += OPSIZE_CHECKNULL;
+	CASE(L_CHKNUL, OPCODE_CHKNUL) {
+		const klr_CHKNUL_t *op = (klr_CHKNUL_t*)pc;
+		KLR_CHKNUL(ctx, op->a1);
+		pc += OPSIZE_CHKNUL;
 		goto NEXT;
 	} 
-	CASE(L_CHECKNULLx, OPCODE_CHECKNULLx) {
-		const klr_CHECKNULLx_t *op = (klr_CHECKNULLx_t*)pc;
-		KLR_CHECKNULLx(ctx, op->a1);
-		pc += OPSIZE_CHECKNULLx;
+	CASE(L_CHKNULx, OPCODE_CHKNULx) {
+		const klr_CHKNULx_t *op = (klr_CHKNULx_t*)pc;
+		KLR_CHKNULx(ctx, op->a1);
+		pc += OPSIZE_CHKNULx;
 		goto NEXT;
 	} 
-	CASE(L_CHECKTYPE, OPCODE_CHECKTYPE) {
-		const klr_CHECKTYPE_t *op = (klr_CHECKTYPE_t*)pc;
-		KLR_CHECKTYPE(ctx, op->a1, op->a2);
-		pc += OPSIZE_CHECKTYPE;
+	CASE(L_CHKTYPE, OPCODE_CHKTYPE) {
+		const klr_CHKTYPE_t *op = (klr_CHKTYPE_t*)pc;
+		KLR_CHKTYPE(ctx, op->a1, op->a2);
+		pc += OPSIZE_CHKTYPE;
 		goto NEXT;
 	} 
-	CASE(L_CHECKNNTYPE, OPCODE_CHECKNNTYPE) {
-		const klr_CHECKNNTYPE_t *op = (klr_CHECKNNTYPE_t*)pc;
-		KLR_CHECKNNTYPE(ctx, op->a1, op->a2);
-		pc += OPSIZE_CHECKNNTYPE;
+	CASE(L_NCALL, OPCODE_NCALL) {
+		TC(const klr_NCALL_t *op = (klr_NCALL_t*)pc;)
+		KLR_NCALL(ctx);
+		pc += OPSIZE_NCALL;
 		goto NEXT;
 	} 
 	CASE(L_FCALL, OPCODE_FCALL) {
@@ -1636,82 +1628,82 @@ METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp)
 		pc += OPSIZE_fGTEn;
 		goto NEXT;
 	} 
-	CASE(L_AGET, OPCODE_AGET) {
-		const klr_AGET_t *op = (klr_AGET_t*)pc;
-		KLR_AGET(ctx, op->a1, op->a2, op->a3);
-		pc += OPSIZE_AGET;
+	CASE(L_ARYGET, OPCODE_ARYGET) {
+		const klr_ARYGET_t *op = (klr_ARYGET_t*)pc;
+		KLR_ARYGET(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_ARYGET;
 		goto NEXT;
 	} 
-	CASE(L_AGETn, OPCODE_AGETn) {
-		const klr_AGETn_t *op = (klr_AGETn_t*)pc;
-		KLR_AGETn(ctx, op->a1, op->a2, op->a3);
-		pc += OPSIZE_AGETn;
+	CASE(L_ARYGETn, OPCODE_ARYGETn) {
+		const klr_ARYGETn_t *op = (klr_ARYGETn_t*)pc;
+		KLR_ARYGETn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_ARYGETn;
 		goto NEXT;
 	} 
-	CASE(L_IAGET, OPCODE_IAGET) {
-		const klr_IAGET_t *op = (klr_IAGET_t*)pc;
-		KLR_IAGET(ctx, op->a1, op->a2, op->a3);
-		pc += OPSIZE_IAGET;
+	CASE(L_iARYGET, OPCODE_iARYGET) {
+		const klr_iARYGET_t *op = (klr_iARYGET_t*)pc;
+		KLR_iARYGET(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iARYGET;
 		goto NEXT;
 	} 
-	CASE(L_IAGETn, OPCODE_IAGETn) {
-		const klr_IAGETn_t *op = (klr_IAGETn_t*)pc;
-		KLR_IAGETn(ctx, op->a1, op->a2, op->a3);
-		pc += OPSIZE_IAGETn;
+	CASE(L_iARYGETn, OPCODE_iARYGETn) {
+		const klr_iARYGETn_t *op = (klr_iARYGETn_t*)pc;
+		KLR_iARYGETn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iARYGETn;
 		goto NEXT;
 	} 
-	CASE(L_FAGET, OPCODE_FAGET) {
-		const klr_FAGET_t *op = (klr_FAGET_t*)pc;
-		KLR_FAGET(ctx, op->a1, op->a2, op->a3);
-		pc += OPSIZE_FAGET;
+	CASE(L_fARYGET, OPCODE_fARYGET) {
+		const klr_fARYGET_t *op = (klr_fARYGET_t*)pc;
+		KLR_fARYGET(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_fARYGET;
 		goto NEXT;
 	} 
-	CASE(L_FAGETn, OPCODE_FAGETn) {
-		const klr_FAGETn_t *op = (klr_FAGETn_t*)pc;
-		KLR_FAGETn(ctx, op->a1, op->a2, op->a3);
-		pc += OPSIZE_FAGETn;
+	CASE(L_fARYGETn, OPCODE_fARYGETn) {
+		const klr_fARYGETn_t *op = (klr_fARYGETn_t*)pc;
+		KLR_fARYGETn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_fARYGETn;
 		goto NEXT;
 	} 
-	CASE(L_ASET, OPCODE_ASET) {
-		const klr_ASET_t *op = (klr_ASET_t*)pc;
-		KLR_ASET(ctx, op->a1, op->a2, op->a3);
-		pc += OPSIZE_ASET;
+	CASE(L_ARYSET, OPCODE_ARYSET) {
+		const klr_ARYSET_t *op = (klr_ARYSET_t*)pc;
+		KLR_ARYSET(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_ARYSET;
 		goto NEXT;
 	} 
-	CASE(L_ASETn, OPCODE_ASETn) {
-		const klr_ASETn_t *op = (klr_ASETn_t*)pc;
-		KLR_ASETn(ctx, op->a1, op->a2, op->a3);
-		pc += OPSIZE_ASETn;
+	CASE(L_ARYSETn, OPCODE_ARYSETn) {
+		const klr_ARYSETn_t *op = (klr_ARYSETn_t*)pc;
+		KLR_ARYSETn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_ARYSETn;
 		goto NEXT;
 	} 
-	CASE(L_IASET, OPCODE_IASET) {
-		const klr_IASET_t *op = (klr_IASET_t*)pc;
-		KLR_IASET(ctx, op->a1, op->a2, op->a3);
-		pc += OPSIZE_IASET;
+	CASE(L_iARYSET, OPCODE_iARYSET) {
+		const klr_iARYSET_t *op = (klr_iARYSET_t*)pc;
+		KLR_iARYSET(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iARYSET;
 		goto NEXT;
 	} 
-	CASE(L_IASETn, OPCODE_IASETn) {
-		const klr_IASETn_t *op = (klr_IASETn_t*)pc;
-		KLR_IASETn(ctx, op->a1, op->a2, op->a3);
-		pc += OPSIZE_IASETn;
+	CASE(L_iARYSETn, OPCODE_iARYSETn) {
+		const klr_iARYSETn_t *op = (klr_iARYSETn_t*)pc;
+		KLR_iARYSETn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iARYSETn;
 		goto NEXT;
 	} 
-	CASE(L_FASET, OPCODE_FASET) {
-		const klr_FASET_t *op = (klr_FASET_t*)pc;
-		KLR_FASET(ctx, op->a1, op->a2, op->a3);
-		pc += OPSIZE_FASET;
+	CASE(L_fARYSET, OPCODE_fARYSET) {
+		const klr_fARYSET_t *op = (klr_fARYSET_t*)pc;
+		KLR_fARYSET(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_fARYSET;
 		goto NEXT;
 	} 
-	CASE(L_FASETn, OPCODE_FASETn) {
-		const klr_FASETn_t *op = (klr_FASETn_t*)pc;
-		KLR_FASETn(ctx, op->a1, op->a2, op->a3);
-		pc += OPSIZE_FASETn;
+	CASE(L_fARYSETn, OPCODE_fARYSETn) {
+		const klr_fARYSETn_t *op = (klr_fARYSETn_t*)pc;
+		KLR_fARYSETn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_fARYSETn;
 		goto NEXT;
 	} 
-	CASE(L_INITCODE, OPCODE_INITCODE) {
-		const klr_INITCODE_t *op = (klr_INITCODE_t*)pc;
-		KLR_INITCODE(ctx, op->a1);
-		pc += OPSIZE_INITCODE;
+	CASE(L_THCODE, OPCODE_THCODE) {
+		const klr_THCODE_t *op = (klr_THCODE_t*)pc;
+		KLR_THCODE(ctx, op->a1);
+		pc += OPSIZE_THCODE;
 		goto NEXT;
 	} 
 	CASE(L_NOP, OPCODE_NOP) {

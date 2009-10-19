@@ -245,9 +245,7 @@ static METHOD System_rename(Ctx *ctx, knh_sfp_t *sfp)
 
 static METHOD Context_getProperty(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURN(ctx, sfp,
-		knh_Context_getProperty(ctx, (knh_Context_t*)sfp[0].o,
-				__tobytes(sfp[1].s)));
+	KNH_RETURN(ctx, sfp, knh_getProperty(ctx, __tobytes(sfp[1].s)));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -255,7 +253,7 @@ static METHOD Context_getProperty(Ctx *ctx, knh_sfp_t *sfp)
 
 static METHOD Context_setProperty(Ctx *ctx, knh_sfp_t *sfp)
 {
-	knh_Context_setProperty(ctx, (knh_Context_t*)sfp[0].o, sfp[1].s, sfp[2].o);
+	knh_setProperty(ctx, sfp[1].s, sfp[2].o);
 	KNH_RETURN_void(ctx, sfp);
 }
 

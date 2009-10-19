@@ -209,7 +209,7 @@ static void knh_Gamma_finish(Ctx *ctx)
 	else {
 		knh_sfp_t *lsfp = KNH_LOCAL(ctx);
 		KNH_SETv(ctx, lsfp[0].o, mtd);
-		lsfp[0].pc = mtd->pc_start;
+		//lsfp[0].pc = mtd->pc_start;
 		knh_KLRCode_exec(ctx, lsfp+1); /* code threading */
 		DBG2_P("mtd(%p)", mtd);
 		DBG2_DUMP(ctx, mtd, KNH_NULL, "Compiled Code");
@@ -325,7 +325,7 @@ void KNH_ASM_SMOVx(Ctx *ctx, knh_type_t atype, int a, knh_type_t btype, knh_sfx_
 	}
 #endif
 	if(IS_NNTYPE(atype) && !IS_NNTYPE(btype)) {
-		KNH_ASM(CHECKNULLx, bx);
+		KNH_ASM(CHKNULx, bx);
 		btype = NNTYPE_cid(btype);
 	}
 	KNH_ASM(MOVx, sfi_(a), bx);
@@ -350,7 +350,7 @@ void KNH_ASM_SMOV(Ctx *ctx, knh_type_t atype, int a, knh_Token_t *tkb)
 			int b = (int)DP(tkb)->index;
 			knh_type_t btype = DP(tkb)->type;
 			if(IS_NNTYPE(atype) && IS_NATYPE(btype)) {
-				KNH_ASM(CHECKNULL, b);
+				KNH_ASM(CHKNUL, b);
 				btype = NNTYPE_cid(btype);
 			}
 			if(IS_ubxtype(btype)) {
@@ -444,7 +444,7 @@ static
 void KNH_ASM_XMOVx(Ctx *ctx, knh_type_t atype, knh_sfx_t ax, knh_type_t btype, knh_sfx_t bx)
 {
 	if(IS_NNTYPE(atype) && !IS_NNTYPE(btype)) {
-		KNH_ASM(CHECKNULLx, bx);
+		KNH_ASM(CHKNULx, bx);
 	}
 	if(IS_ubxint(atype)) {
 		if(IS_ubxint(btype)) {
@@ -533,7 +533,7 @@ void KNH_ASM_XMOV(Ctx *ctx, knh_type_t atype, int a, size_t an, knh_Token_t *tkb
 		case TT_LOCAL: {
 			int b = (int)DP(tkb)->index;
 			if(IS_NNTYPE(atype) && !IS_NNTYPE(btype)) {
-				KNH_ASM(CHECKNULL, b);
+				KNH_ASM(CHKNUL, b);
 			}
 #ifdef KNH_USING_UNBOXFIELD
 			if(IS_ubxint(atype)) {
@@ -734,13 +734,13 @@ void KNH_ASM_CALL(Ctx *ctx, knh_type_t reqt, int sfpidx, knh_Token_t *tkb, size_
 		}
 		rtype = knh_Method_rztype(mtd);
 		if(IS_NNTYPE(reqt) && !IS_NNTYPE(rtype)) {
-			KNH_ASM(CHECKNULL, sfpidx);
+			KNH_ASM(CHKNUL, sfpidx);
 		}
 	}
 	else if(TT_(tkb) == TT_MN) {
 		KNH_ASM(ACALL, sfpidx, args + 2, DP(tkb)->mn);
 		if(IS_NNTYPE(reqt) && !IS_NNTYPE(rtype)) {
-			KNH_ASM(CHECKNULL, sfpidx);
+			KNH_ASM(CHKNUL, sfpidx);
 		}
 	}
 	else {
@@ -761,7 +761,7 @@ void KNH_ASM_NEW(Ctx *ctx, knh_type_t reqt, int sfpidx, knh_Token_t *tkb,
 
 	knh_type_t rtype = knh_Method_rztype(mtd);
 	if(IS_NNTYPE(reqt) && !IS_NNTYPE(rtype)) {
-		KNH_ASM(CHECKNULL, sfpidx);
+		KNH_ASM(CHKNUL, sfpidx);
 	}
 }
 
@@ -824,7 +824,7 @@ void KNH_ASM_MAP(Ctx *ctx, knh_type_t reqt, int sfpidx, knh_Token_t *tkb, knh_ty
 		KNH_ASM(NNMAP, sfpidx, DP(tkb)->cid);
 	}
 	else if(IS_NNTYPE(reqt)) {
-		KNH_ASM(CHECKNULL, sfpidx);
+		KNH_ASM(CHKNUL, sfpidx);
 	}
 }
 
@@ -1023,7 +1023,7 @@ int TERMs_putLOCAL(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_type_t reqt, int sf
 	if(IS_Token(tk) && TT_(tk) == TT_LOCAL) {
 		int a = DP(tk)->index;
 		if(!IS_NNTYPE(DP(tk)->type)) {
-			KNH_ASM(CHECKNULL, a);
+			KNH_ASM(CHKNUL, a);
 		}
 		return a;
 	}
@@ -1368,25 +1368,25 @@ void knh_StmtCALL_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 			if(TERMs_isCONST(stmt, 2)) {
 				knh_intptr_t n = (knh_intptr_t)TERMs_int(stmt, 2);
 				if(mtd_cid == CLASS_Array) {
-					KNH_ASM(AGETn, sfi_(sfpidx), sfi_(a), n);
+					KNH_ASM(ARYGETn, sfi_(sfpidx), sfi_(a), n);
 				}
 				else if(mtd_cid == CLASS_IArray) {
-					KNH_ASM(IAGETn, sfi_(sfpidx), sfi_(a), n);
+					KNH_ASM(iARYGETn, sfi_(sfpidx), sfi_(a), n);
 				}
 				else {
-					KNH_ASM(FAGETn, sfi_(sfpidx), sfi_(a), n);
+					KNH_ASM(fARYGETn, sfi_(sfpidx), sfi_(a), n);
 				}
 			}
 			else {
 				int an = TERMs_putLOCAL(ctx, stmt, 2, NNTYPE_Int, local + 2);
 				if(mtd_cid == CLASS_Array) {
-					KNH_ASM(AGET, sfi_(sfpidx), sfi_(a), sfi_(an));
+					KNH_ASM(ARYGET, sfi_(sfpidx), sfi_(a), sfi_(an));
 				}
 				else if(mtd_cid == CLASS_IArray) {
-					KNH_ASM(IAGET, sfi_(sfpidx), sfi_(a), sfi_(an));
+					KNH_ASM(iARYGET, sfi_(sfpidx), sfi_(a), sfi_(an));
 				}
 				else {
-					KNH_ASM(FAGET, sfi_(sfpidx), sfi_(a), sfi_(an));
+					KNH_ASM(fARYGET, sfi_(sfpidx), sfi_(a), sfi_(an));
 				}
 			}
 			return;
@@ -1400,26 +1400,26 @@ void knh_StmtCALL_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 				knh_intptr_t n = (knh_intptr_t)TERMs_int(stmt, 2);
 				if(mtd_cid == CLASS_Array) {
 					KNH_ASM_BOX(ctx, TYPE_Any, vtype, sfi_(v));
-					KNH_ASM(ASETn, sfi_(v), sfi_(a), n);
+					KNH_ASM(ARYSETn, sfi_(v), sfi_(a), n);
 				}
 				else if(mtd_cid == CLASS_IArray) {
-					KNH_ASM(IASETn, sfi_(v), sfi_(a), n);
+					KNH_ASM(iARYSETn, sfi_(v), sfi_(a), n);
 				}
 				else {
-					KNH_ASM(FASETn, sfi_(v), sfi_(a), n);
+					KNH_ASM(fARYSETn, sfi_(v), sfi_(a), n);
 				}
 			}
 			else {
 				int an = TERMs_putLOCAL(ctx, stmt, 2, NNTYPE_Int, local + 2);
 				if(mtd_cid == CLASS_Array) {
 					KNH_ASM_BOX(ctx, TYPE_Any, vtype, sfi_(v));
-					KNH_ASM(ASET, sfi_(v), sfi_(a), sfi_(an));
+					KNH_ASM(ARYSET, sfi_(v), sfi_(a), sfi_(an));
 				}
 				else if(mtd_cid == CLASS_IArray) {
-					KNH_ASM(IASET, sfi_(v), sfi_(a), sfi_(an));
+					KNH_ASM(iARYSET, sfi_(v), sfi_(a), sfi_(an));
 				}
 				else {
-					KNH_ASM(FASET, sfi_(v), sfi_(a), sfi_(an));
+					KNH_ASM(fARYSET, sfi_(v), sfi_(a), sfi_(an));
 				}
 			}
 			return;
@@ -1432,7 +1432,7 @@ void knh_StmtCALL_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 		knh_type_t reqt2 = knh_Method_reqtTERMs(mtd, cid, stmt, 1);
 		knh_type_t vart2 = TERMs_gettype(stmt, 1);
 		if(IS_NNTYPE(reqt2) && !IS_NNTYPE(vart2)) {
-			KNH_ASM(CHECKNULL, sfi_(a));
+			KNH_ASM(CHKNUL, sfi_(a));
 		}
 		for(i = 2; i < DP(stmt)->size; i++) {
 			reqt2 = knh_Method_reqtTERMs(mtd, cid, stmt, i);
@@ -1706,7 +1706,7 @@ knh_StmtEXPR_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 	}
 	KNH_ASM_NNBOX(ctx, reqt, DP(stmt)->type, sfpidx);
 	if(IS_NNTYPE(reqt) && !IS_NNTYPE(DP(stmt)->type)) {
-		KNH_ASM(CHECKNULL, sfpidx);
+		KNH_ASM(CHKNUL, sfpidx);
 	}
 	if(knh_Stmt_isAutoReturn(stmt)) {
 		KNH_ASM(RETa, 0/*dummy*/, sfpidx);
@@ -2364,7 +2364,7 @@ static void KNH_ASM_INITLOCAL(Ctx *ctx)
 	knh_Gamma_t *kc = ctx->kc;
 	knh_Method_t *mtd = DP(kc)->mtd;
 	size_t i, xi;
-	KNH_ASM(INITCODE, sfi_(DP(kc)->psize));
+	KNH_ASM(THCODE, sfi_(DP(kc)->psize));
 	DBG2_ASSERT(IS_Method(mtd));
 
 	for(i = 1;i < knh_Method_psize(mtd) + 1; i++) {
@@ -2376,10 +2376,10 @@ static void KNH_ASM_INITLOCAL(Ctx *ctx)
 		if(IS_NATYPE(ztype)) {
 			Object *value = DP(kc)->gamma[xi].value;
 			if(value == NULL) {
-				KNH_ASM(PINIDEF, sfi_(i), CLASS_type(ptype));
+				KNH_ASM(PARAMDEF, sfi_(i), CLASS_type(ptype));
 			}
 			else {
-				KNH_ASM(PINIo, sfi_(i), value);
+				KNH_ASM(PARAMo, sfi_(i), value);
 			}
 		}
 	}

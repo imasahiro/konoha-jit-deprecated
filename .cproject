@@ -35,7 +35,7 @@
 <listOptionValue builtIn="false" value="readline"/>
 <listOptionValue builtIn="false" value="iconv"/>
 </option>
-<option id="macosx.c.link.option.ldflags.1946868829" name="Linker flags" superClass="macosx.c.link.option.ldflags" value="" valueType="string"/>
+<option id="macosx.c.link.option.ldflags.1946868829" name="Linker flags" superClass="macosx.c.link.option.ldflags" value="-m64" valueType="string"/>
 <inputType id="cdt.managedbuild.tool.macosx.c.linker.input.1993118813" superClass="cdt.managedbuild.tool.macosx.c.linker.input">
 <additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 <additionalInput kind="additionalinput" paths="$(LIBS)"/>
@@ -66,7 +66,7 @@
 <option id="gnu.c.compiler.option.misc.ansi.1015537612" name="Support ANSI programs (-ansi)" superClass="gnu.c.compiler.option.misc.ansi" value="false" valueType="boolean"/>
 <option id="gnu.c.compiler.option.warnings.pedantic.332079417" name="Pedantic (-pedantic)" superClass="gnu.c.compiler.option.warnings.pedantic" value="false" valueType="boolean"/>
 <option id="gnu.c.compiler.option.warnings.nowarn.546939053" name="Inhibit all warnings (-w)" superClass="gnu.c.compiler.option.warnings.nowarn" value="false" valueType="boolean"/>
-<option id="gnu.c.compiler.option.optimization.flags.927150051" name="Other optimization flags" superClass="gnu.c.compiler.option.optimization.flags" value="" valueType="string"/>
+<option id="gnu.c.compiler.option.optimization.flags.927150051" name="Other optimization flags" superClass="gnu.c.compiler.option.optimization.flags" value="-m64" valueType="string"/>
 <option id="gnu.c.compiler.option.warnings.toerrors.469272744" name="Warnings as errors (-Werror)" superClass="gnu.c.compiler.option.warnings.toerrors" value="false" valueType="boolean"/>
 <inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.353139026" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 </tool>

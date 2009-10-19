@@ -4040,20 +4040,20 @@ int knh_Stmt_equals(Ctx *ctx, knh_Stmt_t *stmt, Term *tm)
 static
 Term *knh_Gamma_lookupRegisteredStmt(Ctx *ctx, knh_Stmt_t *stmt)
 {
-	DBG2_ASSERT(IS_Stmt(stmt));
-	knh_Gamma_t *kc = ctx->kc;
-	int i;
-	for(i = K_GAMMASIZE - 1; i >= DP(kc)->goffset; i--) {
-		if(DP(kc)->gamma[i].fn == FIELDN_
-			&& KNH_FLAG_IS(DP(kc)->gamma[i].flag, FLAG_GAMMA_Register)) {
-			knh_Stmt_t *stmtREG = (knh_Stmt_t*)DP(kc)->gamma[i].value;
-			DBG2_ASSERT(IS_Stmt(stmtREG));
-			if(knh_Stmt_equals(ctx, stmtREG, TM(stmt))) {
-				DBG_P("REGISTER(%s) TO sfp[=%d]", cSTT_((stmt)), i);
-				return TM(new_TokenLOCAL(ctx, TM(stmt), DP(stmt)->type, i));
-			}
-		}
-	}
+//	DBG2_ASSERT(IS_Stmt(stmt));
+//	knh_Gamma_t *kc = ctx->kc;
+//	knh_intptr_t i, offset = DP(kc)->goffset;
+//	for(i = K_GAMMASIZE - 1; offset <= i; i--) {
+//		if(DP(kc)->gamma[i].fn == FIELDN_
+//			&& KNH_FLAG_IS(DP(kc)->gamma[i].flag, FLAG_GAMMA_Register)) {
+//			knh_Stmt_t *stmtREG = (knh_Stmt_t*)DP(kc)->gamma[i].value;
+//			DBG2_ASSERT(IS_Stmt(stmtREG));
+//			if(knh_Stmt_equals(ctx, stmtREG, TM(stmt))) {
+//				DBG_P("REGISTER(%s) TO sfp[=%d]", cSTT_((stmt)), (int)i);
+//				return TM(new_TokenLOCAL(ctx, TM(stmt), DP(stmt)->type, i));
+//			}
+//		}
+//	}
 	return TM(stmt);
 }
 
@@ -4877,7 +4877,9 @@ knh_Stmt_typingBLOCK(Ctx *ctx, knh_Stmt_t *stmt, int isIteration)
 			res = 0;
 			break;
 		}
-		if(isIteration == 0) break;
+		if(isIteration == 0) {
+			return res;
+		}
 		cur = DP(cur)->next;
 	}
 	END_BLOCK(esp);

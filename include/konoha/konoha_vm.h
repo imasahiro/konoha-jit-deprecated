@@ -109,17 +109,17 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 		sfp[(n2)] = temp;\
 	}\
 
-#define KNH_SETESP(ctx, sfp, n) \
-	((knh_Context_t*)ctx)->esp = &(sfp[n]);\
-	if(unlikely((ctx)->stacksize - ((ctx)->esp - (ctx)->stack) < K_GAMMASIZE)) {\
+#define KNH_CHKESP(ctx, sfp, n) \
+	if(unlikely(((ctx)->stacksize - (ctx)->stack) < (K_GAMMASIZE + n))) {\
 		KNH_THROWs(ctx, "StackOverflow!!"); \
 	}\
 
 /* ======================================================================== */
 
 #define KLR_HALT(ctx) KNH_THROWs(ctx, "Halt!!")
+
 #define KLR_RET(ctx)  {\
-		sfp[0].pc = pc; \
+		/* sfp[0].pc = pc;*/ \
 		return; \
 	}
 
@@ -138,7 +138,7 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 
 #define KLR_MOVo(ctx, a, v) {\
 		KLR_MOV(ctx, sfp[a].o, v);\
-		sfp[a].data = ((knh_Int_t*)v)->n.data;\
+		sfp[a].data = knh_Object_data(v);\
 	}\
 
 #define KLR_MOVDEF(ctx, a, cid) {\
@@ -149,8 +149,8 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 
 #define KLR_MOVSYS(ctx, a, cid)  KLR_MOV(ctx, sfp[a].o, KNH_SYS(ctx, cid))
 
-
 /* ------------------------------------------------------------------------ */
+
 #define SFXo(x)   KNH_FIELDn(sfp[x.i].o, x.n)
 #define SFXi(x)   (*((knh_int_t*)(&KNH_FIELDn(sfp[x.i].o, x.n))))
 #define SFXf(x)   (*((knh_float_t*)(&KNH_FIELDn(sfp[x.i].o, x.n))))
@@ -204,30 +204,11 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 #define KLR_EMOVDEF(ctx, a, cid)  KLR_MOV(ctx, ENVo(a), KNH_DEF(ctx, cid))
 #define KLR_EMOVSYS(ctx, a, cid)  KLR_MOV(ctx, ENVo(a), KNH_SYS(ctx, cid))
 
-//#define KLR_MOVei(ctx, a, b)    sfp[a].ivalue = ENVi(b)
-//#define KLR_EMOVsi(ctx, a, b)   ENVi(a) = sfp[b].ivalue
-//#define KLR_EMOVoi(ctx, a, o)   ENVi(a) = ((knh_Int_t*)o)->n.ivalue
-//#define KLR_EMOVei(ctx, a, b)   ENVi(a) = ENVi(b)
-//#define KLR_EMOVeio(ctx, a, b)  ENVi(a) = ((knh_Int_t*)ENVo(b))->n.ivalue
-//#define KLR_EMOVeBXi(ctx, a, b, cid) KLR_MOV(ctx, ENVo(a), new_IntX(ctx, cid, ENVi(b)))
-//
-//#define KLR_MOVef(ctx, a, b)    sfp[a].fvalue = ENVf(b)
-//#define KLR_EMOVsf(ctx, a, b)   ENVf(a) = sfp[b].fvalue
-//#define KLR_EMOVof(ctx, a, o)   ENVf(a) = ((knh_Float_t*)o)->n.fvalue
-//#define KLR_EMOVef(ctx, a, b)   ENVf(a) = ENVf(b)
-//#define KLR_EMOVefo(ctx, a, b)  ENVf(a) = ((knh_Float_t*)ENVo(b))->n.fvalue
-//#define KLR_EMOVeBXf(ctx, a, b, cid) KLR_MOV(ctx, ENVo(a), new_FloatX(ctx, cid, ENVf(b)))
-//
-//#define KLR_MOVeb(ctx, a, b)    sfp[a].bvalue = ENVb(b)
-//#define KLR_EMOVsb(ctx, a, b)   ENVb(a) = sfp[b].bvalue
-//#define KLR_EMOVob(ctx, a, o)   ENVb(a) = ((knh_Int_t*)o)->n.bvalue
-//#define KLR_EMOVeb(ctx, a, b)   ENVb(a) = ENVb(b)
-
 /* ------------------------------------------------------------------------ */
 
 #define KLR_ARRAY_INDEX(ctx, n, size)   (size_t)n
 
-#define KLR_AGET(ctx, bidx, aidx, nidx)  {\
+#define KLR_ARYGET(ctx, bidx, aidx, nidx)  {\
 		Object *v_;\
 		size_t idxn_ = KLR_ARRAY_INDEX(ctx, sfp[nidx].ivalue, (sfp[aidx].a)->size);\
 		if(unlikely(idxn_ >= (sfp[aidx].a)->size)) knh_throw_OutOfIndex(ctx, idxn_, (sfp[aidx].a)->size, _HERE_); \
@@ -236,7 +217,7 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 		sfp[bidx].data = knh_Object_data(v_);\
 	}\
 
-#define KLR_AGETn(ctx, bidx, aidx, n)  {\
+#define KLR_ARYGETn(ctx, bidx, aidx, n)  {\
 		Object *v_;\
 		size_t idxn_ = KLR_ARRAY_INDEX(ctx, n, (sfp[aidx].a)->size);\
 		if(unlikely(idxn_ >= (sfp[aidx].a)->size)) knh_throw_OutOfIndex(ctx, idxn_, (sfp[aidx].a)->size, _HERE_); \
@@ -245,61 +226,61 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 		sfp[bidx].data = knh_Object_data(v_);\
 	}\
 
-#define KLR_IAGET(ctx, bidx, aidx, nidx)  {\
+#define KLR_iARYGET(ctx, bidx, aidx, nidx)  {\
 		size_t idxn_ = KLR_ARRAY_INDEX(ctx, sfp[nidx].ivalue, (sfp[aidx].ia)->size);\
 		if(unlikely(idxn_ >= (sfp[aidx].ia)->size)) knh_throw_OutOfIndex(ctx, idxn_, (sfp[aidx].ia)->size, _HERE_); \
 		sfp[bidx].ivalue = (sfp[aidx].ia)->ilist[idxn_];\
 	}\
 
-#define KLR_IAGETn(ctx, bidx, aidx, n)  {\
+#define KLR_iARYGETn(ctx, bidx, aidx, n)  {\
 		size_t idxn_ = KLR_ARRAY_INDEX(ctx, n, (sfp[aidx].ia)->size);\
 		if(unlikely(idxn_ >= (sfp[aidx].ia)->size)) knh_throw_OutOfIndex(ctx, idxn_, (sfp[aidx].ia)->size, _HERE_); \
 		sfp[bidx].ivalue = (sfp[aidx].ia)->ilist[idxn_];\
 	}\
 
-#define KLR_FAGET(ctx, b, a, n)  {\
+#define KLR_fARYGET(ctx, b, a, n)  {\
 		size_t idxn_ = KLR_ARRAY_INDEX(ctx, sfp[n].ivalue, (sfp[a].fa)->size);\
 		if(unlikely(idxn_ >= (sfp[a].fa)->size)) knh_throw_OutOfIndex(ctx, idxn_, (sfp[a].fa)->size, _HERE_); \
 		sfp[b].fvalue = (sfp[a].fa)->flist[idxn_];\
 	}\
 
-#define KLR_FAGETn(ctx, b, a, n)  {\
+#define KLR_fARYGETn(ctx, b, a, n)  {\
 		size_t idxn_ = KLR_ARRAY_INDEX(ctx, n, (sfp[a].fa)->size);\
 		if(unlikely(idxn_ >= (sfp[a].fa)->size)) knh_throw_OutOfIndex(ctx, idxn_, (sfp[a].fa)->size, _HERE_); \
 		sfp[b].fvalue = ((knh_FArray_t*)sfp[a].o)->flist[idxn_];\
 	}\
 
-#define KLR_ASET(ctx, bidx, aidx, nidx)  {\
+#define KLR_ARYSET(ctx, bidx, aidx, nidx)  {\
 		size_t idxn_ = KLR_ARRAY_INDEX(ctx, sfp[nidx].ivalue, (sfp[aidx].a)->size);\
 		if(unlikely(idxn_ >= (sfp[aidx].a)->size)) knh_throw_OutOfIndex(ctx, idxn_, (sfp[aidx].a)->size, _HERE_); \
 		KLR_MOV(ctx, (sfp[aidx].a)->list[idxn_], sfp[bidx].o);\
 	}\
 
-#define KLR_ASETn(ctx, bidx, aidx, n)  {\
+#define KLR_ARYSETn(ctx, bidx, aidx, n)  {\
 		size_t idxn_ = KLR_ARRAY_INDEX(ctx, n, (sfp[aidx].a)->size);\
 		if(unlikely(idxn_ >= (sfp[aidx].a)->size)) knh_throw_OutOfIndex(ctx, idxn_, (sfp[aidx].a)->size, _HERE_); \
 		KLR_MOV(ctx, (sfp[aidx].a)->list[idxn_], sfp[bidx].o);\
 	}\
 
-#define KLR_IASET(ctx, b, a, n)  {\
+#define KLR_iARYSET(ctx, b, a, n)  {\
 		size_t idxn_ = KLR_ARRAY_INDEX(ctx, sfp[n].ivalue, (sfp[a].ia)->size);\
 		if(unlikely(idxn_ >= (sfp[a].ia)->size)) knh_throw_OutOfIndex(ctx, idxn_, (sfp[a].ia)->size, _HERE_); \
 		(sfp[a].ia)->ilist[idxn_] = sfp[b].ivalue;\
 	}\
 
-#define KLR_IASETn(ctx, b, a, n)  {\
+#define KLR_iARYSETn(ctx, b, a, n)  {\
 		size_t idxn_ = KLR_ARRAY_INDEX(ctx, n, (sfp[a].ia)->size);\
 		if(unlikely(idxn_ >= (sfp[a].ia)->size)) knh_throw_OutOfIndex(ctx, idxn_, (sfp[a].ia)->size, _HERE_); \
 		(sfp[a].ia)->ilist[idxn_] = sfp[b].ivalue;\
 	}\
 
-#define KLR_FASET(ctx, b, a, n)  {\
+#define KLR_fARYSET(ctx, b, a, n)  {\
 		size_t idxn_ = KLR_ARRAY_INDEX(ctx, sfp[n].ivalue, (sfp[a].fa)->size);\
 		if(unlikely(idxn_ >= (sfp[a].fa)->size)) knh_throw_OutOfIndex(ctx, idxn_, (sfp[a].fa)->size, _HERE_); \
 		(sfp[a].fa)->flist[idxn_] = sfp[b].fvalue;\
 	}\
 
-#define KLR_FASETn(ctx, b, a, n)  {\
+#define KLR_fARYSETn(ctx, b, a, n)  {\
 		size_t idxn_ = KLR_ARRAY_INDEX(ctx, n, (sfp[a].fa)->size);\
 		if(unlikely(idxn_ >= (sfp[a].fa)->size)) knh_throw_OutOfIndex(ctx, idxn_, (sfp[a].fa)->size, _HERE_); \
 		(sfp[a].fa)->flist[idxn_] = sfp[b].fvalue;\
@@ -307,43 +288,46 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 
 /* ------------------------------------------------------------------------ */
 
-#define KLR_INITCODE(ctx, n) { \
+#define KLR_THCODE(ctx, n) { \
 		knh_code_thread(ctx, pc, OPJUMP); \
-		((knh_inst_t*)pc)->opcode = OPCODE_SETESP;\
+		((knh_inst_t*)pc)->opcode = OPCODE_CHKESP;\
 		return; \
 	}\
 
-#define KLR_SETESP(ctx, n) \
-	((knh_Context_t*)ctx)->esp = &(sfp[n]);\
-	if(unlikely((ctx)->stacksize - ((ctx)->esp - (ctx)->stack) < K_GAMMASIZE)) {\
+#define KLR_CHKESP0(ctx, n)
+
+#define KLR_CHKESP(ctx, n) \
+	if(unlikely((sfp - ctx->stack) > ctx->stacksize - K_GAMMASIZE)) { \
 		KNH_THROWs(ctx, "StackOverflow!!"); \
 	}\
 
-#define KLR_CHECKESP(ctx, n) \
-	if(unlikely((ctx)->stacksize - (&sfp[n] - (ctx)->stack) < K_GAMMASIZE)) {\
-		KNH_THROWs(ctx, "StackOverflow!!"); \
-	}\
-
-
-#define KLR_PINIo(ctx, a, v) {\
-		if(IS_NULL(sfp[a].o)) {\
-			sfp[a].data = ((knh_Int_t*)v)->n.data;\
-			KLR_MOV(ctx, sfp[a].o, v);\
+#define KLR_PARAMo(ctx, n, v) {\
+		if(IS_NULL(sfp[n].o)) {\
+			sfp[n].data = knh_Object_data(v);\
+			KLR_MOV(ctx, sfp[n].o, v);\
 		}\
 	}\
 
-#define KLR_PINIDEF(ctx, a, cid) {\
-		if(IS_NULL(sfp[a].o)) {\
+#define KLR_PARAMDEF(ctx, n, cid) {\
+		if(IS_NULL(sfp[n].o)) {\
 			Object *v_ = KNH_DEF(ctx, cid); \
-			sfp[a].data = knh_Object_data(v_); \
-			KLR_MOV(ctx, sfp[a].o, v_); \
+			sfp[n].data = knh_Object_data(v_); \
+			KLR_MOV(ctx, sfp[n].o, v_); \
 		}\
 	}\
+
+#define KLR_PARAMPROP(ctx, n, prop) {\
+		if(IS_NULL(sfp[n].o)) {\
+			Object *v_ = knh_getProperty(ctx, __tobytes(sfp[prop].s)); \
+			sfp[n].data = knh_Object_data(v_); \
+			KLR_MOV(ctx, sfp[n].o, v_); \
+		}\
+	}\
+
 
 #define KLR_PARAMS(ctx, a, cid) {\
 		KNH_SETv(ctx, sfp[a].o, knh_stack_toArray(ctx, &sfp[a-1], cid));\
 	}\
-
 
 #define KLR_RETn(ctx, dummy, b) {\
 		KLR_MOVn(ctx, -1, b);\
@@ -395,48 +379,46 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 
 /* ======================================================================== */
 
-#define KLR_CHECKNULL(ctx, n) {\
+#define KLR_CHKNUL(ctx, n) {\
 		if(unlikely(IS_NULL(sfp[n].o))) { \
 			knh_throwException(ctx, new_NullException(ctx, sfp[n].o), _HERE_); \
 		} \
 	} \
 
-
-#define KLR_CHECKNULLx(ctx, n) \
+#define KLR_CHKNULx(ctx, n) \
 	if(unlikely(IS_NULL(SFXo(n)))) { \
 		knh_throwException(ctx, new_NullException(ctx, SFXo(n)), _HERE_); \
 	} \
 
-#define KLR_CHECKTYPE(ctx, n, cid) \
+#define KLR_CHKTYPE(ctx, n, cid) \
 	if(!knh_Object_opTypeOf(ctx, sfp[n].o, cid)) { \
 		knh_throwException(ctx, new_Exception__type(ctx, sfp[n].o, cid), _HERE_); \
 	} \
 
 #define KLR_CHECKNNTYPE(ctx, n, cid) {\
-		KLR_CHECKTYPE(ctx, n, cid);\
-		KLR_CHECKNULL(ctx, n);\
+		KLR_CHKTYPE(ctx, n, cid);\
+		KLR_CHKNUL(ctx, n);\
 	}\
 
 /* ======================================================================== */
 
-#define KLR_RECSFP(ctx, sfp)
-#define KLR_RECSFP2(ctx, sfp)  ctx->esp[0].sp = sfp
+#define KLR_NCALL(ctx) { \
+		(sfp[-1].mtd)->fcall_1(ctx, sfp); \
+		return; \
+	} \
 
 #define KLR_SCALL(ctx, n, shift, m) { \
 		KLR_MOV(ctx, sfp[n].o, m); \
 		((knh_Context_t*)ctx)->esp = &(sfp[n + shift]); \
 		sfp[-1].pc = pc; \
-		sfp[n].pc = (sfp[n].mtd)->pc_start; \
+		/*sfp[n].pc = (sfp[n].mtd)->pc_start;*/ \
 		(sfp[n].mtd)->fcall_1(ctx, sfp + (n + 1)); \
-		((knh_Context_t*)ctx)->esp = &(sfp[n]); \
 	} \
 
 #define KNH_SCALL(ctx, lsfp, n, m, args) { \
 		KLR_MOV(ctx, lsfp[n].o, m); \
 		((knh_Context_t*)ctx)->esp = &(lsfp[n+args+2]); \
-		lsfp[n].pc = (lsfp[n].mtd)->pc_start; \
 		(lsfp[n].mtd)->fcall_1(ctx, lsfp + (n + 1)); \
-		((knh_Context_t*)ctx)->esp = &(lsfp[n]); \
 	} \
 
 #define KNH_CALLGEN(ctx, lsfp, n, m, pc, stacksize) { \
@@ -445,7 +427,6 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 		DP(sfp[n].mtd)->fproceed(ctx, lsfp + (n+1)); \
 		stacksize = ctx->esp - &(lsfp[n]); \
 		pc = lsfp[n+1].pc; \
-		((knh_Context_t*)ctx)->esp = &(lsfp[n]); \
 	} \
 
 #define KLR_FCALL(ctx, n, shift, self, m) { \
@@ -454,19 +435,15 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 		KLR_MOV(ctx, sfp[n].o, m); \
 		((knh_Context_t*)ctx)->esp = &(sfp[n + shift]); \
 		sfp[-1].pc = pc; \
-		sfp[n].pc = (sfp[n].mtd)->pc_start; \
 		(sfp[n].mtd)->fcall_1(ctx, sfp + n1_); \
-		((knh_Context_t*)ctx)->esp = &(sfp[n]); \
 	} \
 
 #define KLR_CALL(ctx, n, shift, mn) { \
 		KLR_MOV(ctx, sfp[n].o, knh_lookupMethod(ctx, knh_Object_cid(sfp[n+1].o), mn)); \
 		DBG2_ASSERT(IS_Method(sfp[n].o)); \
 		((knh_Context_t*)ctx)->esp = &(sfp[n + shift]); \
-		sfp[n].pc = (sfp[n].mtd)->pc_start; \
 		sfp[-1].pc = pc; \
 		(sfp[n].mtd)->fcall_1(ctx, sfp + n + 1); \
-		((knh_Context_t*)ctx)->esp = &(sfp[n]); \
 	} \
 
 #define KLR_ACALL(ctx, n, shift, mn) { \
@@ -475,9 +452,7 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 		((knh_Context_t*)ctx)->esp = &(sfp[n + shift]); \
 		knh_stack_typecheck(ctx, sfp + n + 1, mtd_, pc); \
 		sfp[-1].pc = pc; \
-		sfp[n].pc = (sfp[n].mtd)->pc_start; \
 		(mtd_)->fcall_1(ctx, sfp + n + 1); \
-		((knh_Context_t*)ctx)->esp = &(sfp[n]); \
 	} \
 
 /* this is used only for Closure.invoke */
@@ -489,9 +464,7 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 		knh_stack_typecheck(ctx, sfp + n + 1, (sfp[n].mtd), pc); \
 		((knh_Context_t*)ctx)->esp = &(sfp[n + shift]); \
 		sfp[-1].pc = pc; \
-		sfp[n].pc = (sfp[n].mtd)->pc_start; \
 		(sfp[n].mtd)->fcall_1(ctx, sfp + n + 1); \
-		((knh_Context_t*)ctx)->esp = &(sfp[n]); \
 	} \
 
 #define KLR_NEW(ctx, n, flag, cid, shift, m) { \
@@ -499,9 +472,7 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 		KLR_MOV(ctx, sfp[n+1].o, new_Object_init(ctx, flag, cid, 0)); \
 		((knh_Context_t*)ctx)->esp = &(sfp[n + shift]); \
 		sfp[-1].pc = pc; \
-		sfp[n].pc = (sfp[n].mtd)->pc_start; \
 		(sfp[n].mtd)->fcall_1(ctx, sfp + n + 1); \
-		((knh_Context_t*)ctx)->esp = &(sfp[n]); \
 	} \
 
 /* this is used only for Closure.invoke */
@@ -529,7 +500,7 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 /* ------------------------------------------------------------------------- */
 
 #define KLR_SMAP(ctx, n, m)  { \
-		KLR_MOV(ctx, sfp[n+1].o, m);\
+		KLR_MOV(ctx, sfp[n+1].o, m); \
 		(sfp[n+1].mpr)->fmap_1(ctx, sfp + n); \
 	} \
 
@@ -758,7 +729,6 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 		DBG_P("pop %d", (int)n); \
 		/*knh_stack_pop(ctx, sfp + n);*/ \
 	} \
-
 
 /* ------------------------------------------------------------------------ */
 

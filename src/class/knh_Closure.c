@@ -387,8 +387,8 @@ knh_Iterator_t* new_Generator(Ctx *ctx, knh_sfp_t *sfp)
 		knh_class_t cid = knh_Method_gencid(ctx, sfp[-1].mtd, knh_Object_cid(sfp[0].o));
 		knh_Iterator_t *it = new_Iterator(ctx, cid, UP(cc), knh_Generator_fnext);
 		knh_code_t *pc = (sfp[-1].mtd)->pc_start;
-		KNH_ASSERT(((klr_SETESP_t*)pc)->opcode == OPCODE_SETESP);
-		size_t stacksize = 1 + ((klr_SETESP_t*)pc)->a1;
+		KNH_ASSERT(((klr_CHKESP_t*)pc)->opcode == OPCODE_CHKESP);
+		size_t stacksize = 1 + ((klr_CHKESP_t*)pc)->a1;
 		size_t* hstack = (size_t*)KNH_MALLOC(ctx, (sizeof(knh_sfp_t) * stacksize) + sizeof(size_t));
 		knh_sfp_t *envsfp = (knh_sfp_t*)(&hstack[1]);
 		hstack[0] = stacksize;

@@ -42,9 +42,9 @@ extern "C" {
 /* ======================================================================== */
 /* [Context] */
 
-Object* knh_Context_getProperty(Ctx *ctx, knh_Context_t *b, knh_bytes_t key)
+Object* knh_getProperty(Ctx *ctx, knh_bytes_t key)
 {
-	Object *v = knh_DictMap_get__b(ctx,  b->props, key);
+	Object *v = knh_DictMap_get__b(ctx,  (ctx)->props, key);
 	if(IS_NULL(v)) {
 		v = knh_System_getProperty(ctx, ctx->sys, key);
 	}
@@ -68,11 +68,11 @@ knh_type_t knh_getPropertyType(Ctx *ctx, knh_bytes_t key)
 
 /* ------------------------------------------------------------------------ */
 
-void knh_Context_setProperty(Ctx *ctx, knh_Context_t *b, knh_String_t *key, Any *value)
+void knh_setProperty(Ctx *ctx, knh_String_t *key, Any *value)
 {
 	knh_type_t type = knh_getPropertyType(ctx, __tobytes(key));
 	if(type == TYPE_Any || knh_Object_cid(value) == CLASS_type(type)) {
-		knh_DictMap_set(ctx, b->props, key, value);
+		knh_DictMap_set(ctx, ctx->props, key, value);
 	}
 	else {
 		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);

@@ -146,8 +146,7 @@ void knh_ClassField_initField(Ctx *ctx, knh_ClassField_t *cs, knh_class_t self_c
 		knh_type_t type = cf[i].type;
 		Object *value = cf[i].value;
 		if(KNH_FLAG_IS(cf[i].flag, FLAG_ClassField_Property)) {
-			value = knh_Context_getProperty(ctx, (knh_Context_t*)ctx,
-				__tobytes((knh_String_t*)value));
+			value = knh_getProperty(ctx, __tobytes((knh_String_t*)value));
 			DBG2_P("type=%s%s object=%s", TYPEQN(cf[i].type), CLASSNo(value));
 		}
 #ifdef KNH_USING_UNBOXFIELD
