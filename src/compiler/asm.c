@@ -1753,41 +1753,31 @@ void knh_Gamma_popLABEL(Ctx *ctx)
 	knh_Array_pop(ctx, DP(ctx->kc)->lstacks);
 }
 
-/* ------------------------------------------------------------------------ */
-/* [IT] */
-
-static
-knh_Token_t *knh_Stmt_get_IT(Ctx *ctx, knh_Stmt_t *stmt, int index)
-{
-	DBG2_ASSERT(index < DP(stmt)->used_stack);
-	int n = DP(stmt)->size - DP(stmt)->used_stack + index;
-	knh_Token_t *tk = DP(stmt)->tokens[n];
-	DBG2_ASSERT(TT_(tk) == TT_LOCAL);
-	if(DP(tk)->index == index) {
-		DP(tk)->index = knh_Gamma_esp(ctx) - DP(stmt)->used_stack + index;
-	}
-	return tk;
-}
-
 /* ======================================================================== */
 /* [IF, WHILE, DO, FOR, FOREACH]  */
 
-static
-int TERMs_isDONE(knh_Stmt_t *stmt, size_t n)
+static int TERMs_isDONE(knh_Stmt_t *stmt, size_t n)
 {
 	knh_Stmt_t *cur = DP(stmt)->stmts[n];
 	return (IS_Stmt(cur) && SP(cur)->stt == STT_DONE);
 }
 
-static
-void TERMs_asmBLOCK(Ctx *ctx, knh_Stmt_t *stmt, size_t n)
+static knh_Token_t *knh_Stmt_getLOCAL(knh_Stmt_t *stmt, size_t n)
+{
+	DBG2_ASSERT(n < DP(stmt)->size);
+	knh_Token_t *tkIT = DP(stmt)->tokens[n];
+	DBG2_ASSERT(IS_Token(tkIT));
+	DBG2_ASSERT(TT_(tkIT) == TT_LOCAL);
+	return tkIT;
+}
+
+static void TERMs_asmBLOCK(Ctx *ctx, knh_Stmt_t *stmt, size_t n)
 {
 	ASM_ASSERT(ctx, IS_Stmt(DP(stmt)->stmts[n]));
 	knh_Stmt_asmBLOCK(ctx, DP(stmt)->stmts[n],1);
 }
 
-static
-void knh_StmtIF_asm(Ctx *ctx, knh_Stmt_t *stmt)
+static void knh_StmtIF_asm(Ctx *ctx, knh_Stmt_t *stmt)
 {
 	knh_KLRInst_t*  lbELSE = new_KLRInstLABEL(ctx);
 	knh_KLRInst_t*  lbEND = new_KLRInstLABEL(ctx);
@@ -1813,7 +1803,7 @@ static
 void knh_StmtSWITCH_asm(Ctx *ctx, knh_Stmt_t *stmt)
 {
 	knh_Stmt_t *stmtCASE;
-	knh_Token_t *tkIT = knh_Stmt_get_IT(ctx, stmt, 0);
+	knh_Token_t *tkIT = knh_Stmt_getLOCAL(stmt, SWITCH_IT);
 	knh_KLRInst_t* lbC = new_KLRInstLABEL(ctx);
 	knh_KLRInst_t* lbB = new_KLRInstLABEL(ctx);
 	knh_Gamma_pushLABEL(ctx, stmt, lbC, lbB);
@@ -1836,7 +1826,6 @@ void knh_StmtSWITCH_asm(Ctx *ctx, knh_Stmt_t *stmt)
 	while(IS_Stmt(stmtCASE)) {
 		if(SP(stmtCASE)->stt == STT_CASE) {
 			if(TERMs_isASIS(stmtCASE, 0)) {
-				DBG2_P("default: ");
 				TERMs_asmBLOCK(ctx, stmtCASE, 1);
 			}
 		}
@@ -1995,7 +1984,7 @@ static
 void knh_StmtSEPARATOR_asm(Ctx *ctx, knh_Stmt_t *stmt)
 {
 	knh_Stmt_t *stmtDECL = DP(stmt)->stmts[0];
-	knh_Token_t *tkIT = knh_Stmt_get_IT(ctx, stmt, 0);
+	knh_Token_t *tkIT = knh_Stmt_getLOCAL(stmt, SEPARATOR_IT);
 	TERMs_asm(ctx, stmt, FOREACH_iter, DP(tkIT)->type, DP(tkIT)->index);
 	while(IS_NOTNULL(stmtDECL)) {
 		if(STT_(stmtDECL) == STT_LET) {
@@ -2021,10 +2010,10 @@ void knh_StmtFOREACH_asm(Ctx *ctx, knh_Stmt_t *stmt)
 	knh_Gamma_pushLABEL(ctx, stmt, lbC, lbB);
 
 	knh_Stmt_t *stmtDECL = DP(stmt)->stmts[0];
-	knh_Token_t *tkITR = knh_Stmt_get_IT(ctx, stmt, 0);
+	knh_Token_t *tkITR = knh_Stmt_getLOCAL(stmt, FOREACH_ITR);
 	knh_Token_t *tkN = NULL;
 	if(knh_Stmt_isSEPARATOR(stmtDECL)) {
-		tkN = knh_Stmt_get_IT(ctx, stmt, 1);
+		tkN = knh_Stmt_getLOCAL(stmt, FOREACH_SPR);
 	}
 	else {
 		tkN = DP(stmtDECL)->tokens[1];
@@ -2116,7 +2105,7 @@ void knh_StmtTRY_asm(Ctx *ctx, knh_Stmt_t *stmt)
 {
 	knh_KLRInst_t*  lbCATCH   = new_KLRInstLABEL(ctx);
 	knh_KLRInst_t*  lbFINALLY = new_KLRInstLABEL(ctx);
-	knh_Token_t *tkIT = knh_Stmt_get_IT(ctx, stmt, 0);
+	knh_Token_t *tkIT = knh_Stmt_getLOCAL(stmt, TRY_HDR);
 
 	knh_Gamma_setFinallyStmt(ctx, StmtTRY_finally(stmt));
 

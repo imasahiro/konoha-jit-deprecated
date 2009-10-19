@@ -2015,7 +2015,6 @@ static void knh_Stmt_init(Ctx *ctx, knh_Stmt_t *stmt, int init)
 {
 	knh_Stmt_struct *b = DP(stmt);
 	b->type = TYPE_var;
-	b->used_stack = 0;
 	b->size = 0;
 	b->capacity = init;
 	if(b->capacity > 0) {

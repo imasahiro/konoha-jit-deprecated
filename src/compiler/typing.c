@@ -1467,28 +1467,6 @@ static
 knh_index_t knh_Gamma_declareFieldVariable(Ctx *ctx, knh_cfield_t *decl)
 {
 	return knh_Gamma_addVariableTable(ctx, DP(ctx->kc)->gamma, K_GAMMASIZE, decl, 1/*isField*/);
-//	if(idx != -1) {
-//		knh_type_t type = decl->type;
-//#ifdef KNH_USING_UNBOXFIELD
-//		if(IS_ubxint(type) && (sizeof(knh_int_t) > sizeof(void*))) {
-//			if((idx + 1) > DP(kc)->gsize) {
-//				DP(kc)->gsize = (knh_ushort_t)(idx + 2);
-//			}
-//			return idx;
-//		}
-//		if(IS_ubxfloat(type) && sizeof(knh_float_t) > sizeof(void*)) {
-//			if((idx + 1) > DP(kc)->gsize) {
-//				DP(kc)->gsize = (knh_ushort_t)(idx + 2);
-//			}
-//			return idx;
-//		}
-//#endif/*KNH_USING_UNBOXFIELD*/
-//		if((idx + 1) > DP(kc)->gsize) {
-//			DP(kc)->gsize = (knh_ushort_t)(idx + 1);
-//		}
-//		return idx;
-//	}
-//	return -1;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1498,9 +1476,6 @@ knh_index_t knh_Gamma_declareLocalVariable(Ctx *ctx, knh_cfield_t *decl)
 {
 	knh_Gamma_t *kc = ctx->kc;
 	return knh_Gamma_addVariableTable(ctx, DP(kc)->gamma + DP(kc)->goffset, K_GAMMASIZE - DP(kc)->goffset, decl, 0/*isField*/);
-//	if(idx != -1 && (idx + 1) > DP(kc)->gsize) {
-//		DP(kc)->gsize = (knh_ushort_t)(idx + 1);
-//	}
 }
 
 /* ------------------------------------------------------------------------ */
@@ -3573,17 +3548,23 @@ knh_Token_t *new_TokenLOCAL(Ctx *ctx, Any *fln, knh_type_t type, int varidx)
 }
 
 static
-knh_Token_t *knh_Stmt_add_IT(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t type, int index)
+knh_Token_t *knh_Stmt_addLOCAL(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t type, size_t loc)
 {
-	knh_Token_t *tk = new_TokenLOCAL(ctx, FL(stmt), type, index);
-	DBG2_ASSERT(index == DP(stmt)->used_stack);
-	DP(stmt)->used_stack += 1;
-	knh_Stmt_addT(ctx, stmt, tk);
-	return tk;
+	knh_Token_t *tkIT;
+	if(loc < DP(stmt)->size) {
+		knh_Token_t *tkIT = DP(stmt)->tokens[loc];
+		DBG2_ASSERT(IS_Token(tkIT));
+		DBG2_ASSERT(TT_(tkIT) == TT_LOCAL);
+	}
+	else {
+		knh_cfield_t decl = {0, type, FIELDN_/*register*/, NULL};
+		knh_index_t idx = knh_Gamma_declareLocalVariable(ctx, &decl);
+		knh_Token_t *tkIT = new_TokenLOCAL(ctx, FL(stmt), type, idx);
+		DBG2_ASSERT(loc == DP(stmt)->size);
+		knh_Stmt_addT(ctx, stmt, tkIT);
+	}
+	return tkIT;
 }
-
-/* ======================================================================== */
-/* [IF] */
 
 static
 void knh_Stmt_toBLOCK(Ctx *ctx, knh_Stmt_t *stmt, size_t n)
@@ -3624,7 +3605,7 @@ Term *knh_StmtIF_typing(Ctx *ctx, knh_Stmt_t *stmt)
 /* ------------------------------------------------------------------------ */
 
 static
-knh_Stmt_t *new_StmtMN(Ctx *ctx, Any *fl, knh_methodn_t mn)
+knh_Stmt_t *new_StmtCALLMN(Ctx *ctx, Any *fl, knh_methodn_t mn)
 {
 	knh_Stmt_t *stmt = new_Stmt(ctx, 0, STT_CALL);
 	knh_Token_t *tk = new_TokenMN(ctx, fl, mn);
@@ -3632,9 +3613,20 @@ knh_Stmt_t *new_StmtMN(Ctx *ctx, Any *fl, knh_methodn_t mn)
 	return stmt;
 }
 
+#define BEGIN_BLOCK(esp) \
+	size_t esp = knh_Gamma_unused(ctx);\
+	DBG2_ASSERT(DP(ctx->kc)->gamma[esp].fn == FIELDN_NONAME);\
+
+#define END_BLOCK(esp) \
+	if(DP(ctx->kc)->gamma[esp].fn != FIELDN_NONAME) {\
+		DBG2_P("*** stt=%s release esp=%d ***", cSTT_(stmt), (int)esp);\
+		knh_Gamma_clear(ctx, esp, 0/*isAll*/);\
+	}\
+
 static
 Term *knh_StmtSWITCH_typing(Ctx *ctx, knh_Stmt_t *stmt)
 {
+	BEGIN_BLOCK(esp);
 	int isIteration = 1;
 	knh_Stmt_t *stmtCASE, *stmtDEFAULT = NULL;
 	knh_Token_t *tkIT = NULL;
@@ -3643,7 +3635,7 @@ Term *knh_StmtSWITCH_typing(Ctx *ctx, knh_Stmt_t *stmt)
 		return NULL;
 	}
 	else {
-		tkIT = knh_Stmt_add_IT(ctx, stmt, TERMs_gettype(stmt, 0), 0);
+		tkIT = knh_Stmt_addLOCAL(ctx, stmt, TYPE_Any, SWITCH_IT);
 	}
 	if(knh_Stmt_isAutoReturn(stmt)) {
 		isIteration = 2/*AutoReturn*/;
@@ -3667,7 +3659,7 @@ Term *knh_StmtSWITCH_typing(Ctx *ctx, knh_Stmt_t *stmt)
 				goto L_NEXT;
 			}
 			{
-				knh_Stmt_t *stmtOP = new_StmtMN(ctx, FL(stmt), METHODN_opCase);
+				knh_Stmt_t *stmtOP = new_StmtCALLMN(ctx, FL(stmt), METHODN_opCase);
 				knh_Stmt_add(ctx, stmtOP, DP(stmtCASE)->terms[0]);
 				knh_Stmt_addT(ctx, stmtOP, tkIT);
 				KNH_SETv(ctx, DP(stmtCASE)->terms[0], stmtOP);
@@ -3682,13 +3674,12 @@ Term *knh_StmtSWITCH_typing(Ctx *ctx, knh_Stmt_t *stmt)
 		L_NEXT:;
 		stmtCASE = DP(stmtCASE)->next;
 	}
+	END_BLOCK(esp);
 	if(c == 0) {
 		return knh_Stmt_done(ctx, stmt);
 	}
 	return TM(stmt);
 }
-
-/* ------------------------------------------------------------------------ */
 
 static
 Term *knh_StmtWHILE_typing(Ctx *ctx, knh_Stmt_t *stmt)
@@ -3705,8 +3696,6 @@ Term *knh_StmtWHILE_typing(Ctx *ctx, knh_Stmt_t *stmt)
 	return TM(stmt);
 }
 
-/* ------------------------------------------------------------------------ */
-
 static
 Term *knh_StmtDO_typing(Ctx *ctx, knh_Stmt_t *stmt)
 {
@@ -3717,11 +3706,10 @@ Term *knh_StmtDO_typing(Ctx *ctx, knh_Stmt_t *stmt)
 	return TM(stmt);
 }
 
-/* ------------------------------------------------------------------------ */
-
 static
 Term *knh_StmtFOR_typing(Ctx *ctx, knh_Stmt_t *stmt)
 {
+	BEGIN_BLOCK(esp);
 	/* i = 0*/
 	if(!TERMs_typingBLOCK(ctx, stmt, 0, 0)) return NULL;
 	/* i < N */
@@ -3735,6 +3723,7 @@ Term *knh_StmtFOR_typing(Ctx *ctx, knh_Stmt_t *stmt)
 		if(!TERMs_typingBLOCK(ctx, stmt, 2, 0)) return NULL;
 		TERMs_typingBLOCK(ctx, stmt, 3, 1);
 	}
+	END_BLOCK(esp);
 	return TM(stmt);
 }
 
@@ -3755,11 +3744,11 @@ int knh_Gamma_typingSEPARATOR(Ctx *ctx, knh_Stmt_t *stmtDECL, knh_Token_t *tkIT)
 	while(IS_Stmt(stmtDECL)) {
 		knh_Stmt_t *stmtVALUE = NULL;
 		if(c < 2) {
-			stmtVALUE = new_StmtMN(ctx, FL(stmtDECL), (c == 0) ? METHODN_op0 : METHODN_op1);
+			stmtVALUE = new_StmtCALLMN(ctx, FL(stmtDECL), (c == 0) ? METHODN_op0 : METHODN_op1);
 			knh_Stmt_addT(ctx, stmtVALUE, tkIT);
 		}
 		else {
-			stmtVALUE = new_StmtMN(ctx, FL(stmtDECL), METHODN_opN);
+			stmtVALUE = new_StmtCALLMN(ctx, FL(stmtDECL), METHODN_opN);
 			knh_Stmt_addT(ctx, stmtVALUE, tkIT);
 			knh_Stmt_addT(ctx, stmtVALUE, new_TokenCONST(ctx, FL(stmtDECL), UP(new_Int(ctx, c))));
 		}
@@ -3790,10 +3779,15 @@ int knh_Gamma_typingSEPARATOR(Ctx *ctx, knh_Stmt_t *stmtDECL, knh_Token_t *tkIT)
 Term *knh_StmtSEPARATOR_typing(Ctx *ctx, knh_Stmt_t *stmt)
 {
 	if(TERMs_typing(ctx, stmt, 1, TYPE_Any, TWARN_)) {
-		knh_Token_t *tkIT = knh_Stmt_add_IT(ctx, stmt, TERMs_getcid(stmt, 1), 0);
-		if(knh_Gamma_typingSEPARATOR(ctx, DP(stmt)->stmts[0], tkIT)) {
-			return knh_Stmt_typed(ctx, stmt, TYPE_Any);
+		BEGIN_BLOCK(esp);
+		knh_type_t type = TERMs_gettype(stmt, 1);
+		if(type == TYPE_var) type = TYPE_Any;
+		knh_Token_t *tkIT = knh_Stmt_addLOCAL(ctx, stmt, type, SEPARATOR_IT);
+		if(!knh_Gamma_typingSEPARATOR(ctx, DP(stmt)->stmts[0], tkIT)) {
+			return NULL;
 		}
+		END_BLOCK(esp);
+		return knh_Stmt_typed(ctx, stmt, TYPE_Any);
 	}
 	return NULL;
 }
@@ -3801,8 +3795,7 @@ Term *knh_StmtSEPARATOR_typing(Ctx *ctx, knh_Stmt_t *stmt)
 /* ------------------------------------------------------------------------ */
 /* [FOREACH] */
 
-static
-int knh_Stmt_isSEPARATOR(knh_Stmt_t *stmt)
+static int knh_Stmt_isSEPARATOR(knh_Stmt_t *stmt)
 {
 	return (IS_Stmt(DP(stmt)->next) && STT_(DP(stmt)->next) == STT_DECL);
 }
@@ -3814,13 +3807,14 @@ int knh_Stmt_isSEPARATOR(knh_Stmt_t *stmt)
 static
 Term *knh_StmtFOREACH_typing(Ctx *ctx, knh_Stmt_t *stmt)
 {
+	BEGIN_BLOCK(esp);
 	knh_type_t reqt  = TYPE_var;
 	knh_Stmt_t *stmtDECL = DP(stmt)->stmts[0];
-	knh_Token_t *tkITR = knh_Stmt_add_IT(ctx, stmt, NNTYPE_Iterator, 0);
+	knh_Token_t *tkITR = knh_Stmt_addLOCAL(ctx, stmt, NNTYPE_Iterator, FOREACH_ITR);
 	knh_Token_t *tkSPR = NULL;
 	knh_methodn_t mn_opItr = METHODN_opItr;
 	if(knh_Stmt_isSEPARATOR(stmtDECL)) {
-		tkSPR = knh_Stmt_add_IT(ctx, stmt, TYPE_Any, 1);
+		tkSPR = knh_Stmt_addLOCAL(ctx, stmt, TYPE_Any, FOREACH_SPR);
 		mn_opItr = METHODN_opItr__2;
 	}
 	else {
@@ -3838,7 +3832,7 @@ Term *knh_StmtFOREACH_typing(Ctx *ctx, knh_Stmt_t *stmt)
 			return NULL;
 		}
 		if(TERMs_getbcid(stmt, FOREACH_iter) != CLASS_Iterator) {
-			knh_Stmt_t *stmtCALL = new_StmtMN(ctx, FL(stmt), mn_opItr);
+			knh_Stmt_t *stmtCALL = new_StmtCALLMN(ctx, FL(stmt), mn_opItr);
 			knh_Stmt_add(ctx, stmtCALL, StmtFOREACH_iter(stmt));
 			KNH_SETv(ctx, DP(stmt)->stmts[FOREACH_iter], stmtCALL);
 			if(!TERMs_typing(ctx, stmt, FOREACH_iter, NNTYPE_Iterator, TCHECK_)) {
@@ -3861,7 +3855,7 @@ Term *knh_StmtFOREACH_typing(Ctx *ctx, knh_Stmt_t *stmt)
 		DBG2_ASSERT(tkSPR == NULL);
 		DP(tkITR)->type = knh_class_Iterator(ctx, CLASS_type(reqt));
 		if(!TERMs_typing(ctx, stmt, FOREACH_iter, DP(tkITR)->type, TITERCONV_)) {
-			knh_Stmt_t *stmtCALL = new_StmtMN(ctx, FL(stmt), mn_opItr);
+			knh_Stmt_t *stmtCALL = new_StmtCALLMN(ctx, FL(stmt), mn_opItr);
 			knh_Stmt_add(ctx, stmtCALL, StmtFOREACH_iter(stmt));
 			KNH_SETv(ctx, DP(stmt)->stmts[FOREACH_iter], stmtCALL);
 			if(!TERMs_typing(ctx, stmt, FOREACH_iter, NNTYPE_Iterator, TCHECK_)) {
@@ -3874,9 +3868,11 @@ Term *knh_StmtFOREACH_typing(Ctx *ctx, knh_Stmt_t *stmt)
 	}
 	if(TERMs_isFALSE(stmt, FOREACH_where)) {
 		knh_Stmt_done(ctx, stmt);
-		return TM(stmt);
 	}
-	TERMs_typingBLOCK(ctx, stmt, FOREACH_loop, 1);
+	else {
+		TERMs_typingBLOCK(ctx, stmt, FOREACH_loop, 1);
+	}
+	END_BLOCK(esp);
 	return TM(stmt);
 }
 
@@ -3886,7 +3882,8 @@ static
 Term *knh_StmtTRY_typing(Ctx *ctx, knh_Stmt_t *stmt)
 {
 	int isIteration = 1;
-	knh_Stmt_add_IT(ctx, stmt, NNTYPE_Exception, 0);
+	BEGIN_BLOCK(esp);
+	knh_Stmt_addLOCAL(ctx, stmt, NNTYPE_ExceptionHandler, TRY_HDR);
 	if(knh_Stmt_isAutoReturn(stmt)) {
 		isIteration = 2/*AutoReturn*/;
 	}
@@ -3895,6 +3892,7 @@ Term *knh_StmtTRY_typing(Ctx *ctx, knh_Stmt_t *stmt)
 		knh_Stmt_t *stmtCATCH = DP(stmt)->stmts[TRY_catch];
 		while(IS_Stmt(stmtCATCH)) {
 			if(SP(stmtCATCH)->stt == STT_CATCH) {
+				BEGIN_BLOCK(esp2);
 				knh_Token_t *tkV = DP(stmtCATCH)->tokens[1];
 				knh_fieldn_t fn = knh_Token_getfnq(ctx, tkV);
 				knh_cfield_t decl = {0, TYPE_Exception, fn, NULL};
@@ -3910,11 +3908,13 @@ Term *knh_StmtTRY_typing(Ctx *ctx, knh_Stmt_t *stmt)
 						TERMs_typingBLOCK(ctx, stmtCATCH, 2, isIteration);
 					}
 				}
+				END_BLOCK(esp2);
 			}
 			stmtCATCH = DP(stmtCATCH)->next;
 		}
 	}
 	TERMs_typingBLOCK(ctx, stmt, TRY_finally, isIteration);
+	END_BLOCK(esp);
 	return TM(stmt);
 }
 
@@ -3957,16 +3957,12 @@ Term *knh_StmtASSERT_typing(Ctx *ctx, knh_Stmt_t *stmt)
 	if(TERMs_isFALSE(stmt, 0)) {
 		knh_Gamma_perror(ctx, KERR_EWARN, _("always throw Assert!!"));
 	}
-	TERMs_typingBLOCK(ctx, stmt, 1, 1);
+	TERMs_typingBLOCK(ctx, stmt, 1, 1/*isIteration*/);
 	return TM(stmt);
 }
 
 /* ======================================================================== */
 /* [REGISTER] */
-
-void knh_Gamma_initReg(Ctx *ctx)
-{
-}
 
 static
 knh_Stmt_t *knh_Gamma_register(Ctx *ctx, knh_Stmt_t *stmt)
@@ -4004,8 +4000,7 @@ Term *knh_StmtREGISTER_typing(Ctx *ctx, knh_Stmt_t *stmt)
 
 /* ------------------------------------------------------------------------ */
 
-static
-int knh_Token_equals(Ctx *ctx, knh_Token_t *tk, Term *tm)
+static int knh_Token_equals(Ctx *ctx, knh_Token_t *tk, Term *tm)
 {
 	if(IS_Stmt(tm)) return 0;
 	knh_Token_t *atk = (knh_Token_t*)tm;
@@ -4795,7 +4790,6 @@ Term *knh_Stmt_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
 		}
 		switch(STT_(stmt)) {
 		case STT_BLOCK:
-			DBG2_P("************************ BLOCK **************************");
 			if(!TERMs_typingBLOCK(ctx, stmt, 0, knh_Stmt_isAutoReturn(stmt) ? 2 : 1)) {
 				return NULL;
 			}

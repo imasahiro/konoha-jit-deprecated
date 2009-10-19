@@ -65,6 +65,13 @@ extern "C" {
 #define TCONV_  2
 #define TITERCONV_ 3
 
+
+#define SWITCH_IT       2
+#define SEPARATOR_IT    2
+#define FOREACH_ITR     (FOREACH_loop+1)
+#define FOREACH_SPR     (FOREACH_loop+2)
+#define TRY_HDR         3
+
 /* ------------------------------------------------------------------------ */
 
 #define OPCODE_LABEL  (OPCODE_NOP+1)
