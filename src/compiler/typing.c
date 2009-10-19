@@ -42,6 +42,16 @@ static Term *knh_Stmt_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt);
 static Term *knh_StmtCALL_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_class_t reqt);
 static int TERMs_typing(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_type_t reqt, int mode);
 
+#define BEGIN_BLOCK(esp) \
+	size_t esp = knh_Gamma_unused(ctx);\
+	DBG2_ASSERT(DP(ctx->kc)->gamma[esp].fn == FIELDN_NONAME);\
+
+#define END_BLOCK(esp) \
+	if(DP(ctx->kc)->gamma[esp].fn != FIELDN_NONAME) {\
+		DBG2_P("*** stt=%s release esp=%d ***", cSTT_(stmt), (int)esp);\
+		knh_Gamma_clear(ctx, esp, 0/*isAll*/);\
+	}\
+
 /* ======================================================================== */
 /* [get] */
 
@@ -620,7 +630,6 @@ static int knh_TokenNAME_typing(Ctx *ctx, knh_Token_t *tk, int checkClosure)
 		if(cf->type == TYPE_var) type = TYPE_var;
 		if(checkClosure && !knh_type_isClosure(ctx, type)) goto L_FIELD;
 		if(idx < DP(kc)->goffset) {
-			DBG2_P("idx=%d, goffset=%d", idx, DP(kc)->goffset);
 			knh_Gamma_foundSTACK(kc, 1);
 			knh_Token_toSTACK(ctx, tk, type, idx);
 			knh_Token_setReadOnly(tk, 1);
@@ -3613,18 +3622,7 @@ knh_Stmt_t *new_StmtCALLMN(Ctx *ctx, Any *fl, knh_methodn_t mn)
 	return stmt;
 }
 
-#define BEGIN_BLOCK(esp) \
-	size_t esp = knh_Gamma_unused(ctx);\
-	DBG2_ASSERT(DP(ctx->kc)->gamma[esp].fn == FIELDN_NONAME);\
-
-#define END_BLOCK(esp) \
-	if(DP(ctx->kc)->gamma[esp].fn != FIELDN_NONAME) {\
-		DBG2_P("*** stt=%s release esp=%d ***", cSTT_(stmt), (int)esp);\
-		knh_Gamma_clear(ctx, esp, 0/*isAll*/);\
-	}\
-
-static
-Term *knh_StmtSWITCH_typing(Ctx *ctx, knh_Stmt_t *stmt)
+static Term *knh_StmtSWITCH_typing(Ctx *ctx, knh_Stmt_t *stmt)
 {
 	BEGIN_BLOCK(esp);
 	int isIteration = 1;
@@ -4862,8 +4860,7 @@ knh_Stmt_typingBLOCK(Ctx *ctx, knh_Stmt_t *stmt, int isIteration)
 	knh_Gamma_t *kc = ctx->kc;
 	int res = 1;
 	knh_Stmt_t *cur = stmt;
-	size_t esp = knh_Gamma_unused(ctx);
-	DBG2_ASSERT(DP(kc)->gamma[esp].fn == FIELDN_NONAME);
+	BEGIN_BLOCK(esp);
 	while(IS_Stmt(cur)) {
 		Term *tm;
 		SP(kc)->line = SP(cur)->line;
@@ -4880,10 +4877,7 @@ knh_Stmt_typingBLOCK(Ctx *ctx, knh_Stmt_t *stmt, int isIteration)
 		if(isIteration == 0) break;
 		cur = DP(cur)->next;
 	}
-	if(DP(kc)->gamma[esp].fn != FIELDN_NONAME) {
-		DBG2_P("*** RELEASE LOCAL VARIABLES.. ***");
-		knh_Gamma_clear(ctx, esp, 0/*isAll*/);
-	}
+	END_BLOCK(esp);
 	return res;
 }
 

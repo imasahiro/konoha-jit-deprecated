@@ -81,7 +81,7 @@ extern "C" {
 #if defined(KNH_USING_THREADEDCODE)
 #define TADDR   NULL,
 #else
-#define TADDR   ""
+#define TADDR
 #endif/*KNH_USING_THREADEDCODE*/
 
 #define KNH_ASM(T, ...) { \

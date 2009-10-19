@@ -633,7 +633,6 @@ Term *knh_StmtLETM_typing(Ctx *ctx, knh_Stmt_t *stmt);
 char *METHODN_op(knh_methodn_t mn);
 Term *knh_StmtEXPR_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_class_t reqt);
 Term *knh_StmtSEPARATOR_typing(Ctx *ctx, knh_Stmt_t *stmt);
-void knh_Gamma_initReg(Ctx *ctx);
 void knh_StmtMETHOD_typingBODY(Ctx *ctx, knh_Method_t *mtd, knh_Stmt_t *stmtPARAMS, knh_Stmt_t *stmtBODY, int isIteration);
 Term * knh_StmtMETHOD_typing(Ctx *ctx, knh_Stmt_t *stmt);
 Term * knh_StmtFUNCTION_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt);
