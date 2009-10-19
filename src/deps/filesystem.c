@@ -340,7 +340,7 @@ void knh_System_initPath(Ctx *ctx, knh_System_t *o)
 	knh_bytes_t home = {NULL, 0};
 #if defined(KNH_PREFIX)
 	if(homepath == NULL) {
-		homepath = KNH_PREFIX "/kohoha";
+		homepath = KNH_PREFIX "/konoha";
 		DBG_P("homepath='%s'", homepath);
 	}
 #endif
