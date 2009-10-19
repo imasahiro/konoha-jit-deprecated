@@ -383,6 +383,13 @@ knh_methodn_t knh_getmn(Ctx *ctx, knh_bytes_t tname, knh_methodn_t def)
 		}
 		return KNH_FLAG_MN_MOVTEXT | fn;
 	}
+	else if(tname.buf[0] == 'i' && tname.buf[1] == 's') { /* is => get */
+		knh_fieldn_t fn = knh_System_getfn(ctx, knh_bytes_last(tname, 2), def);
+		if(fn == FIELDN_NONAME) {
+			return METHODN_NONAME;
+		}
+		return KNH_FLAG_MN_GETTER | fn;
+	}
 	else if(tname.buf[0] == 'g' && tname.buf[1] == 'e' && tname.buf[2] == 't') {
 		knh_fieldn_t fn = knh_System_getfn(ctx, knh_bytes_last(tname, 3), def);
 		if(fn == FIELDN_NONAME) {
