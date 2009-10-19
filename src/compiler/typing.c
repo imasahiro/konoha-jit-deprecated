@@ -3561,14 +3561,14 @@ knh_Token_t *knh_Stmt_addLOCAL(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t type, size
 {
 	knh_Token_t *tkIT;
 	if(loc < DP(stmt)->size) {
-		knh_Token_t *tkIT = DP(stmt)->tokens[loc];
+		tkIT = DP(stmt)->tokens[loc];
 		DBG2_ASSERT(IS_Token(tkIT));
 		DBG2_ASSERT(TT_(tkIT) == TT_LOCAL);
 	}
 	else {
 		knh_cfield_t decl = {0, type, FIELDN_/*register*/, NULL};
 		knh_index_t idx = knh_Gamma_declareLocalVariable(ctx, &decl);
-		knh_Token_t *tkIT = new_TokenLOCAL(ctx, FL(stmt), type, idx);
+		tkIT = new_TokenLOCAL(ctx, FL(stmt), type, idx);
 		DBG2_ASSERT(loc == DP(stmt)->size);
 		knh_Stmt_addT(ctx, stmt, tkIT);
 	}

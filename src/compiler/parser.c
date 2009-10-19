@@ -2580,14 +2580,11 @@ static knh_Stmt_t *new_StmtFOR(Ctx *ctx, knh_tkc_t *tc)
 }
 
 /* ------------------------------------------------------------------------ */
-/* [break] */
 
 static int isLABEL(Ctx *ctx, knh_Token_t *tk)
 {
 	return (TT_(tk) == TT_LABEL || TT_(tk) == TT_CONSTN || TT_(tk) == TT_NAME || TT_(tk) == TT_TYPEN);
 }
-
-/* ------------------------------------------------------------------------ */
 
 static knh_Stmt_t *new_StmtBREAK(Ctx *ctx, knh_tkc_t *tc)
 {
@@ -2597,9 +2594,6 @@ static knh_Stmt_t *new_StmtBREAK(Ctx *ctx, knh_tkc_t *tc)
 	return o;
 }
 
-/* ------------------------------------------------------------------------ */
-/* [continue] */
-
 static knh_Stmt_t *new_StmtCONTINUE(Ctx *ctx, knh_tkc_t *tc)
 {
 	knh_Stmt_t *o = new_StmtMETA(ctx, tc, STT_CONTINUE);
@@ -2608,8 +2602,6 @@ static knh_Stmt_t *new_StmtCONTINUE(Ctx *ctx, knh_tkc_t *tc)
 	return o;
 }
 
-/* ------------------------------------------------------------------------ */
-/* [try] */
 /* ------------------------------------------------------------------------ */
 
 static knh_Stmt_t *new_StmtCATCH(Ctx *ctx, knh_tkc_t *tc)
@@ -2663,9 +2655,6 @@ static knh_Stmt_t *new_StmtTRY(Ctx *ctx, knh_tkc_t *tc)
 	return o;
 }
 
-/* ------------------------------------------------------------------------ */
-/* [throw] */
-
 static knh_Stmt_t *new_StmtTHROW(Ctx *ctx, knh_tkc_t *tc)
 {
 	knh_Stmt_t *o = new_StmtMETA(ctx, tc, STT_THROW);
@@ -2677,19 +2666,14 @@ static knh_Stmt_t *new_StmtTHROW(Ctx *ctx, knh_tkc_t *tc)
 	return o;
 }
 
-/* ------------------------------------------------------------------------ */
-/* [register] */
-
 static knh_Stmt_t *new_StmtREGISTER(Ctx *ctx, knh_tkc_t *tc)
 {
 	knh_Stmt_t *o = new_StmtMETA(ctx, tc, STT_REGISTER);
-	knh_tkc_t tcbuf, *exprs = knh_tokens_firstSTMT(ctx, tc, /*pos*/-1, &tcbuf, /*isNeedSemicolon*/1);
+	knh_tkc_t tcbuf, *exprs =
+		knh_tokens_firstSTMT(ctx, tc, /*pos*/-1, &tcbuf, /*isNeedSemicolon*/1);
 	knh_Stmt_add_EXPRs(ctx, o, exprs, 0/*isData*/); /* EXPR* */
 	return o;
 }
-
-/* ------------------------------------------------------------------------ */
-/* [print] */
 
 static knh_Stmt_t *new_StmtPRINT(Ctx *ctx, knh_tkc_t *tc)
 {
@@ -2699,14 +2683,31 @@ static knh_Stmt_t *new_StmtPRINT(Ctx *ctx, knh_tkc_t *tc)
 	return o;
 }
 
-/* ------------------------------------------------------------------------ */
-/* [assert] */
-
 static knh_Stmt_t *new_StmtASSERT(Ctx *ctx, knh_tkc_t *tc)
 {
 	knh_Stmt_t *o = new_StmtMETA(ctx, tc, STT_ASSERT);
 	knh_Stmt_add_PEXPR(ctx, o, tc); /* pexpr */
 	knh_Stmt_add_STMT1(ctx, o, tc); /* { */
+	return o;
+}
+
+/* ------------------------------------------------------------------------ */
+/* [assert] */
+
+static knh_Stmt_t *new_StmtTEST(Ctx *ctx, knh_tkc_t *tc)
+{
+	knh_Stmt_t *o = new_StmtMETA(ctx, tc, STT_TEST);
+	/* @TEST foreach a in b {.. } */
+	int idx = knh_tokens_findTTIDX(tc, TT_BRACE, -1);
+	if(idx != -1) {
+		knh_tkc_t tcbuf, *expr = knh_tokens_firstEXPR(tc, idx, &tcbuf);
+		knh_Stmt_add(ctx, o, new_TermEXPR(ctx, expr, 0/*isData*/));
+		tc->c -= 1; DBG2_ASSERT(TT_(TK0(tc)) == TT_BRACE);
+		knh_Stmt_add_STMT1(ctx, o, tc);
+	}
+	else  {
+		knh_Stmt_tokens_perror(ctx, o, tc, _("syntax error"));
+	}
 	return o;
 }
 
@@ -2971,6 +2972,8 @@ static knh_Stmt_t *new_StmtSTMT1(Ctx *ctx, knh_tkc_t *tc, int isData)
 		return new_StmtPRINT(ctx, tc);
 	case TT_ASSERT:
 		return new_StmtASSERT(ctx, tc);
+	case TT_TEST:
+		return new_StmtTEST(ctx, tc);
 	case TT_SEMICOLON:
 		knh_tokens_nextStmt(tc);
 		DBG2_P("EMPTY STATEMENT tc->c=%d, tc->e=%d", tc->c, tc->e);
