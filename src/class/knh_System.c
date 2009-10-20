@@ -38,21 +38,13 @@ extern "C" {
 /* ======================================================================== */
 /* [properties] */
 
-char *
-knh_bytes_nzenvkey(knh_bytes_t t, char *buf, size_t bufsiz)
+static
+void knh_cwb_nzenvkey(Ctx *ctx, knh_cwb_t *cwb, knh_bytes_t t)
 {
 	size_t i;
 	for(i = 0; i < t.len; i++) {
-		if(i < bufsiz) {
-			buf[i] = toupper(t.buf[i]);
-		}
-		else {
-			buf[bufsiz-1] = 0;
-			return buf;
-		}
+		knh_Bytes_putc(ctx, (cwb->ba), toupper(t.buf[i]));
 	}
-	buf[i] = 0;
-	return buf;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -60,9 +52,10 @@ knh_bytes_nzenvkey(knh_bytes_t t, char *buf, size_t bufsiz)
 Any* knh_System_getProperty(Ctx *ctx, knh_System_t *o, knh_bytes_t key)
 {
 	if(knh_bytes_startsWith(key, STEXT("env."))) {
-		char envkey[256];
-		knh_bytes_nzenvkey(knh_bytes_last(key, 4), envkey, sizeof(envkey));
-		char *v = knh_getenv(envkey);
+		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
+		knh_cwb_nzenvkey(ctx, cwb, knh_bytes_last(key, 4));
+		char *v = knh_getenv(knh_cwb_tochar(ctx, cwb));
+		knh_cwb_close(cwb);
 		if(v == NULL) {
 			return KNH_NULL;
 		}
@@ -112,8 +105,6 @@ knh_bool_t konoha_initcheck(void)
  	KNH_ASSERT(sizeof(knh_short_t) * 2 == sizeof(knh_intptr_t));
  	return 1;
  }
-
-
 
 /* ------------------------------------------------------------------------ */
 

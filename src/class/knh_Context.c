@@ -59,6 +59,7 @@ knh_type_t knh_getPropertyType(Ctx *ctx, knh_bytes_t key)
 	Object *v = knh_DictMap_get__b(ctx,  ctx->props, key);
 	if(IS_NULL(v)) {
 		v = knh_System_getProperty(ctx, ctx->sys, key);
+		KNH_SETv(ctx, ctx->esp[0].o, v);
 	}
 	if(IS_NOTNULL(v)) {
 		type = NNTYPE_cid(knh_Object_cid(v));
