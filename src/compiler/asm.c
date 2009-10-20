@@ -1426,6 +1426,14 @@ void knh_StmtCALL_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 		}
 	}/* INSTRUCTION*/
 
+	if(mtd == DP(ctx->kc)->mtd) {
+		for(i = 2; i < DP(stmt)->size; i++) {
+			knh_type_t reqt2 = knh_Method_reqtTERMs(mtd, cid, stmt, i);
+			TERMs_asm(ctx, stmt, i, reqt2, local + i);
+		}
+		KNH_ASM(RCALL, sfi_(local), (knh_ushort_t)DP(stmt)->size);
+		goto L_RTYPE;
+	}
 	/* PEEPHOLE */
 	if(IS_Method(mtd) && knh_Method_isFinal(mtd) && TERMs_isLOCAL(stmt, 1)) {
 		int a = DP(DP(stmt)->tokens[1])->index;
