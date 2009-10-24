@@ -1,37 +1,6 @@
+#!/usr/local/bin/konoha
 
-EXIT_ERROR   = 0;
-EXIT_SUCCESS = 1;
-EXIT_NORMAL  = 2;
-EXIT_WARN    = 3;
 
-USAGE = """
-*************************************
-*  klip ( Konoha LIbrary Provider ) *
-*         version 0.1.12 (09/10/09) *
-*************************************
-Usage:
-  klip operation [pkg]
-
-Operations:
-  -i/install pkg : install package
-  -u/update  pkg : update package
-  -r/remove  pkg : remove package
-  -s/search  pkg : search  package from the list on sourceforge
-  -l/list        : list packages on the server
-  installed      : list packages that already installed
-  undo           : undo previous operation
-""";
-
-DATAFILE = "klip.db";
-LOCKFILE = "klip.lock";
-KLIPURL = "http://konoha.sourceforge.jp/klip";
-LOGFILE = "klip.log"
-ERRLOGFILE = "klip.error";
-SUCCESS_INFO = """
-INFO : package has installed to [%s{0}].
-       But to make sure,
-       you should rebuild downloaded package
-""";
 
 class Logger {
 
@@ -82,6 +51,11 @@ class ErrorLogger extends Logger {
 	}
 			
 }
+
+EXIT_ERROR   = 0;
+EXIT_SUCCESS = 1;
+EXIT_NORMAL  = 2;
+EXIT_WARN    = 3;
 
 /**
  * 文字列のmodを行う
@@ -238,11 +212,11 @@ class State extends Logger {
 
 	void initDirs()
 	{
-		String? platform = $konoha.platform;
+		String? platform = $konoha.os;
 		if (platform == null) {
 			_ecode << "e_plat";
 		} else {
-			if ("windows" in platform) {
+			if (platform == "windows") {
 				initDirsWINDOWS();
 			} else {
 				initDirsUNIX();
@@ -256,11 +230,7 @@ class State extends Logger {
 
 	void initDirsUNIX()
 	{
-		if ($env.HOME != null) {
-			_klipdir = $env.HOME + "/.konoha/klip/";
-		} else {
-			_klipdir = "./klip/";
-		}
+		_klipdir = $env.HOME + "/.konoha/klip/";
 		_tmpdir = _klipdir + "tmp/";
 
 		if (!chk_root) { _instdir = $user.package.path; }
@@ -285,7 +255,7 @@ class State extends Logger {
 
 	Boolean lock(String lockfile)
 	{
-		String lockfilepath = _klipdir + lockfile; // + os.getPid();
+		String lockfilepath = _klipdir + lockfile;
 		if (os.hasFile(lockfilepath)) {
 			_ecode << "e_lock"; 
 			_locked = false;
@@ -301,7 +271,7 @@ class State extends Logger {
 
 	void release(String lockfile)
 	{
-		String lockfilepath = _klipdir + lockfile; // + os.getPid();
+		String lockfilepath = _klipdir + lockfile;
 		if (_locked) { os.unlink(lockfilepath);	}
 	}
 
@@ -921,10 +891,10 @@ class Cache {
 	String dataurl;
 
 	Cache(String dir, String dataurl, String pkgdata) {
-		_curdata  = dir + "/current.json";
-		_prevdata = dir + "/previous.json";
-		_latest   = dir + "/latest.log";
-		_pkgdata  = dir + "/" + pkgdata;
+		_curdata  = dir + "current.json";
+		_prevdata = dir + "previous.json";
+		_latest   = dir + "latest.log";
+		_pkgdata  = dir + "" + pkgdata;
 		_dataurl  = dataurl + "/" + pkgdata;
  	}
 
@@ -971,6 +941,7 @@ class Cache {
 		if (!flag) { ous.println (newtxt); }
 		ous.close();
 		ins.close();
+		os.unlink(_latest);
 		os.rename(_latest + "~", _latest);
 	}
 
@@ -981,8 +952,8 @@ class Cache {
 		os.unlink(_latest);
 		OutputStream ous = new OutputStream(_latest,"w");
 		ous.close();
-		updateLatest("Last-Installed-Package",": None");
-		updateLatest("Last-Modified"," None");
+		updateLatest("Last-Installed-Package:","None");
+		updateLatest("Last-Modified:","None");
 	}
 
 	//pkgdata
@@ -1029,19 +1000,19 @@ class Cache {
 
 	boolean needtoUpdateList()
 	{
-		String curr = getLastModified(_latest);
+		String curr = getLastModified();
 		String late = getLastModifiedFromUrl();
-		if (curr != late) { updateLatest("Last-Modified",late); }
+		if (curr != late) { updateLatest("Last-Modified:",late); }
 		return (curr != late);
 	}
 
-	String getLastModified(String target)
+	String getLastModified()
 	{
 		String ret;
-		InputStream ins = new InputStream(target);
+		InputStream ins = new InputStream(_latest);
 		foreach (String txt in ins) {
-			if (txt.startsWith("Last-Modified")) {
-				int idx = txt.indexOf(":");
+			if (txt.startsWith("Last-Modified:")) {
+				int idx = txt.indexOf(":") + 1;
 				ret = txt[idx to ];
 			}
 		}
@@ -1051,7 +1022,7 @@ class Cache {
 	String getLastModifiedFromUrl()
 	{
 		String ret;
-		String domain = dataurl.replace("http://","");
+		String domain = _dataurl.replace("http://","");
 		String host = domain.split("/",0)[0] + "##" - "##";
 		String path = domain.replace(host,"");
 		Socket s = new Socket(host,80);
@@ -1065,8 +1036,8 @@ class Cache {
 			String? head = ins.readline();
 			if (head == null) {
 				break;
-			} else if (head.startsWith("Last-Modified")) {
-				ret = head.replace("Last-Modified","");
+			} else if (head.startsWith("Last-Modified:")) {
+				ret = head.replace("Last-Modified:","");
 				break;
 			}
 		}
@@ -1127,7 +1098,8 @@ class Cache {
 		}
 		ins.close();
 		ous.close();
-		os.rename(curdata + "#",curdata);
+		os.unlink(_curdata);
+		os.rename(_curdata + "#",_curdata);
 	}
 
 	/** 
@@ -1353,10 +1325,16 @@ class Package
 	{
 		boolean ret = true;
 		Logger errlogger = ErrorLogger.getLogger();
-		int res = system("tar -xzf " + filepath);
+		String cmd = "-xfz " + filepath;
+		int res;
+		if ($konoha.os == "windows") {
+			eval("using tar.*;");
+			eval(%("Tar.tar('%s{0}');", cmd));
+		} else {
+			res = system("tar " + cmd);
+		}
 		if (res != 0) {
 			errlogger << " Package.decompress: cannot decompress";
-			print "tar -xfz " + filepath;
 			ret = false;
 		} else {
 			ret = os.rename(name,state.instdir + name);
@@ -1368,6 +1346,109 @@ class Package
 	}
 
 }
+
+/********** GLOBAL VARIABLES ***********/
+/* Version */
+VERSION = 0;
+MAJOR = 1;
+MINOR = 14;
+LASTUPDATE = "09/10/11";
+
+/* operation info */
+NOARG = 0;
+HASARG = 1;
+
+DATAFILE = "klip.db";
+LOCKFILE = "klip.lock";
+KLIPURL = "http://konoha.sourceforge.jp/klip";
+LOGFILE = "klip.log"
+ERRLOGFILE = "klip.error";
+SUCCESS_INFO = """
+INFO : Package has installed to [%s{0}].
+       But to make sure,
+       you should rebuild downloaded package
+""";
+
+operations = {
+	install:
+	{
+		description: "install package",
+		has_arg: 1
+		//action: Klip.isInstalled;  /* its convenient if we can write like this  */
+	},
+	update:
+	{
+		description: "update package",
+		has_arg: 1
+	},
+	remove:
+	{
+		description: "remove package",
+		has_arg: 1
+	},
+	search:
+	{
+		description: "search package from the list on sourceforge",
+		has_arg: 1
+	},
+	list:
+	{
+		description: "list packages on the server",
+		has_arg: 0
+	},
+	installed:
+	{
+		description: "list packages that already installed",
+		has_arg: 0
+	},
+	undo:
+	{
+		description: "undo previous operation",
+		has_arg: 0
+	},
+	env :
+	{
+		description: "show klip environment variables",
+		has_arg: 0
+	}
+};
+
+/********** GLOBAL VARIABLES END***********/
+
+void klip_show_usage()
+{
+	OUT <<  %("""
+*************************************
+*  klip ( Konoha LIbrary Provider ) *
+*         version %d{0}.%d{1}.%d{2} (%s{3}) *
+*************************************
+Usage:
+  klip operation [pkg]
+
+Operations:
+""", VERSION, MAJOR, MINOR, LASTUPDATE) << EOL;
+	foreach (key, value in operations) {
+		if (value["has_arg"] == 0) {
+			OUT << %("%s{0}\t\t: %s{1}", key, value["description"])  << EOL;
+		} else {
+			OUT << %("%s{0} (pkg) \t: %s{1}", key, value["description"]) << EOL;
+		}
+	}
+}
+
+/*-i/install pkg : install package
+  -u/update  pkg : update package
+  -r/remove  pkg : remove package
+  -s/search  pkg : search  package from the list on sourceforge
+  -l/list        : list packages on the server
+  installed      : list packages that already installed
+  undo           : undo previous operation
+  env            : show klip environment variables
+""";
+*/
+
+
+
 
 
 /**
@@ -1400,25 +1481,25 @@ please check ~/.konoha/klip/klip.lock
 """
 			return 1;
 		}
-		Logger.createLogger(_state.klipdir + LOGFILE, true);
-		ErrorLogger.createLogger(_state.klipdir + ERRLOGFILE, true);
-		if (_state.isFailed()) {
-			_state.info();
+		Logger.createLogger(state.klipdir + LOGFILE, true);
+		ErrorLogger.createLogger(state.klipdir + ERRLOGFILE, true);
+		if (state.isFailed()) {
+			state.info();
 			return exit_klip(EXIT_ERROR);
 		}
 		if (!checkArgs(args)) {
-			OUT << USAGE << EOL;
+			klip_show_usage();
 			return exit_klip(EXIT_NORMAL);
 		}
-		_cache = new Cache(_state.klipdir,KLIPURL,DATAFILE);
-		_cache.init();
+		cache = new Cache(state.klipdir,KLIPURL,DATAFILE);
+		cache.init();
 		ret = start();
 		return exit_klip(ret);
 	}
 
 	int exit_klip(int ret)
 	{
-		_state.release(LOCKFILE);
+		state.release(LOCKFILE);
 		return ret;
 	}
 
@@ -1435,7 +1516,8 @@ please check ~/.konoha/klip/klip.lock
 		}
 		if (!ret) { return ret; }
 		
-		if (_opr in ["search","remove","install","update"]) {
+		DictMap? ops = operations[_opr];
+		if ((int)ops["has_arg"] > 0) {
 			if (|args| == 3 ) { _name = args[2]; ret = true; }
 			else { ret = false; }
 		} else { ret = true; }
@@ -1454,7 +1536,7 @@ please check ~/.konoha/klip/klip.lock
 		default :
 			ret = (_opr in ["install","update","remove",
 							"list","remove","list","clean",
-							"installed","search","undo"]);
+							"installed","search","undo","env"]);
 			break;
 		}
 		return ret;
@@ -1469,10 +1551,11 @@ please check ~/.konoha/klip/klip.lock
 		int ret;
 		boolean yet = false;
 		switch (_opr) {
+		case "env"      : ret = displayEnv(); break;
+		case "installed": ret = showList(_cache.curdata); break;
 		case "undo"     : ret = undoMain(); break;
 		case "clean"    : ret = cleanMain(); break;
-		case "installed": ret = showList(_cache.curdata); break;
-		case "remove"   : ret = switchEx(); break;
+		case "remove"   : ret = packageOpration(); break;
 		default : yet = true; break;
 		}
 
@@ -1481,9 +1564,9 @@ please check ~/.konoha/klip/klip.lock
 		_cache.getklipdata();
 		switch (_opr) {
 		case "list"    : ret = showList(_cache.pkgdata); break;
-		case "search"  : ret = searchMain(_cache.pkgdata); break;
-		case "install" : ret = switchEx(); break;
-		case "update"  : ret = switchEx(); break;
+		case "search"  : ret = searchMain(); break;
+		case "install" : ret = packageOpration(); break;
+		case "update"  : ret = packageOpration(); break;
 		default : ret = EXIT_WARN; break;
 		}
 
@@ -1513,40 +1596,74 @@ please check ~/.konoha/klip/klip.lock
 	 * パッケージの確認が必要なオペレーションを実行する
 	 * @return オペレーションの結果
 	 */
-	int switchEx()
+	int packageOpration()
 	{
-		int ret;
+		int ret = EXIT_NORMAL;
 		Logger logger = Logger.getLogger();
-		if (_opr != "remove") {
-			if (!hasPackage(_name,_cache.pkgdata)) {
+		Package cur;
+		Package pkg;
+		String cur_ver;
+		String new_ver;
+		boolean in_current = hasPackage(_name,_cache.curdata);
+		boolean in_pkglist = hasPackage(_name,_cache.pkgdata);
+		boolean in_pkgdir  = os.hasDir(_state.instdir + _name);
+
+		if (in_pkglist) {
+			pkg = getPackage(_name,_cache.pkgdata);
+			new_ver = pkg.version;
+		}
+
+		if (in_current) {
+			cur = getPackage(_name,_cache.curdata);
+			cur_ver = cur.version;
+		}
+
+		if (_opr == "install") {
+			if (!in_pkglist) {
 				logger << %("INFO : package \"%s{0}\"is NOT FOUND",_name);
-				return EXIT_NORMAL;
 			}
-			Package pkg = getPackage(_name,_cache.pkgdata);
+			else if (in_current) {
+				logger << "INFO : package is already installed";
+			}
+			else if (in_pkgdir) {
+				logger << "WARN : klip can't touch this existed package";
+				ret = EXIT_WARN;
+			}
+			else {
+				ret = installMain(pkg);
+			}
+		}
+		else if (_opr == "update") {
+			if (!in_pkglist) {
+				logger << %("INFO : package \"%s{0}\"is NOT FOUND",_name);
+			}
+			else if (!in_pkgdir) {
+				logger << "INFO : package isn't installed";
+			}
+			else if (!in_current) {
+				logger << "WARN : klip can't touch this existed package";
+				ret = EXIT_WARN;
+			}
+			else if (cur_ver >= new_ver) {
+				logger << "INFO : latest package is already installed";
+			}
+			else {
+				ret = updateMain(pkg);
+			}
+		}
+		else if (_opr == "remove") {
+			if (!in_pkgdir) {
+				logger << "INFO : package isn't installed";
+			}
+			else if (!in_current) {
+				logger << "WARN : klip can't touch this existed package";
+				ret = EXIT_WARN;
+			}
+			else {
+				ret = removeMain(cur);
+			}
 		}
 		
-		if (hasPackage(_name,_cache.curdata)) {
-			if (_opr == "install") {
-				logger << "INFO : package is already installed";
-				return EXIT_NORMAL;
-			}
-			Package cur = getPackage(_name,_cache.curdata);
-			if (_opr == "remove") { removeMain(cur); }
-			if (cur.version >= pkg.version) {
-				logger << "INFO : latest package is already installed";
-				return EXIT_NORMAL;
-			}
-			ret = updateMain(pkg);
-		} else if ( !os.hasDir(_state.instdir + _name)) {
-			if (_opr in ["update","remove"]) {
-				logger << "INFO : package isn't installed";
-				return EXIT_NORMAL;
-			}
-			ret = installMain(pkg);
-		} else {
-			logger << "WARN : klip can't touch this existed package";
-			ret = EXIT_WARN;
-		}
 		return ret;
 	}
 
@@ -1589,12 +1706,12 @@ please check ~/.konoha/klip/klip.lock
 	 * @param filename リストファイル名
 	 * @return 検索の結果
 	 */
-	int searchMain(String filename)
+	int searchMain()
 	{
 		Logger logger = Logger.getLogger();
-		if (hasPackage(_name,filename)) {
+		if (hasPackage(_name,_cache.pkgdata)) {
 			logger << "INFO : package FOUND!";
-			Package pkg = getPackage(_name,filename);
+			Package pkg = getPackage(_name,_cache.pkgdata);
 			OUT << %("%s{0}  (%s{1}):", _name, pkg.version) << EOL;
 		} else {
 			logger << %("INFO : package \"%s{0}\" NOT FOUND", _name);
@@ -1622,7 +1739,57 @@ please check ~/.konoha/klip/klip.lock
 		return EXIT_SUCCESS;
 	}
 
-	//for each operations
+	
+	//system operations
+
+	int displayEnv()
+	{
+		Logger logger = Logger.getLogger();
+		logger << "KLIP : show system info & Klip's environ variables\n";
+
+		//----- display Konoha info -----//
+		logger << %("""
+[current_working_system]
+  Konoha   : %s{0}
+  platform : %s{1}
+  Klip     : Klip %d{2}.%d{3}.%d{4} (%s{5})
+""",%k(os),$konoha.platform,VERSION,MAJOR,MINOR,LASTUPDATE);
+
+		//----- display klip dirpath -----//
+		logger << %("""
+[state]
+  chk_root : %s{0}
+  instdir  : %s{1}
+  klipdir  : %s{2}
+  tmpdir   : %s{3}
+""",_state.chk_root,_state.instdir,_state.klipdir,_State.tmpdir);
+
+		//----- display klip cachefiles -----//
+		logger << %("""
+[cache]
+  pkgdata  : %s{0}
+  dataurl  : %s{1}
+  curdata  : %s{2}
+  prevdata : %s{3}
+  latest   : %s{4}
+""",_cache.pkgdata,_cache.dataurl,_cache.curdata,_cache.prevdata,_cache.latest);
+		
+		return EXIT_SUCCESS;
+	}
+
+
+	/**
+	 * システムファイルを初期の状態に初期化する
+	 * @return 初期化の結果を返す
+	 */
+	int cleanMain()
+	{
+		cache.removeAll();
+		return EXIT_SUCCESS;
+	}
+
+
+	//package operations
 
 	/**
 	 * パッケージをインストールの為の依存性の確認や、
@@ -1635,7 +1802,7 @@ please check ~/.konoha/klip/klip.lock
 		int ret;
 		cache.mkBufCurData();
 		String str =  pkg.name + "=" + pkg.version;
-		cache.updateLatest("Last-Installed-Package",str);
+		cache.updateLatest("Last-Installed-Package:",str);
 		if ( pkg.depend.getSize() == 0 ) {
 			ret = pkg.install();
 			if ( ret == EXIT_SUCCESS ) {
@@ -1659,7 +1826,7 @@ please check ~/.konoha/klip/klip.lock
 		int ret;
 		cache.mkBufCurData();
 		String str =  pkg.name + "=" + pkg.version;
-		cache.updateLatest("Last-Installed-Package",str);
+		cache.updateLatest("Last-Installed-Package:",str);
    		ret = pkg.update();
 		if ( ret == EXIT_SUCCESS ) {
 			cache.modCurData([pkg.name,pkg.version,pkg.url],"r");
@@ -1687,16 +1854,6 @@ please check ~/.konoha/klip/klip.lock
 		return ret;
 	}
 	
-	/**
-	 * システムファイルを初期の状態に初期化する
-	 * @return 初期化の結果を返す
-	 */
-	int cleanMain()
-	{
-		cache.removeAll();
-		return EXIT_SUCCESS;
-	}
-
 	/**
 	 * 依存性のあるパッケージも含めたインストールを行う
 	 * @param pkg インストールの主目的となるパッケージ
@@ -1865,4 +2022,12 @@ please check ~/.konoha/klip/klip.lock
 		return ret;
 	}
 
+}
+
+int main(String[] args)
+{
+	int ret;
+	Klip klip = new Klip();
+	ret = klip.main(args);
+	return ret;
 }
