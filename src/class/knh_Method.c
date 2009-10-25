@@ -300,6 +300,25 @@ knh_String_t* knh_Method_getName(Ctx *ctx, knh_Method_t *o)
 	return knh_cwb_newString(ctx, cwb);
 }
 
+/* ------------------------------------------------------------------------ */
+///* @method Int! Method.getProfCount() */
+//
+//
+//Int* knh_Method_getProfCount(Ctx *ctx, Method *o)
+//{
+//	return new_Int(ctx, DP(o)->prof_count);
+//}
+//
+///* ------------------------------------------------------------------------ */
+///* @method Int! Method.getProfTime() */
+//
+//
+//Int* knh_Method_getProfTime(Ctx *ctx, Method *o)
+//{
+//	return new_Int(ctx, DP(o)->prof_time);
+//}
+//
+
 ///* ======================================================================== */
 ///* [Weaving] */
 //

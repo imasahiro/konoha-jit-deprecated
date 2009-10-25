@@ -902,6 +902,27 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 
 /* ------------------------------------------------------------------------ */
 
+#ifdef KNH_WITH_PROFILER
+// profile start
+// "n" is position where caller method is in sfp
+#define KLR_PROFSTART(ctx, n) { \
+	knh_Method_t* mtd = (knh_Method_t *)sfp[n].mtd;\
+	knh_uint64_t ts; \
+	ts = knh_getTimeMilliSecond(); \
+}
+
+// profile end
+// "n" is position where caller method is in sfp
+#define KLR_PROFEND(ctx, n) { \
+	knh_Method_t* mtd = (knh_Method_t *)sfp[n].mtd;\
+	te = knh_getTimeMilliSecond(); \
+	DP(mtd)->prof_count += 1; \
+	DP(mtd)->prof_time  += te-ts; \
+}
+
+#endif
+
+/* ------------------------------------------------------------------------ */
 #ifdef __cplusplus
 }
 #endif
