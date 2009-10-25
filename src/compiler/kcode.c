@@ -120,7 +120,7 @@ knh_KLRCode_t* knh_InstList_newKLRCode(Ctx *ctx, knh_Array_t *insts)
 		knh_KLRInst_t *inst = (knh_KLRInst_t*)knh_Array_n(insts, i);
 		if(inst->opcode == OPCODE_LABEL) continue;
 		if(knh_opcode_hasjump(inst->opcode)) {
-			volatile knh_inst_t *op = (inst->op);
+			knh_inst_t *op = (inst->op);
 			(op)->jumppc = (op->a1)->code_pos;
 		}
 	}
