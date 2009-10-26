@@ -3,7 +3,7 @@
 # these dirs only included for distribution archive.
 
 EXTRA_SUBDIRS = src include dist
-EXTRA_FILES = bootstrap
+EXTRA_FILES = bootstrap konoha.1
 # dirs which include Makefile.in
 SUBDIRS = build 
 EXTRA_DIST = $(EXTRA_SUBDIRS) $(EXTRA_FILES)

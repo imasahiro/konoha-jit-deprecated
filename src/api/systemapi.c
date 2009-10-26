@@ -99,8 +99,9 @@ static METHOD System_gc(Ctx *ctx, knh_sfp_t *sfp)
 static METHOD Script_system(Ctx *ctx, knh_sfp_t *sfp)
 {
 	KNH_SECURE(ctx,sfp);
+	int ret = -1;
 #if !defined(KONOHA_ON_LKM)
-	int ret = system(String_to(char*, sfp[1]));
+	ret = system(String_to(char*, sfp[1]));
 	if(ret  == -1) {
 		KNH_PERRNO(ctx, NULL, "OS!!", "system", knh_Context_isStrict(ctx));
 	}

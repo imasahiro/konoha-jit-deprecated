@@ -212,14 +212,19 @@ int knh_isFastMallocMemory(void *p)
 }
 
 /* ------------------------------------------------------------------------ */
+#define CHECK_UNUSED_OBJECT(ctx) { \
+if(unlikely(ctx->unusedObject == NULL)) { \
+		KNH_ASSERT(ctx->unusedObjectSize == 0); \
+		((knh_Context_t*)ctx)->unusedObject = new_UnusedObject(ctx); \
+	} \
+} \
+/* ------------------------------------------------------------------------ */
+
 
 void *knh_fastmalloc(Ctx *ctx, size_t size)
 {
 	if(size <= KNH_FASTMALLOC_SIZE) {
-		if(unlikely(ctx->unusedObject == NULL)) {
-			KNH_ASSERT(ctx->unusedObjectSize == 0);
-			((knh_Context_t*)ctx)->unusedObject = new_UnusedObject(ctx);
-		}
+		CHECK_UNUSED_OBJECT(ctx);
 		Object *o = ctx->unusedObject;
 		((knh_Context_t*)ctx)->unusedObject = (knh_Object_t*)o->ref;
 		((knh_Context_t*)ctx)->unusedObjectSize -= 1;
@@ -268,10 +273,7 @@ knh_Object_t *new_hObject(Ctx *ctx, knh_flag_t flag, knh_class_t bcid, knh_class
 	DBG2_ASSERT(bcid != CLASS_Context);
 	DBG2_ASSERT(bcid < KNH_TSTRUCT_SIZE);
 	DBG2_ASSERT(ctx != NULL);
-	if(unlikely(ctx->unusedObject == NULL)) {
-		KNH_ASSERT(ctx->unusedObjectSize == 0);
-		((knh_Context_t*)ctx)->unusedObject = new_UnusedObject(ctx);
-	}
+	CHECK_UNUSED_OBJECT(ctx);
 	{
 		knh_Object_t *o = ctx->unusedObject;
 		((knh_Context_t*)ctx)->unusedObject = (knh_Object_t*)o->ref;
@@ -295,10 +297,7 @@ knh_Object_t *new_Object_bcid(Ctx *ctx, knh_class_t bcid, int init)
 {
 	DBG2_ASSERT(bcid != CLASS_Context);
 	DBG2_ASSERT(bcid < KNH_TSTRUCT_SIZE);
-	if(unlikely(ctx->unusedObject == NULL)) {
-		KNH_ASSERT(ctx->unusedObjectSize == 0);
-		((knh_Context_t*)ctx)->unusedObject = new_UnusedObject(ctx);
-	}
+	CHECK_UNUSED_OBJECT(ctx);
 	{
 		knh_Object_t *o = ctx->unusedObject;
 		((knh_Context_t*)ctx)->unusedObject = (knh_Object_t*)o->ref;
@@ -329,10 +328,7 @@ knh_Object_t *new_Object_bcid(Ctx *ctx, knh_class_t bcid, int init)
 knh_Object_t *new_Object_init(Ctx *ctx, knh_flag_t flag, knh_class_t cid, int init)
 {
 	DBG2_ASSERT(cid != CLASS_Context);
-	if(ctx->unusedObject == NULL) {
-		KNH_ASSERT(ctx->unusedObjectSize == 0);
-		((knh_Context_t*)ctx)->unusedObject = new_UnusedObject(ctx);
-	}
+	CHECK_UNUSED_OBJECT(ctx);
 	{
 		knh_Object_t *o = ctx->unusedObject;
 		((knh_Context_t*)ctx)->unusedObject = (knh_Object_t*)o->ref;
@@ -364,10 +360,7 @@ knh_Object_t *new_Object_init(Ctx *ctx, knh_flag_t flag, knh_class_t cid, int in
 KNHAPI(Object*) new_Object_boxing(Ctx *ctx, knh_class_t cid, knh_sfp_t *sfp)
 {
 	KNH_ASSERT(ctx != NULL);
-	if(unlikely(ctx->unusedObject == NULL)) {
-		KNH_ASSERT(ctx->unusedObjectSize == 0);
-		((knh_Context_t*)ctx)->unusedObject = new_UnusedObject(ctx);
-	}
+	CHECK_UNUSED_OBJECT(ctx);
 	{
 		knh_Object_t *o = ctx->unusedObject;
 		((knh_Context_t*)ctx)->unusedObject = (knh_Object_t*)o->ref;
