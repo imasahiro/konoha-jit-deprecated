@@ -568,7 +568,7 @@ static int knh_Gamma_globalIndex(Ctx *ctx, knh_Script_t *scr)
 {
 	knh_Gamma_t *kc = ctx->kc;
 	if(DP(kc)->globalidx == -1) {
-		knh_cfield_t decl = {0, NNTYPE_cid(knh_Object_cid(scr)), FIELDN_, NULL};
+		knh_cfield_t decl = {FLAG_GAMMA_FuncScope, NNTYPE_cid(knh_Object_cid(scr)), FIELDN_, NULL};
 		DP(kc)->globalidx = knh_Gamma_declareLocalVariable(ctx, &decl);
 		if(DP(kc)->globalidx == -1) return 0;
 	}

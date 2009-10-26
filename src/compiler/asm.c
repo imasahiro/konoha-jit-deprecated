@@ -2399,10 +2399,16 @@ static void KNH_ASM_INITLOCAL(Ctx *ctx)
 		KNH_ASM(PARAMS, i, cid); i++;
 	}
 
+	if(DP(kc)->globalidx != -1) {
+		knh_Object_t *scr = (knh_Object_t*)knh_getGammaScript(ctx);
+		KNH_ASM(MOVo, DP(kc)->globalidx, scr);
+	}
+
 	for(i=0; i < knh_Array_size(DP(kc)->decls); i++) {
 		knh_Stmt_t *stmt = (knh_Stmt_t*)knh_Array_n(DP(kc)->decls, i);
 		knh_Stmt_asmBLOCK(ctx, stmt, 1);
 	}
+
 }
 
 /* ------------------------------------------------------------------------ */
