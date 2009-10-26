@@ -73,7 +73,7 @@ static METHOD System_getErr(Ctx *ctx, knh_sfp_t *sfp)
 static METHOD System_getProperty(Ctx *ctx, knh_sfp_t *sfp)
 {
 	KNH_RETURN(ctx, sfp,
-		knh_System_getProperty(ctx,(knh_System_t*)sfp[0].o, __tobytes(sfp[1].s)));
+			knh_System_getProperty(ctx,(knh_System_t*)sfp[0].o, __tobytes(sfp[1].s)));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -95,16 +95,17 @@ static METHOD System_gc(Ctx *ctx, knh_sfp_t *sfp)
 
 /* ------------------------------------------------------------------------ */
 //## @static method Int Script.system(String cmd);
-//## @static method Int Script.sudo(String cmd);
 
 static METHOD Script_system(Ctx *ctx, knh_sfp_t *sfp)
 {
-    KNH_SECURE(ctx,sfp);
-    int ret = system(String_to(char*, sfp[1]));
-    if(ret  == -1) {
-        KNH_PERRNO(ctx, NULL, "OS!!", "system", knh_Context_isStrict(ctx));
-    }
-    KNH_RETURN_Int(ctx, sfp,ret);
+	KNH_SECURE(ctx,sfp);
+#if !defined(KONOHA_ON_LKM)
+	int ret = system(String_to(char*, sfp[1]));
+	if(ret  == -1) {
+		KNH_PERRNO(ctx, NULL, "OS!!", "system", knh_Context_isStrict(ctx));
+	}
+#endif
+	KNH_RETURN_Int(ctx, sfp,ret);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -210,8 +211,8 @@ static METHOD System_mkdir(Ctx *ctx, knh_sfp_t *sfp)
 {
 	KNH_SECURE(ctx, sfp);
 	KNH_RETURN_Boolean(ctx, sfp,
-		knh_mkdir(ctx, __tobytes(sfp[1].s), knh_Context_isStrict(ctx))
-	);
+			knh_mkdir(ctx, __tobytes(sfp[1].s), knh_Context_isStrict(ctx))
+			);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -221,8 +222,8 @@ static METHOD System_unlink(Ctx *ctx, knh_sfp_t *sfp)
 {
 	KNH_SECURE(ctx, sfp);
 	KNH_RETURN_Boolean(ctx, sfp,
-		knh_unlink(ctx, __tobytes(sfp[1].s), knh_Context_isStrict(ctx))
-	);
+			knh_unlink(ctx, __tobytes(sfp[1].s), knh_Context_isStrict(ctx))
+			);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -232,9 +233,9 @@ static METHOD System_rename(Ctx *ctx, knh_sfp_t *sfp)
 {
 	KNH_SECURE(ctx, sfp);
 	KNH_RETURN_Boolean(ctx, sfp,
-		knh_rename(ctx, __tobytes(sfp[1].s),
-			__tobytes(sfp[2].s), knh_Context_isStrict(ctx))
-	);
+			knh_rename(ctx, __tobytes(sfp[1].s),
+				__tobytes(sfp[2].s), knh_Context_isStrict(ctx))
+			);
 }
 
 /* ======================================================================== */

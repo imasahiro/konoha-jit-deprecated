@@ -487,8 +487,6 @@ size_t knh_bytes_mlen(knh_bytes_t s);
 knh_bytes_t knh_bytes_mofflen(knh_bytes_t m, size_t moff, size_t mlen);
 knh_int_t knh_uchar_toucs4(knh_uchar_t *utf8);
 char *knh_format_utf8(char *buf, size_t bufsiz, knh_int_t ucs4);
-char *
-knh_bytes_nzenvkey(knh_bytes_t t, char *buf, size_t bufsiz);
 Any* knh_System_getProperty(Ctx *ctx, knh_System_t *o, knh_bytes_t key);
 void knh_System_setProperty(Ctx *ctx, knh_System_t *o, knh_String_t *key, Any *value);
 knh_bool_t konoha_initcheck(void);
