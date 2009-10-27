@@ -427,13 +427,13 @@ void knh_Method_toGenerator(knh_Method_t *mtd)
 #define MAX_FUNC_SIZE 256
 static inline int pow2(int n)
 {
-    int p = 0;
-    if(n <= 0) return 1;
-    --n;
-    for(;n != 0;n >>=1) {
-        p = (p << 1) + 1;
-    }
-    return p + 1;
+	int p = 0;
+	if(n <= 0) return 1;
+	--n;
+	for(;n != 0;n >>=1) {
+		p = (p << 1) + 1;
+	}
+	return p + 1;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -474,19 +474,18 @@ static inline int pow2(int n)
 //	return knh_qsort(d1,d2,(knh_Closure_t*) -1);
 //}
 //
-//
-//
 // copy callback func and return function that allocate form heap.
 static void *knh_copy_callbackfunc(void *func, void *target,knh_Closure_t *cc)
 {
 	int i,_ffffffff = -1,jmp_pos = -1;
-	unsigned char *f = (unsigned char *) func;
+	uchar_t *f = (uchar_t *) func;
 	void *callback = NULL;
 
 	for (i = 0; i < MAX_FUNC_SIZE; i++) {
 		// find 0xffffffff(that is dummy forknh_Closure_t pointer)
-		if(*(int*) &f[i] == 0xffffffff) {
+		if(*(int*) &f[i] == -1) {
 			_ffffffff = i;
+			i+=3;
 		}
 		// find jmp instraction
 		// if arch is i386, jmp instraction is start at "0xe8"
@@ -498,25 +497,42 @@ static void *knh_copy_callbackfunc(void *func, void *target,knh_Closure_t *cc)
 			i+=2;
 			break;
 		}
+		if(f[i] == 0xc9 && f[i+1] == 0xe9){
+			jmp_pos = i + 1;
+			i+=6;
+			break;
+		}
 	}
-
 	size_t size = pow2(i);
-	callback = malloc(size);
+	callback = valloc(size);
 	memcpy(callback,func,i);
+	//uchar_t *addr = (uchar_t *) checked_malloc(size);
+	//uchar_t *addr = (uchar_t *) valloc(size);
+	mprotect(callback, size, PROT_READ | PROT_WRITE | PROT_EXEC);
+
 	f = (unsigned char *)callback;
 
 	// patch for 0xffffffff
 	if(_ffffffff > 0) {
+#ifdef __x86_64__
+		union opcode { unsigned char code[8]; int ival;} op;
+		op.ival = (intptr_t)cc;
+		//*(int*) &f[_ffffffff] = op.ival;
+		memcpy(&f[_ffffffff], op.code, 8);
+#else
 		*(int*) &f[_ffffffff] = (int)cc;
+#endif
 	}
 
 	// patch for function relocation.
 	if(jmp_pos > 0) {
-		*(int*) &f[jmp_pos+1] = (intptr_t)target - (intptr_t)(&f[jmp_pos] + 5);
+		intptr_t diff = (intptr_t)target - (intptr_t)(&f[jmp_pos] + 5);
+		*(int*) &f[jmp_pos+1] = (int) diff;
 	}
-
 	return callback;
 }
+
+
 /* ------------------------------------------------------------------------ */
 
 
