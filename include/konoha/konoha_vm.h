@@ -419,6 +419,7 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 		KLR_MOV(ctx, lsfp[n].o, m); \
 		((knh_Context_t*)ctx)->esp = &(lsfp[n+args+2]); \
 		(lsfp[n].mtd)->fcall_1(ctx, lsfp + (n + 1)); \
+		((knh_Context_t*)ctx)->esp = &(lsfp[n]); \
 	} \
 
 #define KNH_CALLGEN(ctx, lsfp, n, m, pc, stacksize) { \
