@@ -82,10 +82,14 @@ knh_KLRCode_t* knh_InstList_newKLRCode(Ctx *ctx, knh_Array_t *insts)
 	size_t i, inst_size = knh_Array_size(insts), elf_size = 0, dwarf_size, dwarf2_size = 0;
 	int last_line = 0;
 	knh_KLRInst_t *inst = knh_InstList_lastNULL(insts);
+
+	// add HALT to last KLRInst
 	if(inst != NULL && inst->opcode != OPCODE_HALT) {
 		KNH_ASM(HALT);
 		inst_size += 1;
 	}
+
+	// count opcode size 
 	for(i = 0; i < inst_size; i++) {
 		inst = (knh_KLRInst_t*)knh_Array_n(insts, i);
 		if(inst->opcode == OPCODE_LABEL) continue;
@@ -101,6 +105,7 @@ knh_KLRCode_t* knh_InstList_newKLRCode(Ctx *ctx, knh_Array_t *insts)
 		}
 		elf_size += knh_opcode_size(inst->opcode);
 	}
+
 	dwarf_size = knh_cwb_size(cwb);
 	knh_KLRCode_t *kcode = (knh_KLRCode_t*)new_Object_bcid(ctx, CLASS_KLRCode, 0);
 	knh_code_t *pc = NULL;
@@ -109,6 +114,7 @@ knh_KLRCode_t* knh_InstList_newKLRCode(Ctx *ctx, knh_Array_t *insts)
 	DP(kcode)->size = elf_size + dwarf2.len;
 	DP(kcode)->code = (knh_code_t*)KNH_MALLOC(ctx, DP(kcode)->size);
 	pc = DP(kcode)->code;
+
 	for(i = 0; i < inst_size; i++) {
 		inst = (knh_KLRInst_t*)knh_Array_n(insts, i);
 		inst->code_pos = pc;
@@ -116,6 +122,8 @@ knh_KLRCode_t* knh_InstList_newKLRCode(Ctx *ctx, knh_Array_t *insts)
 			pc += knh_opcode_size(inst->opcode);
 		}
 	}
+
+	// if hasjump(inst->opcode), set where jump to.
 	for(i = 0; i < inst_size; i++) {
 		knh_KLRInst_t *inst = (knh_KLRInst_t*)knh_Array_n(insts, i);
 		if(inst->opcode == OPCODE_LABEL) continue;
@@ -125,6 +133,8 @@ knh_KLRCode_t* knh_InstList_newKLRCode(Ctx *ctx, knh_Array_t *insts)
 		}
 	}
 	pc = DP(kcode)->code;
+
+	// write inst code to "pc" (skip LABEL)
 	for(i = 0; i < inst_size; i++) {
 		inst = (knh_KLRInst_t*)knh_Array_n(insts, i);
 		if(inst->opcode != OPCODE_LABEL) {
@@ -134,6 +144,7 @@ knh_KLRCode_t* knh_InstList_newKLRCode(Ctx *ctx, knh_Array_t *insts)
 			pc += size;
 		}
 	}
+
 	DP(kcode)->dwarf_size = dwarf_size;
 	DP(kcode)->dwarf2_size = dwarf2_size;
 	knh_memcpy(DP(kcode)->code + elf_size, dwarf2.buf, dwarf2.len);

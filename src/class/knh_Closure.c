@@ -30,6 +30,11 @@
 #include"commons.h"
 #include"../../include/konoha/konoha_code_.h"
 
+#ifndef KONOHA_ON_LKM
+#include <sys/mman.h>
+#endif
+
+
 size_t knh_opcode_size(int opcode);
 
 /* ************************************************************************ */
@@ -477,9 +482,10 @@ static inline int pow2(int n)
 // copy callback func and return function that allocate form heap.
 static void *knh_copy_callbackfunc(void *func, void *target,knh_Closure_t *cc)
 {
-	int i,_ffffffff = -1,jmp_pos = -1;
-	uchar_t *f = (uchar_t *) func;
 	void *callback = NULL;
+#ifndef KONOHA_ON_LKM
+	int i,_ffffffff = -1,jmp_pos = -1;
+	knh_uchar_t *f = (knh_uchar_t *) func;
 
 	for (i = 0; i < MAX_FUNC_SIZE; i++) {
 		// find 0xffffffff(that is dummy forknh_Closure_t pointer)
@@ -506,16 +512,14 @@ static void *knh_copy_callbackfunc(void *func, void *target,knh_Closure_t *cc)
 	size_t size = pow2(i);
 	callback = valloc(size);
 	memcpy(callback,func,i);
-	//uchar_t *addr = (uchar_t *) checked_malloc(size);
-	//uchar_t *addr = (uchar_t *) valloc(size);
 	mprotect(callback, size, PROT_READ | PROT_WRITE | PROT_EXEC);
 
-	f = (unsigned char *)callback;
+	f = (knh_uchar_t *)callback;
 
 	// patch for 0xffffffff
 	if(_ffffffff > 0) {
 #ifdef __x86_64__
-		union opcode { unsigned char code[8]; int ival;} op;
+		union opcode { knh_uchar_t code[8]; int ival;} op;
 		op.ival = (intptr_t)cc;
 		//*(int*) &f[_ffffffff] = op.ival;
 		memcpy(&f[_ffffffff], op.code, 8);
@@ -529,6 +533,7 @@ static void *knh_copy_callbackfunc(void *func, void *target,knh_Closure_t *cc)
 		intptr_t diff = (intptr_t)target - (intptr_t)(&f[jmp_pos] + 5);
 		*(int*) &f[jmp_pos+1] = (int) diff;
 	}
+#endif
 	return callback;
 }
 

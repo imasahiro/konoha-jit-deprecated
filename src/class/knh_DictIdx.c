@@ -129,7 +129,7 @@ knh_String_t* knh_DictIdx_get__fast(knh_DictIdx_t *o, knh_intptr_t termid)
 {
 	size_t n = termid_toarrayn(termid);
 	if(unlikely(n >= knh_Array_size(o->terms))) {
-		DBG2_P("outof index %ld >= %ld", n, knh_Array_size(o->terms));
+		DBG2_P("outof index %zd >= %zd", n, knh_Array_size(o->terms));
 		n = 0;
 	}
 	return (knh_String_t*)knh_Array_n(o->terms, n);
