@@ -160,11 +160,7 @@ void knh_ClassField_initField(Ctx *ctx, knh_ClassField_t *cs, knh_class_t self_c
 		}
 		else if(IS_ubxfloat(type)) {
 			knh_float_t *data = (knh_float_t*)(v + i);
-#ifdef KNH_USING_NOFLOAT
-			data[0] = value == NULL ? 0 : tofloat(value);
-#else
-			data[0] = value == NULL ? 0.0 : tofloat(value);
-#endif
+			data[0] = value == NULL ? KNH_FLOAT_ZERO : tofloat(value);
 			continue;
 		}
 		else if(IS_ubxboolean(type)) {
@@ -1273,13 +1269,8 @@ static void knh_Closure_traverse(Ctx *ctx, knh_Closure_t *cc, knh_ftraverse ftr)
 
 static void knh_AffineConv_init(Ctx *ctx, knh_AffineConv_t *o, int init)
 {
-#ifndef KNH_USING_NOFLOAT
-	o->scale = 1.0;
-	o->shift = 0.0;
-#else
-	o->scale = 1;
-	o->shift = 0;
-#endif
+	o->scale = KNH_FLOAT_ONE;
+	o->shift = KNH_FLOAT_ZERO;
 }
 
 /* ======================================================================== */
@@ -1382,11 +1373,7 @@ static
 int knh_ffcmp__default(knh_ClassSpec_t *u, knh_float_t v1, knh_float_t v2)
 {
 	knh_float_t delta = v1 - v2;
-#ifndef KNH_USING_NOFLOAT
-	if(delta == 0.0) return 0;
-#else
-	if(delta == 0) return 0;
-#endif
+	if(delta == KNH_FLOAT_ZERO) return 0;
 	return delta < 0 ? -1 : 1;
 }
 

@@ -805,11 +805,7 @@ static METHOD Int_opPrev(Ctx *ctx, knh_sfp_t *sfp)
 
 static METHOD Float_opNext(Ctx *ctx, knh_sfp_t *sfp)
 {
-  #ifdef KNH_USING_NOFLOAT
-	KNH_RETURN_Float(ctx, sfp, (p_float(sfp[0]))+1);
-  #else
-	KNH_RETURN_Float(ctx, sfp, (p_float(sfp[0]))+1.0);
-  #endif
+	KNH_RETURN_Float(ctx, sfp, (p_float(sfp[0]))+KNH_FLOAT_ONE);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -817,11 +813,7 @@ static METHOD Float_opNext(Ctx *ctx, knh_sfp_t *sfp)
 
 static METHOD Float_opPrev(Ctx *ctx, knh_sfp_t *sfp)
 {
-#ifdef KNH_USING_NOFLOAT
-	KNH_RETURN_Float(ctx, sfp, (p_float(sfp[0])) - 1);
-#else
-	KNH_RETURN_Float(ctx, sfp, (p_float(sfp[0]))-1.0);
-#endif
+	KNH_RETURN_Float(ctx, sfp, (p_float(sfp[0]))-KNH_FLOAT_ONE);
 }
 
 /* ======================================================================== */

@@ -496,7 +496,6 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 
 #define KLR_TOSTRf(ctx, n, mn, fmt) { \
 		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);\
-		DBG2_ASSERT(ctx->esp <= (sfp + n));\
 		KLR_SWAP(ctx, n, n+1); \
 		KLR_MOV(ctx, sfp[n+2].o, cwb->w);\
 		KLR_MOV(ctx, sfp[n+3].o, fmt);\
@@ -506,6 +505,12 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 	}\
 
 #define KLR_TOSTR(ctx, n, mn)  KLR_TOSTRf(ctx, n, mn, KNH_NULL)
+
+#define KLR_W(ctx, n, fmr, o, w) { \
+		KLR_MOV(ctx, sfp[n+2].o, cwb->w);\
+		KLR_MOV(ctx, sfp[n+3].o, KNH_NULL);\
+		KLR_SCALL(ctx, n, 4, fmr_);\
+	}\
 
 /* ------------------------------------------------------------------------- */
 

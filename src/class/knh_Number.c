@@ -61,23 +61,15 @@ knh_float_t knh_Number_tofloat(Any *o)
 {
 	Object *n = (Object*)o;
 	switch(n->h.bcid) {
-		case CLASS_Boolean :
-#ifndef KNH_USING_NOFLOAT
-			return (IS_TRUE(n)) ? 1 : 0;
-#else
-			return (IS_TRUE(n)) ? 1.0 : 0.0;
-#endif
+	case CLASS_Boolean :
+		return (IS_TRUE(n)) ? KNH_FLOAT_ONE : KNH_FLOAT_ZERO;
 		case CLASS_Int :
 			return (knh_float_t)((knh_Int_t*)n)->n.ivalue;
 		case CLASS_Float :
 			return (knh_float_t)((knh_Float_t*)n)->n.fvalue;
 	}
 	KNH_ASSERT(n->h.bcid == CLASS_Int); /* STOP */
-#ifndef KNH_USING_NOFLOAT
-	return (IS_TRUE(n)) ? 1 : 0;
-#else
-	return (IS_TRUE(n)) ? 1.0 : 0.0;
-#endif
+	return KNH_FLOAT_ZERO;
 }
 
 /* ======================================================================== */

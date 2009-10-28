@@ -888,11 +888,7 @@ int knh_TokenNUM_typing(Ctx *ctx, knh_Token_t *tk, knh_NameSpace_t *ns, knh_clas
 	}
 
 	if(breqc == CLASS_Float) {
-#ifndef KNH_USING_NOFLOAT
-		knh_float_t n = 0.0;
-#else
-		knh_float_t n = 0;
-#endif
+		knh_float_t n = KNH_FLOAT_ZERO;
 		if(!knh_bytes_parsefloat(t, &n)) {
 			knh_Token_perror(ctx, tk, KERR_EWARN, _("float overflow: %B"), t);
 		}
@@ -1445,16 +1441,12 @@ knh_index_t knh_Gamma_declareScriptVariable(Ctx *ctx, knh_cfield_t *decl)
 		}
 		if(IS_ubxfloat(type)) {
 			knh_float_t *v = (knh_float_t*)(scr->fields + idx);
-#ifdef KNH_USING_NOFLOAT
-			v[0] = (value == NULL) ? 0 : ((knh_Float_t*)value)->n.fvalue;
-#else
-			v[0] = (value == NULL) ? 0.0 : ((knh_Float_t*)value)->n.fvalue;
-#endif
+			v[0] = (value == NULL) ? KNH_FLOAT_ZERO : ((knh_Float_t*)value)->n.fvalue;
 			return 1;
 		}
 		if(IS_ubxboolean(type)) {
 			knh_bool_t *v = (knh_bool_t*)(scr->fields + idx);
-			v[0] = (value == NULL) ? 0 : ((knh_Int_t*)value)->n.bvalue;
+			v[0] = (value == NULL) ? 0 : ((knh_Boolean_t*)value)->n.bvalue;
 			return 1;
 		}
 #endif/*KNH_USING_UNBOXFIELD*/

@@ -167,6 +167,11 @@ typedef int               knh_float_t;
 #define KNH_FLOAT_NAN             0
 #define KNH_FLOAT_NULL            KNH_FLOAT_NAN
 #define KNH_FLOAT_FMTSIZ          40
+#define KNH_FLOAT_ZERO            0
+#define KNH_FLOAT_ONE             1
+#else
+#define KNH_FLOAT_ZERO            0.0
+#define KNH_FLOAT_ONE             1.0
 #endif/*KNH_USING_NOFLOAT*/
 
 #if defined(KNH_USING_LONGDOUBLE) && !defined(KNH_FLOAT_FMT)
