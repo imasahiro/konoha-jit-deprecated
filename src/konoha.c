@@ -35,44 +35,46 @@ int
 main(int argc, char **argv)
 {
 #if defined(KNH_USING_BTRON)
-    char buf[4096];
-    char* args[256];
-    int i, pos = 0, len;
+	char buf[4096];
+	char* args[256];
+	int i, pos = 0, len;
 
-    for (i = 0; i < argc; i++) {
-        args[i] = buf + pos;
-        len = tcstoeucs(args[i], (TC*)argv[i]);
-        if (len >= 0) {
-            pos += (len + 1);
-        }
-        else {
-            buf[pos] = '\0';
-            pos++;
-        }
-    }
-    args[argc] = NULL;
+	for (i = 0; i < argc; i++) {
+		args[i] = buf + pos;
+		len = tcstoeucs(args[i], (TC*)argv[i]);
+		if (len >= 0) {
+			pos += (len + 1);
+		}
+		else {
+			buf[pos] = '\0';
+			pos++;
+		}
+	}
+	args[argc] = NULL;
 
 #else
-    char** args = (char**) argv;
+	char** args = (char**) argv;
 #endif
-    konoha_t konoha = konoha_open(4096);
-    int n = konoha_parseopt(konoha, argc, args);
-    if(argc - n == 0) {
-        konoha_shell(konoha);
-    }
-    else {
-        if(konoha_loadScript(konoha, args[n]) != -1) {
-            konoha_runMain(konoha, argc - n, args + n);
-        }
-        else {
-            fprintf(stderr, "[konoha] cannot open: %s\n", args[n]);
-        }
-        if(knh_isToInteractiveMode()) {
-        	konoha_shell(konoha);
-        }
-    }
-    konoha_close(konoha);
-    return 0;
+	konoha_t konoha = konoha_open(4096);
+	int n = konoha_parseopt(konoha, argc, args);
+	if(argc - n == 0) {
+		konoha_shell(konoha);
+	}
+	else {
+		if(konoha_loadScript(konoha, args[n]) != -1) {
+			if(!knh_Context_isCompiling(konoha.ctx)) {
+				konoha_runMain(konoha, argc - n, args + n);
+				if(knh_isToInteractiveMode()) {
+					konoha_shell(konoha);
+				}
+			}
+		}
+		else {
+			fprintf(stderr, "[konoha] cannot open: %s\n", args[n]);
+		}
+	}
+	konoha_close(konoha);
+	return 0;
 }
 
 

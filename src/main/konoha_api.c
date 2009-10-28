@@ -347,7 +347,8 @@ KNHAPI(int) konoha_loadScript(konoha_t konoha, char *fpath)
 	knh_InputStream_t *in = new_ScriptInputStream(ctx, B(fpath), NULL, ctx->share->mainns, 0);
 	KNH_LPUSH(ctx, in);
 	if(!knh_InputStream_isClosed(ctx, in)) {
-		knh_NameSpace_load(ctx, ctx->share->mainns, in, 1/*isEval*/,0/*isThrowable*/);
+		int isEval = (knh_Context_isCompiling(ctx)) ? 0 : 1;
+		knh_NameSpace_load(ctx, ctx->share->mainns, in, isEval, 0/*isThrowable*/);
 	}
 	else {
 		knh_setRuntimeError(ctx, T__("script file doesn't exists"));
