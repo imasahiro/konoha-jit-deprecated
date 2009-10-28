@@ -686,6 +686,7 @@ METHOD Script_hook(Ctx *ctx, knh_sfp_t *sfp);
 int package_init(Ctx *ctx);
 int knh_fcallback_cmpr(Object *obj, Object *obj2);
 void *knh_generateCallBackFunc(Ctx *ctx, void *func, knh_Closure_t *c);
+void *knh_copyCallbackfunc(Ctx* ctx, void *func, void *target,knh_Closure_t *cc);
 void konoha_init(void);
 int knh_isToInteractiveMode(void);
 int knh_isUserExperienceProgram(Ctx *ctx);

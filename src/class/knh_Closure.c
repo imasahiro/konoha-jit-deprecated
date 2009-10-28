@@ -30,11 +30,6 @@
 #include"commons.h"
 #include"../../include/konoha/konoha_code_.h"
 
-#ifndef KONOHA_ON_LKM
-#include <sys/mman.h>
-#endif
-
-
 size_t knh_opcode_size(int opcode);
 
 /* ************************************************************************ */
@@ -427,116 +422,6 @@ void knh_Method_toGenerator(knh_Method_t *mtd)
 {
 	mtd->fcall_1 = knh_fmethod_generator;
 }
-
-/* ------------------------------------------------------------------------ */
-#define MAX_FUNC_SIZE 256
-static inline int pow2(int n)
-{
-	int p = 0;
-	if(n <= 0) return 1;
-	--n;
-	for(;n != 0;n >>=1) {
-		p = (p << 1) + 1;
-	}
-	return p + 1;
-}
-
-/* ------------------------------------------------------------------------ */
-// HOWTO USE callback func
-// 
-// first, prepare callback function like "void knh_qsort(void *d1, void *d2)"
-// and add additional argument "knh_Closure_t* cc" to knh_qsort.
-// So, interface of knh_qsort is like "void knh_qsort(void *d1, void *d2 ,knh_Closure_t* cc)"
-// 
-// Next, make dummy callback function, dummy_callback.
-// dummy_callback's interface is same as previous knh_qsort interface.
-// void dummy_callback(void *d1, void *d2);
-// dummy_callback function is not used, but these replica use.
-// 
-//// void Array.myqsort(Closure c);
-//METHOD Array_myqsort(Ctx *ctx, knh_sfp_t *sfp)
-//{
-//	knh_Array_t   *a  = (knh_Array_t *) sfp[0].o;
-//	knh_Closure_t *cc = (knh_Closure_t *) sfp[1].cc;
-//	void *callback = knh_copy_callbackfunc((void*)dummy_callback,(void *)knh_qsort,cc);
-//	((void (*)(int))callback)(a->list,a->size, sizeof(Object*),callback);
-//}
-//
-//static int knh_qsort(void *d1, void *d2 ,knh_Closure_t* cc)
-//{
-//	Ctx *ctx = knh_getCurrentContext();
-//	knh_sfp_t *lsfp = KNH_LOCAL(ctx);
-//	Object *arg1 = (Object *)new_Int(ctx,(int)d1);
-//	Object *arg2 = (Object *)new_Int(ctx,(int)d2);
-//	knh_putsfp(ctx, lsfp, 2, arg1);
-//	knh_putsfp(ctx, lsfp, 3, arg2);
-//	knh_Closure_invokesfp(ctx, cc, lsfp, /* argc*/ 2);
-//	return (int) lsfp[0].ivalue;
-//}
-//
-//static int dummy_callback(void *d1, void *d2)
-//{
-//	return knh_qsort(d1,d2,(knh_Closure_t*) -1);
-//}
-//
-// copy callback func and return function that allocate form heap.
-static void *knh_copy_callbackfunc(void *func, void *target,knh_Closure_t *cc)
-{
-	void *callback = NULL;
-#ifndef KONOHA_ON_LKM
-	int i,_ffffffff = -1,jmp_pos = -1;
-	knh_uchar_t *f = (knh_uchar_t *) func;
-
-	for (i = 0; i < MAX_FUNC_SIZE; i++) {
-		// find 0xffffffff(that is dummy forknh_Closure_t pointer)
-		if(*(int*) &f[i] == -1) {
-			_ffffffff = i;
-			i+=3;
-		}
-		// find jmp instraction
-		// if arch is i386, jmp instraction is start at "0xe8"
-		if(f[i] == 0xe8) {
-			jmp_pos = i;
-		}
-		// epilog of function is always 0xc9,0xc3.
-		if(f[i] == 0xc9 && f[i+1] == 0xc3) {
-			i+=2;
-			break;
-		}
-		if(f[i] == 0xc9 && f[i+1] == 0xe9){
-			jmp_pos = i + 1;
-			i+=6;
-			break;
-		}
-	}
-	size_t size = pow2(i);
-	callback = valloc(size);
-	memcpy(callback,func,i);
-	mprotect(callback, size, PROT_READ | PROT_WRITE | PROT_EXEC);
-
-	f = (knh_uchar_t *)callback;
-
-	// patch for 0xffffffff
-	if(_ffffffff > 0) {
-#ifdef __x86_64__
-		union opcode { knh_uchar_t code[8]; int ival;} op;
-		op.ival = (intptr_t)cc;
-		//*(int*) &f[_ffffffff] = op.ival;
-		memcpy(&f[_ffffffff], op.code, 8);
-#else
-		*(int*) &f[_ffffffff] = (int)cc;
-#endif
-	}
-
-	// patch for function relocation.
-	if(jmp_pos > 0) {
-		intptr_t diff = (intptr_t)target - (intptr_t)(&f[jmp_pos] + 5);
-		*(int*) &f[jmp_pos+1] = (int) diff;
-	}
-#endif
-	return callback;
-}
-
 
 /* ------------------------------------------------------------------------ */
 

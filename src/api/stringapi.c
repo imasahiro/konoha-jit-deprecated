@@ -564,9 +564,9 @@ knh_Array_t *knh_Regex_split(Ctx *ctx, knh_Regex_t *o, knh_String_t *s)
 		knh_Array_t *a = new_Array(ctx, CLASS_String, KNH_REGEX_NMATCH_SIZE);
 		knh_bytes_t sub = __tobytes(s);
 		int i;
-		for(i = 1; i < KNH_REGEX_NMATCH_SIZE; i++) {
+		for(i = 0; i < KNH_REGEX_NMATCH_SIZE; i++) {
 			if(pmatch[i].rm_so == -1) break;
-			//DBG_P("[%d], rm_so=%d, rm_eo=%d", i, pmatch[i].rm_so, pmatch[i].rm_eo);
+			DBG2_P("[%d], rm_so=%d, rm_eo=%d", i, pmatch[i].rm_so, pmatch[i].rm_eo);
 			sub.buf = (knh_uchar_t*)str + pmatch[i].rm_so;
 			sub.len = pmatch[i].rm_eo - pmatch[i].rm_so;
 			knh_Array_add(ctx, a, UP(new_String(ctx, sub, s)));
