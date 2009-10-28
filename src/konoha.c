@@ -51,7 +51,6 @@ main(int argc, char **argv)
 		}
 	}
 	args[argc] = NULL;
-
 #else
 	char** args = (char**) argv;
 #endif

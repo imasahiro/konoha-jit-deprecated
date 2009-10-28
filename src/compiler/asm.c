@@ -584,17 +584,20 @@ void KNH_ASM_XMOV(Ctx *ctx, knh_type_t atype, int a, size_t an, knh_Token_t *tkb
 				KNH_ASM(XMOVoi, ax, KNH_DEF(ctx, CLASS_type(atype)));
 				break;
 			}
-			if(IS_ubxfloat(atype)) {
+			else if(IS_ubxfloat(atype)) {
 				KNH_ASM(XMOVof, ax, KNH_DEF(ctx, CLASS_type(atype)));
 				break;
 			}
-			if(IS_ubxfloat(atype)) {
+			else if(IS_ubxboolean(atype)) {
 				KNH_ASM(XMOVob, ax, KNH_FALSE);
 				break;
 			}
+			else
 #endif/*KNU_USING_UNBOXFIED*/
-			knh_class_t cid = DP(tkb)->cid;
-			KNH_ASM(XMOVDEF, ax, cid);
+			{
+				knh_class_t cid = DP(tkb)->cid;
+				KNH_ASM(XMOVDEF, ax, cid);
+			}
 			break;
 		}
 
