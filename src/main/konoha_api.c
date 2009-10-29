@@ -923,6 +923,40 @@ void knh_clearScriptLine(Ctx *ctx)
 /* ======================================================================== */
 /* [shell] */
 
+static
+void knh_showWelcome(Ctx *ctx, knh_OutputStream_t *w)
+{
+	knh_printf(ctx, w, "Konoha %s(%s) %s (#%d, %s %s)",
+		KONOHA_VERSION, KONOHA_XCODE, KONOHA_LICENSE,
+		((size_t)KONOHA_BUILDID), __DATE__, __TIME__);
+	knh_write_EOL(ctx, w);
+	knh_printf(ctx, w, "[%s] on %s (%d, %s)\n", KONOHA_CC_VERSION, KONOHA_PLATFORM, (knh_intptr_t)(sizeof(void*) * 8), konoha_encoding());
+	knh_write_char(ctx, w, "Options:");
+
+#ifdef KNH_FASTMODE
+	knh_write_char(ctx, w, " fastmode");
+#endif
+
+#ifdef KNH_USING_ICONV
+	knh_write_char(ctx, w, " iconv");
+#endif
+#ifdef KNH_USING_INT32
+	knh_write_char(ctx, w, " int32");
+#endif
+#ifdef KNH_USING_RCGC
+	knh_write_char(ctx, w, " refc");
+#endif
+	knh_write_USING_SQLITE3(ctx, w);
+#ifdef KNH_USING_THREAD
+	knh_write_char(ctx, w, " thread");
+#endif
+	knh_write_USING_REGEX(ctx, w);
+	knh_printf(ctx, w, " used_memory:%d kb", (knh_intptr_t)(ctx->stat->usedMemorySize / 1024));
+	knh_write_EOL(ctx, w);
+}
+
+/* ------------------------------------------------------------------------ */
+
 KNHAPI(void) konoha_shell(konoha_t konoha)
 {
 	KONOHA_CHECK_(konoha);
@@ -936,7 +970,7 @@ KNHAPI(void) konoha_shell(konoha_t konoha)
 	knh_Context_initSymbolTable(ctx);
 	using_history();
 #endif
-	knh_System__dump(ctx, ctx->sys, KNH_STDOUT, (knh_String_t*)KNH_NULL);
+	knh_showWelcome(ctx, KNH_STDOUT);
 	knh_initScriptLine(ctx);
 	{
 		int linenum, linecnt = 0;

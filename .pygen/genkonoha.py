@@ -417,7 +417,7 @@ class Mapper:
             func = self.meta['@Func']
         flag = '0'
         flag = addflag(flag, self.meta, 'Mapper', '@Const')
-        flag = addflag(flag, self.meta, 'Mapper', '@Partial')
+        flag = addflag(flag, self.meta, 'Mapper', '@Total')
         flag = addflag(flag, self.meta, 'Mapper', '@Synonym')
         flag = addflag(flag, self.meta, 'Mapper', '@Final')
         fmt = '''
@@ -427,8 +427,8 @@ class Mapper:
 def parse_Mapper(meta, tokens, data):
     mpr = Mapper(tokens[0], tokens[1])
     mpr.meta = meta
-    if tokens[1].endswith('?'):
-        meta['@Partioal'] = True
+    if not tokens[1].endswith('?'):
+        meta['@Total'] = True
     data.add_Mapper(mpr)
 
 class Data:

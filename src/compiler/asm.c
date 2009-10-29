@@ -582,15 +582,12 @@ void KNH_ASM_XMOV(Ctx *ctx, knh_type_t atype, int a, size_t an, knh_Token_t *tkb
 #ifdef KNH_USING_UNBOXFIELD
 			if(IS_ubxint(atype)) {
 				KNH_ASM(XMOVoi, ax, KNH_DEF(ctx, CLASS_type(atype)));
-				break;
 			}
 			else if(IS_ubxfloat(atype)) {
 				KNH_ASM(XMOVof, ax, KNH_DEF(ctx, CLASS_type(atype)));
-				break;
 			}
 			else if(IS_ubxboolean(atype)) {
 				KNH_ASM(XMOVob, ax, KNH_FALSE);
-				break;
 			}
 			else
 #endif/*KNU_USING_UNBOXFIED*/

@@ -813,7 +813,6 @@ static void knh_Gamma_initThisScript(Ctx *ctx)
 	DP(ctx->kc)->scope = SCOPE_SCRIPT;
 }
 
-
 static
 int knh_NameSpace_compile(Ctx *ctx, knh_NameSpace_t *ns, knh_Stmt_t *stmt, int isEval)
 {
