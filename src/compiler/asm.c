@@ -2265,21 +2265,35 @@ static void knh_StmtPRINT_asm(Ctx *ctx, knh_Stmt_t *stmt)
 
 static void knh_StmtASSERT_asm(Ctx *ctx, knh_Stmt_t *stmt)
 {
-	if(!knh_StmtMETA_is(ctx, stmt, STEXT("@Release"))) {
-		if(!knh_Gamma_isDEBUG(ctx)) {
-			return ;
+	knh_Gamma_t *kc = ctx->kc;
+	if(DP(kc)->testidx == -1) {
+		int isRelease = knh_StmtMETA_is(ctx, stmt, STEXT("@Release"));
+		if(!isRelease) {
+			if(!knh_Gamma_isDEBUG(ctx)) {
+				return ;
+			}
 		}
+		knh_KLRInst_t* lbskip = new_KLRInstLABEL(ctx);
+		if(!isRelease) {
+			KNH_ASM(SKIP, TADDR lbskip);
+		}
+		/* if */
+		TERMs_ASM_JIFT(ctx, stmt, 0, lbskip);
+		/*then*/
+		TERMs_asmBLOCK(ctx, stmt, 1);
+		KNH_ASM(THROWs, knh_Gamma_inTry(ctx), knh_getExptName(ctx, EXPT_Assertion));
+		KNH_ASM_LABEL(ctx, lbskip);
 	}
-	knh_KLRInst_t*  lbskip = new_KLRInstLABEL(ctx);
-	if(!knh_StmtMETA_is(ctx, stmt, STEXT("@Release"))) {
-		KNH_ASM(SKIP, TADDR lbskip);
+	else {
+		int esp = DP(kc)->esp;
+		knh_Method_t *mtd = knh_Class_getMethod(ctx, CLASS_System, METHODN_test);
+		DBG2_ASSERT(IS_Method(mtd));
+		DBG2_ASSERT(DP(kc)->testidx < esp);
+		TERMs_putLOCAL(ctx, stmt, 0, NNTYPE_Boolean, esp+2);
+		KNH_ASM(MOVa, esp+3, DP(kc)->testidx);
+		KNH_ASM(MOVi, esp+1, (knh_int_t)SP(stmt)->line);
+		KNH_ASM(SCALL, esp, 4, mtd);
 	}
-	/* if */
-	TERMs_ASM_JIFT(ctx, stmt, 0, lbskip);
-	/*then*/
-	TERMs_asmBLOCK(ctx, stmt, 1);
-	KNH_ASM(THROWs, knh_Gamma_inTry(ctx), knh_getExptName(ctx, EXPT_Assertion));
-	KNH_ASM_LABEL(ctx, lbskip);
 }
 
 static void knh_StmtTEST_asm(Ctx *ctx, knh_Stmt_t *stmt)

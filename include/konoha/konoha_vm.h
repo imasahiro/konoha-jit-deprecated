@@ -141,6 +141,10 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 		sfp[a].data = knh_Object_data(v);\
 	}\
 
+#define KLR_MOVi(ctx, a, i) {\
+		sfp[a].data = i;\
+	}\
+
 #define KLR_MOVDEF(ctx, a, cid) {\
 		knh_Int_t *v_ = (knh_Int_t*)KNH_DEF(ctx, cid);\
 		KLR_MOV(ctx, sfp[a].o, v_);\

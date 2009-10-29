@@ -12,6 +12,7 @@ HALT
 MOVa sfpidx sfpidx
 MOVn sfpidx sfpidx
 MOVo sfpidx Object
+MOVi sfpidx int
 MOVx sfpidx sfx
 MOVDEF sfpidx cid
 MOVSYS sfpidx ushort 

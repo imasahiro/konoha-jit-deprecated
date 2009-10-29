@@ -2802,7 +2802,6 @@ char *METHODN_op(knh_methodn_t mn)
 	case METHODN_opRangeUntil : return "until";
 	case METHODN_opRshift : return "<<";
 	case METHODN_opSub : return "-";
-	case METHODN_opMust : return "==>";
 	case METHODN_opXor : return "^";
 	}
 	DBG2_P("unknown operator mn=%d", mn);

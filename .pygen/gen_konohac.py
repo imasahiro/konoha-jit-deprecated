@@ -102,7 +102,6 @@ TOKEN = '''
 ; SEMICOLON      @stmt     @eos
 , COMMA          @P0
 => FUNCMAP       @P99
-must Must        @op   @P1   @top   @A1
 it   IT          @P99
 = LET            @P2   @A2
 <<= lshifte      

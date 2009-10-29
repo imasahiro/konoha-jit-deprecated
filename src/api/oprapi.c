@@ -66,55 +66,6 @@ METHOD Object_opInstanceof(Ctx *ctx, knh_sfp_t *sfp)
 	KNH_RETURN_Boolean(ctx, sfp, knh_class_instanceof(ctx, ARG_Object_cid(sfp[0]), p_cid(sfp[1])));
 }
 
-/* ------------------------------------------------------------------------ */
-
-static void knh_stack_utest(Ctx *ctx, knh_sfp_t *sfp, int result, Object *o)
-{
-	if(result) {
-		knh_printf(ctx, KNH_STDERR, "[PASS]\n");
-	}
-	else {
-		knh_printf(ctx, KNH_STDERR, "[FAILED] %O\n", o);
-	}
-}
-
-/* ------------------------------------------------------------------------ */
-//## @Hidden @NullBase method Any Object.opMust(Any it);
-
-static METHOD Object_opMust(Ctx *ctx, knh_sfp_t *sfp)
-{
-	knh_stack_utest(ctx, sfp, knh_Object_compareTo(ctx, sfp[0].o, sfp[1].o) != 0, sfp[1].o);
-	KNH_RETURN(ctx, sfp, sfp[1].o);
-}
-
-/* ------------------------------------------------------------------------ */
-//## @Hidden method Any Boolean.opMust(Any it);
-
-static METHOD Boolean_opMust(Ctx *ctx, knh_sfp_t *sfp)
-{
-	knh_stack_utest(ctx, sfp, sfp[0].bvalue, sfp[1].o);
-	KNH_RETURN(ctx, sfp, sfp[1].o);
-}
-
-/* ------------------------------------------------------------------------ */
-//## @Hidden method Any Exception.opMust(Any it);
-
-static METHOD Exception_opMust(Ctx *ctx, knh_sfp_t *sfp)
-{
-	KNH_ASSERT(IS_bString(sfp[0].s));
-	if(IS_Exception(sfp[1].o)) {
-		knh_expt_t eid =  (IS_Exception(sfp[0].o)) ?
-			DP(sfp[0].e)->eid : knh_geteid(ctx, __tobytes(sfp[0].s), EXPT_newid);
-		if(knh_expt_isa(ctx, DP(sfp[1].e)->eid, eid)) {
-			knh_stack_utest(ctx, sfp, 1, sfp[1].o);
-			KNH_RETURN(ctx, sfp, KNH_NULL);
-		}
-		knh_throwException(ctx, sfp[1].e, NULL, 0);
-	}
-	knh_stack_utest(ctx, sfp, 0, sfp[1].o);
-	KNH_RETURN(ctx, sfp, sfp[1].o);
-}
-
 /* ======================================================================== */
 /* [Comparator] */
 

@@ -94,6 +94,22 @@ static METHOD System_gc(Ctx *ctx, knh_sfp_t *sfp)
 }
 
 /* ------------------------------------------------------------------------ */
+//## @Hidden method void System.test(Boolean result, String? msg);
+
+static METHOD System_test(Ctx *ctx, knh_sfp_t *sfp)
+{
+	char *result = (sfp[1].bvalue) ? "PASS" : "FAILED";
+	knh_intptr_t line = (knh_intptr_t)sfp[0].ivalue;
+	knh_printf(ctx, KNH_STDERR, "[%s:%d]", result, line);
+	if(IS_bString(sfp[2].s)) {
+		knh_putc(ctx, KNH_STDERR, ' ');
+		knh_print(ctx, KNH_STDERR, __tobytes(sfp[2].s));
+	}
+	knh_write_EOL(ctx, KNH_STDERR);
+	KNH_RETURN_void(ctx, sfp);
+}
+
+/* ------------------------------------------------------------------------ */
 //## @static method Int Script.system(String cmd);
 
 static METHOD Script_system(Ctx *ctx, knh_sfp_t *sfp)

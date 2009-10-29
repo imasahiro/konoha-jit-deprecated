@@ -77,7 +77,6 @@ static char* knh_token_array_tochar[] = {
     ";",  /* SEMICOLON */ 
     ",",  /* COMMA */ 
     "=>",  /* FUNCMAP */ 
-    "must",  /* Must */ 
     "it",  /* IT */ 
     "=",  /* LET */ 
     "<<=",  /* lshifte */ 
@@ -212,7 +211,6 @@ static knh_methodn_t knh_token_array_tomethodn[] = {
     METHODN_NONAME,  /* SEMICOLON */ 
     METHODN_NONAME,  /* COMMA */ 
     METHODN_NONAME,  /* FUNCMAP */ 
-    METHODN_opMust,  /* Must */ 
     METHODN_NONAME,  /* IT */ 
     METHODN_NONAME,  /* LET */ 
     METHODN_NONAME,  /* lshifte */ 
@@ -347,7 +345,6 @@ static int knh_token_array_getOpPriority[] = {
     0,  /* SEMICOLON */ 
     0,  /* COMMA */ 
     99,  /* FUNCMAP */ 
-    1,  /* Must */ 
     99,  /* IT */ 
     2,  /* LET */ 
     0,  /* lshifte */ 
@@ -482,7 +479,6 @@ static int knh_token_array_getOpSize[] = {
     0,  /* SEMICOLON */ 
     0,  /* COMMA */ 
     0,  /* FUNCMAP */ 
-    1,  /* Must */ 
     0,  /* IT */ 
     2,  /* LET */ 
     0,  /* lshifte */ 
@@ -617,7 +613,6 @@ static knh_bool_t knh_token_array_isBeginOfStmt[] = {
     1,  /* SEMICOLON */ 
     0,  /* COMMA */ 
     0,  /* FUNCMAP */ 
-    0,  /* Must */ 
     0,  /* IT */ 
     0,  /* LET */ 
     0,  /* lshifte */ 
@@ -892,7 +887,6 @@ knh_cwb_parseToken(Ctx *ctx, knh_cwb_t *cwb, knh_flag_t flag, knh_InputStream_t 
     break;
     case 'm':
         if(ISB(t, "mapmap")) { tt = TT_MAPMAP; break; }
-        if(ISB(t, "must")) { tt = TT_MUST; break; }
         if(ISB(t, "mod")) { tt = TT_MOD; break; }
     break;
     case 'n':

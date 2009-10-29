@@ -516,8 +516,7 @@ void knh_Gamma_clear(Ctx *ctx, size_t offset, int isAll);
 void knh_Gamma_prepare(Ctx *ctx, knh_Method_t *mtd, knh_Stmt_t *stmt);
 void knh_Gamma_initThis(Ctx *ctx, knh_class_t cid);
 void knh_asmop(Ctx *ctx, knh_inst_t *op);
-void
-knh_StmtEXPR_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx);
+void knh_StmtEXPR_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx);
 void knh_StmtLETM_asm(Ctx *ctx, knh_Stmt_t *stmt);
 void knh_Stmt_asmBLOCK(Ctx *ctx, knh_Stmt_t *stmt, int isIteration);
 void KNH_ASM_METHOD(Ctx *ctx, knh_Method_t *mtd, knh_Stmt_t *params, knh_Stmt_t *body, int isIteration);
