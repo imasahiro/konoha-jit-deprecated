@@ -4090,13 +4090,16 @@ knh_class_t knh_StmtMETHOD_class(Ctx *ctx, knh_Stmt_t *stmt)
 		knh_class_t cid = knh_NameSpace_getcid(ctx, DP(kc)->ns, name);
 		if(cid == CLASS_unknown) {
 			cid = DP(kc)->this_cid;
+			if(cid == CLASS_Object) {
+				cid = knh_Object_cid(knh_getGammaScript(ctx));
+			}
 			knh_Gamma_perror(ctx, KERR_ERRATA,
-				_("unknown class: %B ==> %s"), name, cid);
+				_("unknown class: %B ==> %C"), name, cid);
 		}
 		else if(DP(kc)->scope != SCOPE_SCRIPT && cid != DP(kc)->this_cid) {
 			cid = DP(kc)->this_cid;
 			knh_Gamma_perror(ctx, KERR_ERRATA,
-				_("different class: %B ==> %s"), name, cid);
+				_("different class: %B ==> %C"), name, cid);
 		}
 		KNH_ASSERT(cid != CLASS_unknown);
 		return cid;
