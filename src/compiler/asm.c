@@ -770,9 +770,8 @@ void KNH_ASM_NEW(Ctx *ctx, knh_type_t reqt, int sfpidx, knh_Token_t *tkb,
 static
 void KNH_ASM_MAP(Ctx *ctx, knh_type_t reqt, int sfpidx, knh_Token_t *tkb, knh_type_t srct, int isNonNullCast)
 {
-	KNH_ASSERT(IS_Token(tkb));
-	KNH_ASSERT(sfpidx >= DP(ctx->kc)->esp);
-	knh_Mapper_t *mpr = (knh_Mapper_t*)DP(tkb)->data;
+	DBG2_ASSERT(IS_Token(tkb));
+	knh_Mapper_t *mpr = DP(tkb)->mpr;
 
 	if(IS_Mapper(mpr)) {
 //		DBG2_P("reqt=%s%s tcid=%s srct=%s%s isNonNullCast=%d",
@@ -1495,13 +1494,8 @@ void knh_StmtMAPCAST_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx
 {
 	int local = ASML(sfpidx);
 	knh_type_t srct = TERMs_gettype(stmt, 1);
-	TERMs_asm(ctx, stmt, 1, TYPE_Any, local);
-//	if(knh_Stmt_isNNCAST(stmt)) {
-//		KNH_ASM_NNMAP, local, DP(DP(stmt)->tokens[0])->cid);
-//	}
-//	else {
-		KNH_ASM_MAP(ctx, reqt, local, DP(stmt)->tokens[0], srct, knh_Stmt_isNNCAST(stmt));
-//	}
+	TERMs_asm(ctx, stmt, 1, srct, local);
+	KNH_ASM_MAP(ctx, reqt, local, DP(stmt)->tokens[0], srct, knh_Stmt_isNNCAST(stmt));
 	MOVL(ctx, local, sfpidx);
 }
 

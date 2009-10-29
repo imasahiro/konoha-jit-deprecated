@@ -1090,6 +1090,7 @@ typedef struct knh_Token {
 		struct knh_String_t* text;
 		struct knh_Token_t* token;
 		struct knh_Method_t* mtd;
+		struct knh_Mapper_t* mpr;
 		struct knh_Int_t *num;
 	};
 } knh_Token_struct;
