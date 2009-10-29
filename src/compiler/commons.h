@@ -71,6 +71,7 @@ extern "C" {
 #define FOREACH_ITR     (FOREACH_loop+1)
 #define FOREACH_SPR     (FOREACH_loop+2)
 #define TRY_HDR         3
+#define TEST_IT         2
 
 /* ------------------------------------------------------------------------ */
 

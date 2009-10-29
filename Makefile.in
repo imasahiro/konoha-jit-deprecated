@@ -227,7 +227,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 EXTRA_SUBDIRS = src include dist
-EXTRA_FILES = bootstrap
+EXTRA_FILES = bootstrap konoha.1
 # dirs which include Makefile.in
 SUBDIRS = build 
 EXTRA_DIST = $(EXTRA_SUBDIRS) $(EXTRA_FILES)

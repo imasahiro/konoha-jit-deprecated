@@ -1008,15 +1008,10 @@ Object *knh_InputStream_parseDataNULL(Ctx *ctx, knh_InputStream_t *in)
 			goto L_RETURN;
 		}
 		DBG_P("rtype=%s%s", TYPEQN(DP(stmt)->type));
-		//knh_ExceptionHandler_t *hdr = new_ExceptionHandler(ctx);
-		//KNH_MOV(ctx, lsfp[0].o, hdr);
-		//KNH_TRY(ctx, L_CATCH, lsfp, 0);
 		KNH_MOV(ctx, lsfp[1].o, DP(mtd)->code); // TO AVOID RCGC
 		KNH_MOV(ctx, lsfp[2].o, scr);
 		KNH_SCALL(ctx, lsfp, 2, mtd, 0/*args*/);
 		rVALUE = lsfp[4].o;
-		//L_CATCH:;
-		//KNH_PRINT_STACKTRACE(ctx, lsfp, 0);
 	}
 	L_RETURN:
 	KNH_LOCALBACK(ctx, lsfp);
@@ -1128,7 +1123,6 @@ void knh_invokeMethodListener(Ctx *ctx, knh_DictMap_t *meta, knh_Method_t *mtd, 
 		}
 		KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
 		if(IS_NULL(a)) return;
-
 		KNH_LPUSH(ctx, a); // TO AVOID GC;
 		for(i = 0; i < knh_Array_size(a); i+=2) {
 			knh_String_t *key = (knh_String_t*)knh_Array_n(a, i);

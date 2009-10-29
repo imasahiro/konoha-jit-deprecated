@@ -3866,8 +3866,6 @@ Term *knh_StmtFOREACH_typing(Ctx *ctx, knh_Stmt_t *stmt)
 	return TM(stmt);
 }
 
-/* ------------------------------------------------------------------------ */
-
 static
 Term *knh_StmtTRY_typing(Ctx *ctx, knh_Stmt_t *stmt)
 {
@@ -3908,8 +3906,6 @@ Term *knh_StmtTRY_typing(Ctx *ctx, knh_Stmt_t *stmt)
 	return TM(stmt);
 }
 
-/* ------------------------------------------------------------------------ */
-
 static
 Term *knh_StmtTHROW_typing(Ctx *ctx, knh_Stmt_t *stmt)
 {
@@ -3933,7 +3929,6 @@ Term *knh_StmtPRINT_typing(Ctx *ctx, knh_Stmt_t *stmt)
 	return TM(stmt);
 }
 
-/* ------------------------------------------------------------------------ */
 
 static
 Term *knh_StmtASSERT_typing(Ctx *ctx, knh_Stmt_t *stmt)
@@ -3948,6 +3943,24 @@ Term *knh_StmtASSERT_typing(Ctx *ctx, knh_Stmt_t *stmt)
 		knh_Gamma_perror(ctx, KERR_EWARN, _("always throw Assert!!"));
 	}
 	TERMs_typingBLOCK(ctx, stmt, 1, 1/*isIteration*/);
+	return TM(stmt);
+}
+
+static
+Term *knh_StmtTEST_typing(Ctx *ctx, knh_Stmt_t *stmt)
+{
+	knh_Gamma_t *kc = ctx->kc;
+	int testidx = DP(kc)->testidx;
+	knh_Token_t *tkIT;
+	BEGIN_BLOCK(esp);
+	if(!TERMs_typing(ctx, stmt, 0, NNTYPE_String, TCHECK_)) {
+		return NULL;
+	}
+	tkIT = knh_Stmt_addLOCAL(ctx, stmt, NNTYPE_String, TEST_IT);
+	DP(kc)->testidx = DP(tkIT)->index;
+	TERMs_typingBLOCK(ctx, stmt, 1, 1/*isIteration*/);
+	DP(kc)->testidx = testidx;
+	END_BLOCK(esp);
 	return TM(stmt);
 }
 
@@ -4820,8 +4833,6 @@ Term *knh_Stmt_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
 		case STT_THROW:
 			tm = knh_StmtTHROW_typing(ctx, stmt);
 			break;
-//		case STT_CALL1:
-//			tm = knh_StmtCALL1_typing(ctx, stmt, TYPE_void);
 		case STT_RETURN:
 			tm = knh_StmtRETURN_typing(ctx, stmt);
 			break;
@@ -4830,6 +4841,9 @@ Term *knh_Stmt_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
 			break;
 		case STT_ASSERT:
 			tm = knh_StmtASSERT_typing(ctx, stmt);
+			break;
+		case STT_TEST:
+			tm = knh_StmtTEST_typing(ctx, stmt);
 			break;
 		case STT_REGISTER:
 			tm = knh_StmtREGISTER_typing(ctx, stmt);

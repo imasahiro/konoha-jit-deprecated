@@ -1672,8 +1672,7 @@ knh_Token_t *knh_Term_toLOCAL(Ctx *ctx, Term *tm, knh_type_t type, int sfpidx)
 
 /* ------------------------------------------------------------------------ */
 
-void
-knh_StmtEXPR_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
+void knh_StmtEXPR_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 {
 	KNH_ASSERT(IS_Stmt(stmt));
 	switch(SP(stmt)->stt) {
@@ -2205,7 +2204,6 @@ static void KNH_ASM_SKIP(Ctx *ctx, knh_KLRInst_t*  lbskip)
 	}
 }
 
-/* ------------------------------------------------------------------------ */
 
 static knh_methodn_t knh_Stmt_getMT(Ctx *ctx, knh_Stmt_t *stmt, size_t n)
 {
@@ -2219,9 +2217,7 @@ static knh_methodn_t knh_Stmt_getMT(Ctx *ctx, knh_Stmt_t *stmt, size_t n)
 	return mn;
 }
 
-/* ------------------------------------------------------------------------ */
-
-void knh_StmtPRINT_asm(Ctx *ctx, knh_Stmt_t *stmt)
+static void knh_StmtPRINT_asm(Ctx *ctx, knh_Stmt_t *stmt)
 {
 	if(!knh_Gamma_isDEBUG(ctx) || DP(stmt)->size == 0) {
 		return ;
@@ -2267,9 +2263,7 @@ void knh_StmtPRINT_asm(Ctx *ctx, knh_Stmt_t *stmt)
 	KNH_ASM_LABEL(ctx, lbskip);
 }
 
-/* ------------------------------------------------------------------------ */
-
-void knh_StmtASSERT_asm(Ctx *ctx, knh_Stmt_t *stmt)
+static void knh_StmtASSERT_asm(Ctx *ctx, knh_Stmt_t *stmt)
 {
 	if(!knh_StmtMETA_is(ctx, stmt, STEXT("@Release"))) {
 		if(!knh_Gamma_isDEBUG(ctx)) {
@@ -2286,6 +2280,17 @@ void knh_StmtASSERT_asm(Ctx *ctx, knh_Stmt_t *stmt)
 	TERMs_asmBLOCK(ctx, stmt, 1);
 	KNH_ASM(THROWs, knh_Gamma_inTry(ctx), knh_getExptName(ctx, EXPT_Assertion));
 	KNH_ASM_LABEL(ctx, lbskip);
+}
+
+static void knh_StmtTEST_asm(Ctx *ctx, knh_Stmt_t *stmt)
+{
+	knh_Gamma_t *kc = ctx->kc;
+	knh_Token_t *tkIT = knh_Stmt_getLOCAL(stmt, TEST_IT);
+	int testidx = DP(kc)->testidx;
+	DP(kc)->testidx = DP(tkIT)->index;
+	TERMs_putLOCAL(ctx, stmt, 0, NNTYPE_String, DP(tkIT)->index);
+	TERMs_asmBLOCK(ctx, stmt, 1);
+	DP(kc)->testidx = testidx;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -2342,6 +2347,8 @@ void knh_Stmt_asmBLOCK(Ctx *ctx, knh_Stmt_t *stmt, int isIteration)
 			knh_StmtPRINT_asm(ctx, cur); break;
 		case STT_ASSERT:
 			knh_StmtASSERT_asm(ctx, cur); break;
+		case STT_TEST:
+			knh_StmtTEST_asm(ctx, cur); break;
 		case STT_ERR:
 			knh_StmtERR_asm(ctx, cur); break;
 		case STT_DECL:

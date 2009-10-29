@@ -22,7 +22,6 @@
 
 
 
-
 VPATH = @srcdir@
 pkgdatadir = $(datadir)/@PACKAGE@
 pkgincludedir = $(includedir)/@PACKAGE@
@@ -44,11 +43,8 @@ build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = konoha$(EXEEXT)
 subdir = build
-DIST_COMMON = $(dist_klip_SCRIPTS) $(dist_pkgdemo_DATA) \
-	$(dist_pkgmath_DATA) $(dist_pkgposix_DATA) $(dist_pkgxml_DATA) \
-	$(dist_sample_SCRIPTS) $(dist_scriptklip_SCRIPTS) \
-	$(libkonoha_la_include_HEADERS) \
-	$(libkonoha_la_includegen_HEADERS) \
+DIST_COMMON = $(dist_klip_SCRIPTS) $(dist_sample_SCRIPTS) \
+	$(dist_scriptklip_SCRIPTS) $(libkonoha_la_include_HEADERS) \
 	$(libkonoha_la_includekonoha_HEADERS) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -83,33 +79,26 @@ am__base_list = \
 am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" \
 	"$(DESTDIR)$(klipdir)" "$(DESTDIR)$(sampledir)" \
 	"$(DESTDIR)$(scriptklipdir)" "$(DESTDIR)$(man1dir)" \
-	"$(DESTDIR)$(pkgdemodir)" "$(DESTDIR)$(pkgmathdir)" \
-	"$(DESTDIR)$(pkgposixdir)" "$(DESTDIR)$(pkgxmldir)" \
 	"$(DESTDIR)$(libkonoha_la_includedir)" \
-	"$(DESTDIR)$(libkonoha_la_includegendir)" \
 	"$(DESTDIR)$(libkonoha_la_includekonohadir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libkonoha_la_LIBADD =
-am_libkonoha_la_OBJECTS = anyapi.lo arrayapi.lo compilerapi.lo \
-	dbapi.lo dictapi.lo fmtapi.lo hashapi.lo itrapi.lo mprapi.lo \
-	narutoapi.lo newapi.lo numberapi.lo objectapi.lo oprapi.lo \
-	streamapi.lo stringapi.lo structapi.lo systemapi.lo \
-	knh_Array.lo knh_Bytes.lo knh_bytes_t.lo knh_BytesConv.lo \
-	knh_Class.lo knh_ClassSpec.lo knh_Closure.lo knh_Connection.lo \
-	knh_Context.lo knh_DictIdx.lo knh_DictMapSet.lo \
-	knh_Exception.lo knh_Hash.lo knh_InputStream.lo \
-	knh_Iterator.lo knh_Mapper.lo knh_Method.lo knh_NameSpace.lo \
-	knh_Number.lo knh_Object.lo knh_OutputStream.lo \
-	knh_ResultSet.lo knh_Script.lo knh_String.lo \
-	knh_String_mbytes.lo knh_System.lo knh_type_t.lo knh_write.lo \
-	asm.lo kcode.lo konoha_code_.lo konohac.lo misc_.lo parser.lo \
-	perror.lo stmt.lo token.lo tokenizer.lo typing.lo dlopen.lo \
-	fileio.lo filesystem.lo locale.lo regex.lo socket.lo \
-	sqlite3.lo thread.lo time.lo mt19937-64.lo mt19937ar.lo \
-	qsort.lo strerror.lo strlen.lo konohadev_main.lo b4.lo \
-	exports.lo glue.lo konoha_api.lo konoha_ext.lo logging.lo \
-	memory.lo metadata.lo objectdbms.lo security.lo stack.lo \
-	system.lo systemtable.lo typesystem.lo
+am_libkonoha_la_OBJECTS = structapi.lo knh_Array.lo knh_Bytes.lo \
+	knh_bytes_t.lo knh_BytesConv.lo knh_Class.lo knh_ClassSpec.lo \
+	knh_Closure.lo knh_Connection.lo knh_Context.lo knh_DictIdx.lo \
+	knh_DictMapSet.lo knh_Exception.lo knh_Hash.lo \
+	knh_InputStream.lo knh_Iterator.lo knh_Mapper.lo knh_Method.lo \
+	knh_NameSpace.lo knh_Number.lo knh_Object.lo \
+	knh_OutputStream.lo knh_ResultSet.lo knh_Script.lo \
+	knh_String.lo knh_String_mbytes.lo knh_System.lo knh_type_t.lo \
+	knh_write.lo asm.lo kcode.lo konoha_code_.lo konohac.lo \
+	misc_.lo parser.lo perror.lo stmt.lo token.lo tokenizer.lo \
+	typing.lo dlopen.lo fileio.lo filesystem.lo locale.lo regex.lo \
+	socket.lo sqlite3.lo thread.lo time.lo mt19937-64.lo \
+	mt19937ar.lo qsort.lo strerror.lo strlen.lo konohadev_main.lo \
+	b4.lo exports.lo glue.lo konoha_api.lo konoha_ext.lo \
+	logging.lo memory.lo metadata.lo objectdbms.lo security.lo \
+	stack.lo system.lo systemtable.lo typesystem.lo
 libkonoha_la_OBJECTS = $(am_libkonoha_la_OBJECTS)
 libkonoha_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
@@ -138,10 +127,7 @@ DIST_SOURCES = $(libkonoha_la_SOURCES) $(konoha_SOURCES)
 man1dir = $(mandir)/man1
 NROFF = nroff
 MANS = $(man_MANS)
-DATA = $(dist_pkgdemo_DATA) $(dist_pkgmath_DATA) $(dist_pkgposix_DATA) \
-	$(dist_pkgxml_DATA)
 HEADERS = $(libkonoha_la_include_HEADERS) \
-	$(libkonoha_la_includegen_HEADERS) \
 	$(libkonoha_la_includekonoha_HEADERS)
 ETAGS = etags
 CTAGS = ctags
@@ -280,37 +266,30 @@ AM_CPPFLAGS = -I../include
 #if MINGW
 #AM_CPPFLAGS += -DKONOHA_ON_MINGW
 #endif
-libkonoha_la_SOURCES = ../src/api/anyapi.c ../src/api/arrayapi.c \
-	../src/api/compilerapi.c ../src/api/dbapi.c \
-	../src/api/dictapi.c ../src/api/fmtapi.c ../src/api/hashapi.c \
-	../src/api/itrapi.c ../src/api/mprapi.c ../src/api/narutoapi.c \
-	../src/api/newapi.c ../src/api/numberapi.c \
-	../src/api/objectapi.c ../src/api/oprapi.c \
-	../src/api/streamapi.c ../src/api/stringapi.c \
-	../src/api/structapi.c ../src/api/systemapi.c \
-	../src/class/knh_Array.c ../src/class/knh_Bytes.c \
-	../src/class/knh_bytes_t.c ../src/class/knh_BytesConv.c \
-	../src/class/knh_Class.c ../src/class/knh_ClassSpec.c \
-	../src/class/knh_Closure.c ../src/class/knh_Connection.c \
-	../src/class/knh_Context.c ../src/class/knh_DictIdx.c \
-	../src/class/knh_DictMapSet.c ../src/class/knh_Exception.c \
-	../src/class/knh_Hash.c ../src/class/knh_InputStream.c \
-	../src/class/knh_Iterator.c ../src/class/knh_Mapper.c \
-	../src/class/knh_Method.c ../src/class/knh_NameSpace.c \
-	../src/class/knh_Number.c ../src/class/knh_Object.c \
-	../src/class/knh_OutputStream.c ../src/class/knh_ResultSet.c \
-	../src/class/knh_Script.c ../src/class/knh_String.c \
-	../src/class/knh_String_mbytes.c ../src/class/knh_System.c \
-	../src/class/knh_type_t.c ../src/class/knh_write.c \
-	../src/compiler/asm.c ../src/compiler/kcode.c \
-	../src/compiler/konoha_code_.c ../src/compiler/konohac.c \
-	../src/compiler/misc_.c ../src/compiler/parser.c \
-	../src/compiler/perror.c ../src/compiler/stmt.c \
-	../src/compiler/token.c ../src/compiler/tokenizer.c \
-	../src/compiler/typing.c ../src/deps/dlopen.c \
-	../src/deps/fileio.c ../src/deps/filesystem.c \
-	../src/deps/locale.c ../src/deps/regex.c ../src/deps/socket.c \
-	../src/deps/sqlite3.c ../src/deps/thread.c ../src/deps/time.c \
+libkonoha_la_SOURCES = ../src/api/structapi.c ../src/class/knh_Array.c \
+	../src/class/knh_Bytes.c ../src/class/knh_bytes_t.c \
+	../src/class/knh_BytesConv.c ../src/class/knh_Class.c \
+	../src/class/knh_ClassSpec.c ../src/class/knh_Closure.c \
+	../src/class/knh_Connection.c ../src/class/knh_Context.c \
+	../src/class/knh_DictIdx.c ../src/class/knh_DictMapSet.c \
+	../src/class/knh_Exception.c ../src/class/knh_Hash.c \
+	../src/class/knh_InputStream.c ../src/class/knh_Iterator.c \
+	../src/class/knh_Mapper.c ../src/class/knh_Method.c \
+	../src/class/knh_NameSpace.c ../src/class/knh_Number.c \
+	../src/class/knh_Object.c ../src/class/knh_OutputStream.c \
+	../src/class/knh_ResultSet.c ../src/class/knh_Script.c \
+	../src/class/knh_String.c ../src/class/knh_String_mbytes.c \
+	../src/class/knh_System.c ../src/class/knh_type_t.c \
+	../src/class/knh_write.c ../src/compiler/asm.c \
+	../src/compiler/kcode.c ../src/compiler/konoha_code_.c \
+	../src/compiler/konohac.c ../src/compiler/misc_.c \
+	../src/compiler/parser.c ../src/compiler/perror.c \
+	../src/compiler/stmt.c ../src/compiler/token.c \
+	../src/compiler/tokenizer.c ../src/compiler/typing.c \
+	../src/deps/dlopen.c ../src/deps/fileio.c \
+	../src/deps/filesystem.c ../src/deps/locale.c \
+	../src/deps/regex.c ../src/deps/socket.c ../src/deps/sqlite3.c \
+	../src/deps/thread.c ../src/deps/time.c \
 	../src/ext/mt19937-64.c ../src/ext/mt19937ar.c \
 	../src/ext/qsort.c ../src/ext/strerror.c ../src/ext/strlen.c \
 	../src/konohadev_main.c ../src/labs/b4.c ../src/main/exports.c \
@@ -335,22 +314,12 @@ libkonoha_la_includekonoha_HEADERS = ../include/konoha/konoha_api.h \
 	../include/konoha/konoha_stmt_.h ../include/konoha/konoha_t.h \
 	../include/konoha/konoha_tb.h ../include/konoha/konoha_vm.h \
 	../include/konoha/license.h
-libkonoha_la_includegendir = $(includedir)/../include/konoha/gen
-libkonoha_la_includegen_HEADERS = 
 sampledir = $(prefix)/konoha/sample
 dist_sample_SCRIPTS = ../dist/sample/ao.k ../dist/sample/counter.k \
 	../dist/sample/err.k ../dist/sample/fib.k \
 	../dist/sample/helloworld.k ../dist/sample/http.k \
 	../dist/sample/konohaget.k ../dist/sample/main.k \
 	../dist/sample/readfile.k ../dist/sample/sort.k
-pkgmathdir = $(prefix)/konoha/package/math
-dist_pkgmath_DATA = 
-pkgposixdir = $(prefix)/konoha/package/posix
-dist_pkgposix_DATA = 
-pkgxmldir = $(prefix)/konoha/package/xml
-dist_pkgxml_DATA = 
-pkgdemodir = $(prefix)/konoha/package/demo
-dist_pkgdemo_DATA = 
 scriptklipdir = $(prefix)/konoha/script/klip
 dist_scriptklip_SCRIPTS = ../dist/bin/klip.k
 klipdir = $(bindir)
@@ -581,21 +550,13 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/anyapi.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/arrayapi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asm.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/b4.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/compilerapi.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dbapi.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dictapi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dlopen.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/exports.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fileio.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/filesystem.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fmtapi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/glue.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hashapi.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/itrapi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/kcode.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/knh_Array.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/knh_Bytes.Plo@am__quote@
@@ -636,15 +597,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/memory.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/metadata.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/misc_.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mprapi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mt19937-64.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mt19937ar.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/narutoapi.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/newapi.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/numberapi.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/objectapi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/objectdbms.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/oprapi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/parser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/perror.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/qsort.Plo@am__quote@
@@ -654,13 +609,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sqlite3.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stack.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stmt.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/streamapi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/strerror.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stringapi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/strlen.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/structapi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/system.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/systemapi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/systemtable.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/thread.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/time.Plo@am__quote@
@@ -690,131 +642,12 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LTCOMPILE) -c -o $@ $<
 
-anyapi.lo: ../src/api/anyapi.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT anyapi.lo -MD -MP -MF $(DEPDIR)/anyapi.Tpo -c -o anyapi.lo `test -f '../src/api/anyapi.c' || echo '$(srcdir)/'`../src/api/anyapi.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/anyapi.Tpo $(DEPDIR)/anyapi.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/api/anyapi.c' object='anyapi.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o anyapi.lo `test -f '../src/api/anyapi.c' || echo '$(srcdir)/'`../src/api/anyapi.c
-
-arrayapi.lo: ../src/api/arrayapi.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT arrayapi.lo -MD -MP -MF $(DEPDIR)/arrayapi.Tpo -c -o arrayapi.lo `test -f '../src/api/arrayapi.c' || echo '$(srcdir)/'`../src/api/arrayapi.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/arrayapi.Tpo $(DEPDIR)/arrayapi.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/api/arrayapi.c' object='arrayapi.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o arrayapi.lo `test -f '../src/api/arrayapi.c' || echo '$(srcdir)/'`../src/api/arrayapi.c
-
-compilerapi.lo: ../src/api/compilerapi.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT compilerapi.lo -MD -MP -MF $(DEPDIR)/compilerapi.Tpo -c -o compilerapi.lo `test -f '../src/api/compilerapi.c' || echo '$(srcdir)/'`../src/api/compilerapi.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/compilerapi.Tpo $(DEPDIR)/compilerapi.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/api/compilerapi.c' object='compilerapi.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o compilerapi.lo `test -f '../src/api/compilerapi.c' || echo '$(srcdir)/'`../src/api/compilerapi.c
-
-dbapi.lo: ../src/api/dbapi.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dbapi.lo -MD -MP -MF $(DEPDIR)/dbapi.Tpo -c -o dbapi.lo `test -f '../src/api/dbapi.c' || echo '$(srcdir)/'`../src/api/dbapi.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/dbapi.Tpo $(DEPDIR)/dbapi.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/api/dbapi.c' object='dbapi.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dbapi.lo `test -f '../src/api/dbapi.c' || echo '$(srcdir)/'`../src/api/dbapi.c
-
-dictapi.lo: ../src/api/dictapi.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dictapi.lo -MD -MP -MF $(DEPDIR)/dictapi.Tpo -c -o dictapi.lo `test -f '../src/api/dictapi.c' || echo '$(srcdir)/'`../src/api/dictapi.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/dictapi.Tpo $(DEPDIR)/dictapi.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/api/dictapi.c' object='dictapi.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dictapi.lo `test -f '../src/api/dictapi.c' || echo '$(srcdir)/'`../src/api/dictapi.c
-
-fmtapi.lo: ../src/api/fmtapi.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT fmtapi.lo -MD -MP -MF $(DEPDIR)/fmtapi.Tpo -c -o fmtapi.lo `test -f '../src/api/fmtapi.c' || echo '$(srcdir)/'`../src/api/fmtapi.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/fmtapi.Tpo $(DEPDIR)/fmtapi.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/api/fmtapi.c' object='fmtapi.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o fmtapi.lo `test -f '../src/api/fmtapi.c' || echo '$(srcdir)/'`../src/api/fmtapi.c
-
-hashapi.lo: ../src/api/hashapi.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT hashapi.lo -MD -MP -MF $(DEPDIR)/hashapi.Tpo -c -o hashapi.lo `test -f '../src/api/hashapi.c' || echo '$(srcdir)/'`../src/api/hashapi.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/hashapi.Tpo $(DEPDIR)/hashapi.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/api/hashapi.c' object='hashapi.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o hashapi.lo `test -f '../src/api/hashapi.c' || echo '$(srcdir)/'`../src/api/hashapi.c
-
-itrapi.lo: ../src/api/itrapi.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT itrapi.lo -MD -MP -MF $(DEPDIR)/itrapi.Tpo -c -o itrapi.lo `test -f '../src/api/itrapi.c' || echo '$(srcdir)/'`../src/api/itrapi.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/itrapi.Tpo $(DEPDIR)/itrapi.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/api/itrapi.c' object='itrapi.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o itrapi.lo `test -f '../src/api/itrapi.c' || echo '$(srcdir)/'`../src/api/itrapi.c
-
-mprapi.lo: ../src/api/mprapi.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT mprapi.lo -MD -MP -MF $(DEPDIR)/mprapi.Tpo -c -o mprapi.lo `test -f '../src/api/mprapi.c' || echo '$(srcdir)/'`../src/api/mprapi.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/mprapi.Tpo $(DEPDIR)/mprapi.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/api/mprapi.c' object='mprapi.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o mprapi.lo `test -f '../src/api/mprapi.c' || echo '$(srcdir)/'`../src/api/mprapi.c
-
-narutoapi.lo: ../src/api/narutoapi.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT narutoapi.lo -MD -MP -MF $(DEPDIR)/narutoapi.Tpo -c -o narutoapi.lo `test -f '../src/api/narutoapi.c' || echo '$(srcdir)/'`../src/api/narutoapi.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/narutoapi.Tpo $(DEPDIR)/narutoapi.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/api/narutoapi.c' object='narutoapi.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o narutoapi.lo `test -f '../src/api/narutoapi.c' || echo '$(srcdir)/'`../src/api/narutoapi.c
-
-newapi.lo: ../src/api/newapi.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT newapi.lo -MD -MP -MF $(DEPDIR)/newapi.Tpo -c -o newapi.lo `test -f '../src/api/newapi.c' || echo '$(srcdir)/'`../src/api/newapi.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/newapi.Tpo $(DEPDIR)/newapi.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/api/newapi.c' object='newapi.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o newapi.lo `test -f '../src/api/newapi.c' || echo '$(srcdir)/'`../src/api/newapi.c
-
-numberapi.lo: ../src/api/numberapi.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT numberapi.lo -MD -MP -MF $(DEPDIR)/numberapi.Tpo -c -o numberapi.lo `test -f '../src/api/numberapi.c' || echo '$(srcdir)/'`../src/api/numberapi.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/numberapi.Tpo $(DEPDIR)/numberapi.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/api/numberapi.c' object='numberapi.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o numberapi.lo `test -f '../src/api/numberapi.c' || echo '$(srcdir)/'`../src/api/numberapi.c
-
-objectapi.lo: ../src/api/objectapi.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT objectapi.lo -MD -MP -MF $(DEPDIR)/objectapi.Tpo -c -o objectapi.lo `test -f '../src/api/objectapi.c' || echo '$(srcdir)/'`../src/api/objectapi.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/objectapi.Tpo $(DEPDIR)/objectapi.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/api/objectapi.c' object='objectapi.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o objectapi.lo `test -f '../src/api/objectapi.c' || echo '$(srcdir)/'`../src/api/objectapi.c
-
-oprapi.lo: ../src/api/oprapi.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT oprapi.lo -MD -MP -MF $(DEPDIR)/oprapi.Tpo -c -o oprapi.lo `test -f '../src/api/oprapi.c' || echo '$(srcdir)/'`../src/api/oprapi.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/oprapi.Tpo $(DEPDIR)/oprapi.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/api/oprapi.c' object='oprapi.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o oprapi.lo `test -f '../src/api/oprapi.c' || echo '$(srcdir)/'`../src/api/oprapi.c
-
-streamapi.lo: ../src/api/streamapi.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT streamapi.lo -MD -MP -MF $(DEPDIR)/streamapi.Tpo -c -o streamapi.lo `test -f '../src/api/streamapi.c' || echo '$(srcdir)/'`../src/api/streamapi.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/streamapi.Tpo $(DEPDIR)/streamapi.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/api/streamapi.c' object='streamapi.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o streamapi.lo `test -f '../src/api/streamapi.c' || echo '$(srcdir)/'`../src/api/streamapi.c
-
-stringapi.lo: ../src/api/stringapi.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT stringapi.lo -MD -MP -MF $(DEPDIR)/stringapi.Tpo -c -o stringapi.lo `test -f '../src/api/stringapi.c' || echo '$(srcdir)/'`../src/api/stringapi.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/stringapi.Tpo $(DEPDIR)/stringapi.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/api/stringapi.c' object='stringapi.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o stringapi.lo `test -f '../src/api/stringapi.c' || echo '$(srcdir)/'`../src/api/stringapi.c
-
 structapi.lo: ../src/api/structapi.c
 @am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT structapi.lo -MD -MP -MF $(DEPDIR)/structapi.Tpo -c -o structapi.lo `test -f '../src/api/structapi.c' || echo '$(srcdir)/'`../src/api/structapi.c
 @am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/structapi.Tpo $(DEPDIR)/structapi.Plo
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/api/structapi.c' object='structapi.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o structapi.lo `test -f '../src/api/structapi.c' || echo '$(srcdir)/'`../src/api/structapi.c
-
-systemapi.lo: ../src/api/systemapi.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT systemapi.lo -MD -MP -MF $(DEPDIR)/systemapi.Tpo -c -o systemapi.lo `test -f '../src/api/systemapi.c' || echo '$(srcdir)/'`../src/api/systemapi.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/systemapi.Tpo $(DEPDIR)/systemapi.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/api/systemapi.c' object='systemapi.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o systemapi.lo `test -f '../src/api/systemapi.c' || echo '$(srcdir)/'`../src/api/systemapi.c
 
 knh_Array.lo: ../src/class/knh_Array.c
 @am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT knh_Array.lo -MD -MP -MF $(DEPDIR)/knh_Array.Tpo -c -o knh_Array.lo `test -f '../src/class/knh_Array.c' || echo '$(srcdir)/'`../src/class/knh_Array.c
@@ -1349,86 +1182,6 @@ uninstall-man1:
 	test -z "$$files" || { \
 	  echo " ( cd '$(DESTDIR)$(man1dir)' && rm -f" $$files ")"; \
 	  cd "$(DESTDIR)$(man1dir)" && rm -f $$files; }
-install-dist_pkgdemoDATA: $(dist_pkgdemo_DATA)
-	@$(NORMAL_INSTALL)
-	test -z "$(pkgdemodir)" || $(MKDIR_P) "$(DESTDIR)$(pkgdemodir)"
-	@list='$(dist_pkgdemo_DATA)'; test -n "$(pkgdemodir)" || list=; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(pkgdemodir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(pkgdemodir)" || exit $$?; \
-	done
-
-uninstall-dist_pkgdemoDATA:
-	@$(NORMAL_UNINSTALL)
-	@list='$(dist_pkgdemo_DATA)'; test -n "$(pkgdemodir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	test -n "$$files" || exit 0; \
-	echo " ( cd '$(DESTDIR)$(pkgdemodir)' && rm -f" $$files ")"; \
-	cd "$(DESTDIR)$(pkgdemodir)" && rm -f $$files
-install-dist_pkgmathDATA: $(dist_pkgmath_DATA)
-	@$(NORMAL_INSTALL)
-	test -z "$(pkgmathdir)" || $(MKDIR_P) "$(DESTDIR)$(pkgmathdir)"
-	@list='$(dist_pkgmath_DATA)'; test -n "$(pkgmathdir)" || list=; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(pkgmathdir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(pkgmathdir)" || exit $$?; \
-	done
-
-uninstall-dist_pkgmathDATA:
-	@$(NORMAL_UNINSTALL)
-	@list='$(dist_pkgmath_DATA)'; test -n "$(pkgmathdir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	test -n "$$files" || exit 0; \
-	echo " ( cd '$(DESTDIR)$(pkgmathdir)' && rm -f" $$files ")"; \
-	cd "$(DESTDIR)$(pkgmathdir)" && rm -f $$files
-install-dist_pkgposixDATA: $(dist_pkgposix_DATA)
-	@$(NORMAL_INSTALL)
-	test -z "$(pkgposixdir)" || $(MKDIR_P) "$(DESTDIR)$(pkgposixdir)"
-	@list='$(dist_pkgposix_DATA)'; test -n "$(pkgposixdir)" || list=; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(pkgposixdir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(pkgposixdir)" || exit $$?; \
-	done
-
-uninstall-dist_pkgposixDATA:
-	@$(NORMAL_UNINSTALL)
-	@list='$(dist_pkgposix_DATA)'; test -n "$(pkgposixdir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	test -n "$$files" || exit 0; \
-	echo " ( cd '$(DESTDIR)$(pkgposixdir)' && rm -f" $$files ")"; \
-	cd "$(DESTDIR)$(pkgposixdir)" && rm -f $$files
-install-dist_pkgxmlDATA: $(dist_pkgxml_DATA)
-	@$(NORMAL_INSTALL)
-	test -z "$(pkgxmldir)" || $(MKDIR_P) "$(DESTDIR)$(pkgxmldir)"
-	@list='$(dist_pkgxml_DATA)'; test -n "$(pkgxmldir)" || list=; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(pkgxmldir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(pkgxmldir)" || exit $$?; \
-	done
-
-uninstall-dist_pkgxmlDATA:
-	@$(NORMAL_UNINSTALL)
-	@list='$(dist_pkgxml_DATA)'; test -n "$(pkgxmldir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	test -n "$$files" || exit 0; \
-	echo " ( cd '$(DESTDIR)$(pkgxmldir)' && rm -f" $$files ")"; \
-	cd "$(DESTDIR)$(pkgxmldir)" && rm -f $$files
 install-libkonoha_la_includeHEADERS: $(libkonoha_la_include_HEADERS)
 	@$(NORMAL_INSTALL)
 	test -z "$(libkonoha_la_includedir)" || $(MKDIR_P) "$(DESTDIR)$(libkonoha_la_includedir)"
@@ -1449,26 +1202,6 @@ uninstall-libkonoha_la_includeHEADERS:
 	test -n "$$files" || exit 0; \
 	echo " ( cd '$(DESTDIR)$(libkonoha_la_includedir)' && rm -f" $$files ")"; \
 	cd "$(DESTDIR)$(libkonoha_la_includedir)" && rm -f $$files
-install-libkonoha_la_includegenHEADERS: $(libkonoha_la_includegen_HEADERS)
-	@$(NORMAL_INSTALL)
-	test -z "$(libkonoha_la_includegendir)" || $(MKDIR_P) "$(DESTDIR)$(libkonoha_la_includegendir)"
-	@list='$(libkonoha_la_includegen_HEADERS)'; test -n "$(libkonoha_la_includegendir)" || list=; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(libkonoha_la_includegendir)'"; \
-	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(libkonoha_la_includegendir)" || exit $$?; \
-	done
-
-uninstall-libkonoha_la_includegenHEADERS:
-	@$(NORMAL_UNINSTALL)
-	@list='$(libkonoha_la_includegen_HEADERS)'; test -n "$(libkonoha_la_includegendir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	test -n "$$files" || exit 0; \
-	echo " ( cd '$(DESTDIR)$(libkonoha_la_includegendir)' && rm -f" $$files ")"; \
-	cd "$(DESTDIR)$(libkonoha_la_includegendir)" && rm -f $$files
 install-libkonoha_la_includekonohaHEADERS: $(libkonoha_la_includekonoha_HEADERS)
 	@$(NORMAL_INSTALL)
 	test -z "$(libkonoha_la_includekonohadir)" || $(MKDIR_P) "$(DESTDIR)$(libkonoha_la_includekonohadir)"
@@ -1587,12 +1320,12 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(SCRIPTS) $(MANS) $(DATA) \
+all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(SCRIPTS) $(MANS) \
 		$(HEADERS)
 install-binPROGRAMS: install-libLTLIBRARIES
 
 installdirs:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(klipdir)" "$(DESTDIR)$(sampledir)" "$(DESTDIR)$(scriptklipdir)" "$(DESTDIR)$(man1dir)" "$(DESTDIR)$(pkgdemodir)" "$(DESTDIR)$(pkgmathdir)" "$(DESTDIR)$(pkgposixdir)" "$(DESTDIR)$(pkgxmldir)" "$(DESTDIR)$(libkonoha_la_includedir)" "$(DESTDIR)$(libkonoha_la_includegendir)" "$(DESTDIR)$(libkonoha_la_includekonohadir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(klipdir)" "$(DESTDIR)$(sampledir)" "$(DESTDIR)$(scriptklipdir)" "$(DESTDIR)$(man1dir)" "$(DESTDIR)$(libkonoha_la_includedir)" "$(DESTDIR)$(libkonoha_la_includekonohadir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -1643,12 +1376,9 @@ info: info-am
 
 info-am:
 
-install-data-am: install-dist_klipSCRIPTS install-dist_pkgdemoDATA \
-	install-dist_pkgmathDATA install-dist_pkgposixDATA \
-	install-dist_pkgxmlDATA install-dist_sampleSCRIPTS \
+install-data-am: install-dist_klipSCRIPTS install-dist_sampleSCRIPTS \
 	install-dist_scriptklipSCRIPTS \
 	install-libkonoha_la_includeHEADERS \
-	install-libkonoha_la_includegenHEADERS \
 	install-libkonoha_la_includekonohaHEADERS install-man
 
 install-dvi: install-dvi-am
@@ -1696,11 +1426,8 @@ ps: ps-am
 ps-am:
 
 uninstall-am: uninstall-binPROGRAMS uninstall-dist_klipSCRIPTS \
-	uninstall-dist_pkgdemoDATA uninstall-dist_pkgmathDATA \
-	uninstall-dist_pkgposixDATA uninstall-dist_pkgxmlDATA \
 	uninstall-dist_sampleSCRIPTS uninstall-dist_scriptklipSCRIPTS \
 	uninstall-libLTLIBRARIES uninstall-libkonoha_la_includeHEADERS \
-	uninstall-libkonoha_la_includegenHEADERS \
 	uninstall-libkonoha_la_includekonohaHEADERS uninstall-man
 
 uninstall-man: uninstall-man1
@@ -1713,13 +1440,10 @@ uninstall-man: uninstall-man1
 	distclean-libtool distclean-tags distdir dvi dvi-am html \
 	html-am info info-am install install-am install-binPROGRAMS \
 	install-data install-data-am install-dist_klipSCRIPTS \
-	install-dist_pkgdemoDATA install-dist_pkgmathDATA \
-	install-dist_pkgposixDATA install-dist_pkgxmlDATA \
 	install-dist_sampleSCRIPTS install-dist_scriptklipSCRIPTS \
 	install-dvi install-dvi-am install-exec install-exec-am \
 	install-html install-html-am install-info install-info-am \
 	install-libLTLIBRARIES install-libkonoha_la_includeHEADERS \
-	install-libkonoha_la_includegenHEADERS \
 	install-libkonoha_la_includekonohaHEADERS install-man \
 	install-man1 install-pdf install-pdf-am install-ps \
 	install-ps-am install-strip installcheck installcheck-am \
@@ -1727,11 +1451,8 @@ uninstall-man: uninstall-man1
 	mostlyclean mostlyclean-compile mostlyclean-generic \
 	mostlyclean-libtool pdf pdf-am ps ps-am tags uninstall \
 	uninstall-am uninstall-binPROGRAMS uninstall-dist_klipSCRIPTS \
-	uninstall-dist_pkgdemoDATA uninstall-dist_pkgmathDATA \
-	uninstall-dist_pkgposixDATA uninstall-dist_pkgxmlDATA \
 	uninstall-dist_sampleSCRIPTS uninstall-dist_scriptklipSCRIPTS \
 	uninstall-libLTLIBRARIES uninstall-libkonoha_la_includeHEADERS \
-	uninstall-libkonoha_la_includegenHEADERS \
 	uninstall-libkonoha_la_includekonohaHEADERS uninstall-man \
 	uninstall-man1
 
