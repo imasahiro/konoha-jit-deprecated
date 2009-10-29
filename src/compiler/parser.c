@@ -1501,12 +1501,12 @@ static
 Term *new_TermCAST(Ctx *ctx, knh_Token_t *tk, knh_tkc_t *tc, int isData)
 {
 	knh_Stmt_t *stmt = new_Stmt(ctx, 0, STT_MAPCAST);
-	KNH_ASSERT(TT_(tk) == TT_PARENTHESIS);
+	DBG2_ASSERT(TT_(tk) == TT_PARENTHESIS);
 	knh_tkc_t tcbuf, *cast = knh_Token_tc(ctx, tk, &tcbuf);
 	knh_Stmt_add(ctx, stmt, TM(cast->ts[0]));
 	knh_Stmt_add(ctx, stmt, new_TermEXPR(ctx, tc, isData));
 	if(cast->e > 2) {
-		KNH_ASSERT(TT_(cast->ts[1]) == TT_WITH);
+		DBG2_ASSERT(TT_(cast->ts[1]) == TT_WITH);
 		cast->c = 2;
 		knh_Stmt_add(ctx, stmt, new_TermEXPR(ctx, cast, isData));
 	}
@@ -2687,8 +2687,19 @@ static knh_Stmt_t *new_StmtPRINT(Ctx *ctx, knh_tkc_t *tc)
 static knh_Stmt_t *new_StmtASSERT(Ctx *ctx, knh_tkc_t *tc)
 {
 	knh_Stmt_t *o = new_StmtMETA(ctx, tc, STT_ASSERT);
-	knh_Stmt_add_PEXPR(ctx, o, tc); /* pexpr */
-	knh_Stmt_add_STMT1(ctx, o, tc); /* { */
+	knh_tkc_t tcbuf, *expr = knh_tokens_firstSTMT(ctx, tc, /*pos*/-1, &tcbuf, /*isNeedSemicolon*/1);
+	int idx = knh_tokens_findTTIDX(expr, TT_BRACE, -1);
+	if(idx == -1) {
+		knh_Stmt_add(ctx, o, new_TermEXPR(ctx, expr, 0/*isData*/));
+		knh_Stmt_add(ctx, o, TM(new_Stmt(ctx, 0, STT_DONE)));
+	}
+	else {
+		knh_tkc_t tcbuf2, *expr2= knh_tokens_firstEXPR(expr, idx, &tcbuf2);
+		knh_Stmt_add(ctx, o, new_TermEXPR(ctx, expr2, 0/*isData*/));
+		expr2->c -= 1;
+		DBG2_ASSERT(TT_(TK0(expr2)) == TT_BRACE);
+		knh_Stmt_add_STMT1(ctx, o, expr2);
+	}
 	return o;
 }
 
@@ -2698,7 +2709,7 @@ static knh_Stmt_t *new_StmtASSERT(Ctx *ctx, knh_tkc_t *tc)
 static knh_Stmt_t *new_StmtTEST(Ctx *ctx, knh_tkc_t *tc)
 {
 	knh_Stmt_t *o = new_StmtMETA(ctx, tc, STT_TEST);
-	/* @TEST foreach a in b {.. } */
+	/* @TEST test hoge {.. } */
 	int idx = knh_tokens_findTTIDX(tc, TT_BRACE, -1);
 	if(idx != -1) {
 		knh_tkc_t tcbuf, *expr = knh_tokens_firstEXPR(tc, idx, &tcbuf);

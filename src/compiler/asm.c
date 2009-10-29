@@ -2272,7 +2272,7 @@ static void knh_StmtASSERT_asm(Ctx *ctx, knh_Stmt_t *stmt)
 	}
 	knh_KLRInst_t*  lbskip = new_KLRInstLABEL(ctx);
 	if(!knh_StmtMETA_is(ctx, stmt, STEXT("@Release"))) {
-		KNH_ASM(SKIP, lbskip);
+		KNH_ASM(SKIP, TADDR lbskip);
 	}
 	/* if */
 	TERMs_ASM_JIFT(ctx, stmt, 0, lbskip);
