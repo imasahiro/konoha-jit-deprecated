@@ -95,7 +95,6 @@ knh_tkc_t *knh_tokens_firstSTMT(Ctx *ctx, knh_tkc_t *tc, int pos, knh_tkc_t *buf
 	for(i = tc->c + 1 + pos; i < tc->e; i++) {
 		if(knh_Token_isBOL(tc->ts[i])) {
 			if(isNeedSemicolon && TT_(tc->ts[i]) != TT_SEMICOLON) {
-				DBG2_P("BOL i=%d, tt=%s", i, knh_token_tochar(TT_(tc->ts[i])));
 				knh_Token_perror(ctx, tc->ts[i-1], KERR_BAD, "needs ;");
 			}
 			buf->e = i;
@@ -163,8 +162,6 @@ void knh_tokens_ignoreLast(Ctx *ctx, knh_tkc_t *tc)
 		tc->c = tc->e;
 	}
 }
-
-/* ------------------------------------------------------------------------ */
 
 static knh_Token_t* knh_tokens_curToken(knh_tkc_t *tc)
 {
@@ -797,13 +794,20 @@ int knh_tokens_findKEYIDX(Ctx *ctx, knh_tkc_t *tc)
 {
 	int i;
 	knh_Token_t **ts = tc->ts;
-	for(i = tc->c; i < tc->e; i++) { /* BEGIN */
+	for(i = tc->c; i < tc->e - 1; i++) { /* BEGIN */
 		if(TT_(ts[i]) == TT_LABEL) { /* key: */
 			tc->c = i; 	i++;
 			goto L_NEXT;
 		}
+		if(TT_(ts[i+1]) == TT_URN) {
+			char *p = sToken(ts[i+1]);
+			if(IS_String(DP(ts[i])->data) && p[0] == ':') {
+				knh_Token_perror(ctx, ts[i+1], KERR_EWARN, _("ignored :"));
+			}
+		}
 		if(TTn_(ts[i]) == TT_LET) { /* key = */
 			if(IS_bString(DP(ts[i])->text)) {
+				knh_Token_perror(ctx, ts[i+1], KERR_ERRATA, _("= ==> :"));
 				TT_(ts[i+1]) = TT_COLON;
 			}
 		}
@@ -820,6 +824,7 @@ int knh_tokens_findKEYIDX(Ctx *ctx, knh_tkc_t *tc)
 		}
 	}
 	return -1;
+
 	L_NEXT:;
 	for(; i < tc->e; i++) { /* NEXT */
 		if(TT_(ts[i]) == TT_LABEL) {
@@ -844,7 +849,6 @@ void knh_Stmt_add_KEYVALUE(Ctx *ctx, knh_Stmt_t *stmt, knh_tkc_t *tc, int isData
 {
 	knh_Token_t **ts = tc->ts;
 	int c;
-	//DBG2_P("tt=%s", knh_token_tochar(TT_(ts[tc->c])));
 	DBG2_ASSERT(TT_(ts[tc->c]) == TT_LABEL);
 	knh_Stmt_add(ctx, stmt, TM(knh_Token_toCONST(ctx, ts[tc->c])));
 	tc->c += 1;
@@ -885,10 +889,7 @@ void knh_Stmt_add_KEYVALUEs(Ctx *ctx, knh_Stmt_t *stmt, knh_tkc_t *tc, int isDat
 	}
 }
 
-/* ------------------------------------------------------------------------ */
-
-static
-int knh_Token_isDictMap(Ctx *ctx, knh_Token_t *tk, int def)
+static int knh_Token_isDictMap(Ctx *ctx, knh_Token_t *tk, int def)
 {
 	knh_tkc_t tcbuf, *tc = knh_Token_tc(ctx, tk, &tcbuf);
 	int i, c = 0;
@@ -896,7 +897,7 @@ int knh_Token_isDictMap(Ctx *ctx, knh_Token_t *tk, int def)
 		if(TT_(tc->ts[i]) < TT_BRACE || TT_(tc->ts[i]) == TT_FUNCMAP) {
 			return 0;
 		}
-		if(TT_(tc->ts[i]) == TT_LABEL || TT_(tc->ts[i]) == TT_COLON) {
+		if(TT_(tc->ts[i]) == TT_LABEL || TT_(tc->ts[i]) == TT_COLON || TT_(tc->ts[i]) == TT_URN) {
 			c++;
 		}
 	}
