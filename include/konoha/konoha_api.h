@@ -295,6 +295,8 @@ knh_class_t knh_class_MethodClosure(Ctx *ctx, knh_class_t cid, knh_Method_t *mtd
 void knh_Closure_copyEnv(Ctx *ctx, knh_Closure_t *cc, knh_sfp_t *sfp);
 knh_class_t knh_Method_gencid(Ctx *ctx, knh_Method_t *mtd, knh_class_t cid);
 void knh_Method_toGenerator(knh_Method_t *mtd);
+knh_class_t knh_class_Thunk(Ctx *ctx, knh_type_t rtype);
+knh_Thunk_t* new_Thunk(Ctx *ctx, knh_type_t rtype, knh_sfp_t *sfp, size_t size);
 void knh_Connection_open(Ctx *ctx, knh_Connection_t *c, knh_String_t *urn);
 knh_Connection_t* new_Connection(Ctx *ctx, knh_String_t *urn);
 void knh_Connection_close(Ctx *ctx, knh_Connection_t *c);

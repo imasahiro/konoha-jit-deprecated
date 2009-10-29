@@ -2,7 +2,7 @@
 
 /* ======================================================================== */
 /* MACROS */
-#define KONOHA_BUILDID                  741
+#define KONOHA_BUILDID                  742
 
 /* ======================================================================== */
 /* STRUCT */
@@ -331,9 +331,21 @@
 #define FLAG_Closure            knh_flag_oflag(CFLAG_Closure)
 
 /* ------------------------------------------------------------------------ */
+/* Thunk */
+#define CLASS_Thunk             ((knh_class_t)27)
+#define STRUCT_Thunk            ((knh_struct_t)27)
+#define IS_Thunk(o)             ((o)->h.cid == CLASS_Thunk)
+#define IS_bThunk(o)            ((o)->h.bcid == CLASS_Thunk)
+#define TYPE_Thunk              CLASS_Thunk
+#define NNTYPE_Thunk            NNTYPE_cid(CLASS_Thunk)
+#define NATYPE_Thunk            NATYPE_cid(CLASS_Thunk)
+#define CFLAG_Thunk             ((knh_flag_t)0)
+#define FLAG_Thunk              knh_flag_oflag(CFLAG_Thunk)
+
+/* ------------------------------------------------------------------------ */
 /* AffineConv */
-#define CLASS_AffineConv        ((knh_class_t)27)
-#define STRUCT_AffineConv       ((knh_struct_t)27)
+#define CLASS_AffineConv        ((knh_class_t)28)
+#define STRUCT_AffineConv       ((knh_struct_t)28)
 #define IS_AffineConv(o)        ((o)->h.cid == CLASS_AffineConv)
 #define IS_bAffineConv(o)       ((o)->h.bcid == CLASS_AffineConv)
 #define TYPE_AffineConv         CLASS_AffineConv
@@ -344,8 +356,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* Regex */
-#define CLASS_Regex             ((knh_class_t)28)
-#define STRUCT_Regex            ((knh_struct_t)28)
+#define CLASS_Regex             ((knh_class_t)29)
+#define STRUCT_Regex            ((knh_struct_t)29)
 #define IS_Regex(o)             ((o)->h.cid == CLASS_Regex)
 #define IS_bRegex(o)            ((o)->h.bcid == CLASS_Regex)
 #define TYPE_Regex              CLASS_Regex
@@ -356,8 +368,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* BytesConv */
-#define CLASS_BytesConv         ((knh_class_t)29)
-#define STRUCT_BytesConv        ((knh_struct_t)29)
+#define CLASS_BytesConv         ((knh_class_t)30)
+#define STRUCT_BytesConv        ((knh_struct_t)30)
 #define IS_BytesConv(o)         ((o)->h.cid == CLASS_BytesConv)
 #define IS_bBytesConv(o)        ((o)->h.bcid == CLASS_BytesConv)
 #define TYPE_BytesConv          CLASS_BytesConv
@@ -368,8 +380,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* ClassSpec */
-#define CLASS_ClassSpec         ((knh_class_t)30)
-#define STRUCT_ClassSpec        ((knh_struct_t)30)
+#define CLASS_ClassSpec         ((knh_class_t)31)
+#define STRUCT_ClassSpec        ((knh_struct_t)31)
 #define IS_ClassSpec(o)         ((o)->h.cid == CLASS_ClassSpec)
 #define IS_bClassSpec(o)        ((o)->h.bcid == CLASS_ClassSpec)
 #define TYPE_ClassSpec          CLASS_ClassSpec
@@ -380,8 +392,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* InputStream */
-#define CLASS_InputStream       ((knh_class_t)31)
-#define STRUCT_InputStream      ((knh_struct_t)31)
+#define CLASS_InputStream       ((knh_class_t)32)
+#define STRUCT_InputStream      ((knh_struct_t)32)
 #define IS_InputStream(o)       ((o)->h.cid == CLASS_InputStream)
 #define IS_bInputStream(o)      ((o)->h.bcid == CLASS_InputStream)
 #define TYPE_InputStream        CLASS_InputStream
@@ -392,8 +404,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* OutputStream */
-#define CLASS_OutputStream      ((knh_class_t)32)
-#define STRUCT_OutputStream     ((knh_struct_t)32)
+#define CLASS_OutputStream      ((knh_class_t)33)
+#define STRUCT_OutputStream     ((knh_struct_t)33)
 #define IS_OutputStream(o)      ((o)->h.cid == CLASS_OutputStream)
 #define IS_bOutputStream(o)     ((o)->h.bcid == CLASS_OutputStream)
 #define TYPE_OutputStream       CLASS_OutputStream
@@ -404,8 +416,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* Socket */
-#define CLASS_Socket            ((knh_class_t)33)
-#define STRUCT_Socket           ((knh_struct_t)33)
+#define CLASS_Socket            ((knh_class_t)34)
+#define STRUCT_Socket           ((knh_struct_t)34)
 #define IS_Socket(o)            ((o)->h.cid == CLASS_Socket)
 #define IS_bSocket(o)           ((o)->h.bcid == CLASS_Socket)
 #define TYPE_Socket             CLASS_Socket
@@ -416,8 +428,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* Connection */
-#define CLASS_Connection        ((knh_class_t)34)
-#define STRUCT_Connection       ((knh_struct_t)34)
+#define CLASS_Connection        ((knh_class_t)35)
+#define STRUCT_Connection       ((knh_struct_t)35)
 #define IS_Connection(o)        ((o)->h.cid == CLASS_Connection)
 #define IS_bConnection(o)       ((o)->h.bcid == CLASS_Connection)
 #define TYPE_Connection         CLASS_Connection
@@ -428,8 +440,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* ResultSet */
-#define CLASS_ResultSet         ((knh_class_t)35)
-#define STRUCT_ResultSet        ((knh_struct_t)35)
+#define CLASS_ResultSet         ((knh_class_t)36)
+#define STRUCT_ResultSet        ((knh_struct_t)36)
 #define IS_ResultSet(o)         ((o)->h.cid == CLASS_ResultSet)
 #define IS_bResultSet(o)        ((o)->h.bcid == CLASS_ResultSet)
 #define TYPE_ResultSet          CLASS_ResultSet
@@ -440,8 +452,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* Exception */
-#define CLASS_Exception         ((knh_class_t)36)
-#define STRUCT_Exception        ((knh_struct_t)36)
+#define CLASS_Exception         ((knh_class_t)37)
+#define STRUCT_Exception        ((knh_struct_t)37)
 #define IS_Exception(o)         ((o)->h.cid == CLASS_Exception)
 #define IS_bException(o)        ((o)->h.bcid == CLASS_Exception)
 #define TYPE_Exception          CLASS_Exception
@@ -452,8 +464,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* ExceptionHandler */
-#define CLASS_ExceptionHandler  ((knh_class_t)37)
-#define STRUCT_ExceptionHandler ((knh_struct_t)37)
+#define CLASS_ExceptionHandler  ((knh_class_t)38)
+#define STRUCT_ExceptionHandler ((knh_struct_t)38)
 #define IS_ExceptionHandler(o)  ((o)->h.cid == CLASS_ExceptionHandler)
 #define IS_bExceptionHandler(o) ((o)->h.bcid == CLASS_ExceptionHandler)
 #define TYPE_ExceptionHandler   CLASS_ExceptionHandler
@@ -464,8 +476,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* Script */
-#define CLASS_Script            ((knh_class_t)38)
-#define STRUCT_Script           ((knh_struct_t)38)
+#define CLASS_Script            ((knh_class_t)39)
+#define STRUCT_Script           ((knh_struct_t)39)
 #define IS_Script(o)            ((o)->h.cid == CLASS_Script)
 #define IS_bScript(o)           ((o)->h.bcid == CLASS_Script)
 #define TYPE_Script             CLASS_Script
@@ -476,8 +488,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* NameSpace */
-#define CLASS_NameSpace         ((knh_class_t)39)
-#define STRUCT_NameSpace        ((knh_struct_t)39)
+#define CLASS_NameSpace         ((knh_class_t)40)
+#define STRUCT_NameSpace        ((knh_struct_t)40)
 #define IS_NameSpace(o)         ((o)->h.cid == CLASS_NameSpace)
 #define IS_bNameSpace(o)        ((o)->h.bcid == CLASS_NameSpace)
 #define TYPE_NameSpace          CLASS_NameSpace
@@ -488,8 +500,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* System */
-#define CLASS_System            ((knh_class_t)40)
-#define STRUCT_System           ((knh_struct_t)40)
+#define CLASS_System            ((knh_class_t)41)
+#define STRUCT_System           ((knh_struct_t)41)
 #define IS_System(o)            ((o)->h.cid == CLASS_System)
 #define IS_bSystem(o)           ((o)->h.bcid == CLASS_System)
 #define TYPE_System             CLASS_System
@@ -500,8 +512,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* Context */
-#define CLASS_Context           ((knh_class_t)41)
-#define STRUCT_Context          ((knh_struct_t)41)
+#define CLASS_Context           ((knh_class_t)42)
+#define STRUCT_Context          ((knh_struct_t)42)
 #define IS_Context(o)           ((o)->h.cid == CLASS_Context)
 #define IS_bContext(o)          ((o)->h.bcid == CLASS_Context)
 #define TYPE_Context            CLASS_Context
@@ -512,8 +524,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* Token */
-#define CLASS_Token             ((knh_class_t)42)
-#define STRUCT_Token            ((knh_struct_t)42)
+#define CLASS_Token             ((knh_class_t)43)
+#define STRUCT_Token            ((knh_struct_t)43)
 #define IS_Token(o)             ((o)->h.cid == CLASS_Token)
 #define IS_bToken(o)            ((o)->h.bcid == CLASS_Token)
 #define TYPE_Token              CLASS_Token
@@ -524,8 +536,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* Stmt */
-#define CLASS_Stmt              ((knh_class_t)43)
-#define STRUCT_Stmt             ((knh_struct_t)43)
+#define CLASS_Stmt              ((knh_class_t)44)
+#define STRUCT_Stmt             ((knh_struct_t)44)
 #define IS_Stmt(o)              ((o)->h.cid == CLASS_Stmt)
 #define IS_bStmt(o)             ((o)->h.bcid == CLASS_Stmt)
 #define TYPE_Stmt               CLASS_Stmt
@@ -536,8 +548,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* Gamma */
-#define CLASS_Gamma             ((knh_class_t)44)
-#define STRUCT_Gamma            ((knh_struct_t)44)
+#define CLASS_Gamma             ((knh_class_t)45)
+#define STRUCT_Gamma            ((knh_struct_t)45)
 #define IS_Gamma(o)             ((o)->h.cid == CLASS_Gamma)
 #define IS_bGamma(o)            ((o)->h.bcid == CLASS_Gamma)
 #define TYPE_Gamma              CLASS_Gamma
@@ -548,8 +560,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* KLRInst */
-#define CLASS_KLRInst           ((knh_class_t)45)
-#define STRUCT_KLRInst          ((knh_struct_t)45)
+#define CLASS_KLRInst           ((knh_class_t)46)
+#define STRUCT_KLRInst          ((knh_struct_t)46)
 #define IS_KLRInst(o)           ((o)->h.cid == CLASS_KLRInst)
 #define IS_bKLRInst(o)          ((o)->h.bcid == CLASS_KLRInst)
 #define TYPE_KLRInst            CLASS_KLRInst
@@ -560,8 +572,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* KLRCode */
-#define CLASS_KLRCode           ((knh_class_t)46)
-#define STRUCT_KLRCode          ((knh_struct_t)46)
+#define CLASS_KLRCode           ((knh_class_t)47)
+#define STRUCT_KLRCode          ((knh_struct_t)47)
 #define IS_KLRCode(o)           ((o)->h.cid == CLASS_KLRCode)
 #define IS_bKLRCode(o)          ((o)->h.bcid == CLASS_KLRCode)
 #define TYPE_KLRCode            CLASS_KLRCode
@@ -1080,6 +1092,11 @@
 #define knh_Closure_isStoredEnv(o)  (((o)->h.flag & FLAG_Closure_StoredEnv) == FLAG_Closure_StoredEnv)
 
 #define knh_Closure_setStoredEnv(o,b) if(b) (o)->h.flag |= FLAG_Closure_StoredEnv; else (o)->h.flag &= ~(FLAG_Closure_StoredEnv);
+#define FLAG_Thunk_Evaluated            FLAG_Object_Local1
+
+#define knh_Thunk_isEvaluated(o)  (((o)->h.flag & FLAG_Thunk_Evaluated) == FLAG_Thunk_Evaluated)
+
+#define knh_Thunk_setEvaluated(o,b) if(b) (o)->h.flag |= FLAG_Thunk_Evaluated; else (o)->h.flag &= ~(FLAG_Thunk_Evaluated);
 #define FLAG_InputStream_FILE           FLAG_Object_Local1
 
 #define knh_InputStream_isFILE(o)  (((o)->h.flag & FLAG_InputStream_FILE) == FLAG_InputStream_FILE)
@@ -1538,70 +1555,71 @@
 #define FIELDN_remove   187
 #define FIELDN_rename   188
 #define FIELDN_replace  189
-#define FIELDN_reverse  190
-#define FIELDN_s        191
-#define FIELDN_script   192
-#define FIELDN_second   193
-#define FIELDN_seed     194
-#define FIELDN_shared   195
-#define FIELDN_shuffle  196
-#define FIELDN_significant 197
-#define FIELDN_singleton 198
-#define FIELDN_size     199
-#define FIELDN_sort     200
-#define FIELDN_split    201
-#define FIELDN_start    202
-#define FIELDN_startsWith 203
-#define FIELDN_startswith 203
-#define FIELDN_startsWith__IgnoreCase 204
-#define FIELDN_startswith__ignorecase 204
-#define FIELDN_static   205
-#define FIELDN_status   206
-#define FIELDN_stmt     207
-#define FIELDN_storingBuffer 208
-#define FIELDN_storingbuffer 208
-#define FIELDN_strict   209
-#define FIELDN_string   210
-#define FIELDN_substring 211
-#define FIELDN_super    212
-#define FIELDN_swap     213
-#define FIELDN_synonym  214
-#define FIELDN_system   215
-#define FIELDN_temporal 216
-#define FIELDN_test     217
-#define FIELDN_this     218
-#define FIELDN_times    219
-#define FIELDN_toLower  220
-#define FIELDN_tolower  220
-#define FIELDN_total    221
-#define FIELDN_toUpper  222
-#define FIELDN_toupper  222
-#define FIELDN_trim     223
-#define FIELDN_twofold  224
-#define FIELDN_typeof   225
-#define FIELDN_u        226
-#define FIELDN_uCS4     227
-#define FIELDN_ucs4     227
-#define FIELDN_undefined 228
-#define FIELDN_unique   229
-#define FIELDN_unlikely 230
-#define FIELDN_unlink   231
-#define FIELDN_urn      232
-#define FIELDN_v        233
-#define FIELDN_value    234
-#define FIELDN_varArgs  235
-#define FIELDN_varargs  235
-#define FIELDN_vargs    236
-#define FIELDN_verbose  237
-#define FIELDN_virtual  238
-#define FIELDN_w        239
-#define FIELDN_write    240
-#define FIELDN_writeData 241
-#define FIELDN_writedata 241
-#define FIELDN_x        242
-#define FIELDN_y        243
-#define FIELDN_z        244
-#define KNH_TFIELDN_SIZE 245
+#define FIELDN_result   190
+#define FIELDN_reverse  191
+#define FIELDN_s        192
+#define FIELDN_script   193
+#define FIELDN_second   194
+#define FIELDN_seed     195
+#define FIELDN_shared   196
+#define FIELDN_shuffle  197
+#define FIELDN_significant 198
+#define FIELDN_singleton 199
+#define FIELDN_size     200
+#define FIELDN_sort     201
+#define FIELDN_split    202
+#define FIELDN_start    203
+#define FIELDN_startsWith 204
+#define FIELDN_startswith 204
+#define FIELDN_startsWith__IgnoreCase 205
+#define FIELDN_startswith__ignorecase 205
+#define FIELDN_static   206
+#define FIELDN_status   207
+#define FIELDN_stmt     208
+#define FIELDN_storingBuffer 209
+#define FIELDN_storingbuffer 209
+#define FIELDN_strict   210
+#define FIELDN_string   211
+#define FIELDN_substring 212
+#define FIELDN_super    213
+#define FIELDN_swap     214
+#define FIELDN_synonym  215
+#define FIELDN_system   216
+#define FIELDN_temporal 217
+#define FIELDN_test     218
+#define FIELDN_this     219
+#define FIELDN_times    220
+#define FIELDN_toLower  221
+#define FIELDN_tolower  221
+#define FIELDN_total    222
+#define FIELDN_toUpper  223
+#define FIELDN_toupper  223
+#define FIELDN_trim     224
+#define FIELDN_twofold  225
+#define FIELDN_typeof   226
+#define FIELDN_u        227
+#define FIELDN_uCS4     228
+#define FIELDN_ucs4     228
+#define FIELDN_undefined 229
+#define FIELDN_unique   230
+#define FIELDN_unlikely 231
+#define FIELDN_unlink   232
+#define FIELDN_urn      233
+#define FIELDN_v        234
+#define FIELDN_value    235
+#define FIELDN_varArgs  236
+#define FIELDN_varargs  236
+#define FIELDN_vargs    237
+#define FIELDN_verbose  238
+#define FIELDN_virtual  239
+#define FIELDN_w        240
+#define FIELDN_write    241
+#define FIELDN_writeData 242
+#define FIELDN_writedata 242
+#define FIELDN_x        243
+#define FIELDN_y        244
+#define FIELDN_z        245
+#define KNH_TFIELDN_SIZE 246
 
 /* ======================================================================== */
 /* METHODN */
@@ -1609,6 +1627,7 @@
 #define METHODN_unlikely FIELDN_unlikely
 #define METHODN_format  FIELDN_format
 #define METHODN_shuffle FIELDN_shuffle
+#define METHODN_value   FIELDN_value
 #define METHODN_opLte   FIELDN_oplte
 #define METHODN_indexOf__IgnoreCase FIELDN_indexof__ignorecase
 #define METHODN_isIgnoreCase METHODN_TO_GETTER(FIELDN_ignorecase)

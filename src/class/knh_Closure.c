@@ -423,6 +423,94 @@ void knh_Method_toGenerator(knh_Method_t *mtd)
 	mtd->fcall_1 = knh_fmethod_generator;
 }
 
+/* ======================================================================== */
+/* [Thunk] */
+
+static
+knh_class_t knh_addThunkClass(Ctx *ctx, knh_class_t cid, knh_String_t *name, knh_type_t rtype)
+{
+	knh_ClassTable_t *t = NULL;
+	knh_flag_t mask = 0;
+	if(cid == CLASS_newid) {
+		cid = knh_ClassTable_newId(ctx);
+	} else {
+		((knh_SharedData_t*)ctx->share)->ClassTableSize = cid;
+	}
+	/* knh_ClassTable_t */ t = pClassTable(cid);
+	KNH_ASSERT(ClassTable(cid).sname == NULL);
+	if(knh_class_isTypeVariable(CLASS_type(rtype))) {
+		mask = FLAG_Class_TypeVariable;
+		DBG2_P("TypeVarable: %s", __tochar(name));
+	}
+	knh_setClassName(ctx, cid, name);
+	t->cflag  = ClassTable(CLASS_Thunk).cflag | mask;
+	t->oflag  = ClassTable(CLASS_Thunk).oflag;
+	t->sid    = ClassTable(CLASS_Thunk).sid;
+
+	t->bcid   = CLASS_Thunk;
+	t->supcid = ClassTable(CLASS_Thunk).supcid;
+	t->offset = ClassTable(CLASS_Thunk).offset;
+
+	t->size = ClassTable(CLASS_Thunk).size;
+	t->bsize  = ClassTable(CLASS_Thunk).bsize;
+
+	KNH_INITv(t->cstruct, ClassTable(CLASS_Thunk).cstruct);
+	KNH_INITv(t->cmap, new_ClassMap0(ctx, 0));
+	t->p1 = rtype;
+	t->p2 = CLASS_Tvoid;
+	StructTable(CLASS_Thunk).fnewClass(ctx, cid);
+	return cid;
+}
+
+/* ------------------------------------------------------------------------ */
+
+knh_class_t knh_class_Thunk(Ctx *ctx, knh_type_t rtype)
+{
+	knh_class_t cid = CLASS_Thunk;
+	if(CLASS_type(rtype) != CLASS_Any) {
+		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
+		knh_write_cid(ctx, cwb->w, CLASS_Thunk);
+		knh_putc(ctx, cwb->w, '<');
+		knh_write_ltype(ctx, cwb->w, rtype);
+		knh_putc(ctx, cwb->w, '>');
+		/* knh_class_t*/ cid = knh_getcid(ctx, knh_cwb_tobytes(cwb));
+		if(cid == CLASS_unknown) {
+			cid = knh_addThunkClass(ctx, CLASS_newid, knh_cwb_newString(ctx, cwb), rtype);
+		} else {
+			knh_cwb_close(cwb);
+		}
+	}
+	return cid;
+}
+
+/* ------------------------------------------------------------------------ */
+
+knh_Thunk_t* new_Thunk(Ctx *ctx, knh_type_t rtype, knh_sfp_t *sfp, size_t size)
+{
+	knh_class_t cid = knh_class_Thunk(ctx, rtype);
+	knh_Thunk_t *thk = (knh_Thunk_t*)new_Object_init(ctx, FLAG_Thunk, cid, 0);
+	if(size == 1) {
+		(thk)->envsize = 1;
+		(thk)->envsfp = (knh_sfp_t*)KNH_MALLOC(ctx, sizeof(knh_sfp_t) * (thk)->envsize);
+		KNH_INITv((thk)->envsfp[0].o, sfp[0].o);
+		(thk)->envsfp[0].data = sfp[0].data;
+		knh_Thunk_setEvaluated(thk, 1);
+	}
+	else {
+		size_t i;
+		DBG2_ASSERT(IS_Method(sfp[0].mtd));
+		(thk)->envsize = 1 + size;
+		(thk)->envsfp = (knh_sfp_t*)KNH_MALLOC(ctx, sizeof(knh_sfp_t) * (thk)->envsize);
+		for(i = 1; i < (thk)->envsize; i++) {
+			KNH_INITv((thk)->envsfp[i].o, sfp[i-1].o);
+			(thk)->envsfp[i].data = sfp[i-1].data;
+		}
+		KNH_INITv((thk)->envsfp[0].o, KNH_NULL);
+		(thk)->envsfp[0].data = 0;
+	}
+	return thk;
+}
+
 /* ------------------------------------------------------------------------ */
 
 

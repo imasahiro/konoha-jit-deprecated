@@ -129,6 +129,45 @@ static METHOD Closure_invoke(Ctx *ctx, knh_sfp_t *sfp)
 }
 
 /* ------------------------------------------------------------------------ */
+//## method T1 Thunk.eval();
+
+static METHOD Thunk_eval(Ctx *ctx, knh_sfp_t *sfp)
+{
+	knh_Thunk_t *thk = (knh_Thunk_t*)sfp[0].o;
+	size_t i;
+	if((thk)->envsize > 0) {
+		for(i = 2; i < (thk)->envsize; i++) {
+			KNH_SETv(ctx, sfp[i].o, (thk)->envsfp[i].o);
+			sfp[i].data = (thk)->envsfp[i].data;
+		}
+		KNH_SCALL(ctx, sfp, 1, (thk)->envsfp[1].mtd, ((thk)->envsize-3));
+		KNH_SETv(ctx, (thk)->envsfp[0].o, sfp[1].o);
+		(thk)->envsfp[0].data = sfp[1].data;
+		knh_Thunk_setEvaluated(thk, 1);
+	}
+	KNH_SETv(ctx, sfp[-1].o, (thk)->envsfp[0].o);
+	sfp[-1].data = (thk)->envsfp[0].data;
+}
+
+/* ------------------------------------------------------------------------ */
+//## method T1 Thunk.value();
+
+static METHOD Thunk_value(Ctx *ctx, knh_sfp_t *sfp)
+{
+	knh_Thunk_t *thk = (knh_Thunk_t*)sfp[0].o;
+	if(knh_Thunk_isEvaluated(thk)) {
+		KNH_SETv(ctx, sfp[-1].o, (thk)->envsfp[0].o);
+		sfp[-1].data = (thk)->envsfp[0].data;
+	}
+	else {
+		Thunk_eval(ctx, sfp);
+	}
+}
+
+
+
+
+/* ------------------------------------------------------------------------ */
 
 #endif/* KNH_CC_METHODAPI*/
 

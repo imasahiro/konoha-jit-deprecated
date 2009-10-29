@@ -75,7 +75,7 @@ CHKNULx sfx
 CHKTYPE sfpidx cid
 #CHECKNNTYPE sfpidx type
 
-NCALL 
+#NCALL 
 FCALL sfpidx ushort sfpidx Method
 RCALL sfpidx ushort
 SCALL sfpidx ushort Method
@@ -372,11 +372,10 @@ static void knh_write__mn(Ctx *ctx, knh_OutputStream_t* w, knh_methodn_t a)
 {
 	knh_putc(ctx, w, ' '); knh_write_mn(ctx, w, TYPE_void, (knh_methodn_t)a);
 }
-static void knh_write__type(Ctx *ctx, knh_OutputStream_t* w, knh_type_t a)
-{
-	knh_putc(ctx, w, ' '); knh_write_type(ctx, w, (knh_type_t)a);
-}
-
+//static void knh_write__type(Ctx *ctx, knh_OutputStream_t* w, knh_type_t a)
+//{
+//	knh_putc(ctx, w, ' '); knh_write_type(ctx, w, (knh_type_t)a);
+//}
 static void HALT_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 {
 }

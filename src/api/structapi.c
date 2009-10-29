@@ -1257,6 +1257,40 @@ static void knh_Closure_traverse(Ctx *ctx, knh_Closure_t *cc, knh_ftraverse ftr)
 }
 
 /* ======================================================================== */
+/* Thunk */
+
+#define knh_Thunk_init_ NULL
+#define knh_Thunk_copy NULL
+#define knh_Thunk_traverse_ NULL
+#define knh_Thunk_compareTo NULL
+#define knh_Thunk_hashCode NULL
+#define knh_Thunk_newClass NULL
+#define knh_Thunk_getkey NULL
+
+static void knh_Thunk_init(Ctx *ctx, knh_Thunk_t *thk, int init)
+{
+	thk->envsfp = NULL;
+	thk->envsize = 0;
+	knh_Thunk_setEvaluated(thk, 0);
+}
+
+static void knh_Thunk_traverse(Ctx *ctx, knh_Thunk_t *thk, knh_ftraverse ftr)
+{
+	if(thk->envsize > 0) {
+		size_t i;
+		for(i = 0; i < (thk)->envsize; i++) {
+			ftr(ctx, (thk)->envsfp[i].o);
+		}
+		if(IS_SWEEP(ftr)) {
+			KNH_FREE(ctx, (thk)->envsfp, (sizeof(knh_sfp_t) * (thk)->envsize));
+			(thk)->envsfp = NULL;
+			(thk)->envsize = 0;
+			knh_Thunk_setEvaluated(thk, 0);
+		}
+	}
+}
+
+/* ======================================================================== */
 /* AffineConv */
 
 #define knh_AffineConv_init_ NULL

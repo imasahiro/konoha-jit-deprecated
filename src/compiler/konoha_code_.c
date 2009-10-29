@@ -87,11 +87,10 @@ static void knh_write__mn(Ctx *ctx, knh_OutputStream_t* w, knh_methodn_t a)
 {
 	knh_putc(ctx, w, ' '); knh_write_mn(ctx, w, TYPE_void, (knh_methodn_t)a);
 }
-static void knh_write__type(Ctx *ctx, knh_OutputStream_t* w, knh_type_t a)
-{
-	knh_putc(ctx, w, ' '); knh_write_type(ctx, w, (knh_type_t)a);
-}
-
+//static void knh_write__type(Ctx *ctx, knh_OutputStream_t* w, knh_type_t a)
+//{
+//	knh_putc(ctx, w, ' '); knh_write_type(ctx, w, (knh_type_t)a);
+//}
 static void HALT_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 {
 }
@@ -155,63 +154,63 @@ static void RETo_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 static void FCALL_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 {
 	klr_FCALL_t *op = (klr_FCALL_t*)c; 
-	DBG2_ASSERT(op->opcode == 55);
+	DBG2_ASSERT(op->opcode == 54);
 	ftr(ctx, UP(op->a4));
 }
 
 static void SCALL_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 {
 	klr_SCALL_t *op = (klr_SCALL_t*)c; 
-	DBG2_ASSERT(op->opcode == 57);
+	DBG2_ASSERT(op->opcode == 56);
 	ftr(ctx, UP(op->a3));
 }
 
 static void NEW_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 {
 	klr_NEW_t *op = (klr_NEW_t*)c; 
-	DBG2_ASSERT(op->opcode == 61);
+	DBG2_ASSERT(op->opcode == 60);
 	ftr(ctx, UP(op->a5));
 }
 
 static void TOSTRf_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 {
 	klr_TOSTRf_t *op = (klr_TOSTRf_t*)c; 
-	DBG2_ASSERT(op->opcode == 64);
+	DBG2_ASSERT(op->opcode == 63);
 	ftr(ctx, UP(op->a3));
 }
 
 static void SMAP_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 {
 	klr_SMAP_t *op = (klr_SMAP_t*)c; 
-	DBG2_ASSERT(op->opcode == 65);
+	DBG2_ASSERT(op->opcode == 64);
 	ftr(ctx, UP(op->a2));
 }
 
 static void SMAPnc_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 {
 	klr_SMAPnc_t *op = (klr_SMAPnc_t*)c; 
-	DBG2_ASSERT(op->opcode == 66);
+	DBG2_ASSERT(op->opcode == 65);
 	ftr(ctx, UP(op->a2));
 }
 
 static void CATCH_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 {
 	klr_CATCH_t *op = (klr_CATCH_t*)c; 
-	DBG2_ASSERT(op->opcode == 82);
+	DBG2_ASSERT(op->opcode == 81);
 	ftr(ctx, UP(op->a4));
 }
 
 static void THROWs_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 {
 	klr_THROWs_t *op = (klr_THROWs_t*)c; 
-	DBG2_ASSERT(op->opcode == 86);
+	DBG2_ASSERT(op->opcode == 85);
 	ftr(ctx, UP(op->a2));
 }
 
 static void PMSG_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 {
 	klr_PMSG_t *op = (klr_PMSG_t*)c; 
-	DBG2_ASSERT(op->opcode == 89);
+	DBG2_ASSERT(op->opcode == 88);
 	ftr(ctx, UP(op->a2));
 }
 
@@ -610,7 +609,6 @@ static knh_OPDATA_t OPDATA[] = {
 	{"CHKNUL", OPSIZE_CHKNUL, 0, HALT_traverse, CHKESP_dump}, 
 	{"CHKNULx", OPSIZE_CHKNULx, 0, HALT_traverse, CHKNULx_dump}, 
 	{"CHKTYPE", OPSIZE_CHKTYPE, 0, HALT_traverse, MOVDEF_dump}, 
-	{"NCALL", OPSIZE_NCALL, 0, HALT_traverse, HALT_dump}, 
 	{"FCALL", OPSIZE_FCALL, 0, FCALL_traverse, FCALL_dump}, 
 	{"RCALL", OPSIZE_RCALL, 0, HALT_traverse, MOVSYS_dump}, 
 	{"SCALL", OPSIZE_SCALL, 0, SCALL_traverse, SCALL_dump}, 
@@ -782,32 +780,31 @@ METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp)
 		&&L_RET, &&L_RETn, &&L_RETa, &&L_RETo, 
 		&&L_RETx, &&L_YEILDBREAK, &&L_BOX, &&L_BOXnc, 
 		&&L_NNBOX, &&L_NNBOXnc, &&L_UNBOX, &&L_CHKNUL, 
-		&&L_CHKNULx, &&L_CHKTYPE, &&L_NCALL, &&L_FCALL, 
-		&&L_RCALL, &&L_SCALL, &&L_AINVOKE, &&L_CALL, 
-		&&L_ACALL, &&L_NEW, &&L_COPYSFP, &&L_TOSTR, 
-		&&L_TOSTRf, &&L_SMAP, &&L_SMAPnc, &&L_MAP, 
-		&&L_MAPnc, &&L_AMAP, &&L_NNMAP, &&L_JMP, 
-		&&L_SKIP, &&L_bJIFT, &&L_bJIFF, &&L_bJIFF_LOOP, 
-		&&L_JIFNUL, &&L_JIFNN, &&L_NEXT, &&L_INEXT, 
-		&&L_TRY, &&L_TRYEND, &&L_CATCH, &&L_PUSH, 
-		&&L_POP, &&L_THROW, &&L_THROWs, &&L_THROW_AGAIN, 
-		&&L_P, &&L_PMSG, &&L_iCAST, &&L_inCAST, 
-		&&L_fCAST, &&L_fnCAST, &&L_bNOT, &&L_iNEG, 
-		&&L_iADD, &&L_iADDn, &&L_iSUB, &&L_iSUBn, 
-		&&L_iMUL, &&L_iMULn, &&L_iDIV, &&L_iDIVn, 
-		&&L_iMOD, &&L_iMODn, &&L_iEQ, &&L_iEQn, 
-		&&L_iNEQ, &&L_iNEQn, &&L_iLT, &&L_iLTn, 
-		&&L_iLTE, &&L_iLTEn, &&L_iGT, &&L_iGTn, 
-		&&L_iGTE, &&L_iGTEn, &&L_fNEG, &&L_fADD, 
-		&&L_fADDn, &&L_fSUB, &&L_fSUBn, &&L_fMUL, 
-		&&L_fMULn, &&L_fDIV, &&L_fDIVn, &&L_fEQ, 
-		&&L_fEQn, &&L_fNEQ, &&L_fNEQn, &&L_fLT, 
-		&&L_fLTn, &&L_fLTE, &&L_fLTEn, &&L_fGT, 
-		&&L_fGTn, &&L_fGTE, &&L_fGTEn, &&L_ARYGET, 
-		&&L_ARYGETn, &&L_iARYGET, &&L_iARYGETn, &&L_fARYGET, 
-		&&L_fARYGETn, &&L_ARYSET, &&L_ARYSETn, &&L_iARYSET, 
-		&&L_iARYSETn, &&L_fARYSET, &&L_fARYSETn, &&L_THCODE, 
-		&&L_NOP, 
+		&&L_CHKNULx, &&L_CHKTYPE, &&L_FCALL, &&L_RCALL, 
+		&&L_SCALL, &&L_AINVOKE, &&L_CALL, &&L_ACALL, 
+		&&L_NEW, &&L_COPYSFP, &&L_TOSTR, &&L_TOSTRf, 
+		&&L_SMAP, &&L_SMAPnc, &&L_MAP, &&L_MAPnc, 
+		&&L_AMAP, &&L_NNMAP, &&L_JMP, &&L_SKIP, 
+		&&L_bJIFT, &&L_bJIFF, &&L_bJIFF_LOOP, &&L_JIFNUL, 
+		&&L_JIFNN, &&L_NEXT, &&L_INEXT, &&L_TRY, 
+		&&L_TRYEND, &&L_CATCH, &&L_PUSH, &&L_POP, 
+		&&L_THROW, &&L_THROWs, &&L_THROW_AGAIN, &&L_P, 
+		&&L_PMSG, &&L_iCAST, &&L_inCAST, &&L_fCAST, 
+		&&L_fnCAST, &&L_bNOT, &&L_iNEG, &&L_iADD, 
+		&&L_iADDn, &&L_iSUB, &&L_iSUBn, &&L_iMUL, 
+		&&L_iMULn, &&L_iDIV, &&L_iDIVn, &&L_iMOD, 
+		&&L_iMODn, &&L_iEQ, &&L_iEQn, &&L_iNEQ, 
+		&&L_iNEQn, &&L_iLT, &&L_iLTn, &&L_iLTE, 
+		&&L_iLTEn, &&L_iGT, &&L_iGTn, &&L_iGTE, 
+		&&L_iGTEn, &&L_fNEG, &&L_fADD, &&L_fADDn, 
+		&&L_fSUB, &&L_fSUBn, &&L_fMUL, &&L_fMULn, 
+		&&L_fDIV, &&L_fDIVn, &&L_fEQ, &&L_fEQn, 
+		&&L_fNEQ, &&L_fNEQn, &&L_fLT, &&L_fLTn, 
+		&&L_fLTE, &&L_fLTEn, &&L_fGT, &&L_fGTn, 
+		&&L_fGTE, &&L_fGTEn, &&L_ARYGET, &&L_ARYGETn, 
+		&&L_iARYGET, &&L_iARYGETn, &&L_fARYGET, &&L_fARYGETn, 
+		&&L_ARYSET, &&L_ARYSETn, &&L_iARYSET, &&L_iARYSETn, 
+		&&L_fARYSET, &&L_fARYSETn, &&L_THCODE, &&L_NOP, 
 	};
 	register knh_code_t *pc = (sfp[-1].mtd)->pc_start;
 	goto *OPJUMP[KNH_OPCODE(pc)]; /* this is needed to init */
@@ -1139,12 +1136,6 @@ METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp)
 		const klr_CHKTYPE_t *op = (klr_CHKTYPE_t*)pc;
 		KLR_CHKTYPE(ctx, op->a1, op->a2);
 		pc += OPSIZE_CHKTYPE;
-		goto NEXT;
-	} 
-	CASE(L_NCALL, OPCODE_NCALL) {
-		TC(const klr_NCALL_t *op = (klr_NCALL_t*)pc;)
-		KLR_NCALL(ctx);
-		pc += OPSIZE_NCALL;
 		goto NEXT;
 	} 
 	CASE(L_FCALL, OPCODE_FCALL) {

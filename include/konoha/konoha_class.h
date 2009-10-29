@@ -615,6 +615,16 @@ typedef struct knh_Closure_t {
 	}\
 
 /* ------------------------------------------------------------------------ */
+//## @Param1(Any) class Thunk Object;
+//## flag Thunk Evaluated 1 - is set * *;
+
+typedef struct knh_Thunk_t {
+	knh_hObject_t h;
+	knh_sfp_t *envsfp;
+	size_t envsize;
+} knh_Thunk_t;
+
+/* ------------------------------------------------------------------------ */
 //## @Private @Immutable class AffineConv Object;
 
 #ifdef KNH_USING_NOFLOAT
