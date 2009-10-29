@@ -187,7 +187,6 @@ knh_class_t knh_class_Iterator(Ctx *ctx, knh_class_t p1)
 
 knh_class_t knh_class_Generics(Ctx *ctx, knh_class_t bcid, knh_class_t p1, knh_class_t p2)
 {
-	DBG2_ASSERT(bcid != CLASS_Closure);
 	if(bcid == CLASS_Iterator) {
 		return knh_class_Iterator(ctx, p1);
 	}
