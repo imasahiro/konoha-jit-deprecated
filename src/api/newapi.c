@@ -285,7 +285,7 @@ static METHOD Array_new__array(Ctx *ctx, knh_sfp_t *sfp)
 }
 
 /* ------------------------------------------------------------------------ */
-//## @Hidden method This! Array.new:init(T1 value, ...);
+//## @Hidden method This! Array.new:init(T1? value, ...);
 
 static METHOD Array_new__init(Ctx *ctx, knh_sfp_t *sfp)
 {
@@ -334,7 +334,7 @@ static METHOD IArray_new__array(Ctx *ctx, knh_sfp_t *sfp)
 }
 
 /* ------------------------------------------------------------------------ */
-//## @Hidden method This! IArray.new:init(Int! value, ...);
+//## @Hidden method This! IArray.new:init(Int? value, ...);
 
 static METHOD IArray_new__init(Ctx *ctx, knh_sfp_t *sfp)
 {
@@ -405,7 +405,7 @@ static METHOD FArray_new__array(Ctx *ctx, knh_sfp_t *sfp)
 }
 
 /* ------------------------------------------------------------------------ */
-//## @Hidden method This! FArray.new:init(Float! value, ...);
+//## @Hidden method This! FArray.new:init(Float? value, ...);
 
 static METHOD FArray_new__init(Ctx *ctx, knh_sfp_t *sfp)
 {

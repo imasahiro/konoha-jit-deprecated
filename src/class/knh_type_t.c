@@ -219,7 +219,6 @@ knh_class_t knh_class_Generics(Ctx *ctx, knh_class_t bcid, knh_class_t p1, knh_c
 }
 
 /* ------------------------------------------------------------------------ */
-/* [movabletext] */
 
 char *TYPEQ(knh_type_t type)
 {
