@@ -41,7 +41,7 @@ extern "C" {
 
 static int knh_Gamma_inTry(Ctx *ctx);
 
-#define ASML(idx)   (idx < DP(ctx->kc)->esp) ? (DP(ctx->kc)->esp) : idx
+#define ASML(idx) (idx < DP(ctx->kc)->esp) ? (DP(ctx->kc)->esp) : idx
 
 #define MOVL(ctx, local, idx) {\
 		if(idx < DP(ctx->kc)->esp) { \
@@ -991,21 +991,23 @@ void TERMs_ASM_THROW(Ctx *ctx, knh_Stmt_t *stmt, size_t n)
 /* [EXPR] */
 
 static
-knh_type_t knh_Method_reqtTERMs(knh_Method_t *mtd, knh_class_t mtd_cid, knh_Stmt_t *stmt, size_t n)
+knh_type_t knh_Method_reqtTERMs(Ctx *ctx, knh_Method_t *mtd, knh_class_t mtd_cid, knh_Stmt_t *stmt, size_t n)
 {
 	if(!IS_Method(mtd)) {
 		return TYPE_Any;  // boxing
 	}
 	if(n == 1) { // base
+		DBG2_(
+		if(mtd_cid != DP(mtd)->cid) {
+			DBG2_P("mtd_cid=%s, DP(mtd)->cid=%s", CLASSN(mtd_cid), CLASSN(DP(mtd)->cid));
+		});
+		mtd_cid = DP(mtd)->cid;
 		return knh_Method_isNullBase(mtd) ? NATYPE_cid(mtd_cid) : NNTYPE_cid(mtd_cid);
 	}
 	else {
 		knh_type_t ptype = knh_Method_pztype(mtd, n - 2);
 		if(ptype == TYPE_Object || ptype == TYPE_T1 || ptype == TYPE_T2) {
 			return TYPE_Any; // boxing
-		}
-		if(ptype == NNTYPE_Object || ptype == NNTYPE_T1 || ptype == NNTYPE_T2) {
-			return NNTYPE_Any; // boxing
 		}
 		if(ptype == NNTYPE_This) return NNTYPE_cid(mtd_cid);
 		if(ptype == TYPE_This) return mtd_cid;
@@ -1425,24 +1427,24 @@ void knh_StmtCALL_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 		}
 	}/* INSTRUCTION*/
 
+	/* PEEPHOLE */
 	if(mtd == DP(ctx->kc)->mtd) {
 		for(i = 2; i < DP(stmt)->size; i++) {
-			knh_type_t reqt2 = knh_Method_reqtTERMs(mtd, cid, stmt, i);
+			knh_type_t reqt2 = knh_Method_reqtTERMs(ctx, mtd, cid, stmt, i);
 			TERMs_asm(ctx, stmt, i, reqt2, local + i);
 		}
 		KNH_ASM(RCALL, sfi_(local), (knh_ushort_t)DP(stmt)->size);
 		goto L_RTYPE;
 	}
-	/* PEEPHOLE */
 	if(IS_Method(mtd) && knh_Method_isFinal(mtd) && TERMs_isLOCAL(stmt, 1)) {
 		int a = DP(DP(stmt)->tokens[1])->index;
-		knh_type_t reqt2 = knh_Method_reqtTERMs(mtd, cid, stmt, 1);
+		knh_type_t reqt2 = knh_Method_reqtTERMs(ctx, mtd, cid, stmt, 1);
 		knh_type_t vart2 = TERMs_gettype(stmt, 1);
 		if(IS_NNTYPE(reqt2) && !IS_NNTYPE(vart2)) {
 			KNH_ASM(CHKNUL, sfi_(a));
 		}
 		for(i = 2; i < DP(stmt)->size; i++) {
-			reqt2 = knh_Method_reqtTERMs(mtd, cid, stmt, i);
+			reqt2 = knh_Method_reqtTERMs(ctx, mtd, cid, stmt, i);
 			TERMs_asm(ctx, stmt, i, reqt2, local + i);
 		}
 		KNH_ASM(FCALL, sfi_(local), (knh_ushort_t)DP(stmt)->size, sfi_(a), mtd);
@@ -1450,7 +1452,7 @@ void knh_StmtCALL_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 	}/*PEEPHOLE*/
 
 	for(i = 1; i < DP(stmt)->size; i++) {
-		knh_type_t reqt2 = knh_Method_reqtTERMs(mtd, cid, stmt, i);
+		knh_type_t reqt2 = knh_Method_reqtTERMs(ctx, mtd, cid, stmt, i);
 		TERMs_asm(ctx, stmt, i, reqt2, local + i);
 	}
 	KNH_ASM_CALL(ctx, reqt, local, DP(stmt)->tokens[0], DP(stmt)->size - 2);
@@ -1481,7 +1483,7 @@ void knh_StmtNEW_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 	knh_class_t cid = DP(DP(stmt)->tokens[1])->cid;
 	size_t i;
 	for(i = 2; i < DP(stmt)->size; i++) {
-		knh_type_t reqt = knh_Method_reqtTERMs(mtd, cid, stmt, i);
+		knh_type_t reqt = knh_Method_reqtTERMs(ctx, mtd, cid, stmt, i);
 		TERMs_asm(ctx, stmt, i, reqt, local + i);
 	}
 	KNH_ASM_NEW(ctx, reqt, local, DP(stmt)->tokens[0],
@@ -1519,7 +1521,7 @@ void knh_StmtMT_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 static
 void knh_StmtALT_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 {
-	knh_KLRInst_t*  label = new_KLRInstLABEL(ctx);
+	knh_KLRInst_t* label = new_KLRInstLABEL(ctx);
 	int local = ASML(sfpidx);
 	int i, size = DP(stmt)->size;
 	knh_type_t reqc = CLASS_type(reqt);
