@@ -103,9 +103,11 @@ void knh_write_ObjectField(Ctx *ctx, knh_OutputStream_t *w, Object **v, size_t i
 
 static METHOD Object__empty(Ctx *ctx, knh_sfp_t *sfp)
 {
+	DBG2_P("cid=%d", knh_Object_cid(sfp[0].o));
 	if(knh_Context_isDebug(ctx)) {
 		knh_printf(ctx, sfp[1].w, "@Debug %%empty(%s)", CLASSNo(sfp[0].o));
 	}
+	knh_printf(ctx, sfp[1].w, "@Debug %%empty(%s)", CLASSNo(sfp[0].o));
 }
 
 /* ======================================================================== */

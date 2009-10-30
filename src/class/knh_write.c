@@ -353,8 +353,13 @@ void knh_vprintf(Ctx *ctx, knh_OutputStream_t *w, char *fmt, va_list ap)
 	while((ch = *c) != '\0') {
 		c++;
 		if(ch == '%') {
+			int index;
 			ch = *c;
-			int index = bindex++;
+			if(ch == '%') {
+				c++;
+				continue;
+			}
+			index = bindex++;
 			c = knh_vprintf_parseindex(c++, &index);
 			//DBG2_P("bindex=%d, index=%d", bindex, index);
 			switch(ch) {
@@ -484,6 +489,13 @@ void knh_vprintf(Ctx *ctx, knh_OutputStream_t *w, char *fmt, va_list ap)
 				  knh_print(ctx, w, b);
 				}
 				ch = *c;
+				if(ch == '%') {
+					knh_putc(ctx, w, '%');
+					c++;
+					b.buf = (knh_uchar_t*)c;
+					b.len = 0;
+					continue;
+				}
 				int index = bindex++;
 				c = knh_vprintf_parseindex(++c, &index);
 
@@ -570,7 +582,6 @@ void knh_vprintf(Ctx *ctx, knh_OutputStream_t *w, char *fmt, va_list ap)
 }
 
 /* ------------------------------------------------------------------------ */
-
 
 KNHAPI(void) knh_printf(Ctx *ctx, knh_OutputStream_t *w, char *fmt, ...)
 {
