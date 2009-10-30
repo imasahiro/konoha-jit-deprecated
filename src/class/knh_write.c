@@ -392,6 +392,9 @@ void knh_vprintf(Ctx *ctx, knh_OutputStream_t *w, char *fmt, va_list ap)
 				case 'B':
 					args[index].atype = VA_BYTES;
 					break;
+				// TODO 
+				// we should care if "fmt" has "%%".
+				// sometimes, next args is NULL.
 				default:
 					bindex--;
 			}

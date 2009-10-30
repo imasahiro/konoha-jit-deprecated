@@ -60,6 +60,9 @@ size_t knh_size(size_t s)
 KNHAPI(knh_bytes_t) new_bytes(char *c)
 {
 	knh_bytes_t v;
+	// TODO
+	// care if c is NULL
+	//DBG2_ASSERT(c != NULL);
 	v.buf = (knh_uchar_t*)c;
 	v.len = knh_strlen(c);
 	return v;
