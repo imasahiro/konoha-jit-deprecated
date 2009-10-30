@@ -199,6 +199,13 @@
 #undef KNH_USING_THREADEDCODE
 #endif
 
+/*
+#if defined(__x86_64__) && !defined(KNH_KLR_CONVERT)
+#define KNH_KLR_CONVERT
+#endif
+*/
+
+
 #ifdef KNH_USING_THREAD
 #if !defined(KNH_USING_PTHREAD) && defined(KNH_USING_POSIX)
 #define KNH_USING_PTHREAD 1
