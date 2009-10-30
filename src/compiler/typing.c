@@ -3192,8 +3192,6 @@ Term *knh_StmtMT_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
 	return TM(stmt);
 }
 
-/* ------------------------------------------------------------------------ */
-
 static
 Term *knh_StmtAND_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
 {
@@ -3210,8 +3208,6 @@ Term *knh_StmtAND_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
 	return TM(stmt);
 }
 
-/* ------------------------------------------------------------------------ */
-
 static
 Term *knh_StmtOR_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
 {
@@ -3227,8 +3223,6 @@ Term *knh_StmtOR_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
 	knh_Stmt_typed(ctx, stmt, NNTYPE_Boolean);
 	return TM(stmt);
 }
-
-/* ------------------------------------------------------------------------ */
 
 static
 Term *knh_StmtALT_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
@@ -3248,8 +3242,6 @@ Term *knh_StmtALT_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
 	}
 	return knh_Stmt_typed(ctx, stmt, reqt);
 }
-
-/* ------------------------------------------------------------------------ */
 
 static
 Term *knh_StmtTRI_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
