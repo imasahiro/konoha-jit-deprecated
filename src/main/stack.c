@@ -308,7 +308,8 @@ KNHAPI(void) knh_throwException(Ctx *ctx, knh_Exception_t *e, char *file, int li
 			knh_ExceptionHandler_longjmp(ctx, sp[0].hdr, e);
 		}
 		else if(IS_Method(sp[0].o)) {
-			knh_Exception_addStackTrace(ctx, e, knh_stack_newStackTrace(ctx, sp+1, e));
+			knh_String_t *msg = knh_stack_newStackTrace(ctx, sp+1, e);
+			knh_Exception_addStackTrace(ctx, e, msg);
 		}
 		sp--;
 	}
