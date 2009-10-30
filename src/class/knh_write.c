@@ -395,6 +395,9 @@ void knh_vprintf(Ctx *ctx, knh_OutputStream_t *w, char *fmt, va_list ap)
 				// TODO 
 				// we should care if "fmt" has "%%".
 				// sometimes, next args is NULL.
+				case '%':
+					index--;
+					c++;
 				default:
 					bindex--;
 			}
@@ -542,6 +545,9 @@ void knh_vprintf(Ctx *ctx, knh_OutputStream_t *w, char *fmt, va_list ap)
 						KNH_ASSERT(args[index].atype == VA_BYTES);
 						knh_write(ctx,w, args[index].bvalue);
 						break;
+					case '%':
+						index--;
+						bindex--;
 					default:
 						//knh_putc(ctx, w, '%');
 						knh_putc(ctx, w, ch);
