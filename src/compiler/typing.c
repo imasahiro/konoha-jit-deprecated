@@ -356,8 +356,8 @@ static int knh_Gamma_updateMethodType(Ctx *ctx)
 
 static knh_class_t knh_Token_unifyClass(Ctx *ctx, knh_Token_t *tkVAR, knh_type_t reqt, knh_Stmt_t *stmt)
 {
-	knh_Token_t *tkM = DP(stmt)->tokens[0];
-	knh_methodn_t mn = DP(tkM)->mn;
+	DBG2_(knh_Token_t *tkM = DP(stmt)->tokens[0]);
+	DBG2_(knh_methodn_t mn = DP(tkM)->mn;);
 	DBG2_P("*** %s reqt=%s%s mn(fn)=%s", sToken(tkVAR), TYPEQN(reqt), FIELDN(METHODN_TOFIELDN(mn)));
 	return CLASS_type(TYPE_var); /* not derived */
 }

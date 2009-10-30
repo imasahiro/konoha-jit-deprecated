@@ -1782,9 +1782,11 @@ static void TERMs_asmBLOCK(Ctx *ctx, knh_Stmt_t *stmt, size_t n)
 
 static void knh_StmtIF_asm(Ctx *ctx, knh_Stmt_t *stmt)
 {
+	knh_KLRInst_t*  lbIF   = new_KLRInstLABEL(ctx);
 	knh_KLRInst_t*  lbELSE = new_KLRInstLABEL(ctx);
-	knh_KLRInst_t*  lbEND = new_KLRInstLABEL(ctx);
+	knh_KLRInst_t*  lbEND  = new_KLRInstLABEL(ctx);
 	/* if */
+	KNH_ASM_LABEL(ctx, lbIF);
 	TERMs_ASM_JIFF(ctx, stmt, 0, lbELSE);
 	/*then*/
 	TERMs_asmBLOCK(ctx, stmt, 1);
