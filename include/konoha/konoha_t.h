@@ -393,7 +393,7 @@ typedef knh_ushort_t          knh_methodn_t;
 #define FIELDN(fn) __tochar(knh_getFieldName(ctx, fn))
 #define METHODN(mn) __tochar(knh_getFieldName(ctx, METHODN_TOFIELDN(mn)))
 
-/* src/compiler/misc_.c */
+/* src/kc/misc_.c */
 #define METHODN_opALT    METHODN_NONAME
 #define METHODN_opSame   METHODN_NONAME
 #define METHODN_opInto   METHODN_NONAME

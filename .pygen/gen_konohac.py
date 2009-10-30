@@ -595,7 +595,7 @@ static %s
 #------------------------------------------------------------------------------
 
 def gen_stmt(bdir):
-    fname = 'src/compiler/misc_.c'
+    fname = 'src/kc/misc_.c'
     f = open_c(fname, ['"commons.h"'])
     
     write_chapter(f,'[token]')

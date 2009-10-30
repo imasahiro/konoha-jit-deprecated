@@ -560,7 +560,7 @@ METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp)
 #------------------------------------------------------------------------------
 
 def gen_vm_c(bdir):
-	fname = '%s/src/compiler/konoha_code_.c' % bdir
+	fname = '%s/src/kc/konoha_code_.c' % bdir
 	f = open_c(fname, ['"commons.h"'])
 	write_inst_c(f)
 	write_exec(f)
