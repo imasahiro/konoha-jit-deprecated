@@ -257,7 +257,7 @@ class KCODE:
 			self.struct = self.struct + a
 			c += 1
 		if self.args[len(self.args) - 1] == ',':
-			self.args = self.args[len(self.args)-2:] + ')'
+			self.args = self.args[:len(self.args)-1] + ')'
 
 #####################################################################
 
@@ -315,6 +315,20 @@ def write_define_h(f):
 		f.write(p + ';\n')
 	for kc in KCODE_LIST:
 		write_KCODE_h(f,kc)
+
+def write_jit_def_h(f):
+	for kc in KCODE_LIST:
+		m = 'KLR_%s(ctx' % kc.name;
+		a = "," + kc.args[1:]
+		if len(a) == 1:
+			a = ")"
+		f.write('''
+void JIT_OP_%s_(Ctx *ctx, knh_sfp_t* sfp%s)
+{
+	%s%s;
+}
+''' % (kc.name,kc.targs, m,a))
+
 
 #------------------------------------------------------------------------------
 
@@ -574,6 +588,16 @@ def gen_vm_c(bdir):
 	write_define_h(f)
 	f.write('#endif /* %s */\n' % 'konoha_code_h_'.upper());
 	f.close()
+
+	f = open('include/ijt/vm.h', 'w')
+	f.write('#ifndef %s\n' % 'ijt_vm_h_'.upper());
+	f.write('#define %s\n' % 'ijt_vm_h_'.upper());
+	f.write('''// THIS FILE WAS AUTOMATICALLY GENERATED
+''')
+	write_jit_def_h(f)
+	f.write('#endif /* %s */\n' % 'ijt_vm_h_'.upper());
+	f.close()
+
 
 #------------------------------------------------------------------------------
 

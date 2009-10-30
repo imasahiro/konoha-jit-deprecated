@@ -96,6 +96,8 @@ static void knh_thread_btronEntryPoint(knh_thread_target_btron* arg)
 #endif /* KNH_USING_BTRON */
 
 
+/* ------------------------------------------------------------------------ */
+
 int knh_thread_create(Ctx *ctx, knh_thread_t *thread, void *attr, void *(*frun)(void *), void * arg)
 {
 #if defined(KNH_USING_PTHREAD)
