@@ -168,9 +168,14 @@ knh_Stmt_t *knh_InputStream_parseStmt(Ctx *ctx, knh_InputStream_t *in, int isDat
 	KNH_LPUSH(ctx, in);
 	knh_InputStream_parseToken(ctx, in, tk);
 	DBG2_DUMP(ctx, tk, KNH_NULL, "tokens");
-	{
+	if(TT_(tk) != TT_ERR) {
 		knh_tkc_t tcbuf, *tc = knh_Token_tc(ctx, tk, &tcbuf);
 		return new_StmtSTMTBLOCK(ctx, tc, isData);
+	}
+	else {
+		knh_Stmt_t *stmt = new_Stmt(ctx, 0, STT_DONE);
+		knh_Stmt_toERR(ctx, stmt, TM(tk));
+		return stmt;
 	}
 }
 
