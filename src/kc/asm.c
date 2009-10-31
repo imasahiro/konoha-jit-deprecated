@@ -1511,14 +1511,12 @@ void knh_StmtMT_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 	int local = ASML(sfpidx);
 	TERMs_asm(ctx, stmt, 1, TYPE_Any, local);
 	knh_Token_t *tk = DP(stmt)->tokens[0];
-	if(DP(stmt)->size == 2) {
-		KNH_ASM(TOSTR, local, DP(tk)->mn);
+	knh_String_t *fmtOP = (knh_String_t*)KNH_NULL;
+	if(DP(stmt)->size == 3) {
+		fmtOP = DP(DP(stmt)->tokens[2])->text;
+		DBG2_ASSERT(IS_String(fmtOP));
 	}
-	else {
-		knh_String_t *fmt = DP(DP(stmt)->tokens[2])->text;
-		ASM_ASSERT(ctx, IS_String(fmt));
-		KNH_ASM(TOSTRf, local, DP(tk)->mn, UP(fmt));
-	}
+	KNH_ASM(STR, local, local+1, DP(tk)->mn, fmtOP);
 	MOVL(ctx, local, sfpidx);
 }
 

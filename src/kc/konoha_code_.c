@@ -172,11 +172,19 @@ static void NEW_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 	ftr(ctx, UP(op->a5));
 }
 
-static void TOSTRf_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
+static void STR_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 {
-	klr_TOSTRf_t *op = (klr_TOSTRf_t*)c; 
+	klr_STR_t *op = (klr_STR_t*)c; 
+	DBG2_ASSERT(op->opcode == 62);
+	ftr(ctx, UP(op->a4));
+}
+
+static void SSTR_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
+{
+	klr_SSTR_t *op = (klr_SSTR_t*)c; 
 	DBG2_ASSERT(op->opcode == 63);
 	ftr(ctx, UP(op->a3));
+	ftr(ctx, UP(op->a4));
 }
 
 static void SMAP_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
@@ -402,21 +410,24 @@ static void NEW_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
 	knh_write__OBJ(ctx, w, UP((op->a5)));
 }
 
-static void TOSTR_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
+static void STR_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
 {
-	klr_TOSTR_t *op = (klr_TOSTR_t*)c; 
+	klr_STR_t *op = (klr_STR_t*)c; 
 	knh_write_opcode(ctx, w, op->opcode);
 	knh_write__sfpidx(ctx, w, (op->a1));
-	knh_write__mn(ctx, w, (op->a2));
+	knh_write__sfpidx(ctx, w, (op->a2));
+	knh_write__mn(ctx, w, (op->a3));
+	knh_write__OBJ(ctx, w, UP((op->a4)));
 }
 
-static void TOSTRf_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
+static void SSTR_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
 {
-	klr_TOSTRf_t *op = (klr_TOSTRf_t*)c; 
+	klr_SSTR_t *op = (klr_SSTR_t*)c; 
 	knh_write_opcode(ctx, w, op->opcode);
 	knh_write__sfpidx(ctx, w, (op->a1));
-	knh_write__mn(ctx, w, (op->a2));
+	knh_write__sfpidx(ctx, w, (op->a2));
 	knh_write__OBJ(ctx, w, UP((op->a3)));
+	knh_write__OBJ(ctx, w, UP((op->a4)));
 }
 
 static void SMAP_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
@@ -617,8 +628,8 @@ static knh_OPDATA_t OPDATA[] = {
 	{"ACALL", OPSIZE_ACALL, 0, HALT_traverse, CALL_dump}, 
 	{"NEW", OPSIZE_NEW, 0, NEW_traverse, NEW_dump}, 
 	{"COPYSFP", OPSIZE_COPYSFP, 0, HALT_traverse, CHKESP_dump}, 
-	{"TOSTR", OPSIZE_TOSTR, 0, HALT_traverse, TOSTR_dump}, 
-	{"TOSTRf", OPSIZE_TOSTRf, 0, TOSTRf_traverse, TOSTRf_dump}, 
+	{"STR", OPSIZE_STR, 0, STR_traverse, STR_dump}, 
+	{"SSTR", OPSIZE_SSTR, 0, SSTR_traverse, SSTR_dump}, 
 	{"SMAP", OPSIZE_SMAP, 0, SMAP_traverse, SMAP_dump}, 
 	{"SMAPnc", OPSIZE_SMAPnc, 0, SMAPnc_traverse, SMAP_dump}, 
 	{"MAP", OPSIZE_MAP, 0, HALT_traverse, MOVDEF_dump}, 
@@ -782,7 +793,7 @@ METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp)
 		&&L_NNBOX, &&L_NNBOXnc, &&L_UNBOX, &&L_CHKNUL, 
 		&&L_CHKNULx, &&L_CHKTYPE, &&L_FCALL, &&L_RCALL, 
 		&&L_SCALL, &&L_AINVOKE, &&L_CALL, &&L_ACALL, 
-		&&L_NEW, &&L_COPYSFP, &&L_TOSTR, &&L_TOSTRf, 
+		&&L_NEW, &&L_COPYSFP, &&L_STR, &&L_SSTR, 
 		&&L_SMAP, &&L_SMAPnc, &&L_MAP, &&L_MAPnc, 
 		&&L_AMAP, &&L_NNMAP, &&L_JMP, &&L_SKIP, 
 		&&L_bJIFT, &&L_bJIFF, &&L_bJIFF_LOOP, &&L_JIFNUL, 
@@ -1186,16 +1197,16 @@ METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp)
 		pc += OPSIZE_COPYSFP;
 		goto NEXT;
 	} 
-	CASE(L_TOSTR, OPCODE_TOSTR) {
-		const klr_TOSTR_t *op = (klr_TOSTR_t*)pc;
-		KLR_TOSTR(ctx, op->a1, op->a2);
-		pc += OPSIZE_TOSTR;
+	CASE(L_STR, OPCODE_STR) {
+		const klr_STR_t *op = (klr_STR_t*)pc;
+		KLR_STR(ctx, op->a1, op->a2, op->a3, op->a4);
+		pc += OPSIZE_STR;
 		goto NEXT;
 	} 
-	CASE(L_TOSTRf, OPCODE_TOSTRf) {
-		const klr_TOSTRf_t *op = (klr_TOSTRf_t*)pc;
-		KLR_TOSTRf(ctx, op->a1, op->a2, op->a3);
-		pc += OPSIZE_TOSTRf;
+	CASE(L_SSTR, OPCODE_SSTR) {
+		const klr_SSTR_t *op = (klr_SSTR_t*)pc;
+		KLR_SSTR(ctx, op->a1, op->a2, op->a3, op->a4);
+		pc += OPSIZE_SSTR;
 		goto NEXT;
 	} 
 	CASE(L_SMAP, OPCODE_SMAP) {

@@ -683,28 +683,31 @@ typedef struct {
 
 #define OPSIZE_COPYSFP  (sizeof(klr_COPYSFP_t)-sizeof(void*))
 
-#define OPCODE_TOSTR ((knh_opcode_t)62)
+#define OPCODE_STR ((knh_opcode_t)62)
 typedef struct {
 	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
 	knh_sfpidx_t a1;
-	knh_methodn_t a2;
+	knh_sfpidx_t a2;
+	knh_methodn_t a3;
+	knh_String_t* a4;
 	void *nextaddr;   /* sameas next codeaddr */
-} klr_TOSTR_t;
+} klr_STR_t;
 
-#define OPSIZE_TOSTR  (sizeof(klr_TOSTR_t)-sizeof(void*))
+#define OPSIZE_STR  (sizeof(klr_STR_t)-sizeof(void*))
 
-#define OPCODE_TOSTRf ((knh_opcode_t)63)
+#define OPCODE_SSTR ((knh_opcode_t)63)
 typedef struct {
 	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
 	knh_sfpidx_t a1;
-	knh_methodn_t a2;
-	knh_Object_t* a3;
+	knh_sfpidx_t a2;
+	knh_Method_t* a3;
+	knh_String_t* a4;
 	void *nextaddr;   /* sameas next codeaddr */
-} klr_TOSTRf_t;
+} klr_SSTR_t;
 
-#define OPSIZE_TOSTRf  (sizeof(klr_TOSTRf_t)-sizeof(void*))
+#define OPSIZE_SSTR  (sizeof(klr_SSTR_t)-sizeof(void*))
 
 #define OPCODE_SMAP ((knh_opcode_t)64)
 typedef struct {

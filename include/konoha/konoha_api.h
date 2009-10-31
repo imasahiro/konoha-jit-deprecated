@@ -677,7 +677,6 @@ knh_Stmt_typingBLOCK(Ctx *ctx, knh_Stmt_t *stmt, int isIteration);
 METHOD Script_changeChannel(Ctx *ctx, knh_sfp_t *sfp);
 METHOD Script_hook(Ctx *ctx, knh_sfp_t *sfp);
 int package_init(Ctx *ctx);
-METHOD knh_KLRCode_toCttCode(Ctx *ctx, knh_sfp_t *sfp);
 int knh_fcallback_cmpr(Object *obj, Object *obj2);
 void *knh_generateCallBackFunc(Ctx *ctx, void *func, knh_Closure_t *c);
 void *knh_copyCallbackfunc(Ctx* ctx, void *func, void *target,knh_Closure_t *cc);

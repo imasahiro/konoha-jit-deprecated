@@ -86,8 +86,8 @@ NEW   sfpidx flag cid ushort Method
 
 COPYSFP sfpidx
 
-TOSTR      sfpidx mn
-TOSTRf     sfpidx mn Object
+STR     sfpidx sfpidx mn String
+SSTR    sfpidx sfpidx Method String
 
 SMAP   sfpidx Mapper
 SMAPnc   sfpidx Mapper

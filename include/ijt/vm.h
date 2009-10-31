@@ -312,14 +312,14 @@ void JIT_OP_COPYSFP_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1)
 	KLR_COPYSFP(ctx,a1);
 }
 
-void JIT_OP_TOSTR_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_methodn_t a2)
+void JIT_OP_STR_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfpidx_t a2,knh_methodn_t a3,knh_String_t* a4)
 {
-	KLR_TOSTR(ctx,a1,a2);
+	KLR_STR(ctx,a1,a2,a3,a4);
 }
 
-void JIT_OP_TOSTRf_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_methodn_t a2,knh_Object_t* a3)
+void JIT_OP_SSTR_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfpidx_t a2,knh_Method_t* a3,knh_String_t* a4)
 {
-	KLR_TOSTRf(ctx,a1,a2,a3);
+	KLR_SSTR(ctx,a1,a2,a3,a4);
 }
 
 void JIT_OP_SMAP_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_Mapper_t* a2)
