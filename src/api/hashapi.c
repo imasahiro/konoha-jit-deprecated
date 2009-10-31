@@ -160,7 +160,7 @@ static METHOD HashMap_set(Ctx *ctx, knh_sfp_t *sfp)
 			if(e->hcode == hcode
 					&& knh_Object_cid(sfp[1].o) == knh_Object_cid(e->key)
 					&& knh_stack_equals(ctx, sfp + 1, e->key)) {
-				knh_sfp_boxing(ctx, sfp+2);
+				knh_stack_boxing(ctx, sfp+2);
 				KNH_SETv(ctx, e->value, sfp[2].o);
 				KNH_RETURN_void(ctx, sfp);
 			}
@@ -170,9 +170,9 @@ static METHOD HashMap_set(Ctx *ctx, knh_sfp_t *sfp)
 		/* add newentry */ {
 			e = new_hashentry(ctx, o);
 			e->hcode = hcode;
-			knh_sfp_boxing(ctx, sfp+1);
+			knh_stack_boxing(ctx, sfp+1);
 			KNH_INITv(e->key, sfp[1].o);
-			knh_sfp_boxing(ctx, sfp+2);
+			knh_stack_boxing(ctx, sfp+2);
 			KNH_INITv(e->value, sfp[2].o);
 			e->next = DP(o)->array[h];
 			DP(o)->array[h] = e;

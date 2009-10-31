@@ -442,7 +442,7 @@ void JIT_OP_P_(Ctx *ctx, knh_sfp_t* sfp,knh_flag_t a1,knh_methodn_t a2,knh_sfpid
 	KLR_P(ctx,a1,a2,a3);
 }
 
-void JIT_OP_PMSG_(Ctx *ctx, knh_sfp_t* sfp,knh_flag_t a1,knh_Object_t* a2)
+void JIT_OP_PMSG_(Ctx *ctx, knh_sfp_t* sfp,knh_flag_t a1,knh_String_t* a2)
 {
 	KLR_PMSG(ctx,a1,a2);
 }

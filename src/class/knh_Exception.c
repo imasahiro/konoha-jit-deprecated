@@ -141,49 +141,85 @@ knh_addException(Ctx *ctx, knh_flag_t flag, knh_class_t eid, knh_String_t *name,
 // new Exception("Security!!", "hogehoge");
 // new Exception("Security!!: hogehoge", null);
 
-knh_Exception_t* knh_Exception_new__init(Ctx *ctx, knh_Exception_t *o, knh_String_t *e, knh_String_t *msg, Object *bag)
+knh_Exception_t* knh_Exception_new__init(Ctx *ctx, knh_Exception_t *e, knh_String_t *ename, knh_String_t *msg, Object *bag)
 {
 	knh_expt_t eid = EXPT_Exception;
-	if(IS_NOTNULL(e)) {
-		KNH_RCSETv(ctx, DP(o)->bag, e);
-		eid = knh_geteid(ctx, __tobytes(e), EXPT_newid /*EXPT_unknown*/);
+	if(IS_NOTNULL(ename)) {
+		KNH_RCSETv(ctx, DP(e)->bag, ename);
+		eid = knh_geteid(ctx, __tobytes(ename), EXPT_newid /*EXPT_unknown*/);
 	}
 	if(eid == EXPT_unknown) {
-		KNH_WARNING(ctx, "unknown exception: %s", __tochar(e));
-		DP(o)->eid = EXPT_Exception;
+		KNH_WARNING(ctx, "unknown exception: %s", __tochar(ename));
+		DP(e)->eid = EXPT_Exception;
 	}
 	else {
-		DP(o)->eid = eid;
+		DP(e)->eid = eid;
 	}
 	KNH_ASSERT_eid(eid);
-	DP(o)->flag = ctx->share->ExptTable[DP(o)->eid].flag;
+	DP(e)->flag = ctx->share->ExptTable[DP(e)->eid].flag;
 	{
 		if(IS_NOTNULL(msg)) {
-			KNH_RCSETv(ctx, DP(o)->bag, msg);
+			KNH_RCSETv(ctx, DP(e)->bag, msg);
 			knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-			knh_write_char(ctx, cwb->w, EXPTN(DP(o)->eid));
+			knh_write_char(ctx, cwb->w, EXPTN(DP(e)->eid));
 			knh_write_char(ctx, cwb->w, "!!: ");
 			knh_write(ctx, cwb->w, __tobytes(msg));
-			KNH_SETv(ctx, DP(o)->msg, knh_cwb_newString(ctx, cwb));
+			KNH_SETv(ctx, DP(e)->msg, knh_cwb_newString(ctx, cwb));
 		}
 		else {
-			int loc = knh_bytes_indexOf(__tobytes(e), STEXT("!!:"));
+			int loc = knh_bytes_indexOf(__tobytes(ename), STEXT("!!:"));
 			if(loc > 0 && eid != EXPT_unknown) {
-				KNH_SETv(ctx, DP(o)->msg, e);
-				return o;
+				KNH_SETv(ctx, DP(e)->msg, ename);
+				return e;
 			}
 			knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-			knh_write_char(ctx, cwb->w, EXPTN(DP(o)->eid));
+			knh_write_char(ctx, cwb->w, EXPTN(DP(e)->eid));
 			knh_write_char(ctx, cwb->w, "!!");
 			if(loc > 0) {
 				knh_write_char(ctx, cwb->w, ": ");
-				knh_write(ctx, cwb->w, knh_bytes_last(__tobytes(e), loc+3));
+				knh_write(ctx, cwb->w, knh_bytes_last(__tobytes(ename), loc+3));
 			}
-			KNH_SETv(ctx, DP(o)->msg, knh_cwb_newString(ctx, cwb));
+			KNH_SETv(ctx, DP(e)->msg, knh_cwb_newString(ctx, cwb));
 		}
 	}
-	KNH_SETv(ctx, DP(o)->bag, bag);
-	return o;
+	KNH_SETv(ctx, DP(e)->bag, bag);
+	return e;
+}
+
+/* ------------------------------------------------------------------------ */
+
+KNHAPI(knh_Exception_t*) new_Exception(Ctx *ctx, knh_String_t *msg)
+{
+	knh_Exception_t* e = (knh_Exception_t*)new_Object_bcid(ctx, CLASS_Exception, 0);
+	knh_expt_t eid = knh_geteid(ctx, __tobytes(msg), EXPT_newid);
+	DP(e)->eid = eid;
+	DP(e)->flag = ctx->share->ExptTable[eid].flag;
+	KNH_SETv(ctx, DP(e)->msg, msg);
+	return e;
+}
+
+/* ------------------------------------------------------------------------ */
+
+KNHAPI(knh_Exception_t*) knh_cwb_newException(Ctx *ctx, knh_cwb_t *cwb)
+{
+	knh_Exception_t* e = (knh_Exception_t*)new_Object_bcid(ctx, CLASS_Exception, 0);
+	knh_expt_t eid = knh_geteid(ctx, knh_cwb_tobytes(cwb), EXPT_newid);
+	DP(e)->eid = eid;
+	DP(e)->flag = ctx->share->ExptTable[eid].flag;
+	KNH_SETv(ctx, DP(e)->msg, knh_cwb_newString(ctx, cwb));
+	return e;
+}
+
+/* ------------------------------------------------------------------------ */
+
+KNHAPI(knh_Exception_t*) new_Exception__T(Ctx *ctx, char *msg)
+{
+	knh_Exception_t* e = (knh_Exception_t*)new_Object_bcid(ctx, CLASS_Exception, 0);
+	knh_expt_t eid = knh_geteid(ctx, B(msg), EXPT_newid);
+	DP(e)->eid = eid;
+	DP(e)->flag = ctx->share->ExptTable[eid].flag;
+	KNH_SETv(ctx, DP(e)->msg, T__(msg));
+	return e;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -200,27 +236,10 @@ int knh_Exception_isa(Ctx *ctx, knh_Exception_t *o, knh_String_t *msg)
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(knh_Exception_t*) new_Exception(Ctx *ctx, knh_String_t *msg)
+void knh_Exception_setCInfo(Ctx *ctx, knh_Exception_t *o, char *file, int line)
 {
-	knh_Exception_t* o = (knh_Exception_t*)new_Object_bcid(ctx, CLASS_Exception, 0);
-	knh_Exception_new__init(ctx, o, msg, (knh_String_t*)KNH_NULL, (Object*)KNH_NULL);
-	return o;
-}
-
-/* ------------------------------------------------------------------------ */
-
-KNHAPI(knh_Exception_t*) new_Exception__b(Ctx *ctx, knh_bytes_t msg)
-{
-	knh_Exception_t* o = (knh_Exception_t*)new_Object_bcid(ctx, CLASS_Exception, 0);
-	knh_Exception_new__init(ctx, o, new_String(ctx, msg, NULL), (knh_String_t*)KNH_NULL, (Object*)KNH_NULL);
-	return o;
-}
-
-/* ------------------------------------------------------------------------ */
-
-knh_Exception_t* new_NullException (Ctx *ctx, Object *o)
-{
-	return new_Exception__b(ctx, STEXT("Null!!"));
+	DP(o)->Cfile = knh_safefile(file);
+	DP(o)->Cline = line;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -238,12 +257,15 @@ KNHAPI(void) knh_cwb_perrno(Ctx *ctx, knh_cwb_t *cwb, char *emsg, char *func, ch
 	char *emsg2 = strerror(errno);
 #endif
 	if(isThrowable) {
-		char buf[256];
-		knh_snprintf(buf, sizeof(buf), "%s: %s at %s (errno=%d)", emsg, emsg2, func, errno);
+		knh_Exception_t *e;
+		knh_cwb_t cwbbuf2, *cwb2 = knh_cwb_open(ctx, &cwbbuf2);
+		knh_printf(ctx, cwb2->w, "%s: %s at %s (errno=%d)", emsg, emsg2, func, (knh_intptr_t)errno);
+		e = knh_cwb_newException(ctx, cwb2);
+		knh_Exception_setCInfo(ctx, e, file, line);
 		if(cwb != NULL) {
 			knh_cwb_close(cwb);
 		}
-		knh_throwException(ctx, new_Exception__b(ctx, B(buf)), knh_safefile(file), line);
+		knh_stack_throw(ctx, ctx->esp, e, NULL, 0);
 	}
 	else {
 		KNH_NOTICE(ctx, "%s() says %s (errno=%d)", func, emsg2, errno);
@@ -255,12 +277,15 @@ KNHAPI(void) knh_cwb_perrno(Ctx *ctx, knh_cwb_t *cwb, char *emsg, char *func, ch
 KNHAPI(void) knh_throw_Unsupported(Ctx *ctx, knh_cwb_t *cwb, const char *func, char *file, int line, int isThrowable)
 {
 	if(isThrowable) {
-		char buf[256];
-		knh_snprintf(buf, sizeof(buf), "Unsupported!!: func=%s", func);
+		knh_Exception_t *e;
+		knh_cwb_t cwbbuf2, *cwb2 = knh_cwb_open(ctx, &cwbbuf2);
+		knh_printf(ctx, cwb2->w, "Unsupported!!: func=%s", func);
+		e = knh_cwb_newException(ctx, cwb2);
+		knh_Exception_setCInfo(ctx, e, file, line);
 		if(cwb != NULL) {
 			knh_cwb_close(cwb);
 		}
-		knh_throwException(ctx, new_Exception__b(ctx, B(buf)), knh_safefile(file), line);
+		knh_stack_throw(ctx, ctx->esp, e, NULL, 0);
 	}
 	else {
 		KNH_NOTICE(ctx, "unsupported: %s", func);
@@ -271,9 +296,11 @@ KNHAPI(void) knh_throw_Unsupported(Ctx *ctx, knh_cwb_t *cwb, const char *func, c
 
 KNHAPI(void) knh_throw_OutOfIndex(Ctx *ctx, knh_int_t n, size_t max, char *file, int line)
 {
-	char buf[80];
-	knh_snprintf(buf, sizeof(buf), "OutOfIndex!!: %ld <%ld", (long)n, (long)max);
-	knh_throwException(ctx, new_Exception__b(ctx, B(buf)), knh_safefile(file), line);
+	knh_Exception_t *e;
+	knh_cwb_t cwbbuf2, *cwb2 = knh_cwb_open(ctx, &cwbbuf2);
+	knh_printf(ctx, cwb2->w, "OutOfIndex!!: %i not < %i", n, (knh_int_t)max);
+	e = knh_cwb_newException(ctx, cwb2);
+	knh_stack_throw(ctx, ctx->esp, e, knh_safefile(file), line);
 }
 
 /* ======================================================================== */

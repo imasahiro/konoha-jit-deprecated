@@ -889,7 +889,9 @@ typedef struct knh_Exception_struct {
 	Object* bag;
 	knh_Array_t* traces;
 	char*     file;
-	size_t    line;
+	char*     Cfile;
+	int       line;
+	int       Cline;
 } knh_Exception_struct;
 
 typedef struct knh_Exception_t {
@@ -897,7 +899,7 @@ typedef struct knh_Exception_t {
 	knh_Exception_struct *b;
 } knh_Exception_t;
 
-#define new_Exception__s(ctx, s)     new_Exception__b(ctx, B(s))
+#define new_Exception__s(ctx, s)     new_Exception__T(ctx, B(s))
 
 /* ------------------------------------------------------------------------ */
 //## @Private @Struct class ExceptionHandler Object;
@@ -926,22 +928,9 @@ typedef struct knh_ExceptionHandler_t {
 	knh_ExceptionHandler_struct *b;
 } knh_ExceptionHandler_t;
 
-#define KNH_THROW(ctx, e) knh_throw(ctx, UP(e), knh_safefile(__FILE__), __LINE__)
-#define KNH_THROWs(ctx, s) \
-	knh_throwException(ctx, new_Exception__b(ctx, B(s)), knh_safefile(__FILE__), __LINE__); \
-
-
-#define KNH_THROWf(ctx, fmt, ...) \
-	char throcwb_[256]; \
-	knh_snprintf(throcwb_, sizeof(throcwb_), fmt, ## __VA_ARGS__); \
-	knh_throwException(ctx, new_Exception__b(ctx, B(throcwb_)), knh_safefile(__FILE__), __LINE__); \
-
-#define TODO_THROW(ctx) knh_throw_TODO(ctx, (char*)__FILE__, __LINE__, (char*)__FUNCTION__)
-
 #define KNH_PERRNO(ctx, cwb, emsg, func, isThrowable) { \
 		knh_cwb_perrno(ctx, cwb, emsg, func, __FILE__, __LINE__, isThrowable); \
 	}\
-
 
 #define KNH_NOAPI(ctx, cwb, isThrowable) { \
 		knh_throw_Unsupported(ctx, cwb, __FUNCTION__, __FILE__, __LINE__, isThrowable); \

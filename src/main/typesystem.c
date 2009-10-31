@@ -95,73 +95,17 @@ knh_class_t knh_class_parent(Ctx *ctx, knh_class_t c1, knh_class_t c2)
 	return CLASS_Object;
 }
 
-///* ------------------------------------------------------------------------ */
-//
-//
-//knh_bool_t knh_class_isSynonym(Ctx *ctx, knh_class_t scid, knh_class_t tcid)
-//{
-//	DBG2_ASSERT_cid(scid);
-//	DBG2_ASSERT_cid(tcid);
-//	return 0;
-//}
-
-
 /* ------------------------------------------------------------------------ */
-/* [coercion] */
-
-///* ------------------------------------------------------------------------ */
-///* @method Object Object.opAs(Class! c) */
-//
-//METHOD Object_opAs(Ctx *ctx, knh_sfp_t *sfp)
-//{
-//	KNH_RETURN(ctx, sfp, knh_Object_opAs(ctx, sfp[0].o, p_cid(sfp[1])));
-//}
-//
-///* ------------------------------------------------------------------------ */
-//
-//Object* knh_Object_opAs(Ctx *ctx, Object *o, knh_class_t tcid)
-//{
-//	DBG2_ASSERT_cid(tcid);
-//	if(IS_NULL(o)) {
-//		return o;  /* @see */
-//	}
-//	else {
-//		knh_class_t scid = knh_Object_cid(o);
-//		if(scid == tcid || ClassTable(scid).bcid == tcid || knh_class_instanceof(ctx, scid, tcid)) {
-//			return o;
-//		}
-//		else if(ClassTable(tcid).bcid == scid) {
-//			if(IS_String(o)) {
-//				String *s = (String*)o;
-//				return UP(new_StringX(ctx, tcid, __tobytes(s), s));
-//			}
-//			return o;
-//		}
-//		else {
-//			knh_sfp_t *lsfp = KNH_LOCAL(ctx);
-//			DBG2_P("COERCION %s -> %s", CLASSN(scid), CLASSN(tcid));
-//			KNH_LPUSH(ctx, o);
-//			VM_MAP(ctx, tcid);
-//			o = ctx->esp[0].o;
-//			KNH_LOCALBACK(ctx, lsfp);
-//			return o;
-//		}
-//	}
-//}
-//
-
-/* ======================================================================== */
-/* [Exception_type] */
 
 knh_Exception_t* new_Exception__type(Ctx *ctx, Object *value, knh_type_t spec_type)
 {
 	if(IS_NULL(value)) {
-		return new_NullException (ctx, value);
+		return new_Exception__T(ctx, "Null!!");
 	}
 	else {
-		char buf[CLASSNAME_BUFSIZ];
-		knh_snprintf(buf, sizeof(buf), "Type!!: req=%s given=%s", CLASSN(CLASS_type(spec_type)), CLASSN(knh_Object_cid(value)));
-		return new_Exception__s(ctx, buf);
+		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
+		knh_printf(ctx, cwb->w, "Type!!: requested=%T given=%C", spec_type, knh_Object_cid(value));
+		return knh_cwb_newException(ctx, cwb);
 	}
 }
 

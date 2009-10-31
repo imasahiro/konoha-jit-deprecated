@@ -121,7 +121,7 @@ THROWs  ushort String
 THROW_AGAIN sfpidx
 
 P  flag mn sfpidx
-PMSG flag Object
+PMSG flag String
 
 iCAST sfpidx
 inCAST sfpidx

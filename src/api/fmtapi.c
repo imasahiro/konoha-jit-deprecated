@@ -324,7 +324,7 @@ static METHOD Iterator__k(Ctx *ctx, knh_sfp_t *sfp)
 			}
 			knh_write_EOL(ctx, sfp[1].w);
 		}
-		((knh_Context_t*)ctx)->esp = sfp + 6;
+		KNH_SETESP(ctx, sfp+6);
 		KNH_MOV(ctx, sfp[2].o, knh_lookupFormatter(ctx, knh_Object_cid(sfp[3].o), METHODN__k));
 		(sfp[2].mtd)->fcall_1(ctx, sfp+3);
 		c++;

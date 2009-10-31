@@ -791,8 +791,7 @@ static int knh_Stmt_eval(Ctx *ctx, knh_Stmt_t *stmt, int isEval)
 			KNH_SCALL(ctx, lsfp, 2, mtd, 0/*args*/);
 			if(isExpr && !isVOID) {
 				//DBG2_P("returning %p %s %lld %ld", lsfp+2, CLASSNo(lsfp[2].o), lsfp[2].ivalue, lsfp[2].bvalue);
-				((knh_Context_t*)ctx)->esp = lsfp+1;
-				knh_esp1_format(ctx, mt, KNH_STDOUT, UP(TS_EMPTY));
+				knh_stack_w(ctx, lsfp+3, lsfp+2, mt, KNH_STDOUT, UP(TS_EMPTY));
 				knh_write_EOL(ctx, KNH_STDOUT);
 			}
 		}

@@ -62,7 +62,7 @@ void *knh_malloc(Ctx *ctx, size_t size)
 	if (unlikely(block == NULL)) {
 		DBG2_ABORT();
 		KNH_EXIT("OutOfMemory!!: %d bytes used", (int)ctx->stat->usedMemorySize);
-		//KNH_THROWs(ctx, "OutOfMemory!!");
+		//KNH_THROW__T(ctx, "OutOfMemory!!");
 	}
 	knh_stat_incUsedMemorySize(ctx, size);
 	return block;
@@ -87,7 +87,7 @@ void *DBG2_malloc(Ctx *ctx, size_t size, char *func)
 	if (unlikely(block == NULL)) {
 		DBG2_ABORT();
 		KNH_EXIT("OutOfMemory!!: %d bytes used", (int)ctx->stat->usedMemorySize);
-		//KNH_THROWs(ctx, "OutOfMemory!!");
+		//KNH_THROW__T(ctx, "OutOfMemory!!");
 	}
 	knh_stat_incUsedMemorySize(ctx, size);
 	block[0] = size;
@@ -237,7 +237,7 @@ void *knh_fastmalloc(Ctx *ctx, size_t size)
 		if (unlikely(block == NULL)) {
 			DBG2_ABORT();
 			KNH_EXIT("OutOfMemory!!: %d bytes used", (int)ctx->stat->usedMemorySize);
-			//KNH_THROWs(ctx, "OutOfMemory!!");
+			//KNH_THROW__T(ctx, "OutOfMemory!!");
 		}
 		knh_stat_incUsedMemorySize(ctx, size);
 		return block;

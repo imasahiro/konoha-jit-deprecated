@@ -50,7 +50,7 @@ knh_OutputStream_t *knh_stack_pstream(Ctx *ctx, knh_flag_t flag)
 /* ------------------------------------------------------------------------ */
 
 static
-void knh_stack_beginPRINT(Ctx *ctx, knh_sfp_t *sfp, knh_flag_t flag, knh_OutputStream_t *w)
+void knh_stack_beginPRINT(Ctx *ctx, knh_flag_t flag, knh_OutputStream_t *w)
 {
 	if(KNH_FLAG_IS(flag, KNH_FLAG_PF_BOL)) {
 		if(KNH_FLAG_IS(flag, KNH_FLAG_PF_TIME)) {
@@ -68,7 +68,7 @@ void knh_stack_beginPRINT(Ctx *ctx, knh_sfp_t *sfp, knh_flag_t flag, knh_OutputS
 /* ------------------------------------------------------------------------ */
 
 static
-void knh_stack_endPRINT(Ctx *ctx, knh_sfp_t *sfp, knh_flag_t flag, knh_OutputStream_t *w)
+void knh_stack_endPRINT(Ctx *ctx, knh_flag_t flag, knh_OutputStream_t *w)
 {
 	if(KNH_FLAG_IS(flag, KNH_FLAG_PF_BOL)) {
 		knh_putc(ctx, w, ' ');
@@ -88,47 +88,44 @@ void knh_stack_endPRINT(Ctx *ctx, knh_sfp_t *sfp, knh_flag_t flag, knh_OutputStr
 
 /* ------------------------------------------------------------------------ */
 
-void knh_stack_pmsg(Ctx *ctx, knh_sfp_t *sfp, knh_flag_t flag, knh_String_t *s)
+void knh_stack_pmsg(Ctx *ctx, knh_flag_t flag, knh_String_t *s)
 {
 	knh_OutputStream_t *w = knh_stack_pstream(ctx, flag);
-	knh_stack_beginPRINT(ctx, sfp, flag, w);
-	KNH_ASSERT(IS_bString(s));
-	if((s)->size > 0) {  /* remove TS_EMPTY */
-		knh_print(ctx, w, __tobytes(s));
-	}
-	else {
-		flag = (flag & ~(KNH_FLAG_PF_BOL));
-	}
-	knh_stack_endPRINT(ctx, sfp, flag, w);
+	knh_stack_beginPRINT(ctx, flag, w);
+	DBG2_ASSERT(IS_bString(s));
+//	if((s)->size > 0) {  /* remove TS_EMPTY */
+	knh_print(ctx, w, __tobytes(s));
+//	}
+//	else {
+//		flag = (flag & ~(KNH_FLAG_PF_BOL));
+//	}
+	knh_stack_endPRINT(ctx, flag, w);
 }
 
 /* ------------------------------------------------------------------------ */
 
-void knh_stack_p(Ctx *ctx, knh_sfp_t *sfp, knh_flag_t flag, knh_methodn_t mn, int sfpidx)
+void knh_stack_p(Ctx *ctx, knh_sfp_t *sfp, knh_flag_t flag, knh_methodn_t mn)
 {
 	knh_OutputStream_t *w = knh_stack_pstream(ctx, flag);
-	knh_stack_beginPRINT(ctx, sfp, flag, w);
-	if(sfp + sfpidx >= ctx->esp) {
-		//DBG2_P("sfpidx=%d, esp=%d", sfpidx, ctx->esp - sfp);
-		((knh_Context_t*)ctx)->esp = sfp + (sfpidx + 1);
-	}
-	knh_sfp_t *esp = ctx->esp;
-	KNH_SETv(ctx, esp[1].o, sfp[sfpidx].o);
-	esp[1].data = sfp[sfpidx].data;
-	knh_esp1_format(ctx, mn, w, KNH_NULL);
-	knh_stack_endPRINT(ctx, sfp, flag, w);
+	knh_stack_beginPRINT(ctx, flag, w);
+	knh_Method_t *mtd = knh_lookupFormatter(ctx, knh_Object_cid(sfp[1].o), mn);
+	KNH_SETv(ctx, sfp[2].o, w);
+	KNH_SETv(ctx, sfp[3].o, KNH_NULL);
+	KNH_SCALL(ctx, sfp, 0, mtd, /*args*/2);
+	knh_stack_endPRINT(ctx, flag, w);
 }
 
-/* ------------------------------------------------------------------------ */
 
-static int tglobalVerbose = 5;
-
-/* ------------------------------------------------------------------------ */
-
-int knh_verbose(void)
-{
-	return tglobalVerbose;
-}
+///* ------------------------------------------------------------------------ */
+//
+//static int tglobalVerbose = 5;
+//
+///* ------------------------------------------------------------------------ */
+//
+//int knh_verbose(void)
+//{
+//	return tglobalVerbose;
+//}
 
 /* ======================================================================== */
 /* [file] */

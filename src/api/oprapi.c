@@ -233,7 +233,7 @@ static METHOD Pair_opHas(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_Pair_t *t = sfp[0].pair;
 	int res;
-	knh_sfp_boxing(ctx, sfp + 1);
+	knh_stack_boxing(ctx, sfp + 1);
 	res = ((knh_Object_compareTo(ctx, t->first, sfp[1].o) == 0)
 			|| (knh_Object_compareTo(ctx, t->second, sfp[1].o) == 0));
 	KNH_RETURN_Boolean(ctx, sfp, res);
@@ -254,7 +254,7 @@ static METHOD Range_opHas(Ctx *ctx, knh_sfp_t *sfp)
 		KNH_SETv(ctx, sfp[1].o, new_Float(ctx, (knh_float_t)sfp[1].ivalue));
 	}
 	else {
-		knh_sfp_boxing(ctx, sfp + 1);
+		knh_stack_boxing(ctx, sfp + 1);
 	}
 	if(knh_Object_compareTo(ctx, o->start, sfp[1].o) <= 0) {
 		if(knh_Range_isInclusive(o)) {
@@ -278,7 +278,7 @@ static METHOD Range_opHas(Ctx *ctx, knh_sfp_t *sfp)
 static METHOD Array_opHas(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_Array_t *o = (knh_Array_t*)sfp[0].o;
-	knh_sfp_boxing(ctx, sfp + 1);
+	knh_stack_boxing(ctx, sfp + 1);
 	size_t i, res = 0/*NotFound*/;
 	for(i = 0; i < o->size; i++) {
 		if(knh_Object_compareTo(ctx, o->list[i], sfp[1].o) == 0) {
@@ -297,7 +297,7 @@ static METHOD Tuple_opHas(Ctx *ctx, knh_sfp_t *sfp)
 	if(knh_Tuple_isTriple(sfp[0].tuple)) {
 		knh_Tuple_t *t = sfp[0].tuple;
 		int res;
-		knh_sfp_boxing(ctx, sfp + 1);
+		knh_stack_boxing(ctx, sfp + 1);
 		res = ((knh_Object_compareTo(ctx, t->first, sfp[1].o) == 0)
 				|| (knh_Object_compareTo(ctx, t->second, sfp[1].o) == 0)
 				|| (knh_Object_compareTo(ctx, t->third, sfp[1].o) == 0));
@@ -409,7 +409,7 @@ static METHOD Object_opIs(Ctx *ctx, knh_sfp_t *sfp)
 		KNH_RETURN_Boolean(ctx, sfp, IS_NULL(sfp[0].o));
 	}
 	else {
-		TODO_THROW(ctx);
+		TODO();
 		KNH_RETURN_Boolean(ctx, sfp, 0);
 //		knh_sfp_t *lsfp = KNH_LOCAL(ctx);
 //		KNH_LPUSH(ctx, sfp[1].o);
@@ -430,7 +430,6 @@ static METHOD Object_opIs(Ctx *ctx, knh_sfp_t *sfp)
 
 static METHOD Object_opAs(Ctx *ctx, knh_sfp_t *sfp)
 {
-	TODO_THROW(ctx);
 	KNH_RETURN_Boolean(ctx, sfp, 0);
 //	knh_class_t scid = knh_Object_cid(sfp[0].o);
 //	knh_class_t tcid = (sfp[1].c)->cid;
@@ -448,7 +447,6 @@ static METHOD Object_opAs(Ctx *ctx, knh_sfp_t *sfp)
 
 static METHOD Object_opInTo(Ctx *ctx, knh_sfp_t *sfp)
 {
-	TODO_THROW(ctx);
 	KNH_RETURN_Boolean(ctx, sfp, 0);
 }
 
@@ -555,21 +553,17 @@ static METHOD Float_opDiv(Ctx *ctx, knh_sfp_t *sfp)
 static METHOD String_opAdd(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-	knh_sfp_t *esp = KNH_LOCAL(ctx);
 	if(IS_bString(sfp[0].o)) {
 		knh_Bytes_write(ctx, cwb->ba, __tobytes(sfp[0].s));
 	}
 	else {
-		KNH_SETv(ctx, esp[1].o, sfp[0].o); esp[1].data = sfp[0].data;
-		knh_esp1_format(ctx, METHODN__s, cwb->w, KNH_NULL);
+		knh_stack_w(ctx, sfp+2, sfp, METHODN__s, cwb->w, KNH_NULL);
 	}
 	if(IS_bString(sfp[1].o)) {
 		knh_Bytes_write(ctx, cwb->ba, __tobytes(sfp[1].s));
 	}
 	else {
-		KNH_ASSERT(esp == ctx->esp);
-		KNH_SETv(ctx, esp[1].o, sfp[1].o); esp[1].data = sfp[1].data;
-		knh_esp1_format(ctx, METHODN__s, cwb->w, KNH_NULL);
+		knh_stack_w(ctx, sfp+2, sfp+1, METHODN__s, cwb->w, KNH_NULL);
 	}
 	KNH_RETURN(ctx, sfp, knh_cwb_newString(ctx, cwb));
 }
@@ -609,11 +603,17 @@ static METHOD String_opSub(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 /* [Any] */
 //## method Any Any.opAdd(Any value);
+//## method Any Any.opSub(Any value);
+//## method Any Any.opMul(Any value);
+//## method Any Any.opDiv(Any value);
+//## method Any Any.opMod(Any value);
 
 METHOD Any_opAdd(Ctx *ctx, knh_sfp_t *sfp)
 {
-	TODO_THROW(ctx);
-	KNH_RETURN(ctx, sfp, KNH_NULL);
+	knh_Method_t *mtd = knh_lookupMethod(ctx, knh_Object_cid(sfp[0].o), DP(mtd)->mn);
+	KNH_SETv(ctx, sfp[-1].mtd, mtd);
+	knh_stack_typecheck(ctx, sfp, mtd, NULL);
+	(sfp[-1].mtd)->fcall_1(ctx, sfp);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -621,44 +621,10 @@ METHOD Any_opAdd(Ctx *ctx, knh_sfp_t *sfp)
 
 METHOD Any_opNeg(Ctx *ctx, knh_sfp_t *sfp)
 {
-	TODO_THROW(ctx);
-	KNH_RETURN(ctx, sfp, KNH_NULL);
-}
-
-/* ------------------------------------------------------------------------ */
-//## method Any Any.opSub(Any value);
-
-METHOD Any_opSub(Ctx *ctx, knh_sfp_t *sfp)
-{
-	TODO_THROW(ctx);
-	KNH_RETURN(ctx, sfp, KNH_NULL);
-}
-
-/* ------------------------------------------------------------------------ */
-//## method Any Any.opMul(Any value);
-
-METHOD Any_opMul(Ctx *ctx, knh_sfp_t *sfp)
-{
-	TODO_THROW(ctx);
-	KNH_RETURN(ctx, sfp, KNH_NULL);
-}
-
-/* ------------------------------------------------------------------------ */
-//## method Any Any.opDiv(Any value);
-
-METHOD Any_opDiv(Ctx *ctx, knh_sfp_t *sfp)
-{
-	TODO_THROW(ctx);
-	KNH_RETURN(ctx, sfp, KNH_NULL);
-}
-
-/* ------------------------------------------------------------------------ */
-//## method Any Any.opMod(Any value);
-
-METHOD Any_opMod(Ctx *ctx, knh_sfp_t *sfp)
-{
-	TODO_THROW(ctx);
-	KNH_RETURN(ctx, sfp, KNH_NULL);
+	knh_Method_t *mtd = knh_lookupMethod(ctx, knh_Object_cid(sfp[0].o), DP(mtd)->mn);
+	KNH_SETv(ctx, sfp[-1].mtd, mtd);
+	knh_stack_typecheck(ctx, sfp, mtd, NULL);
+	(sfp[-1].mtd)->fcall_1(ctx, sfp);
 }
 
 /* ======================================================================== */
@@ -984,7 +950,7 @@ static METHOD Array_set(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_Array_t *o = (knh_Array_t*)sfp[0].o;
 	size_t n2 = knh_array_index(ctx, p_int(sfp[1]), o->size);
-	knh_sfp_boxing(ctx, sfp + 2);
+	knh_stack_boxing(ctx, sfp + 2);
 	KNH_SETv(ctx, o->list[n2], sfp[2].o);
 	KNH_RETURN_void(ctx, sfp);
 }
@@ -1018,7 +984,7 @@ static METHOD Array_setAll(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_Array_t *o = (knh_Array_t*)sfp[0].o;
 	size_t i;
-	knh_sfp_boxing(ctx, sfp + 1);
+	knh_stack_boxing(ctx, sfp + 1);
 	for(i = 0; i < o->size; i++) {
 		KNH_SETv(ctx, o->list[i], sfp[1].o);
 	}

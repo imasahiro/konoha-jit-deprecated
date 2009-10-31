@@ -208,7 +208,7 @@ static MAPPER Iterator_Array(Ctx *ctx, knh_sfp_t *sfp)
 	knh_Iterator_t *it = sfp[0].it;
 	knh_Array_t *a = new_Array(ctx, ctx->share->ClassTable[it->h.cid].p1, 0);
 	while(it->fnext_1(ctx, sfp, 1)) {
-		knh_sfp_boxing(ctx, sfp + 1);
+		knh_stack_boxing(ctx, sfp + 1);
 		knh_Array_add(ctx, a, sfp[1].o);
 	}
 	KNH_MAPPED(ctx, sfp, a);

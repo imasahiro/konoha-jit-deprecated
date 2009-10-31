@@ -74,8 +74,7 @@ void knh_setProperty(Ctx *ctx, knh_String_t *key, Any *value)
 	else {
 		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 		knh_printf(ctx, cwb->w, "PropertyType!!: $%s must be %T", knh_String_text(ctx, key), type);
-		knh_String_t *s = knh_cwb_newString(ctx, cwb);
-		KNH_THROW(ctx, s);
+		knh_stack_throw(ctx, ctx->esp, knh_cwb_newException(ctx, cwb), NULL, 0);
 	}
 }
 

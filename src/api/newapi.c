@@ -190,9 +190,9 @@ METHOD Regex_new(Ctx *ctx, knh_sfp_t *sfp)
 static METHOD Pair_new__init(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_Pair_t *o = (knh_Pair_t*)sfp[0].o;
-	knh_sfp_boxing(ctx, sfp + 1);
+	knh_stack_boxing(ctx, sfp + 1);
 	KNH_SETv(ctx, o->first, sfp[1].o);
-	knh_sfp_boxing(ctx, sfp + 2);
+	knh_stack_boxing(ctx, sfp + 2);
 	KNH_SETv(ctx, o->second, sfp[2].o);
 	KNH_RETURN(ctx, sfp, o);
 }
@@ -206,7 +206,7 @@ static METHOD Tuple_new__init(Ctx *ctx, knh_sfp_t *sfp)
 	knh_sfp_t *v = sfp + 1;
 	int i, ac = knh_stack_argc(ctx, v);
 	for(i = 0; i < ac; i++) {
-		knh_sfp_boxing(ctx, v + i);
+		knh_stack_boxing(ctx, v + i);
 	}
 	DBG2_ASSERT(t->size == 0);
 	if(ac <= 3) {
@@ -234,9 +234,9 @@ static METHOD Tuple_new__init(Ctx *ctx, knh_sfp_t *sfp)
 static METHOD Range_new__init(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_Range_t *r = (knh_Range_t*)sfp[0].o;
-	knh_sfp_boxing(ctx, sfp + 1);
+	knh_stack_boxing(ctx, sfp + 1);
 	KNH_SETv(ctx, r->start, sfp[1].o);
-	knh_sfp_boxing(ctx, sfp + 2);
+	knh_stack_boxing(ctx, sfp + 2);
 	KNH_SETv(ctx, r->end, sfp[2].o);
 	KNH_RETURN(ctx, sfp, r);
 }
@@ -296,7 +296,7 @@ static METHOD Array_new__init(Ctx *ctx, knh_sfp_t *sfp)
 		knh_Array_grow(ctx, o, ac, KNH_NULL);
 	}
 	for(i = 0; i < ac; i++) {
-		knh_sfp_boxing(ctx, v + i);
+		knh_stack_boxing(ctx, v + i);
 		knh_Array_add(ctx, o, v[i].o);
 	}
 	KNH_RETURN(ctx, sfp, o);
@@ -446,7 +446,7 @@ static METHOD DictMap_new__dictmap(Ctx *ctx, knh_sfp_t *sfp)
 	size_t i;
 	for(i = 0; i < ac; i+=2) {
 		if(IS_bString(v[i].s)) {
-			knh_sfp_boxing(ctx, v + i + 1);
+			knh_stack_boxing(ctx, v + i + 1);
 			knh_DictMap_append(ctx, o, v[i].s, v[i+1].o);
 		}
 	}

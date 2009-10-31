@@ -193,7 +193,7 @@ MAPPER knh_fmapper_null(Ctx *ctx, knh_sfp_t *sfp)
 	knh_Mapper_t *mpr = sfp[1].mpr;
 	DBG2_P("mpr: %s ==> %s", CLASSN(DP(mpr)->scid), CLASSN(DP(mpr)->tcid));
 	);
-	KNH_THROWs(ctx, "ClassCast!!");
+	KNH_THROW__T(ctx, "ClassCast!!");
 }
 
 /* ------------------------------------------------------------------------ */

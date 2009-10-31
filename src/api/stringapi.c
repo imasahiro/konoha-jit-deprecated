@@ -207,15 +207,12 @@ static METHOD String_concat(Ctx *ctx, knh_sfp_t *sfp)
 {
 	int i, ac = knh_stack_argc(ctx, sfp);
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-	knh_sfp_t *esp = KNH_LOCAL(ctx);
 	for(i = 0; i < ac; i++) {
 		if(IS_bString(sfp[i].o)) {
 			knh_Bytes_write(ctx, cwb->ba, __tobytes(sfp[i].s));
 		}
 		else {
-			KNH_ASSERT(esp == ctx->esp);
-			KNH_SETv(ctx, esp[1].o, sfp[i].o); esp[1].data = sfp[i].data;
-			knh_esp1_format(ctx, METHODN__s, cwb->w, KNH_NULL);
+			knh_stack_w(ctx, sfp+ac, sfp+i, METHODN__s, cwb->w, KNH_NULL);
 		}
 	}
 	KNH_RETURN(ctx, sfp, knh_cwb_newString(ctx, cwb));
@@ -303,13 +300,11 @@ static METHOD String_format(Ctx *ctx, knh_sfp_t *sfp)
 			}
 		}
 		if(0 <= index && index < ac) {
-			knh_sfp_t *esp = KNH_LOCAL(ctx);
-			KNH_SETv(ctx, esp[1].o, param[index].o); esp[1].data = param[index].data;
 			Object *m = KNH_NULL;
 			if(knh_bytes_isOptionalMT(mt)) m = UP(new_String(ctx, mt, NULL));
 			mt.buf = mt.buf - 1; mt.len++;   /* 's' == > '%s' */
 			knh_methodn_t mn = knh_getmn(ctx, mt, METHODN__empty);
-			knh_esp1_format(ctx, mn, cwb->w, m);
+			knh_stack_w(ctx, param+ac, param+index, mn, cwb->w, m);
 		}
 		else {
 			if(knh_Context_isDebug(ctx)) {

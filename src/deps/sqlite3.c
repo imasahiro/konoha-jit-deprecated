@@ -291,7 +291,7 @@ knh_db_t *knh_dbopen__mysql(Ctx *ctx, knh_bytes_t url)
     url = knh_bytes_skipscheme(url);
     db  = mysql_init(NULL);
     if(mysql_real_connect(db,  server, user, passwd, dbname, port, NULL, 0)==NULL) {
-        KNH_THROWs(ctx, "SQL!!: connection error");
+        KNH_THROW__T(ctx, "SQL!!: connection error");
     }
     return (knh_db_t*)db;
 }
@@ -358,9 +358,9 @@ knh_dbcur_t *knh_dbquery__mysql(Ctx *ctx, knh_db_t *hdr, knh_bytes_t sql, knh_Re
         res = mysql_store_result((MYSQL*)hdr);
         if(res == NULL) {
             if(mysql_error((MYSQL*)hdr)) {
-                KNH_THROWs(ctx, "result is NULL");
+                KNH_THROW__T(ctx, "result is NULL");
             } else {
-                KNH_THROWs(ctx, "unknown error");
+                KNH_THROW__T(ctx, "unknown error");
             }
         }
         while((field = mysql_fetch_field(res)) != NULL) {

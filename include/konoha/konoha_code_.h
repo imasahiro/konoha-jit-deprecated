@@ -989,7 +989,7 @@ typedef struct {
 	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
 	knh_flag_t a1;
-	knh_Object_t* a2;
+	knh_String_t* a2;
 	void *nextaddr;   /* sameas next codeaddr */
 } klr_PMSG_t;
 

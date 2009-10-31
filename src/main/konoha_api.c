@@ -653,7 +653,8 @@ void sigint_action(int signum, siginfo_t *info, void *ctx)
 	}
 	else {
 		//knh_initSIGINT();
-		KNH_THROWs((Ctx*)shellContext, "Interrupt!!");
+		Ctx *ctx = (Ctx*)shellContext;
+		KNH_THROW__T(ctx, "Interrupt!!");
 	}
 }
 #endif

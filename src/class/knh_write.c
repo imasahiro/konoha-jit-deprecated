@@ -286,10 +286,10 @@ void knh_write_fline(Ctx *ctx, knh_OutputStream_t *w, char *file, int line)
 
 KNHAPI(void) knh_format(Ctx *ctx, knh_OutputStream_t *w, knh_methodn_t mn, Object *o, Any *m)
 {
-	knh_sfp_t *esp = KNH_LOCAL(ctx);
-	KNH_SETv(ctx, esp[1].o, o);
-	esp[1].data = knh_Object_data(o);
-	knh_esp1_format(ctx, mn, w, m);
+	knh_sfp_t sfpbuf;
+	sfpbuf.o = o;
+	sfpbuf.data = knh_Object_data(o);
+	knh_stack_w(ctx, ctx->esp, &sfpbuf, mn, w, m);
 }
 
 /* ======================================================================== */
@@ -397,7 +397,7 @@ void knh_vprintf(Ctx *ctx, knh_OutputStream_t *w, char *fmt, va_list ap)
 				case 'B':
 					args[index].atype = VA_BYTES;
 					break;
-				// TODO 
+				// TODO
 				// we should care if "fmt" has "%%".
 				// sometimes, next args is NULL.
 				case '%':

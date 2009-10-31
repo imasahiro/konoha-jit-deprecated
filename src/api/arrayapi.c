@@ -104,7 +104,7 @@ static METHOD Array_add(Ctx *ctx, knh_sfp_t *sfp)
 	if(o->size == o->capacity) {
 		knh_Array_grow(ctx, o, knh_array_newsize(o->capacity * 2, sizeof(Object*)), KNH_NULL);
 	}
-	knh_sfp_boxing(ctx, sfp + 1);
+	knh_stack_boxing(ctx, sfp + 1);
 	KNH_SETv(ctx, o->list[o->size], sfp[1].o);
 	o->size++;
 	KNH_RETURN_void(ctx, sfp);
@@ -151,7 +151,7 @@ static METHOD Array_opAppend(Ctx *ctx, knh_sfp_t *sfp)
 	knh_sfp_t *v = sfp + 1;
 	int i, ac = knh_stack_argc(ctx, v);
 	for(i = 0; i < ac; i++) {
-		knh_sfp_boxing(ctx, v + i);
+		knh_stack_boxing(ctx, v + i);
 		knh_Array_add(ctx, o, v[i].o);
 	}
 	KNH_RETURN_void(ctx, sfp);
@@ -202,7 +202,7 @@ static METHOD Array_insert(Ctx *ctx, knh_sfp_t *sfp)
 		o->list[i] = o->list[i-1];
 	}
 	o->list[n] = temp;
-	knh_sfp_boxing(ctx, sfp + 2);
+	knh_stack_boxing(ctx, sfp + 2);
 	KNH_SETv(ctx, o->list[n], sfp[2].o);
 	KNH_RETURN_void(ctx, sfp);
 }
@@ -382,7 +382,7 @@ static METHOD Array_indexOf(Ctx *ctx, knh_sfp_t *sfp)
 	knh_Array_t *o = (knh_Array_t*)sfp[0].o;
 	knh_int_t res = -1;
 	size_t i;
-	knh_sfp_boxing(ctx, sfp + 1);
+	knh_stack_boxing(ctx, sfp + 1);
 	for(i = 0; i < o->size; i++) {
 		if(knh_Object_compareTo(ctx, o->list[i], sfp[1].o) == 0) {
 			res = i; break;
@@ -431,7 +431,7 @@ static METHOD Array_lastIndexOf(Ctx *ctx, knh_sfp_t *sfp)
 	knh_int_t res = -1;
 	knh_Array_t *o = (knh_Array_t*)sfp[0].o;
 	long i;
-	knh_sfp_boxing(ctx, sfp + 1);
+	knh_stack_boxing(ctx, sfp + 1);
 	for(i = o->size - 1; i >= 0; i--) {
 		if(knh_Object_compareTo(ctx, o->list[i], sfp[1].o) == 0) {
 			res = i; break;
@@ -793,7 +793,7 @@ static METHOD Array_set2D(Ctx *ctx, knh_sfp_t *sfp)
 	knh_darray_t *d = ((knh_darray_t*)o->list) - 1;
 	size_t x = knh_array_index(ctx, p_int(sfp[1]), d->x);
 	size_t y = knh_array_index(ctx, p_int(sfp[2]), d->y);
-	knh_sfp_boxing(ctx, sfp + 3);
+	knh_stack_boxing(ctx, sfp + 3);
 	KNH_SETv(ctx, o->list[x + y * d->x], sfp[3].o);
 	KNH_RETURN_void(ctx, sfp);
 }
@@ -808,7 +808,7 @@ static METHOD Array_set3D(Ctx *ctx, knh_sfp_t *sfp)
 	size_t x = knh_array_index(ctx, p_int(sfp[1]), d->x);
 	size_t y = knh_array_index(ctx, p_int(sfp[2]), d->y);
 	size_t z = knh_array_index(ctx, p_int(sfp[3]), d->z);
-	knh_sfp_boxing(ctx, sfp + 4);
+	knh_stack_boxing(ctx, sfp + 4);
 	KNH_SETv(ctx, o->list[x + y * d->x + z * d->w], sfp[4].o);
 	KNH_RETURN_void(ctx, sfp);
 }

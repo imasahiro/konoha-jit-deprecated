@@ -202,7 +202,7 @@ knh_fieldn_t knh_System_getfn(Ctx *ctx, knh_bytes_t n, knh_fieldn_t def)
 			if(!(idx < KNH_FLAG_MN_SETTER)) {  /* Integer overflowed */
 				DBG_P("idx=%d < %d", (int)idx, (int)KNH_FLAG_MN_SETTER);
 				DBG2_ABORT();
-				KNH_THROWs(ctx, "OutOfMemory!!: Too many field names");
+				KNH_THROW__T(ctx, "OutOfMemory!!: Too many field names");
 			}
 		}
 		else {
@@ -324,7 +324,7 @@ knh_fieldn_t knh_getfnq(Ctx *ctx, knh_bytes_t tname, knh_fieldn_t def)
 				if(!(idx < KNH_FLAG_FN_U2)) {
 					DBG_P("idx=%d < %d", (int)idx, (int)KNH_FLAG_FN_U2);
 					DBG2_ABORT();
-					KNH_THROWs(ctx, "OutOfMemory!!: Too many field names");
+					KNH_THROW__T(ctx, "OutOfMemory!!: Too many field names");
 				}
 			}
 			else {

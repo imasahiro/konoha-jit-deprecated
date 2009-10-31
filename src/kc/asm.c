@@ -1613,39 +1613,6 @@ void knh_StmtLET_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 	}
 }
 
-///* ------------------------------------------------------------------------ */
-//
-//static
-//void knh_Token_toLOCAL(Ctx *ctx, knh_Token_t *tk, knh_type_t type, int sfpidx)
-//{
-//	TT_(tk) = TT_LOCAL;
-//	DP(tk)->index = (knh_short_t)sfpidx;
-//	DP(tk)->type = type;
-//}
-//
-///* ------------------------------------------------------------------------ */
-//
-//static
-//knh_Token_t *knh_Stmt_toLOCAL(Ctx *ctx, knh_Stmt_t *stmt, int sfpidx, knh_type_t reqt, int level)
-//{
-////	DBG2_P("stt=%s, toLOCAL=%d", knh_stmt_tochar(SP(stmt)->stt), sfpidx);
-//	size_t i;
-//	for(i = 0; i < DP(stmt)->size; i++) {
-//		if(IS_Token(DP(stmt)->tokens[i])) {
-//			knh_Token_toLOCAL(ctx, DP(stmt)->tokens[i], reqt, sfpidx);
-//			return DP(stmt)->tokens[i];
-//		}
-//		else {
-//			knh_Token_t *tk = knh_Stmt_toLOCAL(ctx, DP(stmt)->stmts[i], reqt, sfpidx, 1);
-//			if(tk != NULL) return tk;
-//		}
-//	}
-//	if(level == 1) return NULL;
-//	knh_Token_t *tk = new_TokenNULL(ctx, FL(stmt), reqt);
-//	knh_Token_toLOCAL(ctx, tk, reqt, sfpidx);
-//	return tk;
-//}
-
 /* ------------------------------------------------------------------------ */
 
 static
@@ -2224,45 +2191,41 @@ static void knh_StmtPRINT_asm(Ctx *ctx, knh_Stmt_t *stmt)
 	if(!knh_Gamma_isDEBUG(ctx) || DP(stmt)->size == 0) {
 		return ;
 	}
-	knh_flag_t flag = knh_StmtPRINT_flag(ctx, stmt);
-	knh_KLRInst_t*  lbskip = new_KLRInstLABEL(ctx);
-	KNH_ASM_SKIP(ctx, lbskip);
-	if(konoha_debugLevel() > 1) {
-		char buf[128];
-		knh_snprintf(buf, sizeof(buf), "[%s:%d]", FILEN(SP(ctx->kc)->uri), SP(ctx->kc)->line);
-		KNH_ASM(PMSG, flag | KNH_FLAG_PF_BOL, UP(new_String(ctx, B(buf), NULL)));
-	}
-	else if(flag != 0 ) {
-		KNH_ASM(PMSG, flag | KNH_FLAG_PF_BOL, UP(TS_EMPTY));
-	}
-	int i;
-	for(i = 0; i < DP(stmt)->size; i++) {
-		L_REDO:;
-		knh_flag_t mask = 0;
-		if(i == DP(stmt)->size - 1) {
-			mask |= KNH_FLAG_PF_EOL;
+	else {
+		knh_flag_t flag = knh_StmtPRINT_flag(ctx, stmt);
+		knh_KLRInst_t*  lbskip = new_KLRInstLABEL(ctx);
+		knh_String_t *msg = TS_EMPTY;
+		int i;
+		KNH_ASM_SKIP(ctx, lbskip);
+		if(!knh_Context_isInteractive(ctx)) {
+			char buf[128];
+			knh_snprintf(buf, sizeof(buf), "[%s:%d]", FILEN(SP(ctx->kc)->uri), SP(ctx->kc)->line);
+			msg = new_String(ctx, B(buf), NULL);
+			flag |= KNH_FLAG_PF_BOL;
 		}
-		/* name= */ {
+		if(flag != 0 ) {
+			KNH_ASM(PMSG, flag | KNH_FLAG_PF_BOL, msg);
+		}
+		for(i = 0; i < DP(stmt)->size; i++) {
+			knh_flag_t mask = 0;
 			knh_Token_t *tkn = DP(stmt)->tokens[i];
-			if(IS_Token(tkn) && knh_Token_isPNAME(tkn)) {
-				KNH_ASM(PMSG, flag | mask | KNH_FLAG_PF_NAME, DP(tkn)->data);
-				i++;
-				KNH_ASSERT(i < DP(stmt)->size);
-				goto L_REDO;
+			if(i == DP(stmt)->size - 1) {
+				mask |= KNH_FLAG_PF_EOL;
+			}
+			if(IS_Token(tkn) && knh_Token_isPNAME(tkn)) { /* name= */
+				KNH_ASM(PMSG, flag | mask | KNH_FLAG_PF_NAME, DP(tkn)->text);
+			}
+			else if(IS_Token(tkn) && knh_Token_isCONST(tkn) && IS_String(DP(tkn)->data)) {
+				KNH_ASM(PMSG, flag | mask, DP(tkn)->text);
+			}
+			else {
+				knh_methodn_t mn = knh_Stmt_getMT(ctx, stmt, i);
+				TERMs_asm(ctx, stmt, i, TYPE_Any, DP(ctx->kc)->esp + 1);
+				KNH_ASM(P, flag | mask, mn, DP(ctx->kc)->esp);
 			}
 		}
-		/* "literal"*/ {
-			knh_Token_t *tkn = DP(stmt)->tokens[i];
-			if(IS_Token(tkn) && knh_Token_isCONST(tkn) && IS_String(DP(tkn)->data)) {
-				KNH_ASM(PMSG, flag | mask, DP(tkn)->data);
-				continue;
-			}
-		}
-		TERMs_asm(ctx, stmt, i, TYPE_Any, DP(ctx->kc)->esp);
-		knh_methodn_t mn = knh_Stmt_getMT(ctx, stmt, i);
-		KNH_ASM(P, flag | mask, mn, DP(ctx->kc)->esp);
+		KNH_ASM_LABEL(ctx, lbskip);
 	}
-	KNH_ASM_LABEL(ctx, lbskip);
 }
 
 static void knh_StmtASSERT_asm(Ctx *ctx, knh_Stmt_t *stmt)

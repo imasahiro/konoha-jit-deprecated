@@ -41,34 +41,50 @@ extern "C" {
 int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 #define _HERE_    knh_Method_file(ctx, sfp[-1].mtd), knh_Method_pcline(sfp[-1].mtd, pc)
 
-#define KFUNC FIELDN(DP(sfp[-1].mtd)->mn)
-#define KLINE knh_Method_pcline(sfp[-1].mtd, pc)
+#define KNH_SETESP(ctx, newesp)  \
+		((knh_Context_t*)ctx)->esp = newesp; \
+
+#define DBG2_SETESP(ctx, newesp)  \
+		DBG2_P("setesp %d => %d", ((int)(ctx->esp - ctx->stack)), ((int)(newesp - ctx->stack))); \
+		((knh_Context_t*)ctx)->esp = newesp; \
+
+#define KNH_THROW__T(ctx, s) \
+	DBG2_P(s); \
+	knh_stack_throw(ctx, ctx->esp, new_Exception__T(ctx, s), NULL, 0); \
+
+#define KLR_THROW__T(ctx, s) \
+	knh_stack_throw(ctx, ctx->esp, new_Exception__T(ctx, s), _HERE_); \
 
 /* ------------------------------------------------------------------------ */
 
 #define KNH_THROW_iZERODIV(n)  \
 	if(unlikely(n == 0)) { \
-		KNH_THROWs(ctx, "Arithmetic!!: Zero Divided"); \
+		KNH_THROW__T(ctx, "Arithmetic!!: Zero Divided"); \
 	}\
 
 #define KNH_THROW_fZERODIV(n)  \
 	if(unlikely(n == KNH_FLOAT_ZERO)) { \
-		KNH_THROWs(ctx, "Arithmetic!!: Zero Divided"); \
+		KNH_THROW__T(ctx, "Arithmetic!!: Zero Divided"); \
+	}\
+
+#define KLR_THROW_iZERODIV(n)  \
+	if(unlikely(n == 0)) { \
+		KLR_THROW__T(ctx, "Arithmetic!!: Zero Divided"); \
+	}\
+
+#define KLR_THROW_fZERODIV(n)  \
+	if(unlikely(n == KNH_FLOAT_ZERO)) { \
+		KLR_THROW__T(ctx, "Arithmetic!!: Zero Divided"); \
 	}\
 
 /* ------------------------------------------------------------------------ */
 
-#define KLR_MOV__wogc(ctx, v1, v2) {\
+#define KLR_fastMOV(ctx, v1, v2) {\
 		Object *v2_ = (Object*)v2;\
 		knh_Object_RCinc(v2_); \
 		knh_Object_RCdec(v1); \
 		v1 = v2_; \
 	}\
-
-#ifdef KNH_USING_DRCGC
-#define KLR_MOV(ctx, v1, v2)  KLR_MOV__wogc(ctx, v1, v2)
-
-#else/*KNH_USING_DRCGC*/
 
 #define KLR_MOV(ctx, v1, v2) {\
 		Object *v2_ = (Object*)v2;\
@@ -80,10 +96,8 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 		v1 = v2_; \
 	}\
 
-#endif/*KNH_USING_DRCGC*/
-
 #define KNH_MOV(ctx, v1, v2) KLR_MOV(ctx, v1, v2)
-#define KNH_NGCMOV(ctx, v1, v2)  KLR_MOV__wogc(ctx, v1, v2)
+#define KNH_NGCMOV(ctx, v1, v2)  KLR_fastMOV(ctx, v1, v2)
 
 #define KLR_SWAP(ctx, a, b) {\
 		knh_sfp_t temp = sfp[(a)];\
@@ -99,14 +113,7 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 
 /* ======================================================================== */
 
-#define KLR_HALT(ctx) KNH_THROWs(ctx, "Halt!!")
-
-#define KLR_RET(ctx)  {\
-		/* sfp[0].pc = pc;*/ \
-		return; \
-	}
-
-#define KLR_YEILDBREAK(ctx)  return
+#define KLR_HALT(ctx) KLR_THROW__T(ctx, "Halt!!")
 
 /* ------------------------------------------------------------------------ */
 
@@ -285,12 +292,12 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 
 #define KNH_CHKESP(ctx, sfp, n) \
 	if(unlikely((sfp - ctx->stack) > ctx->stacksize - K_GAMMASIZE)) { \
-		KNH_THROWs(ctx, "StackOverflow!!"); \
+		KLR_THROW__T(ctx, "StackOverflow!!"); \
 	}\
 
 #define KLR_CHKESP(ctx, n) \
 	if(unlikely((sfp - ctx->stack) > ctx->stacksize - K_GAMMASIZE)) { \
-		KNH_THROWs(ctx, "StackOverflow!!"); \
+		KLR_THROW__T(ctx, "StackOverflow!!"); \
 	}\
 
 #define KLR_PARAMo(ctx, n, v) {\
@@ -321,6 +328,13 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 		KNH_SETv(ctx, sfp[a].o, knh_stack_toArray(ctx, &sfp[a-1], cid));\
 	}\
 
+#define KLR_RET(ctx)  {\
+		/* sfp[0].pc = pc;*/ \
+		return; \
+	}
+
+#define KLR_YEILDBREAK(ctx)  return
+
 #define KLR_RETn(ctx, dummy, b) {\
 		KLR_MOVn(ctx, -1, b);\
 		KLR_RET(ctx);\
@@ -328,20 +342,20 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 
 #define KLR_RETa(ctx, dummy, b) {\
 		sfp[-1].data = sfp[b].data;\
-		KLR_MOV__wogc(ctx, sfp[-1].o, sfp[b].o);\
+		KLR_fastMOV(ctx, sfp[-1].o, sfp[b].o);\
 		KLR_RET(ctx);\
 	}\
 
 #define KLR_RETo(ctx, dummy, v) {\
 		sfp[-1].data = ((knh_Int_t*)v)->n.data;\
-		KLR_MOV__wogc(ctx, sfp[-1].o, v);\
+		KLR_fastMOV(ctx, sfp[-1].o, v);\
 		KLR_RET(ctx);\
 	}\
 
 #define KLR_RETx(ctx, dummy, b) {\
 		knh_Int_t *v_ = (knh_Int_t*)SFXo(b);\
 		sfp[-1].data = (v_)->n.data;\
-		KLR_MOV__wogc(ctx, sfp[-1].o, v_);\
+		KLR_fastMOV(ctx, sfp[-1].o, v_);\
 		KLR_RET(ctx);\
 	}\
 
@@ -373,18 +387,18 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 
 #define KLR_CHKNUL(ctx, n) {\
 		if(unlikely(IS_NULL(sfp[n].o))) { \
-			knh_throwException(ctx, new_NullException(ctx, sfp[n].o), _HERE_); \
+			KLR_THROW__T(ctx, "Null!!"); \
 		} \
 	} \
 
 #define KLR_CHKNULx(ctx, n) \
 	if(unlikely(IS_NULL(SFXo(n)))) { \
-		knh_throwException(ctx, new_NullException(ctx, SFXo(n)), _HERE_); \
+		KLR_THROW__T(ctx, "Null!!"); \
 	} \
 
 #define KLR_CHKTYPE(ctx, n, cid) \
 	if(!knh_Object_opTypeOf(ctx, sfp[n].o, cid)) { \
-		knh_throwException(ctx, new_Exception__type(ctx, sfp[n].o, cid), _HERE_); \
+		knh_stack_throw(ctx, ctx->esp, new_Exception__type(ctx, sfp[n].o, cid), _HERE_); \
 	} \
 
 #define KLR_CHECKNNTYPE(ctx, n, cid) {\
@@ -396,21 +410,27 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 
 #define KNH_SCALL(ctx, lsfp, n, m, args) { \
 		KLR_MOV(ctx, lsfp[n].o, m); \
-		((knh_Context_t*)ctx)->esp = &(lsfp[n+args+2]); \
+		KNH_SETESP(ctx, lsfp+n+args+2); \
 		(lsfp[n].mtd)->fcall_1(ctx, lsfp + (n + 1)); \
-		((knh_Context_t*)ctx)->esp = &(lsfp[n]); \
+		KNH_SETESP(ctx, lsfp+n); \
 	} \
 
 #define KLR_SCALL(ctx, n, shift, m) { \
 		KLR_MOV(ctx, sfp[n].o, m); \
-		((knh_Context_t*)ctx)->esp = &(sfp[n + shift]); \
+		KNH_SETESP(ctx, sfp + n + shift); \
 		sfp[-1].pc = pc; \
-		/*sfp[n].pc = (sfp[n].mtd)->pc_start;*/ \
 		(sfp[n].mtd)->fcall_1(ctx, sfp + (n + 1)); \
 	} \
 
+#define KLR_STHUNK(ctx, n, shift, m) { \
+		knh_Thunk_t *thk_; \
+		KLR_MOV(ctx, sfp[n].o, m); \
+		thk_ = knh_stack_newThunk(ctx, sfp+n, shift);\
+		KLR_MOV(ctx, sfp[n].o, thk_); \
+	} \
+
 #define KNH_CALLGEN(ctx, lsfp, n, m, pc, stacksize) { \
-		((knh_Context_t*)ctx)->esp = lsfp + n + stacksize; \
+		KNH_SETESP(ctx, lsfp + n + stacksize); \
 		lsfp[n].pc = pc; \
 		DP(sfp[n].mtd)->fproceed(ctx, lsfp + (n+1)); \
 		stacksize = ctx->esp - &(lsfp[n]); \
@@ -421,7 +441,7 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 		int n1_ = n + 1;\
 		KLR_MOV(ctx, sfp[n].o, sfp[-1].o); \
 		KLR_MOVa(ctx, n1_, 0); \
-		((knh_Context_t*)ctx)->esp = &(sfp[n + shift]); \
+		KNH_SETESP(ctx, sfp + n + shift); \
 		sfp[-1].pc = pc; \
 		knh_KLRCode_exec(ctx, sfp + n1_); \
 	} \
@@ -430,26 +450,42 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 		int n1_ = n + 1;\
 		KLR_MOVa(ctx, n1_, self); \
 		KLR_MOV(ctx, sfp[n].o, m); \
-		((knh_Context_t*)ctx)->esp = &(sfp[n + shift]); \
+		KNH_SETESP(ctx, sfp + n + shift); \
 		sfp[-1].pc = pc; \
 		(sfp[n].mtd)->fcall_1(ctx, sfp + n1_); \
 	} \
 
 #define KLR_CALL(ctx, n, shift, mn) { \
-		KLR_MOV(ctx, sfp[n].o, knh_lookupMethod(ctx, knh_Object_cid(sfp[n+1].o), mn)); \
-		DBG2_ASSERT(IS_Method(sfp[n].o)); \
-		((knh_Context_t*)ctx)->esp = &(sfp[n + shift]); \
+		knh_Method_t *mtd_ = knh_lookupMethod(ctx, knh_Object_cid(sfp[n+1].o), mn);\
+		KLR_MOV(ctx, sfp[n].o, mtd_); \
+		KNH_SETESP(ctx, sfp + n + shift); \
 		sfp[-1].pc = pc; \
-		(sfp[n].mtd)->fcall_1(ctx, sfp + n + 1); \
+		(mtd_)->fcall_1(ctx, sfp + n + 1); \
+	} \
+
+#define KLR_THUNK(ctx, n, shift, mn) { \
+		knh_Thunk_t *thk_; \
+		knh_Method_t *mtd_ = knh_lookupMethod(ctx, knh_Object_cid(sfp[n+1].o), mn);\
+		KLR_MOV(ctx, sfp[n].o, mtd_); \
+		thk_ = knh_stack_newThunk(ctx, sfp+n, shift);\
+		KLR_MOV(ctx, sfp[n].o, thk_); \
 	} \
 
 #define KLR_ACALL(ctx, n, shift, mn) { \
 		knh_Method_t *mtd_ = knh_lookupMethod(ctx, knh_Object_cid(sfp[n+1].o), mn);\
 		KLR_MOV(ctx, sfp[n].o, mtd_); \
-		((knh_Context_t*)ctx)->esp = &(sfp[n + shift]); \
+		KNH_SETESP(ctx, sfp + n + shift); \
 		knh_stack_typecheck(ctx, sfp + n + 1, mtd_, pc); \
 		sfp[-1].pc = pc; \
 		(mtd_)->fcall_1(ctx, sfp + n + 1); \
+	} \
+
+#define KLR_ATHUNK(ctx, n, shift, mn) { \
+		knh_Thunk_t *thk_; \
+		knh_Method_t *mtd_ = knh_lookupMethod(ctx, knh_Object_cid(sfp[n+1].o), mn);\
+		KLR_MOV(ctx, sfp[n].o, mtd_); \
+		thk_ = knh_stack_newThunk(ctx, sfp+n, shift);\
+		KLR_MOV(ctx, sfp[n].o, thk_); \
 	} \
 
 /* this is used only for Closure.invoke */
@@ -459,7 +495,7 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 		KLR_MOV(ctx, sfp[n].o, (sfp[n+1].cc)->mtd); \
 		KLR_MOV(ctx, sfp[n+1].o, (sfp[n+1].cc)->base); \
 		knh_stack_typecheck(ctx, sfp + n + 1, (sfp[n].mtd), pc); \
-		((knh_Context_t*)ctx)->esp = &(sfp[n + shift]); \
+		KNH_SETESP(ctx, sfp + n + shift); \
 		sfp[-1].pc = pc; \
 		(sfp[n].mtd)->fcall_1(ctx, sfp + n + 1); \
 	} \
@@ -467,7 +503,7 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 #define KLR_NEW(ctx, n, flag, cid, shift, m) { \
 		KLR_MOV(ctx, sfp[n].o, m); \
 		KLR_MOV(ctx, sfp[n+1].o, new_Object_init(ctx, flag, cid, 0)); \
-		((knh_Context_t*)ctx)->esp = &(sfp[n + shift]); \
+		KNH_SETESP(ctx, sfp + n + shift); \
 		sfp[-1].pc = pc; \
 		(sfp[n].mtd)->fcall_1(ctx, sfp + n + 1); \
 	} \
@@ -609,69 +645,19 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 		}while(ncid_ != reqc && !knh_class_instanceof(ctx, reqc, ncid_));\
 	} \
 
-#define KLR_MAPNEXT(ctx, PC, JUMP, reqc, na, ib) { \
-		knh_sfp_t *itrsfp_ = sfp + ib; \
-		knh_sfp_t *esp0_ = ctx->esp; \
-		knh_class_t ncid_;\
-		DBG2_ASSERT(IS_bIterator(itrsfp_[0].it));\
-		KNH_ASSERT(sfp + na < esp0_); \
-		do {\
-			if(!((itrsfp_[0].it)->fnext_1(ctx, itrsfp_, na - ib))) { \
-				if(knh_Object_cid(sfp[na].o) != reqc) {\
-					KNH_SETv(ctx, sfp[na].o, KNH_DEF(ctx, reqc)); \
-				}\
-				KLR_JMP(ctx, PC, JUMP); \
-			} \
-			ncid_ = knh_Object_cid(sfp[na].o); \
-			if(ncid_ == reqc || knh_class_instanceof(ctx, reqc, ncid_)) break;\
-			KNH_SETv(ctx, esp0_[1].o, knh_findMapper(ctx, ncid_, reqc));\
-			KLR_MOV(ctx, esp0_[0].o, sfp[na].o); esp0_[0].data = sfp[na].data;\
-			(esp0_[1].mpr)->fmap_1(ctx, esp0_); \
-			KLR_MOV(ctx, sfp[na].o, esp0_[0].o); sfp[na].data = esp0_[0].data;\
-		}while(IS_NOTNULL(sfp[na].o));\
-	} \
-
-#define KLR_SMAPNEXT(ctx, PC, JUMP, na, ib, mm) { \
-	knh_sfp_t *itrsfp_ = sfp + ib; \
-	knh_sfp_t *esp0_ = ctx->esp; \
-	DBG2_ASSERT(IS_bIterator(itrsfp_[0].it));\
-	KNH_ASSERT(sfp + na < esp0_); \
-	KLR_MOV(ctx, esp0_[1].o, mm); \
-	do {\
-		if(!((itrsfp_[0].it)->fnext_1(ctx, itrsfp_, na - ib))) { \
-			KLR_JMP(ctx, PC, JUMP); \
-		} \
-		KLR_MOV(ctx, esp0_[0].o, sfp[na].o); esp0_[0].data = sfp[na].data;\
-		(esp0_[1].mpr)->fmap_1(ctx, esp0_); \
-		KLR_MOV(ctx, sfp[na].o, esp0_[0].o); sfp[na].data = esp0_[0].data;\
-	}while(IS_NOTNULL(sfp[na].o));\
-} \
-
 /* ------------------------------------------------------------------------- */
 
 #define NPC  /* for KNH_TRY */
 
-#define KLR_THROW(ctx, inTry, n) { \
+#define KLR_THROW(ctx, espn, n) { \
 		DBG2_ASSERT(IS_Exception(sfp[n].e)); \
-		if(!(inTry)) ((knh_Context_t*)ctx)->esp = sfp; \
-		knh_throwException(ctx, sfp[n].e, _HERE_); \
+		knh_stack_throw(ctx, sfp + espn, sfp[n].e, _HERE_); \
 	}\
 
-#define KLR_THROWs(ctx, inTry, msg) {\
+#define KLR_THROWs(ctx, espn, msg) {\
 		DBG2_ASSERT(IS_bString(msg)); \
-		if(!(inTry)) ((knh_Context_t*)ctx)->esp = sfp; \
-		knh_throwException(ctx, new_Exception(ctx, (knh_String_t*)msg), _HERE_); \
+		knh_stack_throw(ctx, sfp + espn, new_Exception(ctx, (knh_String_t*)msg), _HERE_); \
 	}
-
-#define KLR_THROW_AGAIN(ctx, hn) { \
-		DBG2_ASSERT(IS_ExceptionHandler(sfp[hn].o)); \
-		knh_Exception_t *_e = DP(sfp[hn].hdr)->caught; \
-		if(IS_Exception(_e)) {\
-			DBG2_P("THROW AGAIN ... ");\
-			((knh_Context_t*)ctx)->esp = sfp; \
-			knh_throwException(ctx, _e, NULL, 0); \
-		}\
-	} \
 
 #define KNH_SETJUMP(hdlr) knh_setjmp(DP(hdlr)->jmpbuf)
 
@@ -681,7 +667,7 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 			knh_ExceptionHandler_setJumpable(_hdr, 1); \
 			int jump = KNH_SETJUMP(_hdr); \
 			if(jump != 0) { \
-				((knh_Context_t*)ctx)->esp = &(lsfp[hn]); \
+				DBG2_SETESP(ctx, DP(_hdr)->esp); \
 				KLR_JMP(ctx, NPC, JUMP); \
 			} \
 			DP(_hdr)->esp = ctx->esp; \
@@ -696,15 +682,16 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 			_hdr = new_ExceptionHandler(ctx); \
 			KLR_MOV(ctx, sfp[hn].o, _hdr); \
 		} \
+		DBG2_SETESP(ctx, sfp + hn + 1); \
 		if(!knh_ExceptionHandler_isJumpable(_hdr)) { \
-			knh_ExceptionHandler_setJumpable(_hdr, 1); \
 			int jump = KNH_SETJUMP(_hdr); \
+			knh_ExceptionHandler_setJumpable(_hdr, 1); \
 			if(jump != 0) { \
-				((knh_Context_t*)ctx)->esp = DP(_hdr)->esp; \
+				DBG2_SETESP(ctx, DP(_hdr)->esp); \
 				pc = DP(_hdr)->pc; \
 				KLR_JMP(ctx, PC, JUMP); \
 			} \
-			DP(_hdr)->esp = ctx->esp; \
+			DP(_hdr)->esp = sfp + hn + 1; \
 			DP(_hdr)->pc  = pc; \
 		} \
 		knh_ExceptionHandler_setCatching(_hdr, 1); \
@@ -728,6 +715,31 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 		} \
 	} \
 
+#define KLR_THROW_AGAIN(ctx, hn) { \
+		DBG2_ASSERT(IS_ExceptionHandler(sfp[hn].o)); \
+		knh_Exception_t *_e = DP(sfp[hn].hdr)->caught; \
+		if(IS_Exception(_e)) {\
+			DBG2_P("THROW AGAIN ... ");\
+			((knh_Context_t*)ctx)->esp = sfp + hn + 1; \
+			knh_stack_throw(ctx, sfp, _e, NULL, 0); \
+		}\
+	} \
+
+#define KNH_THROW_AGAIN(ctx, lsfp, hn) {\
+		knh_Exception_t *e_ = DP(lsfp[hn].hdr)->caught;\
+		KNH_ASSERT(IS_ExceptionHandler(lsfp[hn].hdr));\
+		knh_stack_throw(ctx, lsfp + hn - 1, e_, __FILE__, __LINE__);\
+	}\
+
+#define KNH_PRINT_STACKTRACE(ctx, lsfp, hn) {\
+		knh_Exception_t *e_ = DP(lsfp[hn].hdr)->caught;\
+		KNH_ASSERT(IS_ExceptionHandler(lsfp[hn].hdr));\
+		knh_format(ctx, KNH_STDERR, METHODN__dump, UP(e_), KNH_NULL);\
+		knh_setRuntimeError(ctx, DP(e_)->msg);\
+		KNH_LOCALBACK(ctx, lsfp);\
+	}\
+
+
 #define KLR_PUSH(ctx, n)   {\
 		DBG_P("push %d", (int)n); \
 		/*knh_stack_push(ctx, sfp + n);*/ \
@@ -740,13 +752,8 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 
 /* ------------------------------------------------------------------------ */
 
-#define KNH_THROW_BUGSTOP(ctx) \
-	knh_throw_bugstop(ctx, __FILE__, __LINE__, __FUNCTION__)
-
-/* ------------------------------------------------------------------------ */
-
-#define KLR_P(ctx, flag, mn, n) knh_stack_p(ctx, sfp, flag, mn, n)
-#define KLR_PMSG(ctx, flag, v) knh_stack_pmsg(ctx, sfp, flag, (knh_String_t*)v)
+#define KLR_P(ctx, flag, mn, n) knh_stack_p(ctx, sfp + n, flag, mn)
+#define KLR_PMSG(ctx, flag, msg)  knh_stack_pmsg(ctx, flag, msg)
 
 /* ------------------------------------------------------------------------ */
 
@@ -794,13 +801,13 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 #define KLR_iMUL(ctx, c, a, b)  SFi(c) = (SFi(a) * SFi(b))
 #define KLR_iMULn(ctx, c, a, n) SFi(c) = (SFi(a) * n)
 #define KLR_iDIV(ctx, c, a, b)  { \
-		KNH_THROW_iZERODIV(SFi(b)); \
+		KLR_THROW_iZERODIV(SFi(b)); \
 		SFi(c) = (SFi(a) / SFi(b)); \
 	} \
 
 #define KLR_iDIVn(ctx, c, a, n)  SFi(c) = (SFi(a) / n)
 #define KLR_iMOD(ctx, c, a, b)  { \
-		KNH_THROW_iZERODIV(SFi(b)); \
+		KLR_THROW_iZERODIV(SFi(b)); \
 		SFi(c) = (SFi(a) % SFi(b)); \
 	} \
 
@@ -830,12 +837,11 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 #define KLR_fMUL(ctx, c, a, b)  SFf(c) = (SFf(a) * SFf(b))
 #define KLR_fMULn(ctx, c, a, n) SFf(c) = (SFf(a) * n)
 #define KLR_fDIV(ctx, c, a, b)  { \
-		KNH_THROW_fZERODIV(SFf(b)); \
+		KLR_THROW_fZERODIV(SFf(b)); \
 		SFf(c) = (SFf(a) / SFf(b)); \
 	} \
 
 #define KLR_fDIVn(ctx, c, a, n)  SFf(c) = (SFf(a) / n)
-
 /*
 #define KLR_fEQ(ctx, c, a, b) { \
 		knh_float_t x = SFf(a) - SFf(b);\
@@ -843,6 +849,7 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 		SFb(c) = (x <= __DBL_EPSILON__); \
 	} \
 */
+
 #define KLR_fEQ(ctx, c, a, b) SFb(c) = (SFf(a) == SFf(b))
 
 /*
@@ -886,20 +893,6 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 		KNH_ASSERT(IS_Mapper(m)); \
 		(lsfp[n+1].mpr)->fmap_1(ctx, lsfp + n); \
 	} \
-
-#define KNH_THROW_AGAIN(ctx, lsfp, hn) {\
-		knh_Exception_t *e_ = DP(lsfp[hn].hdr)->caught;\
-		KNH_ASSERT(IS_ExceptionHandler(lsfp[hn].hdr));\
-		knh_throwException(ctx, e_, __FILE__, __LINE__);\
-	}\
-
-#define KNH_PRINT_STACKTRACE(ctx, lsfp, hn) {\
-		knh_Exception_t *e_ = DP(lsfp[hn].hdr)->caught;\
-		KNH_ASSERT(IS_ExceptionHandler(lsfp[hn].hdr));\
-		knh_format(ctx, KNH_STDERR, METHODN__dump, UP(e_), KNH_NULL);\
-		knh_setRuntimeError(ctx, DP(e_)->msg);\
-		KNH_LOCALBACK(ctx, lsfp);\
-	}\
 
 /* ------------------------------------------------------------------------ */
 

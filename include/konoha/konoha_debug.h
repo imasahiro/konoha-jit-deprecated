@@ -6,14 +6,14 @@
 
 #ifdef KNH_FASTMODE
 #define KNH_ASSERT(c)
-#define DEBUG_ASSERT(c)
-#define SAFE_(s)
+#define SAFE_(stmt)
 
 #else/*KNH_FASTMODE*/
 #define KNH_ASSERT(c)    assert(c)
-#define DEBUG_ASSERT(c)  assert(c)
-#define SAFE_(s)         s
+#define SAFE_(stmt)      stmt
 #endif/*KNH_FASTMODE*/
+
+/* ======================================================================== */
 
 #define KNH_ABORT()      abort()
 
@@ -27,23 +27,18 @@
 
 #define DBG2_P(fmt, ...) \
 	fflush(stdout); \
-	fprintf(stderr, "DBG2[%s:%d/%s]: ", knh_safefile(__FILE__), __LINE__, __FUNCTION__); \
+	fprintf(stderr, "DBG2[%s:%d/%s]\n\t", knh_safefile(__FILE__), __LINE__, __FUNCTION__); \
 	fprintf(stderr, fmt, ## __VA_ARGS__); \
 	fprintf(stderr, "\n"); \
 
 #define DBG2_DUMP(ctx, o, opt, msg) \
+	fflush(stdout); \
 	fprintf(stdout, "DBG2[%s]: %s\n", __FUNCTION__, msg); \
 	knh_format(ctx, KNH_STDOUT, METHODN__dump, UP(o), UP(opt)); \
 	knh_flush(ctx, KNH_STDOUT);\
 	fprintf(stdout, "\n"); \
 
-#define TODO2(msg) \
-	fprintf(stdout, "TODO2[%s:%d/%s]: %s\n", knh_safefile(__FILE__), __LINE__, __FUNCTION__, msg); \
-
-#define DBG2_RESIZE(o, p, os, ns) \
-	DBG2_P("RESIZE %s(%p) %d => %d\n\tOLD_BLOCK(%p-%p)", STRUCTN((o->h.bcid)), o, (int)os, (int)ns, p, (p + os)); \
-
-#define DBG2_ASSERT(c) KNH_ASSERT(c)
+#define DBG2_ASSERT(c)  KNH_ASSERT(c)
 
 #define KNH_MALLOC(ctx, size)    DBG2_malloc(ctx, size, (char*)__FUNCTION__)
 #define KNH_FREE(ctx, p, size)   DBG2_free(ctx, p, size, (char*)__FUNCTION__)
@@ -53,12 +48,31 @@
 #elif /*KNH_DBGMODE2*/ !defined(KONOHA_ON_LKM)
 
 #define DBG2_(stmt)
-#define DBG2_P(fmt, ...)
-#define DBG2_DUMP(ctx, o, opt, msg)
-#define TODO2(msg)
-#define DBG2_RESIZE(o, p, os, ns)
 #define DBG2_ASSERT(c) KNH_ASSERT(c)
 #define DBG2_ABORT()   KNH_ABORT()
+
+#ifdef KONOHA_PREVIEW
+#define DBG2_P(fmt, ...) \
+	if(konoha_isSystemDump2()) {\
+		fflush(stdout); \
+		fprintf(stderr, "DBG2[%s:%d/%s]\n\t", knh_safefile(__FILE__), __LINE__, __FUNCTION__); \
+		fprintf(stderr, fmt, ## __VA_ARGS__); \
+		fprintf(stderr, "\n"); \
+	}\
+
+#define DBG2_DUMP(ctx, o, opt, msg) \
+	if(konoha_isSystemDump2()) {\
+		fflush(stdout); \
+		fprintf(stdout, "DBG2[%s]: %s\n", __FUNCTION__, msg); \
+		knh_format(ctx, KNH_STDOUT, METHODN__dump, UP(o), UP(opt)); \
+		knh_flush(ctx, KNH_STDOUT);\
+		fprintf(stdout, "\n"); \
+	}\
+
+#else
+#define DBG2_P(fmt, ...)
+#define DBG2_DUMP(ctx, o, opt, msg)
+#endif
 
 #ifdef KNH_USING_FASTMALLOC
 #define 	KNH_MALLOC(ctx, size)    knh_fastmalloc(ctx, size)
@@ -84,6 +98,7 @@
 	fprintf(stderr, "\n"); \
 
 #define DBG_DUMP(ctx, o, opt, msg) \
+	fflush(stdout); \
 	fprintf(stdout, "DBG[%s]: %s\n", __FUNCTION__, msg); \
 	knh_format(ctx, KNH_STDOUT, METHODN__dump, UP(o), UP(opt)); \
 	knh_flush(ctx, KNH_STDOUT);\
@@ -92,22 +107,6 @@
 #define TODO() \
 	fprintf(stderr, "TODO[%s:%d/%s]:\n", knh_safefile(__FILE__) , __LINE__, __FUNCTION__); \
 
-#define DBG_ASSERT(c, fmt, ...) \
-	if(!(c)) { \
-		fflush(stdout); \
-		fprintf(stderr, "DBG!![%s:%d/%s]:\n\t", knh_safefile(__FILE__), __LINE__, __FUNCTION__); \
-		fprintf(stderr, fmt, ## __VA_ARGS__); \
-		fprintf(stderr, "\n"); \
-		KNH_ASSERT(c); \
-	} \
-
-#define KNH_CTXASSERT(ctx, c, fmt, ...) \
-	if(!(c)) { \
-		fprintf(stderr, "DEBUG[%s:%d/%s]: ", knh_safefile(__FILE__), __LINE__, __FUNCTION__); \
-		fprintf(stderr, fmt, ## __VA_ARGS__); \
-		fprintf(stderr, "\n"); \
-		KNH_ASSERT(c); \
-	} \
 
 #else/*KNH_DBGMODE*/
 
@@ -138,24 +137,18 @@
 		KNH_THROWs(ctx, ebuf_);\
 	} \
 
-
 #endif/*KNH_DBGMODE2*/
 
 /* ======================================================================== */
-/* [STUPID] */
+
+#define KNH_BUGSTOP() {\
+		fprintf(stderr, "BUGSTOP[%s:%d]. Please report the above.\n", knh_safefile(__FILE__), __LINE__); \
+		exit(0); \
+	}\
 
 #define KNH_FUTURE(msg) {\
 		fprintf(stderr, "FUTURE[%s:%d] %s will be supported in the near future.\n", knh_safefile(__FILE__), __LINE__, msg); \
 	}\
-
-/* ======================================================================== */
-/* [STUPID] */
-
-#define STUPID_NOTFOUND   0
-#define STUPID_OUTOFINDEX 1
-#define STUPID_TYPEERROR  2
-
-#define KNH_STUPID(ctx, o, a)
 
 /* ======================================================================== */
 

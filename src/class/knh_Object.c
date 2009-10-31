@@ -61,16 +61,16 @@ KNHAPI(Object*) new_Glue(Ctx *ctx, char *lname, void *ptr, knh_fgfree gfree)
 {
 	knh_class_t cid = knh_getcid(ctx, B(lname));
 	if(cid == CLASS_unknown) {
-		KNH_THROWf(ctx, "Unknown!!: %s", lname);
+		fprintf(stderr, "Unknown glue class: %s", lname);
+		KNH_BUGSTOP();
 	}
-	knh_Glue_t *g = (knh_Glue_t*)new_Object_bcid(ctx, CLASS_Any, 0);
-	g->h.cid = cid;
-	knh_Glue_init(ctx, g, ptr, gfree);
-	return (Object*)g;
+	{
+		knh_Glue_t *g = (knh_Glue_t*)new_Object_bcid(ctx, CLASS_Any, 0);
+		g->h.cid = cid;
+		knh_Glue_init(ctx, g, ptr, gfree);
+		return (Object*)g;
+	}
 }
-
-/* ======================================================================== */
-/* [new] */
 
 /* ======================================================================== */
 /* [getkey] */

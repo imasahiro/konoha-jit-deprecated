@@ -132,7 +132,6 @@ int knh_ResultSet_indexof_(Ctx *ctx, knh_sfp_t *sfp)
 		size_t n = p_size(sfp[1]);
 		if(!(n < DP(o)->column_size)) {
 			KNH_THROW_OUTOFINDEX(ctx, p_integer(sfp[1]), DP(o)->column_size);
-			KNH_STUPID(ctx, o, STUPID_OUTOFINDEX);
 			return -1;
 		}
 		return n;
@@ -140,11 +139,13 @@ int knh_ResultSet_indexof_(Ctx *ctx, knh_sfp_t *sfp)
 	else if(IS_bString(sfp[1].o)) {
 		int loc = knh_ResultSet_findColumn(ctx, o, __tobytes(sfp[1].s));
 		if(loc == -1) {
-			KNH_STUPID(ctx, o, STUPID_NOTFOUND);
+			TODO();
+			//KNH_STUPID(ctx, o, STUPID_NOTFOUND);
 		}
 		return loc;
 	}
-	KNH_STUPID(ctx, o, STUPID_TYPEERROR);
+	TODO();
+	//KNH_STUPID(ctx, o, STUPID_NOTFOUND);
 	return -1;
 }
 

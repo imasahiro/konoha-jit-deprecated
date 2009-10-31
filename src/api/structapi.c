@@ -1981,7 +1981,7 @@ static void knh_System_newClass(Ctx *ctx, knh_class_t cid)
 void knh_Context_init(Ctx *ctx, knh_Context_t *o, int init)
 {
 	/* Context can be only instatiated in new_Context() */
-	KNH_THROWs(ctx, "Abort!!");
+	KNH_THROW__T(ctx, "Abort!!");
 }
 
 static Object *knh_Context_fdefault(Ctx *ctx, knh_class_t cid)

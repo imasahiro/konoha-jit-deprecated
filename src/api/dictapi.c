@@ -62,7 +62,7 @@ static METHOD DictMap_get(Ctx *ctx, knh_sfp_t *sfp)
 static METHOD DictMap_set(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_DictMap_t *o = (knh_DictMap_t*)sfp[0].o;
-	knh_sfp_boxing(ctx, sfp + 2);
+	knh_stack_boxing(ctx, sfp + 2);
 	knh_DictMap_set(ctx, o, sfp[1].s, sfp[2].o);
 	KNH_RETURN_void(ctx, sfp);
 }
