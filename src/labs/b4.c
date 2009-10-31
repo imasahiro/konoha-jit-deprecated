@@ -44,7 +44,7 @@ extern "C" {
 METHOD Script_changeChannel(Ctx *ctx, knh_sfp_t *sfp)
 {
 	fprintf(stdout, "switching channel to %d..\n", (int)sfp[1].ivalue);
-	konoha_throwSecurityException();
+	//konoha_throwSecurityException();
 }
 
 /* ------------------------------------------------------------------------ */
