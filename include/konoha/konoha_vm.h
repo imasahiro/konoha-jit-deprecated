@@ -529,7 +529,7 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 		KLR_MOV(ctx, sfp[espn+2].o, cwb->w);\
 		KLR_MOV(ctx, sfp[espn+3].o, fmt);\
 		mtd_ = knh_lookupFormatter(ctx, knh_Object_cid(sfp[n+1].o), mn);\
-		KLR_SCALL(ctx, n, 4, mtd_);\
+		KLR_SCALL(ctx, espn, 4, mtd_);\
 		s_ = knh_cwb_newString(ctx, cwb);\
 		KLR_MOV(ctx, sfp[n].o, s_);\
 	}\
@@ -540,7 +540,7 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 		KLR_SWAP(ctx, n, espn+1); \
 		KLR_MOV(ctx, sfp[espn+2].o, cwb->w);\
 		KLR_MOV(ctx, sfp[espn+3].o, fmt);\
-		KLR_SCALL(ctx, n, 4, mtd);\
+		KLR_SCALL(ctx, espn, 4, mtd);\
 		s_ = knh_cwb_newString(ctx, cwb);\
 		KLR_MOV(ctx, sfp[n].o, s_);\
 	}\
