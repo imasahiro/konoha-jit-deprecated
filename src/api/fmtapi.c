@@ -103,11 +103,9 @@ void knh_write_ObjectField(Ctx *ctx, knh_OutputStream_t *w, Object **v, size_t i
 
 static METHOD Object__empty(Ctx *ctx, knh_sfp_t *sfp)
 {
-	DBG2_P("cid=%d", knh_Object_cid(sfp[0].o));
 	if(knh_Context_isDebug(ctx)) {
 		knh_printf(ctx, sfp[1].w, "@Debug %%empty(%s)", CLASSNo(sfp[0].o));
 	}
-	knh_printf(ctx, sfp[1].w, "@Debug %%empty(%s)", CLASSNo(sfp[0].o));
 }
 
 /* ======================================================================== */
@@ -1155,15 +1153,22 @@ void knh_ClassMap__man(Ctx *ctx, knh_ClassMap_t *cmap, knh_OutputStream_t *w, kn
 
 /* ------------------------------------------------------------------------ */
 //## method void Class.%man(OutputStream w, String? fmt);
+//## method void Object.%man(OutputStream w, String? fmt);
 
 static METHOD Class__man(Ctx *ctx, knh_sfp_t *sfp)
 {
-	knh_class_t cid = ((knh_Class_t*)sfp[0].o)->cid;
+	knh_class_t cid;
 	knh_OutputStream_t *w = sfp[1].w;
 	size_t i = 0;
 	knh_DictMap_t *dm = new_DictMap0(ctx, 128);
 	KNH_SETv(ctx, sfp[2].o, dm);
-	DBG2_ASSERT_cid(cid);
+	if(IS_Class(sfp[0].o)) {
+		cid = ((knh_Class_t*)sfp[0].o)->cid;
+		DBG2_ASSERT_cid(cid);
+	}
+	else {
+		cid = knh_Object_cid(sfp[0].o);
+	}
 	while(1) {
 		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 		knh_Array_t *a = ClassTable(cid).cstruct->methods;
@@ -1205,7 +1210,7 @@ static METHOD Class__man(Ctx *ctx, knh_sfp_t *sfp)
 			knh_DictMap_removeAt(ctx, dm, i);
 			if(DP(mtd)->cid == CLASS_Object && cid != CLASS_Object) continue;
 			if(hasCaption == 0) {
-				knh_write_char(ctx, w, _("*Operator"));
+				knh_write_char(ctx, w, _("Operator"));
 				knh_write_EOL(ctx, w);
 				hasCaption = 1;
 			}

@@ -1792,7 +1792,7 @@ static void knh_StmtIF_asm(Ctx *ctx, knh_Stmt_t *stmt)
 	/* if */
 	KNH_ASM_LABEL(ctx, lbIF);
 	TERMs_ASM_JIFF(ctx, stmt, 0, lbELSE);
-	/*then*/
+	/* then */
 	TERMs_asmBLOCK(ctx, stmt, 1);
 	if(TERMs_isDONE(stmt, 2)) {
 		/* PEEPHOLE this isn't a bug */
@@ -1878,7 +1878,6 @@ void KNH_ASM_JUMPLABEL(Ctx *ctx, knh_Stmt_t *stmt, int delta)
 		KNH_ASM(JMP, TADDR lbBLOCK)
 	}
 }
-
 
 static
 void knh_StmtCONTINUE_asm(Ctx *ctx, knh_Stmt_t *stmt)
@@ -2115,7 +2114,6 @@ void knh_StmtTRY_asm(Ctx *ctx, knh_Stmt_t *stmt)
 	knh_KLRInst_t*  lbCATCH   = new_KLRInstLABEL(ctx);
 	knh_KLRInst_t*  lbFINALLY = new_KLRInstLABEL(ctx);
 	knh_Token_t *tkIT = knh_Stmt_getLOCAL(stmt, TRY_HDR);
-
 	knh_Gamma_setFinallyStmt(ctx, StmtTRY_finally(stmt));
 
 	/* try { */

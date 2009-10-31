@@ -313,7 +313,6 @@ KNHAPI(void) knh_throwException(Ctx *ctx, knh_Exception_t *e, char *file, int li
 		}
 		sp--;
 	}
-
 	fprintf(stderr, "********** USE STACKTRACE IN YOUR C/C++ DEBUGGER ************\n");
 	fprintf(stderr, "Uncaught Exception: %s\n", __tochar(DP(e)->msg));
 	fprintf(stderr, "*************************************************************\n");

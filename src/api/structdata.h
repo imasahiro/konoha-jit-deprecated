@@ -838,7 +838,7 @@ static knh_StructData_t StructData[] = {
 
 static knh_ClassData_t ClassData[] = {
 	{"Object", CLASS_Object, FLAG_Object, 
-	   CLASS_ObjectField, CLASS_Object, 28, 6, 2,
+	   CLASS_ObjectField, CLASS_Object, 28, 7, 2,
 	   TYPE_void, TYPE_void, TYPE_void, TYPE_void},
 	{"Boolean", CLASS_Boolean, FLAG_Boolean, 
 	   CLASS_Boolean, CLASS_Object, 1, 4, 1,
@@ -1593,6 +1593,7 @@ static knh_MethodData_t MethodData[] = {
 	{DictMap__data, 0, CLASS_DictMap, METHODN__data, 0, 38, NULL},
 	{Exception__data, 0, CLASS_Exception, METHODN__data, 0, 38, NULL},
 	{Class__man, 0, CLASS_Class, METHODN__man, 0, 38, NULL},
+	{Class__man, 0, CLASS_Object, METHODN__man, 0, 38, NULL},
 	{Object__p, 0, CLASS_Object, METHODN__p, 0, 38, NULL},
 	{Int__c, 0, CLASS_Int, METHODN__c, 0, 38, NULL},
 	{Int__d, 0, CLASS_Int, METHODN__d, 0, 38, NULL},
