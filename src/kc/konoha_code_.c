@@ -212,7 +212,7 @@ static void THROWs_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 {
 	klr_THROWs_t *op = (klr_THROWs_t*)c; 
 	DBG2_ASSERT(op->opcode == 85);
-	ftr(ctx, UP(op->a2));
+	ftr(ctx, UP(op->a3));
 }
 
 static void PMSG_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
@@ -482,20 +482,13 @@ static void CATCH_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
 	knh_write__OBJ(ctx, w, UP((op->a4)));
 }
 
-static void THROW_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
-{
-	klr_THROW_t *op = (klr_THROW_t*)c; 
-	knh_write_opcode(ctx, w, op->opcode);
-	knh_write__ushort(ctx, w, (op->a1));
-	knh_write__sfpidx(ctx, w, (op->a2));
-}
-
 static void THROWs_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
 {
 	klr_THROWs_t *op = (klr_THROWs_t*)c; 
 	knh_write_opcode(ctx, w, op->opcode);
-	knh_write__ushort(ctx, w, (op->a1));
-	knh_write__OBJ(ctx, w, UP((op->a2)));
+	knh_write__sfpidx(ctx, w, (op->a1));
+	knh_write__sfpidx(ctx, w, (op->a2));
+	knh_write__OBJ(ctx, w, UP((op->a3)));
 }
 
 static void P_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
@@ -650,7 +643,7 @@ static knh_OPDATA_t OPDATA[] = {
 	{"CATCH", OPSIZE_CATCH, 1, CATCH_traverse, CATCH_dump}, 
 	{"PUSH", OPSIZE_PUSH, 0, HALT_traverse, CHKESP_dump}, 
 	{"POP", OPSIZE_POP, 0, HALT_traverse, CHKESP_dump}, 
-	{"THROW", OPSIZE_THROW, 0, HALT_traverse, THROW_dump}, 
+	{"THROW", OPSIZE_THROW, 0, HALT_traverse, MOVa_dump}, 
 	{"THROWs", OPSIZE_THROWs, 0, THROWs_traverse, THROWs_dump}, 
 	{"THROW_AGAIN", OPSIZE_THROW_AGAIN, 0, HALT_traverse, CHKESP_dump}, 
 	{"P", OPSIZE_P, 0, HALT_traverse, P_dump}, 
@@ -1337,7 +1330,7 @@ METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp)
 	} 
 	CASE(L_THROWs, OPCODE_THROWs) {
 		const klr_THROWs_t *op = (klr_THROWs_t*)pc;
-		KLR_THROWs(ctx, op->a1, op->a2);
+		KLR_THROWs(ctx, op->a1, op->a2, op->a3);
 		pc += OPSIZE_THROWs;
 		goto NEXT;
 	} 

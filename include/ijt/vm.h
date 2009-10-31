@@ -422,14 +422,14 @@ void JIT_OP_POP_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1)
 	KLR_POP(ctx,a1);
 }
 
-void JIT_OP_THROW_(Ctx *ctx, knh_sfp_t* sfp,knh_ushort_t a1,knh_sfpidx_t a2)
+void JIT_OP_THROW_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfpidx_t a2)
 {
 	KLR_THROW(ctx,a1,a2);
 }
 
-void JIT_OP_THROWs_(Ctx *ctx, knh_sfp_t* sfp,knh_ushort_t a1,knh_String_t* a2)
+void JIT_OP_THROWs_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfpidx_t a2,knh_String_t* a3)
 {
-	KLR_THROWs(ctx,a1,a2);
+	KLR_THROWs(ctx,a1,a2,a3);
 }
 
 void JIT_OP_THROW_AGAIN_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1)

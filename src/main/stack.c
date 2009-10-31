@@ -108,17 +108,6 @@ KNHAPI(void) knh_stack_unboxing(Ctx *ctx, knh_sfp_t *sfp)
 	sfp[0].data = knh_Object_data(sfp[0].o);
 }
 
-///* ------------------------------------------------------------------------ */
-//
-//KNHAPI(void) knh_stack_swrite(Ctx *ctx, knh_Method_t *mtd, knh_OutputStream_t *w, Any *m)
-//{
-//	DBG2_ASSERT(IS_Method(mtd));
-//	knh_sfp_t *esp = KNH_LOCAL(ctx);
-//	KNH_SETv(ctx, esp[2].o, w);
-//	KNH_SETv(ctx, esp[3].o, m);
-//	KNH_SCALL(ctx, esp, 0, mtd, /*args*/2);
-//}
-
 /* ------------------------------------------------------------------------ */
 
 KNHAPI(void) knh_stack_w(Ctx *ctx, knh_sfp_t *sfp, knh_sfp_t *one, knh_methodn_t mn, knh_OutputStream_t *w, Any *m)
@@ -222,7 +211,7 @@ knh_String_t *knh_stack_newStackTrace(Ctx *ctx, knh_sfp_t *sfp, knh_Exception_t 
 			}
 			knh_write_fn(ctx, cwb->w, p.fn);
 			knh_putc(ctx, cwb->w, '=');
-			knh_stack_w(ctx, sfp+psize+1, &sfp[i+1], METHODN__k, cwb->w, KNH_NULL);
+			knh_stack_w(ctx, ctx->esp, &sfp[i+1], METHODN__k, cwb->w, KNH_NULL);
 		}
 		knh_putc(ctx, cwb->w, ')');
 	}
@@ -252,36 +241,6 @@ KNHAPI(void) knh_stack_throw(Ctx *ctx, knh_sfp_t *sfp, knh_Exception_t *e, char 
 	fprintf(stderr, "*************************************************************\n");
 	exit(0);
 }
-
-///* ------------------------------------------------------------------------ */
-//
-//KNHAPI(void) knh_throw__s(Ctx *ctx, char *msg, char *file, int line)
-//{
-//	knh_stack_throw(ctx, new_Exception__b(ctx, B(msg)), file, line);
-//}
-//
-///* ------------------------------------------------------------------------ */
-//
-//KNHAPI(void) knh_throw(Ctx *ctx, Object *e, char *file, int line)
-//{
-//	if(IS_NULL(e)) {
-//		knh_stack_throw(ctx, new_NullException (ctx, e), file, line);
-//	}else if(IS_Exception(e)) {
-//		knh_stack_throw(ctx, (knh_Exception_t*)e, file, line);
-//	}else if(IS_bString(e)) {
-//		knh_stack_throw(ctx, new_Exception(ctx, (knh_String_t*)e), file, line);
-//	}else {
-//		DBG2_P("Cannot throw %s", CLASSN(knh_Object_cid(e)));
-//		knh_stack_throw(ctx, new_Exception__b(ctx, STEXT("Type!!")), file, line);
-//	}
-//}
-//
-///* ------------------------------------------------------------------------ */
-//
-//KNHAPI(void) knh_throwStupidException(Ctx *ctx)
-//{
-//	knh_throw__s(ctx, "Stupid!!", NULL, 0);
-//}
 
 ///* ------------------------------------------------------------------------ */
 //

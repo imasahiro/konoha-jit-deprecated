@@ -980,15 +980,12 @@ void TERMs_ASM_JIFT(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_KLRInst_t* label)
 static
 void TERMs_ASM_THROW(Ctx *ctx, knh_Stmt_t *stmt, size_t n)
 {
-	knh_Token_t *tk = DP(stmt)->tokens[n];
-
-	if(IS_Token(tk) && TT_(tk) == TT_LOCAL /*TT_LOCAL ??*/) {
-		KNH_ASM(THROW, knh_Gamma_inTry(ctx), sfi_(DP(tk)->index));
+	int start = 0;
+	if(knh_Gamma_inTry(ctx)) {
+		start = DP(ctx->kc)->esp;
 	}
-	else {
-		TERMs_asm(ctx, stmt, n, NNTYPE_Exception, DP(ctx->kc)->esp);
-		KNH_ASM(THROW, knh_Gamma_inTry(ctx), sfi_(DP(ctx->kc)->esp));
-	}
+	TERMs_asm(ctx, stmt, n, NNTYPE_Exception, DP(ctx->kc)->esp);
+	KNH_ASM(THROW, start, sfi_(DP(ctx->kc)->esp));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -2148,13 +2145,17 @@ void knh_StmtRETURN_asm(Ctx *ctx, knh_Stmt_t *stmt)
 static
 void knh_StmtERR_asm(Ctx *ctx, knh_Stmt_t *stmt)
 {
+	int start = 0;
+	if(knh_Gamma_inTry(ctx)) {
+		start = DP(ctx->kc)->esp;
+	}
 	if(!IS_bString(DP(stmt)->errMsg)) {
-		char buf[512];
-		knh_snprintf(buf, sizeof(buf), "Script!!: you'll fix bugs at %s:%d", FILEN(SP(stmt)->uri), SP(stmt)->line);
-		KNH_SETv(ctx, DP(stmt)->errMsg, new_String(ctx, B(buf), NULL));
+		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
+		knh_printf(ctx, cwb->w, "Script!!: konoha -c %s at %d for debugging", FILEN(SP(stmt)->uri), SP(stmt)->line);
+		KNH_SETv(ctx, DP(stmt)->errMsg, knh_cwb_newString(ctx, cwb));
 		KNH_SETv(ctx, DP(stmt)->next, KNH_NULL);
 	}
-	KNH_ASM(THROWs, knh_Gamma_inTry(ctx), DP(stmt)->errMsg);
+	KNH_ASM(THROWs, start, DP(ctx->kc)->esp, DP(stmt)->errMsg);
 }
 
 /* ======================================================================== */
@@ -2233,6 +2234,10 @@ static void knh_StmtASSERT_asm(Ctx *ctx, knh_Stmt_t *stmt)
 	knh_Gamma_t *kc = ctx->kc;
 	if(DP(kc)->testidx == -1) {
 		int isRelease = knh_StmtMETA_is(ctx, stmt, STEXT("@Release"));
+		int start = 0;
+		if(knh_Gamma_inTry(ctx)) {
+			start = DP(kc)->esp;
+		}
 		if(!isRelease) {
 			if(!knh_Gamma_isDEBUG(ctx)) {
 				return ;
@@ -2246,7 +2251,7 @@ static void knh_StmtASSERT_asm(Ctx *ctx, knh_Stmt_t *stmt)
 		TERMs_ASM_JIFT(ctx, stmt, 0, lbskip);
 		/*then*/
 		TERMs_asmBLOCK(ctx, stmt, 1);
-		KNH_ASM(THROWs, knh_Gamma_inTry(ctx), knh_getExptName(ctx, EXPT_Assertion));
+		KNH_ASM(THROWs, start, DP(kc)->esp, knh_getExptName(ctx, EXPT_Assertion));
 		KNH_ASM_LABEL(ctx, lbskip);
 	}
 	else {

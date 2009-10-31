@@ -75,7 +75,6 @@ CHKNULx sfx
 CHKTYPE sfpidx cid
 #CHECKNNTYPE sfpidx type
 
-#NCALL 
 FCALL sfpidx ushort sfpidx Method
 RCALL sfpidx ushort
 SCALL sfpidx ushort Method
@@ -106,8 +105,6 @@ JIFNN   addr sfpidx
 
 NEXT addr sfpidx sfpidx
 INEXT addr cid sfpidx sfpidx 
-#MAPNEXT addr cid sfpidx sfpidx 
-#SMAPNEXT addr sfpidx sfpidx OBJ
 
 TRY     addr sfpidx
 TRYEND  sfpidx
@@ -116,8 +113,8 @@ CATCH   addr sfpidx sfpidx String
 PUSH   sfpidx
 POP    sfpidx
 
-THROW   ushort sfpidx 
-THROWs  ushort String
+THROW   sfpidx sfpidx 
+THROWs  sfpidx sfpidx String
 THROW_AGAIN sfpidx
 
 P  flag mn sfpidx

@@ -45,7 +45,7 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 		((knh_Context_t*)ctx)->esp = newesp; \
 
 #define DBG2_SETESP(ctx, newesp)  \
-		DBG2_P("setesp %d => %d", ((int)(ctx->esp - ctx->stack)), ((int)(newesp - ctx->stack))); \
+		DBG2_P("setesp from %d to %d", ((int)(ctx->esp - ctx->stack)), ((int)(newesp - ctx->stack))); \
 		((knh_Context_t*)ctx)->esp = newesp; \
 
 #define KNH_THROW__T(ctx, s) \
@@ -649,14 +649,16 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 
 #define NPC  /* for KNH_TRY */
 
-#define KLR_THROW(ctx, espn, n) { \
-		DBG2_ASSERT(IS_Exception(sfp[n].e)); \
-		knh_stack_throw(ctx, sfp + espn, sfp[n].e, _HERE_); \
+#define KLR_THROW(ctx, start, espn) { \
+		DBG2_ASSERT(IS_Exception(sfp[espn].e)); \
+		KNH_SETESP(ctx, sfp+espn);\
+		knh_stack_throw(ctx, sfp + start, sfp[espn].e, _HERE_); \
 	}\
 
-#define KLR_THROWs(ctx, espn, msg) {\
+#define KLR_THROWs(ctx, start, espn, msg) {\
 		DBG2_ASSERT(IS_bString(msg)); \
-		knh_stack_throw(ctx, sfp + espn, new_Exception(ctx, (knh_String_t*)msg), _HERE_); \
+		KNH_SETESP(ctx, sfp+espn);\
+		knh_stack_throw(ctx, sfp + start, new_Exception(ctx, msg), _HERE_); \
 	}
 
 #define KNH_SETJUMP(hdlr) knh_setjmp(DP(hdlr)->jmpbuf)
@@ -720,7 +722,7 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 		knh_Exception_t *_e = DP(sfp[hn].hdr)->caught; \
 		if(IS_Exception(_e)) {\
 			DBG2_P("THROW AGAIN ... ");\
-			((knh_Context_t*)ctx)->esp = sfp + hn + 1; \
+			KNH_SETESP(ctx, sfp + hn + 1); \
 			knh_stack_throw(ctx, sfp, _e, NULL, 0); \
 		}\
 	} \
