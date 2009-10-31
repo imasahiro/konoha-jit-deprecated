@@ -3606,7 +3606,6 @@ knh_Stmt_t *new_StmtCALLMN(Ctx *ctx, Any *fl, knh_methodn_t mn)
 static Term *knh_StmtSWITCH_typing(Ctx *ctx, knh_Stmt_t *stmt)
 {
 	BEGIN_BLOCK(esp);
-	int isIteration = 1;
 	knh_Stmt_t *stmtCASE, *stmtDEFAULT = NULL;
 	knh_Token_t *tkIT = NULL;
 	int c = 0;
@@ -3616,12 +3615,12 @@ static Term *knh_StmtSWITCH_typing(Ctx *ctx, knh_Stmt_t *stmt)
 	else {
 		tkIT = knh_Stmt_addLOCAL(ctx, stmt, TYPE_Any, SWITCH_IT);
 	}
-	if(knh_Stmt_isAutoReturn(stmt)) {
-		isIteration = 2/*AutoReturn*/;
-	}
 	stmtCASE = DP(stmt)->stmts[1];
 	while(IS_Stmt(stmtCASE)) {
 		if(SP(stmtCASE)->stt == STT_CASE) {
+			if(DP(stmtCASE)->esp == 0) {
+				DP(stmtCASE)->esp = knh_Gamma_esp(ctx);
+			}
 			if(TERMs_isASIS(stmtCASE, 0)) {
 				if(stmtDEFAULT != NULL) {
 					knh_Gamma_perror(ctx, KERR_EWARN, _("multiple default in switch"));
@@ -3629,7 +3628,7 @@ static Term *knh_StmtSWITCH_typing(Ctx *ctx, knh_Stmt_t *stmt)
 					goto L_NEXT;
 				}
 				stmtDEFAULT = stmtCASE;
-				TERMs_typingBLOCK(ctx, stmtCASE, 1, isIteration);
+				TERMs_typingBLOCK(ctx, stmtCASE, 1, 1/*isIteration*/);
 				c++;
 				goto L_NEXT;
 			}
@@ -3640,14 +3639,14 @@ static Term *knh_StmtSWITCH_typing(Ctx *ctx, knh_Stmt_t *stmt)
 			{
 				knh_Stmt_t *stmtOP = new_StmtCALLMN(ctx, FL(stmt), METHODN_opCase);
 				knh_Stmt_add(ctx, stmtOP, DP(stmtCASE)->terms[0]);
-				knh_Stmt_addT(ctx, stmtOP, tkIT);
+				knh_Stmt_addT(ctx, stmtOP, new_TokenLOCAL(ctx, FL(tkIT), DP(tkIT)->type, DP(tkIT)->index));
 				KNH_SETv(ctx, DP(stmtCASE)->terms[0], stmtOP);
 				if(!TERMs_typing(ctx, stmtCASE, 0, NNTYPE_Boolean, TCHECK_)) {
 					knh_Stmt_done(ctx, stmtCASE);
 					goto L_NEXT;
 				}
 			}
-			TERMs_typingBLOCK(ctx, stmtCASE, 1, isIteration);
+			TERMs_typingBLOCK(ctx, stmtCASE, 1, 1/*isIteration*/);
 			c++;
 		}
 		L_NEXT:;
@@ -3880,6 +3879,9 @@ Term *knh_StmtTRY_typing(Ctx *ctx, knh_Stmt_t *stmt)
 					knh_Stmt_done(ctx, stmtCATCH);
 				}
 				else {
+					if(DP(stmtCATCH)->esp == 0) {
+						DP(stmtCATCH)->esp = knh_Gamma_esp(ctx);
+					}
 					if(!TERMs_typing(ctx, stmtCATCH, 1, TYPE_Exception, TCHECK_)) {
 						knh_Stmt_done(ctx, stmtCATCH);
 					}
@@ -4214,18 +4216,19 @@ int knh_Stmt_checkLastReturn(Ctx *ctx, knh_Stmt_t *stmt, knh_Method_t *mtd)
 			return 1;
 		}
 	}
-	else if(stt == STT_SWITCH) {
-		knh_Stmt_t *stmtCASE = DP(stmt)->stmts[1];
-		int hasReturn = 1;
-		while(IS_Stmt(stmtCASE)) {
-			if(SP(stmtCASE)->stt != STT_CASE) continue;
-			if(knh_Stmt_checkLastReturn(ctx, DP(stmtCASE)->stmts[1], NULL) == 0) {
-				hasReturn = 0;
-				break;
-			}
-		}
-		if(hasReturn == 1) return 1;
-	}
+//	else if(stt == STT_SWITCH) {
+//		knh_Stmt_t *stmtCASE = DP(stmt)->stmts[1];
+//		int hasReturn = 1;
+//		while(IS_Stmt(stmtCASE)) {
+//			if(SP(stmtCASE)->stt != STT_CASE) continue;
+//			if(knh_Stmt_checkLastReturn(ctx, DP(stmtCASE)->stmts[1], NULL) == 0) {
+//				hasReturn = 0;
+//				break;
+//			}
+//		}
+//		DBG2_P("*** hasReturn=%d", hasReturn);
+//		if(hasReturn == 1) return 1;
+//	}
 	if(mtd == NULL) return 0;
 	DBG2_ASSERT(stmtLAST != NULL);
 	DBG2_P("generating default return .. stmtLAST=%s", cSTT_((stmtLAST)));

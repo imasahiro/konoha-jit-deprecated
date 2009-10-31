@@ -1786,6 +1786,8 @@ void knh_StmtSWITCH_asm(Ctx *ctx, knh_Stmt_t *stmt)
 		if(SP(stmtCASE)->stt == STT_CASE) {
 			if(!TERMs_isASIS(stmtCASE, 0)) {
 				knh_KLRInst_t*  lbEND = new_KLRInstLABEL(ctx);
+				DP(ctx->kc)->esp = DP(stmtCASE)->esp;
+				DBG2_P("it=%d, esp=%d, stmtCASE->esp=%d", DP(tkIT)->index, DP(ctx->kc)->esp, DP(stmtCASE)->esp);
 				TERMs_ASM_JIFF(ctx, stmtCASE, 0, lbEND);
 				TERMs_asmBLOCK(ctx, stmtCASE, 1);
 				KNH_ASM_LABEL(ctx, lbEND);

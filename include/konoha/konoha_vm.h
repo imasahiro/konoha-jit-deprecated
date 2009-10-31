@@ -113,7 +113,11 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 
 /* ======================================================================== */
 
-#define KLR_HALT(ctx) KLR_THROW__T(ctx, "Halt!!")
+#define KLR_HALT(ctx) { \
+		DBG2_P("pc=%p", pc);\
+		DBG2_ABORT();\
+		KLR_THROW__T(ctx, "Halt!!");\
+	}\
 
 /* ------------------------------------------------------------------------ */
 
