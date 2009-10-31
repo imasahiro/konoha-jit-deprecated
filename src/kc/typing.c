@@ -1861,8 +1861,7 @@ void knh_Gamma_addDefaultReturnValue(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t rtyp
 			knh_Token_toDEFVAL(tk, CLASS_type(rtype));
 		}
 		knh_Stmt_add(ctx, stmt, TM(tk));
-		knh_Gamma_perror(ctx, KERR_ERRATA,
-			_("return default value of %C"), CLASS_type(rtype));
+		knh_Gamma_perror(ctx, KERR_ERRATA, _("return default value of %C"), CLASS_type(rtype));
 	}
 }
 
@@ -1886,7 +1885,7 @@ Term *knh_StmtRETURN_typing(Ctx *ctx, knh_Stmt_t *stmt)
 
 	if(rtype == TYPE_void) {
 		if(DP(stmt)->size > 0) {
-			knh_Gamma_perror(ctx, KERR_ERRATA, _("return nothing"));
+			knh_Gamma_perror(ctx, KERR_DWARN, _("return nothing"));
 			DP(stmt)->size = 0;
 		}
 	}
@@ -4236,7 +4235,7 @@ int knh_Stmt_checkLastReturn(Ctx *ctx, knh_Stmt_t *stmt, knh_Method_t *mtd)
 	{
 		knh_type_t rtype = knh_Method_rztype(mtd);
 		knh_Stmt_t *stmtRETURN = new_Stmt(ctx, 0, STT_RETURN);
-		if(!knh_Method_isConstructor(ctx, mtd) || rtype != TYPE_void) {
+		if(!knh_Method_isConstructor(ctx, mtd) && rtype != TYPE_void) {
 			knh_Gamma_addDefaultReturnValue(ctx, stmtRETURN, knh_Method_rtype(ctx, mtd, DP(mtd)->cid));
 		}
 		KNH_SETv(ctx, DP(stmtLAST)->next, stmtRETURN);
