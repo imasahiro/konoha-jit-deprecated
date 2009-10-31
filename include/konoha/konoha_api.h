@@ -544,6 +544,7 @@ int knh_thread_setspecific(knh_thread_key_t key, const void *data);
 void* knh_thread_getspecific(knh_thread_key_t key);
 int knh_thread_key_delete(knh_thread_key_t key);
 int knh_getpid(void);
+knh_uint_t knh_time(void);
 knh_uint_t knh_initseed(void);
 knh_uint64_t knh_getTimeMilliSecond(void);
 knh_uint64_t knh_getProfCount(void);

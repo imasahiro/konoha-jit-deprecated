@@ -927,9 +927,9 @@ void knh_clearScriptLine(Ctx *ctx)
 static
 void knh_showWelcome(Ctx *ctx, knh_OutputStream_t *w)
 {
-	knh_printf(ctx, w, "Konoha %s(%s) %s (#%d, %s %s)",
+	knh_printf(ctx, w, "Konoha %s(%s) %s (rev:%d, %s %s)",
 		KONOHA_VERSION, KONOHA_XCODE, KONOHA_LICENSE,
-		((size_t)KONOHA_BUILDID), __DATE__, __TIME__);
+		((size_t)KONOHA_REVISION), __DATE__, __TIME__);
 	knh_write_EOL(ctx, w);
 	knh_printf(ctx, w, "[%s] on %s (%d, %s)\n", KONOHA_CC_VERSION, KONOHA_PLATFORM, (knh_intptr_t)(sizeof(void*) * 8), konoha_encoding());
 	knh_write_char(ctx, w, "Options:");
@@ -954,6 +954,15 @@ void knh_showWelcome(Ctx *ctx, knh_OutputStream_t *w)
 	knh_write_USING_REGEX(ctx, w);
 	knh_printf(ctx, w, " used_memory:%d kb", (knh_intptr_t)(ctx->stat->usedMemorySize / 1024));
 	knh_write_EOL(ctx, w);
+#ifdef KONOHA_EXPIRE
+	{
+		knh_uint_t t = knh_time();
+		if(t > KONOHA_EXPIRE) {
+			fprintf(stderr, "Konoha rev:%d was EXPIRED. Do 'svn update' NOW.\n\n", ((int)KONOHA_REVISION));
+			exit(0);
+		}
+	}
+#endif
 }
 
 /* ------------------------------------------------------------------------ */

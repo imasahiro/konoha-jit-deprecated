@@ -52,7 +52,7 @@
 #define KONOHA_MAJOR_VERSION  0
 #define KONOHA_MINER_VERSION  7
 #define KONOHA_PATCH_VERSION  0
-#define KONOHA_VERSION  "0.7b2"
+#define KONOHA_VERSION  "0.7b3"
 #endif
 
 #define LIBKONOHA_VERSION "0.7"
@@ -60,10 +60,6 @@
 #define KONOHA_XCODE    "BAKUMAN"
 #define KONOHA_URL		"http://konoha.sourceforge.jp/"
 #define KONOHA_URLBASE  "kttp://konoha.sourceforge.jp/wiki/"
-
-#define KONOHA_BUILDID_LATEST  645
-#define KONOHA_BUILDID_TOOOLD  645
-#define KNH_CHECK_VERSION(id)  ((id) <= KONOHA_BUILDID_TOOOLD)
 
 /* ======================================================================== */
 /* COMMON */

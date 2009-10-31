@@ -79,6 +79,19 @@ int knh_getpid(void)
 #endif
 }
 
+/* ------------------------------------------------------------------------ */
+
+knh_uint_t knh_time(void)
+{
+#if defined(KNH_USING_WINDOWS)
+	return (knh_uint_t)time(NULL);
+#elif defined(KNH_USING_POSIX)
+	return (knh_uint_t)time(NULL);
+#else
+	return KNH_INT_MAX;
+#endif
+}
+
 /* ======================================================================== */
 /* [time] */
 

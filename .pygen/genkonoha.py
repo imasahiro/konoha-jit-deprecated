@@ -2,6 +2,7 @@
 # This is a final python version of gen_konoha.py 
 
 import os, os.path, sys
+import time
 
 ####
 # print 
@@ -677,11 +678,20 @@ def readdir(dir, data):
         if dir != 'src' and fn.endswith('.c') : 
             readfile(fpath, data)
 
+def svnrev():
+    f = os.popen("svn info")
+    t = f.read()
+    print t
+    f.close()
+    return t.split('Revision: ')[1].split()[0]
+    
 def write_name_h(f, data):
     write_chapter(f, 'MACROS')
+    write_define(f, 'KONOHA_REVISION', '%s' % svnrev(), 40)
     write_define(f, 'KONOHA_BUILDID', '%d' % data.serial_number, 40)
-    if '-p' in data.OPTIONS:
-        write_define(f, 'KONOHA_PREVIEW', '1', 40)
+    if not '-c' in data.OPTIONS:
+        write_define(f,  'KONOHA_EXPIRE', '%dLL' % (int(time.time()) + 259200), 40)
+        #write_define(f,  'KONOHA_EXPIRE', '%dLL' % (int(time.time()) + 2), 40)
     write_chapter(f, 'STRUCT')
     cid = 0
     for c in data.STRUCT_LIST :
