@@ -2373,10 +2373,14 @@ static void KNH_ASM_INITLOCAL(Ctx *ctx)
 		if(IS_NATYPE(ztype)) {
 			Object *value = DP(kc)->gamma[xi].value;
 			if(value == NULL) {
-				KNH_ASM(PARAMDEF, sfi_(i), CLASS_type(ptype));
+				if(IS_NNTYPE(DP(kc)->gamma[xi].type)) {
+					KNH_ASM(PARAMDEF, sfi_(i), CLASS_type(ptype));
+				}
 			}
 			else {
-				KNH_ASM(PARAMo, sfi_(i), value);
+				if(IS_NOTNULL(value)) {
+					KNH_ASM(PARAMo, sfi_(i), value);
+				}
 			}
 		}
 	}
