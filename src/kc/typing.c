@@ -2069,7 +2069,7 @@ Term *knh_StmtPARAMS_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_class_t mtd_cid, knh
 		}
 	}
 	else if(i + 2 < size) {
-		knh_Gamma_perror(ctx, KERR_DWARN,
+		knh_Gamma_perror(ctx, KERR_EWARN,
 			_("too many parameters: %C.%M"), mtd_cid, DP(mtd)->mn);
 		DP(stmt)->size = i + 2;
 	}
