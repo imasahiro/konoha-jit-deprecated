@@ -401,7 +401,9 @@ void knh_Token_join(Ctx *ctx, knh_Token_t *o)
 		knh_Token_t *tk1 = (knh_Token_t*)knh_Array_n(a, i+1);
 		TTn_(tk0) = TT_(tk1);
 		if(SP(tk0)->line + 1 < SP(tk1)->line) {
-			if(TT_(tk1) == TT_TYPEN) knh_Token_setBOL(tk1, 1);
+			if(TT_(tk1) == TT_TYPEN) {
+				knh_Token_setBOL(tk1, 1);
+			}
 		}
 	}
 
