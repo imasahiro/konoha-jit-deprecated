@@ -237,6 +237,10 @@ void knh_Token_padd(Ctx *ctx, knh_Token_t *tkP, int *BOL, knh_Token_t *tk)
 	if(*BOL == 1) {
 		knh_Token_setBOL(tk, 1); *BOL = 0;
 	}
+	if(*BOL == 2) {/*EndOfLine*/
+		SP(tk)->line -= 1;
+		*BOL = 0;
+	}
 	if(TT_(tk) == TT_SEMICOLON || knh_token_isBeginOfStmt(TT_(tk))) {
 		knh_Token_setBOL(tk, 1);
 	}
@@ -396,7 +400,7 @@ void knh_Token_join(Ctx *ctx, knh_Token_t *o)
 		knh_Token_t *tk0 =  (knh_Token_t*)knh_Array_n(a, i);
 		knh_Token_t *tk1 = (knh_Token_t*)knh_Array_n(a, i+1);
 		TTn_(tk0) = TT_(tk1);
-		if(SP(tk0)->line + 1 < SP(tk1)->line && !knh_Token_isBOL(tk1)) {
+		if(SP(tk0)->line + 1 < SP(tk1)->line) {
 			knh_Token_setBOL(tk1, 1);
 		}
 	}
@@ -636,6 +640,7 @@ void knh_InputStream_parseToken(Ctx *ctx, knh_InputStream_t *in, knh_Token_t *tk
 
 		switch(ch) {
 		case '\n':
+			isBeginOfLine = 2;/*EndOfLine*/
 			knh_Token_add_space(ctx, tks[tkslevel], &isBeginOfLine, cwb, in);
 		goto INDENT_PART;
 

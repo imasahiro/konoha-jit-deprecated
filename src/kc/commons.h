@@ -14,7 +14,7 @@ extern "C" {
 
 #undef IS_Token
 #define IS_Token(o)      (((knh_Token_t*)o)->h.cid == CLASS_Token)
-#define TOKENNo(o)        knh_token_tochar(SP(o)->tt)
+#define cTT_(o)        knh_token_tochar(SP(o)->tt)
 
 #undef IS_Stmt
 #define IS_Stmt(o)       (((knh_Stmt_t*)o)->h.cid == CLASS_Stmt)
