@@ -3346,6 +3346,7 @@ Term *knh_StmtEXPR_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_class_t reqt)
 			stmt = (knh_Stmt_t*)tm;
 			DBG2_ASSERT(IS_Stmt(stmt));
 			knh_type_t type = DP(stmt)->type;
+			DBG2_P("AUTO RETURN STMT rtype=%s%s stmt->type", TYPEQN(rtype), TYPEQN(type));
 			if(rtype == TYPE_var) {
 				rtype = type;
 				knh_Gamma_derivedReturnType(ctx, DP(ctx->kc)->mtd, type);

@@ -1640,7 +1640,11 @@ knh_Token_t *knh_Term_toLOCAL(Ctx *ctx, Term *tm, knh_type_t type, int sfpidx)
 
 void knh_StmtEXPR_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 {
-	KNH_ASSERT(IS_Stmt(stmt));
+	DBG2_ASSERT(IS_Stmt(stmt));
+	if(knh_Stmt_isAutoReturn(stmt)) {
+		reqt = DP(stmt)->type;
+		sfpidx = -1;
+	}
 	switch(SP(stmt)->stt) {
 	case STT_CALL:
 	case STT_OP:
@@ -1678,7 +1682,7 @@ void knh_StmtEXPR_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 		KNH_ASM(CHKNUL, sfpidx);
 	}
 	if(knh_Stmt_isAutoReturn(stmt)) {
-		KNH_ASM(RETa, 0/*dummy*/, sfpidx);
+		KNH_ASM(RET);
 	}
 }
 
@@ -1714,8 +1718,7 @@ void knh_Gamma_pushLABEL(Ctx *ctx, knh_Stmt_t *stmt, knh_KLRInst_t *lbC, knh_KLR
 	knh_Array_add(ctx, DP(ctx->kc)->lstacks, UP(lbB));
 }
 
-static
-void knh_Gamma_popLABEL(Ctx *ctx)
+static void knh_Gamma_popLABEL(Ctx *ctx)
 {
 	knh_Array_pop(ctx, DP(ctx->kc)->lstacks);
 	knh_Array_pop(ctx, DP(ctx->kc)->lstacks);
@@ -1748,11 +1751,11 @@ static void TERMs_asmBLOCK(Ctx *ctx, knh_Stmt_t *stmt, size_t n)
 
 static void knh_StmtIF_asm(Ctx *ctx, knh_Stmt_t *stmt)
 {
-	knh_KLRInst_t*  lbIF   = new_KLRInstLABEL(ctx);
+	//knh_KLRInst_t*  lbIF   = new_KLRInstLABEL(ctx);
 	knh_KLRInst_t*  lbELSE = new_KLRInstLABEL(ctx);
 	knh_KLRInst_t*  lbEND  = new_KLRInstLABEL(ctx);
 	/* if */
-	KNH_ASM_LABEL(ctx, lbIF);
+	//KNH_ASM_LABEL(ctx, lbIF); // Sorry, ide.
 	TERMs_ASM_JIFF(ctx, stmt, 0, lbELSE);
 	/* then */
 	TERMs_asmBLOCK(ctx, stmt, 1);
