@@ -683,11 +683,12 @@ def svnrev():
     t = f.read()
     print t
     f.close()
-    return t.split('Revision: ')[1].split()[0]
-    
+    t = t.split('Revision: ')[1].split()[0]
+    return int(t) + 1
+
 def write_name_h(f, data):
     write_chapter(f, 'MACROS')
-    write_define(f, 'KONOHA_REVISION', '%s' % svnrev(), 40)
+    write_define(f, 'KONOHA_REVISION', '%d' % svnrev(), 40)
     write_define(f, 'KONOHA_BUILDID', '%d' % data.serial_number, 40)
     if not '-c' in data.OPTIONS:
         write_define(f,  'KONOHA_EXPIRE', '%dLL' % (int(time.time()) + 259200), 40)

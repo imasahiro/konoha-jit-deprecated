@@ -3076,6 +3076,7 @@ void knh_Token_toMPR(Ctx *ctx, knh_Token_t *tk, knh_class_t cid, knh_Mapper_t *m
 		DP(tk)->type = NATYPE_cid(cid);
 	}
 	else {
+		DBG2_P("******** isTotal? =%d", knh_Mapper_isTotal(mpr));
 		DP(tk)->type = knh_Mapper_isTotal(mpr) ? NNTYPE_cid(DP(mpr)->tcid) : NATYPE_cid(DP(mpr)->tcid);
 	}
 }
@@ -3084,8 +3085,14 @@ static
 Term *knh_StmtMAPCAST_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
 {
 	knh_Token_t *tkC = DP(stmt)->tokens[0];
+	knh_class_t scid, tcid;
+	knh_type_t  stype, rtype;
+	int isNonNullCast = (knh_Token_isNotNullType(tkC) || (!knh_Token_isNullableType(tkC) && IS_NNTYPE(reqt)));
+	if(isNonNullCast) {
+		knh_Stmt_setNNCAST(stmt, 1);
+	}
 
-	DBG2_ASSERT(DP(stmt)->size > 1);
+	/* (C) */
 	if(!TERMs_typing(ctx, stmt, 0, TYPE_Any, TWARN_)) {
 		return NULL;
 	}
@@ -3094,78 +3101,79 @@ Term *knh_StmtMAPCAST_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
 		return NULL;
 	}
 
-	knh_class_t mprcid = DP(tkC)->cid;
-	if(!TERMs_typing(ctx, stmt, 1, NNTYPE_cid(mprcid), TWARN_)) {
-		return NULL;
-	}
-
-	knh_type_t  exprt = TERMs_gettype(stmt, 1);
-	knh_class_t exprc = CLASS_type(exprt);
-	int isNonNullCast = (knh_Token_isNotNullType(tkC) || (!knh_Token_isNullableType(tkC) && IS_NNTYPE(reqt)));
-	DBG2_P("MAPCAST %s => %s isNonNullCast=%d", CLASSN(exprc), CLASSN(mprcid), isNonNullCast);
-	knh_Stmt_typed(ctx, stmt, isNonNullCast ? NNTYPE_cid(mprcid) : NATYPE_cid(mprcid));
-	if(isNonNullCast) {
-		knh_Stmt_setNNCAST(stmt, 1);
-	}
-
-	if(mprcid == CLASS_Any) {   /* (Any)expr */
-		mprcid = CLASS_type(reqt);
-		if(mprcid == CLASS_Any) {
+	tcid = DP(tkC)->cid;
+	if(tcid == CLASS_Any) {   /* (Any)expr */
+		tcid = CLASS_type(reqt);
+		if(tcid == CLASS_Any) {
 			return DP(stmt)->terms[1];
 		}
 	}
+	rtype = isNonNullCast ? NNTYPE_cid(tcid) : NATYPE_cid(tcid);
 
-	if(TERMs_isNULL(ctx, stmt, 1)) {  /* (T)null */
-		if(isNonNullCast) {
-			knh_Token_toDEFVAL(DP(stmt)->tokens[1], mprcid);
-		}
-		else {
-			knh_Gamma_perror(ctx, KERR_DWARN, _("casting null"));
-		}
-		return DP(stmt)->terms[1];
-	}
-
-	if(exprc == CLASS_Any) {     /* (T)anyexpr */
-		knh_Token_toMPR(ctx, tkC, mprcid, (knh_Mapper_t*)KNH_NULL);
-		return TM(stmt);
-	}
-
-	if(mprcid == exprc || knh_class_instanceof(ctx, mprcid, exprc)) {
-		/* upcast */
-		if(isNonNullCast && IS_NNTYPE(exprt)) {
-			knh_Token_toMPR(ctx, tkC, mprcid, (knh_Mapper_t*)KNH_NULL);
-			return TM(stmt);
-		}
-		if(!TERMs_isCONST(stmt, 1) && mprcid == exprc) {
-			knh_Gamma_perror(ctx, KERR_DWARN, _("upcast does not need (%C)"), mprcid);
-		}
-		return DP(stmt)->terms[1];
-	}
-
-	if(knh_class_instanceof(ctx, exprc, mprcid)) {  /* downcast */
-		knh_Token_toMPR(ctx, tkC, mprcid, (knh_Mapper_t*)KNH_NULL);
-		return TM(stmt);
-	}
-
-	knh_Mapper_t *mpr = knh_Class_getMapper(ctx, exprc, mprcid);
-	if(IS_NULL(mpr)) {
-		knh_Gamma_perror(ctx, KERR_ERROR, _("undefined mapper: %C ==> %C"), exprc, mprcid);
+	/* expr */
+	if(!TERMs_typing(ctx, stmt, 1, NNTYPE_cid(tcid), TWARN_)) {
 		return NULL;
 	}
-	else if(knh_Mapper_isConst(mpr) && TERMs_isCONST(stmt, 1)) {
-		DBG2_P("MAPCAST TO CONST .. %s ==> %s", CLASSN(DP(mpr)->scid), CLASSN(DP(mpr)->tcid));
-		knh_Token_t *tk1 = DP(stmt)->tokens[1];
-		knh_sfp_t *lsfp = KNH_LOCAL(ctx);
-		KNH_MOV(ctx, lsfp[0].o, DP(tk1)->data);
-		KNH_UNBOX(ctx, &lsfp[0]);
-		KNH_SMAP(ctx, lsfp, 0, mpr);
-		KNH_BOX(ctx, &lsfp[0], DP(mpr)->tcid);
-		knh_Token_setCONST(ctx, tk1, lsfp[0].o);
-		return TM(tk1);
+	stype = TERMs_gettype(stmt, 1);
+	scid = CLASS_type(stype);
+	DBG2_P("MAPCAST %s => %s isNonNullCast=%d", CLASSN(scid), CLASSN(tcid), isNonNullCast);
+	//knh_Stmt_typed(ctx, stmt, );
+
+	if(TERMs_isNULL(ctx, stmt, 1)) {  /* (T)null */
+		knh_Token_toDEFVAL(DP(stmt)->tokens[1], tcid);
+		if(!isNonNullCast) {
+			knh_Gamma_perror(ctx, KERR_ERRATA, _("==> (%C!)null"), tcid);
+		}
+		return DP(stmt)->terms[1];
 	}
-	else {
-		knh_Token_toMPR(ctx, tkC, mprcid, mpr);
-		return TM(stmt);
+
+	if(scid == CLASS_Any) {     /* (T)anyexpr */
+		knh_Token_toMPR(ctx, tkC, tcid, (knh_Mapper_t*)KNH_NULL);
+		return knh_Stmt_typed(ctx, stmt, rtype);
+	}
+
+	if(tcid == scid || knh_class_instanceof(ctx, scid, tcid)) {
+		/* upcast */
+		if(isNonNullCast && IS_NATYPE(stype)) {
+			knh_Token_toMPR(ctx, tkC, tcid, (knh_Mapper_t*)KNH_NULL);
+			return knh_Stmt_typed(ctx, stmt, rtype);
+		}
+//		if(!TERMs_isCONST(stmt, 1) && tcid == scid) {
+		knh_Gamma_perror(ctx, KERR_DWARN, _("upcast (%C)expr of %C"), tcid, scid);
+//		}
+		return DP(stmt)->terms[1];
+	}
+
+	if(knh_class_instanceof(ctx, tcid, scid)) {  /* downcast */
+		knh_Token_toMPR(ctx, tkC, tcid, (knh_Mapper_t*)KNH_NULL);
+		knh_Gamma_perror(ctx, KERR_DWARN, _("downcast (%C)expr of %C"), tcid, scid);
+		return knh_Stmt_typed(ctx, stmt, rtype);
+	}
+
+	{
+		knh_Mapper_t *mpr = knh_Class_getMapper(ctx, scid, tcid);
+		if(IS_NULL(mpr)) {
+			knh_Gamma_perror(ctx, KERR_ERROR, _("undefined mapper: %C ==> %C"), scid, tcid);
+			return NULL;
+		}
+		if(knh_Mapper_isConst(mpr) && TERMs_isCONST(stmt, 1)) {
+			DBG2_P("MAPCAST TO CONST .. %s ==> %s", CLASSN(DP(mpr)->scid), CLASSN(DP(mpr)->tcid));
+			knh_Token_t *tk1 = DP(stmt)->tokens[1];
+			knh_sfp_t *lsfp = KNH_LOCAL(ctx);
+			KNH_MOV(ctx, lsfp[0].o, DP(tk1)->data);
+			KNH_UNBOX(ctx, &lsfp[0]);
+			KNH_SMAP(ctx, lsfp, 0, mpr);
+			KNH_BOX(ctx, &lsfp[0], DP(mpr)->tcid);
+			knh_Token_setCONST(ctx, tk1, lsfp[0].o);
+			return TM(tk1);
+		}
+		else {
+			if(knh_Mapper_isTotal(mpr) && IS_NNTYPE(stype)) {
+				rtype = NNTYPE_cid(tcid);
+			}
+			knh_Token_toMPR(ctx, tkC, tcid, mpr);
+			return knh_Stmt_typed(ctx, stmt, rtype);
+		}
 	}
 }
 
@@ -3346,7 +3354,7 @@ Term *knh_StmtEXPR_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_class_t reqt)
 			stmt = (knh_Stmt_t*)tm;
 			DBG2_ASSERT(IS_Stmt(stmt));
 			knh_type_t type = DP(stmt)->type;
-			DBG2_P("AUTO RETURN STMT rtype=%s%s stmt->type", TYPEQN(rtype), TYPEQN(type));
+			DBG2_P("AUTO RETURN STMT rtype=%s%s stmt->type=%s%s", TYPEQN(rtype), TYPEQN(type));
 			if(rtype == TYPE_var) {
 				rtype = type;
 				knh_Gamma_derivedReturnType(ctx, DP(ctx->kc)->mtd, type);

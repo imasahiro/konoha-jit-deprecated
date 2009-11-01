@@ -40,17 +40,6 @@ extern "C" {
 /* ======================================================================== */
 /* [toBoolean] */
 
-/* ------------------------------------------------------------------------ */
-//## @Const @Final mapper String Boolean;
-
-static MAPPER String_Boolean(Ctx *ctx, knh_sfp_t *sfp)
-{
-	knh_bytes_t t = __tobytes(sfp[0].s);
-	int b = (knh_bytes_equalsIgnoreCase(t, STEXT("true")) ||
-				knh_bytes_equalsIgnoreCase(t, STEXT("yes")));
-	KNH_MAPPED_Boolean(ctx, sfp, b);
-}
-
 /* ======================================================================== */
 /* [toInt] */
 
