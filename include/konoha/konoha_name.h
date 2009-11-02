@@ -2,9 +2,9 @@
 
 /* ======================================================================== */
 /* MACROS */
-#define KONOHA_REVISION                 912
+#define KONOHA_REVISION                 915
 #define KONOHA_BUILDID                  749
-#define KONOHA_EXPIRE                   1257392599LL
+#define KONOHA_EXPIRE                   1257449619LL
 
 /* ======================================================================== */
 /* STRUCT */
@@ -1232,6 +1232,11 @@
 #define knh_Stmt_isMemo1(o)  ((SP(o)->flag & FLAG_Stmt_Memo1) == FLAG_Stmt_Memo1)
 
 #define knh_Stmt_setMemo1(o,b) if(b) SP(o)->flag |= FLAG_Stmt_Memo1; else SP(o)->flag &= ~(FLAG_Stmt_Memo1);
+#define FLAG_Stmt_Memo2                 (knh_flag_t)(1<<6)
+
+#define knh_Stmt_isMemo2(o)  ((SP(o)->flag & FLAG_Stmt_Memo2) == FLAG_Stmt_Memo2)
+
+#define knh_Stmt_setMemo2(o,b) if(b) SP(o)->flag |= FLAG_Stmt_Memo2; else SP(o)->flag &= ~(FLAG_Stmt_Memo2);
 #define FLAG_Gamma_Cancelled            (knh_flag_t)(1<<0)
 
 #define knh_Gamma_isCancelled(o)  ((DP(o)->flag & FLAG_Gamma_Cancelled) == FLAG_Gamma_Cancelled)

@@ -402,7 +402,8 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 
 #define KLR_CHKTYPE(ctx, n, cid) \
 	if(!knh_Object_opTypeOf(ctx, sfp[n].o, cid)) { \
-		knh_stack_throw(ctx, ctx->esp, new_Exception__type(ctx, sfp[n].o, cid), _HERE_); \
+		/*knh_stack_throw(ctx, ctx->esp, new_Exception__type(ctx, sfp[n].o, cid), _HERE_);*/ \
+		KLR_THROW__T(ctx, "ClassCast!!"); \
 	} \
 
 #define KLR_CHECKNNTYPE(ctx, n, cid) {\

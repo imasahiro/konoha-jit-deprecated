@@ -1120,6 +1120,7 @@ typedef struct {
 //## flag Stmt Untyped    3 SP(%s)->flag is set * *;
 //## flag Stmt Expr       4 SP(%s)->flag is set * *;
 //## flag Stmt Memo1      5 SP(%s)->flag is set * *;
+//## flag Stmt Memo2      6 SP(%s)->flag is set * *;
 
 #define knh_Stmt_isTyped(o)        (DP(o)->type != TYPE_var)
 
@@ -1136,6 +1137,8 @@ typedef struct {
 /* STT_MAPCAST */
 #define knh_Stmt_isNNCAST(s)       knh_Stmt_isMemo1(s)
 #define knh_Stmt_setNNCAST(s,b)    knh_Stmt_setMemo1(s,b)
+#define knh_Stmt_isDOWNCAST(s)       knh_Stmt_isMemo2(s)
+#define knh_Stmt_setDOWNCAST(s,b)    knh_Stmt_setMemo2(s,b)
 /* STT_FOREACH */
 #define knh_Stmt_isMAPNEXT(s)      knh_Stmt_isMemo1(s)
 #define knh_Stmt_setMAPNEXT(s,b)   knh_Stmt_setMemo1(s,b)

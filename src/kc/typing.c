@@ -3087,7 +3087,8 @@ Term *knh_StmtMAPCAST_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
 	knh_Token_t *tkC = DP(stmt)->tokens[0];
 	knh_class_t scid, tcid;
 	knh_type_t  stype, rtype;
-	int isNonNullCast = (knh_Token_isNotNullType(tkC) || (!knh_Token_isNullableType(tkC) && IS_NNTYPE(reqt)));
+
+	int isNonNullCast = knh_Token_isNotNullType(tkC);
 	if(isNonNullCast) {
 		knh_Stmt_setNNCAST(stmt, 1);
 	}
@@ -3105,6 +3106,9 @@ Term *knh_StmtMAPCAST_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
 	if(tcid == CLASS_Any) {   /* (Any)expr */
 		tcid = CLASS_type(reqt);
 		if(tcid == CLASS_Any) {
+			if(!TERMs_typing(ctx, stmt, 1, TYPE_Any, TWARN_)) {
+				return NULL;
+			}
 			return DP(stmt)->terms[1];
 		}
 	}
@@ -3117,7 +3121,6 @@ Term *knh_StmtMAPCAST_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
 	stype = TERMs_gettype(stmt, 1);
 	scid = CLASS_type(stype);
 	DBG2_P("MAPCAST %s => %s isNonNullCast=%d", CLASSN(scid), CLASSN(tcid), isNonNullCast);
-	//knh_Stmt_typed(ctx, stmt, );
 
 	if(TERMs_isNULL(ctx, stmt, 1)) {  /* (T)null */
 		knh_Token_toDEFVAL(DP(stmt)->tokens[1], tcid);
@@ -3138,9 +3141,9 @@ Term *knh_StmtMAPCAST_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
 			knh_Token_toMPR(ctx, tkC, tcid, (knh_Mapper_t*)KNH_NULL);
 			return knh_Stmt_typed(ctx, stmt, rtype);
 		}
-//		if(!TERMs_isCONST(stmt, 1) && tcid == scid) {
-		knh_Gamma_perror(ctx, KERR_DWARN, _("upcast (%C)expr of %C"), tcid, scid);
-//		}
+		if(!TERMs_isCONST(stmt, 1) && tcid == scid) {
+			knh_Gamma_perror(ctx, KERR_DWARN, _("upcast (%C)expr of %C"), tcid, scid);
+		}
 		return DP(stmt)->terms[1];
 	}
 

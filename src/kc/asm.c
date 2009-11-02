@@ -67,7 +67,7 @@ static knh_KLRInst_t *new_KLRInstLABEL(Ctx *ctx);
 	}\
 
 static
-void TERMs_asm(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_type_t reqt, int sfpidx);
+void TERMs_asm(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_type_t reqt, int local);
 
 /* ======================================================================== */
 /* [namespace] */
@@ -777,65 +777,6 @@ void KNH_ASM_NEW(Ctx *ctx, knh_type_t reqt, int sfpidx, knh_Token_t *tkb,
 
 /* ------------------------------------------------------------------------ */
 
-static
-void KNH_ASM_MAP(Ctx *ctx, knh_type_t reqt, int sfpidx, knh_Token_t *tkb, knh_type_t srct, int isNonNullCast)
-{
-	DBG2_ASSERT(IS_Token(tkb));
-	knh_Mapper_t *mpr = DP(tkb)->mpr;
-
-	if(IS_Mapper(mpr)) {
-//		DBG2_P("reqt=%s%s tcid=%s srct=%s%s isNonNullCast=%d",
-//				TYPEQN(reqt), CLASSN(DP(mpr)->tcid), TYPEQN(srct), isNonNullCast);
-		if(knh_Mapper_isFinal(mpr)) {
-			if(IS_NNTYPE(srct)) {
-				if(DP(mpr)->scid == CLASS_Int && DP(mpr)->tcid == CLASS_Float) {
-					KNH_ASM(fCAST, sfpidx);
-					return;
-				}
-				else if(DP(mpr)->scid == CLASS_Float && DP(mpr)->tcid == CLASS_Int) {
-					KNH_ASM(iCAST, sfpidx);
-					return;
-				}
-				KNH_ASM(SMAP, sfpidx, mpr);
-				if(!knh_Mapper_isTotal(mpr)) srct = CLASS_type(srct);
-			}
-			else {
-				if(DP(mpr)->scid == CLASS_Int && DP(mpr)->tcid == CLASS_Float) {
-					KNH_ASM(fnCAST, sfpidx);
-					return;
-				}
-				else if(DP(mpr)->scid == CLASS_Float && DP(mpr)->tcid == CLASS_Int) {
-					KNH_ASM(inCAST, sfpidx);
-					return;
-				}
-				KNH_ASM(SMAPnc, sfpidx, mpr);
-			}
-		}
-		else {
-			if(IS_NNTYPE(srct)) {
-				KNH_ASM(MAP, sfpidx, DP(mpr)->tcid);
-				if(!knh_Mapper_isTotal(mpr)) {
-					srct = CLASS_type(srct);
-				}
-			}
-			else {
-				KNH_ASM(MAPnc, sfpidx, DP(mpr)->tcid);
-			}
-		}
-	}
-	else {
-		KNH_ASSERT(TT_(tkb) == TT_MPR);
-		//DBG2_P("reqt=%s%s mprcid=%s srct=%s%s isNonNullCast=%d", TYPEQN(reqt), DP(tkb)->cid, TYPEQN(srct), isNonNullCast);
-		KNH_ASM(AMAP, sfpidx, DP(tkb)->cid);
-		srct = CLASS_type(srct);
-	}
-	if(!IS_NNTYPE(srct) && isNonNullCast) {
-		KNH_ASM(NNMAP, sfpidx, DP(tkb)->cid);
-	}
-	else if(IS_NNTYPE(reqt)) {
-		KNH_ASM(CHKNUL, sfpidx);
-	}
-}
 
 /* ======================================================================== */
 /* [CONTROL] */
@@ -1505,7 +1446,63 @@ void knh_StmtMAPCAST_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx
 	int local = ASML(sfpidx);
 	knh_type_t srct = TERMs_gettype(stmt, 1);
 	TERMs_asm(ctx, stmt, 1, srct, local);
-	KNH_ASM_MAP(ctx, reqt, local, DP(stmt)->tokens[0], srct, knh_Stmt_isNNCAST(stmt));
+	{
+		knh_Token_t *tkC = DP(stmt)->tokens[0];
+		knh_Mapper_t *mpr = DP(tkC)->mpr;
+		if(IS_Mapper(mpr)) {
+			knh_class_t scid = DP(mpr)->scid, tcid = DP(mpr)->tcid;
+			if(knh_Mapper_isFinal(mpr)) {
+				if(IS_NNTYPE(srct)) {
+					if(scid == CLASS_Int && tcid == CLASS_Float) {
+						KNH_ASM(fCAST, local);
+					}
+					else if(scid == CLASS_Float && tcid == CLASS_Int) {
+						KNH_ASM(iCAST, local);
+					}
+					else {
+						KNH_ASM(SMAP, local, mpr);
+						if(!knh_Mapper_isTotal(mpr)) srct = NATYPE_cid(srct);
+					}
+				}
+				else {
+					if(scid == CLASS_Int && tcid == CLASS_Float) {
+						KNH_ASM(fnCAST, local);
+					}
+					else if(scid == CLASS_Float && tcid == CLASS_Int) {
+						KNH_ASM(inCAST, local);
+					}
+					else {
+						KNH_ASM(SMAPnc, local, mpr);
+					}
+				}
+			}
+			else {
+				if(IS_NNTYPE(srct)) {
+					KNH_ASM(MAP, local, DP(mpr)->tcid);
+					if(!knh_Mapper_isTotal(mpr)) srct = NATYPE_cid(srct);
+				}
+				else {
+					KNH_ASM(MAPnc, local, DP(mpr)->tcid);
+				}
+			}
+		}
+		else {
+			KNH_ASSERT(TT_(tkC) == TT_MPR);
+			if(knh_Stmt_isDOWNCAST(stmt)) {
+				KNH_ASM(CHKTYPE, local, DP(tkC)->cid);
+			}
+			else {
+				KNH_ASM(AMAP, local, DP(tkC)->cid);
+				srct = NATYPE_cid(srct);
+			}
+		}
+		if(IS_NATYPE(srct) && knh_Stmt_isNNCAST(stmt)) {
+			KNH_ASM(NNMAP, local, DP(tkC)->cid);
+		}
+		else if(IS_NNTYPE(reqt)) {
+			KNH_ASM(CHKNUL, local);
+		}
+	}
 	MOVL(ctx, local, sfpidx);
 }
 
@@ -1696,17 +1693,17 @@ void knh_StmtEXPR_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 /* ------------------------------------------------------------------------ */
 
 static
-void TERMs_asm(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_type_t reqt, int sfpidx)
+void TERMs_asm(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_type_t reqt, int local)
 {
 	if(IS_Token(DP(stmt)->tokens[n])) {
 		knh_Token_t *tk = DP(stmt)->tokens[n];
-		KNH_ASM_SMOV(ctx, reqt, sfpidx, tk);
-		knh_Term_toLOCAL(ctx, TM(tk), reqt, sfpidx);
+		KNH_ASM_SMOV(ctx, reqt, local, tk);
+		knh_Term_toLOCAL(ctx, TM(tk), reqt, local);
 
 	}
 	else {
-		knh_StmtEXPR_asm(ctx, DP(stmt)->stmts[n], reqt, sfpidx);
-		KNH_SETv(ctx, DP(stmt)->tokens[n], knh_Term_toLOCAL(ctx, DP(stmt)->terms[n], reqt, sfpidx));
+		knh_StmtEXPR_asm(ctx, DP(stmt)->stmts[n], reqt, local);
+		KNH_SETv(ctx, DP(stmt)->tokens[n], knh_Term_toLOCAL(ctx, DP(stmt)->terms[n], reqt, local));
 	}
 }
 
