@@ -314,7 +314,7 @@ void KNH_ASM_SMOVx(Ctx *ctx, knh_type_t atype, int a, knh_type_t btype, knh_sfx_
 		knh_Gamma_t *kc = ctx->kc;
 		knh_Object_t *scr = (knh_Object_t*)knh_getGammaScript(ctx);
 		KNH_ASM(MOVo, DP(kc)->globalidx, scr);
-		DP(kc)->globalidx = -1;
+		/** DP(kc)->globalidx = -1; I want SSA */
 	}
 #ifdef KNH_USING_UNBOXFIELD
 	if(IS_ubxint(btype)) {
@@ -457,7 +457,7 @@ void KNH_ASM_XMOVx(Ctx *ctx, knh_type_t atype, knh_sfx_t ax, knh_type_t btype, k
 		knh_Gamma_t *kc = ctx->kc;
 		knh_Object_t *scr = (knh_Object_t*)knh_getGammaScript(ctx);
 		KNH_ASM(MOVo, DP(kc)->globalidx, scr);
-		DP(kc)->globalidx = -1;
+		/** DP(kc)->globalidx = -1; I want SSA */
 	}
 	if(IS_NNTYPE(atype) && !IS_NNTYPE(btype)) {
 		KNH_ASM(CHKNULx, bx);
@@ -469,51 +469,45 @@ void KNH_ASM_XMOVx(Ctx *ctx, knh_type_t atype, knh_sfx_t ax, knh_type_t btype, k
 		else {
 			KNH_ASM(XMOVxio, ax, bx);
 		}
-		return;
 	}
-	if(IS_ubxfloat(atype)) {
+	else if(IS_ubxfloat(atype)) {
 		if(IS_ubxfloat(btype)) {
 			KNH_ASM(XMOVxf, ax, bx);
 		}
 		else {
 			KNH_ASM(XMOVxfo, ax, bx);
 		}
-		return;
 	}
-	if(IS_ubxboolean(atype) && IS_ubxboolean(btype)) {
+	else if(IS_ubxboolean(atype) && IS_ubxboolean(btype)) {
 		KNH_ASM(XMOVxb, ax, bx);
-		return;
 	}
-	if(IS_bxint(atype) && IS_ubxint(btype)) {
+	else if(IS_bxint(atype) && IS_ubxint(btype)) {
 		KNH_ASM(XMOVxBXi, ax, bx, CLASS_type(btype));
-		return;
 	}
-	if(IS_bxfloat(atype) && IS_ubxfloat(btype)) {
+	else if(IS_bxfloat(atype) && IS_ubxfloat(btype)) {
 		KNH_ASM(XMOVxBXf, ax, bx, CLASS_type(btype));
-		return;
 	}
-	if(IS_ubxint(btype)) { // Any a = b; // int b;
-		DBG2_P("atype=%s%s", TYPEQN(atype));
+	else if(IS_ubxint(btype)) { // Any a = b; // int b;
+		//DBG2_P("atype=%s%s", TYPEQN(atype));
 		KNH_ASM(MOVxi, DP(ctx->kc)->esp, bx);
 		KNH_ASM(BOX, DP(ctx->kc)->esp, CLASS_type(btype));
 		KNH_ASM(XMOVs, ax, DP(ctx->kc)->esp);
-		return;
 	}
-	if(IS_ubxfloat(btype)) { // Any a = b; // float b;
-		DBG2_P("atype=%s%s", TYPEQN(atype));
+	else if(IS_ubxfloat(btype)) { // Any a = b; // float b;
+		//DBG2_P("atype=%s%s", TYPEQN(atype));
 		KNH_ASM(MOVxf, DP(ctx->kc)->esp, bx);
 		KNH_ASM(BOX, DP(ctx->kc)->esp, CLASS_type(btype));
 		KNH_ASM(XMOVs, ax, DP(ctx->kc)->esp);
-		return;
 	}
-	if(IS_ubxboolean(btype)) { // Any a = b; // boolean b;
-		DBG2_P("atype=%s%s", TYPEQN(atype));
+	else if(IS_ubxboolean(btype)) { // Any a = b; // boolean b;
+		//DBG2_P("atype=%s%s", TYPEQN(atype));
 		KNH_ASM(MOVxb, DP(ctx->kc)->esp, bx);
 		KNH_ASM(BOX, DP(ctx->kc)->esp, CLASS_type(btype));
 		KNH_ASM(XMOVs, ax, DP(ctx->kc)->esp);
-		return;
 	}
-	KNH_ASM(XMOVx, ax, bx);
+	else {
+		KNH_ASM(XMOVx, ax, bx);
+	}
 }
 
 /* ------------------------------------------------------------------------ */
