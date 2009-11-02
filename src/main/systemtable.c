@@ -120,7 +120,7 @@ void knh_ObjectPageTable_free(Ctx *ctx, char *thead)
 				default:
 					fprintf(stderr, "async mem cid=%s(%d), refc=%d\n", STRUCTN(o->h.bcid), (int)o->h.cid, (int)o->h.refc);
 				}
-			} )
+			} );
 			o->h.refc = 0;
 #endif
 			/* BUGS: We cannot free cyclic objects at this stage */

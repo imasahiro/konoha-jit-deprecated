@@ -45,17 +45,17 @@ extern "C" {
 
 static int isInit = 0;
 
-#ifdef KNH_USING_NOTHREAD
-static Ctx *curctx = NULL;
-#else
+#ifdef KNH_USING_THREAD
 static knh_thread_key_t ctxkey;
+#else
+static Ctx *curctx = NULL;
 #endif
 
 /* ------------------------------------------------------------------------ */
 
 void konoha_init(void)
 {
-#ifndef KNH_USING_NOTHREAD
+#ifdef KNH_USING_THREAD
 	if(isInit == 0) {
 		isInit = 1;
 		knh_thread_key_create(&ctxkey);
@@ -70,11 +70,11 @@ void konoha_init(void)
 
 KNHAPI(Ctx*) knh_beginContext(Ctx *ctx)
 {
-#ifdef KNH_USING_NOTHREAD
-	curctx = ctx;
-#else
+#ifdef KNH_USING_THREAD
 	knh_mutex_lock(ctx->ctxlock);
 	knh_thread_setspecific(ctxkey, ctx);
+#else
+	curctx = ctx;
 #endif
 	return ctx;
 }
@@ -83,11 +83,11 @@ KNHAPI(Ctx*) knh_beginContext(Ctx *ctx)
 
 KNHAPI(void) knh_endContext(Ctx *ctx)
 {
-#ifdef KNH_USING_NOTHREAD
-	curctx = NULL;
-#else
+#ifdef KNH_USING_THREAD
 	knh_thread_setspecific(ctxkey, NULL);
 	knh_mutex_unlock(ctx->ctxlock);
+#else
+	curctx = NULL;
 #endif
 }
 
@@ -96,10 +96,10 @@ KNHAPI(void) knh_endContext(Ctx *ctx)
 KNHAPI(Ctx*) knh_getCurrentContext(void)
 {
 	Ctx *ctx;
-#ifdef KNH_USING_NOTHREAD
-	ctx = curctx;
-#else
+#ifdef KNH_USING_THREAD
 	ctx = (Ctx*)knh_thread_getspecific(ctxkey);
+#else
+	ctx = curctx;
 #endif
 	if(ctx == NULL) {
 		fprintf(stderr, "NOT IN THE CONTEXT OF KONOHA\n");

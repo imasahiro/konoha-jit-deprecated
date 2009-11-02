@@ -117,8 +117,6 @@ static ssize_t knh_dev_write(struct file *filp,const char __user *user_buf,
     memset(dev->buffer,0,sizeof(char)*MAXCOPYBUF);
     buf[count] = '\0';
     printk("[%s][user_buf=%s]\n", __FUNCTION__,buf);
-    //printk(KERN_DEBUG "[%s]\n",konoha_eval(dev->konoha, "int fib(int n) { if (n==3) { return 1;}}"));
-    //printk(KERN_DEBUG "[%s]\n",konoha_eval(dev->konoha, "fib(10);"));
     konoha_evalScript(dev->konoha,buf);
     knh_ret = konoha_getStdOutBufferText(dev->konoha);
     snprintf(dev->buffer,MAXCOPYBUF,"%s",knh_ret);
@@ -165,6 +163,7 @@ static int __init konohadev_init(void) {
         return -ENOMEM;
     }
     memset(konohadev_p,0,sizeof(struct konohadev_t));
+    printk(KERN_INFO "konoha init!\n");
     knh_dev_setup(konohadev_p);
 
     return 0;
@@ -172,11 +171,11 @@ static int __init konohadev_init(void) {
 
 // End/Cleanup function
 static void __exit konohadev_exit(void) {
-    printk(KERN_ALERT "Goodbye!\n");
     konoha_close(konohadev_p->konoha);
     kfree(konohadev_p->buffer);
     cdev_del(&konohadev_p->cdev);
     unregister_chrdev_region(konohadev_p->id,1);
+    printk(KERN_INFO "konoha exit\n");
     kfree(konohadev_p);
 }
 
