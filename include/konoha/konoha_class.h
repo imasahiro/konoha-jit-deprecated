@@ -1256,7 +1256,8 @@ typedef knh_short_t            knh_sfe_t;
 
 typedef struct {
 	knh_sfpidx_t i;
-	size_t    n;
+	/*size_t    n;*/
+	knh_sfpidx_t n;
 } knh_sfx_t;
 
 #if defined(KNH_USING_THREADEDCODE)

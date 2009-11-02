@@ -310,6 +310,12 @@ void KNH_ASM_NNBOX(Ctx *ctx, knh_type_t reqt, knh_type_t atype, int a)
 static
 void KNH_ASM_SMOVx(Ctx *ctx, knh_type_t atype, int a, knh_type_t btype, knh_sfx_t bx)
 {
+	if(DP(ctx->kc)->globalidx == bx.i) {
+		knh_Gamma_t *kc = ctx->kc;
+		knh_Object_t *scr = (knh_Object_t*)knh_getGammaScript(ctx);
+		KNH_ASM(MOVo, DP(kc)->globalidx, scr);
+		DP(kc)->globalidx = -1;
+	}
 #ifdef KNH_USING_UNBOXFIELD
 	if(IS_ubxint(btype)) {
 		DBG2_P("atype=%s%s, btype=%s%s", TYPEQN(atype), TYPEQN(btype));
@@ -447,6 +453,12 @@ void KNH_ASM_SMOV(Ctx *ctx, knh_type_t atype, int a, knh_Token_t *tkb)
 static
 void KNH_ASM_XMOVx(Ctx *ctx, knh_type_t atype, knh_sfx_t ax, knh_type_t btype, knh_sfx_t bx)
 {
+	if(DP(ctx->kc)->globalidx == bx.i) {
+		knh_Gamma_t *kc = ctx->kc;
+		knh_Object_t *scr = (knh_Object_t*)knh_getGammaScript(ctx);
+		KNH_ASM(MOVo, DP(kc)->globalidx, scr);
+		DP(kc)->globalidx = -1;
+	}
 	if(IS_NNTYPE(atype) && !IS_NNTYPE(btype)) {
 		KNH_ASM(CHKNULx, bx);
 	}
@@ -1450,7 +1462,8 @@ void knh_StmtCALL_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 		}
 		KNH_ASM(FCALL, sfi_(local), (knh_ushort_t)DP(stmt)->size, sfi_(a), mtd);
 		goto L_RTYPE;
-	}/*PEEPHOLE*/
+	}
+	/*PEEPHOLE*/
 
 	for(i = 1; i < DP(stmt)->size; i++) {
 		knh_type_t reqt2 = knh_Method_reqtTERMs(ctx, mtd, cid, stmt, i);
@@ -2395,10 +2408,10 @@ static void KNH_ASM_INITLOCAL(Ctx *ctx)
 		KNH_ASM(PARAMS, i, cid); i++;
 	}
 
-	if(DP(kc)->globalidx != -1) {
-		knh_Object_t *scr = (knh_Object_t*)knh_getGammaScript(ctx);
-		KNH_ASM(MOVo, DP(kc)->globalidx, scr);
-	}
+//	if(DP(kc)->globalidx != -1) {
+//		knh_Object_t *scr = (knh_Object_t*)knh_getGammaScript(ctx);
+//		KNH_ASM(MOVo, DP(kc)->globalidx, scr);
+//	}
 
 	for(i=0; i < knh_Array_size(DP(kc)->decls); i++) {
 		knh_Stmt_t *stmt = (knh_Stmt_t*)knh_Array_n(DP(kc)->decls, i);
