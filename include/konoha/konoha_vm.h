@@ -356,6 +356,11 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 		KLR_RET(ctx);\
 	}\
 
+#define KLR_RETi(ctx, dummy, b) {\
+		KLR_MOVi(ctx, -1, b);\
+		KLR_RET(ctx);\
+	}\
+
 #define KLR_RETx(ctx, dummy, b) {\
 		knh_Int_t *v_ = (knh_Int_t*)SFXo(b);\
 		sfp[-1].data = (v_)->n.data;\

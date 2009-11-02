@@ -581,6 +581,7 @@ size_t knh_opcode_size(int opcode);
 knh_bool_t knh_opcode_hasjump(int opcode);
 void knh_opcode_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr);
 void knh_opcode_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w);
+void knh_opcode_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift);
 METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp);
 knh_InputStream_t* new_ScriptInputStream(Ctx *ctx, knh_bytes_t path, knh_cwb_t *cwb, knh_NameSpace_t *ns, int isThrowable);
 knh_Stmt_t *knh_InputStream_parseStmt(Ctx *ctx, knh_InputStream_t *in, int isData);

@@ -506,8 +506,8 @@ typedef struct knh_MethodField_t {
 //## flag Method Static          4 DP(%s)->flag is * is *;
 //## flag Method NullBase        5 DP(%s)->flag is * * *;
 //## flag Method VarArgs         6 DP(%s)->flag is set is *;
-//## flag Method Generator       7 DP(%s)->flag is set * *;
-//## flag Method Aspect          8 DP(%s)->flag is set * *;
+//## flag Method Inline          7 DP(%s)->flag is set * *;
+//## flag Method Generator       8 DP(%s)->flag is set * *;
 //## flag Method ObjectCode      9 DP(%s)->flag is set * *;
 //## flag Method Hidden          10 DP(%s)->flag is set * *;
 //## flag Method Tricky          11 DP(%s)->flag is set * *;

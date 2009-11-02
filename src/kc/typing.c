@@ -3150,6 +3150,7 @@ Term *knh_StmtMAPCAST_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
 	if(knh_class_instanceof(ctx, tcid, scid)) {  /* downcast */
 		knh_Token_toMPR(ctx, tkC, tcid, (knh_Mapper_t*)KNH_NULL);
 		knh_Gamma_perror(ctx, KERR_DWARN, _("downcast (%C)expr of %C"), tcid, scid);
+		knh_Stmt_setDOWNCAST(stmt, 1);
 		return knh_Stmt_typed(ctx, stmt, rtype);
 	}
 

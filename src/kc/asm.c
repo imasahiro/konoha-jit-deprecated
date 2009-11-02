@@ -353,7 +353,12 @@ void KNH_ASM_SMOV(Ctx *ctx, knh_type_t atype, int a, knh_Token_t *tkb)
 		case TT_CLASSID:
 		case TT_CONST: {
 			Object *v = DP(tkb)->data;
-			KNH_ASM(MOVo, sfi_(a), v);
+			if(IS_ubxtype(atype)) {
+				KNH_ASM(MOVi, sfi_(a), knh_Object_data(DP(tkb)->data));
+			}
+			else {
+				KNH_ASM(MOVo, sfi_(a), v);
+			}
 			break;
 		}
 		case TT_LOCAL: {
@@ -690,6 +695,7 @@ void KNH_ASM_MOV(Ctx *ctx, knh_Token_t *tka, knh_Token_t *tkb)
 static
 void KNH_ASM_RET(Ctx *ctx)
 {
+#ifdef OPCODE_RETo
 	knh_KLRInst_t *iLAST = knh_InstList_lastNULL(DP(ctx->kc)->insts);
 	if(iLAST != NULL) {
 		knh_opcode_t p = iLAST->opcode;
@@ -715,6 +721,12 @@ void KNH_ASM_RET(Ctx *ctx)
 				return;
 			}
 		}
+		else if(p == OPCODE_MOVi) { /* PEEPHOLE */
+			if(op->a1 == -1) {
+				knh_KLRInst_setopcode(iLAST, OPCODE_RETi);
+				return;
+			}
+		}
 		else if(p == OPCODE_MOVx) { /* PEEPHOLE */
 			if(op->a1 == -1) {
 				knh_KLRInst_setopcode(iLAST, OPCODE_RETx);
@@ -724,6 +736,9 @@ void KNH_ASM_RET(Ctx *ctx)
 
 	}
 	KNH_ASM(RET);
+#endif
+	knh_KLRInst_t *lbEND = (knh_KLRInst_t*)knh_Array_n(DP(ctx->kc)->lstacks, 2);
+	KNH_ASM(JMP, TADDR lbEND);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -795,6 +810,15 @@ static void KNH_ASM_LABEL(Ctx *ctx, knh_KLRInst_t* label)
 {
 	knh_Gamma_t *kc = ctx->kc;
 	label->line = SP(kc)->line;
+	knh_KLRInst_t *iLAST = knh_InstList_lastNULL(DP(ctx->kc)->insts);
+	if(iLAST != NULL && iLAST->opcode == OPCODE_JMP) {
+		klr_JMP_t *op = (klr_JMP_t*)(iLAST)->op;
+		if(op->a1 == label) { /* PEEPHOLE*/
+			knh_Array_t *a = DP(kc)->insts;
+			KNH_SETv(ctx, (a)->list[knh_Array_size(a)-1], label);
+			return;
+		}
+	}
 	knh_Array_add(ctx, DP(kc)->insts, UP(label));
 }
 
@@ -2365,49 +2389,6 @@ void knh_Stmt_asmBLOCK(Ctx *ctx, knh_Stmt_t *stmt, int isIteration)
 
 static void KNH_ASM_INITLOCAL(Ctx *ctx)
 {
-	knh_Gamma_t *kc = ctx->kc;
-	knh_Method_t *mtd = DP(kc)->mtd;
-	size_t i, xi;
-	KNH_ASM(THCODE, sfi_(DP(kc)->psize));
-	DBG2_ASSERT(IS_Method(mtd));
-
-	for(i = 1;i < knh_Method_psize(mtd) + 1; i++) {
-		xi = i + DP(kc)->goffset;
-		knh_type_t ztype = knh_Method_pztype(mtd, i - 1);
-		knh_type_t ptype = DP(kc)->gamma[xi].type;
-		DBG2_P("PARAM TYPE %s%s (%s%s) i=%ld, xi=%ld %s", TYPEQN(ztype), TYPEQN(ptype), i, xi, FIELDN(DP(kc)->gamma[xi].fn));
-		DBG2_ASSERT(CLASS_type(ztype) == CLASS_type(ptype));
-		if(IS_NATYPE(ztype)) {
-			Object *value = DP(kc)->gamma[xi].value;
-			if(value == NULL) {
-				if(IS_NNTYPE(DP(kc)->gamma[xi].type)) {
-					KNH_ASM(PARAMDEF, sfi_(i), CLASS_type(ptype));
-				}
-			}
-			else {
-				if(IS_NOTNULL(value)) {
-					KNH_ASM(PARAMo, sfi_(i), value);
-				}
-			}
-		}
-	}
-
-	xi = i + DP(kc)->goffset;
-	if(DP(kc)->gamma[xi].fn == FIELDN_vargs) {
-		knh_class_t cid = ClassTable(CLASS_type(DP(kc)->gamma[xi].type)).p1;
-		DBG2_ASSERT_cid(cid);
-		KNH_ASM(PARAMS, i, cid); i++;
-	}
-
-//	if(DP(kc)->globalidx != -1) {
-//		knh_Object_t *scr = (knh_Object_t*)knh_getGammaScript(ctx);
-//		KNH_ASM(MOVo, DP(kc)->globalidx, scr);
-//	}
-
-	for(i=0; i < knh_Array_size(DP(kc)->decls); i++) {
-		knh_Stmt_t *stmt = (knh_Stmt_t*)knh_Array_n(DP(kc)->decls, i);
-		knh_Stmt_asmBLOCK(ctx, stmt, 1);
-	}
 
 }
 
@@ -2419,15 +2400,64 @@ void KNH_ASM_METHOD(Ctx *ctx, knh_Method_t *mtd, knh_Stmt_t *params, knh_Stmt_t 
 	knh_class_t prev_cid = DP(kc)->this_cid;
 	knh_StmtMETHOD_typingBODY(ctx, mtd, params, body, isIteration);
 	if(STT_(body) == STT_ERR) return ;
+	{
+		knh_KLRInst_t* lbBEGIN = new_KLRInstLABEL(ctx);
+		knh_KLRInst_t* lbEND = new_KLRInstLABEL(ctx);
+		size_t i, xi;
+		knh_Method_t *mtd = DP(kc)->mtd;
+		DBG2_ASSERT(IS_Method(mtd));
+		knh_Gamma_pushLABEL(ctx, body, lbBEGIN, lbEND);
 
-	DP(kc)->scope = SCOPE_LOCAL;
-	SP(kc)->line = SP(body)->line;
-	KNH_ASM_INITLOCAL(ctx);
-	knh_Stmt_asmBLOCK(ctx, body, isIteration);
-	if(params == NULL) {
-		KNH_ASM_RET(ctx);
+		DP(kc)->scope = SCOPE_LOCAL;
+		SP(kc)->line = SP(body)->line;
+		KNH_ASM(THCODE, sfi_(DP(kc)->psize));
+		KNH_ASM_LABEL(ctx, lbBEGIN);
+
+		for(i = 1;i < knh_Method_psize(mtd) + 1; i++) {
+			xi = i + DP(kc)->goffset;
+			knh_type_t ztype = knh_Method_pztype(mtd, i - 1);
+			knh_type_t ptype = DP(kc)->gamma[xi].type;
+			DBG2_P("PARAM TYPE %s%s (%s%s) i=%ld, xi=%ld %s", TYPEQN(ztype), TYPEQN(ptype), i, xi, FIELDN(DP(kc)->gamma[xi].fn));
+			DBG2_ASSERT(CLASS_type(ztype) == CLASS_type(ptype));
+			if(IS_NATYPE(ztype)) {
+				Object *value = DP(kc)->gamma[xi].value;
+				if(value == NULL) {
+					if(IS_NNTYPE(DP(kc)->gamma[xi].type)) {
+						KNH_ASM(PARAMDEF, sfi_(i), CLASS_type(ptype));
+					}
+				}
+				else {
+					if(IS_NOTNULL(value)) {
+						KNH_ASM(PARAMo, sfi_(i), value);
+					}
+				}
+			}
+		}
+
+		xi = i + DP(kc)->goffset;
+		if(DP(kc)->gamma[xi].fn == FIELDN_vargs) {
+			knh_class_t cid = ClassTable(CLASS_type(DP(kc)->gamma[xi].type)).p1;
+			DBG2_ASSERT_cid(cid);
+			KNH_ASM(PARAMS, i, cid); i++;
+		}
+
+	//	if(DP(kc)->globalidx != -1) {
+	//		knh_Object_t *scr = (knh_Object_t*)knh_getGammaScript(ctx);
+	//		KNH_ASM(MOVo, DP(kc)->globalidx, scr);
+	//	}
+
+		for(i=0; i < knh_Array_size(DP(kc)->decls); i++) {
+			knh_Stmt_t *stmt = (knh_Stmt_t*)knh_Array_n(DP(kc)->decls, i);
+			knh_Stmt_asmBLOCK(ctx, stmt, 1);
+		}
+
+		knh_Stmt_asmBLOCK(ctx, body, isIteration);
+
+		KNH_ASM_LABEL(ctx, lbEND);
+		KNH_ASM(RET);
+		knh_Gamma_popLABEL(ctx);
+		DBG2_ASSERT(knh_Array_size(DP(kc)->lstacks) == 0);
 	}
-
 	knh_Gamma_finish(ctx);
 	DP(kc)->this_cid = prev_cid;
 }

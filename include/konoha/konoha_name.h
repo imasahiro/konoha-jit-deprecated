@@ -4,7 +4,7 @@
 /* MACROS */
 #define KONOHA_REVISION                 915
 #define KONOHA_BUILDID                  749
-#define KONOHA_EXPIRE                   1257449619LL
+#define KONOHA_EXPIRE                   1257455474LL
 
 /* ======================================================================== */
 /* STRUCT */
@@ -998,16 +998,16 @@
 #define knh_Method_isVarArgs(o)  ((DP(o)->flag & FLAG_Method_VarArgs) == FLAG_Method_VarArgs)
 
 #define knh_Method_setVarArgs(o,b) if(b) DP(o)->flag |= FLAG_Method_VarArgs; else DP(o)->flag &= ~(FLAG_Method_VarArgs);
-#define FLAG_Method_Generator           (knh_flag_t)(1<<7)
+#define FLAG_Method_Inline              (knh_flag_t)(1<<7)
+
+#define knh_Method_isInline(o)  ((DP(o)->flag & FLAG_Method_Inline) == FLAG_Method_Inline)
+
+#define knh_Method_setInline(o,b) if(b) DP(o)->flag |= FLAG_Method_Inline; else DP(o)->flag &= ~(FLAG_Method_Inline);
+#define FLAG_Method_Generator           (knh_flag_t)(1<<8)
 
 #define knh_Method_isGenerator(o)  ((DP(o)->flag & FLAG_Method_Generator) == FLAG_Method_Generator)
 
 #define knh_Method_setGenerator(o,b) if(b) DP(o)->flag |= FLAG_Method_Generator; else DP(o)->flag &= ~(FLAG_Method_Generator);
-#define FLAG_Method_Aspect              (knh_flag_t)(1<<8)
-
-#define knh_Method_isAspect(o)  ((DP(o)->flag & FLAG_Method_Aspect) == FLAG_Method_Aspect)
-
-#define knh_Method_setAspect(o,b) if(b) DP(o)->flag |= FLAG_Method_Aspect; else DP(o)->flag &= ~(FLAG_Method_Aspect);
 #define FLAG_Method_ObjectCode          (knh_flag_t)(1<<9)
 
 #define knh_Method_isObjectCode(o)  ((DP(o)->flag & FLAG_Method_ObjectCode) == FLAG_Method_ObjectCode)

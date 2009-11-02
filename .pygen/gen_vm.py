@@ -42,11 +42,11 @@ XMOVsb sfx sfpidx
 XMOVob sfx Object
 XMOVxb sfx sfx
 
-EMOVs sfe sfe
-EMOVo sfe Object
-EMOVe sfe sfe
-EMOVDEF sfe cid
-EMOVSYS sfe ushort
+#EMOVs sfe sfe
+#EMOVo sfe Object
+#EMOVe sfe sfe
+#EMOVDEF sfe cid
+#EMOVSYS sfe ushort
 
 SWAP  sfpidx sfpidx
 
@@ -58,10 +58,11 @@ PARAMS sfpidx cid
 CHKESP sfpidx
 
 RET
-RETn sfpidx sfpidx
-RETa sfpidx sfpidx
-RETo sfpidx Object
-RETx sfpidx sfx
+#RETn sfpidx sfpidx
+#RETa sfpidx sfpidx
+#RETo sfpidx Object
+#RETi sfpidx int
+#RETx sfpidx sfx
 YEILDBREAK
 
 BOX sfpidx cid
@@ -240,6 +241,7 @@ class KCODE:
 		self.hasObject = False
 		self.ftr = 'HALT_traverse'
 		self.struct = ''
+		self.shift = 'HALT_shift'
 		c = 1
 		for a in self.tokens[1:]:
 			ctype = getctype(a)
@@ -253,6 +255,8 @@ class KCODE:
 			self.args = self.args + 'a%d,' % (c)
 			self.struct = self.struct + a
 			c += 1
+		if 'addr' in self.struct or 'sfpidx' in self.struct or 'sfx' in self.struct:
+			self.shift = None 
 		if self.args[len(self.args) - 1] == ',':
 			self.args = self.args[:len(self.args)-1] + ')'
 
@@ -271,10 +275,14 @@ for line in INSTRUCTIONS.split('\n'):
 	KCODE_LIST.append(kc)
 	if KCODE_STRUCT.has_key(kc.struct):
 		kc.dump = '%s_dump' % KCODE_STRUCT[kc.struct].name
+		if kc.shift is None:
+			kc.shift = '%s_shift' % KCODE_STRUCT[kc.struct].name
 	else:
 		KCODE_STRUCT[kc.struct] = kc
 		KSTRUCT_LIST.append(kc)
 		kc.dump = '%s_dump' % kc.name
+		if kc.shift is None:
+			kc.shift = '%s_shift' % kc.name
 	c += 1
 
 #------------------------------------------------------------------------------
@@ -390,6 +398,9 @@ static void knh_write__mn(Ctx *ctx, knh_OutputStream_t* w, knh_methodn_t a)
 static void HALT_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 {
 }
+static void HALT_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+}
 ''')
 
 def write_data_c(f):
@@ -397,6 +408,7 @@ def write_data_c(f):
 	f.write('''
 typedef void (*codeftr)(Ctx *, knh_inst_t*, knh_ftraverse);
 typedef void (*codedump)(Ctx *, knh_inst_t*, knh_OutputStream_t*);
+typedef void (*codeshift)(Ctx *, knh_inst_t*, int, int);
 
 typedef struct knh_OPDATA_t {
 	char *name;
@@ -404,12 +416,13 @@ typedef struct knh_OPDATA_t {
 	knh_bool_t hasjump;
 	codeftr cftr;
 	codedump cdump;
+	codeshift cshift;
 } knh_OPDATA_t;
 
 static knh_OPDATA_t OPDATA[] = {''')
 	for kc in KCODE_LIST:
 		f.write('''
-	{"%s", %s, %s, %s, %s}, ''' % (kc.name, kc.SIZE, kc.label, kc.ftr, kc.dump))
+	{"%s", %s, %s, %s, %s, %s}, ''' % (kc.name, kc.SIZE, kc.label, kc.ftr, kc.dump, kc.shift))
 	f.write('''
 };
 
@@ -450,10 +463,16 @@ void knh_opcode_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
 	OPDATA[opcode].cdump(ctx, c, w);
 }
 
+/* ------------------------------------------------------------------------ */
+
+void knh_opcode_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	int opcode = KNH_OPCODE(c);
+	OPDATA[opcode].cshift(ctx, c, shift, pcshift);
+}
+
 ''')
 
-
-	
 def write_kcftr(f, kc):
 	f.write('''
 static void %s_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
@@ -487,6 +506,31 @@ static void %s_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
 }
 ''')
 
+def write_kcshift(f, kc):
+	##########
+	f.write('''
+static void %s_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	%s *op = (%s*)c; ''' % (kc.name, kc.ctype, kc.ctype))
+	c = 1
+	for a in kc.tokens[1:]:
+		if a == 'addr':
+			f.write('''
+	knh_code_t *newpc = ((knh_code_t*)op->a%d) + pcshift;
+	op->a%d = (knh_KLRInst_t*)newpc;
+	THREADEDCODE(op->codeaddr = NULL;)
+	THREADEDCODE(op->jumpaddr = NULL;)''' % (c, c))
+		if a == 'sfpidx':
+			f.write('''
+	op->a%d += shift;''' % c)
+		if a == 'sfx':
+			f.write('''
+	op->a%d.i += shift;''' % c)
+		c += 1	
+	f.write('''
+}
+''')
+
 def write_inst_c(f):
 	write_common_c(f)
 	for kc in KCODE_LIST:
@@ -494,6 +538,9 @@ def write_inst_c(f):
 		write_kcftr(f, kc)
 	for kc in KSTRUCT_LIST:
 		write_kcdump(f, kc)
+	for kc in KSTRUCT_LIST:
+		if 'addr' in kc.struct or 'sfpidx' in kc.struct or 'sfx' in kc.struct:
+			write_kcshift(f, kc)
 	write_data_c(f)
 
 #############################################################################

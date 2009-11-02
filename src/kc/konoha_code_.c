@@ -94,6 +94,9 @@ static void knh_write__mn(Ctx *ctx, knh_OutputStream_t* w, knh_methodn_t a)
 static void HALT_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 {
 }
+static void HALT_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+}
 
 static void MOVo_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 {
@@ -130,59 +133,45 @@ static void XMOVob_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 	ftr(ctx, UP(op->a2));
 }
 
-static void EMOVo_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
-{
-	klr_EMOVo_t *op = (klr_EMOVo_t*)c; 
-	DBG2_ASSERT(op->opcode == 30);
-	ftr(ctx, UP(op->a2));
-}
-
 static void PARAMo_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 {
 	klr_PARAMo_t *op = (klr_PARAMo_t*)c; 
-	DBG2_ASSERT(op->opcode == 36);
-	ftr(ctx, UP(op->a2));
-}
-
-static void RETo_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
-{
-	klr_RETo_t *op = (klr_RETo_t*)c; 
-	DBG2_ASSERT(op->opcode == 43);
+	DBG2_ASSERT(op->opcode == 31);
 	ftr(ctx, UP(op->a2));
 }
 
 static void FCALL_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 {
 	klr_FCALL_t *op = (klr_FCALL_t*)c; 
-	DBG2_ASSERT(op->opcode == 54);
+	DBG2_ASSERT(op->opcode == 45);
 	ftr(ctx, UP(op->a4));
 }
 
 static void SCALL_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 {
 	klr_SCALL_t *op = (klr_SCALL_t*)c; 
-	DBG2_ASSERT(op->opcode == 56);
+	DBG2_ASSERT(op->opcode == 47);
 	ftr(ctx, UP(op->a3));
 }
 
 static void NEW_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 {
 	klr_NEW_t *op = (klr_NEW_t*)c; 
-	DBG2_ASSERT(op->opcode == 60);
+	DBG2_ASSERT(op->opcode == 51);
 	ftr(ctx, UP(op->a5));
 }
 
 static void STR_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 {
 	klr_STR_t *op = (klr_STR_t*)c; 
-	DBG2_ASSERT(op->opcode == 62);
+	DBG2_ASSERT(op->opcode == 53);
 	ftr(ctx, UP(op->a4));
 }
 
 static void SSTR_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 {
 	klr_SSTR_t *op = (klr_SSTR_t*)c; 
-	DBG2_ASSERT(op->opcode == 63);
+	DBG2_ASSERT(op->opcode == 54);
 	ftr(ctx, UP(op->a3));
 	ftr(ctx, UP(op->a4));
 }
@@ -190,35 +179,35 @@ static void SSTR_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 static void SMAP_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 {
 	klr_SMAP_t *op = (klr_SMAP_t*)c; 
-	DBG2_ASSERT(op->opcode == 64);
+	DBG2_ASSERT(op->opcode == 55);
 	ftr(ctx, UP(op->a2));
 }
 
 static void SMAPnc_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 {
 	klr_SMAPnc_t *op = (klr_SMAPnc_t*)c; 
-	DBG2_ASSERT(op->opcode == 65);
+	DBG2_ASSERT(op->opcode == 56);
 	ftr(ctx, UP(op->a2));
 }
 
 static void CATCH_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 {
 	klr_CATCH_t *op = (klr_CATCH_t*)c; 
-	DBG2_ASSERT(op->opcode == 81);
+	DBG2_ASSERT(op->opcode == 72);
 	ftr(ctx, UP(op->a4));
 }
 
 static void THROWs_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 {
 	klr_THROWs_t *op = (klr_THROWs_t*)c; 
-	DBG2_ASSERT(op->opcode == 85);
+	DBG2_ASSERT(op->opcode == 76);
 	ftr(ctx, UP(op->a3));
 }
 
 static void PMSG_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 {
 	klr_PMSG_t *op = (klr_PMSG_t*)c; 
-	DBG2_ASSERT(op->opcode == 88);
+	DBG2_ASSERT(op->opcode == 79);
 	ftr(ctx, UP(op->a2));
 }
 
@@ -323,38 +312,6 @@ static void XMOVxBXi_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
 	knh_write__sfx(ctx, w, (op->a1));
 	knh_write__sfx(ctx, w, (op->a2));
 	knh_write__cid(ctx, w, (op->a3));
-}
-
-static void EMOVs_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
-{
-	klr_EMOVs_t *op = (klr_EMOVs_t*)c; 
-	knh_write_opcode(ctx, w, op->opcode);
-	knh_write__sfe(ctx, w, (op->a1));
-	knh_write__sfe(ctx, w, (op->a2));
-}
-
-static void EMOVo_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
-{
-	klr_EMOVo_t *op = (klr_EMOVo_t*)c; 
-	knh_write_opcode(ctx, w, op->opcode);
-	knh_write__sfe(ctx, w, (op->a1));
-	knh_write__OBJ(ctx, w, UP((op->a2)));
-}
-
-static void EMOVDEF_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
-{
-	klr_EMOVDEF_t *op = (klr_EMOVDEF_t*)c; 
-	knh_write_opcode(ctx, w, op->opcode);
-	knh_write__sfe(ctx, w, (op->a1));
-	knh_write__cid(ctx, w, (op->a2));
-}
-
-static void EMOVSYS_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
-{
-	klr_EMOVSYS_t *op = (klr_EMOVSYS_t*)c; 
-	knh_write_opcode(ctx, w, op->opcode);
-	knh_write__sfe(ctx, w, (op->a1));
-	knh_write__ushort(ctx, w, (op->a2));
 }
 
 static void CHKESP_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
@@ -544,11 +501,240 @@ static void ARYGETn_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
 	knh_write__intptr(ctx, w, (op->a3));
 }
 
+static void MOVa_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_MOVa_t *op = (klr_MOVa_t*)c; 
+	op->a1 += shift;
+	op->a2 += shift;
+}
+
+static void MOVo_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_MOVo_t *op = (klr_MOVo_t*)c; 
+	op->a1 += shift;
+}
+
+static void MOVi_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_MOVi_t *op = (klr_MOVi_t*)c; 
+	op->a1 += shift;
+}
+
+static void MOVx_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_MOVx_t *op = (klr_MOVx_t*)c; 
+	op->a1 += shift;
+	op->a2.i += shift;
+}
+
+static void MOVDEF_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_MOVDEF_t *op = (klr_MOVDEF_t*)c; 
+	op->a1 += shift;
+}
+
+static void MOVSYS_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_MOVSYS_t *op = (klr_MOVSYS_t*)c; 
+	op->a1 += shift;
+}
+
+static void XMOVs_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_XMOVs_t *op = (klr_XMOVs_t*)c; 
+	op->a1.i += shift;
+	op->a2 += shift;
+}
+
+static void XMOVo_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_XMOVo_t *op = (klr_XMOVo_t*)c; 
+	op->a1.i += shift;
+}
+
+static void XMOVx_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_XMOVx_t *op = (klr_XMOVx_t*)c; 
+	op->a1.i += shift;
+	op->a2.i += shift;
+}
+
+static void XMOVDEF_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_XMOVDEF_t *op = (klr_XMOVDEF_t*)c; 
+	op->a1.i += shift;
+}
+
+static void XMOVSYS_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_XMOVSYS_t *op = (klr_XMOVSYS_t*)c; 
+	op->a1.i += shift;
+}
+
+static void XMOVxBXi_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_XMOVxBXi_t *op = (klr_XMOVxBXi_t*)c; 
+	op->a1.i += shift;
+	op->a2.i += shift;
+}
+
+static void CHKESP_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_CHKESP_t *op = (klr_CHKESP_t*)c; 
+	op->a1 += shift;
+}
+
+static void CHKNULx_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_CHKNULx_t *op = (klr_CHKNULx_t*)c; 
+	op->a1.i += shift;
+}
+
+static void FCALL_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_FCALL_t *op = (klr_FCALL_t*)c; 
+	op->a1 += shift;
+	op->a3 += shift;
+}
+
+static void SCALL_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_SCALL_t *op = (klr_SCALL_t*)c; 
+	op->a1 += shift;
+}
+
+static void CALL_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_CALL_t *op = (klr_CALL_t*)c; 
+	op->a1 += shift;
+}
+
+static void NEW_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_NEW_t *op = (klr_NEW_t*)c; 
+	op->a1 += shift;
+}
+
+static void STR_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_STR_t *op = (klr_STR_t*)c; 
+	op->a1 += shift;
+	op->a2 += shift;
+}
+
+static void SSTR_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_SSTR_t *op = (klr_SSTR_t*)c; 
+	op->a1 += shift;
+	op->a2 += shift;
+}
+
+static void SMAP_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_SMAP_t *op = (klr_SMAP_t*)c; 
+	op->a1 += shift;
+}
+
+static void JMP_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_JMP_t *op = (klr_JMP_t*)c; 
+	knh_code_t *newpc = ((knh_code_t*)op->a1) + pcshift;
+	op->a1 = (knh_KLRInst_t*)newpc;
+	THREADEDCODE(op->codeaddr = NULL;)
+	THREADEDCODE(op->jumpaddr = NULL;)
+}
+
+static void bJIFT_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_bJIFT_t *op = (klr_bJIFT_t*)c; 
+	knh_code_t *newpc = ((knh_code_t*)op->a1) + pcshift;
+	op->a1 = (knh_KLRInst_t*)newpc;
+	THREADEDCODE(op->codeaddr = NULL;)
+	THREADEDCODE(op->jumpaddr = NULL;)
+	op->a2 += shift;
+}
+
+static void NEXT_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_NEXT_t *op = (klr_NEXT_t*)c; 
+	knh_code_t *newpc = ((knh_code_t*)op->a1) + pcshift;
+	op->a1 = (knh_KLRInst_t*)newpc;
+	THREADEDCODE(op->codeaddr = NULL;)
+	THREADEDCODE(op->jumpaddr = NULL;)
+	op->a2 += shift;
+	op->a3 += shift;
+}
+
+static void INEXT_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_INEXT_t *op = (klr_INEXT_t*)c; 
+	knh_code_t *newpc = ((knh_code_t*)op->a1) + pcshift;
+	op->a1 = (knh_KLRInst_t*)newpc;
+	THREADEDCODE(op->codeaddr = NULL;)
+	THREADEDCODE(op->jumpaddr = NULL;)
+	op->a3 += shift;
+	op->a4 += shift;
+}
+
+static void CATCH_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_CATCH_t *op = (klr_CATCH_t*)c; 
+	knh_code_t *newpc = ((knh_code_t*)op->a1) + pcshift;
+	op->a1 = (knh_KLRInst_t*)newpc;
+	THREADEDCODE(op->codeaddr = NULL;)
+	THREADEDCODE(op->jumpaddr = NULL;)
+	op->a2 += shift;
+	op->a3 += shift;
+}
+
+static void THROWs_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_THROWs_t *op = (klr_THROWs_t*)c; 
+	op->a1 += shift;
+	op->a2 += shift;
+}
+
+static void P_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_P_t *op = (klr_P_t*)c; 
+	op->a3 += shift;
+}
+
+static void iADD_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_iADD_t *op = (klr_iADD_t*)c; 
+	op->a1 += shift;
+	op->a2 += shift;
+	op->a3 += shift;
+}
+
+static void iADDn_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_iADDn_t *op = (klr_iADDn_t*)c; 
+	op->a1 += shift;
+	op->a2 += shift;
+}
+
+static void fADDn_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_fADDn_t *op = (klr_fADDn_t*)c; 
+	op->a1 += shift;
+	op->a2 += shift;
+}
+
+static void ARYGETn_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_ARYGETn_t *op = (klr_ARYGETn_t*)c; 
+	op->a1 += shift;
+	op->a2 += shift;
+}
+
 /* ======================================================================== */
 /* [data] */
 
 typedef void (*codeftr)(Ctx *, knh_inst_t*, knh_ftraverse);
 typedef void (*codedump)(Ctx *, knh_inst_t*, knh_OutputStream_t*);
+typedef void (*codeshift)(Ctx *, knh_inst_t*, int, int);
 
 typedef struct knh_OPDATA_t {
 	char *name;
@@ -556,161 +742,153 @@ typedef struct knh_OPDATA_t {
 	knh_bool_t hasjump;
 	codeftr cftr;
 	codedump cdump;
+	codeshift cshift;
 } knh_OPDATA_t;
 
 static knh_OPDATA_t OPDATA[] = {
-	{"HALT", OPSIZE_HALT, 0, HALT_traverse, HALT_dump}, 
-	{"MOVa", OPSIZE_MOVa, 0, HALT_traverse, MOVa_dump}, 
-	{"MOVn", OPSIZE_MOVn, 0, HALT_traverse, MOVa_dump}, 
-	{"MOVo", OPSIZE_MOVo, 0, MOVo_traverse, MOVo_dump}, 
-	{"MOVi", OPSIZE_MOVi, 0, HALT_traverse, MOVi_dump}, 
-	{"MOVx", OPSIZE_MOVx, 0, HALT_traverse, MOVx_dump}, 
-	{"MOVDEF", OPSIZE_MOVDEF, 0, HALT_traverse, MOVDEF_dump}, 
-	{"MOVSYS", OPSIZE_MOVSYS, 0, HALT_traverse, MOVSYS_dump}, 
-	{"XMOVs", OPSIZE_XMOVs, 0, HALT_traverse, XMOVs_dump}, 
-	{"XMOVo", OPSIZE_XMOVo, 0, XMOVo_traverse, XMOVo_dump}, 
-	{"XMOVx", OPSIZE_XMOVx, 0, HALT_traverse, XMOVx_dump}, 
-	{"XMOVDEF", OPSIZE_XMOVDEF, 0, HALT_traverse, XMOVDEF_dump}, 
-	{"XMOVSYS", OPSIZE_XMOVSYS, 0, HALT_traverse, XMOVSYS_dump}, 
-	{"MOVxi", OPSIZE_MOVxi, 0, HALT_traverse, MOVx_dump}, 
-	{"XMOVsi", OPSIZE_XMOVsi, 0, HALT_traverse, XMOVs_dump}, 
-	{"XMOVoi", OPSIZE_XMOVoi, 0, XMOVoi_traverse, XMOVo_dump}, 
-	{"XMOVxi", OPSIZE_XMOVxi, 0, HALT_traverse, XMOVx_dump}, 
-	{"XMOVxio", OPSIZE_XMOVxio, 0, HALT_traverse, XMOVx_dump}, 
-	{"XMOVxBXi", OPSIZE_XMOVxBXi, 0, HALT_traverse, XMOVxBXi_dump}, 
-	{"MOVxf", OPSIZE_MOVxf, 0, HALT_traverse, MOVx_dump}, 
-	{"XMOVsf", OPSIZE_XMOVsf, 0, HALT_traverse, XMOVs_dump}, 
-	{"XMOVof", OPSIZE_XMOVof, 0, XMOVof_traverse, XMOVo_dump}, 
-	{"XMOVxf", OPSIZE_XMOVxf, 0, HALT_traverse, XMOVx_dump}, 
-	{"XMOVxfo", OPSIZE_XMOVxfo, 0, HALT_traverse, XMOVx_dump}, 
-	{"XMOVxBXf", OPSIZE_XMOVxBXf, 0, HALT_traverse, XMOVxBXi_dump}, 
-	{"MOVxb", OPSIZE_MOVxb, 0, HALT_traverse, MOVx_dump}, 
-	{"XMOVsb", OPSIZE_XMOVsb, 0, HALT_traverse, XMOVs_dump}, 
-	{"XMOVob", OPSIZE_XMOVob, 0, XMOVob_traverse, XMOVo_dump}, 
-	{"XMOVxb", OPSIZE_XMOVxb, 0, HALT_traverse, XMOVx_dump}, 
-	{"EMOVs", OPSIZE_EMOVs, 0, HALT_traverse, EMOVs_dump}, 
-	{"EMOVo", OPSIZE_EMOVo, 0, EMOVo_traverse, EMOVo_dump}, 
-	{"EMOVe", OPSIZE_EMOVe, 0, HALT_traverse, EMOVs_dump}, 
-	{"EMOVDEF", OPSIZE_EMOVDEF, 0, HALT_traverse, EMOVDEF_dump}, 
-	{"EMOVSYS", OPSIZE_EMOVSYS, 0, HALT_traverse, EMOVSYS_dump}, 
-	{"SWAP", OPSIZE_SWAP, 0, HALT_traverse, MOVa_dump}, 
-	{"PARAMDEF", OPSIZE_PARAMDEF, 0, HALT_traverse, MOVDEF_dump}, 
-	{"PARAMo", OPSIZE_PARAMo, 0, PARAMo_traverse, MOVo_dump}, 
-	{"PARAMPROP", OPSIZE_PARAMPROP, 0, HALT_traverse, MOVa_dump}, 
-	{"PARAMS", OPSIZE_PARAMS, 0, HALT_traverse, MOVDEF_dump}, 
-	{"CHKESP", OPSIZE_CHKESP, 0, HALT_traverse, CHKESP_dump}, 
-	{"RET", OPSIZE_RET, 0, HALT_traverse, HALT_dump}, 
-	{"RETn", OPSIZE_RETn, 0, HALT_traverse, MOVa_dump}, 
-	{"RETa", OPSIZE_RETa, 0, HALT_traverse, MOVa_dump}, 
-	{"RETo", OPSIZE_RETo, 0, RETo_traverse, MOVo_dump}, 
-	{"RETx", OPSIZE_RETx, 0, HALT_traverse, MOVx_dump}, 
-	{"YEILDBREAK", OPSIZE_YEILDBREAK, 0, HALT_traverse, HALT_dump}, 
-	{"BOX", OPSIZE_BOX, 0, HALT_traverse, MOVDEF_dump}, 
-	{"BOXnc", OPSIZE_BOXnc, 0, HALT_traverse, MOVDEF_dump}, 
-	{"NNBOX", OPSIZE_NNBOX, 0, HALT_traverse, MOVDEF_dump}, 
-	{"NNBOXnc", OPSIZE_NNBOXnc, 0, HALT_traverse, MOVDEF_dump}, 
-	{"UNBOX", OPSIZE_UNBOX, 0, HALT_traverse, CHKESP_dump}, 
-	{"CHKNUL", OPSIZE_CHKNUL, 0, HALT_traverse, CHKESP_dump}, 
-	{"CHKNULx", OPSIZE_CHKNULx, 0, HALT_traverse, CHKNULx_dump}, 
-	{"CHKTYPE", OPSIZE_CHKTYPE, 0, HALT_traverse, MOVDEF_dump}, 
-	{"FCALL", OPSIZE_FCALL, 0, FCALL_traverse, FCALL_dump}, 
-	{"RCALL", OPSIZE_RCALL, 0, HALT_traverse, MOVSYS_dump}, 
-	{"SCALL", OPSIZE_SCALL, 0, SCALL_traverse, SCALL_dump}, 
-	{"AINVOKE", OPSIZE_AINVOKE, 0, HALT_traverse, MOVSYS_dump}, 
-	{"CALL", OPSIZE_CALL, 0, HALT_traverse, CALL_dump}, 
-	{"ACALL", OPSIZE_ACALL, 0, HALT_traverse, CALL_dump}, 
-	{"NEW", OPSIZE_NEW, 0, NEW_traverse, NEW_dump}, 
-	{"COPYSFP", OPSIZE_COPYSFP, 0, HALT_traverse, CHKESP_dump}, 
-	{"STR", OPSIZE_STR, 0, STR_traverse, STR_dump}, 
-	{"SSTR", OPSIZE_SSTR, 0, SSTR_traverse, SSTR_dump}, 
-	{"SMAP", OPSIZE_SMAP, 0, SMAP_traverse, SMAP_dump}, 
-	{"SMAPnc", OPSIZE_SMAPnc, 0, SMAPnc_traverse, SMAP_dump}, 
-	{"MAP", OPSIZE_MAP, 0, HALT_traverse, MOVDEF_dump}, 
-	{"MAPnc", OPSIZE_MAPnc, 0, HALT_traverse, MOVDEF_dump}, 
-	{"AMAP", OPSIZE_AMAP, 0, HALT_traverse, MOVDEF_dump}, 
-	{"NNMAP", OPSIZE_NNMAP, 0, HALT_traverse, MOVDEF_dump}, 
-	{"JMP", OPSIZE_JMP, 1, HALT_traverse, JMP_dump}, 
-	{"SKIP", OPSIZE_SKIP, 1, HALT_traverse, JMP_dump}, 
-	{"bJIFT", OPSIZE_bJIFT, 1, HALT_traverse, bJIFT_dump}, 
-	{"bJIFF", OPSIZE_bJIFF, 1, HALT_traverse, bJIFT_dump}, 
-	{"bJIFF_LOOP", OPSIZE_bJIFF_LOOP, 1, HALT_traverse, bJIFT_dump}, 
-	{"JIFNUL", OPSIZE_JIFNUL, 1, HALT_traverse, bJIFT_dump}, 
-	{"JIFNN", OPSIZE_JIFNN, 1, HALT_traverse, bJIFT_dump}, 
-	{"NEXT", OPSIZE_NEXT, 1, HALT_traverse, NEXT_dump}, 
-	{"INEXT", OPSIZE_INEXT, 1, HALT_traverse, INEXT_dump}, 
-	{"TRY", OPSIZE_TRY, 1, HALT_traverse, bJIFT_dump}, 
-	{"TRYEND", OPSIZE_TRYEND, 0, HALT_traverse, CHKESP_dump}, 
-	{"CATCH", OPSIZE_CATCH, 1, CATCH_traverse, CATCH_dump}, 
-	{"PUSH", OPSIZE_PUSH, 0, HALT_traverse, CHKESP_dump}, 
-	{"POP", OPSIZE_POP, 0, HALT_traverse, CHKESP_dump}, 
-	{"THROW", OPSIZE_THROW, 0, HALT_traverse, MOVa_dump}, 
-	{"THROWs", OPSIZE_THROWs, 0, THROWs_traverse, THROWs_dump}, 
-	{"THROW_AGAIN", OPSIZE_THROW_AGAIN, 0, HALT_traverse, CHKESP_dump}, 
-	{"P", OPSIZE_P, 0, HALT_traverse, P_dump}, 
-	{"PMSG", OPSIZE_PMSG, 0, PMSG_traverse, PMSG_dump}, 
-	{"iCAST", OPSIZE_iCAST, 0, HALT_traverse, CHKESP_dump}, 
-	{"inCAST", OPSIZE_inCAST, 0, HALT_traverse, CHKESP_dump}, 
-	{"fCAST", OPSIZE_fCAST, 0, HALT_traverse, CHKESP_dump}, 
-	{"fnCAST", OPSIZE_fnCAST, 0, HALT_traverse, CHKESP_dump}, 
-	{"bNOT", OPSIZE_bNOT, 0, HALT_traverse, MOVa_dump}, 
-	{"iNEG", OPSIZE_iNEG, 0, HALT_traverse, MOVa_dump}, 
-	{"iADD", OPSIZE_iADD, 0, HALT_traverse, iADD_dump}, 
-	{"iADDn", OPSIZE_iADDn, 0, HALT_traverse, iADDn_dump}, 
-	{"iSUB", OPSIZE_iSUB, 0, HALT_traverse, iADD_dump}, 
-	{"iSUBn", OPSIZE_iSUBn, 0, HALT_traverse, iADDn_dump}, 
-	{"iMUL", OPSIZE_iMUL, 0, HALT_traverse, iADD_dump}, 
-	{"iMULn", OPSIZE_iMULn, 0, HALT_traverse, iADDn_dump}, 
-	{"iDIV", OPSIZE_iDIV, 0, HALT_traverse, iADD_dump}, 
-	{"iDIVn", OPSIZE_iDIVn, 0, HALT_traverse, iADDn_dump}, 
-	{"iMOD", OPSIZE_iMOD, 0, HALT_traverse, iADD_dump}, 
-	{"iMODn", OPSIZE_iMODn, 0, HALT_traverse, iADDn_dump}, 
-	{"iEQ", OPSIZE_iEQ, 0, HALT_traverse, iADD_dump}, 
-	{"iEQn", OPSIZE_iEQn, 0, HALT_traverse, iADDn_dump}, 
-	{"iNEQ", OPSIZE_iNEQ, 0, HALT_traverse, iADD_dump}, 
-	{"iNEQn", OPSIZE_iNEQn, 0, HALT_traverse, iADDn_dump}, 
-	{"iLT", OPSIZE_iLT, 0, HALT_traverse, iADD_dump}, 
-	{"iLTn", OPSIZE_iLTn, 0, HALT_traverse, iADDn_dump}, 
-	{"iLTE", OPSIZE_iLTE, 0, HALT_traverse, iADD_dump}, 
-	{"iLTEn", OPSIZE_iLTEn, 0, HALT_traverse, iADDn_dump}, 
-	{"iGT", OPSIZE_iGT, 0, HALT_traverse, iADD_dump}, 
-	{"iGTn", OPSIZE_iGTn, 0, HALT_traverse, iADDn_dump}, 
-	{"iGTE", OPSIZE_iGTE, 0, HALT_traverse, iADD_dump}, 
-	{"iGTEn", OPSIZE_iGTEn, 0, HALT_traverse, iADDn_dump}, 
-	{"fNEG", OPSIZE_fNEG, 0, HALT_traverse, MOVa_dump}, 
-	{"fADD", OPSIZE_fADD, 0, HALT_traverse, iADD_dump}, 
-	{"fADDn", OPSIZE_fADDn, 0, HALT_traverse, fADDn_dump}, 
-	{"fSUB", OPSIZE_fSUB, 0, HALT_traverse, iADD_dump}, 
-	{"fSUBn", OPSIZE_fSUBn, 0, HALT_traverse, fADDn_dump}, 
-	{"fMUL", OPSIZE_fMUL, 0, HALT_traverse, iADD_dump}, 
-	{"fMULn", OPSIZE_fMULn, 0, HALT_traverse, fADDn_dump}, 
-	{"fDIV", OPSIZE_fDIV, 0, HALT_traverse, iADD_dump}, 
-	{"fDIVn", OPSIZE_fDIVn, 0, HALT_traverse, fADDn_dump}, 
-	{"fEQ", OPSIZE_fEQ, 0, HALT_traverse, iADD_dump}, 
-	{"fEQn", OPSIZE_fEQn, 0, HALT_traverse, fADDn_dump}, 
-	{"fNEQ", OPSIZE_fNEQ, 0, HALT_traverse, iADD_dump}, 
-	{"fNEQn", OPSIZE_fNEQn, 0, HALT_traverse, fADDn_dump}, 
-	{"fLT", OPSIZE_fLT, 0, HALT_traverse, iADD_dump}, 
-	{"fLTn", OPSIZE_fLTn, 0, HALT_traverse, fADDn_dump}, 
-	{"fLTE", OPSIZE_fLTE, 0, HALT_traverse, iADD_dump}, 
-	{"fLTEn", OPSIZE_fLTEn, 0, HALT_traverse, fADDn_dump}, 
-	{"fGT", OPSIZE_fGT, 0, HALT_traverse, iADD_dump}, 
-	{"fGTn", OPSIZE_fGTn, 0, HALT_traverse, fADDn_dump}, 
-	{"fGTE", OPSIZE_fGTE, 0, HALT_traverse, iADD_dump}, 
-	{"fGTEn", OPSIZE_fGTEn, 0, HALT_traverse, fADDn_dump}, 
-	{"ARYGET", OPSIZE_ARYGET, 0, HALT_traverse, iADD_dump}, 
-	{"ARYGETn", OPSIZE_ARYGETn, 0, HALT_traverse, ARYGETn_dump}, 
-	{"iARYGET", OPSIZE_iARYGET, 0, HALT_traverse, iADD_dump}, 
-	{"iARYGETn", OPSIZE_iARYGETn, 0, HALT_traverse, ARYGETn_dump}, 
-	{"fARYGET", OPSIZE_fARYGET, 0, HALT_traverse, iADD_dump}, 
-	{"fARYGETn", OPSIZE_fARYGETn, 0, HALT_traverse, ARYGETn_dump}, 
-	{"ARYSET", OPSIZE_ARYSET, 0, HALT_traverse, iADD_dump}, 
-	{"ARYSETn", OPSIZE_ARYSETn, 0, HALT_traverse, ARYGETn_dump}, 
-	{"iARYSET", OPSIZE_iARYSET, 0, HALT_traverse, iADD_dump}, 
-	{"iARYSETn", OPSIZE_iARYSETn, 0, HALT_traverse, ARYGETn_dump}, 
-	{"fARYSET", OPSIZE_fARYSET, 0, HALT_traverse, iADD_dump}, 
-	{"fARYSETn", OPSIZE_fARYSETn, 0, HALT_traverse, ARYGETn_dump}, 
-	{"THCODE", OPSIZE_THCODE, 0, HALT_traverse, CHKESP_dump}, 
-	{"NOP", OPSIZE_NOP, 0, HALT_traverse, HALT_dump}, 
+	{"HALT", OPSIZE_HALT, 0, HALT_traverse, HALT_dump, HALT_shift}, 
+	{"MOVa", OPSIZE_MOVa, 0, HALT_traverse, MOVa_dump, MOVa_shift}, 
+	{"MOVn", OPSIZE_MOVn, 0, HALT_traverse, MOVa_dump, MOVa_shift}, 
+	{"MOVo", OPSIZE_MOVo, 0, MOVo_traverse, MOVo_dump, MOVo_shift}, 
+	{"MOVi", OPSIZE_MOVi, 0, HALT_traverse, MOVi_dump, MOVi_shift}, 
+	{"MOVx", OPSIZE_MOVx, 0, HALT_traverse, MOVx_dump, MOVx_shift}, 
+	{"MOVDEF", OPSIZE_MOVDEF, 0, HALT_traverse, MOVDEF_dump, MOVDEF_shift}, 
+	{"MOVSYS", OPSIZE_MOVSYS, 0, HALT_traverse, MOVSYS_dump, MOVSYS_shift}, 
+	{"XMOVs", OPSIZE_XMOVs, 0, HALT_traverse, XMOVs_dump, XMOVs_shift}, 
+	{"XMOVo", OPSIZE_XMOVo, 0, XMOVo_traverse, XMOVo_dump, XMOVo_shift}, 
+	{"XMOVx", OPSIZE_XMOVx, 0, HALT_traverse, XMOVx_dump, XMOVx_shift}, 
+	{"XMOVDEF", OPSIZE_XMOVDEF, 0, HALT_traverse, XMOVDEF_dump, XMOVDEF_shift}, 
+	{"XMOVSYS", OPSIZE_XMOVSYS, 0, HALT_traverse, XMOVSYS_dump, XMOVSYS_shift}, 
+	{"MOVxi", OPSIZE_MOVxi, 0, HALT_traverse, MOVx_dump, MOVx_shift}, 
+	{"XMOVsi", OPSIZE_XMOVsi, 0, HALT_traverse, XMOVs_dump, XMOVs_shift}, 
+	{"XMOVoi", OPSIZE_XMOVoi, 0, XMOVoi_traverse, XMOVo_dump, XMOVo_shift}, 
+	{"XMOVxi", OPSIZE_XMOVxi, 0, HALT_traverse, XMOVx_dump, XMOVx_shift}, 
+	{"XMOVxio", OPSIZE_XMOVxio, 0, HALT_traverse, XMOVx_dump, XMOVx_shift}, 
+	{"XMOVxBXi", OPSIZE_XMOVxBXi, 0, HALT_traverse, XMOVxBXi_dump, XMOVxBXi_shift}, 
+	{"MOVxf", OPSIZE_MOVxf, 0, HALT_traverse, MOVx_dump, MOVx_shift}, 
+	{"XMOVsf", OPSIZE_XMOVsf, 0, HALT_traverse, XMOVs_dump, XMOVs_shift}, 
+	{"XMOVof", OPSIZE_XMOVof, 0, XMOVof_traverse, XMOVo_dump, XMOVo_shift}, 
+	{"XMOVxf", OPSIZE_XMOVxf, 0, HALT_traverse, XMOVx_dump, XMOVx_shift}, 
+	{"XMOVxfo", OPSIZE_XMOVxfo, 0, HALT_traverse, XMOVx_dump, XMOVx_shift}, 
+	{"XMOVxBXf", OPSIZE_XMOVxBXf, 0, HALT_traverse, XMOVxBXi_dump, XMOVxBXi_shift}, 
+	{"MOVxb", OPSIZE_MOVxb, 0, HALT_traverse, MOVx_dump, MOVx_shift}, 
+	{"XMOVsb", OPSIZE_XMOVsb, 0, HALT_traverse, XMOVs_dump, XMOVs_shift}, 
+	{"XMOVob", OPSIZE_XMOVob, 0, XMOVob_traverse, XMOVo_dump, XMOVo_shift}, 
+	{"XMOVxb", OPSIZE_XMOVxb, 0, HALT_traverse, XMOVx_dump, XMOVx_shift}, 
+	{"SWAP", OPSIZE_SWAP, 0, HALT_traverse, MOVa_dump, MOVa_shift}, 
+	{"PARAMDEF", OPSIZE_PARAMDEF, 0, HALT_traverse, MOVDEF_dump, MOVDEF_shift}, 
+	{"PARAMo", OPSIZE_PARAMo, 0, PARAMo_traverse, MOVo_dump, MOVo_shift}, 
+	{"PARAMPROP", OPSIZE_PARAMPROP, 0, HALT_traverse, MOVa_dump, MOVa_shift}, 
+	{"PARAMS", OPSIZE_PARAMS, 0, HALT_traverse, MOVDEF_dump, MOVDEF_shift}, 
+	{"CHKESP", OPSIZE_CHKESP, 0, HALT_traverse, CHKESP_dump, CHKESP_shift}, 
+	{"RET", OPSIZE_RET, 0, HALT_traverse, HALT_dump, HALT_shift}, 
+	{"YEILDBREAK", OPSIZE_YEILDBREAK, 0, HALT_traverse, HALT_dump, HALT_shift}, 
+	{"BOX", OPSIZE_BOX, 0, HALT_traverse, MOVDEF_dump, MOVDEF_shift}, 
+	{"BOXnc", OPSIZE_BOXnc, 0, HALT_traverse, MOVDEF_dump, MOVDEF_shift}, 
+	{"NNBOX", OPSIZE_NNBOX, 0, HALT_traverse, MOVDEF_dump, MOVDEF_shift}, 
+	{"NNBOXnc", OPSIZE_NNBOXnc, 0, HALT_traverse, MOVDEF_dump, MOVDEF_shift}, 
+	{"UNBOX", OPSIZE_UNBOX, 0, HALT_traverse, CHKESP_dump, CHKESP_shift}, 
+	{"CHKNUL", OPSIZE_CHKNUL, 0, HALT_traverse, CHKESP_dump, CHKESP_shift}, 
+	{"CHKNULx", OPSIZE_CHKNULx, 0, HALT_traverse, CHKNULx_dump, CHKNULx_shift}, 
+	{"CHKTYPE", OPSIZE_CHKTYPE, 0, HALT_traverse, MOVDEF_dump, MOVDEF_shift}, 
+	{"FCALL", OPSIZE_FCALL, 0, FCALL_traverse, FCALL_dump, FCALL_shift}, 
+	{"RCALL", OPSIZE_RCALL, 0, HALT_traverse, MOVSYS_dump, MOVSYS_shift}, 
+	{"SCALL", OPSIZE_SCALL, 0, SCALL_traverse, SCALL_dump, SCALL_shift}, 
+	{"AINVOKE", OPSIZE_AINVOKE, 0, HALT_traverse, MOVSYS_dump, MOVSYS_shift}, 
+	{"CALL", OPSIZE_CALL, 0, HALT_traverse, CALL_dump, CALL_shift}, 
+	{"ACALL", OPSIZE_ACALL, 0, HALT_traverse, CALL_dump, CALL_shift}, 
+	{"NEW", OPSIZE_NEW, 0, NEW_traverse, NEW_dump, NEW_shift}, 
+	{"COPYSFP", OPSIZE_COPYSFP, 0, HALT_traverse, CHKESP_dump, CHKESP_shift}, 
+	{"STR", OPSIZE_STR, 0, STR_traverse, STR_dump, STR_shift}, 
+	{"SSTR", OPSIZE_SSTR, 0, SSTR_traverse, SSTR_dump, SSTR_shift}, 
+	{"SMAP", OPSIZE_SMAP, 0, SMAP_traverse, SMAP_dump, SMAP_shift}, 
+	{"SMAPnc", OPSIZE_SMAPnc, 0, SMAPnc_traverse, SMAP_dump, SMAP_shift}, 
+	{"MAP", OPSIZE_MAP, 0, HALT_traverse, MOVDEF_dump, MOVDEF_shift}, 
+	{"MAPnc", OPSIZE_MAPnc, 0, HALT_traverse, MOVDEF_dump, MOVDEF_shift}, 
+	{"AMAP", OPSIZE_AMAP, 0, HALT_traverse, MOVDEF_dump, MOVDEF_shift}, 
+	{"NNMAP", OPSIZE_NNMAP, 0, HALT_traverse, MOVDEF_dump, MOVDEF_shift}, 
+	{"JMP", OPSIZE_JMP, 1, HALT_traverse, JMP_dump, JMP_shift}, 
+	{"SKIP", OPSIZE_SKIP, 1, HALT_traverse, JMP_dump, JMP_shift}, 
+	{"bJIFT", OPSIZE_bJIFT, 1, HALT_traverse, bJIFT_dump, bJIFT_shift}, 
+	{"bJIFF", OPSIZE_bJIFF, 1, HALT_traverse, bJIFT_dump, bJIFT_shift}, 
+	{"bJIFF_LOOP", OPSIZE_bJIFF_LOOP, 1, HALT_traverse, bJIFT_dump, bJIFT_shift}, 
+	{"JIFNUL", OPSIZE_JIFNUL, 1, HALT_traverse, bJIFT_dump, bJIFT_shift}, 
+	{"JIFNN", OPSIZE_JIFNN, 1, HALT_traverse, bJIFT_dump, bJIFT_shift}, 
+	{"NEXT", OPSIZE_NEXT, 1, HALT_traverse, NEXT_dump, NEXT_shift}, 
+	{"INEXT", OPSIZE_INEXT, 1, HALT_traverse, INEXT_dump, INEXT_shift}, 
+	{"TRY", OPSIZE_TRY, 1, HALT_traverse, bJIFT_dump, bJIFT_shift}, 
+	{"TRYEND", OPSIZE_TRYEND, 0, HALT_traverse, CHKESP_dump, CHKESP_shift}, 
+	{"CATCH", OPSIZE_CATCH, 1, CATCH_traverse, CATCH_dump, CATCH_shift}, 
+	{"PUSH", OPSIZE_PUSH, 0, HALT_traverse, CHKESP_dump, CHKESP_shift}, 
+	{"POP", OPSIZE_POP, 0, HALT_traverse, CHKESP_dump, CHKESP_shift}, 
+	{"THROW", OPSIZE_THROW, 0, HALT_traverse, MOVa_dump, MOVa_shift}, 
+	{"THROWs", OPSIZE_THROWs, 0, THROWs_traverse, THROWs_dump, THROWs_shift}, 
+	{"THROW_AGAIN", OPSIZE_THROW_AGAIN, 0, HALT_traverse, CHKESP_dump, CHKESP_shift}, 
+	{"P", OPSIZE_P, 0, HALT_traverse, P_dump, P_shift}, 
+	{"PMSG", OPSIZE_PMSG, 0, PMSG_traverse, PMSG_dump, HALT_shift}, 
+	{"iCAST", OPSIZE_iCAST, 0, HALT_traverse, CHKESP_dump, CHKESP_shift}, 
+	{"inCAST", OPSIZE_inCAST, 0, HALT_traverse, CHKESP_dump, CHKESP_shift}, 
+	{"fCAST", OPSIZE_fCAST, 0, HALT_traverse, CHKESP_dump, CHKESP_shift}, 
+	{"fnCAST", OPSIZE_fnCAST, 0, HALT_traverse, CHKESP_dump, CHKESP_shift}, 
+	{"bNOT", OPSIZE_bNOT, 0, HALT_traverse, MOVa_dump, MOVa_shift}, 
+	{"iNEG", OPSIZE_iNEG, 0, HALT_traverse, MOVa_dump, MOVa_shift}, 
+	{"iADD", OPSIZE_iADD, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"iADDn", OPSIZE_iADDn, 0, HALT_traverse, iADDn_dump, iADDn_shift}, 
+	{"iSUB", OPSIZE_iSUB, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"iSUBn", OPSIZE_iSUBn, 0, HALT_traverse, iADDn_dump, iADDn_shift}, 
+	{"iMUL", OPSIZE_iMUL, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"iMULn", OPSIZE_iMULn, 0, HALT_traverse, iADDn_dump, iADDn_shift}, 
+	{"iDIV", OPSIZE_iDIV, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"iDIVn", OPSIZE_iDIVn, 0, HALT_traverse, iADDn_dump, iADDn_shift}, 
+	{"iMOD", OPSIZE_iMOD, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"iMODn", OPSIZE_iMODn, 0, HALT_traverse, iADDn_dump, iADDn_shift}, 
+	{"iEQ", OPSIZE_iEQ, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"iEQn", OPSIZE_iEQn, 0, HALT_traverse, iADDn_dump, iADDn_shift}, 
+	{"iNEQ", OPSIZE_iNEQ, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"iNEQn", OPSIZE_iNEQn, 0, HALT_traverse, iADDn_dump, iADDn_shift}, 
+	{"iLT", OPSIZE_iLT, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"iLTn", OPSIZE_iLTn, 0, HALT_traverse, iADDn_dump, iADDn_shift}, 
+	{"iLTE", OPSIZE_iLTE, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"iLTEn", OPSIZE_iLTEn, 0, HALT_traverse, iADDn_dump, iADDn_shift}, 
+	{"iGT", OPSIZE_iGT, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"iGTn", OPSIZE_iGTn, 0, HALT_traverse, iADDn_dump, iADDn_shift}, 
+	{"iGTE", OPSIZE_iGTE, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"iGTEn", OPSIZE_iGTEn, 0, HALT_traverse, iADDn_dump, iADDn_shift}, 
+	{"fNEG", OPSIZE_fNEG, 0, HALT_traverse, MOVa_dump, MOVa_shift}, 
+	{"fADD", OPSIZE_fADD, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"fADDn", OPSIZE_fADDn, 0, HALT_traverse, fADDn_dump, fADDn_shift}, 
+	{"fSUB", OPSIZE_fSUB, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"fSUBn", OPSIZE_fSUBn, 0, HALT_traverse, fADDn_dump, fADDn_shift}, 
+	{"fMUL", OPSIZE_fMUL, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"fMULn", OPSIZE_fMULn, 0, HALT_traverse, fADDn_dump, fADDn_shift}, 
+	{"fDIV", OPSIZE_fDIV, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"fDIVn", OPSIZE_fDIVn, 0, HALT_traverse, fADDn_dump, fADDn_shift}, 
+	{"fEQ", OPSIZE_fEQ, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"fEQn", OPSIZE_fEQn, 0, HALT_traverse, fADDn_dump, fADDn_shift}, 
+	{"fNEQ", OPSIZE_fNEQ, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"fNEQn", OPSIZE_fNEQn, 0, HALT_traverse, fADDn_dump, fADDn_shift}, 
+	{"fLT", OPSIZE_fLT, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"fLTn", OPSIZE_fLTn, 0, HALT_traverse, fADDn_dump, fADDn_shift}, 
+	{"fLTE", OPSIZE_fLTE, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"fLTEn", OPSIZE_fLTEn, 0, HALT_traverse, fADDn_dump, fADDn_shift}, 
+	{"fGT", OPSIZE_fGT, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"fGTn", OPSIZE_fGTn, 0, HALT_traverse, fADDn_dump, fADDn_shift}, 
+	{"fGTE", OPSIZE_fGTE, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"fGTEn", OPSIZE_fGTEn, 0, HALT_traverse, fADDn_dump, fADDn_shift}, 
+	{"ARYGET", OPSIZE_ARYGET, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"ARYGETn", OPSIZE_ARYGETn, 0, HALT_traverse, ARYGETn_dump, ARYGETn_shift}, 
+	{"iARYGET", OPSIZE_iARYGET, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"iARYGETn", OPSIZE_iARYGETn, 0, HALT_traverse, ARYGETn_dump, ARYGETn_shift}, 
+	{"fARYGET", OPSIZE_fARYGET, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"fARYGETn", OPSIZE_fARYGETn, 0, HALT_traverse, ARYGETn_dump, ARYGETn_shift}, 
+	{"ARYSET", OPSIZE_ARYSET, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"ARYSETn", OPSIZE_ARYSETn, 0, HALT_traverse, ARYGETn_dump, ARYGETn_shift}, 
+	{"iARYSET", OPSIZE_iARYSET, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"iARYSETn", OPSIZE_iARYSETn, 0, HALT_traverse, ARYGETn_dump, ARYGETn_shift}, 
+	{"fARYSET", OPSIZE_fARYSET, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"fARYSETn", OPSIZE_fARYSETn, 0, HALT_traverse, ARYGETn_dump, ARYGETn_shift}, 
+	{"THCODE", OPSIZE_THCODE, 0, HALT_traverse, CHKESP_dump, CHKESP_shift}, 
+	{"NOP", OPSIZE_NOP, 0, HALT_traverse, HALT_dump, HALT_shift}, 
 };
 
 /* ------------------------------------------------------------------------ */
@@ -750,6 +928,14 @@ void knh_opcode_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
 	OPDATA[opcode].cdump(ctx, c, w);
 }
 
+/* ------------------------------------------------------------------------ */
+
+void knh_opcode_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	int opcode = KNH_OPCODE(c);
+	OPDATA[opcode].cshift(ctx, c, shift, pcshift);
+}
+
 
 /* ======================================================================== */
 /* [exec] */
@@ -778,37 +964,35 @@ METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp)
 		&&L_XMOVxi, &&L_XMOVxio, &&L_XMOVxBXi, &&L_MOVxf, 
 		&&L_XMOVsf, &&L_XMOVof, &&L_XMOVxf, &&L_XMOVxfo, 
 		&&L_XMOVxBXf, &&L_MOVxb, &&L_XMOVsb, &&L_XMOVob, 
-		&&L_XMOVxb, &&L_EMOVs, &&L_EMOVo, &&L_EMOVe, 
-		&&L_EMOVDEF, &&L_EMOVSYS, &&L_SWAP, &&L_PARAMDEF, 
-		&&L_PARAMo, &&L_PARAMPROP, &&L_PARAMS, &&L_CHKESP, 
-		&&L_RET, &&L_RETn, &&L_RETa, &&L_RETo, 
-		&&L_RETx, &&L_YEILDBREAK, &&L_BOX, &&L_BOXnc, 
-		&&L_NNBOX, &&L_NNBOXnc, &&L_UNBOX, &&L_CHKNUL, 
-		&&L_CHKNULx, &&L_CHKTYPE, &&L_FCALL, &&L_RCALL, 
-		&&L_SCALL, &&L_AINVOKE, &&L_CALL, &&L_ACALL, 
-		&&L_NEW, &&L_COPYSFP, &&L_STR, &&L_SSTR, 
-		&&L_SMAP, &&L_SMAPnc, &&L_MAP, &&L_MAPnc, 
-		&&L_AMAP, &&L_NNMAP, &&L_JMP, &&L_SKIP, 
-		&&L_bJIFT, &&L_bJIFF, &&L_bJIFF_LOOP, &&L_JIFNUL, 
-		&&L_JIFNN, &&L_NEXT, &&L_INEXT, &&L_TRY, 
-		&&L_TRYEND, &&L_CATCH, &&L_PUSH, &&L_POP, 
-		&&L_THROW, &&L_THROWs, &&L_THROW_AGAIN, &&L_P, 
-		&&L_PMSG, &&L_iCAST, &&L_inCAST, &&L_fCAST, 
-		&&L_fnCAST, &&L_bNOT, &&L_iNEG, &&L_iADD, 
-		&&L_iADDn, &&L_iSUB, &&L_iSUBn, &&L_iMUL, 
-		&&L_iMULn, &&L_iDIV, &&L_iDIVn, &&L_iMOD, 
-		&&L_iMODn, &&L_iEQ, &&L_iEQn, &&L_iNEQ, 
-		&&L_iNEQn, &&L_iLT, &&L_iLTn, &&L_iLTE, 
-		&&L_iLTEn, &&L_iGT, &&L_iGTn, &&L_iGTE, 
-		&&L_iGTEn, &&L_fNEG, &&L_fADD, &&L_fADDn, 
-		&&L_fSUB, &&L_fSUBn, &&L_fMUL, &&L_fMULn, 
-		&&L_fDIV, &&L_fDIVn, &&L_fEQ, &&L_fEQn, 
-		&&L_fNEQ, &&L_fNEQn, &&L_fLT, &&L_fLTn, 
-		&&L_fLTE, &&L_fLTEn, &&L_fGT, &&L_fGTn, 
-		&&L_fGTE, &&L_fGTEn, &&L_ARYGET, &&L_ARYGETn, 
-		&&L_iARYGET, &&L_iARYGETn, &&L_fARYGET, &&L_fARYGETn, 
-		&&L_ARYSET, &&L_ARYSETn, &&L_iARYSET, &&L_iARYSETn, 
-		&&L_fARYSET, &&L_fARYSETn, &&L_THCODE, &&L_NOP, 
+		&&L_XMOVxb, &&L_SWAP, &&L_PARAMDEF, &&L_PARAMo, 
+		&&L_PARAMPROP, &&L_PARAMS, &&L_CHKESP, &&L_RET, 
+		&&L_YEILDBREAK, &&L_BOX, &&L_BOXnc, &&L_NNBOX, 
+		&&L_NNBOXnc, &&L_UNBOX, &&L_CHKNUL, &&L_CHKNULx, 
+		&&L_CHKTYPE, &&L_FCALL, &&L_RCALL, &&L_SCALL, 
+		&&L_AINVOKE, &&L_CALL, &&L_ACALL, &&L_NEW, 
+		&&L_COPYSFP, &&L_STR, &&L_SSTR, &&L_SMAP, 
+		&&L_SMAPnc, &&L_MAP, &&L_MAPnc, &&L_AMAP, 
+		&&L_NNMAP, &&L_JMP, &&L_SKIP, &&L_bJIFT, 
+		&&L_bJIFF, &&L_bJIFF_LOOP, &&L_JIFNUL, &&L_JIFNN, 
+		&&L_NEXT, &&L_INEXT, &&L_TRY, &&L_TRYEND, 
+		&&L_CATCH, &&L_PUSH, &&L_POP, &&L_THROW, 
+		&&L_THROWs, &&L_THROW_AGAIN, &&L_P, &&L_PMSG, 
+		&&L_iCAST, &&L_inCAST, &&L_fCAST, &&L_fnCAST, 
+		&&L_bNOT, &&L_iNEG, &&L_iADD, &&L_iADDn, 
+		&&L_iSUB, &&L_iSUBn, &&L_iMUL, &&L_iMULn, 
+		&&L_iDIV, &&L_iDIVn, &&L_iMOD, &&L_iMODn, 
+		&&L_iEQ, &&L_iEQn, &&L_iNEQ, &&L_iNEQn, 
+		&&L_iLT, &&L_iLTn, &&L_iLTE, &&L_iLTEn, 
+		&&L_iGT, &&L_iGTn, &&L_iGTE, &&L_iGTEn, 
+		&&L_fNEG, &&L_fADD, &&L_fADDn, &&L_fSUB, 
+		&&L_fSUBn, &&L_fMUL, &&L_fMULn, &&L_fDIV, 
+		&&L_fDIVn, &&L_fEQ, &&L_fEQn, &&L_fNEQ, 
+		&&L_fNEQn, &&L_fLT, &&L_fLTn, &&L_fLTE, 
+		&&L_fLTEn, &&L_fGT, &&L_fGTn, &&L_fGTE, 
+		&&L_fGTEn, &&L_ARYGET, &&L_ARYGETn, &&L_iARYGET, 
+		&&L_iARYGETn, &&L_fARYGET, &&L_fARYGETn, &&L_ARYSET, 
+		&&L_ARYSETn, &&L_iARYSET, &&L_iARYSETn, &&L_fARYSET, 
+		&&L_fARYSETn, &&L_THCODE, &&L_NOP, 
 	};
 	register knh_code_t *pc = (sfp[-1].mtd)->pc_start;
 	goto *OPJUMP[KNH_OPCODE(pc)]; /* this is needed to init */
@@ -992,36 +1176,6 @@ METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp)
 		pc += OPSIZE_XMOVxb;
 		goto NEXT;
 	} 
-	CASE(L_EMOVs, OPCODE_EMOVs) {
-		const klr_EMOVs_t *op = (klr_EMOVs_t*)pc;
-		KLR_EMOVs(ctx, op->a1, op->a2);
-		pc += OPSIZE_EMOVs;
-		goto NEXT;
-	} 
-	CASE(L_EMOVo, OPCODE_EMOVo) {
-		const klr_EMOVo_t *op = (klr_EMOVo_t*)pc;
-		KLR_EMOVo(ctx, op->a1, op->a2);
-		pc += OPSIZE_EMOVo;
-		goto NEXT;
-	} 
-	CASE(L_EMOVe, OPCODE_EMOVe) {
-		const klr_EMOVe_t *op = (klr_EMOVe_t*)pc;
-		KLR_EMOVe(ctx, op->a1, op->a2);
-		pc += OPSIZE_EMOVe;
-		goto NEXT;
-	} 
-	CASE(L_EMOVDEF, OPCODE_EMOVDEF) {
-		const klr_EMOVDEF_t *op = (klr_EMOVDEF_t*)pc;
-		KLR_EMOVDEF(ctx, op->a1, op->a2);
-		pc += OPSIZE_EMOVDEF;
-		goto NEXT;
-	} 
-	CASE(L_EMOVSYS, OPCODE_EMOVSYS) {
-		const klr_EMOVSYS_t *op = (klr_EMOVSYS_t*)pc;
-		KLR_EMOVSYS(ctx, op->a1, op->a2);
-		pc += OPSIZE_EMOVSYS;
-		goto NEXT;
-	} 
 	CASE(L_SWAP, OPCODE_SWAP) {
 		const klr_SWAP_t *op = (klr_SWAP_t*)pc;
 		KLR_SWAP(ctx, op->a1, op->a2);
@@ -1062,30 +1216,6 @@ METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp)
 		TC(const klr_RET_t *op = (klr_RET_t*)pc;)
 		KLR_RET(ctx);
 		pc += OPSIZE_RET;
-		goto NEXT;
-	} 
-	CASE(L_RETn, OPCODE_RETn) {
-		const klr_RETn_t *op = (klr_RETn_t*)pc;
-		KLR_RETn(ctx, op->a1, op->a2);
-		pc += OPSIZE_RETn;
-		goto NEXT;
-	} 
-	CASE(L_RETa, OPCODE_RETa) {
-		const klr_RETa_t *op = (klr_RETa_t*)pc;
-		KLR_RETa(ctx, op->a1, op->a2);
-		pc += OPSIZE_RETa;
-		goto NEXT;
-	} 
-	CASE(L_RETo, OPCODE_RETo) {
-		const klr_RETo_t *op = (klr_RETo_t*)pc;
-		KLR_RETo(ctx, op->a1, op->a2);
-		pc += OPSIZE_RETo;
-		goto NEXT;
-	} 
-	CASE(L_RETx, OPCODE_RETx) {
-		const klr_RETx_t *op = (klr_RETx_t*)pc;
-		KLR_RETx(ctx, op->a1, op->a2);
-		pc += OPSIZE_RETx;
 		goto NEXT;
 	} 
 	CASE(L_YEILDBREAK, OPCODE_YEILDBREAK) {

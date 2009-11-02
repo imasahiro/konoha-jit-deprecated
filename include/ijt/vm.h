@@ -147,31 +147,6 @@ void JIT_OP_XMOVxb_(Ctx *ctx, knh_sfp_t* sfp,knh_sfx_t a1,knh_sfx_t a2)
 	KLR_XMOVxb(ctx,a1,a2);
 }
 
-void JIT_OP_EMOVs_(Ctx *ctx, knh_sfp_t* sfp,knh_sfe_t a1,knh_sfe_t a2)
-{
-	KLR_EMOVs(ctx,a1,a2);
-}
-
-void JIT_OP_EMOVo_(Ctx *ctx, knh_sfp_t* sfp,knh_sfe_t a1,knh_Object_t* a2)
-{
-	KLR_EMOVo(ctx,a1,a2);
-}
-
-void JIT_OP_EMOVe_(Ctx *ctx, knh_sfp_t* sfp,knh_sfe_t a1,knh_sfe_t a2)
-{
-	KLR_EMOVe(ctx,a1,a2);
-}
-
-void JIT_OP_EMOVDEF_(Ctx *ctx, knh_sfp_t* sfp,knh_sfe_t a1,knh_class_t a2)
-{
-	KLR_EMOVDEF(ctx,a1,a2);
-}
-
-void JIT_OP_EMOVSYS_(Ctx *ctx, knh_sfp_t* sfp,knh_sfe_t a1,knh_ushort_t a2)
-{
-	KLR_EMOVSYS(ctx,a1,a2);
-}
-
 void JIT_OP_SWAP_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfpidx_t a2)
 {
 	KLR_SWAP(ctx,a1,a2);
@@ -205,26 +180,6 @@ void JIT_OP_CHKESP_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1)
 void JIT_OP_RET_(Ctx *ctx, knh_sfp_t* sfp)
 {
 	KLR_RET(ctx);
-}
-
-void JIT_OP_RETn_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfpidx_t a2)
-{
-	KLR_RETn(ctx,a1,a2);
-}
-
-void JIT_OP_RETa_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfpidx_t a2)
-{
-	KLR_RETa(ctx,a1,a2);
-}
-
-void JIT_OP_RETo_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_Object_t* a2)
-{
-	KLR_RETo(ctx,a1,a2);
-}
-
-void JIT_OP_RETx_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfx_t a2)
-{
-	KLR_RETx(ctx,a1,a2);
 }
 
 void JIT_OP_YEILDBREAK_(Ctx *ctx, knh_sfp_t* sfp)
