@@ -1190,9 +1190,11 @@ static METHOD Class__man(Ctx *ctx, knh_sfp_t *sfp)
 				}
 			}
 		}
-		if(cid == CLASS_Object) break;
+		if(cid == CLASS_Object) {
+			knh_cwb_close(cwb);
+			break;
+		}
 		cid = ClassTable(cid).supcid;
-		knh_cwb_close(cwb);
 	}
 
 	knh_ClassNAME__man(ctx, this_cid, w);
