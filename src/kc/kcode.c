@@ -91,7 +91,7 @@ knh_KLRCode_t* knh_InstList_newKLRCode(Ctx *ctx, knh_Array_t *insts)
 
 	//knh_SSAGraph_new(ctx, insts);
 
-	// count opcode size 
+	// count opcode size
 	for(i = 0; i < inst_size; i++) {
 		inst = (knh_KLRInst_t*)knh_Array_n(insts, i);
 		if(inst->opcode == OPCODE_LABEL) continue;
@@ -180,9 +180,9 @@ void knh_Method_setKLRCode(Ctx *ctx, knh_Method_t *mtd, knh_KLRCode_t *code)
 {
 	KNH_ASSERT(IS_KLRCode(code));
 	if(knh_Method_isObjectCode(mtd)) {
-		KNH_SETv(ctx, DP(mtd)->code, code);
+		KNH_SETv(ctx, DP(mtd)->kcode, code);
 	}else {
-		KNH_INITv(DP(mtd)->code, code);
+		KNH_INITv(DP(mtd)->kcode, code);
 		knh_Method_setObjectCode(mtd, 1);
 	}
 	knh_Method_syncFunc(mtd, knh_KLRCode_exec);
