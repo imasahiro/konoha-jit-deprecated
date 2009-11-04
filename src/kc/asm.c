@@ -790,14 +790,10 @@ void KNH_ASM_NEW(Ctx *ctx, knh_type_t reqt, int sfpidx, knh_Token_t *tkb,
 	}
 }
 
-/* ------------------------------------------------------------------------ */
-
-
 /* ======================================================================== */
 /* [CONTROL] */
 
-static
-knh_KLRInst_t* new_KLRInstLABEL(Ctx *ctx)
+static knh_KLRInst_t* new_KLRInstLABEL(Ctx *ctx)
 {
 	knh_KLRInst_t *inst
 		= (knh_KLRInst_t*)new_Object_init(ctx, FLAG_KLRInst, CLASS_KLRInst, OPCODE_LABEL);

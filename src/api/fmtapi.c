@@ -1157,18 +1157,19 @@ void knh_ClassMap__man(Ctx *ctx, knh_ClassMap_t *cmap, knh_OutputStream_t *w, kn
 
 static METHOD Class__man(Ctx *ctx, knh_sfp_t *sfp)
 {
-	knh_class_t cid;
+	knh_class_t cid, this_cid;
 	knh_OutputStream_t *w = sfp[1].w;
 	size_t i = 0;
 	knh_DictMap_t *dm = new_DictMap0(ctx, 128);
 	KNH_SETv(ctx, sfp[2].o, dm);
 	if(IS_Class(sfp[0].o)) {
-		cid = ((knh_Class_t*)sfp[0].o)->cid;
-		DBG2_ASSERT_cid(cid);
+		this_cid = ((knh_Class_t*)sfp[0].o)->cid;
+		DBG2_ASSERT_cid(this_cid);
 	}
 	else {
-		cid = knh_Object_cid(sfp[0].o);
+		this_cid = knh_Object_cid(sfp[0].o);
 	}
+	cid = this_cid;
 	while(1) {
 		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 		knh_Array_t *a = ClassTable(cid).cstruct->methods;
@@ -1194,11 +1195,10 @@ static METHOD Class__man(Ctx *ctx, knh_sfp_t *sfp)
 		knh_cwb_close(cwb);
 	}
 
-	knh_ClassNAME__man(ctx, cid, w);
-	knh_ClassCONST__man(ctx, cid, w);
+	knh_ClassNAME__man(ctx, this_cid, w);
+	knh_ClassCONST__man(ctx, this_cid, w);
 
 	int cnt = 0;
-	cid = ((knh_Class_t*)sfp[0].o)->cid;
 	int hasCaption = 0;
 	int isBOL = 1;
 	char buf[40];
@@ -1208,7 +1208,7 @@ static METHOD Class__man(Ctx *ctx, knh_sfp_t *sfp)
 			char *op = knh_methodop__tochar(DP(mtd)->mn);
 			if(op == NULL) continue;
 			knh_DictMap_removeAt(ctx, dm, i);
-			if(DP(mtd)->cid == CLASS_Object && cid != CLASS_Object) continue;
+			if(DP(mtd)->cid == CLASS_Object && this_cid != CLASS_Object) continue;
 			if(hasCaption == 0) {
 				knh_write_char(ctx, w, _("Operator"));
 				knh_write_EOL(ctx, w);
@@ -1239,7 +1239,7 @@ static METHOD Class__man(Ctx *ctx, knh_sfp_t *sfp)
 		knh_Method_t *mtd = (knh_Method_t*)knh_DictMap_valueAt(dm, i);
 		if(IS_Method(mtd)) {
 			if(METHODN_IS_MOVTEXT(DP(mtd)->mn)) continue;
-			if(DP(mtd)->cid == CLASS_Object && cid != CLASS_Object) continue;
+			if(DP(mtd)->cid == CLASS_Object && this_cid != CLASS_Object) continue;
 			if(hasCaption == 0) {
 				knh_write_char(ctx, w, _("Method"));
 				knh_write_EOL(ctx, w);
@@ -1251,7 +1251,7 @@ static METHOD Class__man(Ctx *ctx, knh_sfp_t *sfp)
 			if(!knh_Method_isPrivate(mtd) || !knh_Method_isHidden(mtd)) {
 #endif
 				knh_write_TAB(ctx, w);
-				knh_Method__man(ctx, mtd, w, cid);
+				knh_Method__man(ctx, mtd, w, this_cid);
 				knh_write_EOL(ctx, w);
 			}
 			knh_DictMap_removeAt(ctx, dm, i);
@@ -1264,7 +1264,7 @@ static METHOD Class__man(Ctx *ctx, knh_sfp_t *sfp)
 		knh_Method_t *mtd = (knh_Method_t*)knh_DictMap_valueAt(dm, i);
 		if(IS_Method(mtd)) {
 			if(!METHODN_IS_MOVTEXT(DP(mtd)->mn)) continue;
-			if(DP(mtd)->cid == CLASS_Object && cid != CLASS_Object) continue;
+			if(DP(mtd)->cid == CLASS_Object && this_cid != CLASS_Object) continue;
 			if(hasCaption == 0) {
 				knh_write_char(ctx, w, _("Formatter"));
 				knh_write_EOL(ctx, w);
@@ -1282,8 +1282,7 @@ static METHOD Class__man(Ctx *ctx, knh_sfp_t *sfp)
 		}
 	}
 	knh_write_EOL(ctx, w);
-
-	knh_ClassMap__man(ctx, ClassTable(cid).cmap, w, cid);
+	knh_ClassMap__man(ctx, ClassTable(this_cid).cmap, w, this_cid);
 }
 
 
