@@ -377,15 +377,21 @@ static void knh_Context__dump(Ctx *ctx, knh_Context_t *b, knh_OutputStream_t *w,
 }
 
 /* ------------------------------------------------------------------------ */
+//## method Boolean! Exception.opInstanceof(Any msg);
 
-
-
-/* ------------------------------------------------------------------------ */
-//## method Boolean! Exception.opIsa(String msg);
-
-static METHOD Exception_opIsa(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Exception_opInstanceof(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURN_Boolean(ctx, sfp, knh_Exception_isa(ctx, sfp[0].e, sfp[1].s));
+	int isa = 0;
+	if(IS_Class(sfp[1].o)) {
+		isa = knh_Object_cid(sfp[0].o) == CLASS_Exception ? 1 : 0;
+	}
+	else if(IS_bString(sfp[1].o)){
+		isa = knh_Exception_isa(ctx, sfp[0].e, sfp[1].s);
+	}
+	else if(IS_Exception(sfp[1].o)) {
+		isa = knh_expt_isa(ctx, DP(sfp[0].e)->eid, DP(sfp[1].e)->eid);
+	}
+	KNH_RETURN_Boolean(ctx, sfp, isa);
 }
 
 /* ------------------------------------------------------------------------ */

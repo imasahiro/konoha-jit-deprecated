@@ -725,6 +725,15 @@ uninstall-am:
 	ps ps-am tags tags-recursive uninstall uninstall-am
 
 
+<<<<<<< .mine
+debug:
+	-rm -f ./Debug/
+	cp -rf ./src/  ./Debug
+	$(CC) -O0 -Wall -g3  ./Debug/*/*.c ./Debug/konoha.c \
+		-DHAVE_CONFIG_H -I. -I.. -I./include -o ./Debug/konoha \
+	$(AM_LDFLAGS) $(LDFLAGS) $(LIBS)
+
+=======
 debug:
 	-rm -f ./debug/
 	cp -rf ./src/  ./debug
@@ -732,6 +741,7 @@ debug:
 		-DHAVE_CONFIG_H -I. -I.. -I./include -o ./debug/konoha \
 	$(AM_LDFLAGS) $(LDFLAGS) $(LIBS)
 
+>>>>>>> .r926
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

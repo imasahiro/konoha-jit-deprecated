@@ -953,10 +953,6 @@ void knh_opcode_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
 #define TC(c)    
 #endif/*KNH_USING_THREADEDCODE*/
 
-#ifdef KNH_KLR_CONVERT
-#include "../../include/ijt/konoha_ctt.h"
-#endif
-
 METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp)
 {
 #ifdef KNH_USING_THREADEDCODE
@@ -999,11 +995,6 @@ METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp)
 		&&L_fARYSETn, &&L_THCODE, &&L_NOP, 
 	};
 	register knh_code_t *pc = (sfp[-1].mtd)->pc_start;
-#ifdef KNH_KLR_CONVERT
-	imem_t* mem = imem_new(1);
-	knh_Method_t *mtd = sfp[-1].mtd;
-	jit_start(mem);
-#endif
 	goto *OPJUMP[KNH_OPCODE(pc)]; /* this is needed to init */
 #else
 	register knh_code_t *pc = (sfp[-1].mtd)->pc_start;
@@ -1873,17 +1864,6 @@ METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp)
 	}
 	KNH_WARNING(ctx, "unknown opcode=%d", KNH_OPCODE(pc));
 	goto L_HEAD;
-#endif
-
-#ifdef KNH_KLR_CONVERT
-CTT_FIN:
-	{
-		jit_complete(mem);
-		knh_fmethod f = (METHOD (*) (Ctx *, knh_sfp_t *)) mem->addr;
-		knh_ctt_patch(mem);
-		imem_complete(mem);
-		knh_Method_syncFunc(mtd,f);
-	}
 #endif
 }
 

@@ -206,7 +206,7 @@ def write_class_h(f, c, cid):
 
 class Expt:
     def __init__(self, cname, parent):
-        self.cname = cname
+        self.cname = cname.replace("!!", "")
         if parent == '-': self.parent = 'Exception'
         else: self.parent = parent
 
@@ -457,7 +457,7 @@ class Data:
                       ("DEVNULL", "/dev/null"), ("DEVSTDIN", "/dev/stdin"),
                       ("DEVSTDERR", "/dev/stderr"), ("DEVSTDOUT", "/dev/stdout"),
                       ("ATlabel", "@label"), ("Comment", "Comment"),
-#                      ("SecurityException", "Security!!"), ("AssertionException", "Assertion!!"), 
+                      ("AssertionException", "Assertion!!"), 
                       ("LP", "("), ("RP", ")"),  ("LB", "{"), ("RB", "}"),  ("LS", "["), ("RS", "]"), 
                       ]
         self.add_mn('main')

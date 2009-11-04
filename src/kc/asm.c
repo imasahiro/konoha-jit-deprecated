@@ -2280,7 +2280,7 @@ static void knh_StmtASSERT_asm(Ctx *ctx, knh_Stmt_t *stmt)
 		TERMs_ASM_JIFT(ctx, stmt, 0, lbskip);
 		/*then*/
 		TERMs_asmBLOCK(ctx, stmt, 1);
-		KNH_ASM(THROWs, start, DP(kc)->esp, knh_getExptName(ctx, EXPT_Assertion));
+		KNH_ASM(THROWs, start, DP(kc)->esp, TS_AssertionException);
 		KNH_ASM_LABEL(ctx, lbskip);
 	}
 	else {

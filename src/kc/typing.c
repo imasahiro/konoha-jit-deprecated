@@ -2781,7 +2781,7 @@ char *METHODN_op(knh_methodn_t mn)
 	case METHODN_opInTo : return "into";
 	case METHODN_opInstanceof : return "instanceof";
 	case METHODN_opIs : return "is";
-	case METHODN_opIsa : return "isa";
+//	case METHODN_opIsa : return "isa";
 	case METHODN_opItr : return "..";
 	case METHODN_opLand : return "&& (and)";
 	case METHODN_opLnot : return "~";
@@ -3945,7 +3945,7 @@ Term *knh_StmtASSERT_typing(Ctx *ctx, knh_Stmt_t *stmt)
 		return knh_Stmt_done(ctx, stmt);
 	}
 	if(TERMs_isFALSE(stmt, 0)) {
-		knh_Gamma_perror(ctx, KERR_EWARN, _("always throw Assert!!"));
+		knh_Gamma_perror(ctx, KERR_EWARN, _("always throw Assertion!!"));
 	}
 	TERMs_typingBLOCK(ctx, stmt, 1, 1/*isIteration*/);
 	return TM(stmt);

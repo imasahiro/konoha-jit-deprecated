@@ -93,12 +93,12 @@ void knh_stack_pmsg(Ctx *ctx, knh_flag_t flag, knh_String_t *s)
 	knh_OutputStream_t *w = knh_stack_pstream(ctx, flag);
 	knh_stack_beginPRINT(ctx, flag, w);
 	DBG2_ASSERT(IS_bString(s));
-//	if((s)->size > 0) {  /* remove TS_EMPTY */
-	knh_print(ctx, w, __tobytes(s));
-//	}
-//	else {
-//		flag = (flag & ~(KNH_FLAG_PF_BOL));
-//	}
+	if((s)->size > 0) {
+		knh_print(ctx, w, __tobytes(s));
+	}
+	else {
+		flag = (flag & ~(KNH_FLAG_PF_BOL));
+	}
 	knh_stack_endPRINT(ctx, flag, w);
 }
 
@@ -115,32 +115,21 @@ void knh_stack_p(Ctx *ctx, knh_sfp_t *sfp, knh_flag_t flag, knh_methodn_t mn)
 	knh_stack_endPRINT(ctx, flag, w);
 }
 
-
-///* ------------------------------------------------------------------------ */
-//
-//static int tglobalVerbose = 5;
-//
-///* ------------------------------------------------------------------------ */
-//
-//int knh_verbose(void)
-//{
-//	return tglobalVerbose;
-//}
-
-/* ======================================================================== */
+/* ------------------------------------------------------------------------ */
 /* [file] */
 
 KNHAPI(char*) knh_safefile(char *file)
 {
-	if(file == NULL) return "(unknown)";
-	knh_bytes_t t = B(file);
-	int loc = knh_bytes_rindex(t, '/');
-	if(loc == -1) {
-		return file;
+	if(file != NULL) {
+		knh_bytes_t t = B(file);
+		int loc = knh_bytes_rindex(t, '/');
+		if(loc == -1) {
+			return file;
+		}
+		return (char*)t.buf + loc + 1;
 	}
-	return (char*)t.buf + loc + 1;
+	return "(unknown)";
 }
-
 
 /* ------------------------------------------------------------------------ */
 

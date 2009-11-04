@@ -291,6 +291,7 @@ static char * StringData[] = {
 	"/dev/stdout", /* TS_DEVSTDOUT */
 	"@label", /* TS_ATlabel */
 	"Comment", /* TS_Comment */
+	"Assertion!!", /* TS_AssertionException */
 	"(", /* TS_LP */
 	")", /* TS_RP */
 	"{", /* TS_LB */
@@ -1039,17 +1040,17 @@ static knh_ClassData_t ClassData[] = {
 };
 
 static knh_ExptData_t ExptData[] = {
-	{"Exception!!", 0, EXPT_Exception, EXPT_Exception},
-	{"Fatal!!", 0, EXPT_Fatal, EXPT_Exception},
-	{"OutOfMemory!!", 0, EXPT_OutOfMemory, EXPT_Fatal},
-	{"Security!!", 0, EXPT_Security, EXPT_Exception},
-	{"Null!!", 0, EXPT_Null, EXPT_Exception},
-	{"OutOfIndex!!", 0, EXPT_OutOfIndex, EXPT_Exception},
-	{"IO!!", 0, EXPT_IO, EXPT_Exception},
-	{"Script!!", 0, EXPT_Script, EXPT_Exception},
-	{"Syntax!!", 0, EXPT_Syntax, EXPT_Script},
-	{"Type!!", 0, EXPT_Type, EXPT_Script},
-	{"Assertion!!", 0, EXPT_Assertion, EXPT_Script},
+	{"Exception", 0, EXPT_Exception, EXPT_Exception},
+	{"Fatal", 0, EXPT_Fatal, EXPT_Exception},
+	{"OutOfMemory", 0, EXPT_OutOfMemory, EXPT_Fatal},
+	{"Security", 0, EXPT_Security, EXPT_Exception},
+	{"Null", 0, EXPT_Null, EXPT_Exception},
+	{"OutOfIndex", 0, EXPT_OutOfIndex, EXPT_Exception},
+	{"IO", 0, EXPT_IO, EXPT_Exception},
+	{"Script", 0, EXPT_Script, EXPT_Exception},
+	{"Syntax", 0, EXPT_Syntax, EXPT_Script},
+	{"Type", 0, EXPT_Type, EXPT_Script},
+	{"Assertion", 0, EXPT_Assertion, EXPT_Script},
 	{NULL}
 };
 
@@ -1193,7 +1194,6 @@ static knh_FieldNameData_t FieldNameData[] = {
 	{"opInstanceof", FIELDN_opInstanceof},
 	{"opInTo", FIELDN_opInTo},
 	{"opIs", FIELDN_opIs},
-	{"opIsa", FIELDN_opIsa},
 	{"opItr", FIELDN_opItr},
 	{"opItr:2", FIELDN_opItr__2},
 	{"opLand", FIELDN_opLand},
@@ -1448,7 +1448,7 @@ static knh_MethodFieldData_t MethodFieldData[] = {
 	{141, 1, TYPE_String_Ary, TYPE_String, FIELDN_key},
 	{142, 1, TYPE_void, NATYPE_InputStream, FIELDN_in},
 	{143, 1, TYPE_void, NATYPE_OutputStream, FIELDN_out},
-	{144, 1, NNTYPE_Boolean, TYPE_String, FIELDN_msg},
+	{144, 1, NNTYPE_Boolean, TYPE_Any, FIELDN_msg},
 	{145, 2, TYPE_void, NNTYPE_String, FIELDN_name, TYPE_Any, FIELDN_value},
 	{146, 1, TYPE_void, NNTYPE_Boolean, FIELDN_flag},
 	{-1}
@@ -1862,7 +1862,7 @@ static knh_MethodData_t MethodData[] = {
 	{Context_setOut, FLAG_Method_Static, CLASS_Context, METHODN_setOut, 0, 143, NULL},
 	{Context_setErr, FLAG_Method_Static, CLASS_Context, METHODN_setErr, 0, 143, NULL},
 	{knh_fmethod_formatter, 0, CLASS_Context, METHODN__dump, 0, 22, (void*)knh_Context__dump},
-	{Exception_opIsa, 0, CLASS_Exception, METHODN_opIsa, 0, 144, NULL},
+	{Exception_opInstanceof, 0, CLASS_Exception, METHODN_opInstanceof, 0, 144, NULL},
 	{NameSpace_setConst, FLAG_Method_Const|FLAG_Method_Hidden, CLASS_NameSpace, METHODN_setConst, 0, 145, NULL},
 	{Object_isRelease, 0, CLASS_Object, METHODN_isRelease, 0, 27, NULL},
 	{Object_isDebug, 0, CLASS_Object, METHODN_isDebug, 0, 27, NULL},

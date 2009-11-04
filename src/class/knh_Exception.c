@@ -50,8 +50,7 @@ extern "C" {
 /* ======================================================================== */
 /* [ExptTable] */
 
-static
-knh_expt_t knh_ExptTable_newId(Ctx *ctx)
+static knh_expt_t knh_ExptTable_newId(Ctx *ctx)
 {
 	knh_class_t newid = 0;
 	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
@@ -93,20 +92,24 @@ knh_String_t *knh_getExptName(Ctx *ctx, knh_expt_t eid)
 
 knh_expt_t knh_geteid(Ctx *ctx, knh_bytes_t msg, knh_expt_t def)
 {
+	knh_expt_t eid = EXPT_Exception;
 	knh_intptr_t loc = knh_bytes_index(msg, '!');
 	if(loc != -1) {
 		if(msg.buf[loc+1] != '!') {
-			return EXPT_Exception;
+			return eid;
 		}
 		msg = knh_bytes_first(msg, loc);
 	}
-
 	if(msg.len == 0) return EXPT_Exception; /* '!!' */
-
-	knh_expt_t eid = (knh_expt_t)knh_DictSet_get__b(DP(ctx->sys)->ExptNameDictSet, msg);
-	if(eid != 0) return eid;
-	if(def == EXPT_newid) {
-		return knh_addException(ctx, 0, EXPT_newid, new_String(ctx, msg, NULL), EXPT_Exception);
+	{
+		KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
+		eid = (knh_expt_t)knh_DictSet_get__b(DP(ctx->sys)->ExptNameDictSet, msg);
+		KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
+		DBG2_P("'%s', eid=%d", msg.buf, eid);
+		if(eid != 0) return eid;
+		if(def == EXPT_newid) {
+			return knh_addException(ctx, 0, EXPT_newid, new_String(ctx, msg, NULL), EXPT_Exception);
+		}
 	}
 	return def;
 }
@@ -124,13 +127,16 @@ knh_addException(Ctx *ctx, knh_flag_t flag, knh_class_t eid, knh_String_t *name,
 		DBG2_ASSERT(eid == ctx->share->ExptTableSize);
 	}
 	KNH_ASSERT_eid(eid);
-
-	knh_ExptTable_t *t = pExptTable(eid-1);
-	DBG2_ASSERT(t->name == NULL);
-	t->flag = flag;
-	t->parent = peid;
-	KNH_INITv(t->name, name);
-	knh_DictSet_set(ctx, DP(ctx->sys)->ExptNameDictSet, name, eid);
+	{
+		knh_ExptTable_t *t = pExptTable(eid-1);
+		DBG2_ASSERT(t->name == NULL);
+		t->flag = flag;
+		t->parent = peid;
+		KNH_INITv(t->name, name);
+		KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
+		knh_DictSet_set(ctx, DP(ctx->sys)->ExptNameDictSet, name, eid);
+		KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
+	}
 	return eid;
 }
 
