@@ -2870,7 +2870,10 @@ Term *knh_StmtOP_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
 	knh_Token_t *tkOP = DP(stmt)->tokens[0];
 	knh_class_t mtd_cid = CLASS_unknown;
 	knh_methodn_t mn = knh_token_tomethodn(TT_(tkOP));
-	DBG2_ASSERT(mn != METHODN_NONAME);
+	if(mn == METHODN_NONAME) {
+		knh_Gamma_perror(ctx, KERR_ERROR, _("undefined operator: %s"), sToken(tkOP));
+		return NULL;
+	}
 
 	for(i = 1; i < opsize + 1; i++) {
 		if(!TERMs_typing(ctx, stmt, i, TYPE_Any, TWARN_)) {
