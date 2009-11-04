@@ -234,6 +234,7 @@ int knh_NameSpace_load(Ctx *ctx, knh_NameSpace_t *ns, knh_InputStream_t *in, int
 			knh_NameSpace_loaded(ctx, ns, uri);
 		}
 	}
+	KNH_SETv(ctx, lsfp[1].o, KNH_NULL);
 	KNH_LOCALBACK(ctx, lsfp);
 	return res;
 
@@ -800,6 +801,7 @@ static int knh_Stmt_eval(Ctx *ctx, knh_Stmt_t *stmt, int isEval)
 				knh_write_EOL(ctx, KNH_STDOUT);
 			}
 		}
+		KNH_SETv(ctx, lsfp[0].o, KNH_NULL);
 		KNH_LOCALBACK(ctx, lsfp);
 		return 1;
 
