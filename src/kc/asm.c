@@ -294,7 +294,7 @@ void KNH_ASM_NNBOX(Ctx *ctx, knh_type_t reqt, knh_type_t atype, int a)
 	knh_class_t bcid = ClassTable(cid).bcid;
 	if(bcid == CLASS_Boolean || bcid == CLASS_Int || bcid == CLASS_Float) {
 		knh_class_t rcid = ClassTable(CLASS_type(reqt)).bcid;
-		if(rcid != bcid) {
+		if(rcid != bcid || IS_NATYPE(reqt)) {
 			if(IS_NNTYPE(atype)) {
 				KNH_ASM(NNBOX, a, cid);
 			}

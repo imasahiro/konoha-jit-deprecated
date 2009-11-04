@@ -678,7 +678,6 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 		if(!knh_ExceptionHandler_isJumpable(_hdr)) { \
 			knh_ExceptionHandler_setJumpable(_hdr, 1); \
 			int jump = KNH_SETJUMP(_hdr); \
-			DBG2_P("hn=%d, %p, jump=%d", hn, lsfp, jump); \
 			if(jump != 0) { \
 				DBG2_ASSERT(IS_ExceptionHandler(lsfp[hn].o)); \
 				DBG2_SETESP(ctx, DP(lsfp[hn].hdr)->esp); \
