@@ -2,7 +2,7 @@
 
 /* ======================================================================== */
 /* MACROS */
-#define KONOHA_REVISION                 917
+#define KONOHA_REVISION                 $Id: $
 #define KONOHA_BUILDID                  749
 #define KONOHA_EXPIRE                   1257577922LL
 
