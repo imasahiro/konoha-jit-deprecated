@@ -1380,8 +1380,7 @@ knh_index_t knh_Gamma_addVariableTable(Ctx *ctx, knh_cfield_t *gamma, size_t max
 					return -1;
 				}
 				else {
-					knh_Gamma_perror(ctx, KERR_DWARN, _("differently declared: previous %T %N"), gamma->type, decl->fn);
-					return idx;
+					knh_Gamma_perror(ctx, KERR_EWARN, _("differently declared: previous %T %N"), gamma->type, decl->fn);
 				}
 			}
 		}
