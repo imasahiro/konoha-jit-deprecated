@@ -225,6 +225,8 @@ KNHAPI(void) knh_stack_throw(Ctx *ctx, knh_sfp_t *sfp, knh_Exception_t *e, char 
 {
 	DBG2_ASSERT(IS_Exception(e));
 	knh_sfp_t *sp = (sfp == NULL) ? ctx->esp : sfp;
+	DBG2_P("throwing %s at %d esp=%d", __tochar(DP(e)->msg), sp - ctx->stack, ctx->esp - ctx->stack);
+	KNH_SETv(ctx, ctx->stack[ctx->stacksize-1].o, e);  // TO AVOID GC
 	while(ctx->stack <= sp) {
 		if(IS_ExceptionHandler(sp[0].hdr) && knh_ExceptionHandler_isCatching(sp[0].hdr)) {
 			knh_ExceptionHandler_setCatching(sp[0].hdr, 0);

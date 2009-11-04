@@ -2383,13 +2383,6 @@ void knh_Stmt_asmBLOCK(Ctx *ctx, knh_Stmt_t *stmt, int isIteration)
 
 /* ------------------------------------------------------------------------ */
 
-static void KNH_ASM_INITLOCAL(Ctx *ctx)
-{
-
-}
-
-/* ------------------------------------------------------------------------ */
-
 void KNH_ASM_METHOD(Ctx *ctx, knh_Method_t *mtd, knh_Stmt_t *params, knh_Stmt_t *body, int isIteration)
 {
 	knh_Gamma_t *kc = ctx->kc;
