@@ -73,7 +73,7 @@
 #define JIT_ASM_HALT(ctx) {\
     imem_setLabel(mem, op->opcode, OPSIZE_HALT, 0); \
     IDEBUG("%-8s\n","HALT"); \
-    /*jit_5__call(mem, JIT_OP_HALT_);*/ \
+    jit_5__call(mem, JIT_OP_HALT_); \
     goto CTT_FIN;\
 }\
 
