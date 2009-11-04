@@ -3077,7 +3077,6 @@ void knh_Token_toMPR(Ctx *ctx, knh_Token_t *tk, knh_class_t cid, knh_Mapper_t *m
 		DP(tk)->type = NATYPE_cid(cid);
 	}
 	else {
-		DBG2_P("******** isTotal? =%d", knh_Mapper_isTotal(mpr));
 		DP(tk)->type = knh_Mapper_isTotal(mpr) ? NNTYPE_cid(DP(mpr)->tcid) : NATYPE_cid(DP(mpr)->tcid);
 	}
 }

@@ -1493,7 +1493,7 @@ void knh_StmtMAPCAST_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx
 		if(IS_NATYPE(srct) && knh_Stmt_isNNCAST(stmt)) {
 			KNH_ASM(NNMAP, local, DP(tkC)->cid);
 		}
-		else if(IS_NNTYPE(reqt)) {
+		else if(IS_NNTYPE(reqt) && IS_NATYPE(DP(stmt)->type)) {
 			KNH_ASM(CHKNUL, local);
 		}
 	}
