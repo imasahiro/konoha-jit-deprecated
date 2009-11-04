@@ -4720,7 +4720,7 @@ void knh_Gamma_declareClassField(Ctx *ctx, knh_NameSpace_t* ns, knh_class_t cid)
 			of->fields = NULL;
 		}
 		else {
-			of->fields = KNH_MALLOC(ctx, sizeof(Object*) * of->bsize);
+			of->fields = (knh_Object_t**)KNH_MALLOC(ctx, sizeof(Object*) * of->bsize);
 			//knh_ObjectField_init(ctx, of, 0);
 			StructTable(CLASS_ObjectField).finit(ctx, UP(of), 0);
 		}

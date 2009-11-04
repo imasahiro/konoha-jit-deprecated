@@ -24,7 +24,6 @@
 #ifdef KONOHA_ON_LKM
 #include <linux/string.h>
 #else
-#include <alloca.h>
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>

@@ -71,7 +71,7 @@ extern "C" {
 int knh_getpid(void)
 {
 #if defined(KNH_USING_WINDOWS)
-	return GetCurrentProcessID();
+	return GetCurrentProcessId();
 #elif defined(KNH_USING_POSIX)
 	return getpid();
 #else
@@ -98,7 +98,7 @@ knh_uint_t knh_time(void)
 knh_uint_t knh_initseed(void)
 {
 #if defined(KNH_USING_WINDOWS)
-	return (knh_uint_t)time(NULL) + GetCurrentProcessID();
+	return (knh_uint_t)time(NULL) + GetCurrentProcessId();
 #elif defined(KNH_USING_POSIX)
 	return (knh_uint_t)time(NULL) + getpid();
 #elif defined(KNH_USING_BTRON)

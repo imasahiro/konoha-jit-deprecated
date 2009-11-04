@@ -220,7 +220,7 @@ static METHOD Tuple_new__init(Ctx *ctx, knh_sfp_t *sfp)
 	}
 	else {
 		t->size = ac;
-		t->list = KNH_MALLOC(ctx, sizeof(void*) * t->size);
+		t->list = (knh_Object_t**)KNH_MALLOC(ctx, sizeof(void*) * t->size);
 		for(i = 0; i < t->size; i++) {
 			KNH_INITv(t->list[i], v[0].o);
 		}
