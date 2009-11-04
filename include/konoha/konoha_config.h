@@ -130,15 +130,9 @@
 #ifdef __GNUC__
 	#define KONOHA_CC_VERSION "GCC " __VERSION__
 	#if defined(__i386__) || (defined(__x86_64__) && !defined(__amd64__))
-		#if defined(KONOHA_ON_LKM)
-			#if (LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,25))
-				#define KNH_CC_FASTCALL   fastcall
-			#else
-				#define KNH_CC_FASTCALL   __attribute__((fastcall))
-			#endif
-		#else
-			#define KNH_CC_FASTCALL   __attribute__((fastcall))
-		#endif
+		#undef fastcall
+		#define fastcall __attribute__((fastcall))
+		#define KNH_CC_FASTCALL   fastcall
 		#define likely(x)       __builtin_expect(!!(x), 1)
 		#define unlikely(x)     __builtin_expect(!!(x), 0)
 	#else

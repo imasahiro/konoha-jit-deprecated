@@ -34,9 +34,7 @@
 
 /* configuration and dependency */
 
-#ifdef KONOHA_ON_LKM
-#include"konoha/konoha_lkm.h"
-#else
+#ifndef KONOHA_ON_LKM
 #include<stdio.h>
 #include<stdlib.h>
 #include<ctype.h>
@@ -47,11 +45,11 @@
 
 #include"konoha/konoha_config.h"
 
+
 #include<stdarg.h>
 
-#ifdef KONOHA_ON_TB
 #include"konoha/konoha_tb.h"
-#endif
+#include"konoha/konoha_lkm.h"
 
 #include"konoha/konoha_deps.h"
 

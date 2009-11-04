@@ -24,6 +24,8 @@
 #define KNH_DBGMODE     1
 
 #define DBG2_(stmt)  stmt
+#define DBG2_ASSERT(c)  KNH_ASSERT(c)
+#define DBG2_ABORT()    KNH_ABORT()
 
 #define DBG2_P(fmt, ...) \
 	fflush(stdout); \
@@ -38,14 +40,12 @@
 	knh_flush(ctx, KNH_STDOUT);\
 	fprintf(stdout, "\n"); \
 
-#define DBG2_ASSERT(c)  KNH_ASSERT(c)
 
 #define KNH_MALLOC(ctx, size)    DBG2_malloc(ctx, size, (char*)__FUNCTION__)
 #define KNH_FREE(ctx, p, size)   DBG2_free(ctx, p, size, (char*)__FUNCTION__)
 
-#define DBG2_ABORT()    KNH_ABORT()
 
-#elif /*KNH_DBGMODE2*/ !defined(KONOHA_ON_LKM)
+#else /*KNH_DBGMODE2*/ 
 
 #define DBG2_(stmt)
 #define DBG2_ASSERT(c) KNH_ASSERT(c)
