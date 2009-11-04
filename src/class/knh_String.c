@@ -283,15 +283,22 @@ knh_parser_drvapi_t *knh_System_getParserDriver(Ctx *ctx, knh_bytes_t name)
 
 int knh_bytes_splitTag(knh_bytes_t t, knh_bytes_t *tag, knh_bytes_t *body)
 {
-	size_t i;
-	for(i = 1; i < t.len; i++) {
-		if(t.buf[i] == ':' && t.buf[i-1] != '\\') {
-			tag->buf = t.buf;
-			tag->len = i;
-			body->buf = t.buf + i + 1;
-			body->len = t.len - (i+1);
-			return 1;
+	size_t i, len = t.len;
+	if(!isalnum(t.buf[0])) return 0;
+	if(len > 16) len = 16;
+	for(i = 1; i < len; i++) {
+		int ch = t.buf[i];
+		if(isalnum(ch) || ch == ':' || ch == '\\' || ch == '!') {
+			if(t.buf[i] == ':' && t.buf[i-1] != '\\') {
+				tag->buf = t.buf;
+				tag->len = i;
+				body->buf = t.buf + i + 1;
+				body->len = t.len - (i+1);
+				return 1;
+			}
+			continue;
 		}
+		return 0;
 	}
 	return 0;
 }

@@ -241,18 +241,6 @@ void knh_asmop(Ctx *ctx, knh_inst_t *op)
 	knh_Array_add(ctx, DP(kc)->insts, UP(inst));
 }
 
-/* ------------------------------------------------------------------------ */
-
-//                            int   Int    Any(sfp)   Any(obj)
-// int [??, 1]                             [Int0, 1]  [Int, 1]
-// Int [null, ??] [??, 1]
-
-//                            int   Int    Any(sfp)   Any(obj)
-// int [Int0, 1]                           [Int0, 1]  [Int, 1]
-// Int [null, ??] [Int0, 1]
-
-/* ------------------------------------------------------------------------ */
-
 static
 void KNH_ASM_BOX(Ctx *ctx, knh_type_t reqt, knh_type_t atype, int a)
 {
@@ -284,8 +272,6 @@ void KNH_ASM_BOX(Ctx *ctx, knh_type_t reqt, knh_type_t atype, int a)
 	}
 }
 
-/* ------------------------------------------------------------------------ */
-
 static
 void KNH_ASM_NNBOX(Ctx *ctx, knh_type_t reqt, knh_type_t atype, int a)
 {
@@ -304,8 +290,6 @@ void KNH_ASM_NNBOX(Ctx *ctx, knh_type_t reqt, knh_type_t atype, int a)
 		}
 	}
 }
-
-/* ------------------------------------------------------------------------ */
 
 static
 void KNH_ASM_SMOVx(Ctx *ctx, knh_type_t atype, int a, knh_type_t btype, knh_sfx_t bx)
@@ -340,8 +324,6 @@ void KNH_ASM_SMOVx(Ctx *ctx, knh_type_t atype, int a, knh_type_t btype, knh_sfx_
 	}
 	KNH_ASM(MOVx, sfi_(a), bx);
 }
-
-/* ------------------------------------------------------------------------ */
 
 static
 void KNH_ASM_SMOV(Ctx *ctx, knh_type_t atype, int a, knh_Token_t *tkb)
@@ -453,8 +435,6 @@ void KNH_ASM_SMOV(Ctx *ctx, knh_type_t atype, int a, knh_Token_t *tkb)
 	}/*switch*/
 }
 
-/* ------------------------------------------------------------------------ */
-
 static
 void KNH_ASM_XMOVx(Ctx *ctx, knh_type_t atype, knh_sfx_t ax, knh_type_t btype, knh_sfx_t bx)
 {
@@ -514,8 +494,6 @@ void KNH_ASM_XMOVx(Ctx *ctx, knh_type_t atype, knh_sfx_t ax, knh_type_t btype, k
 		KNH_ASM(XMOVx, ax, bx);
 	}
 }
-
-/* ------------------------------------------------------------------------ */
 
 static
 void KNH_ASM_XMOV(Ctx *ctx, knh_type_t atype, int a, size_t an, knh_Token_t *tkb)
@@ -653,8 +631,6 @@ void KNH_ASM_XMOV(Ctx *ctx, knh_type_t atype, int a, size_t an, knh_Token_t *tkb
 
 }
 
-/* ------------------------------------------------------------------------ */
-
 static
 void KNH_ASM_MOV(Ctx *ctx, knh_Token_t *tka, knh_Token_t *tkb)
 {
@@ -689,8 +665,6 @@ void KNH_ASM_MOV(Ctx *ctx, knh_Token_t *tka, knh_Token_t *tkb)
 		KNH_ASSERT(ctx == NULL);
 	}
 }
-
-/* ------------------------------------------------------------------------ */
 
 static
 void KNH_ASM_RET(Ctx *ctx)

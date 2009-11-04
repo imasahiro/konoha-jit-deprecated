@@ -6,7 +6,7 @@
  * All rights reserved.
  *
  * You may choose one of the following two licenses when you use konoha.
- * See www.konohaware.org/license.html for further information.
+ * See www.konohaware.org/license.html for further information
  *
  * (1) GNU Lesser General Public License 3.0 (with KONOHA_UNDER_LGPL3)
  * (2) Konoha Software Foundation License 1.0
