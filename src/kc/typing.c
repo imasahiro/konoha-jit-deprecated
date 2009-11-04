@@ -1337,8 +1337,6 @@ knh_flag_t knh_StmtDECL_flag(Ctx *ctx, knh_Stmt_t *o)
 	return flag;
 }
 
-/* ------------------------------------------------------------------------ */
-
 static
 knh_index_t knh_Gamma_addVariableTable(Ctx *ctx, knh_cfield_t *gamma, size_t max, knh_cfield_t *decl, int isField)
 {
@@ -1376,11 +1374,12 @@ knh_index_t knh_Gamma_addVariableTable(Ctx *ctx, knh_cfield_t *gamma, size_t max
 			if(isField) {
 				if(gamma[idx].type == decl->type) return idx;
 				if(!knh_Context_isInteractive(ctx)) {
-					knh_Gamma_perror(ctx, KERR_TERROR, _("differently declared: previous %T %N"), gamma->type, decl->fn);
+					knh_Gamma_perror(ctx, KERR_TERROR, _("differently declared: previous type %T %N"), gamma->type, decl->fn);
 					return -1;
 				}
 				else {
-					knh_Gamma_perror(ctx, KERR_EWARN, _("differently declared: previous %T %N"), gamma->type, decl->fn);
+					knh_Gamma_perror(ctx, KERR_EWARN,
+						_("different types are only allowed in an interactive mode: previous type %T %N"), gamma->type, decl->fn);
 				}
 			}
 		}

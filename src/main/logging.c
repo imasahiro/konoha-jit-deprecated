@@ -70,15 +70,14 @@ void knh_stack_beginPRINT(Ctx *ctx, knh_flag_t flag, knh_OutputStream_t *w)
 static
 void knh_stack_endPRINT(Ctx *ctx, knh_flag_t flag, knh_OutputStream_t *w)
 {
-	if(KNH_FLAG_IS(flag, KNH_FLAG_PF_BOL)) {
-		knh_putc(ctx, w, ' ');
-	}
-	else if(KNH_FLAG_IS(flag, KNH_FLAG_PF_EOL)) {
+	if(KNH_FLAG_IS(flag, KNH_FLAG_PF_EOL)) {
 		knh_write_EOL(ctx, w);
-		knh_flush(ctx, w);
 	}
 	else if(KNH_FLAG_IS(flag, KNH_FLAG_PF_NAME)) {
 		knh_putc(ctx, w, '=');
+	}
+	else if(KNH_FLAG_IS(flag, KNH_FLAG_PF_BOL)) {
+		knh_putc(ctx, w, ' ');
 	}
 	else {
 		knh_putc(ctx, w, ',');
@@ -96,9 +95,9 @@ void knh_stack_pmsg(Ctx *ctx, knh_flag_t flag, knh_String_t *s)
 	if((s)->size > 0) {
 		knh_print(ctx, w, __tobytes(s));
 	}
-	else {
-		flag = (flag & ~(KNH_FLAG_PF_BOL));
-	}
+//	else {
+//		flag = (flag & ~(KNH_FLAG_PF_BOL));
+//	}
 	knh_stack_endPRINT(ctx, flag, w);
 }
 
