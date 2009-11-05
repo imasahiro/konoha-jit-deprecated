@@ -187,6 +187,38 @@ static void knh_Gamma_gc(Ctx *ctx)
 
 /* ------------------------------------------------------------------------ */
 
+static void knh_Method_skipCHKESP(Ctx *ctx, knh_Method_t *mtd)
+{
+	knh_code_t *pc = mtd->pc_start;
+	knh_inst_t *op;
+	while(KNH_OPCODE(pc) != OPCODE_HALT) {
+		op = (knh_inst_t*)pc;
+		switch(op->opcode) {
+		case OPCODE_CALL:
+		case OPCODE_SCALL:
+		case OPCODE_ACALL:
+		case OPCODE_FCALL:
+		case OPCODE_AINVOKE:
+		case OPCODE_NEW:
+		case OPCODE_STR:
+		case OPCODE_SSTR:
+		case OPCODE_SMAP:
+		case OPCODE_SMAPnc:
+		case OPCODE_AMAP:
+		case OPCODE_P:
+			return ;
+		}
+		pc += knh_opcode_size(op->opcode);
+	}
+	op = (knh_inst_t*)mtd->pc_start;
+	if(op->opcode == OPCODE_CHKESP) {
+		//knh_Gamma_perror(ctx, KERR_DWARN, "skip CHKESP %C.%M", DP(mtd)->cid, DP(mtd)->mn);
+		mtd->pc_start += knh_opcode_size(OPCODE_CHKESP);
+	}
+}
+
+/* ------------------------------------------------------------------------ */
+
 static void knh_Gamma_finish(Ctx *ctx)
 {
 	knh_Gamma_t *kc = ctx->kc;
@@ -194,8 +226,7 @@ static void knh_Gamma_finish(Ctx *ctx)
 	DBG2_ASSERT(IS_Method(mtd));
 
 	if(knh_Gamma_isCancelled(kc)) {
-		knh_Gamma_gc(ctx);
-		return;
+		goto L_RETURN;
 	}
 
 	knh_KLRCode_t *vmc = knh_InstList_newKLRCode(ctx, DP(kc)->insts);
@@ -215,9 +246,11 @@ static void knh_Gamma_finish(Ctx *ctx)
 #else
 		knh_KLRCode_exec(ctx, lsfp+1); /* code threading */
 #endif
+		knh_Method_skipCHKESP(ctx, mtd);
 		DBG2_P("mtd(%p)", mtd);
 		DBG2_DUMP(ctx, mtd, KNH_NULL, "Compiled Code");
 	}
+	L_RETURN:
 	knh_Gamma_gc(ctx);
 }
 

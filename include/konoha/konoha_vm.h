@@ -450,15 +450,6 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 		pc = lsfp[n+1].pc; \
 	} \
 
-#define KLR_RCALL(ctx, n, shift) { \
-		int n1_ = n + 1;\
-		KLR_MOV(ctx, sfp[n].o, sfp[-1].o); \
-		KLR_MOVa(ctx, n1_, 0); \
-		KNH_SETESP(ctx, sfp + n + shift); \
-		sfp[-1].pc = pc; \
-		knh_KLRCode_exec(ctx, sfp + n1_); \
-	} \
-
 #define KLR_FCALL(ctx, n, shift, self, m) { \
 		int n1_ = n + 1;\
 		KLR_MOVa(ctx, n1_, self); \

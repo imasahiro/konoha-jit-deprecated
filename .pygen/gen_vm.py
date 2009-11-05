@@ -77,7 +77,6 @@ CHKTYPE sfpidx cid
 #CHECKNNTYPE sfpidx type
 
 FCALL sfpidx ushort sfpidx Method
-RCALL sfpidx ushort
 SCALL sfpidx ushort Method
 AINVOKE sfpidx ushort
 CALL  sfpidx ushort mn 

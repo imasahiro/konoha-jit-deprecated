@@ -244,6 +244,10 @@ knh_flag_t knh_StmtMETHOD_flag(Ctx *ctx, knh_Stmt_t *o)
 		if(IS_NOTNULL(v)) {
 			flag |= FLAG_Method_Debug;
 		}
+		v = knh_DictMap_get__b(ctx, DP(o)->metaDictMap, STEXT("Inline"));
+		if(IS_NOTNULL(v)) {
+			flag |= FLAG_Method_Inline;
+		}
 	}
 	return flag;
 }
