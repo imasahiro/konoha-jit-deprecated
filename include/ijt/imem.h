@@ -10,7 +10,7 @@
 // if you want to disassemble imem's data,
 // please enable "IMEM_DISASSEMBLE".
 // output data's filename is "disasm.o"
-//#define IMEM_DISASSEMBLE 
+#define IMEM_DISASSEMBLE 
 
 // if define it, using inline function.
 #define IMEM_USING_INLINE
@@ -128,9 +128,11 @@ static void imem_push(imem_t *mem, unsigned char x)
 static void imem_disassemble(imem_t *mem)
 {
 #ifdef IMEM_DISASSEMBLE
-    FILE* fp = fopen("disasm.o","w");
-    fwrite(mem->addr,1,mem->size,fp);
-    fclose(fp);
+	char *fname[] = {"out1.o","out2.o"};
+	static int i = 0;
+	FILE* fp = fopen(fname[i++],"w");
+	fwrite(mem->addr,1,mem->size,fp);
+	fclose(fp);
 #endif
 }
 

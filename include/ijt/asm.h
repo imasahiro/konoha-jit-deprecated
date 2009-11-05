@@ -1314,6 +1314,16 @@
     imem_push(mem,idx); \
 } \
 
+// jit_5__jmp_0x01020304
+// e9 04 03 02 01
+#define jit_5__jmp(mem,func) { \
+	intptr_t ptr = (intptr_t) func - (intptr_t) (mem->addr + mem->index + 5); \
+	OPCode_1_int _o;\
+	_o.op   = 0xe9;\
+	_o.ival = ptr;   \
+	imem_write(mem,_o.code, 5); \
+} \
+
 
 // jit_5__movl_$0x00000001_esi
 // be 01 00 00 00
@@ -1721,45 +1731,44 @@
 // jit_10__movq_$0x000000123456788f_rax
 // 48 b8 8f 78 56 34 12 00 00 00
 #define jit_10__movq_imm64_rax(mem,imm64) { \
-    OPCode_2_i64 _o;\
-    _o.op1  = 0x48;\
-    _o.op2  = 0xb8;\
-    _o.ival = imm64;   \
-    imem_write(mem,_o.code, 10); \
+	OPCode_2_i64 _o;\
+	_o.op1  = 0x48;\
+	_o.op2  = 0xb8;\
+	_o.ival = imm64;   \
+	imem_write(mem,_o.code, 10); \
 } \
-
 
 
 // jit_10__movq_$0x0000001234567890_r8
 // 49 b8 90 78 56 34 12 00 00  00
 #define jit_10__movq_imm64_r8(mem,imm64) { \
-    OPCode_2_i64 _o;\
-    _o.op1  = 0x49;\
-    _o.op2  = 0xb8;\
-    _o.ival = imm64;   \
-    imem_write(mem,_o.code, 10); \
+	OPCode_2_i64 _o;\
+	_o.op1  = 0x49;\
+	_o.op2  = 0xb8;\
+	_o.ival = imm64;   \
+	imem_write(mem,_o.code, 10); \
 } \
 
 
 // jit_10__movq_$0x0000001234567890_r9
 // 49 b9 90 78 56 34 12 00 00 00
 #define jit_10__movq_imm64_r9(mem,imm64) { \
-    OPCode_2_i64 _o;\
-    _o.op1  = 0x49;\
-    _o.op2  = 0xb9;\
-    _o.ival = imm64;   \
-    imem_write(mem,_o.code, 10); \
+	OPCode_2_i64 _o;\
+	_o.op1  = 0x49;\
+	_o.op2  = 0xb9;\
+	_o.ival = imm64;   \
+	imem_write(mem,_o.code, 10); \
 } \
 
 
 // jit_10__movq_$0x0000001234567890_rcx
 // 48 b9 90 78 56 34 12 00 00  00
 #define jit_10__movq_imm64_rcx(mem,imm64) { \
-    OPCode_2_i64 _o;\
-    _o.op1  = 0x48;\
-    _o.op2  = 0xb9;\
-    _o.ival = imm64;   \
-    imem_write(mem,_o.code, 10); \
+	OPCode_2_i64 _o;\
+	_o.op1  = 0x48;\
+	_o.op2  = 0xb9;\
+	_o.ival = imm64;   \
+	imem_write(mem,_o.code, 10); \
 } \
 
 

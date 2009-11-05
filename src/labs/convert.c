@@ -255,12 +255,6 @@ METHOD knh_KLRCode_toCttCode(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 		pc += OPSIZE_FCALL;
 		goto NEXT;
 	} 
-	CASE(L_RCALL, OPCODE_RCALL) {
-		const klr_RCALL_t *op = (klr_RCALL_t*)pc;
-		KLR_RCALL(ctx, op->a1, op->a2);
-		pc += OPSIZE_RCALL;
-		goto NEXT;
-	} 
 	CASE(L_SCALL, OPCODE_SCALL) {
 		const klr_SCALL_t *op = (klr_SCALL_t*)pc;
 		KLR_SCALL(ctx, op->a1, op->a2, op->a3);
@@ -347,61 +341,61 @@ METHOD knh_KLRCode_toCttCode(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 	} 
 	CASE(L_JMP, OPCODE_JMP) {
 		const klr_JMP_t *op = (klr_JMP_t*)pc;
-		KLR_JMP(ctx, pc = ((knh_inst_t*)op)->jumppc/*, JUMP*/);
+		KLR_JMP(ctx, ((knh_inst_t*)op)->jumppc/*, JUMP*/);
 		pc += OPSIZE_JMP;
 		goto NEXT;
 	} 
 	CASE(L_SKIP, OPCODE_SKIP) {
 		const klr_SKIP_t *op = (klr_SKIP_t*)pc;
-		KLR_SKIP(ctx, pc = ((knh_inst_t*)op)->jumppc/*, JUMP*/);
+		KLR_SKIP(ctx, ((knh_inst_t*)op)->jumppc/*, JUMP*/);
 		pc += OPSIZE_SKIP;
 		goto NEXT;
 	} 
 	CASE(L_bJIFT, OPCODE_bJIFT) {
 		const klr_bJIFT_t *op = (klr_bJIFT_t*)pc;
-		KLR_bJIFT(ctx, pc = ((knh_inst_t*)op)->jumppc/*, JUMP*/, op->a2);
+		KLR_bJIFT(ctx, ((knh_inst_t*)op)->jumppc/*, JUMP*/, op->a2);
 		pc += OPSIZE_bJIFT;
 		goto NEXT;
 	} 
 	CASE(L_bJIFF, OPCODE_bJIFF) {
 		const klr_bJIFF_t *op = (klr_bJIFF_t*)pc;
-		KLR_bJIFF(ctx, pc = ((knh_inst_t*)op)->jumppc/*, JUMP*/, op->a2);
+		KLR_bJIFF(ctx, ((knh_inst_t*)op)->jumppc/*, JUMP*/, op->a2);
 		pc += OPSIZE_bJIFF;
 		goto NEXT;
 	} 
 	CASE(L_bJIFF_LOOP, OPCODE_bJIFF_LOOP) {
 		const klr_bJIFF_LOOP_t *op = (klr_bJIFF_LOOP_t*)pc;
-		KLR_bJIFF_LOOP(ctx, pc = ((knh_inst_t*)op)->jumppc/*, JUMP*/, op->a2);
+		KLR_bJIFF_LOOP(ctx, ((knh_inst_t*)op)->jumppc/*, JUMP*/, op->a2);
 		pc += OPSIZE_bJIFF_LOOP;
 		goto NEXT;
 	} 
 	CASE(L_JIFNUL, OPCODE_JIFNUL) {
 		const klr_JIFNUL_t *op = (klr_JIFNUL_t*)pc;
-		KLR_JIFNUL(ctx, pc = ((knh_inst_t*)op)->jumppc/*, JUMP*/, op->a2);
+		KLR_JIFNUL(ctx, ((knh_inst_t*)op)->jumppc/*, JUMP*/, op->a2);
 		pc += OPSIZE_JIFNUL;
 		goto NEXT;
 	} 
 	CASE(L_JIFNN, OPCODE_JIFNN) {
 		const klr_JIFNN_t *op = (klr_JIFNN_t*)pc;
-		KLR_JIFNN(ctx, pc = ((knh_inst_t*)op)->jumppc/*, JUMP*/, op->a2);
+		KLR_JIFNN(ctx, ((knh_inst_t*)op)->jumppc/*, JUMP*/, op->a2);
 		pc += OPSIZE_JIFNN;
 		goto NEXT;
 	} 
 	CASE(L_NEXT, OPCODE_NEXT) {
 		const klr_NEXT_t *op = (klr_NEXT_t*)pc;
-		KLR_NEXT(ctx, pc = ((knh_inst_t*)op)->jumppc/*, JUMP*/, op->a2, op->a3);
+		KLR_NEXT(ctx, ((knh_inst_t*)op)->jumppc/*, JUMP*/, op->a2, op->a3);
 		pc += OPSIZE_NEXT;
 		goto NEXT;
 	} 
 	CASE(L_INEXT, OPCODE_INEXT) {
 		const klr_INEXT_t *op = (klr_INEXT_t*)pc;
-		KLR_INEXT(ctx, pc = ((knh_inst_t*)op)->jumppc/*, JUMP*/, op->a2, op->a3, op->a4);
+		KLR_INEXT(ctx, ((knh_inst_t*)op)->jumppc/*, JUMP*/, op->a2, op->a3, op->a4);
 		pc += OPSIZE_INEXT;
 		goto NEXT;
 	} 
 	CASE(L_TRY, OPCODE_TRY) {
 		const klr_TRY_t *op = (klr_TRY_t*)pc;
-		KLR_TRY(ctx, pc = ((knh_inst_t*)op)->jumppc/*, JUMP*/, op->a2);
+		KLR_TRY(ctx, ((knh_inst_t*)op)->jumppc/*, JUMP*/, op->a2);
 		pc += OPSIZE_TRY;
 		goto NEXT;
 	} 
@@ -413,7 +407,7 @@ METHOD knh_KLRCode_toCttCode(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 	} 
 	CASE(L_CATCH, OPCODE_CATCH) {
 		const klr_CATCH_t *op = (klr_CATCH_t*)pc;
-		KLR_CATCH(ctx, pc = ((knh_inst_t*)op)->jumppc/*, JUMP*/, op->a2, op->a3, op->a4);
+		KLR_CATCH(ctx, ((knh_inst_t*)op)->jumppc/*, JUMP*/, op->a2, op->a3, op->a4);
 		pc += OPSIZE_CATCH;
 		goto NEXT;
 	} 
