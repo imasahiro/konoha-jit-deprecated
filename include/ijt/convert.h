@@ -76,7 +76,8 @@
 }
 #define JIT_ASM_MOVx(ctx,a1,a2) {\
 	imem_setLabel(mem, op->opcode, OPSIZE_MOVx, 0); \
-	jit_5__movl_imm32_ecx(mem,a2); \
+	jit_6__movq_imm32_r8d(mem,a2.n); \
+	jit_5__movl_imm32_ecx(mem,a2.i); \
 	jit_5__movl_imm32_edx(mem,a1); \
 	jit_3__movq_rbx_rsi(mem); \
 	jit_3__movq_r12_rdi(mem); \
@@ -100,7 +101,8 @@
 }
 #define JIT_ASM_MOVxi(ctx,a1,a2) {\
 	imem_setLabel(mem, op->opcode, OPSIZE_MOVxi, 0); \
-	jit_5__movl_imm32_ecx(mem,a2); \
+	jit_6__movq_imm32_r8d(mem,a2.n); \
+	jit_5__movl_imm32_ecx(mem,a2.i); \
 	jit_5__movl_imm32_edx(mem,a1); \
 	jit_3__movq_rbx_rsi(mem); \
 	jit_3__movq_r12_rdi(mem); \
@@ -108,7 +110,8 @@
 }
 #define JIT_ASM_MOVxf(ctx,a1,a2) {\
 	imem_setLabel(mem, op->opcode, OPSIZE_MOVxf, 0); \
-	jit_5__movl_imm32_ecx(mem,a2); \
+	jit_6__movq_imm32_r8d(mem,a2.n); \
+	jit_5__movl_imm32_ecx(mem,a2.i); \
 	jit_5__movl_imm32_edx(mem,a1); \
 	jit_3__movq_rbx_rsi(mem); \
 	jit_3__movq_r12_rdi(mem); \
@@ -116,7 +119,8 @@
 }
 #define JIT_ASM_MOVxb(ctx,a1,a2) {\
 	imem_setLabel(mem, op->opcode, OPSIZE_MOVxb, 0); \
-	jit_5__movl_imm32_ecx(mem,a2); \
+	jit_6__movq_imm32_r8d(mem,a2.n); \
+	jit_5__movl_imm32_ecx(mem,a2.i); \
 	jit_5__movl_imm32_edx(mem,a1); \
 	jit_3__movq_rbx_rsi(mem); \
 	jit_3__movq_r12_rdi(mem); \
@@ -132,64 +136,73 @@
 }
 #define JIT_ASM_XMOVs(ctx,a1,a2) {\
 	imem_setLabel(mem, op->opcode, OPSIZE_XMOVs, 0); \
-	jit_5__movl_imm32_ecx(mem,a2); \
-	jit_5__movl_imm32_edx(mem,a1); \
+	jit_6__movq_imm32_r8d(mem,a2); \
+	jit_5__movl_imm32_ecx(mem,a1.n); \
+	jit_5__movl_imm32_edx(mem,a1.i); \
 	jit_3__movq_rbx_rsi(mem); \
 	jit_3__movq_r12_rdi(mem); \
 	jit_5__call(mem, JIT_OP_XMOVs_); \
 }
 #define JIT_ASM_XMOVo(ctx,a1,a2) {\
 	imem_setLabel(mem, op->opcode, OPSIZE_XMOVo, 0); \
-	jit_5__movl_imm32_ecx(mem,a2); \
-	jit_5__movl_imm32_edx(mem,a1); \
+	jit_10__movq_imm64_r8(mem,(knh_int_t)a2); \
+	jit_5__movl_imm32_ecx(mem,a1.n); \
+	jit_5__movl_imm32_edx(mem,a1.i); \
 	jit_3__movq_rbx_rsi(mem); \
 	jit_3__movq_r12_rdi(mem); \
 	jit_5__call(mem, JIT_OP_XMOVo_); \
 }
 #define JIT_ASM_XMOVx(ctx,a1,a2) {\
 	imem_setLabel(mem, op->opcode, OPSIZE_XMOVx, 0); \
-	jit_5__movl_imm32_ecx(mem,a2); \
-	jit_5__movl_imm32_edx(mem,a1); \
+	jit_6__movq_imm32_r9d(mem,a2.n); \
+	jit_6__movq_imm32_r8d(mem,a2.i); \
+	jit_5__movl_imm32_ecx(mem,a1.n); \
+	jit_5__movl_imm32_edx(mem,a1.i); \
 	jit_3__movq_rbx_rsi(mem); \
 	jit_3__movq_r12_rdi(mem); \
 	jit_5__call(mem, JIT_OP_XMOVx_); \
 }
 #define JIT_ASM_XMOVDEF(ctx,a1,a2) {\
 	imem_setLabel(mem, op->opcode, OPSIZE_XMOVDEF, 0); \
-	jit_5__movl_imm32_ecx(mem,a2); \
-	jit_5__movl_imm32_edx(mem,a1); \
+	jit_6__movq_imm32_r8d(mem,a2); \
+	jit_5__movl_imm32_ecx(mem,a1.n); \
+	jit_5__movl_imm32_edx(mem,a1.i); \
 	jit_3__movq_rbx_rsi(mem); \
 	jit_3__movq_r12_rdi(mem); \
 	jit_5__call(mem, JIT_OP_XMOVDEF_); \
 }
 #define JIT_ASM_XMOVSYS(ctx,a1,a2) {\
 	imem_setLabel(mem, op->opcode, OPSIZE_XMOVSYS, 0); \
-	jit_5__movl_imm32_ecx(mem,a2); \
-	jit_5__movl_imm32_edx(mem,a1); \
+	jit_6__movq_imm32_r8d(mem,a2); \
+	jit_5__movl_imm32_ecx(mem,a1.n); \
+	jit_5__movl_imm32_edx(mem,a1.i); \
 	jit_3__movq_rbx_rsi(mem); \
 	jit_3__movq_r12_rdi(mem); \
 	jit_5__call(mem, JIT_OP_XMOVSYS_); \
 }
 #define JIT_ASM_XMOVsi(ctx,a1,a2) {\
 	imem_setLabel(mem, op->opcode, OPSIZE_XMOVsi, 0); \
-	jit_5__movl_imm32_ecx(mem,a2); \
-	jit_5__movl_imm32_edx(mem,a1); \
+	jit_6__movq_imm32_r8d(mem,a2); \
+	jit_5__movl_imm32_ecx(mem,a1.n); \
+	jit_5__movl_imm32_edx(mem,a1.i); \
 	jit_3__movq_rbx_rsi(mem); \
 	jit_3__movq_r12_rdi(mem); \
 	jit_5__call(mem, JIT_OP_XMOVsi_); \
 }
 #define JIT_ASM_XMOVsf(ctx,a1,a2) {\
 	imem_setLabel(mem, op->opcode, OPSIZE_XMOVsf, 0); \
-	jit_5__movl_imm32_ecx(mem,a2); \
-	jit_5__movl_imm32_edx(mem,a1); \
+	jit_6__movq_imm32_r8d(mem,a2); \
+	jit_5__movl_imm32_ecx(mem,a1.n); \
+	jit_5__movl_imm32_edx(mem,a1.i); \
 	jit_3__movq_rbx_rsi(mem); \
 	jit_3__movq_r12_rdi(mem); \
 	jit_5__call(mem, JIT_OP_XMOVsf_); \
 }
 #define JIT_ASM_XMOVsb(ctx,a1,a2) {\
 	imem_setLabel(mem, op->opcode, OPSIZE_XMOVsb, 0); \
-	jit_5__movl_imm32_ecx(mem,a2); \
-	jit_5__movl_imm32_edx(mem,a1); \
+	jit_6__movq_imm32_r8d(mem,a2); \
+	jit_5__movl_imm32_ecx(mem,a1.n); \
+	jit_5__movl_imm32_edx(mem,a1.i); \
 	jit_3__movq_rbx_rsi(mem); \
 	jit_3__movq_r12_rdi(mem); \
 	jit_5__call(mem, JIT_OP_XMOVsb_); \
@@ -212,7 +225,7 @@
 }
 #define JIT_ASM_PARAMo(ctx,a1,a2) {\
 	imem_setLabel(mem, op->opcode, OPSIZE_PARAMo, 0); \
-	jit_5__movl_imm32_ecx(mem,a2); \
+	jit_10__movq_imm64_rcx(mem,(knh_int_t)a2); \
 	jit_5__movl_imm32_edx(mem,a1); \
 	jit_3__movq_rbx_rsi(mem); \
 	jit_3__movq_r12_rdi(mem); \
@@ -301,7 +314,8 @@
 }
 #define JIT_ASM_CHKNULx(ctx,a1) {\
 	imem_setLabel(mem, op->opcode, OPSIZE_CHKNULx, 0); \
-	jit_5__movl_imm32_edx(mem,a1); \
+	jit_5__movl_imm32_ecx(mem,a1.n); \
+	jit_5__movl_imm32_edx(mem,a1.i); \
 	jit_3__movq_rbx_rsi(mem); \
 	jit_3__movq_r12_rdi(mem); \
 	jit_5__call(mem, JIT_OP_CHKNULx_); \
