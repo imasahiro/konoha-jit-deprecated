@@ -298,73 +298,6 @@ knh_String_t* knh_Method_getName(Ctx *ctx, knh_Method_t *o)
 	return knh_cwb_newString(ctx, cwb);
 }
 
-/* ------------------------------------------------------------------------ */
-///* @method Int! Method.getProfCount() */
-//
-//
-//Int* knh_Method_getProfCount(Ctx *ctx, Method *o)
-//{
-//	return new_Int(ctx, DP(o)->prof_count);
-//}
-//
-///* ------------------------------------------------------------------------ */
-///* @method Int! Method.getProfTime() */
-//
-//
-//Int* knh_Method_getProfTime(Ctx *ctx, Method *o)
-//{
-//	return new_Int(ctx, DP(o)->prof_time);
-//}
-//
-
-///* ======================================================================== */
-///* [Weaving] */
-//
-//int knh_Method_isWoven(knh_Method_t *mtd)
-//{
-//	return (mtd->fcall_1 != DP(mtd)->fproceed);
-//}
-//
-///* ------------------------------------------------------------------------ */
-//
-//int knh_Method_canWeave(Ctx *ctx, knh_Method_t *mtd, knh_Method_t *aspect)
-//{
-//	if(knh_Method_isGenerator(mtd) || knh_Method_isAspect(mtd)) {
-//		TODO();
-//		return 0;
-//	}
-//	if(!IS_Method(aspect)) return 1; /* remove aspect */
-//	if(knh_Method_isWoven(aspect)) {
-//		KNH_WARNING(ctx, "nested aspect is not supported");
-//		return 0;
-//	}
-//	if(knh_Method_isAspect(aspect)) return 1;
-//	if(knh_Method_isVarArgs(mtd)) {
-//		KNH_WARNING(ctx, "variable length method can be woven");
-//		return 0;
-//	}
-//	if(knh_MethodField_equalsType(DP(mtd)->mf, DP(aspect)->mf)) {
-//		return 1;
-//	}
-//	return 0;
-//}
-//
-///* ------------------------------------------------------------------------ */
-//
-//void knh_Method_weave(Ctx *ctx, knh_Method_t *aspect, knh_Method_t *mtd)
-//{
-//	if(IS_Method(aspect)) {
-//		mtd->fcall_1 = aspect->fcall_1;
-//		mtd->pc_start = aspect->pc_start;
-//	}
-//	else { /* remove aspect */
-//		mtd->fcall_1 = DP(mtd)->fproceed;
-//		mtd->pc_start = knh_Method_pcstartNULL(mtd);
-//	}
-//}
-//
-///* ------------------------------------------------------------------------ */
-
 /* ======================================================================== */
 /* [Method] */
 
@@ -637,6 +570,35 @@ knh_Method_t *new_Method_setter(Ctx *ctx, knh_class_t cid, knh_methodn_t mn, knh
 	DP(mtd)->delta = idx;
 	KNH_SETv(ctx, DP(mtd)->mf, knh_findMethodField1(ctx, TYPE_void, type, FIELDN_v));
 	return mtd;
+}
+
+/* ------------------------------------------------------------------------ */
+
+knh_index_t knh_Method_indexOfGetter(knh_Method_t *o)
+{
+	knh_fmethod f = SP(o)->fcall_1;
+	if(f== knh_fmethod_getter ||
+		f == knh_fmethod_igetter ||
+		f == knh_fmethod_fgetter ||
+		f == knh_fmethod_bgetter) {
+		return (knh_index_t)DP(o)->delta;
+	}
+	return -1;
+}
+
+/* ------------------------------------------------------------------------ */
+
+knh_index_t knh_Method_indexOfSetter(knh_Method_t *o)
+{
+	knh_fmethod f = SP(o)->fcall_1;
+	if(f == knh_fmethod_isetter ||
+		f == knh_fmethod_insetter ||
+		f == knh_fmethod_fsetter ||
+		f == knh_fmethod_fnsetter ||
+		f == knh_fmethod_bsetter) {
+		return (knh_index_t)DP(o)->delta;
+	}
+	return -1;
 }
 
 /* ------------------------------------------------------------------------ */

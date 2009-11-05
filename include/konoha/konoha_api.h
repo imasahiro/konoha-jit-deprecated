@@ -403,6 +403,8 @@ void knh_Class_addMethod(Ctx *ctx, knh_class_t cid, knh_Method_t *mtd);
 void knh_addMethodFieldTable(Ctx *ctx, knh_MethodField_t *mf);
 knh_MethodField_t *knh_findMethodField0(Ctx *ctx, knh_type_t rtype);
 knh_MethodField_t *knh_findMethodField1(Ctx *ctx, knh_type_t rtype, knh_type_t p1, knh_fieldn_t fn1);
+knh_index_t knh_Method_indexOfGetter(knh_Method_t *o);
+knh_index_t knh_Method_indexOfSetter(knh_Method_t *o);
 knh_Method_t*
 knh_Class_getMethod__(Ctx *ctx, knh_class_t this_cid, knh_methodn_t mn, knh_bool_t gen);
 knh_Method_t *knh_lookupMethod(Ctx *ctx, knh_class_t cid, knh_methodn_t mn);

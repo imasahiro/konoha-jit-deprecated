@@ -4,7 +4,7 @@
 /* MACROS */
 #define KONOHA_REVISION                 942
 #define KONOHA_BUILDID                  754
-#define KONOHA_EXPIRE                   1257699482LL
+#define KONOHA_EXPIRE                   1257702037LL
 
 /* ======================================================================== */
 /* STRUCT */

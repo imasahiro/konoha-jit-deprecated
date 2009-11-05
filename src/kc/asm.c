@@ -1368,16 +1368,50 @@ void knh_StmtCALL_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 			return;
 		}
 	}/* INSTRUCTION*/
-
-	/* PEEPHOLE */
-//	if(mtd == DP(ctx->kc)->mtd) {
-//		for(i = 2; i < DP(stmt)->size; i++) {
-//			knh_type_t reqt2 = knh_Method_reqtTERMs(ctx, mtd, cid, stmt, i);
-//			TERMs_asm(ctx, stmt, i, reqt2, local + i);
-//		}
-//		KNH_ASM(RCALL, sfi_(local), (knh_ushort_t)DP(stmt)->size);
-//		goto L_RTYPE;
-//	}
+	if(IS_Method(mtd)) {
+		knh_index_t deltaidx = knh_Method_indexOfGetter(mtd);
+		if(deltaidx != -1) {
+			int b = TERMs_putLOCAL(ctx, stmt, 1, NNTYPE_Object, local + 1);
+			knh_type_t type = knh_Method_rztype(mtd);
+			knh_sfx_t bx = {b, deltaidx};
+			if(IS_ubxint(type)) {
+				KNH_ASM(MOVxi, sfi_(sfpidx), bx);
+				KNH_ASM_NNBOX(ctx, reqt, NNTYPE_Int, sfpidx);
+			}
+			else if(IS_ubxfloat(type)) {
+				KNH_ASM(MOVxf, sfi_(sfpidx), bx);
+				//KNH_ASM_NNBOX(ctx, reqt, NNTYPE_Float, sfpidx);
+			}
+			else if(IS_ubxboolean(type)) {
+				KNH_ASM(MOVxb, sfi_(sfpidx), bx);
+			}
+			else {
+				KNH_ASM(MOVx, sfi_(sfpidx), bx);
+			}
+			return;
+		}
+		deltaidx = knh_Method_indexOfSetter(mtd);
+		if(deltaidx != -1) {
+			int b = TERMs_putLOCAL(ctx, stmt, 1, NNTYPE_Object, local + 1);
+			knh_type_t type = knh_Method_ptype(ctx, mtd, cid, 0);
+			knh_sfx_t bx = {b, deltaidx};
+			int c = TERMs_putLOCAL(ctx, stmt, 2, type, local + 2);
+			if(IS_ubxint(type)) {
+				KNH_ASM(XMOVsi, bx, sfi_(c));
+			}
+			else if(IS_ubxfloat(type)) {
+				KNH_ASM(XMOVsf, bx, sfi_(c));
+			}
+			else if(IS_ubxboolean(type)) {
+				KNH_ASM(XMOVsb, bx, sfi_(c));
+			}
+			else {
+				KNH_ASM_BOX(ctx, type, DP(stmt)->type, c);
+				KNH_ASM(XMOVs, bx, sfi_(c));
+			}
+			return;
+		}
+	}
 	if(IS_Method(mtd) && knh_Method_isFinal(mtd) && TERMs_isLOCAL(stmt, 1)) {
 		int a = DP(DP(stmt)->tokens[1])->index;
 		knh_type_t reqt2 = knh_Method_reqtTERMs(ctx, mtd, cid, stmt, 1);
