@@ -1012,7 +1012,7 @@ void knh_ClassField_init(Ctx *ctx, knh_ClassField_t *b, int init)
 	if(b->fsize == 0) {
 		b->fields = NULL;
 	}else {
-		knh_intptr_t i;
+		size_t i;
 		b->fields = (knh_cfield_t*)KNH_MALLOC(ctx, b->fsize * sizeof(knh_cfield_t));
 		for(i = 0; i < b->fsize; i++) {
 			b->fields[i].flag  = 0;
@@ -1028,7 +1028,7 @@ static void knh_ClassField_traverse(Ctx *ctx, knh_ClassField_t *b, knh_ftraverse
 {
 	ftr(ctx, UP(b->methods));
 	if(b->fields != NULL) {
-		knh_intptr_t i;
+		size_t i;
 		for(i = 0; i < b->fsize; i++) {
 			if(b->fields[i].value !=NULL) {
 				ftr(ctx, b->fields[i].value);

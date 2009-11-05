@@ -221,8 +221,7 @@ static METHOD OutputStream_print(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_OutputStream_t *out = (knh_OutputStream_t*)sfp[0].o;
 	knh_sfp_t *v = sfp + 1;
-	int ac = knh_stack_argc(ctx, v);
-	size_t i;
+	size_t i, ac = knh_stack_argc(ctx, v);
 	for(i = 0; i < ac; i++) {
 		if(IS_bString(v[i].o)) {
 			if(v[i].s == TS_EOL) {

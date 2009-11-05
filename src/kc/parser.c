@@ -519,7 +519,7 @@ void knh_Stmt_add_FIRSTNAME(Ctx *ctx, knh_Stmt_t *stmt, knh_Token_t *tk, knh_byt
 		name = fname;
 
 		if(isupper(name.buf[0])) {
-			int i, has_ = 0, hasLOWER = 0, hasDOT = 0;
+			size_t i, has_ = 0, hasLOWER = 0, hasDOT = 0;
 			for(i = 1; i < name.len; i++) {
 				if(name.buf[i] == '_') {has_ = 0; continue; }
 				if(islower(name.buf[i])) { hasLOWER = 1; continue; }
@@ -536,7 +536,7 @@ void knh_Stmt_add_FIRSTNAME(Ctx *ctx, knh_Stmt_t *stmt, knh_Token_t *tk, knh_byt
 			}
 		}
 		else {
-			int i, hasDOT = 0;
+			size_t i, hasDOT = 0;
 			for(i = 1; i < name.len; i++) {
 				if(name.buf[i] == '.') { hasDOT = 1; break; }
 			}

@@ -146,15 +146,15 @@ static METHOD String_indexOf__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_bytes_t base = __tobytes(sfp[0].s);
 	knh_bytes_t delim = __tobytes(sfp[1].s);
-	knh_intptr_t loc = base.len - delim.len;
+	size_t loc;
 	for(loc = 0; loc < base.len - delim.len; loc++) {
 		if(base.buf[loc] != delim.buf[loc]) continue;
 		knh_bytes_t sub = knh_bytes_offlen(base, loc, delim.len);
 		if(knh_bytes_strcasecmp(sub, delim) == 0) break;
 	}
-	if(loc == base.len - delim.len) loc = -1;
-	if (loc >= 0 && !knh_String_isAscii(sfp[0].s)) {
-		base.len = (size_t)loc;
+	if (loc == base.len - delim.len) loc = -1;
+	if (/*loc >= 0 &&*/ !knh_String_isAscii(sfp[0].s)) {
+		base.len = loc;
 		loc = knh_bytes_mlen(base);
 	}
 	KNH_RETURN_Int(ctx, sfp, loc);
@@ -344,7 +344,8 @@ static METHOD String_replace(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 	knh_bytes_t target = __tobytes(sfp[1].s);
 	knh_bytes_t alt = __tobytes(sfp[2].s);
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-	int search_flag= 0, ch = target.buf[0], i;
+	int search_flag= 0, ch = target.buf[0];
+	size_t i;
 
 	if (base.len == 0 || target.len == 0) KNH_RETURN(ctx, sfp, sfp[0].o);
 	for(i = 0; i < base.len - target.len+1; i++) {

@@ -105,8 +105,7 @@ static METHOD Object_new__dictmap(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 	knh_ObjectField_t *of = (knh_ObjectField_t*)sfp[0].o;
 	knh_class_t cid = knh_Object_cid(of);
 	knh_sfp_t *v = sfp + 1;
-	int ac = knh_stack_argc(ctx, v);
-	size_t i;
+	size_t i, ac = knh_stack_argc(ctx, v);
 	for(i = 0; i < ac; i+= 2) {
 		if(IS_bString(v[i].s)) {
 			knh_fieldn_t fn = knh_getfnq(ctx, __tobytes(v[i].s), FIELDN_NONAME);
@@ -204,7 +203,7 @@ static METHOD Tuple_new__init(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_Tuple_t *t = (knh_Tuple_t*)sfp[0].o;
 	knh_sfp_t *v = sfp + 1;
-	int i, ac = knh_stack_argc(ctx, v);
+	size_t i, ac = knh_stack_argc(ctx, v);
 	for(i = 0; i < ac; i++) {
 		knh_stack_boxing(ctx, v + i);
 	}
@@ -442,8 +441,7 @@ static METHOD DictMap_new__dictmap(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_DictMap_t *o = (knh_DictMap_t*)sfp[0].o;
 	knh_sfp_t *v = sfp + 1;
-	int ac = knh_stack_argc(ctx, v);
-	size_t i;
+	size_t i, ac = knh_stack_argc(ctx, v);
 	for(i = 0; i < ac; i+=2) {
 		if(IS_bString(v[i].s)) {
 			knh_stack_boxing(ctx, v + i + 1);

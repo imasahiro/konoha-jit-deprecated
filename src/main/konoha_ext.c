@@ -84,14 +84,12 @@ void knh_srand(knh_uint_t seed)
 
 knh_uint_t knh_rand(void)
 {
-#ifdef KONOHA_ON_LKM
+#if defined(KONOHA_ON_LKM)
 	return (knh_uint_t)random32();
-#else
-#ifdef KNH_USING_INT32
+#elif defined(KNH_USING_INT32)
 	return (knh_uint_t)genrand_int31();
 #else
 	return (knh_uint_t)genrand64_int63();
-#endif
 #endif
 }
 
@@ -99,16 +97,13 @@ knh_uint_t knh_rand(void)
 
 knh_float_t knh_float_rand(void)
 {
-#ifdef KNH_USING_NOFLOAT
+#if defined(KNH_USING_NOFLOAT)
 	return (knh_float_t)knh_rand();
-#else
-
-#ifdef KNH_USING_INT32
+#elif defined(KNH_USING_INT32)
 	return (knh_float_t)genrand_real1();
 #else
 	return (knh_float_t)genrand64_real1();
-#endif
-#endif /* KNH_USING_NOFLOAT */
+#endif 
 }
 
 /* ------------------------------------------------------------------------ */

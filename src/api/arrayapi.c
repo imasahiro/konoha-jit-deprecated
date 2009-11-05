@@ -734,7 +734,7 @@ void knh_ArrayDim_init(Ctx *ctx, knh_Array_t *a, size_t x, size_t y, size_t z)
 	a->capacity = x * y * z;
 	knh_class_t p1 = ctx->share->ClassTable[knh_Object_cid(a)].p1;
 	Object *v = (p1 == CLASS_Any) ? KNH_NULL : knh_getClassDefaultValue(ctx, p1);
-	int i = 0;
+	size_t i = 0;
 	for(i = 0; i < a->capacity; i++) {
 		KNH_INITv(a->list[i], v);
 	}
@@ -822,7 +822,7 @@ void knh_IArrayDim_init(Ctx *ctx, knh_IArray_t *a, size_t x, size_t y, size_t z)
 	knh_IArray_setDimension(a, 1);
 	a->ilist = (knh_int_t*)knh_array_dmalloc(ctx, x, y, z, sizeof(knh_int_t));
 	a->capacity = x * y * z;
-	int i = 0;
+	size_t i = 0;
 	for(i = 0; i < a->capacity; i++) {
 		a->ilist[i] = 0;
 	}
@@ -908,13 +908,9 @@ void knh_FArrayDim_init(Ctx *ctx, knh_FArray_t *a, size_t x, size_t y, size_t z)
 	knh_FArray_setDimension(a, 1);
 	a->flist = (knh_float_t*)knh_array_dmalloc(ctx, x, y, z, sizeof(knh_float_t));
 	a->capacity = x * y * z;
-	int i = 0;
+	size_t i = 0;
 	for(i = 0; i < a->capacity; i++) {
-#if !defined(KNH_USING_NOFLOT)
-		a->flist[i] = 0.0;
-#else
-		a->flist[i] = 0;
-#endif
+		a->flist[i] = KNH_FLOAT_ZERO;
 	}
 	a->size = a->capacity;
 }

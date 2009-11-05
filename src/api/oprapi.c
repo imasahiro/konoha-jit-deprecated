@@ -643,9 +643,8 @@ static METHOD Boolean_opNot(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 
 static METHOD Int_opLand(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
-	int ac = knh_stack_argc(ctx, sfp);
+	size_t i, ac = knh_stack_argc(ctx, sfp);
 	knh_int_t n = p_integer(sfp[0]);
-	size_t i;
 	for(i = 1; i < ac; i++) {
 		n = n & p_integer(sfp[i]);
 	}
@@ -657,9 +656,8 @@ static METHOD Int_opLand(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 
 static METHOD Int_opLor(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
-	int ac = knh_stack_argc(ctx, sfp);
+	size_t i, ac = knh_stack_argc(ctx, sfp);
 	knh_int_t n = p_integer(sfp[0]);
-	size_t i;
 	for(i = 1; i < ac; i++) {
 		n = n | p_integer(sfp[i]);
 	}

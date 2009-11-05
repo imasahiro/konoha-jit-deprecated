@@ -210,7 +210,7 @@ KNHAPI(knh_index_t) knh_bytes_rindex(knh_bytes_t v, knh_intptr_t ch)
 
 KNHAPI(knh_bytes_t) knh_bytes_mod(knh_bytes_t t, int ch)
 {
-	int i;
+	size_t i;
 	for(i = 0; i < t.len; i++) {
 		if(t.buf[i] == ch) {
 			t.buf = t.buf + i + 1;

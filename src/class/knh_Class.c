@@ -486,7 +486,7 @@ void knh_ClassMap_add(Ctx *ctx, knh_ClassMap_t *cmap, knh_Mapper_t *mpr)
 static knh_Array_t* knh_Class_domain(Ctx *ctx)
 {
 	knh_Array_t *a = new_Array(ctx, CLASS_Class, 0);
-	int cid = 0;
+	size_t cid = 0;
 	for(cid = 0; cid < ctx->share->StructTableSize; cid++) {
 		if(knh_class_isPrivate(cid) || knh_class_isTypeVariable(cid)) continue;
 		knh_Array_add(ctx, a, UP(new_Class(ctx, cid)));
@@ -503,7 +503,7 @@ static knh_Array_t* knh_Class_domain(Ctx *ctx)
 static knh_Array_t* knh_Method_domain(Ctx *ctx)
 {
 	knh_Array_t *a = new_Array(ctx, CLASS_Method, 0);
-	int i = 0;
+	size_t i = 0;
 	for(i = 0; i < ctx->share->StructTableSize; i++) {
 		knh_ClassField_t *cs = ClassTable(i).cstruct;
 		DBG2_ASSERT(cs != NULL);
