@@ -4,6 +4,7 @@
 
 void JIT_OP_HALT_(Ctx *ctx, knh_sfp_t* sfp)
 {
+	knh_code_t *pc = NULL;
 	KLR_HALT(ctx);
 }
 
@@ -129,6 +130,7 @@ void JIT_OP_PARAMS_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_class_t a2)
 
 void JIT_OP_CHKESP_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1)
 {
+	knh_code_t *pc = NULL;
 	KLR_CHKESP(ctx,a1);
 }
 
@@ -169,52 +171,55 @@ void JIT_OP_UNBOX_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1)
 
 void JIT_OP_CHKNUL_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1)
 {
+	knh_code_t *pc = NULL;
 	KLR_CHKNUL(ctx,a1);
 }
 
 void JIT_OP_CHKNULx_(Ctx *ctx, knh_sfp_t* sfp,knh_sfx_t a1)
 {
+	knh_code_t *pc = NULL;
 	KLR_CHKNULx(ctx,a1);
 }
 
 void JIT_OP_CHKTYPE_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_class_t a2)
 {
+	knh_code_t *pc = NULL;
 	KLR_CHKTYPE(ctx,a1,a2);
 }
 
 void JIT_OP_FCALL_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_ushort_t a2,knh_sfpidx_t a3,knh_Method_t* a4)
 {
-	KLR_FCALL(ctx,a1,a2,a3,a4);
+	//KLR_FCALL(ctx,a1,a2,a3,a4);
 }
 
 void JIT_OP_RCALL_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_ushort_t a2)
 {
-	KLR_RCALL(ctx,a1,a2);
+	//KLR_RCALL(ctx,a1,a2);
 }
 
 void JIT_OP_SCALL_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_ushort_t a2,knh_Method_t* a3)
 {
-	KLR_SCALL(ctx,a1,a2,a3);
+	//KLR_SCALL(ctx,a1,a2,a3);
 }
 
 void JIT_OP_AINVOKE_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_ushort_t a2)
 {
-	KLR_AINVOKE(ctx,a1,a2);
+	//KLR_AINVOKE(ctx,a1,a2);
 }
 
 void JIT_OP_CALL_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_ushort_t a2,knh_methodn_t a3)
 {
-	KLR_CALL(ctx,a1,a2,a3);
+	//KLR_CALL(ctx,a1,a2,a3);
 }
 
 void JIT_OP_ACALL_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_ushort_t a2,knh_methodn_t a3)
 {
-	KLR_ACALL(ctx,a1,a2,a3);
+	//KLR_ACALL(ctx,a1,a2,a3);
 }
 
 void JIT_OP_NEW_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_flag_t a2,knh_class_t a3,knh_ushort_t a4,knh_Method_t* a5)
 {
-	KLR_NEW(ctx,a1,a2,a3,a4,a5);
+	//KLR_NEW(ctx,a1,a2,a3,a4,a5);
 }
 
 void JIT_OP_COPYSFP_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1)
@@ -224,12 +229,12 @@ void JIT_OP_COPYSFP_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1)
 
 void JIT_OP_STR_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfpidx_t a2,knh_methodn_t a3,knh_String_t* a4)
 {
-	KLR_STR(ctx,a1,a2,a3,a4);
+	//KLR_STR(ctx,a1,a2,a3,a4);
 }
 
 void JIT_OP_SSTR_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfpidx_t a2,knh_Method_t* a3,knh_String_t* a4)
 {
-	KLR_SSTR(ctx,a1,a2,a3,a4);
+	//KLR_SSTR(ctx,a1,a2,a3,a4);
 }
 
 void JIT_OP_SMAP_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_Mapper_t* a2)
@@ -264,52 +269,52 @@ void JIT_OP_NNMAP_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_class_t a2)
 
 void JIT_OP_JMP_(Ctx *ctx, knh_sfp_t* sfp,knh_KLRInst_t* a1)
 {
-	KLR_JMP(ctx,a1);
+	//KLR_JMP(ctx,a1);
 }
 
 void JIT_OP_SKIP_(Ctx *ctx, knh_sfp_t* sfp,knh_KLRInst_t* a1)
 {
-	KLR_SKIP(ctx,a1);
+	//KLR_SKIP(ctx,a1);
 }
 
 void JIT_OP_bJIFT_(Ctx *ctx, knh_sfp_t* sfp,knh_KLRInst_t* a1,knh_sfpidx_t a2)
 {
-	KLR_bJIFT(ctx,a1,a2);
+	//KLR_bJIFT(ctx,a1,a2);
 }
 
 void JIT_OP_bJIFF_(Ctx *ctx, knh_sfp_t* sfp,knh_KLRInst_t* a1,knh_sfpidx_t a2)
 {
-	KLR_bJIFF(ctx,a1,a2);
+	//KLR_bJIFF(ctx,a1,a2);
 }
 
 void JIT_OP_bJIFF_LOOP_(Ctx *ctx, knh_sfp_t* sfp,knh_KLRInst_t* a1,knh_sfpidx_t a2)
 {
-	KLR_bJIFF_LOOP(ctx,a1,a2);
+	//KLR_bJIFF_LOOP(ctx,a1,a2);
 }
 
 void JIT_OP_JIFNUL_(Ctx *ctx, knh_sfp_t* sfp,knh_KLRInst_t* a1,knh_sfpidx_t a2)
 {
-	KLR_JIFNUL(ctx,a1,a2);
+	//KLR_JIFNUL(ctx,a1,a2);
 }
 
 void JIT_OP_JIFNN_(Ctx *ctx, knh_sfp_t* sfp,knh_KLRInst_t* a1,knh_sfpidx_t a2)
 {
-	KLR_JIFNN(ctx,a1,a2);
+	//KLR_JIFNN(ctx,a1,a2);
 }
 
 void JIT_OP_NEXT_(Ctx *ctx, knh_sfp_t* sfp,knh_KLRInst_t* a1,knh_sfpidx_t a2,knh_sfpidx_t a3)
 {
-	KLR_NEXT(ctx,a1,a2,a3);
+	//KLR_NEXT(ctx,a1,a2,a3);
 }
 
 void JIT_OP_INEXT_(Ctx *ctx, knh_sfp_t* sfp,knh_KLRInst_t* a1,knh_class_t a2,knh_sfpidx_t a3,knh_sfpidx_t a4)
 {
-	KLR_INEXT(ctx,a1,a2,a3,a4);
+	//KLR_INEXT(ctx,a1,a2,a3,a4);
 }
 
 void JIT_OP_TRY_(Ctx *ctx, knh_sfp_t* sfp,knh_KLRInst_t* a1,knh_sfpidx_t a2)
 {
-	KLR_TRY(ctx,a1,a2);
+	//KLR_TRY(ctx,a1,a2);
 }
 
 void JIT_OP_TRYEND_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1)
@@ -319,7 +324,7 @@ void JIT_OP_TRYEND_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1)
 
 void JIT_OP_CATCH_(Ctx *ctx, knh_sfp_t* sfp,knh_KLRInst_t* a1,knh_sfpidx_t a2,knh_sfpidx_t a3,knh_String_t* a4)
 {
-	KLR_CATCH(ctx,a1,a2,a3,a4);
+	//KLR_CATCH(ctx,a1,a2,a3,a4);
 }
 
 void JIT_OP_PUSH_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1)
@@ -334,12 +339,12 @@ void JIT_OP_POP_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1)
 
 void JIT_OP_THROW_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfpidx_t a2)
 {
-	KLR_THROW(ctx,a1,a2);
+	//KLR_THROW(ctx,a1,a2);
 }
 
 void JIT_OP_THROWs_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfpidx_t a2,knh_String_t* a3)
 {
-	KLR_THROWs(ctx,a1,a2,a3);
+	//KLR_THROWs(ctx,a1,a2,a3);
 }
 
 void JIT_OP_THROW_AGAIN_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1)
@@ -419,6 +424,7 @@ void JIT_OP_iMULn_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfpidx_t a2,knh_
 
 void JIT_OP_iDIV_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfpidx_t a2,knh_sfpidx_t a3)
 {
+	knh_code_t *pc = NULL;
 	KLR_iDIV(ctx,a1,a2,a3);
 }
 
@@ -429,6 +435,7 @@ void JIT_OP_iDIVn_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfpidx_t a2,knh_
 
 void JIT_OP_iMOD_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfpidx_t a2,knh_sfpidx_t a3)
 {
+	knh_code_t *pc = NULL;
 	KLR_iMOD(ctx,a1,a2,a3);
 }
 
@@ -534,6 +541,7 @@ void JIT_OP_fMULn_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfpidx_t a2,knh_
 
 void JIT_OP_fDIV_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfpidx_t a2,knh_sfpidx_t a3)
 {
+	knh_code_t *pc = NULL;
 	KLR_fDIV(ctx,a1,a2,a3);
 }
 
@@ -604,67 +612,79 @@ void JIT_OP_fGTEn_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfpidx_t a2,knh_
 
 void JIT_OP_ARYGET_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfpidx_t a2,knh_sfpidx_t a3)
 {
+	knh_code_t *pc = NULL;
 	KLR_ARYGET(ctx,a1,a2,a3);
 }
 
 void JIT_OP_ARYGETn_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfpidx_t a2,knh_intptr_t a3)
 {
+	knh_code_t *pc = NULL;
 	KLR_ARYGETn(ctx,a1,a2,a3);
 }
 
 void JIT_OP_iARYGET_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfpidx_t a2,knh_sfpidx_t a3)
 {
+	knh_code_t *pc = NULL;
 	KLR_iARYGET(ctx,a1,a2,a3);
 }
 
 void JIT_OP_iARYGETn_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfpidx_t a2,knh_intptr_t a3)
 {
+	knh_code_t *pc = NULL;
 	KLR_iARYGETn(ctx,a1,a2,a3);
 }
 
 void JIT_OP_fARYGET_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfpidx_t a2,knh_sfpidx_t a3)
 {
+	knh_code_t *pc = NULL;
 	KLR_fARYGET(ctx,a1,a2,a3);
 }
 
 void JIT_OP_fARYGETn_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfpidx_t a2,knh_intptr_t a3)
 {
+	knh_code_t *pc = NULL;
 	KLR_fARYGETn(ctx,a1,a2,a3);
 }
 
 void JIT_OP_ARYSET_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfpidx_t a2,knh_sfpidx_t a3)
 {
+	knh_code_t *pc = NULL;
 	KLR_ARYSET(ctx,a1,a2,a3);
 }
 
 void JIT_OP_ARYSETn_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfpidx_t a2,knh_intptr_t a3)
 {
+	knh_code_t *pc = NULL;
 	KLR_ARYSETn(ctx,a1,a2,a3);
 }
 
 void JIT_OP_iARYSET_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfpidx_t a2,knh_sfpidx_t a3)
 {
+	knh_code_t *pc = NULL;
 	KLR_iARYSET(ctx,a1,a2,a3);
 }
 
 void JIT_OP_iARYSETn_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfpidx_t a2,knh_intptr_t a3)
 {
+	knh_code_t *pc = NULL;
 	KLR_iARYSETn(ctx,a1,a2,a3);
 }
 
 void JIT_OP_fARYSET_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfpidx_t a2,knh_sfpidx_t a3)
 {
+	knh_code_t *pc = NULL;
 	KLR_fARYSET(ctx,a1,a2,a3);
 }
 
 void JIT_OP_fARYSETn_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfpidx_t a2,knh_intptr_t a3)
 {
+	knh_code_t *pc = NULL;
 	KLR_fARYSETn(ctx,a1,a2,a3);
 }
 
 void JIT_OP_THCODE_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1)
 {
-	KLR_THCODE(ctx,a1);
+	//KLR_THCODE(ctx,a1);
 }
 
 void JIT_OP_NOP_(Ctx *ctx, knh_sfp_t* sfp)

@@ -81,6 +81,30 @@ METHOD knh_KLRCode_toCttCode(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 		pc += OPSIZE_MOVSYS;
 		goto NEXT;
 	} 
+	CASE(L_MOVxi, OPCODE_MOVxi) {
+		const klr_MOVxi_t *op = (klr_MOVxi_t*)pc;
+		KLR_MOVxi(ctx, op->a1, op->a2);
+		pc += OPSIZE_MOVxi;
+		goto NEXT;
+	} 
+	CASE(L_MOVxf, OPCODE_MOVxf) {
+		const klr_MOVxf_t *op = (klr_MOVxf_t*)pc;
+		KLR_MOVxf(ctx, op->a1, op->a2);
+		pc += OPSIZE_MOVxf;
+		goto NEXT;
+	} 
+	CASE(L_MOVxb, OPCODE_MOVxb) {
+		const klr_MOVxb_t *op = (klr_MOVxb_t*)pc;
+		KLR_MOVxb(ctx, op->a1, op->a2);
+		pc += OPSIZE_MOVxb;
+		goto NEXT;
+	} 
+	CASE(L_MOVe, OPCODE_MOVe) {
+		const klr_MOVe_t *op = (klr_MOVe_t*)pc;
+		KLR_MOVe(ctx, op->a1, op->a2);
+		pc += OPSIZE_MOVe;
+		goto NEXT;
+	} 
 	CASE(L_XMOVs, OPCODE_XMOVs) {
 		const klr_XMOVs_t *op = (klr_XMOVs_t*)pc;
 		KLR_XMOVs(ctx, op->a1, op->a2);
@@ -111,46 +135,10 @@ METHOD knh_KLRCode_toCttCode(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 		pc += OPSIZE_XMOVSYS;
 		goto NEXT;
 	} 
-	CASE(L_MOVxi, OPCODE_MOVxi) {
-		const klr_MOVxi_t *op = (klr_MOVxi_t*)pc;
-		KLR_MOVxi(ctx, op->a1, op->a2);
-		pc += OPSIZE_MOVxi;
-		goto NEXT;
-	} 
 	CASE(L_XMOVsi, OPCODE_XMOVsi) {
 		const klr_XMOVsi_t *op = (klr_XMOVsi_t*)pc;
 		KLR_XMOVsi(ctx, op->a1, op->a2);
 		pc += OPSIZE_XMOVsi;
-		goto NEXT;
-	} 
-	CASE(L_XMOVoi, OPCODE_XMOVoi) {
-		const klr_XMOVoi_t *op = (klr_XMOVoi_t*)pc;
-		KLR_XMOVoi(ctx, op->a1, op->a2);
-		pc += OPSIZE_XMOVoi;
-		goto NEXT;
-	} 
-	CASE(L_XMOVxi, OPCODE_XMOVxi) {
-		const klr_XMOVxi_t *op = (klr_XMOVxi_t*)pc;
-		KLR_XMOVxi(ctx, op->a1, op->a2);
-		pc += OPSIZE_XMOVxi;
-		goto NEXT;
-	} 
-	CASE(L_XMOVxio, OPCODE_XMOVxio) {
-		const klr_XMOVxio_t *op = (klr_XMOVxio_t*)pc;
-		KLR_XMOVxio(ctx, op->a1, op->a2);
-		pc += OPSIZE_XMOVxio;
-		goto NEXT;
-	} 
-	CASE(L_XMOVxBXi, OPCODE_XMOVxBXi) {
-		const klr_XMOVxBXi_t *op = (klr_XMOVxBXi_t*)pc;
-		KLR_XMOVxBXi(ctx, op->a1, op->a2, op->a3);
-		pc += OPSIZE_XMOVxBXi;
-		goto NEXT;
-	} 
-	CASE(L_MOVxf, OPCODE_MOVxf) {
-		const klr_MOVxf_t *op = (klr_MOVxf_t*)pc;
-		KLR_MOVxf(ctx, op->a1, op->a2);
-		pc += OPSIZE_MOVxf;
 		goto NEXT;
 	} 
 	CASE(L_XMOVsf, OPCODE_XMOVsf) {
@@ -159,52 +147,10 @@ METHOD knh_KLRCode_toCttCode(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 		pc += OPSIZE_XMOVsf;
 		goto NEXT;
 	} 
-	CASE(L_XMOVof, OPCODE_XMOVof) {
-		const klr_XMOVof_t *op = (klr_XMOVof_t*)pc;
-		KLR_XMOVof(ctx, op->a1, op->a2);
-		pc += OPSIZE_XMOVof;
-		goto NEXT;
-	} 
-	CASE(L_XMOVxf, OPCODE_XMOVxf) {
-		const klr_XMOVxf_t *op = (klr_XMOVxf_t*)pc;
-		KLR_XMOVxf(ctx, op->a1, op->a2);
-		pc += OPSIZE_XMOVxf;
-		goto NEXT;
-	} 
-	CASE(L_XMOVxfo, OPCODE_XMOVxfo) {
-		const klr_XMOVxfo_t *op = (klr_XMOVxfo_t*)pc;
-		KLR_XMOVxfo(ctx, op->a1, op->a2);
-		pc += OPSIZE_XMOVxfo;
-		goto NEXT;
-	} 
-	CASE(L_XMOVxBXf, OPCODE_XMOVxBXf) {
-		const klr_XMOVxBXf_t *op = (klr_XMOVxBXf_t*)pc;
-		KLR_XMOVxBXf(ctx, op->a1, op->a2, op->a3);
-		pc += OPSIZE_XMOVxBXf;
-		goto NEXT;
-	} 
-	CASE(L_MOVxb, OPCODE_MOVxb) {
-		const klr_MOVxb_t *op = (klr_MOVxb_t*)pc;
-		KLR_MOVxb(ctx, op->a1, op->a2);
-		pc += OPSIZE_MOVxb;
-		goto NEXT;
-	} 
 	CASE(L_XMOVsb, OPCODE_XMOVsb) {
 		const klr_XMOVsb_t *op = (klr_XMOVsb_t*)pc;
 		KLR_XMOVsb(ctx, op->a1, op->a2);
 		pc += OPSIZE_XMOVsb;
-		goto NEXT;
-	} 
-	CASE(L_XMOVob, OPCODE_XMOVob) {
-		const klr_XMOVob_t *op = (klr_XMOVob_t*)pc;
-		KLR_XMOVob(ctx, op->a1, op->a2);
-		pc += OPSIZE_XMOVob;
-		goto NEXT;
-	} 
-	CASE(L_XMOVxb, OPCODE_XMOVxb) {
-		const klr_XMOVxb_t *op = (klr_XMOVxb_t*)pc;
-		KLR_XMOVxb(ctx, op->a1, op->a2);
-		pc += OPSIZE_XMOVxb;
 		goto NEXT;
 	} 
 	CASE(L_SWAP, OPCODE_SWAP) {

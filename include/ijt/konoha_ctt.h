@@ -1,5 +1,6 @@
 #ifndef KONOH_CTT_H
 #define KONOH_CTT_H
+#ifdef KNH_KLR_CONVERT
 #include "vm.h"
 
 
@@ -292,4 +293,5 @@
 #include "convert.h"
 #include "imem.h"
 
+#endif
 #endif
