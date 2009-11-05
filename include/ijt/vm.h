@@ -42,6 +42,26 @@ void JIT_OP_MOVSYS_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_ushort_t a2)
 	KLR_MOVSYS(ctx,a1,a2);
 }
 
+void JIT_OP_MOVxi_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfx_t a2)
+{
+	KLR_MOVxi(ctx,a1,a2);
+}
+
+void JIT_OP_MOVxf_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfx_t a2)
+{
+	KLR_MOVxf(ctx,a1,a2);
+}
+
+void JIT_OP_MOVxb_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfx_t a2)
+{
+	KLR_MOVxb(ctx,a1,a2);
+}
+
+void JIT_OP_MOVe_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_ushort_t a2)
+{
+	KLR_MOVe(ctx,a1,a2);
+}
+
 void JIT_OP_XMOVs_(Ctx *ctx, knh_sfp_t* sfp,knh_sfx_t a1,knh_sfpidx_t a2)
 {
 	KLR_XMOVs(ctx,a1,a2);
@@ -67,39 +87,9 @@ void JIT_OP_XMOVSYS_(Ctx *ctx, knh_sfp_t* sfp,knh_sfx_t a1,knh_ushort_t a2)
 	KLR_XMOVSYS(ctx,a1,a2);
 }
 
-void JIT_OP_MOVxi_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfx_t a2)
-{
-	KLR_MOVxi(ctx,a1,a2);
-}
-
 void JIT_OP_XMOVsi_(Ctx *ctx, knh_sfp_t* sfp,knh_sfx_t a1,knh_sfpidx_t a2)
 {
 	KLR_XMOVsi(ctx,a1,a2);
-}
-
-void JIT_OP_XMOVoi_(Ctx *ctx, knh_sfp_t* sfp,knh_sfx_t a1,knh_Object_t* a2)
-{
-	KLR_XMOVoi(ctx,a1,a2);
-}
-
-void JIT_OP_XMOVxi_(Ctx *ctx, knh_sfp_t* sfp,knh_sfx_t a1,knh_sfx_t a2)
-{
-	KLR_XMOVxi(ctx,a1,a2);
-}
-
-void JIT_OP_XMOVxio_(Ctx *ctx, knh_sfp_t* sfp,knh_sfx_t a1,knh_sfx_t a2)
-{
-	KLR_XMOVxio(ctx,a1,a2);
-}
-
-void JIT_OP_XMOVxBXi_(Ctx *ctx, knh_sfp_t* sfp,knh_sfx_t a1,knh_sfx_t a2,knh_class_t a3)
-{
-	KLR_XMOVxBXi(ctx,a1,a2,a3);
-}
-
-void JIT_OP_MOVxf_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfx_t a2)
-{
-	KLR_MOVxf(ctx,a1,a2);
 }
 
 void JIT_OP_XMOVsf_(Ctx *ctx, knh_sfp_t* sfp,knh_sfx_t a1,knh_sfpidx_t a2)
@@ -107,44 +97,9 @@ void JIT_OP_XMOVsf_(Ctx *ctx, knh_sfp_t* sfp,knh_sfx_t a1,knh_sfpidx_t a2)
 	KLR_XMOVsf(ctx,a1,a2);
 }
 
-void JIT_OP_XMOVof_(Ctx *ctx, knh_sfp_t* sfp,knh_sfx_t a1,knh_Object_t* a2)
-{
-	KLR_XMOVof(ctx,a1,a2);
-}
-
-void JIT_OP_XMOVxf_(Ctx *ctx, knh_sfp_t* sfp,knh_sfx_t a1,knh_sfx_t a2)
-{
-	KLR_XMOVxf(ctx,a1,a2);
-}
-
-void JIT_OP_XMOVxfo_(Ctx *ctx, knh_sfp_t* sfp,knh_sfx_t a1,knh_sfx_t a2)
-{
-	KLR_XMOVxfo(ctx,a1,a2);
-}
-
-void JIT_OP_XMOVxBXf_(Ctx *ctx, knh_sfp_t* sfp,knh_sfx_t a1,knh_sfx_t a2,knh_class_t a3)
-{
-	KLR_XMOVxBXf(ctx,a1,a2,a3);
-}
-
-void JIT_OP_MOVxb_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfx_t a2)
-{
-	KLR_MOVxb(ctx,a1,a2);
-}
-
 void JIT_OP_XMOVsb_(Ctx *ctx, knh_sfp_t* sfp,knh_sfx_t a1,knh_sfpidx_t a2)
 {
 	KLR_XMOVsb(ctx,a1,a2);
-}
-
-void JIT_OP_XMOVob_(Ctx *ctx, knh_sfp_t* sfp,knh_sfx_t a1,knh_Object_t* a2)
-{
-	KLR_XMOVob(ctx,a1,a2);
-}
-
-void JIT_OP_XMOVxb_(Ctx *ctx, knh_sfp_t* sfp,knh_sfx_t a1,knh_sfx_t a2)
-{
-	KLR_XMOVxb(ctx,a1,a2);
 }
 
 void JIT_OP_SWAP_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfpidx_t a2)

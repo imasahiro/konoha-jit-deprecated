@@ -164,8 +164,6 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 #define KLR_MOVxf(ctx, a, b)    sfp[a].fvalue = SFXf(b)
 #define KLR_MOVxb(ctx, a, b)    sfp[a].bvalue = SFXb(b)
 
-
-
 #define KLR_XMOVs(ctx, a, b) KLR_MOV(ctx, SFXo(a), sfp[b].o)
 #define KLR_XMOVo(ctx, a, b) KLR_MOV(ctx, SFXo(a), b)
 #define KLR_XMOVx(ctx, a, b) KLR_MOV(ctx, SFXo(a), SFXo(b))
@@ -176,20 +174,19 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 #define KLR_XMOVsf(ctx, a, b)   SFXf(a) = sfp[b].fvalue
 #define KLR_XMOVsb(ctx, a, b)   SFXb(a) = sfp[b].bvalue
 
-
-#define KLR_XMOVoi(ctx, a, o)   SFXi(a) = ((knh_Int_t*)o)->n.ivalue
-#define KLR_XMOVxi(ctx, a, b)   SFXi(a) = SFXi(b)
-#define KLR_XMOVxio(ctx, a, b)  SFXi(a) = ((knh_Int_t*)SFXo(b))->n.ivalue
-#define KLR_XMOVxBXi(ctx, a, b, cid) KLR_MOV(ctx, SFXo(a), new_IntX(ctx, cid, SFXi(b)))
-
-#define KLR_XMOVsf(ctx, a, b)   SFXf(a) = sfp[b].fvalue
-#define KLR_XMOVof(ctx, a, o)   SFXf(a) = ((knh_Float_t*)o)->n.fvalue
-#define KLR_XMOVxf(ctx, a, b)   SFXf(a) = SFXf(b)
-#define KLR_XMOVxfo(ctx, a, b)  SFXf(a) = ((knh_Float_t*)SFXo(b))->n.fvalue
-#define KLR_XMOVxBXf(ctx, a, b, cid) KLR_MOV(ctx, SFXo(a), new_FloatX(ctx, cid, SFXf(b)))
-
-#define KLR_XMOVob(ctx, a, o)   SFXb(a) = ((knh_Int_t*)o)->n.bvalue
-#define KLR_XMOVxb(ctx, a, b)   SFXb(a) = SFXb(b)
+//#define KLR_XMOVoi(ctx, a, o)   SFXi(a) = ((knh_Int_t*)o)->n.ivalue
+//#define KLR_XMOVxi(ctx, a, b)   SFXi(a) = SFXi(b)
+//#define KLR_XMOVxio(ctx, a, b)  SFXi(a) = ((knh_Int_t*)SFXo(b))->n.ivalue
+//#define KLR_XMOVxBXi(ctx, a, b, cid) KLR_MOV(ctx, SFXo(a), new_IntX(ctx, cid, SFXi(b)))
+//
+//#define KLR_XMOVsf(ctx, a, b)   SFXf(a) = sfp[b].fvalue
+//#define KLR_XMOVof(ctx, a, o)   SFXf(a) = ((knh_Float_t*)o)->n.fvalue
+//#define KLR_XMOVxf(ctx, a, b)   SFXf(a) = SFXf(b)
+//#define KLR_XMOVxfo(ctx, a, b)  SFXf(a) = ((knh_Float_t*)SFXo(b))->n.fvalue
+//#define KLR_XMOVxBXf(ctx, a, b, cid) KLR_MOV(ctx, SFXo(a), new_FloatX(ctx, cid, SFXf(b)))
+//
+//#define KLR_XMOVob(ctx, a, o)   SFXb(a) = ((knh_Int_t*)o)->n.bvalue
+//#define KLR_XMOVxb(ctx, a, b)   SFXb(a) = SFXb(b)
 
 /* ------------------------------------------------------------------------ */
 #define ENVo(x)   (sfp[0].cc)->envsfp[x].o
@@ -198,15 +195,15 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 #define ENVb(x)   (sfp[0].cc)->envsfp[x].bvalue
 
 #define KLR_MOVe(ctx, a, b) {\
-		KLR_MOV(ctx, sfp[a].o, sfp[b].o);\
-		sfp[a].data = sfp[b].data;\
+		KLR_MOV(ctx, sfp[a].o, (sfp[0].cc)->envsfp[b].o);\
+		sfp[a].data = (sfp[0].cc)->envsfp[b].data;\
 	}\
 
-#define KLR_EMOVs(ctx, a, b) KLR_MOV(ctx, ENVo(a), sfp[b].o)
-#define KLR_EMOVo(ctx, a, b) KLR_MOV(ctx, ENVo(a), b)
-#define KLR_EMOVe(ctx, a, b) KLR_MOV(ctx, ENVo(a), ENVo(b))
-#define KLR_EMOVDEF(ctx, a, cid)  KLR_MOV(ctx, ENVo(a), KNH_DEF(ctx, cid))
-#define KLR_EMOVSYS(ctx, a, cid)  KLR_MOV(ctx, ENVo(a), KNH_SYS(ctx, cid))
+//#define KLR_EMOVs(ctx, a, b) KLR_MOV(ctx, ENVo(a), sfp[b].o)
+//#define KLR_EMOVo(ctx, a, b) KLR_MOV(ctx, ENVo(a), b)
+//#define KLR_EMOVe(ctx, a, b) KLR_MOV(ctx, ENVo(a), ENVo(b))
+//#define KLR_EMOVDEF(ctx, a, cid)  KLR_MOV(ctx, ENVo(a), KNH_DEF(ctx, cid))
+//#define KLR_EMOVSYS(ctx, a, cid)  KLR_MOV(ctx, ENVo(a), KNH_SYS(ctx, cid))
 
 /* ------------------------------------------------------------------------ */
 

@@ -438,8 +438,8 @@ void KNH_ASM_SMOV(Ctx *ctx, knh_type_t atype, int a, knh_Token_t *tkb)
 static
 void KNH_ASM_XMOVx(Ctx *ctx, knh_type_t atype, knh_sfx_t ax, knh_type_t btype, knh_sfx_t bx)
 {
+	knh_Gamma_t *kc = ctx->kc;
 	if(DP(ctx->kc)->globalidx == bx.i) {
-		knh_Gamma_t *kc = ctx->kc;
 		knh_Object_t *scr = (knh_Object_t*)knh_getGammaScript(ctx);
 		KNH_ASM(MOVo, DP(kc)->globalidx, scr);
 		/** DP(kc)->globalidx = -1; I want SSA */
@@ -449,46 +449,48 @@ void KNH_ASM_XMOVx(Ctx *ctx, knh_type_t atype, knh_sfx_t ax, knh_type_t btype, k
 	}
 	if(IS_ubxint(atype)) {
 		if(IS_ubxint(btype)) {
-			KNH_ASM(XMOVxi, ax, bx);
+			KNH_ASM(MOVxi, DP(kc)->esp, bx);
 		}
 		else {
-			KNH_ASM(XMOVxio, ax, bx);
+			KNH_ASM(MOVx, DP(kc)->esp, bx);
 		}
+		KNH_ASM(XMOVsi, ax, DP(kc)->esp);
 	}
 	else if(IS_ubxfloat(atype)) {
 		if(IS_ubxfloat(btype)) {
-			KNH_ASM(XMOVxf, ax, bx);
+			KNH_ASM(MOVxf, DP(kc)->esp, bx);
 		}
 		else {
-			KNH_ASM(XMOVxfo, ax, bx);
+			KNH_ASM(MOVx, DP(kc)->esp, bx);
 		}
+		KNH_ASM(XMOVsf, ax, DP(kc)->esp);
 	}
-	else if(IS_ubxboolean(atype) && IS_ubxboolean(btype)) {
-		KNH_ASM(XMOVxb, ax, bx);
-	}
-	else if(IS_bxint(atype) && IS_ubxint(btype)) {
-		KNH_ASM(XMOVxBXi, ax, bx, CLASS_type(btype));
-	}
-	else if(IS_bxfloat(atype) && IS_ubxfloat(btype)) {
-		KNH_ASM(XMOVxBXf, ax, bx, CLASS_type(btype));
+	else if(IS_ubxboolean(atype)) {
+		if(IS_ubxboolean(btype)) {
+			KNH_ASM(MOVxb, DP(kc)->esp, bx);
+		}
+		else {
+			KNH_ASM(MOVx, DP(kc)->esp, bx);
+		}
+		KNH_ASM(XMOVsb, ax, DP(kc)->esp);
 	}
 	else if(IS_ubxint(btype)) { // Any a = b; // int b;
 		//DBG2_P("atype=%s%s", TYPEQN(atype));
-		KNH_ASM(MOVxi, DP(ctx->kc)->esp, bx);
-		KNH_ASM(BOX, DP(ctx->kc)->esp, CLASS_type(btype));
-		KNH_ASM(XMOVs, ax, DP(ctx->kc)->esp);
+		KNH_ASM(MOVxi, DP(kc)->esp, bx);
+		KNH_ASM(BOX, DP(kc)->esp, CLASS_type(btype));
+		KNH_ASM(XMOVs, ax, DP(kc)->esp);
 	}
 	else if(IS_ubxfloat(btype)) { // Any a = b; // float b;
 		//DBG2_P("atype=%s%s", TYPEQN(atype));
-		KNH_ASM(MOVxf, DP(ctx->kc)->esp, bx);
-		KNH_ASM(BOX, DP(ctx->kc)->esp, CLASS_type(btype));
-		KNH_ASM(XMOVs, ax, DP(ctx->kc)->esp);
+		KNH_ASM(MOVxf, DP(kc)->esp, bx);
+		KNH_ASM(BOX, DP(kc)->esp, CLASS_type(btype));
+		KNH_ASM(XMOVs, ax, DP(kc)->esp);
 	}
 	else if(IS_ubxboolean(btype)) { // Any a = b; // boolean b;
 		//DBG2_P("atype=%s%s", TYPEQN(atype));
-		KNH_ASM(MOVxb, DP(ctx->kc)->esp, bx);
-		KNH_ASM(BOX, DP(ctx->kc)->esp, CLASS_type(btype));
-		KNH_ASM(XMOVs, ax, DP(ctx->kc)->esp);
+		KNH_ASM(MOVxb, DP(kc)->esp, bx);
+		KNH_ASM(BOX, DP(kc)->esp, CLASS_type(btype));
+		KNH_ASM(XMOVs, ax, DP(kc)->esp);
 	}
 	else {
 		KNH_ASM(XMOVx, ax, bx);
@@ -498,24 +500,28 @@ void KNH_ASM_XMOVx(Ctx *ctx, knh_type_t atype, knh_sfx_t ax, knh_type_t btype, k
 static
 void KNH_ASM_XMOV(Ctx *ctx, knh_type_t atype, int a, size_t an, knh_Token_t *tkb)
 {
-	KNH_ASSERT(IS_Token(tkb) && knh_Token_isTyped(tkb));
+	DBG2_ASSERT(IS_Token(tkb) && knh_Token_isTyped(tkb));
 	knh_sfx_t ax = {sfi_(a), an};
 	knh_type_t btype = DP(tkb)->type;
+	knh_Gamma_t *kc = ctx->kc;
 	switch(TT_(tkb)) {
 		case TT_CLASSID:
 		case TT_CONST: {
 			Object *v = DP(tkb)->data;
 #ifdef KNH_USING_UNBOXFIELD
 			if(IS_ubxint(atype)) {
-				KNH_ASM(XMOVoi, ax, v);
+				KNH_ASM(MOVi, DP(kc)->esp, knh_Object_data(v));
+				KNH_ASM(XMOVsi, ax, DP(kc)->esp);
 				break;
 			}
 			if(IS_ubxfloat(atype)) {
-				KNH_ASM(XMOVof, ax, v);
+				KNH_ASM(MOVi, DP(kc)->esp, knh_Object_data(v));
+				KNH_ASM(XMOVsf, ax, DP(kc)->esp);
 				break;
 			}
 			if(IS_ubxboolean(atype)) {
-				KNH_ASM(XMOVob, ax, v);
+				KNH_ASM(MOVi, DP(kc)->esp, knh_Object_data(v));
+				KNH_ASM(XMOVsf, ax, DP(kc)->esp);
 				break;
 			}
 #endif/*KNU_USING_UNBOXFIED*/
@@ -555,7 +561,6 @@ void KNH_ASM_XMOV(Ctx *ctx, knh_type_t atype, int a, size_t an, knh_Token_t *tkb
 		}
 
 		case TT_SCRIPT: {
-			knh_Gamma_t *kc = ctx->kc;
 			int b = (int)DP(tkb)->index;
 			knh_sfx_t bx = {(knh_sfpidx_t)DP(kc)->globalidx, (size_t)b};
 			ASM_ASSERT(ctx, bx.i != -1);
@@ -574,13 +579,16 @@ void KNH_ASM_XMOV(Ctx *ctx, knh_type_t atype, int a, size_t an, knh_Token_t *tkb
 		case TT_DEFVAL: {
 #ifdef KNH_USING_UNBOXFIELD
 			if(IS_ubxint(atype)) {
-				KNH_ASM(XMOVoi, ax, KNH_DEF(ctx, CLASS_type(atype)));
+				KNH_ASM(MOVDEF, DP(kc)->esp, DP(tkb)->cid);
+				KNH_ASM(XMOVsi, ax, DP(kc)->esp);
 			}
 			else if(IS_ubxfloat(atype)) {
-				KNH_ASM(XMOVof, ax, KNH_DEF(ctx, CLASS_type(atype)));
+				KNH_ASM(MOVDEF, DP(kc)->esp, DP(tkb)->cid);
+				KNH_ASM(XMOVsf, ax, DP(kc)->esp);
 			}
 			else if(IS_ubxboolean(atype)) {
-				KNH_ASM(XMOVob, ax, KNH_FALSE);
+				KNH_ASM(MOVi, DP(kc)->esp, knh_Object_data(KNH_FALSE));
+				KNH_ASM(XMOVsi, ax, DP(kc)->esp);
 			}
 			else
 #endif/*KNU_USING_UNBOXFIED*/

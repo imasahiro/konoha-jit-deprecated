@@ -17,30 +17,30 @@ MOVx sfpidx sfx
 MOVDEF sfpidx cid
 MOVSYS sfpidx ushort 
 
+MOVxi sfpidx sfx
+MOVxf  sfpidx sfx
+MOVxb  sfpidx sfx
+MOVe sfpidx ushort
+
 XMOVs sfx sfpidx
 XMOVo sfx Object
 XMOVx sfx sfx
 XMOVDEF sfx cid
 XMOVSYS sfx ushort
-
-MOVxi sfpidx sfx
 XMOVsi sfx sfpidx
-XMOVoi sfx Object
-XMOVxi sfx sfx
-XMOVxio sfx sfx
-XMOVxBXi sfx sfx cid
-
-MOVxf  sfpidx sfx
 XMOVsf sfx sfpidx
-XMOVof sfx Object
-XMOVxf sfx sfx
-XMOVxfo sfx sfx
-XMOVxBXf sfx sfx cid
-
-MOVxb  sfpidx sfx
 XMOVsb sfx sfpidx
-XMOVob sfx Object
-XMOVxb sfx sfx
+
+#XMOVoi sfx Object
+#XMOVxi sfx sfx
+#XMOVxio sfx sfx
+#XMOVxBXi sfx sfx cid
+#XMOVof sfx Object
+#XMOVxf sfx sfx
+#XMOVxfo sfx sfx
+#XMOVxBXf sfx sfx cid
+#XMOVob sfx Object
+#XMOVxb sfx sfx
 
 #EMOVs sfe sfe
 #EMOVo sfe Object
