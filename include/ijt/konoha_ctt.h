@@ -1,14 +1,5 @@
 #ifndef KONOH_CTT_H
 #define KONOH_CTT_H
-#include "convert.h"
-#include "imem.h"
-#undef KLR_HALT
-#define KLR_HALT(ctx) { \
-		DBG2_ABORT();\
-		KLR_THROW__T(ctx, "Halt!!");\
-	}\
-
-
 #include "vm.h"
 
 
@@ -298,5 +289,7 @@
 #define KLR_THCODE JIT_ASM_THCODE
 #undef KLR_NOP
 #define KLR_NOP JIT_ASM_NOP
+#include "convert.h"
+#include "imem.h"
 
 #endif

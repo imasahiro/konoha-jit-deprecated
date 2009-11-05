@@ -2,61 +2,72 @@
 #define IJT_ASM_H
 
 #define OPCode_1_int union opcode { \
-    uchar_t code[5];    \
-    struct {            \
-        uchar_t op;intptr_t ival;\
-    } __attribute__((packed));\
+	uchar_t code[5];    \
+	struct {            \
+		uchar_t op;intptr_t ival;\
+	} __attribute__((packed));\
 }
 
 #define OPCode_2_int union opcode {\
-    uchar_t code[6];      \
-    struct {                    \
-        uchar_t op1;\
-        uchar_t op2;\
-        intptr_t ival;\
-    } __attribute__((packed));  \
+	uchar_t code[6];      \
+	struct {                    \
+		uchar_t op1;\
+		uchar_t op2;\
+		intptr_t ival;\
+	} __attribute__((packed));  \
 }
 
 #define OPCode_2_i64 union opcode {\
-    uchar_t code[10];      \
-    struct {                    \
-        uchar_t op1;\
-        uchar_t op2;\
-        knh_int_t ival;\
-    } __attribute__((packed));  \
+	uchar_t code[10];      \
+	struct {                    \
+		uchar_t op1;\
+		uchar_t op2;\
+		knh_int_t ival;\
+	} __attribute__((packed));  \
 }
 
 #define OPCode_4_int union opcode {\
-    uchar_t code[8];      \
-    struct {                    \
-        uchar_t op1;\
-        uchar_t op2;\
-        uchar_t op3;\
-        uchar_t op4;\
-        int ival;\
-    } __attribute__((packed));  \
+	uchar_t code[8];      \
+	struct {                    \
+		uchar_t op1;\
+		uchar_t op2;\
+		uchar_t op3;\
+		uchar_t op4;\
+		int ival;\
+	} __attribute__((packed));  \
 }
 
 
 
 #define OPCode_4 union opcode {\
-    uchar_t code[4];      \
-    struct {                    \
-        uchar_t op1;\
-        uchar_t op2;\
-        uchar_t op3;\
-        uchar_t op4;\
-    } __attribute__((packed));  \
+	uchar_t code[4];      \
+	struct {                    \
+		uchar_t op1;\
+		uchar_t op2;\
+		uchar_t op3;\
+		uchar_t op4;\
+	} __attribute__((packed));  \
 }
 
 #define OPCode_3 union opcode {\
-    uchar_t code[3];      \
-    struct {                    \
-        uchar_t op1;\
-        uchar_t op2;\
-        uchar_t op3;\
-    } __attribute__((packed));  \
+	uchar_t code[3];      \
+	struct {                    \
+		uchar_t op1;\
+		uchar_t op2;\
+		uchar_t op3;\
+	} __attribute__((packed));  \
 }
+
+#define OPCode_3_i32 union opcode {\
+	uchar_t code[7];      \
+	struct {                    \
+		uchar_t op1;\
+		uchar_t op2;\
+		uchar_t op3;\
+		int ival;\
+	} __attribute__((packed));  \
+}
+
 
 
 // jit_1__halt
@@ -1307,54 +1318,50 @@
 // jit_5__movl_$0x00000001_esi
 // be 01 00 00 00
 #define jit_5__movl_imm32_esi(mem,imm32) { \
-    imem_push(mem,0xbe); \
-    imem_push(mem,(imm32 >> (0 * 8)) & 0xff); \
-    imem_push(mem,(imm32 >> (1 * 8)) & 0xff); \
-    imem_push(mem,(imm32 >> (2 * 8)) & 0xff); \
-    imem_push(mem,(imm32 >> (3 * 8)) & 0xff); \
+	OPCode_1_int _o;\
+	_o.op   = 0xbe;\
+	_o.ival = imm32;   \
+	imem_write(mem,_o.code, 5); \
 } \
 
 
 // jit_5__movl_$0x00000002_ecx
 // b9 02 00 00 00
 #define jit_5__movl_imm32_ecx(mem,imm32) { \
-    imem_push(mem,0xb9); \
-    imem_push(mem,(imm32 >> (0 * 8)) & 0xff); \
-    imem_push(mem,(imm32 >> (1 * 8)) & 0xff); \
-    imem_push(mem,(imm32 >> (2 * 8)) & 0xff); \
-    imem_push(mem,(imm32 >> (3 * 8)) & 0xff); \
+	OPCode_1_int _o;\
+	_o.op   = 0xb9;\
+	_o.ival = imm32;   \
+	imem_write(mem,_o.code, 5); \
 } \
 
 
 // jit_5__movl_$0x00000002_edi
 // bf 02 00 00 00
 #define jit_5__movl_imm32_edi(mem,imm32) { \
-    imem_push(mem,0xbf); \
-    imem_push(mem,(imm32 >> (0 * 8)) & 0xff); \
-    imem_push(mem,(imm32 >> (1 * 8)) & 0xff); \
-    imem_push(mem,(imm32 >> (2 * 8)) & 0xff); \
-    imem_push(mem,(imm32 >> (3 * 8)) & 0xff); \
+	OPCode_1_int _o;\
+	_o.op   = 0xbf;\
+	_o.ival = imm32;   \
+	imem_write(mem,_o.code, 5); \
 } \
 
 
 // jit_5__movl_$0x00000004_edx
 // ba 04 00 00 00
 #define jit_5__movl_imm32_edx(mem,imm32) { \
-    OPCode_1_int _o;\
-    _o.op   = 0xba;\
-    _o.ival = imm32;   \
-    imem_write(mem,_o.code, 5); \
+	OPCode_1_int _o;\
+	_o.op   = 0xba;\
+	_o.ival = imm32;   \
+	imem_write(mem,_o.code, 5); \
 } \
 
 
 // jit_5__movl_0x01020304_eax
 // b8 04 03 02 01
 #define jit_5__movl_imm32_eax(mem,imm32) { \
-    imem_push(mem,0xb8); \
-    imem_push(mem,(imm32 >> (0 * 8)) & 0xff); \
-    imem_push(mem,(imm32 >> (1 * 8)) & 0xff); \
-    imem_push(mem,(imm32 >> (2 * 8)) & 0xff); \
-    imem_push(mem,(imm32 >> (3 * 8)) & 0xff); \
+	OPCode_1_int _o;\
+	_o.op   = 0xb8;\
+	_o.ival = imm32;   \
+	imem_write(mem,_o.code, 5); \
 } \
 
 
@@ -1373,47 +1380,43 @@
 // jit_6__jneq_0xfffffeef
 // 0f 85 ef fe ff ff
 #define jit_6__jneq_imm32(mem,imm32) { \
-    imem_push(mem,0x0f); \
-    imem_push(mem,0x85); \
-    imem_push(mem,(imm32 >> (0 * 8)) & 0xff); \
-    imem_push(mem,(imm32 >> (1 * 8)) & 0xff); \
-    imem_push(mem,(imm32 >> (2 * 8)) & 0xff); \
-    imem_push(mem,(imm32 >> (3 * 8)) & 0xff); \
+	OPCode_2_int _o;\
+	_o.op1  = 0x0f;\
+	_o.op2  = 0x85;\
+	_o.ival = imm32;   \
+	imem_write(mem,_o.code, 6); \
 } \
 
 
 // jit_6__leal_0x72-0xf(_ebx)_eax
 // 8d 83 63 00 00 00
 #define jit_6__leal_ebx_at_eax(mem,imm32) { \
-    imem_push(mem,0x8d); \
-    imem_push(mem,0x83); \
-    imem_push(mem,(imm32 >> (0 * 8)) & 0xff); \
-    imem_push(mem,(imm32 >> (1 * 8)) & 0xff); \
-    imem_push(mem,(imm32 >> (2 * 8)) & 0xff); \
-    imem_push(mem,(imm32 >> (3 * 8)) & 0xff); \
+	OPCode_2_int _o;\
+	_o.op1  = 0x8d;\
+	_o.op2  = 0x83;\
+	_o.ival = imm32;   \
+	imem_write(mem,_o.code, 6); \
 } \
 
 
 // jit_6__movq_$0x00000001_r8d
 // 41 b8 01 00 00 00
 #define jit_6__movq_imm32_r8d(mem,imm32) { \
-    imem_push(mem,0x41); \
-    imem_push(mem,0xb8); \
-    imem_push(mem,(imm32 >> (0 * 8)) & 0xff); \
-    imem_push(mem,(imm32 >> (1 * 8)) & 0xff); \
-    imem_push(mem,(imm32 >> (2 * 8)) & 0xff); \
-    imem_push(mem,(imm32 >> (3 * 8)) & 0xff); \
+	OPCode_2_int _o;\
+	_o.op1  = 0x41;\
+	_o.op2  = 0xb8;\
+	_o.ival = imm32;   \
+	imem_write(mem,_o.code, 6); \
 } \
 
 // jit_6__movq_$0x00000001_r9d
 // 41 b9 02 00 00 00
 #define jit_6__movq_imm32_r9d(mem,imm32) { \
-    imem_push(mem,0x41); \
-    imem_push(mem,0xb9); \
-    imem_push(mem,(imm32 >> (0 * 8)) & 0xff); \
-    imem_push(mem,(imm32 >> (1 * 8)) & 0xff); \
-    imem_push(mem,(imm32 >> (2 * 8)) & 0xff); \
-    imem_push(mem,(imm32 >> (3 * 8)) & 0xff); \
+	OPCode_2_int _o;\
+	_o.op1  = 0x41;\
+	_o.op2  = 0xb9;\
+	_o.ival = imm32;   \
+	imem_write(mem,_o.code, 6); \
 } \
 
 
@@ -1561,65 +1564,60 @@
 // jit_7__movq_$0x00000000(_rip)_rax
 // 48 8b 05 00 00 00 00
 #define jit_7__movq_rip_to_rax(mem,idx32) { \
-    imem_push(mem,0x48); \
-    imem_push(mem,0x8b); \
-    imem_push(mem,0x05); \
-    imem_push(mem,(imm32 >> (0 * 8)) & 0xff); \
-    imem_push(mem,(imm32 >> (1 * 8)) & 0xff); \
-    imem_push(mem,(imm32 >> (2 * 8)) & 0xff); \
-    imem_push(mem,(imm32 >> (3 * 8)) & 0xff); \
+	OPCode_3_i32 _o;\
+	_o.op1  = 0x48;\
+	_o.op2  = 0x8b;\
+	_o.op3  = 0x05;\
+	_o.ival = imm32;   \
+	imem_write(mem,_o.code, 7); \
 } \
 
 
 // jit_7__movq_$0x00000001_rdi
 // 48 c7 07 01 00 00 00
 #define jit_7__movq_imm32_rdi(mem,imm32) { \
-    imem_push(mem,0x48); \
-    imem_push(mem,0xc7); \
-    imem_push(mem,0x07); \
-    imem_push(mem,(imm32 >> (0 * 8)) & 0xff); \
-    imem_push(mem,(imm32 >> (1 * 8)) & 0xff); \
-    imem_push(mem,(imm32 >> (2 * 8)) & 0xff); \
-    imem_push(mem,(imm32 >> (3 * 8)) & 0xff); \
+	OPCode_3_i32 _o;\
+	_o.op1  = 0x48;\
+	_o.op2  = 0xc7;\
+	_o.op3  = 0x07;\
+	_o.ival = imm32;   \
+	imem_write(mem,_o.code, 7); \
 } \
 
 
 // jit_7__movq_$0x00000001_rsi
 // 48 c7 06 01 00 00 00
 #define jit_7__movq_imm32_rsi(mem,imm32) { \
-    imem_push(mem,0x48); \
-    imem_push(mem,0xc7); \
-    imem_push(mem,0x06); \
-    imem_push(mem,(imm32 >> (0 * 8)) & 0xff); \
-    imem_push(mem,(imm32 >> (1 * 8)) & 0xff); \
-    imem_push(mem,(imm32 >> (2 * 8)) & 0xff); \
-    imem_push(mem,(imm32 >> (3 * 8)) & 0xff); \
+	OPCode_3_i32 _o;\
+	_o.op1  = 0x48;\
+	_o.op2  = 0xc7;\
+	_o.op3  = 0x06;\
+	_o.ival = imm32;   \
+	imem_write(mem,_o.code, 7); \
 } \
 
 
 // jit_7__movq_$0x00000003_rsp
 // c7 04 24 03 00 00 00
 #define jit_7__movq_imm32_rsp(mem,imm32) { \
-    imem_push(mem,0xc7); \
-    imem_push(mem,0x04); \
-    imem_push(mem,0x24); \
-    imem_push(mem,(imm32 >> (0 * 8)) & 0xff); \
-    imem_push(mem,(imm32 >> (1 * 8)) & 0xff); \
-    imem_push(mem,(imm32 >> (2 * 8)) & 0xff); \
-    imem_push(mem,(imm32 >> (3 * 8)) & 0xff); \
+	OPCode_3_i32 _o;\
+	_o.op1  = 0xc7;\
+	_o.op2  = 0x04;\
+	_o.op3  = 0x24;\
+	_o.ival = imm32;   \
+	imem_write(mem,_o.code, 7); \
 } \
 
 
 // jit_7__subq_$0x000000a8_rsp
 // 48 81 ec a8 00 00 00
 #define jit_7__subq_imm32_rsp(mem,imm32) { \
-    imem_push(mem,0x48); \
-    imem_push(mem,0x81); \
-    imem_push(mem,0xec); \
-    imem_push(mem,(imm32 >> (0 * 8)) & 0xff); \
-    imem_push(mem,(imm32 >> (1 * 8)) & 0xff); \
-    imem_push(mem,(imm32 >> (2 * 8)) & 0xff); \
-    imem_push(mem,(imm32 >> (3 * 8)) & 0xff); \
+	OPCode_3_i32 _o;\
+	_o.op1  = 0x48;\
+	_o.op2  = 0x81;\
+	_o.op3  = 0xec;\
+	_o.ival = imm32;   \
+	imem_write(mem,_o.code, 7); \
 } \
 
 

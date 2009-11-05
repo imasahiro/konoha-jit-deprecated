@@ -199,11 +199,11 @@
 #undef KNH_USING_THREADEDCODE
 #endif
 
-/*
+///*
 #if defined(__x86_64__) && !defined(KNH_KLR_CONVERT)
 #define KNH_KLR_CONVERT
 #endif
-*/
+//*/
 
 
 #ifdef KNH_USING_THREAD

@@ -1,10 +1,8 @@
 
 /* ************************************************************************ */
 
-#include"commons.h"
-//#include "ijt/convert.h"
-//#include "ijt/imem.h"
-//#include "ijt/vm.h"
+#include "../kc/commons.h"
+#include <ijt/konoha_ctt.h>
 
 /* ************************************************************************ */
 
@@ -14,1141 +12,935 @@ extern "C" {
 
 
 /* ======================================================================== */
+#ifdef KNH_KLR_CONVERT
 
-//static void knh_ctt_patch(imem_t* mem);
-//
-//METHOD knh_KLRCode_toCttCode(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
-//{
-//    imem_t* mem = imem_new(1);
-//    knh_Method_t *mtd = (knh_Method_t *) sfp[-1].o;
-//    register knh_code_t *pc = sfp[-1].pc;
-//    if(!pc) return;
-//    jit_start(mem);
-//
-//    L_HEAD:;
-//    switch(((knh_kode_t*)pc)->opcode) {
-//
-//    case OPCODE_HALT : {
-//        const klr_halt_t* op = (klr_halt_t*)pc;
-//        JIT_ASM_HALT(ctx);
-//        pc += OPSIZE_HALT;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_MOVA : {
-//        const klr_mova_t* op = (klr_mova_t*)pc;
-//        JIT_ASM_MOVa(ctx, op->a1, op->a2);
-//        pc += OPSIZE_MOVA;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_MOVN : {
-//        const klr_movn_t* op = (klr_movn_t*)pc;
-//        JIT_ASM_MOVn(ctx, op->a1, op->a2);
-//        pc += OPSIZE_MOVN;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_MOVO : {
-//        const klr_movo_t* op = (klr_movo_t*)pc;
-//        JIT_ASM_MOVo(ctx, op->a1, op->a2);
-//        pc += OPSIZE_MOVO;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_MOVX : {
-//        const klr_movx_t* op = (klr_movx_t*)pc;
-//        JIT_ASM_MOVx(ctx, op->a1, op->a2);
-//        pc += OPSIZE_MOVX;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_MOVDEF : {
-//        const klr_movdef_t* op = (klr_movdef_t*)pc;
-//        JIT_ASM_MOVDEF(ctx, op->a1, op->a2);
-//        pc += OPSIZE_MOVDEF;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_MOVSYS : {
-//        const klr_movsys_t* op = (klr_movsys_t*)pc;
-//        JIT_ASM_MOVSYS(ctx, op->a1, op->a2);
-//        pc += OPSIZE_MOVSYS;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_XMOVS : {
-//        const klr_xmovs_t* op = (klr_xmovs_t*)pc;
-//        JIT_ASM_XMOVs(ctx, op->a1, op->a2);
-//        pc += OPSIZE_XMOVS;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_XMOVO : {
-//        const klr_xmovo_t* op = (klr_xmovo_t*)pc;
-//        JIT_ASM_XMOVo(ctx, op->a1, op->a2);
-//        pc += OPSIZE_XMOVO;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_XMOVX : {
-//        const klr_xmovx_t* op = (klr_xmovx_t*)pc;
-//        JIT_ASM_XMOVx(ctx, op->a1, op->a2);
-//        pc += OPSIZE_XMOVX;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_XMOVDEF : {
-//        const klr_xmovdef_t* op = (klr_xmovdef_t*)pc;
-//        JIT_ASM_XMOVDEF(ctx, op->a1, op->a2);
-//        pc += OPSIZE_XMOVDEF;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_XMOVSYS : {
-//        const klr_xmovsys_t* op = (klr_xmovsys_t*)pc;
-//        JIT_ASM_XMOVSYS(ctx, op->a1, op->a2);
-//        pc += OPSIZE_XMOVSYS;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_MOVXI : {
-//        const klr_movxi_t* op = (klr_movxi_t*)pc;
-//        JIT_ASM_MOVxi(ctx, op->a1, op->a2);
-//        pc += OPSIZE_MOVXI;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_XMOVSI : {
-//        const klr_xmovsi_t* op = (klr_xmovsi_t*)pc;
-//        JIT_ASM_XMOVsi(ctx, op->a1, op->a2);
-//        pc += OPSIZE_XMOVSI;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_XMOVOI : {
-//        const klr_xmovoi_t* op = (klr_xmovoi_t*)pc;
-//        JIT_ASM_XMOVoi(ctx, op->a1, op->a2);
-//        pc += OPSIZE_XMOVOI;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_XMOVXI : {
-//        const klr_xmovxi_t* op = (klr_xmovxi_t*)pc;
-//        JIT_ASM_XMOVxi(ctx, op->a1, op->a2);
-//        pc += OPSIZE_XMOVXI;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_XMOVXIO : {
-//        const klr_xmovxio_t* op = (klr_xmovxio_t*)pc;
-//        JIT_ASM_XMOVxio(ctx, op->a1, op->a2);
-//        pc += OPSIZE_XMOVXIO;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_XMOVXBXI : {
-//        const klr_xmovxbxi_t* op = (klr_xmovxbxi_t*)pc;
-//        JIT_ASM_XMOVxBXi(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_XMOVXBXI;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_MOVXF : {
-//        const klr_movxf_t* op = (klr_movxf_t*)pc;
-//        JIT_ASM_MOVxf(ctx, op->a1, op->a2);
-//        pc += OPSIZE_MOVXF;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_XMOVSF : {
-//        const klr_xmovsf_t* op = (klr_xmovsf_t*)pc;
-//        JIT_ASM_XMOVsf(ctx, op->a1, op->a2);
-//        pc += OPSIZE_XMOVSF;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_XMOVOF : {
-//        const klr_xmovof_t* op = (klr_xmovof_t*)pc;
-//        JIT_ASM_XMOVof(ctx, op->a1, op->a2);
-//        pc += OPSIZE_XMOVOF;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_XMOVXF : {
-//        const klr_xmovxf_t* op = (klr_xmovxf_t*)pc;
-//        JIT_ASM_XMOVxf(ctx, op->a1, op->a2);
-//        pc += OPSIZE_XMOVXF;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_XMOVXFO : {
-//        const klr_xmovxfo_t* op = (klr_xmovxfo_t*)pc;
-//        JIT_ASM_XMOVxfo(ctx, op->a1, op->a2);
-//        pc += OPSIZE_XMOVXFO;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_XMOVXBXF : {
-//        const klr_xmovxbxf_t* op = (klr_xmovxbxf_t*)pc;
-//        JIT_ASM_XMOVxBXf(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_XMOVXBXF;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_MOVXB : {
-//        const klr_movxb_t* op = (klr_movxb_t*)pc;
-//        JIT_ASM_MOVxb(ctx, op->a1, op->a2);
-//        pc += OPSIZE_MOVXB;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_XMOVSB : {
-//        const klr_xmovsb_t* op = (klr_xmovsb_t*)pc;
-//        JIT_ASM_XMOVsb(ctx, op->a1, op->a2);
-//        pc += OPSIZE_XMOVSB;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_XMOVOB : {
-//        const klr_xmovob_t* op = (klr_xmovob_t*)pc;
-//        JIT_ASM_XMOVob(ctx, op->a1, op->a2);
-//        pc += OPSIZE_XMOVOB;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_XMOVXB : {
-//        const klr_xmovxb_t* op = (klr_xmovxb_t*)pc;
-//        JIT_ASM_XMOVxb(ctx, op->a1, op->a2);
-//        pc += OPSIZE_XMOVXB;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_EMOVS : {
-//        const klr_emovs_t* op = (klr_emovs_t*)pc;
-//        JIT_ASM_EMOVs(ctx, op->a1, op->a2);
-//        pc += OPSIZE_EMOVS;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_EMOVO : {
-//        const klr_emovo_t* op = (klr_emovo_t*)pc;
-//        JIT_ASM_EMOVo(ctx, op->a1, op->a2);
-//        pc += OPSIZE_EMOVO;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_EMOVE : {
-//        const klr_emove_t* op = (klr_emove_t*)pc;
-//        JIT_ASM_EMOVe(ctx, op->a1, op->a2);
-//        pc += OPSIZE_EMOVE;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_EMOVDEF : {
-//        const klr_emovdef_t* op = (klr_emovdef_t*)pc;
-//        JIT_ASM_EMOVDEF(ctx, op->a1, op->a2);
-//        pc += OPSIZE_EMOVDEF;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_EMOVSYS : {
-//        const klr_emovsys_t* op = (klr_emovsys_t*)pc;
-//        JIT_ASM_EMOVSYS(ctx, op->a1, op->a2);
-//        pc += OPSIZE_EMOVSYS;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_SWAP : {
-//        const klr_swap_t* op = (klr_swap_t*)pc;
-//        JIT_ASM_SWAP(ctx, op->a1, op->a2);
-//        pc += OPSIZE_SWAP;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_PINIDEF : {
-//        const klr_pinidef_t* op = (klr_pinidef_t*)pc;
-//        JIT_ASM_PINIDEF(ctx, op->a1, op->a2);
-//        pc += OPSIZE_PINIDEF;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_PINIO : {
-//        const klr_pinio_t* op = (klr_pinio_t*)pc;
-//        JIT_ASM_PINIo(ctx, op->a1, op->a2);
-//        pc += OPSIZE_PINIO;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_PARAMS : {
-//        const klr_params_t* op = (klr_params_t*)pc;
-//        JIT_ASM_PARAMS(ctx, op->a1, op->a2);
-//        pc += OPSIZE_PARAMS;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_SETESP : {
-//        const klr_setesp_t* op = (klr_setesp_t*)pc;
-//        JIT_ASM_SETESP(ctx, op->a1);
-//        pc += OPSIZE_SETESP;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_CHECKESP : {
-//        const klr_checkesp_t* op = (klr_checkesp_t*)pc;
-//        JIT_ASM_CHECKESP(ctx, op->a1);
-//        pc += OPSIZE_CHECKESP;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_RET : {
-//        const klr_ret_t* op = (klr_ret_t*)pc;
-//        JIT_ASM_RET(ctx);
-//        pc += OPSIZE_RET;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_RETN : {
-//        const klr_retn_t* op = (klr_retn_t*)pc;
-//        JIT_ASM_RETn(ctx, op->a1, op->a2);
-//        pc += OPSIZE_RETN;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_RETA : {
-//        const klr_reta_t* op = (klr_reta_t*)pc;
-//        JIT_ASM_RETa(ctx, op->a1, op->a2);
-//        pc += OPSIZE_RETA;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_RETO : {
-//        const klr_reto_t* op = (klr_reto_t*)pc;
-//        JIT_ASM_RETo(ctx, op->a1, op->a2);
-//        pc += OPSIZE_RETO;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_RETX : {
-//        const klr_retx_t* op = (klr_retx_t*)pc;
-//        JIT_ASM_RETx(ctx, op->a1, op->a2);
-//        pc += OPSIZE_RETX;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_YEILDBREAK : {
-//        const klr_yeildbreak_t* op = (klr_yeildbreak_t*)pc;
-//        JIT_ASM_YEILDBREAK(ctx);
-//        pc += OPSIZE_YEILDBREAK;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_BOX : {
-//        const klr_box_t* op = (klr_box_t*)pc;
-//        JIT_ASM_BOX(ctx, op->a1, op->a2);
-//        pc += OPSIZE_BOX;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_BOXNC : {
-//        const klr_boxnc_t* op = (klr_boxnc_t*)pc;
-//        JIT_ASM_BOXnc(ctx, op->a1, op->a2);
-//        pc += OPSIZE_BOXNC;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_NNBOX : {
-//        const klr_nnbox_t* op = (klr_nnbox_t*)pc;
-//        JIT_ASM_NNBOX(ctx, op->a1, op->a2);
-//        pc += OPSIZE_NNBOX;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_NNBOXNC : {
-//        const klr_nnboxnc_t* op = (klr_nnboxnc_t*)pc;
-//        JIT_ASM_NNBOXnc(ctx, op->a1, op->a2);
-//        pc += OPSIZE_NNBOXNC;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_UNBOX : {
-//        const klr_unbox_t* op = (klr_unbox_t*)pc;
-//        JIT_ASM_UNBOX(ctx, op->a1);
-//        pc += OPSIZE_UNBOX;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_CHECKNULL : {
-//        const klr_checknull_t* op = (klr_checknull_t*)pc;
-//        JIT_ASM_CHECKNULL(ctx, op->a1);
-//        pc += OPSIZE_CHECKNULL;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_CHECKNULLX : {
-//        const klr_checknullx_t* op = (klr_checknullx_t*)pc;
-//        JIT_ASM_CHECKNULLx(ctx, op->a1);
-//        pc += OPSIZE_CHECKNULLX;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_CHECKTYPE : {
-//        const klr_checktype_t* op = (klr_checktype_t*)pc;
-//        JIT_ASM_CHECKTYPE(ctx, op->a1, op->a2);
-//        pc += OPSIZE_CHECKTYPE;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_CHECKNNTYPE : {
-//        const klr_checknntype_t* op = (klr_checknntype_t*)pc;
-//        JIT_ASM_CHECKNNTYPE(ctx, op->a1, op->a2);
-//        pc += OPSIZE_CHECKNNTYPE;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_FCALL : {
-//        const klr_fcall_t* op = (klr_fcall_t*)pc;
-//        JIT_ASM_FCALL(ctx, op->a1, op->a2, op->a3, op->a4);
-//        pc += OPSIZE_FCALL;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_SCALL : {
-//        const klr_scall_t* op = (klr_scall_t*)pc;
-//        JIT_ASM_SCALL(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_SCALL;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_AINVOKE : {
-//        const klr_ainvoke_t* op = (klr_ainvoke_t*)pc;
-//        JIT_ASM_AINVOKE(ctx, op->a1, op->a2);
-//        pc += OPSIZE_AINVOKE;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_CALL : {
-//        const klr_call_t* op = (klr_call_t*)pc;
-//        JIT_ASM_CALL(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_CALL;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_ACALL : {
-//        const klr_acall_t* op = (klr_acall_t*)pc;
-//        JIT_ASM_ACALL(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_ACALL;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_NEW : {
-//        const klr_new_t* op = (klr_new_t*)pc;
-//        JIT_ASM_NEW(ctx, op->a1, op->a2, op->a3, op->a4, op->a5);
-//        pc += OPSIZE_NEW;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_TOSTR : {
-//        const klr_tostr_t* op = (klr_tostr_t*)pc;
-//        JIT_ASM_TOSTR(ctx, op->a1, op->a2);
-//        pc += OPSIZE_TOSTR;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_TOSTRF : {
-//        const klr_tostrf_t* op = (klr_tostrf_t*)pc;
-//        JIT_ASM_TOSTRf(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_TOSTRF;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_SMAP : {
-//        const klr_smap_t* op = (klr_smap_t*)pc;
-//        JIT_ASM_SMAP(ctx, op->a1, op->a2);
-//        pc += OPSIZE_SMAP;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_SMAPNC : {
-//        const klr_smapnc_t* op = (klr_smapnc_t*)pc;
-//        JIT_ASM_SMAPnc(ctx, op->a1, op->a2);
-//        pc += OPSIZE_SMAPNC;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_MAP : {
-//        const klr_map_t* op = (klr_map_t*)pc;
-//        JIT_ASM_MAP(ctx, op->a1, op->a2);
-//        pc += OPSIZE_MAP;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_MAPNC : {
-//        const klr_mapnc_t* op = (klr_mapnc_t*)pc;
-//        JIT_ASM_MAPnc(ctx, op->a1, op->a2);
-//        pc += OPSIZE_MAPNC;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_AMAP : {
-//        const klr_amap_t* op = (klr_amap_t*)pc;
-//        JIT_ASM_AMAP(ctx, op->a1, op->a2);
-//        pc += OPSIZE_AMAP;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_NNMAP : {
-//        const klr_nnmap_t* op = (klr_nnmap_t*)pc;
-//        JIT_ASM_NNMAP(ctx, op->a1, op->a2);
-//        pc += OPSIZE_NNMAP;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_JMP : {
-//        const klr_jmp_t* op = (klr_jmp_t*)pc;
-//        JIT_ASM_JMP(ctx, op->jumppc, 0 /* L_HEAD */);
-//        pc += OPSIZE_JMP;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_SKIP : {
-//        const klr_skip_t* op = (klr_skip_t*)pc;
-//        JIT_ASM_SKIP(ctx, op->jumppc, 0 /* L_HEAD */);
-//        pc += OPSIZE_SKIP;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_BJIFT : {
-//        const klr_bjift_t* op = (klr_bjift_t*)pc;
-//        JIT_ASM_bJIFT(ctx, op->jumppc, 0 /* L_HEAD */, op->a2);
-//        pc += OPSIZE_BJIFT;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_BJIFF : {
-//        const klr_bjiff_t* op = (klr_bjiff_t*)pc;
-//        JIT_ASM_bJIFF(ctx, op->jumppc, 0 /* L_HEAD */, op->a2);
-//        pc += OPSIZE_BJIFF;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_BJIFF_LOOP : {
-//        const klr_bjiff_loop_t* op = (klr_bjiff_loop_t*)pc;
-//        JIT_ASM_bJIFF_LOOP(ctx, op->jumppc, 0 /* L_HEAD */, op->a2);
-//        pc += OPSIZE_BJIFF_LOOP;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_JIFNUL : {
-//        const klr_jifnul_t* op = (klr_jifnul_t*)pc;
-//        JIT_ASM_JIFNUL(ctx, op->jumppc, 0 /* L_HEAD */, op->a2);
-//        pc += OPSIZE_JIFNUL;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_JIFNN : {
-//        const klr_jifnn_t* op = (klr_jifnn_t*)pc;
-//        JIT_ASM_JIFNN(ctx, op->jumppc, 0 /* L_HEAD */, op->a2);
-//        pc += OPSIZE_JIFNN;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_NEXT : {
-//        const klr_next_t* op = (klr_next_t*)pc;
-//        JIT_ASM_NEXT(ctx, op->jumppc, 0 /* L_HEAD */, op->a2, op->a3);
-//        pc += OPSIZE_NEXT;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_INEXT : {
-//        const klr_inext_t* op = (klr_inext_t*)pc;
-//        JIT_ASM_INEXT(ctx, op->jumppc, 0 /* L_HEAD */, op->a2, op->a3, op->a4);
-//        pc += OPSIZE_INEXT;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_MAPNEXT : {
-//        const klr_mapnext_t* op = (klr_mapnext_t*)pc;
-//        JIT_ASM_MAPNEXT(ctx, op->jumppc, 0 /* L_HEAD */, op->a2, op->a3, op->a4);
-//        pc += OPSIZE_MAPNEXT;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_SMAPNEXT : {
-//        const klr_smapnext_t* op = (klr_smapnext_t*)pc;
-//        JIT_ASM_SMAPNEXT(ctx, op->jumppc, 0 /* L_HEAD */, op->a2, op->a3, op->a4);
-//        pc += OPSIZE_SMAPNEXT;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_TRY : {
-//        const klr_try_t* op = (klr_try_t*)pc;
-//        JIT_ASM_TRY(ctx, op->jumppc, 0 /* L_HEAD */, op->a2);
-//        pc += OPSIZE_TRY;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_TRYEND : {
-//        const klr_tryend_t* op = (klr_tryend_t*)pc;
-//        JIT_ASM_TRYEND(ctx, op->a1);
-//        pc += OPSIZE_TRYEND;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_CATCH : {
-//        const klr_catch_t* op = (klr_catch_t*)pc;
-//        JIT_ASM_CATCH(ctx, op->jumppc, 0 /* L_HEAD */, op->a2, op->a3, op->a4);
-//        pc += OPSIZE_CATCH;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_PUSH : {
-//        const klr_push_t* op = (klr_push_t*)pc;
-//        JIT_ASM_PUSH(ctx, op->a1);
-//        pc += OPSIZE_PUSH;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_POP : {
-//        const klr_pop_t* op = (klr_pop_t*)pc;
-//        JIT_ASM_POP(ctx, op->a1);
-//        pc += OPSIZE_POP;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_THROW : {
-//        const klr_throw_t* op = (klr_throw_t*)pc;
-//        JIT_ASM_THROW(ctx, op->a1, op->a2);
-//        pc += OPSIZE_THROW;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_THROWS : {
-//        const klr_throws_t* op = (klr_throws_t*)pc;
-//        JIT_ASM_THROWs(ctx, op->a1, op->a2);
-//        pc += OPSIZE_THROWS;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_THROW_AGAIN : {
-//        const klr_throw_again_t* op = (klr_throw_again_t*)pc;
-//        JIT_ASM_THROW_AGAIN(ctx, op->a1);
-//        pc += OPSIZE_THROW_AGAIN;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_P : {
-//        const klr_p_t* op = (klr_p_t*)pc;
-//        JIT_ASM_P(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_P;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_PMSG : {
-//        const klr_pmsg_t* op = (klr_pmsg_t*)pc;
-//        JIT_ASM_PMSG(ctx, op->a1, op->a2);
-//        pc += OPSIZE_PMSG;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_ICAST : {
-//        const klr_icast_t* op = (klr_icast_t*)pc;
-//        JIT_ASM_iCAST(ctx, op->a1);
-//        pc += OPSIZE_ICAST;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_INCAST : {
-//        const klr_incast_t* op = (klr_incast_t*)pc;
-//        JIT_ASM_inCAST(ctx, op->a1);
-//        pc += OPSIZE_INCAST;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_FCAST : {
-//        const klr_fcast_t* op = (klr_fcast_t*)pc;
-//        JIT_ASM_fCAST(ctx, op->a1);
-//        pc += OPSIZE_FCAST;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_FNCAST : {
-//        const klr_fncast_t* op = (klr_fncast_t*)pc;
-//        JIT_ASM_fnCAST(ctx, op->a1);
-//        pc += OPSIZE_FNCAST;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_BNOT : {
-//        const klr_bnot_t* op = (klr_bnot_t*)pc;
-//        JIT_ASM_bNOT(ctx, op->a1, op->a2);
-//        pc += OPSIZE_BNOT;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_INEG : {
-//        const klr_ineg_t* op = (klr_ineg_t*)pc;
-//        JIT_ASM_iNEG(ctx, op->a1, op->a2);
-//        pc += OPSIZE_INEG;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_IADD : {
-//        const klr_iadd_t* op = (klr_iadd_t*)pc;
-//        JIT_ASM_iADD(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_IADD;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_IADDN : {
-//        const klr_iaddn_t* op = (klr_iaddn_t*)pc;
-//        JIT_ASM_iADDn(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_IADDN;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_ISUB : {
-//        const klr_isub_t* op = (klr_isub_t*)pc;
-//        JIT_ASM_iSUB(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_ISUB;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_ISUBN : {
-//        const klr_isubn_t* op = (klr_isubn_t*)pc;
-//        JIT_ASM_iSUBn(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_ISUBN;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_IMUL : {
-//        const klr_imul_t* op = (klr_imul_t*)pc;
-//        JIT_ASM_iMUL(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_IMUL;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_IMULN : {
-//        const klr_imuln_t* op = (klr_imuln_t*)pc;
-//        JIT_ASM_iMULn(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_IMULN;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_IDIV : {
-//        const klr_idiv_t* op = (klr_idiv_t*)pc;
-//        JIT_ASM_iDIV(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_IDIV;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_IDIVN : {
-//        const klr_idivn_t* op = (klr_idivn_t*)pc;
-//        JIT_ASM_iDIVn(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_IDIVN;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_IMOD : {
-//        const klr_imod_t* op = (klr_imod_t*)pc;
-//        JIT_ASM_iMOD(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_IMOD;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_IMODN : {
-//        const klr_imodn_t* op = (klr_imodn_t*)pc;
-//        JIT_ASM_iMODn(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_IMODN;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_IEQ : {
-//        const klr_ieq_t* op = (klr_ieq_t*)pc;
-//        JIT_ASM_iEQ(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_IEQ;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_IEQN : {
-//        const klr_ieqn_t* op = (klr_ieqn_t*)pc;
-//        JIT_ASM_iEQn(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_IEQN;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_INEQ : {
-//        const klr_ineq_t* op = (klr_ineq_t*)pc;
-//        JIT_ASM_iNEQ(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_INEQ;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_INEQN : {
-//        const klr_ineqn_t* op = (klr_ineqn_t*)pc;
-//        JIT_ASM_iNEQn(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_INEQN;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_ILT : {
-//        const klr_ilt_t* op = (klr_ilt_t*)pc;
-//        JIT_ASM_iLT(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_ILT;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_ILTN : {
-//        const klr_iltn_t* op = (klr_iltn_t*)pc;
-//        JIT_ASM_iLTn(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_ILTN;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_ILTE : {
-//        const klr_ilte_t* op = (klr_ilte_t*)pc;
-//        JIT_ASM_iLTE(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_ILTE;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_ILTEN : {
-//        const klr_ilten_t* op = (klr_ilten_t*)pc;
-//        JIT_ASM_iLTEn(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_ILTEN;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_IGT : {
-//        const klr_igt_t* op = (klr_igt_t*)pc;
-//        JIT_ASM_iGT(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_IGT;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_IGTN : {
-//        const klr_igtn_t* op = (klr_igtn_t*)pc;
-//        JIT_ASM_iGTn(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_IGTN;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_IGTE : {
-//        const klr_igte_t* op = (klr_igte_t*)pc;
-//        JIT_ASM_iGTE(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_IGTE;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_IGTEN : {
-//        const klr_igten_t* op = (klr_igten_t*)pc;
-//        JIT_ASM_iGTEn(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_IGTEN;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_FNEG : {
-//        const klr_fneg_t* op = (klr_fneg_t*)pc;
-//        JIT_ASM_fNEG(ctx, op->a1, op->a2);
-//        pc += OPSIZE_FNEG;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_FADD : {
-//        const klr_fadd_t* op = (klr_fadd_t*)pc;
-//        JIT_ASM_fADD(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_FADD;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_FADDN : {
-//        const klr_faddn_t* op = (klr_faddn_t*)pc;
-//        JIT_ASM_fADDn(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_FADDN;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_FSUB : {
-//        const klr_fsub_t* op = (klr_fsub_t*)pc;
-//        JIT_ASM_fSUB(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_FSUB;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_FSUBN : {
-//        const klr_fsubn_t* op = (klr_fsubn_t*)pc;
-//        JIT_ASM_fSUBn(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_FSUBN;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_FMUL : {
-//        const klr_fmul_t* op = (klr_fmul_t*)pc;
-//        JIT_ASM_fMUL(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_FMUL;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_FMULN : {
-//        const klr_fmuln_t* op = (klr_fmuln_t*)pc;
-//        JIT_ASM_fMULn(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_FMULN;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_FDIV : {
-//        const klr_fdiv_t* op = (klr_fdiv_t*)pc;
-//        JIT_ASM_fDIV(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_FDIV;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_FDIVN : {
-//        const klr_fdivn_t* op = (klr_fdivn_t*)pc;
-//        JIT_ASM_fDIVn(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_FDIVN;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_FEQ : {
-//        const klr_feq_t* op = (klr_feq_t*)pc;
-//        JIT_ASM_fEQ(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_FEQ;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_FEQN : {
-//        const klr_feqn_t* op = (klr_feqn_t*)pc;
-//        JIT_ASM_fEQn(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_FEQN;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_FNEQ : {
-//        const klr_fneq_t* op = (klr_fneq_t*)pc;
-//        JIT_ASM_fNEQ(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_FNEQ;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_FNEQN : {
-//        const klr_fneqn_t* op = (klr_fneqn_t*)pc;
-//        JIT_ASM_fNEQn(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_FNEQN;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_FLT : {
-//        const klr_flt_t* op = (klr_flt_t*)pc;
-//        JIT_ASM_fLT(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_FLT;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_FLTN : {
-//        const klr_fltn_t* op = (klr_fltn_t*)pc;
-//        JIT_ASM_fLTn(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_FLTN;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_FLTE : {
-//        const klr_flte_t* op = (klr_flte_t*)pc;
-//        JIT_ASM_fLTE(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_FLTE;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_FLTEN : {
-//        const klr_flten_t* op = (klr_flten_t*)pc;
-//        JIT_ASM_fLTEn(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_FLTEN;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_FGT : {
-//        const klr_fgt_t* op = (klr_fgt_t*)pc;
-//        JIT_ASM_fGT(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_FGT;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_FGTN : {
-//        const klr_fgtn_t* op = (klr_fgtn_t*)pc;
-//        JIT_ASM_fGTn(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_FGTN;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_FGTE : {
-//        const klr_fgte_t* op = (klr_fgte_t*)pc;
-//        JIT_ASM_fGTE(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_FGTE;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_FGTEN : {
-//        const klr_fgten_t* op = (klr_fgten_t*)pc;
-//        JIT_ASM_fGTEn(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_FGTEN;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_AGET : {
-//        const klr_aget_t* op = (klr_aget_t*)pc;
-//        JIT_ASM_AGET(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_AGET;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_AGETN : {
-//        const klr_agetn_t* op = (klr_agetn_t*)pc;
-//        JIT_ASM_AGETn(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_AGETN;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_IAGET : {
-//        const klr_iaget_t* op = (klr_iaget_t*)pc;
-//        JIT_ASM_IAGET(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_IAGET;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_IAGETN : {
-//        const klr_iagetn_t* op = (klr_iagetn_t*)pc;
-//        JIT_ASM_IAGETn(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_IAGETN;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_FAGET : {
-//        const klr_faget_t* op = (klr_faget_t*)pc;
-//        JIT_ASM_FAGET(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_FAGET;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_FAGETN : {
-//        const klr_fagetn_t* op = (klr_fagetn_t*)pc;
-//        JIT_ASM_FAGETn(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_FAGETN;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_ASET : {
-//        const klr_aset_t* op = (klr_aset_t*)pc;
-//        JIT_ASM_ASET(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_ASET;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_ASETN : {
-//        const klr_asetn_t* op = (klr_asetn_t*)pc;
-//        JIT_ASM_ASETn(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_ASETN;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_IASET : {
-//        const klr_iaset_t* op = (klr_iaset_t*)pc;
-//        JIT_ASM_IASET(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_IASET;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_IASETN : {
-//        const klr_iasetn_t* op = (klr_iasetn_t*)pc;
-//        JIT_ASM_IASETn(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_IASETN;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_FASET : {
-//        const klr_faset_t* op = (klr_faset_t*)pc;
-//        JIT_ASM_FASET(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_FASET;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_FASETN : {
-//        const klr_fasetn_t* op = (klr_fasetn_t*)pc;
-//        JIT_ASM_FASETn(ctx, op->a1, op->a2, op->a3);
-//        pc += OPSIZE_FASETN;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_INITCODE : {
-//        const klr_initcode_t* op = (klr_initcode_t*)pc;
-//        JIT_ASM_INITCODE(ctx, op->a1);
-//        pc += OPSIZE_INITCODE;
-//        goto L_HEAD;
-//    }
-//
-//    case OPCODE_NOP : {
-//        const klr_nop_t* op = (klr_nop_t*)pc;
-//        JIT_ASM_NOP(ctx);
-//        pc += OPSIZE_NOP;
-//        goto L_HEAD;
-//    }
-//
-//    }
-//    KNH_WARNING(ctx, "unknown opcode=%d", ((knh_kode_t*)pc)->opcode);
-//    goto L_HEAD;
-//
-//CTT_FIN:
-//    {
-//        jit_complete(mem);
-//        knh_fmethod f = (METHOD (*) (Ctx *, knh_sfp_t *)) mem->addr;
-//        knh_ctt_patch(mem);
-//        imem_complete(mem);
-//        knh_Method_syncFunc(mtd,f);
-//    }
-//}
-//
-///* ------------------------------------------------------------------------ */
-//
-//static void knh_ctt_patch(imem_t* mem)
-//{
-//    lstack_t* head = mem->lhead;
-//    lstack_t* stack = NULL;
-//
-//    imem_setLabel(mem, 255, 255, 255);
-//
-//    for(stack = head;stack->opcode != 255; stack += 1) {
-//        /*
-//        fprintf(stderr, "pos=%3x,opcode=%3d,opsize=%d,jmpaddr=%d\n",
-//                stack->pos,stack->opcode,stack->size,stack->addr);
-//                */
-//        if(stack->addr > 0) {
-//            lstack_t* _s = NULL;
-//            for(_s = stack; _s->opcode != 255; _s += 1) {
-//                stack->addr -= _s->size;
-//                //fprintf(stderr, "%d\n",stack->addr);
-//                /*
-//                fprintf(stderr, "\tpos=%3x,opcode=%3x,opsize=%3x,\n",
-//                        _s->pos,_s->opcode,_s->size);
-//                */
-//                if(stack->addr <= 0) {
-//                    _s = _s + 1;
-//                    /*
-//                    fprintf(stderr, "ok ps=%x,sp=%x l=%x\n",_s->pos,
-//                            stack->pos, _s->pos - stack->pos - 2);
-//                    fprintf(stderr, "p=%x\n",mem->addr[stack->pos + 1]);
-//                    */
-//                    mem->addr[stack->pos+1] = _s->pos - stack->pos - 2;
-//                    /*
-//                    fprintf(stderr, "p=%x\n",mem->addr[stack->pos + 1]);
-//                    */
-//                    break;
-//                }
-//            }
-//        }
-//    }
-//}
-//
+/* copy from ../kc/konoha_code_.c */
+#define OPJUMP NULL
+#define CASE(L, OP)   case OP :
+#define NEXT L_HEAD
+#define JUMP L_HEAD
+#define TC(c)    c
+
+
+static void knh_ctt_patch(imem_t* mem);
+
+METHOD knh_KLRCode_toCttCode(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+{
+	imem_t* mem = imem_new(1);
+	knh_Method_t *mtd = (knh_Method_t *) sfp[-1].o;
+	register knh_code_t *pc = (sfp[-1].mtd)->pc_start;
+	jit_start(mem);
+	L_HEAD:;
+	switch(KNH_OPCODE(pc)) {
+
+	CASE(L_HALT, OPCODE_HALT) {
+		TC(const klr_HALT_t *op = (klr_HALT_t*)pc;)
+		KLR_HALT(ctx);
+		pc += OPSIZE_HALT;
+		goto NEXT;
+	} 
+	CASE(L_MOVa, OPCODE_MOVa) {
+		const klr_MOVa_t *op = (klr_MOVa_t*)pc;
+		KLR_MOVa(ctx, op->a1, op->a2);
+		pc += OPSIZE_MOVa;
+		goto NEXT;
+	} 
+	CASE(L_MOVn, OPCODE_MOVn) {
+		const klr_MOVn_t *op = (klr_MOVn_t*)pc;
+		KLR_MOVn(ctx, op->a1, op->a2);
+		pc += OPSIZE_MOVn;
+		goto NEXT;
+	} 
+	CASE(L_MOVo, OPCODE_MOVo) {
+		const klr_MOVo_t *op = (klr_MOVo_t*)pc;
+		KLR_MOVo(ctx, op->a1, op->a2);
+		pc += OPSIZE_MOVo;
+		goto NEXT;
+	} 
+	CASE(L_MOVi, OPCODE_MOVi) {
+		const klr_MOVi_t *op = (klr_MOVi_t*)pc;
+		KLR_MOVi(ctx, op->a1, op->a2);
+		pc += OPSIZE_MOVi;
+		goto NEXT;
+	} 
+	CASE(L_MOVx, OPCODE_MOVx) {
+		const klr_MOVx_t *op = (klr_MOVx_t*)pc;
+		KLR_MOVx(ctx, op->a1, op->a2);
+		pc += OPSIZE_MOVx;
+		goto NEXT;
+	} 
+	CASE(L_MOVDEF, OPCODE_MOVDEF) {
+		const klr_MOVDEF_t *op = (klr_MOVDEF_t*)pc;
+		KLR_MOVDEF(ctx, op->a1, op->a2);
+		pc += OPSIZE_MOVDEF;
+		goto NEXT;
+	} 
+	CASE(L_MOVSYS, OPCODE_MOVSYS) {
+		const klr_MOVSYS_t *op = (klr_MOVSYS_t*)pc;
+		KLR_MOVSYS(ctx, op->a1, op->a2);
+		pc += OPSIZE_MOVSYS;
+		goto NEXT;
+	} 
+	CASE(L_XMOVs, OPCODE_XMOVs) {
+		const klr_XMOVs_t *op = (klr_XMOVs_t*)pc;
+		KLR_XMOVs(ctx, op->a1, op->a2);
+		pc += OPSIZE_XMOVs;
+		goto NEXT;
+	} 
+	CASE(L_XMOVo, OPCODE_XMOVo) {
+		const klr_XMOVo_t *op = (klr_XMOVo_t*)pc;
+		KLR_XMOVo(ctx, op->a1, op->a2);
+		pc += OPSIZE_XMOVo;
+		goto NEXT;
+	} 
+	CASE(L_XMOVx, OPCODE_XMOVx) {
+		const klr_XMOVx_t *op = (klr_XMOVx_t*)pc;
+		KLR_XMOVx(ctx, op->a1, op->a2);
+		pc += OPSIZE_XMOVx;
+		goto NEXT;
+	} 
+	CASE(L_XMOVDEF, OPCODE_XMOVDEF) {
+		const klr_XMOVDEF_t *op = (klr_XMOVDEF_t*)pc;
+		KLR_XMOVDEF(ctx, op->a1, op->a2);
+		pc += OPSIZE_XMOVDEF;
+		goto NEXT;
+	} 
+	CASE(L_XMOVSYS, OPCODE_XMOVSYS) {
+		const klr_XMOVSYS_t *op = (klr_XMOVSYS_t*)pc;
+		KLR_XMOVSYS(ctx, op->a1, op->a2);
+		pc += OPSIZE_XMOVSYS;
+		goto NEXT;
+	} 
+	CASE(L_MOVxi, OPCODE_MOVxi) {
+		const klr_MOVxi_t *op = (klr_MOVxi_t*)pc;
+		KLR_MOVxi(ctx, op->a1, op->a2);
+		pc += OPSIZE_MOVxi;
+		goto NEXT;
+	} 
+	CASE(L_XMOVsi, OPCODE_XMOVsi) {
+		const klr_XMOVsi_t *op = (klr_XMOVsi_t*)pc;
+		KLR_XMOVsi(ctx, op->a1, op->a2);
+		pc += OPSIZE_XMOVsi;
+		goto NEXT;
+	} 
+	CASE(L_XMOVoi, OPCODE_XMOVoi) {
+		const klr_XMOVoi_t *op = (klr_XMOVoi_t*)pc;
+		KLR_XMOVoi(ctx, op->a1, op->a2);
+		pc += OPSIZE_XMOVoi;
+		goto NEXT;
+	} 
+	CASE(L_XMOVxi, OPCODE_XMOVxi) {
+		const klr_XMOVxi_t *op = (klr_XMOVxi_t*)pc;
+		KLR_XMOVxi(ctx, op->a1, op->a2);
+		pc += OPSIZE_XMOVxi;
+		goto NEXT;
+	} 
+	CASE(L_XMOVxio, OPCODE_XMOVxio) {
+		const klr_XMOVxio_t *op = (klr_XMOVxio_t*)pc;
+		KLR_XMOVxio(ctx, op->a1, op->a2);
+		pc += OPSIZE_XMOVxio;
+		goto NEXT;
+	} 
+	CASE(L_XMOVxBXi, OPCODE_XMOVxBXi) {
+		const klr_XMOVxBXi_t *op = (klr_XMOVxBXi_t*)pc;
+		KLR_XMOVxBXi(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_XMOVxBXi;
+		goto NEXT;
+	} 
+	CASE(L_MOVxf, OPCODE_MOVxf) {
+		const klr_MOVxf_t *op = (klr_MOVxf_t*)pc;
+		KLR_MOVxf(ctx, op->a1, op->a2);
+		pc += OPSIZE_MOVxf;
+		goto NEXT;
+	} 
+	CASE(L_XMOVsf, OPCODE_XMOVsf) {
+		const klr_XMOVsf_t *op = (klr_XMOVsf_t*)pc;
+		KLR_XMOVsf(ctx, op->a1, op->a2);
+		pc += OPSIZE_XMOVsf;
+		goto NEXT;
+	} 
+	CASE(L_XMOVof, OPCODE_XMOVof) {
+		const klr_XMOVof_t *op = (klr_XMOVof_t*)pc;
+		KLR_XMOVof(ctx, op->a1, op->a2);
+		pc += OPSIZE_XMOVof;
+		goto NEXT;
+	} 
+	CASE(L_XMOVxf, OPCODE_XMOVxf) {
+		const klr_XMOVxf_t *op = (klr_XMOVxf_t*)pc;
+		KLR_XMOVxf(ctx, op->a1, op->a2);
+		pc += OPSIZE_XMOVxf;
+		goto NEXT;
+	} 
+	CASE(L_XMOVxfo, OPCODE_XMOVxfo) {
+		const klr_XMOVxfo_t *op = (klr_XMOVxfo_t*)pc;
+		KLR_XMOVxfo(ctx, op->a1, op->a2);
+		pc += OPSIZE_XMOVxfo;
+		goto NEXT;
+	} 
+	CASE(L_XMOVxBXf, OPCODE_XMOVxBXf) {
+		const klr_XMOVxBXf_t *op = (klr_XMOVxBXf_t*)pc;
+		KLR_XMOVxBXf(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_XMOVxBXf;
+		goto NEXT;
+	} 
+	CASE(L_MOVxb, OPCODE_MOVxb) {
+		const klr_MOVxb_t *op = (klr_MOVxb_t*)pc;
+		KLR_MOVxb(ctx, op->a1, op->a2);
+		pc += OPSIZE_MOVxb;
+		goto NEXT;
+	} 
+	CASE(L_XMOVsb, OPCODE_XMOVsb) {
+		const klr_XMOVsb_t *op = (klr_XMOVsb_t*)pc;
+		KLR_XMOVsb(ctx, op->a1, op->a2);
+		pc += OPSIZE_XMOVsb;
+		goto NEXT;
+	} 
+	CASE(L_XMOVob, OPCODE_XMOVob) {
+		const klr_XMOVob_t *op = (klr_XMOVob_t*)pc;
+		KLR_XMOVob(ctx, op->a1, op->a2);
+		pc += OPSIZE_XMOVob;
+		goto NEXT;
+	} 
+	CASE(L_XMOVxb, OPCODE_XMOVxb) {
+		const klr_XMOVxb_t *op = (klr_XMOVxb_t*)pc;
+		KLR_XMOVxb(ctx, op->a1, op->a2);
+		pc += OPSIZE_XMOVxb;
+		goto NEXT;
+	} 
+	CASE(L_SWAP, OPCODE_SWAP) {
+		const klr_SWAP_t *op = (klr_SWAP_t*)pc;
+		KLR_SWAP(ctx, op->a1, op->a2);
+		pc += OPSIZE_SWAP;
+		goto NEXT;
+	} 
+	CASE(L_PARAMDEF, OPCODE_PARAMDEF) {
+		const klr_PARAMDEF_t *op = (klr_PARAMDEF_t*)pc;
+		KLR_PARAMDEF(ctx, op->a1, op->a2);
+		pc += OPSIZE_PARAMDEF;
+		goto NEXT;
+	} 
+	CASE(L_PARAMo, OPCODE_PARAMo) {
+		const klr_PARAMo_t *op = (klr_PARAMo_t*)pc;
+		KLR_PARAMo(ctx, op->a1, op->a2);
+		pc += OPSIZE_PARAMo;
+		goto NEXT;
+	} 
+	CASE(L_PARAMPROP, OPCODE_PARAMPROP) {
+		const klr_PARAMPROP_t *op = (klr_PARAMPROP_t*)pc;
+		KLR_PARAMPROP(ctx, op->a1, op->a2);
+		pc += OPSIZE_PARAMPROP;
+		goto NEXT;
+	} 
+	CASE(L_PARAMS, OPCODE_PARAMS) {
+		const klr_PARAMS_t *op = (klr_PARAMS_t*)pc;
+		KLR_PARAMS(ctx, op->a1, op->a2);
+		pc += OPSIZE_PARAMS;
+		goto NEXT;
+	} 
+	CASE(L_CHKESP, OPCODE_CHKESP) {
+		const klr_CHKESP_t *op = (klr_CHKESP_t*)pc;
+		KLR_CHKESP(ctx, op->a1);
+		pc += OPSIZE_CHKESP;
+		goto NEXT;
+	} 
+	CASE(L_RET, OPCODE_RET) {
+		TC(const klr_RET_t *op = (klr_RET_t*)pc;)
+		KLR_RET(ctx);
+		pc += OPSIZE_RET;
+		goto NEXT;
+	} 
+	CASE(L_YEILDBREAK, OPCODE_YEILDBREAK) {
+		TC(const klr_YEILDBREAK_t *op = (klr_YEILDBREAK_t*)pc;)
+		KLR_YEILDBREAK(ctx);
+		pc += OPSIZE_YEILDBREAK;
+		goto NEXT;
+	} 
+	CASE(L_BOX, OPCODE_BOX) {
+		const klr_BOX_t *op = (klr_BOX_t*)pc;
+		KLR_BOX(ctx, op->a1, op->a2);
+		pc += OPSIZE_BOX;
+		goto NEXT;
+	} 
+	CASE(L_BOXnc, OPCODE_BOXnc) {
+		const klr_BOXnc_t *op = (klr_BOXnc_t*)pc;
+		KLR_BOXnc(ctx, op->a1, op->a2);
+		pc += OPSIZE_BOXnc;
+		goto NEXT;
+	} 
+	CASE(L_NNBOX, OPCODE_NNBOX) {
+		const klr_NNBOX_t *op = (klr_NNBOX_t*)pc;
+		KLR_NNBOX(ctx, op->a1, op->a2);
+		pc += OPSIZE_NNBOX;
+		goto NEXT;
+	} 
+	CASE(L_NNBOXnc, OPCODE_NNBOXnc) {
+		const klr_NNBOXnc_t *op = (klr_NNBOXnc_t*)pc;
+		KLR_NNBOXnc(ctx, op->a1, op->a2);
+		pc += OPSIZE_NNBOXnc;
+		goto NEXT;
+	} 
+	CASE(L_UNBOX, OPCODE_UNBOX) {
+		const klr_UNBOX_t *op = (klr_UNBOX_t*)pc;
+		KLR_UNBOX(ctx, op->a1);
+		pc += OPSIZE_UNBOX;
+		goto NEXT;
+	} 
+	CASE(L_CHKNUL, OPCODE_CHKNUL) {
+		const klr_CHKNUL_t *op = (klr_CHKNUL_t*)pc;
+		KLR_CHKNUL(ctx, op->a1);
+		pc += OPSIZE_CHKNUL;
+		goto NEXT;
+	} 
+	CASE(L_CHKNULx, OPCODE_CHKNULx) {
+		const klr_CHKNULx_t *op = (klr_CHKNULx_t*)pc;
+		KLR_CHKNULx(ctx, op->a1);
+		pc += OPSIZE_CHKNULx;
+		goto NEXT;
+	} 
+	CASE(L_CHKTYPE, OPCODE_CHKTYPE) {
+		const klr_CHKTYPE_t *op = (klr_CHKTYPE_t*)pc;
+		KLR_CHKTYPE(ctx, op->a1, op->a2);
+		pc += OPSIZE_CHKTYPE;
+		goto NEXT;
+	} 
+	CASE(L_FCALL, OPCODE_FCALL) {
+		const klr_FCALL_t *op = (klr_FCALL_t*)pc;
+		KLR_FCALL(ctx, op->a1, op->a2, op->a3, op->a4);
+		pc += OPSIZE_FCALL;
+		goto NEXT;
+	} 
+	CASE(L_RCALL, OPCODE_RCALL) {
+		const klr_RCALL_t *op = (klr_RCALL_t*)pc;
+		KLR_RCALL(ctx, op->a1, op->a2);
+		pc += OPSIZE_RCALL;
+		goto NEXT;
+	} 
+	CASE(L_SCALL, OPCODE_SCALL) {
+		const klr_SCALL_t *op = (klr_SCALL_t*)pc;
+		KLR_SCALL(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_SCALL;
+		goto NEXT;
+	} 
+	CASE(L_AINVOKE, OPCODE_AINVOKE) {
+		const klr_AINVOKE_t *op = (klr_AINVOKE_t*)pc;
+		KLR_AINVOKE(ctx, op->a1, op->a2);
+		pc += OPSIZE_AINVOKE;
+		goto NEXT;
+	} 
+	CASE(L_CALL, OPCODE_CALL) {
+		const klr_CALL_t *op = (klr_CALL_t*)pc;
+		KLR_CALL(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_CALL;
+		goto NEXT;
+	} 
+	CASE(L_ACALL, OPCODE_ACALL) {
+		const klr_ACALL_t *op = (klr_ACALL_t*)pc;
+		KLR_ACALL(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_ACALL;
+		goto NEXT;
+	} 
+	CASE(L_NEW, OPCODE_NEW) {
+		const klr_NEW_t *op = (klr_NEW_t*)pc;
+		KLR_NEW(ctx, op->a1, op->a2, op->a3, op->a4, op->a5);
+		pc += OPSIZE_NEW;
+		goto NEXT;
+	} 
+	CASE(L_COPYSFP, OPCODE_COPYSFP) {
+		const klr_COPYSFP_t *op = (klr_COPYSFP_t*)pc;
+		KLR_COPYSFP(ctx, op->a1);
+		pc += OPSIZE_COPYSFP;
+		goto NEXT;
+	} 
+	CASE(L_STR, OPCODE_STR) {
+		const klr_STR_t *op = (klr_STR_t*)pc;
+		KLR_STR(ctx, op->a1, op->a2, op->a3, op->a4);
+		pc += OPSIZE_STR;
+		goto NEXT;
+	} 
+	CASE(L_SSTR, OPCODE_SSTR) {
+		const klr_SSTR_t *op = (klr_SSTR_t*)pc;
+		KLR_SSTR(ctx, op->a1, op->a2, op->a3, op->a4);
+		pc += OPSIZE_SSTR;
+		goto NEXT;
+	} 
+	CASE(L_SMAP, OPCODE_SMAP) {
+		const klr_SMAP_t *op = (klr_SMAP_t*)pc;
+		KLR_SMAP(ctx, op->a1, op->a2);
+		pc += OPSIZE_SMAP;
+		goto NEXT;
+	} 
+	CASE(L_SMAPnc, OPCODE_SMAPnc) {
+		const klr_SMAPnc_t *op = (klr_SMAPnc_t*)pc;
+		KLR_SMAPnc(ctx, op->a1, op->a2);
+		pc += OPSIZE_SMAPnc;
+		goto NEXT;
+	} 
+	CASE(L_MAP, OPCODE_MAP) {
+		const klr_MAP_t *op = (klr_MAP_t*)pc;
+		KLR_MAP(ctx, op->a1, op->a2);
+		pc += OPSIZE_MAP;
+		goto NEXT;
+	} 
+	CASE(L_MAPnc, OPCODE_MAPnc) {
+		const klr_MAPnc_t *op = (klr_MAPnc_t*)pc;
+		KLR_MAPnc(ctx, op->a1, op->a2);
+		pc += OPSIZE_MAPnc;
+		goto NEXT;
+	} 
+	CASE(L_AMAP, OPCODE_AMAP) {
+		const klr_AMAP_t *op = (klr_AMAP_t*)pc;
+		KLR_AMAP(ctx, op->a1, op->a2);
+		pc += OPSIZE_AMAP;
+		goto NEXT;
+	} 
+	CASE(L_NNMAP, OPCODE_NNMAP) {
+		const klr_NNMAP_t *op = (klr_NNMAP_t*)pc;
+		KLR_NNMAP(ctx, op->a1, op->a2);
+		pc += OPSIZE_NNMAP;
+		goto NEXT;
+	} 
+	CASE(L_JMP, OPCODE_JMP) {
+		const klr_JMP_t *op = (klr_JMP_t*)pc;
+		KLR_JMP(ctx, pc = ((knh_inst_t*)op)->jumppc/*, JUMP*/);
+		pc += OPSIZE_JMP;
+		goto NEXT;
+	} 
+	CASE(L_SKIP, OPCODE_SKIP) {
+		const klr_SKIP_t *op = (klr_SKIP_t*)pc;
+		KLR_SKIP(ctx, pc = ((knh_inst_t*)op)->jumppc/*, JUMP*/);
+		pc += OPSIZE_SKIP;
+		goto NEXT;
+	} 
+	CASE(L_bJIFT, OPCODE_bJIFT) {
+		const klr_bJIFT_t *op = (klr_bJIFT_t*)pc;
+		KLR_bJIFT(ctx, pc = ((knh_inst_t*)op)->jumppc/*, JUMP*/, op->a2);
+		pc += OPSIZE_bJIFT;
+		goto NEXT;
+	} 
+	CASE(L_bJIFF, OPCODE_bJIFF) {
+		const klr_bJIFF_t *op = (klr_bJIFF_t*)pc;
+		KLR_bJIFF(ctx, pc = ((knh_inst_t*)op)->jumppc/*, JUMP*/, op->a2);
+		pc += OPSIZE_bJIFF;
+		goto NEXT;
+	} 
+	CASE(L_bJIFF_LOOP, OPCODE_bJIFF_LOOP) {
+		const klr_bJIFF_LOOP_t *op = (klr_bJIFF_LOOP_t*)pc;
+		KLR_bJIFF_LOOP(ctx, pc = ((knh_inst_t*)op)->jumppc/*, JUMP*/, op->a2);
+		pc += OPSIZE_bJIFF_LOOP;
+		goto NEXT;
+	} 
+	CASE(L_JIFNUL, OPCODE_JIFNUL) {
+		const klr_JIFNUL_t *op = (klr_JIFNUL_t*)pc;
+		KLR_JIFNUL(ctx, pc = ((knh_inst_t*)op)->jumppc/*, JUMP*/, op->a2);
+		pc += OPSIZE_JIFNUL;
+		goto NEXT;
+	} 
+	CASE(L_JIFNN, OPCODE_JIFNN) {
+		const klr_JIFNN_t *op = (klr_JIFNN_t*)pc;
+		KLR_JIFNN(ctx, pc = ((knh_inst_t*)op)->jumppc/*, JUMP*/, op->a2);
+		pc += OPSIZE_JIFNN;
+		goto NEXT;
+	} 
+	CASE(L_NEXT, OPCODE_NEXT) {
+		const klr_NEXT_t *op = (klr_NEXT_t*)pc;
+		KLR_NEXT(ctx, pc = ((knh_inst_t*)op)->jumppc/*, JUMP*/, op->a2, op->a3);
+		pc += OPSIZE_NEXT;
+		goto NEXT;
+	} 
+	CASE(L_INEXT, OPCODE_INEXT) {
+		const klr_INEXT_t *op = (klr_INEXT_t*)pc;
+		KLR_INEXT(ctx, pc = ((knh_inst_t*)op)->jumppc/*, JUMP*/, op->a2, op->a3, op->a4);
+		pc += OPSIZE_INEXT;
+		goto NEXT;
+	} 
+	CASE(L_TRY, OPCODE_TRY) {
+		const klr_TRY_t *op = (klr_TRY_t*)pc;
+		KLR_TRY(ctx, pc = ((knh_inst_t*)op)->jumppc/*, JUMP*/, op->a2);
+		pc += OPSIZE_TRY;
+		goto NEXT;
+	} 
+	CASE(L_TRYEND, OPCODE_TRYEND) {
+		const klr_TRYEND_t *op = (klr_TRYEND_t*)pc;
+		KLR_TRYEND(ctx, op->a1);
+		pc += OPSIZE_TRYEND;
+		goto NEXT;
+	} 
+	CASE(L_CATCH, OPCODE_CATCH) {
+		const klr_CATCH_t *op = (klr_CATCH_t*)pc;
+		KLR_CATCH(ctx, pc = ((knh_inst_t*)op)->jumppc/*, JUMP*/, op->a2, op->a3, op->a4);
+		pc += OPSIZE_CATCH;
+		goto NEXT;
+	} 
+	CASE(L_PUSH, OPCODE_PUSH) {
+		const klr_PUSH_t *op = (klr_PUSH_t*)pc;
+		KLR_PUSH(ctx, op->a1);
+		pc += OPSIZE_PUSH;
+		goto NEXT;
+	} 
+	CASE(L_POP, OPCODE_POP) {
+		const klr_POP_t *op = (klr_POP_t*)pc;
+		KLR_POP(ctx, op->a1);
+		pc += OPSIZE_POP;
+		goto NEXT;
+	} 
+	CASE(L_THROW, OPCODE_THROW) {
+		const klr_THROW_t *op = (klr_THROW_t*)pc;
+		KLR_THROW(ctx, op->a1, op->a2);
+		pc += OPSIZE_THROW;
+		goto NEXT;
+	} 
+	CASE(L_THROWs, OPCODE_THROWs) {
+		const klr_THROWs_t *op = (klr_THROWs_t*)pc;
+		KLR_THROWs(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_THROWs;
+		goto NEXT;
+	} 
+	CASE(L_THROW_AGAIN, OPCODE_THROW_AGAIN) {
+		const klr_THROW_AGAIN_t *op = (klr_THROW_AGAIN_t*)pc;
+		KLR_THROW_AGAIN(ctx, op->a1);
+		pc += OPSIZE_THROW_AGAIN;
+		goto NEXT;
+	} 
+	CASE(L_P, OPCODE_P) {
+		const klr_P_t *op = (klr_P_t*)pc;
+		KLR_P(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_P;
+		goto NEXT;
+	} 
+	CASE(L_PMSG, OPCODE_PMSG) {
+		const klr_PMSG_t *op = (klr_PMSG_t*)pc;
+		KLR_PMSG(ctx, op->a1, op->a2);
+		pc += OPSIZE_PMSG;
+		goto NEXT;
+	} 
+	CASE(L_iCAST, OPCODE_iCAST) {
+		const klr_iCAST_t *op = (klr_iCAST_t*)pc;
+		KLR_iCAST(ctx, op->a1);
+		pc += OPSIZE_iCAST;
+		goto NEXT;
+	} 
+	CASE(L_inCAST, OPCODE_inCAST) {
+		const klr_inCAST_t *op = (klr_inCAST_t*)pc;
+		KLR_inCAST(ctx, op->a1);
+		pc += OPSIZE_inCAST;
+		goto NEXT;
+	} 
+	CASE(L_fCAST, OPCODE_fCAST) {
+		const klr_fCAST_t *op = (klr_fCAST_t*)pc;
+		KLR_fCAST(ctx, op->a1);
+		pc += OPSIZE_fCAST;
+		goto NEXT;
+	} 
+	CASE(L_fnCAST, OPCODE_fnCAST) {
+		const klr_fnCAST_t *op = (klr_fnCAST_t*)pc;
+		KLR_fnCAST(ctx, op->a1);
+		pc += OPSIZE_fnCAST;
+		goto NEXT;
+	} 
+	CASE(L_bNOT, OPCODE_bNOT) {
+		const klr_bNOT_t *op = (klr_bNOT_t*)pc;
+		KLR_bNOT(ctx, op->a1, op->a2);
+		pc += OPSIZE_bNOT;
+		goto NEXT;
+	} 
+	CASE(L_iNEG, OPCODE_iNEG) {
+		const klr_iNEG_t *op = (klr_iNEG_t*)pc;
+		KLR_iNEG(ctx, op->a1, op->a2);
+		pc += OPSIZE_iNEG;
+		goto NEXT;
+	} 
+	CASE(L_iADD, OPCODE_iADD) {
+		const klr_iADD_t *op = (klr_iADD_t*)pc;
+		KLR_iADD(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iADD;
+		goto NEXT;
+	} 
+	CASE(L_iADDn, OPCODE_iADDn) {
+		const klr_iADDn_t *op = (klr_iADDn_t*)pc;
+		KLR_iADDn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iADDn;
+		goto NEXT;
+	} 
+	CASE(L_iSUB, OPCODE_iSUB) {
+		const klr_iSUB_t *op = (klr_iSUB_t*)pc;
+		KLR_iSUB(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iSUB;
+		goto NEXT;
+	} 
+	CASE(L_iSUBn, OPCODE_iSUBn) {
+		const klr_iSUBn_t *op = (klr_iSUBn_t*)pc;
+		KLR_iSUBn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iSUBn;
+		goto NEXT;
+	} 
+	CASE(L_iMUL, OPCODE_iMUL) {
+		const klr_iMUL_t *op = (klr_iMUL_t*)pc;
+		KLR_iMUL(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iMUL;
+		goto NEXT;
+	} 
+	CASE(L_iMULn, OPCODE_iMULn) {
+		const klr_iMULn_t *op = (klr_iMULn_t*)pc;
+		KLR_iMULn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iMULn;
+		goto NEXT;
+	} 
+	CASE(L_iDIV, OPCODE_iDIV) {
+		const klr_iDIV_t *op = (klr_iDIV_t*)pc;
+		KLR_iDIV(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iDIV;
+		goto NEXT;
+	} 
+	CASE(L_iDIVn, OPCODE_iDIVn) {
+		const klr_iDIVn_t *op = (klr_iDIVn_t*)pc;
+		KLR_iDIVn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iDIVn;
+		goto NEXT;
+	} 
+	CASE(L_iMOD, OPCODE_iMOD) {
+		const klr_iMOD_t *op = (klr_iMOD_t*)pc;
+		KLR_iMOD(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iMOD;
+		goto NEXT;
+	} 
+	CASE(L_iMODn, OPCODE_iMODn) {
+		const klr_iMODn_t *op = (klr_iMODn_t*)pc;
+		KLR_iMODn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iMODn;
+		goto NEXT;
+	} 
+	CASE(L_iEQ, OPCODE_iEQ) {
+		const klr_iEQ_t *op = (klr_iEQ_t*)pc;
+		KLR_iEQ(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iEQ;
+		goto NEXT;
+	} 
+	CASE(L_iEQn, OPCODE_iEQn) {
+		const klr_iEQn_t *op = (klr_iEQn_t*)pc;
+		KLR_iEQn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iEQn;
+		goto NEXT;
+	} 
+	CASE(L_iNEQ, OPCODE_iNEQ) {
+		const klr_iNEQ_t *op = (klr_iNEQ_t*)pc;
+		KLR_iNEQ(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iNEQ;
+		goto NEXT;
+	} 
+	CASE(L_iNEQn, OPCODE_iNEQn) {
+		const klr_iNEQn_t *op = (klr_iNEQn_t*)pc;
+		KLR_iNEQn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iNEQn;
+		goto NEXT;
+	} 
+	CASE(L_iLT, OPCODE_iLT) {
+		const klr_iLT_t *op = (klr_iLT_t*)pc;
+		KLR_iLT(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iLT;
+		goto NEXT;
+	} 
+	CASE(L_iLTn, OPCODE_iLTn) {
+		const klr_iLTn_t *op = (klr_iLTn_t*)pc;
+		KLR_iLTn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iLTn;
+		goto NEXT;
+	} 
+	CASE(L_iLTE, OPCODE_iLTE) {
+		const klr_iLTE_t *op = (klr_iLTE_t*)pc;
+		KLR_iLTE(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iLTE;
+		goto NEXT;
+	} 
+	CASE(L_iLTEn, OPCODE_iLTEn) {
+		const klr_iLTEn_t *op = (klr_iLTEn_t*)pc;
+		KLR_iLTEn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iLTEn;
+		goto NEXT;
+	} 
+	CASE(L_iGT, OPCODE_iGT) {
+		const klr_iGT_t *op = (klr_iGT_t*)pc;
+		KLR_iGT(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iGT;
+		goto NEXT;
+	} 
+	CASE(L_iGTn, OPCODE_iGTn) {
+		const klr_iGTn_t *op = (klr_iGTn_t*)pc;
+		KLR_iGTn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iGTn;
+		goto NEXT;
+	} 
+	CASE(L_iGTE, OPCODE_iGTE) {
+		const klr_iGTE_t *op = (klr_iGTE_t*)pc;
+		KLR_iGTE(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iGTE;
+		goto NEXT;
+	} 
+	CASE(L_iGTEn, OPCODE_iGTEn) {
+		const klr_iGTEn_t *op = (klr_iGTEn_t*)pc;
+		KLR_iGTEn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iGTEn;
+		goto NEXT;
+	} 
+	CASE(L_fNEG, OPCODE_fNEG) {
+		const klr_fNEG_t *op = (klr_fNEG_t*)pc;
+		KLR_fNEG(ctx, op->a1, op->a2);
+		pc += OPSIZE_fNEG;
+		goto NEXT;
+	} 
+	CASE(L_fADD, OPCODE_fADD) {
+		const klr_fADD_t *op = (klr_fADD_t*)pc;
+		KLR_fADD(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_fADD;
+		goto NEXT;
+	} 
+	CASE(L_fADDn, OPCODE_fADDn) {
+		const klr_fADDn_t *op = (klr_fADDn_t*)pc;
+		KLR_fADDn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_fADDn;
+		goto NEXT;
+	} 
+	CASE(L_fSUB, OPCODE_fSUB) {
+		const klr_fSUB_t *op = (klr_fSUB_t*)pc;
+		KLR_fSUB(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_fSUB;
+		goto NEXT;
+	} 
+	CASE(L_fSUBn, OPCODE_fSUBn) {
+		const klr_fSUBn_t *op = (klr_fSUBn_t*)pc;
+		KLR_fSUBn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_fSUBn;
+		goto NEXT;
+	} 
+	CASE(L_fMUL, OPCODE_fMUL) {
+		const klr_fMUL_t *op = (klr_fMUL_t*)pc;
+		KLR_fMUL(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_fMUL;
+		goto NEXT;
+	} 
+	CASE(L_fMULn, OPCODE_fMULn) {
+		const klr_fMULn_t *op = (klr_fMULn_t*)pc;
+		KLR_fMULn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_fMULn;
+		goto NEXT;
+	} 
+	CASE(L_fDIV, OPCODE_fDIV) {
+		const klr_fDIV_t *op = (klr_fDIV_t*)pc;
+		KLR_fDIV(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_fDIV;
+		goto NEXT;
+	} 
+	CASE(L_fDIVn, OPCODE_fDIVn) {
+		const klr_fDIVn_t *op = (klr_fDIVn_t*)pc;
+		KLR_fDIVn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_fDIVn;
+		goto NEXT;
+	} 
+	CASE(L_fEQ, OPCODE_fEQ) {
+		const klr_fEQ_t *op = (klr_fEQ_t*)pc;
+		KLR_fEQ(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_fEQ;
+		goto NEXT;
+	} 
+	CASE(L_fEQn, OPCODE_fEQn) {
+		const klr_fEQn_t *op = (klr_fEQn_t*)pc;
+		KLR_fEQn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_fEQn;
+		goto NEXT;
+	} 
+	CASE(L_fNEQ, OPCODE_fNEQ) {
+		const klr_fNEQ_t *op = (klr_fNEQ_t*)pc;
+		KLR_fNEQ(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_fNEQ;
+		goto NEXT;
+	} 
+	CASE(L_fNEQn, OPCODE_fNEQn) {
+		const klr_fNEQn_t *op = (klr_fNEQn_t*)pc;
+		KLR_fNEQn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_fNEQn;
+		goto NEXT;
+	} 
+	CASE(L_fLT, OPCODE_fLT) {
+		const klr_fLT_t *op = (klr_fLT_t*)pc;
+		KLR_fLT(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_fLT;
+		goto NEXT;
+	} 
+	CASE(L_fLTn, OPCODE_fLTn) {
+		const klr_fLTn_t *op = (klr_fLTn_t*)pc;
+		KLR_fLTn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_fLTn;
+		goto NEXT;
+	} 
+	CASE(L_fLTE, OPCODE_fLTE) {
+		const klr_fLTE_t *op = (klr_fLTE_t*)pc;
+		KLR_fLTE(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_fLTE;
+		goto NEXT;
+	} 
+	CASE(L_fLTEn, OPCODE_fLTEn) {
+		const klr_fLTEn_t *op = (klr_fLTEn_t*)pc;
+		KLR_fLTEn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_fLTEn;
+		goto NEXT;
+	} 
+	CASE(L_fGT, OPCODE_fGT) {
+		const klr_fGT_t *op = (klr_fGT_t*)pc;
+		KLR_fGT(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_fGT;
+		goto NEXT;
+	} 
+	CASE(L_fGTn, OPCODE_fGTn) {
+		const klr_fGTn_t *op = (klr_fGTn_t*)pc;
+		KLR_fGTn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_fGTn;
+		goto NEXT;
+	} 
+	CASE(L_fGTE, OPCODE_fGTE) {
+		const klr_fGTE_t *op = (klr_fGTE_t*)pc;
+		KLR_fGTE(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_fGTE;
+		goto NEXT;
+	} 
+	CASE(L_fGTEn, OPCODE_fGTEn) {
+		const klr_fGTEn_t *op = (klr_fGTEn_t*)pc;
+		KLR_fGTEn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_fGTEn;
+		goto NEXT;
+	} 
+	CASE(L_ARYGET, OPCODE_ARYGET) {
+		const klr_ARYGET_t *op = (klr_ARYGET_t*)pc;
+		KLR_ARYGET(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_ARYGET;
+		goto NEXT;
+	} 
+	CASE(L_ARYGETn, OPCODE_ARYGETn) {
+		const klr_ARYGETn_t *op = (klr_ARYGETn_t*)pc;
+		KLR_ARYGETn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_ARYGETn;
+		goto NEXT;
+	} 
+	CASE(L_iARYGET, OPCODE_iARYGET) {
+		const klr_iARYGET_t *op = (klr_iARYGET_t*)pc;
+		KLR_iARYGET(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iARYGET;
+		goto NEXT;
+	} 
+	CASE(L_iARYGETn, OPCODE_iARYGETn) {
+		const klr_iARYGETn_t *op = (klr_iARYGETn_t*)pc;
+		KLR_iARYGETn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iARYGETn;
+		goto NEXT;
+	} 
+	CASE(L_fARYGET, OPCODE_fARYGET) {
+		const klr_fARYGET_t *op = (klr_fARYGET_t*)pc;
+		KLR_fARYGET(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_fARYGET;
+		goto NEXT;
+	} 
+	CASE(L_fARYGETn, OPCODE_fARYGETn) {
+		const klr_fARYGETn_t *op = (klr_fARYGETn_t*)pc;
+		KLR_fARYGETn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_fARYGETn;
+		goto NEXT;
+	} 
+	CASE(L_ARYSET, OPCODE_ARYSET) {
+		const klr_ARYSET_t *op = (klr_ARYSET_t*)pc;
+		KLR_ARYSET(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_ARYSET;
+		goto NEXT;
+	} 
+	CASE(L_ARYSETn, OPCODE_ARYSETn) {
+		const klr_ARYSETn_t *op = (klr_ARYSETn_t*)pc;
+		KLR_ARYSETn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_ARYSETn;
+		goto NEXT;
+	} 
+	CASE(L_iARYSET, OPCODE_iARYSET) {
+		const klr_iARYSET_t *op = (klr_iARYSET_t*)pc;
+		KLR_iARYSET(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iARYSET;
+		goto NEXT;
+	} 
+	CASE(L_iARYSETn, OPCODE_iARYSETn) {
+		const klr_iARYSETn_t *op = (klr_iARYSETn_t*)pc;
+		KLR_iARYSETn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iARYSETn;
+		goto NEXT;
+	} 
+	CASE(L_fARYSET, OPCODE_fARYSET) {
+		const klr_fARYSET_t *op = (klr_fARYSET_t*)pc;
+		KLR_fARYSET(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_fARYSET;
+		goto NEXT;
+	} 
+	CASE(L_fARYSETn, OPCODE_fARYSETn) {
+		const klr_fARYSETn_t *op = (klr_fARYSETn_t*)pc;
+		KLR_fARYSETn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_fARYSETn;
+		goto NEXT;
+	} 
+	CASE(L_THCODE, OPCODE_THCODE) {
+		const klr_THCODE_t *op = (klr_THCODE_t*)pc;
+		KLR_THCODE(ctx, op->a1);
+		pc += OPSIZE_THCODE;
+		goto NEXT;
+	} 
+	CASE(L_NOP, OPCODE_NOP) {
+		TC(const klr_NOP_t *op = (klr_NOP_t*)pc;)
+		KLR_NOP(ctx);
+		pc += OPSIZE_NOP;
+		goto NEXT;
+	} 
+	}
+	KNH_WARNING(ctx, "unknown opcode=%d", KNH_OPCODE(pc));
+	goto L_HEAD;
+
+CTT_FIN:
+	{
+		jit_complete(mem);
+		knh_fmethod f = (knh_fmethod) mem->addr;
+		knh_ctt_patch(mem);
+		imem_complete(mem);
+		knh_Method_syncFunc(mtd,f);
+	}
+}
+
 /* ------------------------------------------------------------------------ */
 
+static void knh_ctt_patch(imem_t* mem)
+{
+	lstack_t* head = mem->lhead;
+	lstack_t* stack = NULL;
+
+	imem_setLabel(mem, 255, 255, 255);
+
+	for(stack = head;stack->opcode != 255; stack += 1) {
+		//fprintf(stderr, "pos=%3x,opcode=%3d,opsize=%d,jmpaddr=%d\n",
+		//stack->pos,stack->opcode,stack->size,stack->addr);
+		if(stack->addr > 0) {
+			lstack_t* _s = NULL;
+			for(_s = stack; _s->opcode != 255; _s += 1) {
+				stack->addr -= _s->size;
+				//fprintf(stderr, "%d\n",stack->addr);
+				//fprintf(stderr, "\tpos=%3x,opcode=%3x,opsize=%3x,\n",
+				//_s->pos,_s->opcode,_s->size);
+				if(stack->addr <= 0) {
+					_s = _s + 1;
+					//fprintf(stderr, "ok ps=%x,sp=%x l=%x\n",_s->pos,
+					//stack->pos, _s->pos - stack->pos - 2);
+					//fprintf(stderr, "p=%x\n",mem->addr[stack->pos + 1]);
+					mem->addr[stack->pos+1] = _s->pos - stack->pos - 2;
+					// fprintf(stderr, "p=%x\n",mem->addr[stack->pos + 1]);
+					break;
+				}
+			}
+		}
+	}
+}
+
+/* ------------------------------------------------------------------------ */
+
+#endif
 
 #ifdef __cplusplus
 }
