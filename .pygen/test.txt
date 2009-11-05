@@ -1012,264 +1012,264 @@
 /* ======================================================================== */
 /* flag */
 
-static METHOD Object_isRelease(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Object_isRelease(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_Object_isRelease((knh_Object_t*)sfp[0].o));
 }
 
-static METHOD Object_isDebug(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Object_isDebug(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, !(knh_Object_isRelease((knh_Object_t*)sfp[0].o)));
 }
 
-static METHOD Object_isImmutable(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Object_isImmutable(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_Object_isImmutable((knh_Object_t*)sfp[0].o));
 }
 
-static METHOD Object_isUndefined(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Object_isUndefined(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_Object_isUndefined((knh_Object_t*)sfp[0].o));
 }
 
-static METHOD Object_isModified(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Object_isModified(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_Object_isModified((knh_Object_t*)sfp[0].o));
 }
 
-static METHOD Object_setModified(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Object_setModified(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_Object_setModified((knh_Object_t*)sfp[0].o, p_bool(sfp[1]));
 	KNH_RETURN_void(ctx, sfp);
 }
 
-static METHOD Object_isShared(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Object_isShared(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_Object_isShared((knh_Object_t*)sfp[0].o));
 }
 
-static METHOD Object_setShared(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Object_setShared(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_Object_setShared((knh_Object_t*)sfp[0].o, p_bool(sfp[1]));
 	KNH_RETURN_void(ctx, sfp);
 }
 
-static METHOD String_isAscii(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD String_isAscii(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_String_isAscii((knh_String_t*)sfp[0].o));
 }
 
-static METHOD DictMap_isIgnoreCase(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD DictMap_isIgnoreCase(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_DictMap_isIgnoreCase((knh_DictMap_t*)sfp[0].o));
 }
 
-static METHOD DictSet_isIgnoreCase(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD DictSet_isIgnoreCase(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_DictSet_isIgnoreCase((knh_DictSet_t*)sfp[0].o));
 }
 
-static METHOD Class_isRelease(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Class_isRelease(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_class_isRelease(knh_Class_cid(sfp[0].c)));
 }
 
-static METHOD Class_isDebug(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Class_isDebug(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, !(knh_class_isRelease(knh_Class_cid(sfp[0].c))));
 }
 
-static METHOD Class_isImmutable(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Class_isImmutable(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_class_isImmutable(knh_Class_cid(sfp[0].c)));
 }
 
-static METHOD Class_isMetaClass(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Class_isMetaClass(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_class_isMetaClass(knh_Class_cid(sfp[0].c)));
 }
 
-static METHOD Class_isPrivate(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Class_isPrivate(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_class_isPrivate(knh_Class_cid(sfp[0].c)));
 }
 
-static METHOD Class_isPublic(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Class_isPublic(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, !(knh_class_isPrivate(knh_Class_cid(sfp[0].c))));
 }
 
-static METHOD Class_isFinal(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Class_isFinal(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_class_isFinal(knh_Class_cid(sfp[0].c)));
 }
 
-static METHOD Class_isSingleton(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Class_isSingleton(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_class_isSingleton(knh_Class_cid(sfp[0].c)));
 }
 
-static METHOD Class_isInterface(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Class_isInterface(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_class_isInterface(knh_Class_cid(sfp[0].c)));
 }
 
-static METHOD Method_isPrivate(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Method_isPrivate(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_Method_isPrivate((knh_Method_t*)sfp[0].o));
 }
 
-static METHOD Method_isPublic(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Method_isPublic(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, !(knh_Method_isPrivate((knh_Method_t*)sfp[0].o)));
 }
 
-static METHOD Method_isVirtual(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Method_isVirtual(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_Method_isVirtual((knh_Method_t*)sfp[0].o));
 }
 
-static METHOD Method_isFinal(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Method_isFinal(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, !(knh_Method_isVirtual((knh_Method_t*)sfp[0].o)));
 }
 
-static METHOD Method_isConst(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Method_isConst(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_Method_isConst((knh_Method_t*)sfp[0].o));
 }
 
-static METHOD Method_isStatic(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Method_isStatic(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_Method_isStatic((knh_Method_t*)sfp[0].o));
 }
 
-static METHOD Method_isVarArgs(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Method_isVarArgs(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_Method_isVarArgs((knh_Method_t*)sfp[0].o));
 }
 
-static METHOD Mapper_isInterface(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Mapper_isInterface(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_Mapper_isInterface((knh_Mapper_t*)sfp[0].o));
 }
 
-static METHOD Mapper_isICast(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Mapper_isICast(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_Mapper_isICast((knh_Mapper_t*)sfp[0].o));
 }
 
-static METHOD Mapper_isSignificant(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Mapper_isSignificant(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_Mapper_isSignificant((knh_Mapper_t*)sfp[0].o));
 }
 
-static METHOD Mapper_isFinal(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Mapper_isFinal(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_Mapper_isFinal((knh_Mapper_t*)sfp[0].o));
 }
 
-static METHOD Mapper_isSynonym(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Mapper_isSynonym(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_Mapper_isSynonym((knh_Mapper_t*)sfp[0].o));
 }
 
-static METHOD Mapper_isLossLess(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Mapper_isLossLess(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_Mapper_isLossLess((knh_Mapper_t*)sfp[0].o));
 }
 
-static METHOD Mapper_isTotal(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Mapper_isTotal(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_Mapper_isTotal((knh_Mapper_t*)sfp[0].o));
 }
 
-static METHOD Mapper_isPartial(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Mapper_isPartial(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, !(knh_Mapper_isTotal((knh_Mapper_t*)sfp[0].o)));
 }
 
-static METHOD Mapper_isConst(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Mapper_isConst(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_Mapper_isConst((knh_Mapper_t*)sfp[0].o));
 }
 
-static METHOD Mapper_isTemporal(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Mapper_isTemporal(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, !(knh_Mapper_isConst((knh_Mapper_t*)sfp[0].o)));
 }
 
-static METHOD Mapper_isLocal(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Mapper_isLocal(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_Mapper_isLocal((knh_Mapper_t*)sfp[0].o));
 }
 
-static METHOD Mapper_isDerived(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Mapper_isDerived(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_Mapper_isDerived((knh_Mapper_t*)sfp[0].o));
 }
 
-static METHOD OutputStream_isAutoFlush(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD OutputStream_isAutoFlush(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_OutputStream_isAutoFlush((knh_OutputStream_t*)sfp[0].o));
 }
 
-static METHOD OutputStream_setAutoFlush(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD OutputStream_setAutoFlush(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_OutputStream_setAutoFlush((knh_OutputStream_t*)sfp[0].o, p_bool(sfp[1]));
 	KNH_RETURN_void(ctx, sfp);
 }
 
-static METHOD OutputStream_isStoringBuffer(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD OutputStream_isStoringBuffer(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_OutputStream_isStoringBuffer((knh_OutputStream_t*)sfp[0].o));
 }
 
-static METHOD OutputStream_setStoringBuffer(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD OutputStream_setStoringBuffer(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_OutputStream_setStoringBuffer((knh_OutputStream_t*)sfp[0].o, p_bool(sfp[1]));
 	KNH_RETURN_void(ctx, sfp);
 }
 
-static METHOD Exception_isLogging(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Exception_isLogging(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_Exception_isLogging((knh_Exception_t*)sfp[0].o));
 }
 
-static METHOD Context_isStrict(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Context_isStrict(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_Context_isStrict((knh_Context_t*)sfp[0].o));
 }
 
-static METHOD Context_setStrict(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Context_setStrict(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_Context_setStrict((knh_Context_t*)sfp[0].o, p_bool(sfp[1]));
 	KNH_RETURN_void(ctx, sfp);
 }
 
-static METHOD Context_isDebug(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Context_isDebug(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_Context_isDebug((knh_Context_t*)sfp[0].o));
 }
 
-static METHOD Context_setDebug(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Context_setDebug(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_Context_setDebug((knh_Context_t*)sfp[0].o, p_bool(sfp[1]));
 	KNH_RETURN_void(ctx, sfp);
 }
 
-static METHOD Context_isVerbose(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Context_isVerbose(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_Context_isVerbose((knh_Context_t*)sfp[0].o));
 }
 
-static METHOD Context_setVerbose(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Context_setVerbose(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_Context_setVerbose((knh_Context_t*)sfp[0].o, p_bool(sfp[1]));
 	KNH_RETURN_void(ctx, sfp);
 }
 
-static METHOD Context_isInteractive(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Context_isInteractive(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_Context_isInteractive((knh_Context_t*)sfp[0].o));
 }

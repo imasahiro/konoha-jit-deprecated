@@ -158,7 +158,6 @@ knh_KLRCode_t* knh_InstList_newKLRCode(Ctx *ctx, knh_Array_t *insts)
 
 void knh_code_thread(Ctx *ctx, knh_code_t *pc, void **codeaddr)
 {
-//#ifdef KNH_USING_THREADEDCODE
 	while(KNH_OPCODE(pc) != OPCODE_HALT) {
 		knh_inst_t *op = (knh_inst_t*)pc;
 		DBG2_ASSERT_OPCODE(op->opcode);
@@ -170,7 +169,6 @@ void knh_code_thread(Ctx *ctx, knh_code_t *pc, void **codeaddr)
 		}
 		pc += knh_opcode_size(op->opcode);
 	}
-//#endif/*KNH_USING_THREADEDCODE*/
 }
 
 /* ======================================================================== */
@@ -188,19 +186,6 @@ void knh_Method_setKLRCode(Ctx *ctx, knh_Method_t *mtd, knh_KLRCode_t *code)
 	knh_Method_syncFunc(mtd, knh_KLRCode_exec);
 	mtd->pc_start = DP(code)->code;
 }
-
-///* ------------------------------------------------------------------------ */
-//
-//knh_code_t* knh_Method_pcstartNULL(knh_Method_t *mtd)
-//{
-//	if(knh_Method_isObjectCode(mtd)) {
-//		knh_KLRCode_t *o = (knh_KLRCode_t*)DP(mtd)->code;
-//		if(IS_KLRCode(o)) {
-//			return DP(o)->code;
-//		}
-//	}
-//	return NULL;
-//}
 
 /* ------------------------------------------------------------------------ */
 

@@ -40,7 +40,7 @@ extern "C" {
 /* [func] */
 
 static
-MAPPER knh_fmapper_method(Ctx *ctx, knh_sfp_t *sfp)
+MAPPER knh_fmapper_method(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_Method_t *mtd = (knh_Method_t*)DP(sfp[1].mpr)->mapdata;
 	KNH_ASSERT(IS_Method(mtd));
@@ -85,7 +85,7 @@ KNHAPI(knh_Mapper_t*) new_Mapper(Ctx *ctx, knh_flag_t flag, knh_class_t scid, kn
 /* ======================================================================== */
 /* [MapMap] */
 
-static MAPPER knh_fmapper_mapmap(Ctx *ctx, knh_sfp_t *sfp)
+static MAPPER knh_fmapper_mapmap(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_Mapper_t *mpr = KNH_GETMAPPER(ctx, sfp);
 	DBG2_ASSERT(IS_Mapper(mpr));
@@ -173,7 +173,7 @@ knh_Mapper_t *knh_Context_setMapperCache(Ctx *ctx, knh_class_t scid, knh_class_t
 /* ------------------------------------------------------------------------ */
 /* [Mapper] */
 
-MAPPER knh_fmapper_asis(Ctx *ctx, knh_sfp_t *sfp)
+MAPPER knh_fmapper_asis(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 }
 
@@ -187,7 +187,7 @@ knh_Mapper_t* new_Mapper__asis(Ctx *ctx, knh_class_t scid, knh_class_t tcid)
 
 /* ------------------------------------------------------------------------ */
 
-MAPPER knh_fmapper_null(Ctx *ctx, knh_sfp_t *sfp)
+MAPPER knh_fmapper_null(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	DBG2_(
 	knh_Mapper_t *mpr = sfp[1].mpr;

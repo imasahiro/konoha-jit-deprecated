@@ -40,7 +40,7 @@ extern "C" {
 /* ------------------------------------------------------------------------ */
 //## @Const method Bytes! String.getBytes(String? enc);
 
-static METHOD String_getBytes(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD String_getBytes(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_Bytes_t *ba;
 	if(IS_NULL(sfp[1].o)) {
@@ -60,7 +60,7 @@ static METHOD String_getBytes(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Const method Boolean! String.equals(String! s);
 
-static METHOD String_equals(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD String_equals(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp,
 		((sfp[0].s)->size == (sfp[1].s)->size &&
@@ -70,7 +70,7 @@ static METHOD String_equals(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Const method Boolean! String.equals:IgnoreCase(String! s);
 
-static METHOD String_equals__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD String_equals__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp,
 		((sfp[0].s)->size == (sfp[1].s)->size &&
@@ -80,7 +80,7 @@ static METHOD String_equals__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Const method Boolean! String.startsWith(String! s);
 
-static METHOD String_startsWith(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD String_startsWith(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_bytes_startsWith(__tobytes(sfp[0].s), __tobytes(sfp[1].s)));
 }
@@ -88,7 +88,7 @@ static METHOD String_startsWith(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Const method Boolean! String.startsWith:IgnoreCase(String! s);
 
-static METHOD String_startsWith__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD String_startsWith__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_bytes_t base = __tobytes(sfp[0].s);
 	knh_bytes_t expr = __tobytes(sfp[1].s);
@@ -103,7 +103,7 @@ static METHOD String_startsWith__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Const method Boolean! String.endsWith(String! s);
 
-static METHOD String_endsWith(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD String_endsWith(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_bytes_endsWith(__tobytes(sfp[0].s), __tobytes(sfp[1].s)));
 }
@@ -111,7 +111,7 @@ static METHOD String_endsWith(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Const method Boolean! String.endsWith:IgnoreCase(String! s);
 
-static METHOD String_endsWith__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD String_endsWith__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_bytes_t base = __tobytes(sfp[0].s);
 	knh_bytes_t expr = __tobytes(sfp[1].s);
@@ -126,7 +126,7 @@ static METHOD String_endsWith__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Const method Int! String.indexOf(String! s);
 
-static METHOD String_indexOf(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD String_indexOf(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_bytes_t base = __tobytes(sfp[0].s);
 	knh_bytes_t delim = __tobytes(sfp[1].s);
@@ -142,7 +142,7 @@ static METHOD String_indexOf(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Const method Int! String.indexOf:IgnoreCase(String! s);
 
-static METHOD String_indexOf__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD String_indexOf__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_bytes_t base = __tobytes(sfp[0].s);
 	knh_bytes_t delim = __tobytes(sfp[1].s);
@@ -163,7 +163,7 @@ static METHOD String_indexOf__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Const method Int! String.lastIndexOf(String! s);
 
-static METHOD String_lastIndexOf(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD String_lastIndexOf(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_bytes_t base = __tobytes(sfp[0].s);
 	knh_bytes_t delim = __tobytes(sfp[1].s);
@@ -183,7 +183,7 @@ static METHOD String_lastIndexOf(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Const method Int! String.lastIndexOf:IgnoreCase(String! s);
 
-static METHOD String_lastIndexOf__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD String_lastIndexOf__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_bytes_t base = __tobytes(sfp[0].s);
 	knh_bytes_t delim = __tobytes(sfp[1].s);
@@ -203,7 +203,7 @@ static METHOD String_lastIndexOf__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Const @NullBase method String! String.concat(Any? value, ...);
 
-static METHOD String_concat(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD String_concat(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	int i, ac = knh_stack_argc(ctx, sfp);
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
@@ -221,7 +221,7 @@ static METHOD String_concat(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Const method String! String.times(Int! n);
 
-static METHOD String_times(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD String_times(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_String_t *res;
 	knh_intptr_t n = p_int(sfp[1]);
@@ -245,7 +245,7 @@ static METHOD String_times(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Const method PairSS String.twofold(String! s);
 
-static METHOD String_twofold(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD String_twofold(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_bytes_t base = __tobytes(sfp[0].s);
 	knh_bytes_t delim = __tobytes(sfp[1].s);
@@ -274,7 +274,7 @@ static METHOD String_twofold(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## method String! String.format(Any? value, ...);
 
-static METHOD String_format(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD String_format(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_bytes_t fmt = __tobytes(sfp[0].s);
 	knh_sfp_t *param = sfp + 1;
@@ -338,7 +338,7 @@ int knh_bytes_equals_(knh_bytes_t base, size_t s, knh_bytes_t target)
 //## @Const method String! String.replace(String! s, String! newone)
 /* @author nakata */
 
-static METHOD String_replace(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD String_replace(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_bytes_t base = __tobytes(sfp[0].s);
 	knh_bytes_t target = __tobytes(sfp[1].s);
@@ -369,7 +369,7 @@ static METHOD String_replace(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Const method Int! String.getUCS4(Int? n);
 
-static METHOD String_getUCS4(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD String_getUCS4(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_bytes_t base = __tobytes(sfp[0].s);
 	knh_intptr_t index = IS_NULL(sfp[1].o) ? 0 : (knh_intptr_t)sfp[1].ivalue;
@@ -404,7 +404,7 @@ size_t bconv__toLower(Ctx *ctx, knh_BytesConv_t *o, knh_bytes_t t, knh_Bytes_t *
 /* ------------------------------------------------------------------------ */
 //## @Const method String! String.toLower();
 
-static METHOD String_toLower(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD String_toLower(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN(ctx, sfp, new_String__fbcnv(ctx, sfp[0].s, bconv__toLower, (knh_BytesConv_t*)KNH_NULL));
 }
@@ -429,7 +429,7 @@ size_t bconv__toUpper(Ctx *ctx, knh_BytesConv_t *o, knh_bytes_t t, knh_Bytes_t *
 /* ------------------------------------------------------------------------ */
 //## @Const method String! String.toUpper();
 
-static METHOD String_toUpper(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD String_toUpper(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN(ctx, sfp, new_String__fbcnv(ctx, sfp[0].s, bconv__toUpper, (knh_BytesConv_t*)KNH_NULL));
 }
@@ -437,7 +437,7 @@ static METHOD String_toUpper(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Const method String! String.trim();
 
-static METHOD String_trim(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD String_trim(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_bytes_t t = __tobytes(sfp[0].s);
 	knh_bytes_t t2 = knh_bytes_trim(t);
@@ -478,7 +478,7 @@ static knh_Array_t *knh_String_toCharArray(Ctx *ctx, knh_String_t *bs, int istri
 /* ------------------------------------------------------------------------ */
 //## @Const method String[] String.split(String delim, Int isTrim);
 
-static METHOD String_split(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD String_split(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_Array_t *a = NULL;
 	int istrim = IS_NULL(sfp[2].o) ? 0 : (int)sfp[2].ivalue;
@@ -534,7 +534,7 @@ int knh_String_opMatch(Ctx *ctx, knh_String_t *o, knh_Regex_t *re)
 //## method Boolean! String.opMatch(Regex! re);
 
 static
-METHOD String_opMatch(Ctx *ctx, knh_sfp_t *sfp)
+METHOD String_opMatch(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_String_opMatch(ctx, sfp[0].s, (knh_Regex_t*)sfp[1].o));
 }
@@ -543,7 +543,7 @@ METHOD String_opMatch(Ctx *ctx, knh_sfp_t *sfp)
 //## method Boolean! Regex.opMatch(String! s);
 
 static
-METHOD Regex_opMatch(Ctx *ctx, knh_sfp_t *sfp)
+METHOD Regex_opMatch(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_String_opMatch(ctx, sfp[1].s, (knh_Regex_t*)sfp[0].o));
 }
@@ -577,7 +577,7 @@ knh_Array_t *knh_Regex_split(Ctx *ctx, knh_Regex_t *o, knh_String_t *s)
 /* ------------------------------------------------------------------------ */
 //## @Const method String[] String.match(Regex pattern);
 
-static METHOD String_match(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD String_match(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN(ctx, sfp, knh_Regex_split(ctx, (knh_Regex_t*)sfp[1].o, sfp[0].s));
 }

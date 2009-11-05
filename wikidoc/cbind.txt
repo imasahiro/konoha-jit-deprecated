@@ -188,7 +188,7 @@ typedef METHOD (*knh_fmethod)(Ctx *, knh_sfp_t *);
 
 {{{
 // Static float Math.abs(float x);
-METHOD Math_abs(Ctx *ctx, knh_sfp_t *sfp)
+METHOD Math_abs(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
    double v = (double)sfp[1].fvalue;   // C言語の型へ変換
    v = fabs(v);

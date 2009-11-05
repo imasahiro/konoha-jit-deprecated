@@ -43,7 +43,7 @@ extern "C" {
 /* ------------------------------------------------------------------------ */
 //## method Boolean! DictMap.opHas(String! key);
 
-static METHOD DictMap_opHas(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD DictMap_opHas(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_DictMap_index((knh_DictMap_t*)sfp[0].o, __tobytes(sfp[1].s)) != -1);
 }
@@ -51,7 +51,7 @@ static METHOD DictMap_opHas(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## method T1? DictMap.get(String! key);
 
-static METHOD DictMap_get(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD DictMap_get(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN(ctx, sfp, knh_DictMap_get(ctx, (knh_DictMap_t*)sfp[0].o, sfp[1].s));
 }
@@ -59,7 +59,7 @@ static METHOD DictMap_get(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## method void DictMap.set(String! key, T1? value);
 
-static METHOD DictMap_set(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD DictMap_set(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_DictMap_t *o = (knh_DictMap_t*)sfp[0].o;
 	knh_stack_boxing(ctx, sfp + 2);
@@ -70,7 +70,7 @@ static METHOD DictMap_set(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## method void DictMap.remove(String! key);
 
-static METHOD DictMap_remove(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD DictMap_remove(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_DictMap_t *o = (knh_DictMap_t*)sfp[0].o;
 	knh_DictMap_remove(ctx, o, sfp[1].s);
@@ -80,7 +80,7 @@ static METHOD DictMap_remove(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## method void DictMap.clear();
 
-static METHOD DictMap_clear(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD DictMap_clear(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_DictMap_t *o = (knh_DictMap_t*)sfp[0].o;
 	knh_DictMap_clear(ctx, o);
@@ -93,7 +93,7 @@ static METHOD DictMap_clear(Ctx *ctx, knh_sfp_t *sfp)
 ///* ------------------------------------------------------------------------ */
 ////## method This! DictSet.new(Int n) */
 //
-//static METHOD DictSet_new(Ctx *ctx, knh_sfp_t *sfp)
+//static METHOD DictSet_new(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 //{
 //	DictSet *o = (DictSet*)sfp[0].o;
 //	size_t init = IS_NULL(sfp[1].o) ? KNH_DICT_INITSIZE: p_int(sfp[1]);
@@ -110,7 +110,7 @@ static METHOD DictMap_clear(Ctx *ctx, knh_sfp_t *sfp)
 ///* ------------------------------------------------------------------------ */
 ////## method void DictSet.add(String! key) */
 //
-//static METHOD DictSet_add(Ctx *ctx, knh_sfp_t *sfp)
+//static METHOD DictSet_add(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 //{
 //	DictSet *o = (DictSet*)sfp[0].o;
 //	if(!knh_Object_isImmutable(o)) {
@@ -122,7 +122,7 @@ static METHOD DictMap_clear(Ctx *ctx, knh_sfp_t *sfp)
 ///* ------------------------------------------------------------------------ */
 ////## method Int! DictSet.get(String! key) */
 //
-//static METHOD DictSet_get(Ctx *ctx, knh_sfp_t *sfp)
+//static METHOD DictSet_get(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 //{
 //	KNH_RETURN_Int(ctx, sfp, knh_DictSet_get(ctx, (DictSet*)sfp[0].o, sfp[1].s));
 //}
@@ -130,7 +130,7 @@ static METHOD DictMap_clear(Ctx *ctx, knh_sfp_t *sfp)
 ///* ------------------------------------------------------------------------ */
 ////## method Boolean! DictSet.opHas(String! key) */
 //
-//static METHOD DictSet_opHas(Ctx *ctx, knh_sfp_t *sfp)
+//static METHOD DictSet_opHas(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 //{
 //	KNH_RETURN_Boolean(ctx, sfp, knh_DictSet_get__b((DictSet*)sfp[0].o, __tobytes(sfp[1].s)) != 0);
 //}
@@ -138,7 +138,7 @@ static METHOD DictMap_clear(Ctx *ctx, knh_sfp_t *sfp)
 ///* ------------------------------------------------------------------------ */
 ////## method void DictSet.set(String! key, Int! value) */
 //
-//static METHOD DictSet_set(Ctx *ctx, knh_sfp_t *sfp)
+//static METHOD DictSet_set(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 //{
 //	DictSet *o = (DictSet*)sfp[0].o;
 //	if(!knh_Object_isImmutable(o)) {
@@ -150,7 +150,7 @@ static METHOD DictMap_clear(Ctx *ctx, knh_sfp_t *sfp)
 ///* ------------------------------------------------------------------------ */
 ////## method void DictSet.remove(String! key) */
 //
-//static METHOD DictSet_remove(Ctx *ctx, knh_sfp_t *sfp)
+//static METHOD DictSet_remove(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 //{
 //	DictSet *o = (DictSet*)sfp[0].o;
 //	if(!knh_Object_isImmutable(o)) {
@@ -162,7 +162,7 @@ static METHOD DictMap_clear(Ctx *ctx, knh_sfp_t *sfp)
 ///* ------------------------------------------------------------------------ */
 ////## method void DictSet.clear() */
 //
-//static METHOD DictSet_clear(Ctx *ctx, knh_sfp_t *sfp)
+//static METHOD DictSet_clear(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 //{
 //	DictSet *o = (DictSet*)sfp[0].o;
 //	if(!knh_Object_isImmutable(o)) {
@@ -174,7 +174,7 @@ static METHOD DictMap_clear(Ctx *ctx, knh_sfp_t *sfp)
 ///* ======================================================================== */
 ////## method Int! DictSet.getSize() */
 //
-//static METHOD DictSet_getSize(Ctx *ctx, knh_sfp_t *sfp)
+//static METHOD DictSet_getSize(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 //{
 //	KNH_RETURN_Int(ctx, sfp, knh_DictSet_size((DictSet*)sfp[0].o));
 //}
@@ -182,7 +182,7 @@ static METHOD DictMap_clear(Ctx *ctx, knh_sfp_t *sfp)
 ///* ------------------------------------------------------------------------ */
 ////## method[VARARGS] void DictSet.opLshift(String v) @VARARGS */
 //
-//static METHOD DictSet_opLshift(Ctx *ctx, knh_sfp_t *sfp)
+//static METHOD DictSet_opLshift(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 //{
 //	DictSet *o = (DictSet*)sfp[0].o;
 //	if(!knh_Object_isImmutable(o)) {

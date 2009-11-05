@@ -59,7 +59,7 @@ static ITRNEXT knh_String_nextChar(Ctx *ctx, knh_sfp_t *sfp, int n)
 //## @General mapper String Iterator;
 //## mapper String String..;
 
-static MAPPER String_Iterator(Ctx *ctx, knh_sfp_t *sfp)
+static MAPPER String_Iterator(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_MAPPED(ctx, sfp, new_Iterator(ctx, CLASS_String, sfp[0].o, knh_String_nextChar));
 }
@@ -67,7 +67,7 @@ static MAPPER String_Iterator(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## method String.. String.opItr();
 
-static METHOD String_opItr(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD String_opItr(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN(ctx, sfp, new_Iterator(ctx, CLASS_String, sfp[0].o, knh_String_nextChar));
 }
@@ -161,7 +161,7 @@ static knh_Iterator_t *new_RangeIterator(Ctx *ctx, knh_Range_t *rng)
 /* ------------------------------------------------------------------------ */
 // ## @General mapper Range Iterator;
 
-static MAPPER Range_Iterator(Ctx *ctx, knh_sfp_t *sfp)
+static MAPPER Range_Iterator(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_MAPPED(ctx, sfp, new_RangeIterator(ctx, sfp[0].range));
 
@@ -170,7 +170,7 @@ static MAPPER Range_Iterator(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## method T1.. Range.opItr();
 
-static METHOD Range_opItr(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Range_opItr(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN(ctx, sfp, new_RangeIterator(ctx, sfp[0].range));
 }
@@ -181,7 +181,7 @@ static METHOD Range_opItr(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @General mapper Array Iterator;
 
-static MAPPER Array_Iterator(Ctx *ctx, knh_sfp_t *sfp)
+static MAPPER Array_Iterator(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_MAPPED(ctx, sfp, new_ArrayIterator(ctx, sfp[0].a));
 }
@@ -189,7 +189,7 @@ static MAPPER Array_Iterator(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## method T1.. Array.opItr();
 
-static METHOD Array_opItr(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Array_opItr(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN(ctx, sfp, new_ArrayIterator(ctx, sfp[0].a));
 }
@@ -197,7 +197,7 @@ static METHOD Array_opItr(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @General mapper IArray Iterator!;
 
-static MAPPER knh_IArray_Iterator(Ctx *ctx, knh_sfp_t *sfp)
+static MAPPER knh_IArray_Iterator(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_MAPPED(ctx, sfp, new_ArrayIterator(ctx, (knh_Array_t*)sfp[0].ia));
 }
@@ -205,7 +205,7 @@ static MAPPER knh_IArray_Iterator(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## method T1.. IArray.opItr();
 
-static METHOD IArray_opItr(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD IArray_opItr(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN(ctx, sfp, new_ArrayIterator(ctx, (knh_Array_t*)sfp[0].ia));
 }
@@ -213,7 +213,7 @@ static METHOD IArray_opItr(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @General mapper FArray Iterator!;
 
-static MAPPER knh_FArray_Iterator(Ctx *ctx, knh_sfp_t *sfp)
+static MAPPER knh_FArray_Iterator(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_MAPPED(ctx, sfp, new_ArrayIterator(ctx, (knh_Array_t*)sfp[0].fa));
 }
@@ -221,7 +221,7 @@ static MAPPER knh_FArray_Iterator(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## method T1.. FArray.opItr();
 
-static METHOD FArray_opItr(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD FArray_opItr(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN(ctx, sfp, new_ArrayIterator(ctx, (knh_Array_t*)sfp[0].fa));
 }
@@ -277,7 +277,7 @@ static void knh_fadd_dictentry(Ctx *ctx, knh_Array_t *a, knh_String_t *key, Obje
 //## mapper DictMap Iterator!;
 //## mapper DictMap String..!;
 
-static MAPPER knh_DictMap_String__(Ctx *ctx, knh_sfp_t *sfp)
+static MAPPER knh_DictMap_String__(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_Array_t *a = new_Array(ctx, CLASS_String, (sfp[0].dmap)->size);
 	knh_DictMap_array(ctx, sfp[0].dmap, a, knh_fadd_dictkey);
@@ -287,7 +287,7 @@ static MAPPER knh_DictMap_String__(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## method String.. DictMap.opItr() */
 
-static METHOD DictMap_opItr(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD DictMap_opItr(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_Array_t *a = new_Array(ctx, CLASS_String, (sfp[0].dmap)->size);
 	knh_DictMap_array(ctx, sfp[0].dmap, a, knh_fadd_dictkey);
@@ -297,7 +297,7 @@ static METHOD DictMap_opItr(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## method PairST1.. DictMap.opItr:2() */
 
-static METHOD DictMap_opItr__2(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD DictMap_opItr__2(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_class_t cid = knh_class_Generics(ctx, CLASS_Pair, CLASS_String, knh_Object_p1(sfp[0].dmap));
 	knh_Array_t *a = new_Array(ctx, cid, (sfp[0].dmap)->size);
@@ -369,7 +369,7 @@ static void knh_fadd_hashentry(Ctx *ctx, knh_Array_t *a, knh_hashentry_t *e)
 //## @Final mapper HashMap Iterator!
 //## @Final mapper HashMap T1..
 
-static MAPPER knh_HashMap_Iterator(Ctx *ctx, knh_sfp_t *sfp)
+static MAPPER knh_HashMap_Iterator(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_Array_t *a = new_Array(ctx, knh_Object_p1(sfp[0].hmap), DP(sfp[0].hmap)->size);
 	knh_fadd_hash fadd = knh_fadd_hashkey;
@@ -382,7 +382,7 @@ static MAPPER knh_HashMap_Iterator(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## method T1.. HashMap.opItr();
 
-static METHOD HashMap_opItr(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD HashMap_opItr(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_Array_t *a = new_Array(ctx, knh_Object_p1(sfp[0].hmap), DP(sfp[0].hmap)->size);
 	knh_fadd_hash fadd = knh_fadd_hashkey;
@@ -395,7 +395,7 @@ static METHOD HashMap_opItr(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## method PairT1T2.. HashMap.opItr:2();
 
-static METHOD HashMap_opItr__2(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD HashMap_opItr__2(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_class_t cid = knh_class_Generics(ctx, CLASS_Pair, knh_Object_p1(sfp[0].hmap), knh_Object_p2(sfp[0].hmap));
 	knh_Array_t *a = new_Array(ctx, cid, DP(sfp[0].hmap)->size);

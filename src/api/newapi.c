@@ -42,7 +42,7 @@ extern "C" {
 
 //## @Virtual method This! Object.new();
 
-static METHOD Object_new(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Object_new(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	DBG_P("DEFAULT CONSTRUCTOR? %s", CLASSNo(sfp[0].o));
 	KNH_RETURN(ctx, sfp, sfp[0].o);
@@ -100,7 +100,7 @@ void knh_ObjectField_setValue(Ctx *ctx, knh_ObjectField_t *of, knh_index_t idx, 
 /* ------------------------------------------------------------------------ */
 //## @Hidden method This! Object.new:dictmap(Any value, ...);
 
-static METHOD Object_new__dictmap(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Object_new__dictmap(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_ObjectField_t *of = (knh_ObjectField_t*)sfp[0].o;
 	knh_class_t cid = knh_Object_cid(of);
@@ -127,7 +127,7 @@ static METHOD Object_new__dictmap(Ctx *ctx, knh_sfp_t *sfp)
 /* [Bytes] */
 //## method This! Bytes.new(Int init);
 
-static METHOD Bytes_new(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Bytes_new(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_Bytes_t *o = (knh_Bytes_t*)sfp[0].o;
 	size_t init = IS_NULL(sfp[1].o) ? 0 : knh_bytes_newsize(p_size(sfp[1]));
@@ -144,7 +144,7 @@ static METHOD Bytes_new(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## method String! String.new(Bytes! buf, String? enc);
 
-static METHOD String_new(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD String_new(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_String_t *s;
 	if(IS_NULL(sfp[2].o)) {
@@ -162,7 +162,7 @@ static METHOD String_new(Ctx *ctx, knh_sfp_t *sfp)
 //## @Const method Regex Regex.new(String! pattern, String? option);
 
 static
-METHOD Regex_new(Ctx *ctx, knh_sfp_t *sfp)
+METHOD Regex_new(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_Regex_t *o = (knh_Regex_t*)sfp[0].o;
 	knh_bytes_t p = __tobytes(sfp[1].s);
@@ -187,7 +187,7 @@ METHOD Regex_new(Ctx *ctx, knh_sfp_t *sfp)
 /* [Pair, Tuple, Range] */
 //## @Hidden @Const method This! Pair.new:init(T1 first, T2 second);
 
-static METHOD Pair_new__init(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Pair_new__init(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_Pair_t *o = (knh_Pair_t*)sfp[0].o;
 	knh_stack_boxing(ctx, sfp + 1);
@@ -200,7 +200,7 @@ static METHOD Pair_new__init(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Hidden @Const method This! Tuple.new:init(Any? value, ...);
 
-static METHOD Tuple_new__init(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Tuple_new__init(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_Tuple_t *t = (knh_Tuple_t*)sfp[0].o;
 	knh_sfp_t *v = sfp + 1;
@@ -231,7 +231,7 @@ static METHOD Tuple_new__init(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Hidden @Const method This! Range.new:init(T1! start, T1! end);
 
-static METHOD Range_new__init(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Range_new__init(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_Range_t *r = (knh_Range_t*)sfp[0].o;
 	knh_stack_boxing(ctx, sfp + 1);
@@ -244,7 +244,7 @@ static METHOD Range_new__init(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Hidden @Const method This! Range.new(T1! start, T1! end);
 
-static METHOD Range_new(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Range_new(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	Range_new__init(ctx, sfp);
 	knh_Range_setInclusive((knh_Range_t*)sfp[0].o, 1);
@@ -254,7 +254,7 @@ static METHOD Range_new(Ctx *ctx, knh_sfp_t *sfp)
 /* [Array] */
 //## method This! Array.new(Int? initCapacity);
 
-static METHOD Array_new(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Array_new(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_Array_t *o = (knh_Array_t*)sfp[0].o;
 	int init = IS_NULL(sfp[1].o) ? KNH_ARRAY_INITSIZE: p_int(sfp[1]);
@@ -268,7 +268,7 @@ static METHOD Array_new(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Hidden method This! Array.new:array(Int size);
 
-static METHOD Array_new__array(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Array_new__array(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_Array_t *o = (knh_Array_t*)sfp[0].o;
 	knh_int_t init = sfp[1].ivalue;
@@ -287,7 +287,7 @@ static METHOD Array_new__array(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Hidden method This! Array.new:init(T1? value, ...);
 
-static METHOD Array_new__init(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Array_new__init(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_Array_t *o = (knh_Array_t*)sfp[0].o;
 	knh_sfp_t *v = sfp + 1;
@@ -305,7 +305,7 @@ static METHOD Array_new__init(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Hidden method This! IArray.new(Int? initCapacity);
 
-static METHOD IArray_new(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD IArray_new(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_IArray_t *o = (knh_IArray_t*)sfp[0].o;
 	int init = IS_NULL(sfp[1].o) ? KNH_IARRAY_INITSIZE: p_int(sfp[1]);
@@ -319,7 +319,7 @@ static METHOD IArray_new(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Hidden method This! IArray.new:array(Int! size);
 
-static METHOD IArray_new__array(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD IArray_new__array(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_IArray_t *o = (knh_IArray_t*)sfp[0].o;
 	knh_int_t init = sfp[1].ivalue;
@@ -336,7 +336,7 @@ static METHOD IArray_new__array(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Hidden method This! IArray.new:init(Int? value, ...);
 
-static METHOD IArray_new__init(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD IArray_new__init(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_IArray_t *o = (knh_IArray_t*)sfp[0].o;
 	knh_sfp_t *v = sfp + 1;
@@ -353,7 +353,7 @@ static METHOD IArray_new__init(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Hidden @Const method This! IArray.new:range(Int! start, Int! end, Int? isInclusive);
 
-static METHOD IArray_new__range(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD IArray_new__range(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_IArray_t *o = (knh_IArray_t*)sfp[0].o;
 	knh_int_t s = sfp[1].ivalue;
@@ -376,7 +376,7 @@ static METHOD IArray_new__range(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Hidden method This! FArray.new(Int? initCapacity);
 
-static METHOD FArray_new(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD FArray_new(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_FArray_t *o = (knh_FArray_t*)sfp[0].o;
 	long init = IS_NULL(sfp[1].o) ? KNH_FARRAY_INITSIZE: p_int(sfp[1]);
@@ -390,7 +390,7 @@ static METHOD FArray_new(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Hidden method This! FArray.new:array(Int size);
 
-static METHOD FArray_new__array(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD FArray_new__array(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_FArray_t *o = (knh_FArray_t*)sfp[0].o;
 	knh_int_t init = sfp[1].ivalue;
@@ -407,7 +407,7 @@ static METHOD FArray_new__array(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Hidden method This! FArray.new:init(Float? value, ...);
 
-static METHOD FArray_new__init(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD FArray_new__init(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_FArray_t *o = (knh_FArray_t*)sfp[0].o;
 	knh_sfp_t *v = sfp + 1;
@@ -424,7 +424,7 @@ static METHOD FArray_new__init(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## method This! DictMap.new(Int? initCapacity);
 
-static METHOD DictMap_new(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD DictMap_new(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_DictMap_t *o = (knh_DictMap_t*)sfp[0].o;
 	size_t init = IS_NULL(sfp[1].o) ? 0: p_int(sfp[1]);
@@ -438,7 +438,7 @@ static METHOD DictMap_new(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Hidden method This! DictMap.new:dictmap(T1 value, ...);
 
-static METHOD DictMap_new__dictmap(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD DictMap_new__dictmap(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_DictMap_t *o = (knh_DictMap_t*)sfp[0].o;
 	knh_sfp_t *v = sfp + 1;
@@ -457,7 +457,7 @@ static METHOD DictMap_new__dictmap(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## method Exception! Exception.new(String? msg, Any? bag);
 
-static METHOD Exception_new(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Exception_new(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_Exception_t *o = sfp[0].e;
 	DP(o)->eid  = EXPT_Exception;
@@ -477,7 +477,7 @@ static METHOD Exception_new(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Hidden method This! Exception.new:init(String? e, String? msg, Object? bag);
 
-static METHOD Exception_new__init(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Exception_new__init(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN(ctx, sfp,
 		knh_Exception_new__init(ctx, sfp[0].e, sfp[1].s, sfp[2].s, sfp[3].o));
@@ -487,7 +487,7 @@ static METHOD Exception_new__init(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## method This! Closure.new(Any! base, Method! method);
 
-static METHOD Closure_new(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Closure_new(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	DBG2_ASSERT(IS_bClosure(sfp[0].cc));
 	DBG2_ASSERT(IS_bMethod(sfp[2].mtd));

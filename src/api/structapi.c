@@ -41,8 +41,8 @@ extern "C" {
 /* Data */
 /* ======================================================================== */
 
-static MAPPER Array_Iterator(Ctx *ctx, knh_sfp_t *sfp);
-static MAPPER Iterator_Array(Ctx *ctx, knh_sfp_t *sfp);
+static MAPPER Array_Iterator(Ctx *ctx, knh_sfp_t *sfp METHODOPT);
+static MAPPER Iterator_Array(Ctx *ctx, knh_sfp_t *sfp METHODOPT);
 static knh_String_t* knh_fgetkey__default(Ctx *ctx, knh_sfp_t *lsfp);
 
 /* ------------------------------------------------------------------------ */
@@ -228,7 +228,7 @@ void knh_ObjectField_traverse(Ctx *ctx, knh_ObjectField_t *of, knh_ftraverse ftr
 
 /* ------------------------------------------------------------------------ */
 
-static knh_String_t* knh_ObjectField_getkey(Ctx *ctx, knh_sfp_t *sfp)
+static knh_String_t* knh_ObjectField_getkey(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	int keyidx = ClassTable(knh_Object_cid(sfp[0].o)).keyidx;
 	DBG2_P("getkey keyidx=%d of %s", keyidx, CLASSN(knh_Object_cid(sfp[0].o)));
@@ -566,7 +566,7 @@ void knh_Tuple_traverse(Ctx *ctx, knh_Tuple_t *t, knh_ftraverse ftr)
 #define knh_Range_hashCode NULL
 #define knh_Range_getkey NULL
 
-static MAPPER Range_Iterator(Ctx *ctx, knh_sfp_t *sfp);
+static MAPPER Range_Iterator(Ctx *ctx, knh_sfp_t *sfp METHODOPT);
 
 #define FLAG_Mapper_Iteration (FLAG_Mapper_Synonym | FLAG_Mapper_Total)
 
@@ -747,7 +747,7 @@ static ITRNEXT knh_Iterator_filterNext(Ctx *ctx, knh_sfp_t *sfp, int n)
 	return res;
 }
 
-static MAPPER Iterator_Iterator(Ctx *ctx, knh_sfp_t *sfp)
+static MAPPER Iterator_Iterator(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_Mapper_t *mpr = KNH_GETMAPPER(ctx, sfp);
 	DBG2_ASSERT(IS_Mapper(mpr));

@@ -1944,7 +1944,7 @@ static void KNH_BOX(Ctx *ctx, knh_sfp_t *sfp, knh_type_t type)
 
 /* ------------------------------------------------------------------------ */
 
-static void KNH_UNBOX(Ctx *ctx, knh_sfp_t *sfp)
+static void KNH_UNBOX(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	sfp[0].data = (sfp[0].i)->n.ivalue;
 }

@@ -43,7 +43,7 @@ extern "C" {
 /* ------------------------------------------------------------------------ */
 //## @Const @NullBase method Class! Object.getClass();
 
-static METHOD Object_getClass(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Object_getClass(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN(ctx, sfp, new_Class(ctx, (sfp[0].o)->h.cid));
 }
@@ -51,7 +51,7 @@ static METHOD Object_getClass(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @NullBase method Int Object.hashCode();
 
-static METHOD Object_hashCode(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Object_hashCode(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_hashcode_t h = 0;
 	knh_Object_t *o = sfp[0].o;
@@ -67,7 +67,7 @@ static METHOD Object_hashCode(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Const @NullBase @Hidden method Boolean! Object.isNull();
 
-static METHOD Object_isNull(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Object_isNull(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, IS_NULL(sfp[0].o));
 }
@@ -75,7 +75,7 @@ static METHOD Object_isNull(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Const @NullBase @Hidden method Boolean! Object.isNotNull();
 
-static METHOD Object_isNotNull(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Object_isNotNull(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, IS_NOTNULL(sfp[0].o));
 }
@@ -83,7 +83,7 @@ static METHOD Object_isNotNull(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Const @Virtual method String! Object.getKey();
 
-static METHOD Object_getKey(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Object_getKey(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN(ctx, sfp, StructTable(knh_Object_bcid(sfp[0].o)).fgetkey(ctx, sfp));
 }
@@ -94,7 +94,7 @@ static METHOD Object_getKey(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Hidden method Array! Class.domain();
 
-static METHOD Class_domain(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Class_domain(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN(ctx, sfp, knh_getClassDomain(ctx, (sfp[0].c)->cid));
 }
@@ -105,7 +105,7 @@ static METHOD Class_domain(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Const method Boolean! Method.isAbstract();
 
-static METHOD Method_isAbstract(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Method_isAbstract(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_Method_isAbstract(sfp[0].mtd));
 }
@@ -113,7 +113,7 @@ static METHOD Method_isAbstract(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Const method String Method.getName();
 
-static METHOD Method_getName(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Method_getName(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_String_t *s = knh_Method_getName(ctx, sfp[0].mtd);
 	KNH_RETURN(ctx, sfp, s);
@@ -122,7 +122,7 @@ static METHOD Method_getName(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## method T0 Closure.invoke(T1 x, T2 y, T3 z, ...);
 
-static METHOD Closure_invoke(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Closure_invoke(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	DBG2_ASSERT(IS_bClosure(sfp[0].cc));
 	KNH_INVOKE(ctx, sfp);
@@ -131,7 +131,7 @@ static METHOD Closure_invoke(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## method T1 Thunk.eval();
 
-static METHOD Thunk_eval(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Thunk_eval(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_Thunk_t *thk = (knh_Thunk_t*)sfp[0].o;
 	size_t i;
@@ -152,7 +152,7 @@ static METHOD Thunk_eval(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## method T1 Thunk.value();
 
-static METHOD Thunk_value(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Thunk_value(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_Thunk_t *thk = (knh_Thunk_t*)sfp[0].o;
 	if(knh_Thunk_isEvaluated(thk)) {

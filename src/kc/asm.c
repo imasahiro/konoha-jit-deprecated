@@ -1816,8 +1816,8 @@ void KNH_ASM_JUMPLABEL(Ctx *ctx, knh_Stmt_t *stmt, int delta)
 {
 	knh_Gamma_t *kc = ctx->kc;
 	size_t s = knh_Array_size(DP(kc)->lstacks);
-	if(s == 0) {
-		knh_Gamma_perror(ctx, KERR_ERROR, _("don't use %s HERE"), knh_stmt_tochar(SP(stmt)->stt));
+	if(s < 3) {
+		knh_Gamma_perror(ctx, KERR_ERROR, _("don't use %s HERE"), cSTT_(stmt));
 	}
 	else {
 		knh_Token_t *tkL = NULL;

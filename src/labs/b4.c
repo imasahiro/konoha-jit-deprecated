@@ -41,7 +41,7 @@ extern "C" {
 /* ------------------------------------------------------------------------ */
 /* @ method void Script.changeChannel(Int! ch) */
 
-METHOD Script_changeChannel(Ctx *ctx, knh_sfp_t *sfp)
+METHOD Script_changeChannel(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	fprintf(stdout, "switching channel to %d..\n", (int)sfp[1].ivalue);
 	//konoha_throwSecurityException();
@@ -50,7 +50,7 @@ METHOD Script_changeChannel(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 /* @ method void Script.hook(String! funcname) */
 
-METHOD Script_hook(Ctx *ctx, knh_sfp_t *sfp)
+METHOD Script_hook(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	char *funcname = __tochar(sfp[1].s);
 	fprintf(stdout, "hooking security point at %s\n", funcname);

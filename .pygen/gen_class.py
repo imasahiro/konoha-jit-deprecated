@@ -340,22 +340,22 @@ def write_flag_c(f, c, fb, data):
 	ff = fb.options[2]
 	if ff != '*':
 		ffn = ff + fb.pname
-		functype = 'METHOD %s_%s(Ctx *ctx, knh_sfp_t *sfp)' % (methodbase, ffn)
+		functype = 'METHOD %s_%s(Ctx *ctx, knh_sfp_t *sfp METHODOPT)' % (methodbase, ffn)
 		data.add_method('@method Boolean! %s.%s()' % (c.cname, ffn), functype)
 		f.write('''
 static 
-METHOD %s_%s(Ctx *ctx, knh_sfp_t *sfp)
+METHOD %s_%s(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 \tKNH_RETURN_Boolean(ctx, sfp, %s_%s(%s));
 }
 ''' % (methodbase, ffn, funcbase, ffn, a1))
 		if fb.nname != None:
 			ffn = ff + fb.nname
-			functype = 'METHOD %s_%s(Ctx *ctx, knh_sfp_t *sfp)' % (methodbase, ffn)
+			functype = 'METHOD %s_%s(Ctx *ctx, knh_sfp_t *sfp METHODOPT)' % (methodbase, ffn)
 			data.add_method('@method Boolean! %s.%s()' % (c.cname, ffn), functype)
 			f.write('''
 static
-METHOD %s_%s(Ctx *ctx, knh_sfp_t *sfp)
+METHOD %s_%s(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 \tKNH_RETURN_Boolean(ctx, sfp, !(%s_%s(%s)));
 }
@@ -364,11 +364,11 @@ METHOD %s_%s(Ctx *ctx, knh_sfp_t *sfp)
 	ff = fb.options[3]
 	if ff != '*':
 		ffn = ff + fb.pname
-		functype = 'METHOD %s_%s(Ctx *ctx, knh_sfp_t *sfp)' % (methodbase, ffn)
+		functype = 'METHOD %s_%s(Ctx *ctx, knh_sfp_t *sfp METHODOPT)' % (methodbase, ffn)
 		data.add_method('@method void %s.%s(Boolean b)' % (c.cname, ffn), functype)
 		f.write('''
 static
-METHOD %s_%s(Ctx *ctx, knh_sfp_t *sfp)
+METHOD %s_%s(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 \t%s_%s(%s, p_bool(sfp[1]));
 \tKNH_RETURN_void(ctx, sfp);
@@ -376,11 +376,11 @@ METHOD %s_%s(Ctx *ctx, knh_sfp_t *sfp)
 ''' % (methodbase, ffn, funcbase, ffn, a1))
 		if fb.nname != None:
 			ffn = ff + fb.nname
-			functype = 'METHOD %s_%s(Ctx *ctx, knh_sfp_t *sfp)' % (methodbase, ffn)
+			functype = 'METHOD %s_%s(Ctx *ctx, knh_sfp_t *sfp METHODOPT)' % (methodbase, ffn)
 			data.add_method('@method void %s.%s(Boolean b)' % (c.cname, ffn), functype)
 			f.write('''
 static
-METHOD %s_%s(Ctx *ctx, knh_sfp_t *sfp)
+METHOD %s_%s(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 \t%s_%s(%s, p_bool(sfp[1]));
 \tKNH_RETURN_void(ctx, sfp);
@@ -480,7 +480,7 @@ def write_method_func_c(f, mtd, data):
 	mtd.methodfunc = '%s_%s' % (c.methodbase, mtd.mn.replace('::', '__').replace(':', '__'))
 	f.write('''
 static
-METHOD %s(Ctx *ctx, knh_sfp_t *sfp)
+METHOD %s(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 \t/* %s */''' % (mtd.methodfunc, mtd.anno.replace('@', '')))
 	f.write('''

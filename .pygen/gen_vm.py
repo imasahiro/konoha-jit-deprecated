@@ -573,7 +573,7 @@ def write_exec(f):
 #define TC(c)    
 #endif/*KNH_USING_THREADEDCODE*/
 
-METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp)
+METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 #ifdef KNH_USING_THREADEDCODE
 	static void *OPJUMP[] = {''')

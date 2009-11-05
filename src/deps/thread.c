@@ -193,7 +193,7 @@ static void *threading(void *p)
 
 /* ------------------------------------------------------------------------ */
 
-void knh_stack_threadRun(Ctx *ctx, knh_sfp_t *sfp)
+void knh_stack_threadRun(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_thread_t th;
 	knh_threadcc_t ta = {ctx, sfp};

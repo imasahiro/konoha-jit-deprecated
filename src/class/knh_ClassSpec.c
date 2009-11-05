@@ -217,7 +217,7 @@ void knh_write_floatx(Ctx *ctx, knh_OutputStream_t *w, knh_ClassSpec_t *u, knh_f
 
 /* ------------------------------------------------------------------------ */
 
-static MAPPER knh_IntX_FloatX(Ctx *ctx, knh_sfp_t *sfp)
+static MAPPER knh_IntX_FloatX(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_float_t v = (knh_float_t)sfp[0].ivalue;
 	KNH_MAPPED_Float(ctx, sfp, v);
@@ -225,7 +225,7 @@ static MAPPER knh_IntX_FloatX(Ctx *ctx, knh_sfp_t *sfp)
 
 /* ------------------------------------------------------------------------ */
 
-static MAPPER knh_FloatX_IntX(Ctx *ctx, knh_sfp_t *sfp)
+static MAPPER knh_FloatX_IntX(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_int_t v = (knh_int_t)sfp[0].fvalue;
 	KNH_MAPPED_Int(ctx, sfp, v);
@@ -257,7 +257,7 @@ knh_int_t knh_ClassSpec_getVocabIdx(Ctx *ctx, knh_ClassSpec_t *u, knh_String_t *
 
 /* ------------------------------------------------------------------------ */
 
-static MAPPER knh_IntX_Vocab(Ctx *ctx, knh_sfp_t *sfp)
+static MAPPER knh_IntX_Vocab(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_ClassSpec_t *u = (knh_ClassSpec_t*)DP(sfp[1].mpr)->mapdata;
 	KNH_ASSERT(IS_ClassSpec(u));
@@ -266,7 +266,7 @@ static MAPPER knh_IntX_Vocab(Ctx *ctx, knh_sfp_t *sfp)
 
 /* ------------------------------------------------------------------------ */
 
-static MAPPER knh_Vocab_IntX(Ctx *ctx, knh_sfp_t *sfp)
+static MAPPER knh_Vocab_IntX(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_ClassSpec_t *u = (knh_ClassSpec_t*)DP(sfp[1].mpr)->mapdata;
 	KNH_ASSERT(IS_ClassSpec(u));
@@ -421,7 +421,7 @@ knh_DictIdx_t* new_DictIdx__Array(Ctx *ctx, knh_Array_t *a)
 /* ------------------------------------------------------------------------ */
 
 static
-MAPPER knh_fmapper_vocabidx(Ctx *ctx, knh_sfp_t *sfp)
+MAPPER knh_fmapper_vocabidx(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_ClassSpec_t *u = knh_getClassSpec(ctx, knh_Object_cid(sfp[0].o));
 	knh_int_t n = knh_ClassSpec_getVocabIdx(ctx, u, sfp[0].s);
@@ -432,7 +432,7 @@ MAPPER knh_fmapper_vocabidx(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 
 static
-MAPPER knh_fmapper_vocab(Ctx *ctx, knh_sfp_t *sfp)
+MAPPER knh_fmapper_vocab(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_ClassSpec_t *u = (knh_ClassSpec_t*)DP(sfp[1].mpr)->mapdata;
 	size_t n = (size_t)(sfp[0].ivalue - DP(u)->imin);
@@ -484,7 +484,7 @@ KNHAPI(knh_ClassSpec_t*) new_Vocab(Ctx *ctx, char *tag, knh_bytes_t urn, int bas
 ///* ------------------------------------------------------------------------ */
 //
 //static
-//MAPPER knh_Mapper__fdict(Ctx *ctx, knh_sfp_t *sfp)
+//MAPPER knh_Mapper__fdict(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 //{
 //	String *s = sfp[0].s;
 //	ClassSpec *u = knh_getClassSpec(ctx, knh_Object_cid(sfp[0].o)].cspec;

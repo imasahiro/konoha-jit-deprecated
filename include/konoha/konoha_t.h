@@ -59,6 +59,7 @@ extern "C" {
 #define METHOD             void  KNH_CC_FASTCALL
 #endif
 
+#define METHODOPT
 #define MAPPER             METHOD
 #define ITRNEXT            int   KNH_CC_FASTCALL
 
@@ -874,9 +875,9 @@ typedef struct {
 /* ------------------------------------------------------------------------ */
 
 #ifdef _MSC_VER
-typedef void   (KNH_CC_FASTCALL *knh_fmethod)(Ctx *, knh_sfp_t *);
+typedef void   (KNH_CC_FASTCALL *knh_fmethod)(Ctx *, knh_sfp_t* METHODOPT);
 #else
-typedef METHOD (*knh_fmethod)(Ctx *, knh_sfp_t *);
+typedef METHOD (*knh_fmethod)(Ctx*, knh_sfp_t* METHODOPT);
 #endif
 
 #ifdef _MSC_VER

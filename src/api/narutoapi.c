@@ -43,7 +43,7 @@ extern "C" {
 /* ------------------------------------------------------------------------ */
 //## @Hidden @Static method Boolean! Script.isStmt(String! script);
 
-static METHOD Script_isStmt(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Script_isStmt(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, !(knh_bytes_checkStmtLine(__tobytes(sfp[1].s))));
 }
@@ -51,7 +51,7 @@ static METHOD Script_isStmt(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Hidden @Static method void Script.eval(String script);
 
-static METHOD Script_eval(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Script_eval(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	if(IS_NOTNULL(sfp[1].s)) {
 		knh_sfp_t *lsfp = KNH_LOCAL(ctx);
@@ -72,7 +72,7 @@ static METHOD Script_eval(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Static method String Script.readLine(String prompt);
 
-static METHOD Script_readLine(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Script_readLine(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	char *line;
 	if(IS_NULL(sfp[1].o)) {
@@ -92,7 +92,7 @@ static METHOD Script_readLine(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Static method void Script.addHistory(String! line);
 
-static METHOD Script_addHistory(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Script_addHistory(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_add_history(__tochar(sfp[1].s));
 	KNH_RETURN_void(ctx, sfp);
@@ -101,7 +101,7 @@ static METHOD Script_addHistory(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Static method void System.setMethodTypingListener(Closure c, String anno);
 
-static METHOD System_setMethodTypingListener(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD System_setMethodTypingListener(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_String_t *key;
 	if(IS_NULL(sfp[2].s)) {
@@ -128,7 +128,7 @@ static METHOD System_setMethodTypingListener(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Static method void System.setMethodCompilationListener(Closure c, String anno);
 
-static METHOD System_setMethodCompilationListener(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD System_setMethodCompilationListener(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_String_t *key;
 	if(IS_NULL(sfp[2].s)) {

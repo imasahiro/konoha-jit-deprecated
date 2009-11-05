@@ -40,7 +40,7 @@ extern "C" {
 /* ------------------------------------------------------------------------ */
 //## @Static method void System.setRandomSeed(Int seed);
 
-static METHOD System_setRandomSeed(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD System_setRandomSeed(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_uint_t seed = IS_NULL(sfp[1].o) ? 0 : p_uinteger(sfp[1]);
 	knh_srand(seed);
@@ -50,7 +50,7 @@ static METHOD System_setRandomSeed(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Static method Int! Int.random(Int? n);
 
-static METHOD Int_random(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Int_random(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_int_t n = knh_rand();
 	if(IS_NOTNULL(sfp[1].o)) {
@@ -65,7 +65,7 @@ static METHOD Int_random(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Static method Float! Float.random();
 
-static METHOD Float_random(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Float_random(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Float(ctx, sfp, knh_float_rand());
 }
@@ -73,7 +73,7 @@ static METHOD Float_random(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Static method Int! Float.floatToIntBits(Float! n);
 
-static METHOD Float_floatToIntBits(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Float_floatToIntBits(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Int(ctx, sfp, sfp[1].fvalue);
 }
@@ -81,7 +81,7 @@ static METHOD Float_floatToIntBits(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Static method Float! Float.intToFloatBits(Int! n);
 
-static METHOD Float_intToFloatBits(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Float_intToFloatBits(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Float(ctx, sfp, sfp[1].ivalue);
 }

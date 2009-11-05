@@ -17,7 +17,7 @@ extern "C" {
 
 //static void knh_ctt_patch(imem_t* mem);
 //
-//METHOD knh_KLRCode_toCttCode(Ctx *ctx, knh_sfp_t *sfp)
+//METHOD knh_KLRCode_toCttCode(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 //{
 //    imem_t* mem = imem_new(1);
 //    knh_Method_t *mtd = (knh_Method_t *) sfp[-1].o;

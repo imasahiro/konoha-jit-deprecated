@@ -93,7 +93,7 @@ knh_Array_t* knh_stack_toArray(Ctx *ctx, knh_sfp_t *sfp, knh_class_t cid)
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(void) knh_stack_boxing(Ctx *ctx, knh_sfp_t *sfp)
+KNHAPI(void) knh_stack_boxing(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_class_t bcid = (sfp[0].o)->h.bcid;
 	if(CLASS_Boolean <= bcid && bcid <= CLASS_Float && sfp[0].data != knh_Object_data(sfp[0].o)) {
@@ -103,7 +103,7 @@ KNHAPI(void) knh_stack_boxing(Ctx *ctx, knh_sfp_t *sfp)
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(void) knh_stack_unboxing(Ctx *ctx, knh_sfp_t *sfp)
+KNHAPI(void) knh_stack_unboxing(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	sfp[0].data = knh_Object_data(sfp[0].o);
 }

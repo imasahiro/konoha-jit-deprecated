@@ -156,7 +156,7 @@ KNHAPI(void) knh_Closure_invoke(Ctx *ctx, knh_Closure_t *c, const char *fmt, ...
 /* ------------------------------------------------------------------------ */
 
 static
-METHOD knh_fmethod_closureDEFAULT(Ctx *ctx, knh_sfp_t *sfp)
+METHOD knh_fmethod_closureDEFAULT(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_type_t rtype = knh_Method_rztype(sfp[-1].mtd);
 	if(rtype == TYPE_void) {
@@ -378,7 +378,7 @@ ITRNEXT knh_Generator_fnext(Ctx *ctx, knh_sfp_t *sfp, int n)
 /* ------------------------------------------------------------------------ */
 
 static
-knh_Iterator_t* new_Generator(Ctx *ctx, knh_sfp_t *sfp)
+knh_Iterator_t* new_Generator(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_Closure_t *cc = (knh_Closure_t*)new_Object_init(ctx, FLAG_Closure, CLASS_Closure, 0);
 	KNH_INITv((cc)->mtd, sfp[-1].mtd);
@@ -404,7 +404,7 @@ knh_Iterator_t* new_Generator(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 
 static
-METHOD knh_fmethod_generator(Ctx *ctx, knh_sfp_t *sfp)
+METHOD knh_fmethod_generator(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN(ctx, sfp, new_Generator(ctx, sfp));
 }

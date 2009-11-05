@@ -699,7 +699,7 @@ typedef void (*f_mt)(Ctx *, Object *, knh_OutputStream_t *, Any *);
 
 /* ------------------------------------------------------------------------ */
 
-METHOD knh_fmethod_formatter(Ctx *ctx, knh_sfp_t *sfp)
+METHOD knh_fmethod_formatter(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	f_mt f = (f_mt)DP(sfp[-1].mtd)->code;
 	f(ctx, sfp[0].o, (knh_OutputStream_t*)sfp[1].o, sfp[2].o);

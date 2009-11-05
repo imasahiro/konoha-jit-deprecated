@@ -46,7 +46,7 @@ extern "C" {
 /* ------------------------------------------------------------------------ */
 //## @Static method InputStream! System.getIn();
 
-static METHOD System_getIn(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD System_getIn(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN(ctx, sfp, DP(ctx->sys)->in);
 }
@@ -54,7 +54,7 @@ static METHOD System_getIn(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Static method OutputStream! System.getOut();
 
-static METHOD System_getOut(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD System_getOut(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN(ctx, sfp, DP(ctx->sys)->out);
 }
@@ -62,7 +62,7 @@ static METHOD System_getOut(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Static method OutputStream! System.getErr();
 
-static METHOD System_getErr(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD System_getErr(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN(ctx, sfp, DP(ctx->sys)->err);
 }
@@ -70,7 +70,7 @@ static METHOD System_getErr(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Static method Any? System.getProperty(String! key);
 
-static METHOD System_getProperty(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD System_getProperty(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN(ctx, sfp,
 			knh_System_getProperty(ctx,(knh_System_t*)sfp[0].o, __tobytes(sfp[1].s)));
@@ -79,7 +79,7 @@ static METHOD System_getProperty(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Static method void System.setProperty(String! key, Any? value);
 
-static METHOD System_setProperty(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD System_setProperty(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_System_setProperty(ctx, (knh_System_t*)sfp[0].o, sfp[1].s, sfp[2].o);
 	KNH_RETURN_void(ctx, sfp);
@@ -88,7 +88,7 @@ static METHOD System_setProperty(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Static method void System.gc();
 
-static METHOD System_gc(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD System_gc(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_System_gc(ctx);
 }
@@ -96,7 +96,7 @@ static METHOD System_gc(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Hidden method void System.test(Boolean result, String? msg);
 
-static METHOD System_test(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD System_test(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	char *result = (sfp[1].bvalue) ? "PASS" : "FAILED";
 	knh_intptr_t line = (knh_intptr_t)sfp[0].ivalue;
@@ -112,7 +112,7 @@ static METHOD System_test(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @static method Int Script.system(String cmd);
 
-static METHOD Script_system(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Script_system(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_SECURE(ctx,sfp);
 	int ret = -1;
@@ -128,7 +128,7 @@ static METHOD Script_system(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Static method Boolean! System.hasLib(String! lib, String? func);
 
-static METHOD System_hasLib(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD System_hasLib(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 	knh_bytes_t libname = __tobytes(sfp[1].s);
@@ -156,7 +156,7 @@ static METHOD System_hasLib(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Static @Audit method void System.exit(Int status);
 
-static METHOD System_exit(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD System_exit(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 #if defined(KNH_USING_STDC)
 	int status = IS_NULL(sfp[1].o) ? 0 : p_int(sfp[1]);
@@ -170,7 +170,7 @@ static METHOD System_exit(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## method String[] System.listDir(String? path);
 
-static METHOD System_listDir(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD System_listDir(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 #if defined(KNH_USING_POSIX)
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
@@ -200,7 +200,7 @@ static METHOD System_listDir(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## method Boolean! System.hasDir(String! path);
 
-static METHOD System_hasDir(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD System_hasDir(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_openinit(ctx, &cwbbuf, __tobytes(sfp[1].s));
 	knh_cwb_ospath(ctx, cwb);
@@ -212,7 +212,7 @@ static METHOD System_hasDir(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## method Boolean! System.hasFile(String! path);
 
-static METHOD System_hasFile(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD System_hasFile(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_openinit(ctx, &cwbbuf, __tobytes(sfp[1].s));
 	knh_cwb_ospath(ctx, cwb);
@@ -224,7 +224,7 @@ static METHOD System_hasFile(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Audit method Boolean! System.mkdir(String! path);
 
-static METHOD System_mkdir(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD System_mkdir(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_SECURE(ctx, sfp);
 	KNH_RETURN_Boolean(ctx, sfp,
@@ -235,7 +235,7 @@ static METHOD System_mkdir(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Audit method Boolean! System.unlink(String! path);
 
-static METHOD System_unlink(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD System_unlink(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_SECURE(ctx, sfp);
 	KNH_RETURN_Boolean(ctx, sfp,
@@ -246,7 +246,7 @@ static METHOD System_unlink(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Audit method Boolean! System.rename(String path, String newpath);
 
-static METHOD System_rename(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD System_rename(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_SECURE(ctx, sfp);
 	KNH_RETURN_Boolean(ctx, sfp,
@@ -261,7 +261,7 @@ static METHOD System_rename(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Static method Any Context.getProperty(String! key);
 
-static METHOD Context_getProperty(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Context_getProperty(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN(ctx, sfp, knh_getProperty(ctx, __tobytes(sfp[1].s)));
 }
@@ -269,7 +269,7 @@ static METHOD Context_getProperty(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Static method void Context.setProperty(String! key, Any? value);
 
-static METHOD Context_setProperty(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Context_setProperty(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_setProperty(ctx, sfp[1].s, sfp[2].o);
 	KNH_RETURN_void(ctx, sfp);
@@ -278,7 +278,7 @@ static METHOD Context_setProperty(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Static method void Context.setEncoding(String? enc);
 
-static METHOD Context_setEncoding(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Context_setEncoding(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_Context_setEncoding(ctx, (knh_Context_t*)sfp[0].o, sfp[1].s);
 	KNH_RETURN_void(ctx, sfp);
@@ -287,7 +287,7 @@ static METHOD Context_setEncoding(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Hidden method String[] Context.listProperties(String key);
 
-static METHOD Context_listProperties(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Context_listProperties(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_DictSet_t *ds = new_DictSet(ctx, 64);
 	KNH_MOV(ctx, sfp[0].o, ds); // TO RCGC
@@ -324,7 +324,7 @@ static METHOD Context_listProperties(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Static method void Context.setIn(InputStream? in);
 
-static METHOD Context_setIn(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Context_setIn(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	if(IS_NULL(sfp[1].o)) {
 		KNH_SETv(ctx, ((knh_Context_t*)ctx)->in, DP(ctx->sys)->in);
@@ -338,7 +338,7 @@ static METHOD Context_setIn(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Static method void Context.setOut(OutputStream? out);
 
-static METHOD Context_setOut(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Context_setOut(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	if(IS_NULL(sfp[1].o)) {
 		KNH_SETv(ctx, ((knh_Context_t*)ctx)->out, DP(ctx->sys)->out);
@@ -352,7 +352,7 @@ static METHOD Context_setOut(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Static method void Context.setErr(OutputStream? out);
 
-static METHOD Context_setErr(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Context_setErr(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	if(IS_NULL(sfp[1].o)) {
 		KNH_SETv(ctx, ((knh_Context_t*)ctx)->err, DP(ctx->sys)->err);
@@ -379,7 +379,7 @@ static void knh_Context__dump(Ctx *ctx, knh_Context_t *b, knh_OutputStream_t *w,
 /* ------------------------------------------------------------------------ */
 //## method Boolean! Exception.opInstanceof(Any msg);
 
-static METHOD Exception_opInstanceof(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Exception_opInstanceof(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	int isa = 0;
 	if(IS_Class(sfp[1].o)) {
@@ -397,7 +397,7 @@ static METHOD Exception_opInstanceof(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## @Hidden @Const method void NameSpace.setConst(String! name, Any value);
 
-static METHOD NameSpace_setConst(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD NameSpace_setConst(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_NameSpace_addConst(ctx, sfp[0].ns, sfp[1].s, sfp[2].o);
 }

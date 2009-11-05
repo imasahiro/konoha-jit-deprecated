@@ -40,7 +40,7 @@ extern "C" {
 /* ------------------------------------------------------------------------ */
 //## method This! Connection.new(String! urn);
 
-static METHOD Connection_new(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Connection_new(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_Connection_t *o = (knh_Connection_t*)sfp[0].o;
 	knh_Connection_open(ctx, o, (knh_String_t*)sfp[1].s);
@@ -50,7 +50,7 @@ static METHOD Connection_new(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## method ResultSet! Connection.query(String! query);
 
-static METHOD Connection_query(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Connection_query(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_Connection_t *c = (knh_Connection_t*)sfp[0].o;
 	knh_String_t *query = (knh_String_t*)sfp[1].o;
@@ -72,7 +72,7 @@ static METHOD Connection_query(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## method void Connection.exec(String! query);
 
-static METHOD Connection_exec(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Connection_exec(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_Connection_t *c = (knh_Connection_t*)sfp[0].o;
 	knh_String_t *query = (knh_String_t*)sfp[1].o;
@@ -83,7 +83,7 @@ static METHOD Connection_exec(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## method void Connection.close();
 
-static METHOD Connection_close(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD Connection_close(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_Connection_close(ctx, (knh_Connection_t*)sfp[0].o);
 	KNH_RETURN_void(ctx, sfp);
@@ -92,7 +92,7 @@ static METHOD Connection_close(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## method Int! ResultSet.getSize();
 
-static METHOD ResultSet_getSize(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD ResultSet_getSize(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_ResultSet_t *o = (knh_ResultSet_t*)sfp[0].o;
 	KNH_RETURN_Int(ctx, sfp, DP(o)->column_size);
@@ -101,7 +101,7 @@ static METHOD ResultSet_getSize(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## method Boolean! ResultSet.next();
 
-static METHOD ResultSet_next(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD ResultSet_next(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_RETURN_Boolean(ctx, sfp, knh_ResultSet_next(ctx, (knh_ResultSet_t*)sfp[0].o))
 }
@@ -109,7 +109,7 @@ static METHOD ResultSet_next(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## method String! ResultSet.getName(Int! n);
 
-static METHOD ResultSet_getName(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD ResultSet_getName(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_ResultSet_t *o = (knh_ResultSet_t*)sfp[0].o;
 	size_t n = p_size(sfp[1]);
@@ -125,7 +125,7 @@ static METHOD ResultSet_getName(Ctx *ctx, knh_sfp_t *sfp)
 
 /* ------------------------------------------------------------------------ */
 
-int knh_ResultSet_indexof_(Ctx *ctx, knh_sfp_t *sfp)
+int knh_ResultSet_indexof_(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_ResultSet_t *o = (knh_ResultSet_t*)sfp[0].o;
 	if(IS_bInt(sfp[1].o)) {
@@ -152,7 +152,7 @@ int knh_ResultSet_indexof_(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## method Int ResultSet.getInt(Any n);
 
-static METHOD ResultSet_getInt(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD ResultSet_getInt(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	int n = knh_ResultSet_indexof_(ctx, sfp);
 	knh_int_t res = 0;
@@ -178,7 +178,7 @@ static METHOD ResultSet_getInt(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## method Float ResultSet.getFloat(Any n);
 
-static METHOD ResultSet_getFloat(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD ResultSet_getFloat(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	int n = knh_ResultSet_indexof_(ctx, sfp);
 	knh_float_t res = 0;
@@ -204,7 +204,7 @@ static METHOD ResultSet_getFloat(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## method String ResultSet.getString(Any n);
 
-static METHOD ResultSet_getString(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD ResultSet_getString(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	int n = knh_ResultSet_indexof_(ctx, sfp);
 	Object *v = KNH_NULL;
@@ -217,7 +217,7 @@ static METHOD ResultSet_getString(Ctx *ctx, knh_sfp_t *sfp)
 /* ------------------------------------------------------------------------ */
 //## method Any ResultSet.get(Any n);
 
-static METHOD ResultSet_get(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD ResultSet_get(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	int n = knh_ResultSet_indexof_(ctx, sfp);
 	Object *v = KNH_NULL;
@@ -284,7 +284,7 @@ static void knh_ResultSet__dump(Ctx *ctx, knh_ResultSet_t *o, knh_OutputStream_t
 /* ------------------------------------------------------------------------ */
 //## method void ResultSet.close();
 
-static METHOD ResultSet_close(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD ResultSet_close(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_ResultSet_close(ctx, (knh_ResultSet_t*)sfp[0].o);
 	KNH_RETURN_void(ctx, sfp);
