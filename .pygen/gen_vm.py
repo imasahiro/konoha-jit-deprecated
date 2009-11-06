@@ -560,16 +560,23 @@ def write_exec(f):
 	write_chapter(f, '[exec]')
 	f.write('''
 #ifdef KNH_USING_THREADEDCODE
-#define CASE(L, OP)   L:
-#define NEXT  *(op->nextaddr)
+#define CASE(x)   L_##x :
+#define NEXT_OP  *(op->nextaddr)
 #define JUMP  *(op->jumpaddr)
 #define TC(c)   c
+#define DISPATCH_START(pc) goto *OPJUMP[KNH_OPCODE(pc)];
+#define DISPATCH_END(pc)
 #else
 #define OPJUMP NULL
-#define CASE(L, OP)   case OP :
-#define NEXT L_HEAD
+#define CASE(x)   case OPCODE_##x :
+#define NEXT_OP L_HEAD
 #define JUMP L_HEAD
 #define TC(c)    
+#define DISPATCH_START(pc) L_HEAD:;switch(KNH_OPCODE(pc)) {
+#define DISPATCH_END(pc) \
+	}\
+	KNH_WARNING(ctx, "unknown opcode=%d", KNH_OPCODE(pc)); \
+	goto L_HEAD;
 #endif/*KNH_USING_THREADEDCODE*/
 
 METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
@@ -583,13 +590,9 @@ METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 		c += 1
 	f.write('''
 	};
-	register knh_code_t *pc = (sfp[-1].mtd)->pc_start;
-	goto *OPJUMP[KNH_OPCODE(pc)]; /* this is needed to init */
-#else
-	register knh_code_t *pc = (sfp[-1].mtd)->pc_start;
-	L_HEAD:;
-	switch(KNH_OPCODE(pc)) {
 #endif
+	register knh_code_t *pc = (sfp[-1].mtd)->pc_start;
+	DISPATCH_START(pc);
 ''')
 	for kc in KCODE_LIST:
 		LB = ''
@@ -598,19 +601,15 @@ METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 			LB = 'TC('
 			LE = ')'
 		f.write('''
-	CASE(%s, %s) {
+	CASE(%s) {
 		%sconst %s *op = (%s*)pc;%s
 		%s;
 		pc += %s;
-		goto NEXT;
-	} ''' % (kc.OPLABEL, kc.OPCODE, LB, kc.ctype, kc.ctype, LE, getmacro(kc, 'JUMP'), kc.SIZE))
+		goto NEXT_OP;
+	} ''' % (kc.name, LB, kc.ctype, kc.ctype, LE, getmacro(kc, 'JUMP'), kc.SIZE))
 
 	f.write('''
-#ifndef KNH_USING_THREADEDCODE
-	}
-	KNH_WARNING(ctx, "unknown opcode=%d", KNH_OPCODE(pc));
-	goto L_HEAD;
-#endif
+	DISPATCH_END(pc);
 }
 ''')
 

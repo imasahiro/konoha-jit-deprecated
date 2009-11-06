@@ -244,6 +244,7 @@ knh_KLRCode_t* knh_InstList_newKLRCode(Ctx *ctx, knh_Array_t *insts)
 
 void knh_code_thread(Ctx *ctx, knh_code_t *pc, void **codeaddr)
 {
+#ifdef KNH_USING_THREADEDCODE
 	while(KNH_OPCODE(pc) != OPCODE_HALT) {
 		knh_inst_t *op = (knh_inst_t*)pc;
 		DBG2_ASSERT_OPCODE(op->opcode);
@@ -255,6 +256,7 @@ void knh_code_thread(Ctx *ctx, knh_code_t *pc, void **codeaddr)
 		}
 		pc += knh_opcode_size(op->opcode);
 	}
+#endif
 }
 
 /* ======================================================================== */
