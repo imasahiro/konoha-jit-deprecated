@@ -845,6 +845,16 @@ CTT_FIN:
 }
 
 /* ------------------------------------------------------------------------ */
+//static void knh_arr_dump(unsigned char* addr,int n)
+//{
+//	int i;
+//	for (i = 0; i < n; i++) {
+//		fprintf(stderr, "%x ",addr[i]);
+//	}
+//	fprintf(stderr, "\n");
+//}
+
+/* ------------------------------------------------------------------------ */
 
 static void knh_ctt_patch(imem_t* mem)
 {
@@ -854,22 +864,32 @@ static void knh_ctt_patch(imem_t* mem)
 	imem_setLabel(mem, 255, 255, 255);
 
 	for(stack = head;stack->opcode != 255; stack += 1) {
-		fprintf(stderr, "pos=%3x,opcode=%3d,opsize=%d,jmpaddr=%d\n",
-		stack->pos,stack->opcode,stack->size,stack->addr);
+		//fprintf(stderr, "pos=%3x,opcode=%3d,opsize=%d,jmpaddr=%d\n",
+		//stack->pos,stack->opcode,stack->size,stack->addr);
 		if(stack->addr > 0) {
 			lstack_t* _s = NULL;
 			for(_s = stack; _s->opcode != 255; _s += 1) {
 				stack->addr -= _s->size;
-				fprintf(stderr, "%d\n",stack->addr);
-				fprintf(stderr, "\tpos=%3x,opcode=%3x,opsize=%3x,\n",
-				_s->pos,_s->opcode,_s->size);
+				//fprintf(stderr, "%d\n",stack->addr);
+				//fprintf(stderr, "\tpos=%3x,opcode=%3x,opsize=%3x,\n",
+				//_s->pos,_s->opcode,_s->size);
 				if(stack->addr <= 0) {
 					_s = _s + 1;
-					fprintf(stderr, "ok ps=%x,sp=%x l=%x\n",_s->pos,
-					stack->pos, _s->pos - stack->pos - 2);
-					fprintf(stderr, "p=%x\n",mem->addr[stack->pos + 1]);
-					mem->addr[stack->pos+1] = _s->pos - stack->pos - 2;
-					fprintf(stderr, "p=%x\n",mem->addr[stack->pos + 1]);
+					//fprintf(stderr, "ok ps=%x,sp=%x l=%x\n",_s->pos,
+					//stack->pos, _s->pos - stack->pos - 2);
+					//fprintf(stderr, "p=%x\n",mem->addr[stack->pos + 1]);
+					if(stack->opcode == OPCODE_JMP) {
+						if(mem->addr[stack->pos] == 0xe9) {
+							int32_t *addr = (int32_t*)(&mem->addr[stack->pos+1]);
+							addr[0] = (int32_t)(_s->pos - stack->pos - 2);
+						} else {
+							mem->addr[stack->pos+1] = _s->pos - stack->pos - 2;
+						}
+					}
+					else {
+						mem->addr[stack->pos+1] = _s->pos - stack->pos - 2;
+					}
+					//fprintf(stderr, "p=%x\n",mem->addr[stack->pos + 1]);
 					break;
 				}
 			}

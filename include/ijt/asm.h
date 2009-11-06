@@ -171,6 +171,14 @@
 } \
 
 
+// jit_2__jmp
+// eb 08
+#define jit_2__jmp(mem,idx) { \
+    imem_push(mem,0xeb); \
+    imem_push(mem,idx); \
+} \
+
+
 // jit_2__je_0x1b
 // 74 1b
 #define jit_2__je_to(mem,idx) { \
@@ -1316,11 +1324,11 @@
 
 // jit_5__jmp_0x01020304
 // e9 04 03 02 01
-#define jit_5__jmp(mem,func) { \
-	intptr_t ptr = (intptr_t) func - (intptr_t) (mem->addr + mem->index + 5); \
+#define jit_5__jmp(mem,imm32) { \
+	/*intptr_t ptr = (intptr_t) func - (intptr_t) (mem->addr + mem->index + 5); */\
 	OPCode_1_int _o;\
 	_o.op   = 0xe9;\
-	_o.ival = ptr;   \
+	_o.ival = imm32;   \
 	imem_write(mem,_o.code, 5); \
 } \
 

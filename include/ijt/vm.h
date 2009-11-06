@@ -189,7 +189,8 @@ void JIT_OP_CHKTYPE_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_class_t a2)
 
 void JIT_OP_FCALL_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_ushort_t a2,knh_sfpidx_t a3,knh_Method_t* a4)
 {
-	//KLR_FCALL(ctx,a1,a2,a3,a4);
+	knh_code_t *pc = NULL;
+	KLR_FCALL(ctx,a1,a2,a3,a4);
 }
 
 void JIT_OP_SCALL_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_ushort_t a2,knh_Method_t* a3)

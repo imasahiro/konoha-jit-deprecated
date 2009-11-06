@@ -44,6 +44,7 @@
 }
 #define JIT_ASM_MOVa(ctx,a1,a2) {\
 	imem_setLabel(mem, op->opcode, OPSIZE_MOVa, 0); \
+	IDEBUG("%-8s a1=%d,a2=%d\n","MOVa",a1,a2); \
 	jit_5__movl_imm32_ecx(mem,a2); \
 	jit_5__movl_imm32_edx(mem,a1); \
 	jit_3__movq_rbx_rsi(mem); \
@@ -52,6 +53,7 @@
 }
 #define JIT_ASM_MOVn(ctx,a1,a2) {\
 	imem_setLabel(mem, op->opcode, OPSIZE_MOVn, 0); \
+	IDEBUG("%-8s a1=%d,a2=%d\n","MOVn",a1,a2); \
 	jit_5__movl_imm32_ecx(mem,a2); \
 	jit_5__movl_imm32_edx(mem,a1); \
 	jit_3__movq_rbx_rsi(mem); \
@@ -69,6 +71,7 @@
 }
 #define JIT_ASM_MOVi(ctx,a1,a2) {\
 	imem_setLabel(mem, op->opcode, OPSIZE_MOVi, 0); \
+	IDEBUG("%-8s a1=%d,a2=%d\n","MOVi",a1,a2); \
 	jit_5__movl_imm32_ecx(mem,a2); \
 	jit_5__movl_imm32_edx(mem,a1); \
 	jit_3__movq_rbx_rsi(mem); \
@@ -260,7 +263,8 @@
 #define JIT_ASM_RET(ctx) {\
 	imem_setLabel(mem, op->opcode, OPSIZE_RET, 0); \
 	IDEBUG( "%-8s\n","RET"); \
-	jit_complete(mem);\
+	/*jit_complete(mem);*/\
+	goto CTT_FIN;\
 }
 #define JIT_ASM_YEILDBREAK(ctx) {\
 	imem_setLabel(mem, op->opcode, OPSIZE_YEILDBREAK, 0); \
@@ -466,8 +470,14 @@
 	jit_5__call(mem, JIT_OP_NNMAP_); \
 }
 #define JIT_ASM_JMP(ctx,a1) {\
-	imem_setLabel(mem, op->opcode, OPSIZE_JMP, (a1 - pc)); \
-	jit_5__jmp(mem, 0); \
+	int _a1 =  (a1 - pc); \
+	imem_setLabel(mem, op->opcode, OPSIZE_JMP, _a1); \
+	IDEBUG("%-8s a1=%x\n","JMP",(_a1)); \
+	if(_a1 >= 0x80) {\
+		jit_5__jmp(mem, 0); \
+	}else{ \
+		jit_2__jmp(mem, 0); \
+	}\
 }
 #define JIT_ASM_SKIP(ctx,a1) {\
 	imem_setLabel(mem, op->opcode, OPSIZE_SKIP, (a1 - pc)); \
@@ -485,6 +495,7 @@
 	jit_5__call(mem, JIT_OP_bJIFT_); \
 }
 #define JIT_ASM_bJIFF(ctx,a1,a2) {\
+	IDEBUG("%-8s a1=%p,a2=%d\n","bJIFF",(void*)(a1-pc),a2); \
 	int _tmp =  0x08 + a2 * 0x10; \
 	jit_3__movq_rbx_rsi(mem); \
 	jit_3__movq_r12_rdi(mem); \
@@ -665,6 +676,7 @@
 }
 #define JIT_ASM_iADD(ctx,a1,a2,a3) {\
 	imem_setLabel(mem, op->opcode, OPSIZE_iADD, 0); \
+	IDEBUG("%-8s a1=%d,a2=%d,a3=%d\n","iADD",a1,a2,a3); \
 	jit_6__movq_imm32_r8d(mem,a3); \
 	jit_5__movl_imm32_ecx(mem,a2); \
 	jit_5__movl_imm32_edx(mem,a1); \
@@ -674,6 +686,7 @@
 }
 #define JIT_ASM_iADDn(ctx,a1,a2,a3) {\
 	imem_setLabel(mem, op->opcode, OPSIZE_iADDn, 0); \
+	IDEBUG("%-8s a1=%d,a2=%d,a3=%lld\n","iADDn",a1,a2,a3); \
 	jit_6__movq_imm32_r8d(mem,a3); \
 	jit_5__movl_imm32_ecx(mem,a2); \
 	jit_5__movl_imm32_edx(mem,a1); \
@@ -683,6 +696,7 @@
 }
 #define JIT_ASM_iSUB(ctx,a1,a2,a3) {\
 	imem_setLabel(mem, op->opcode, OPSIZE_iSUB, 0); \
+	IDEBUG("%-8s a1=%d,a2=%d,a3=%d\n","iSUB",a1,a2,a3); \
 	jit_6__movq_imm32_r8d(mem,a3); \
 	jit_5__movl_imm32_ecx(mem,a2); \
 	jit_5__movl_imm32_edx(mem,a1); \
@@ -692,6 +706,7 @@
 }
 #define JIT_ASM_iSUBn(ctx,a1,a2,a3) {\
 	imem_setLabel(mem, op->opcode, OPSIZE_iSUBn, 0); \
+	IDEBUG("%-8s a1=%d,a2=%d,a3=%lld\n","iSUBn",a1,a2,a3); \
 	jit_6__movq_imm32_r8d(mem,a3); \
 	jit_5__movl_imm32_ecx(mem,a2); \
 	jit_5__movl_imm32_edx(mem,a1); \
@@ -701,6 +716,7 @@
 }
 #define JIT_ASM_iMUL(ctx,a1,a2,a3) {\
 	imem_setLabel(mem, op->opcode, OPSIZE_iMUL, 0); \
+	IDEBUG("%-8s a1=%d,a2=%d,a3=%d\n","iMUL",a1,a2,a3); \
 	jit_6__movq_imm32_r8d(mem,a3); \
 	jit_5__movl_imm32_ecx(mem,a2); \
 	jit_5__movl_imm32_edx(mem,a1); \
@@ -719,6 +735,7 @@
 }
 #define JIT_ASM_iDIV(ctx,a1,a2,a3) {\
 	imem_setLabel(mem, op->opcode, OPSIZE_iDIV, 0); \
+	IDEBUG("%-8s a1=%d,a2=%d,a3=%d\n","iDIV",a1,a2,a3); \
 	jit_6__movq_imm32_r8d(mem,a3); \
 	jit_5__movl_imm32_ecx(mem,a2); \
 	jit_5__movl_imm32_edx(mem,a1); \
@@ -800,6 +817,7 @@
 }
 #define JIT_ASM_iLTn(ctx,a1,a2,a3) {\
 	imem_setLabel(mem, op->opcode, OPSIZE_iLTn, 0); \
+	IDEBUG("%-8s a1=%d,a2=%d,a3=%lld\n","iLTn",a1,a2,a3);\
 	jit_6__movq_imm32_r8d(mem,a3); \
 	jit_5__movl_imm32_ecx(mem,a2); \
 	jit_5__movl_imm32_edx(mem,a1); \
