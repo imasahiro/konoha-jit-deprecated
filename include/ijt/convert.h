@@ -2,7 +2,7 @@
 #define IJT_CONVERT_H
 
 #include "asm.h"
-#define IJT_DBG_MODE 0
+#define IJT_DBG_MODE 1
 #if IJT_DBG_MODE
 #define IDEBUG(fmt, ...) {\
     fprintf(stdout, fmt, ## __VA_ARGS__); \
@@ -60,6 +60,7 @@
 }
 #define JIT_ASM_MOVo(ctx,a1,a2) {\
 	imem_setLabel(mem, op->opcode, OPSIZE_MOVo, 0); \
+	IDEBUG("%-8s a1=%d,a2=%p\n","MOVo",a1,(void*)a2); \
 	jit_10__movq_imm64_rcx(mem,(knh_int_t)a2); \
 	jit_5__movl_imm32_edx(mem,a1); \
 	jit_3__movq_rbx_rsi(mem); \
@@ -93,6 +94,7 @@
 }
 #define JIT_ASM_MOVSYS(ctx,a1,a2) {\
 	imem_setLabel(mem, op->opcode, OPSIZE_MOVSYS, 0); \
+	IDEBUG( "%-8s a1=%d,a2=%d\n","MOVSYS",a1,a2); \
 	jit_5__movl_imm32_ecx(mem,a2); \
 	jit_5__movl_imm32_edx(mem,a1); \
 	jit_3__movq_rbx_rsi(mem); \
@@ -249,6 +251,7 @@
 }
 #define JIT_ASM_CHKESP(ctx,a1) {\
 	imem_setLabel(mem, op->opcode, OPSIZE_CHKESP, 0); \
+	IDEBUG( "%-8s a1=%d\n","CHECKESP",a1); \
 	jit_5__movl_imm32_edx(mem,a1); \
 	jit_3__movq_rbx_rsi(mem); \
 	jit_3__movq_r12_rdi(mem); \
@@ -256,6 +259,7 @@
 }
 #define JIT_ASM_RET(ctx) {\
 	imem_setLabel(mem, op->opcode, OPSIZE_RET, 0); \
+	IDEBUG( "%-8s\n","RET"); \
 	jit_complete(mem);\
 }
 #define JIT_ASM_YEILDBREAK(ctx) {\
@@ -328,6 +332,7 @@
 }
 #define JIT_ASM_FCALL(ctx,a1,a2,a3,a4) {\
 	imem_setLabel(mem, op->opcode, OPSIZE_FCALL, 0); \
+	IDEBUG("%-8s a1=%d,a2=%d,a3=%d,a4=%p\n","FCALL",a1,a2,a3, (void*) a4); \
 	jit_10__movq_imm64_r9(mem,(knh_int_t)a4); \
 	jit_6__movq_imm32_r8d(mem,a3); \
 	jit_5__movl_imm32_ecx(mem,a2); \
@@ -338,6 +343,7 @@
 }
 #define JIT_ASM_SCALL(ctx,a1,a2,a3) {\
 	imem_setLabel(mem, op->opcode, OPSIZE_SCALL, 0); \
+	IDEBUG( "%-8s a1=%d,a2=%d,a3=%p\n","SCALL",a1,a2,(void*)a3); \
 	jit_10__movq_imm64_r8(mem, (knh_int_t)a3); \
 	jit_5__movl_imm32_ecx(mem,(int)a2); \
 	jit_5__movl_imm32_edx(mem,a1); \
@@ -1152,11 +1158,13 @@
 	jit_5__call(mem, JIT_OP_fARYSETn_); \
 }
 #define JIT_ASM_THCODE(ctx,a1) {\
+	/*
 	imem_setLabel(mem, op->opcode, OPSIZE_THCODE, 0); \
 	jit_5__movl_imm32_edx(mem,a1); \
 	jit_3__movq_rbx_rsi(mem); \
 	jit_3__movq_r12_rdi(mem); \
 	jit_5__call(mem, JIT_OP_THCODE_); \
+	*/\
 }
 #define JIT_ASM_NOP(ctx) {\
 	imem_setLabel(mem, op->opcode, OPSIZE_NOP, 0); \

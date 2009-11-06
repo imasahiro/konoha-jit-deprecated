@@ -838,10 +838,9 @@ METHOD knh_KLRCode_toCttCode(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 CTT_FIN:
 	{
 		jit_complete(mem);
-		knh_fmethod f = (knh_fmethod) mem->addr;
 		knh_ctt_patch(mem);
 		imem_complete(mem);
-		knh_Method_syncFunc(mtd,f);
+		knh_Method_syncFunc(mtd,(knh_fmethod) mem->addr);
 	}
 }
 
@@ -855,22 +854,22 @@ static void knh_ctt_patch(imem_t* mem)
 	imem_setLabel(mem, 255, 255, 255);
 
 	for(stack = head;stack->opcode != 255; stack += 1) {
-		//fprintf(stderr, "pos=%3x,opcode=%3d,opsize=%d,jmpaddr=%d\n",
-		//stack->pos,stack->opcode,stack->size,stack->addr);
+		fprintf(stderr, "pos=%3x,opcode=%3d,opsize=%d,jmpaddr=%d\n",
+		stack->pos,stack->opcode,stack->size,stack->addr);
 		if(stack->addr > 0) {
 			lstack_t* _s = NULL;
 			for(_s = stack; _s->opcode != 255; _s += 1) {
 				stack->addr -= _s->size;
-				//fprintf(stderr, "%d\n",stack->addr);
-				//fprintf(stderr, "\tpos=%3x,opcode=%3x,opsize=%3x,\n",
-				//_s->pos,_s->opcode,_s->size);
+				fprintf(stderr, "%d\n",stack->addr);
+				fprintf(stderr, "\tpos=%3x,opcode=%3x,opsize=%3x,\n",
+				_s->pos,_s->opcode,_s->size);
 				if(stack->addr <= 0) {
 					_s = _s + 1;
-					//fprintf(stderr, "ok ps=%x,sp=%x l=%x\n",_s->pos,
-					//stack->pos, _s->pos - stack->pos - 2);
-					//fprintf(stderr, "p=%x\n",mem->addr[stack->pos + 1]);
+					fprintf(stderr, "ok ps=%x,sp=%x l=%x\n",_s->pos,
+					stack->pos, _s->pos - stack->pos - 2);
+					fprintf(stderr, "p=%x\n",mem->addr[stack->pos + 1]);
 					mem->addr[stack->pos+1] = _s->pos - stack->pos - 2;
-					// fprintf(stderr, "p=%x\n",mem->addr[stack->pos + 1]);
+					fprintf(stderr, "p=%x\n",mem->addr[stack->pos + 1]);
 					break;
 				}
 			}

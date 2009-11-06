@@ -194,7 +194,8 @@ void JIT_OP_FCALL_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_ushort_t a2,knh_
 
 void JIT_OP_SCALL_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_ushort_t a2,knh_Method_t* a3)
 {
-	//KLR_SCALL(ctx,a1,a2,a3);
+	knh_code_t *pc = NULL;
+	KLR_SCALL(ctx,a1,a2,a3);
 }
 
 void JIT_OP_AINVOKE_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_ushort_t a2)
