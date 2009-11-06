@@ -135,6 +135,18 @@ void knh_write_end(Ctx *ctx, knh_OutputStream_t *w, int ch)
 /* ======================================================================== */
 /* [datatype] */
 
+void knh_write_bool(Ctx *ctx, knh_OutputStream_t *w, int b)
+{
+	if(b) {
+		knh_write(ctx, w, __tobytes(TS_true));
+	}
+	else {
+		knh_write(ctx, w, __tobytes(TS_false));
+	}
+}
+
+/* ------------------------------------------------------------------------ */
+
 void knh_write_char(Ctx *ctx, knh_OutputStream_t *w, char *s)
 {
 	knh_write(ctx, w, B(s));

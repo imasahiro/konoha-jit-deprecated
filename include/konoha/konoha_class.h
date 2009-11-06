@@ -522,8 +522,8 @@ typedef struct {
 		void*             code;
 		struct knh_KLRCode_t *kcode;
 	};
-//	knh_uintptr_t    prof_count;  /*recode how many times called */
-//	knh_uintptr_t    prof_time;   /*recode how long spending */
+	knh_uintptr_t    prof_count;  /*recode how many times called */
+	knh_uintptr_t    prof_time;   /*recode how long spending */
 } knh_Method_struct;
 
 typedef struct knh_Method_t {

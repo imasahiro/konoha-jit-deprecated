@@ -750,6 +750,58 @@ knh_Method_t *knh_lookupFormatter(Ctx *ctx, knh_class_t cid, knh_methodn_t mn)
 	return mtd;
 }
 
+///* ------------------------------------------------------------------------ */
+///* [tracer] */
+//
+//static
+//METHOD knh_fmethod_security(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+//{
+//	knh_Method_t *mtd = sfp[-1].mtd;
+//
+//}
+//
+//static
+//METHOD knh_fmethod_profiler(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+//{
+//	knh_Method_t *mtd = sfp[-1].mtd;
+//#if defined(KNH_USING_WINDOWS)
+//	DWORD start, end;
+//	start = GetTickCount();
+//#elif defined(KNH_USING_POSIX)
+//	struct timeval start, end;
+//	gettimeofday(&start, NULL);
+////	return tv.tv_sec * 1000 + tv.tv_usec / 1000;
+//#endif
+//	DP(mtd)->proceed(ctx, sfp);
+//#if defined(KNH_USING_WINDOWS)
+//	end = GetTickCount();
+//#elif defined(KNH_USING_POSIX)
+//	gettimeofday(&end, NULL);
+////	return tv.tv_sec * 1000 + tv.tv_usec / 1000;
+//#endif
+//
+//}
+//
+//static
+//METHOD knh_fmethod_function(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+//{
+//	knh_Method_t *mtd = sfp[-1].mtd;
+//
+//}
+
+void knh_Method_trace(Ctx *ctx, knh_Method_t *mtd, int trace)
+{
+	switch(trace) {
+	case 1:
+		DP(mtd)->prof_count = 0;
+		DP(mtd)->prof_time = 0;
+		break;
+	case 0:
+	default:
+		(mtd)->fcall_1 = DP(mtd)->fproceed;
+	}
+}
+
 /* ------------------------------------------------------------------------ */
 
 #ifdef __cplusplus

@@ -62,17 +62,6 @@ void knh_stack_reformat(Ctx *ctx, knh_sfp_t *sfp, knh_methodn_t fmt)
 }
 
 static
-void knh_write_bool(Ctx *ctx, knh_OutputStream_t *w, int b)
-{
-	if(b) {
-		knh_write(ctx, w, __tobytes(TS_true));
-	}
-	else {
-		knh_write(ctx, w, __tobytes(TS_false));
-	}
-}
-
-static
 void knh_write_ObjectField(Ctx *ctx, knh_OutputStream_t *w, Object **v, size_t i, knh_type_t type, knh_methodn_t mn)
 {
 #ifdef KNH_USING_UNBOXFIELD
