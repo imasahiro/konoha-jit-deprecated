@@ -8,7 +8,6 @@ from pygenlib import *
 INSTRUCTIONS = """
 HALT
 
-##MOV
 MOVa sfpidx sfpidx
 MOVn sfpidx sfpidx
 MOVo sfpidx Object
@@ -31,23 +30,6 @@ XMOVsi sfx sfpidx
 XMOVsf sfx sfpidx
 XMOVsb sfx sfpidx
 
-#XMOVoi sfx Object
-#XMOVxi sfx sfx
-#XMOVxio sfx sfx
-#XMOVxBXi sfx sfx cid
-#XMOVof sfx Object
-#XMOVxf sfx sfx
-#XMOVxfo sfx sfx
-#XMOVxBXf sfx sfx cid
-#XMOVob sfx Object
-#XMOVxb sfx sfx
-
-#EMOVs sfe sfe
-#EMOVo sfe Object
-#EMOVe sfe sfe
-#EMOVDEF sfe cid
-#EMOVSYS sfe ushort
-
 SWAP  sfpidx sfpidx
 
 PARAMDEF sfpidx cid
@@ -58,11 +40,6 @@ PARAMS sfpidx cid
 CHKESP sfpidx
 
 RET
-#RETn sfpidx sfpidx
-#RETa sfpidx sfpidx
-#RETo sfpidx Object
-#RETi sfpidx int
-#RETx sfpidx sfx
 YEILDBREAK
 
 BOX sfpidx cid
@@ -74,7 +51,6 @@ UNBOX sfpidx
 CHKNUL sfpidx
 CHKNULx sfx
 CHKTYPE sfpidx cid
-#CHECKNNTYPE sfpidx type
 
 FCALL sfpidx ushort sfpidx Method
 SCALL sfpidx ushort Method

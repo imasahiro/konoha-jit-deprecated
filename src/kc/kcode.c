@@ -38,8 +38,7 @@ extern "C" {
 /* ======================================================================== */
 /* [kcode] */
 
-static
-void knh_ftraverse_inc(Ctx* ctx, Object *o)
+static void knh_ftraverse_inc(Ctx* ctx, Object *o)
 {
 	knh_Object_RCinc(o);
 }
@@ -107,7 +106,7 @@ void knh_Method_inline(Ctx *ctx, knh_Method_t *mtd, knh_code_t *pc_new, size_t s
 	pc_orig += knh_opcode_size(OPCODE_CHKESP);
 	knh_memcpy(pc_new, pc_orig, size);
 	int shift_pc = pc_new - pc_orig;
-	DBG2_P("shifting shift(sfpidx)=%d, shift_pc=%d %p => %p", shift, shift_pc, pc_orig, pc_new);
+	//DBG2_P("shifting shift(sfpidx)=%d, shift_pc=%d %p => %p", shift, shift_pc, pc_orig, pc_new);
 	knh_code_t *pc = pc_new;
 	while(pc - pc_new < size) {
 		knh_inst_t* inst = (knh_inst_t*)pc;
@@ -125,17 +124,17 @@ knh_KLRCode_t* knh_InstList_newKLRCode(Ctx *ctx, knh_Array_t *insts)
 	size_t i, inst_size = knh_Array_size(insts), elf_size = 0, dwarf_size, dwarf2_size = 0;
 	int last_line = 0;
 	knh_KLRInst_t *inst = knh_InstList_lastNULL(insts);
-	// add HALT to last KLRInst
-	if(inst != NULL && inst->opcode != OPCODE_HALT) {
-		KNH_ASM(HALT);
+	// add RET to last KLRInst
+	if(inst != NULL && inst->opcode != OPCODE_RET) {
+		DBG2_ABORT();
+		KNH_ASM(RET);
 		inst_size += 1;
 	}
-
 	// count opcode size
 	for(i = 0; i < inst_size; i++) {
 		inst = (knh_KLRInst_t*)knh_Array_n(insts, i);
 		if(inst->opcode == OPCODE_LABEL) continue;
-		if(inst->opcode == OPCODE_HALT) {
+		if(inst->opcode == OPCODE_RET) {
 			inst->line = last_line + 1;
 		}
 		if(inst->line > last_line) {
@@ -245,7 +244,7 @@ knh_KLRCode_t* knh_InstList_newKLRCode(Ctx *ctx, knh_Array_t *insts)
 void knh_code_thread(Ctx *ctx, knh_code_t *pc, void **codeaddr)
 {
 #ifdef KNH_USING_THREADEDCODE
-	while(KNH_OPCODE(pc) != OPCODE_HALT) {
+	while(KNH_OPCODE(pc) != OPCODE_RET) {
 		knh_inst_t *op = (knh_inst_t*)pc;
 		DBG2_ASSERT_OPCODE(op->opcode);
 		op->codeaddr = codeaddr[op->opcode];

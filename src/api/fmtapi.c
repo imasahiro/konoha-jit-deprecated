@@ -791,12 +791,15 @@ static METHOD Method__dump(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 	if(knh_Method_isObjectCode(mtd)) {
 		if(IS_KLRCode(DP(mtd)->kcode)) {
 			knh_code_t *pc = SP(mtd)->pc_start;
-			while(KNH_OPCODE(pc) != OPCODE_HALT) {
+			while(KNH_OPCODE(pc) != OPCODE_RET) {
 				knh_printf(ctx, w, "[%p:%d] ", pc, knh_Method_pcline(mtd, pc));
 				knh_opcode_dump(ctx, (knh_inst_t*)pc, w);
 				knh_write_EOL(ctx, w);
 				pc += knh_opcode_size(KNH_OPCODE(pc));
 			}
+			knh_printf(ctx, w, "[%p:%d] ", pc, knh_Method_pcline(mtd, pc));
+			knh_opcode_dump(ctx, (knh_inst_t*)pc, w);
+			knh_write_EOL(ctx, w);
 		}
 	}
 }

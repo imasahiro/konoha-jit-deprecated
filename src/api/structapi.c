@@ -2216,7 +2216,7 @@ static void knh_KLRCode_traverse(Ctx *ctx, knh_KLRCode_t *o, knh_ftraverse ftr)
 {
 	knh_KLRCode_struct *b = DP(o);
 	knh_code_t *pc = DP(o)->code;
-	while(KNH_OPCODE(pc) != OPCODE_HALT) {
+	while(KNH_OPCODE(pc) != OPCODE_RET) {
 		knh_opcode_traverse(ctx, (knh_inst_t*)pc, ftr);
 		pc += knh_opcode_size(KNH_OPCODE(pc));
 	}

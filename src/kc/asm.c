@@ -191,7 +191,7 @@ static void knh_Method_skipCHKESP(Ctx *ctx, knh_Method_t *mtd)
 {
 	knh_code_t *pc = mtd->pc_start;
 	knh_inst_t *op;
-	while(KNH_OPCODE(pc) != OPCODE_HALT) {
+	while(KNH_OPCODE(pc) != OPCODE_RET) {
 		op = (knh_inst_t*)pc;
 		switch(op->opcode) {
 		case OPCODE_CALL:
