@@ -138,18 +138,27 @@ knh_uint64_t knh_getTimeMilliSecond(void)
 }
 
 /* ------------------------------------------------------------------------ */
-/* [Profiler] */
 
-knh_uint64_t knh_getProfCount(void)
+METHOD knh_fmethod_profiler(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
-	return 0;
-}
+	knh_Method_t *mtd = sfp[-1].mtd;
+#if defined(KNH_USING_WINDOWS)
+	DWORD start, end;
+	start = GetTickCount();
+#elif defined(KNH_USING_POSIX)
+	struct timeval start, end;
+	gettimeofday(&start, NULL);
+//	return tv.tv_sec * 1000 + tv.tv_usec / 1000;
+#endif
+	DP(mtd)->prof_count += 1;
+	DP(mtd)->fproceed(ctx, sfp);
+#if defined(KNH_USING_WINDOWS)
+	end = GetTickCount();
+#elif defined(KNH_USING_POSIX)
+	gettimeofday(&end, NULL);
+//	return tv.tv_sec * 1000 + tv.tv_usec / 1000;
+#endif
 
-/* ------------------------------------------------------------------------ */
-
-knh_uint64_t knh_getProfCountPerSecond(void)
-{
-	return 1;
 }
 
 /* ======================================================================== */

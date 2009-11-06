@@ -710,48 +710,6 @@ void KNH_ASM_MOV(Ctx *ctx, knh_Token_t *tka, knh_Token_t *tkb)
 static
 void KNH_ASM_RET(Ctx *ctx)
 {
-#ifdef OPCODE_RETo
-	knh_KLRInst_t *iLAST = knh_InstList_lastNULL(DP(ctx->kc)->insts);
-	if(iLAST != NULL) {
-		knh_opcode_t p = iLAST->opcode;
-		klr_MOVn_t *op = (klr_MOVn_t*)(iLAST)->op;
-		if(OPCODE_RET <= p && p <= OPCODE_RETx) {
-			return;
-		}
-		if(p == OPCODE_MOVn) {
-			if(op->a1 == -1) {
-				knh_KLRInst_setopcode(iLAST, OPCODE_RETn);
-				return;
-			}
-		}
-		else if(p == OPCODE_MOVa) { /* PEEPHOLE */
-			if(op->a1 == -1) {
-				knh_KLRInst_setopcode(iLAST, OPCODE_RETa);
-				return;
-			}
-		}
-		else if(p == OPCODE_MOVo) { /* PEEPHOLE */
-			if(op->a1 == -1) {
-				knh_KLRInst_setopcode(iLAST, OPCODE_RETo);
-				return;
-			}
-		}
-		else if(p == OPCODE_MOVi) { /* PEEPHOLE */
-			if(op->a1 == -1) {
-				knh_KLRInst_setopcode(iLAST, OPCODE_RETi);
-				return;
-			}
-		}
-		else if(p == OPCODE_MOVx) { /* PEEPHOLE */
-			if(op->a1 == -1) {
-				knh_KLRInst_setopcode(iLAST, OPCODE_RETx);
-				return;
-			}
-		}
-
-	}
-	KNH_ASM(RET);
-#endif
 	knh_KLRInst_t *lbEND = (knh_KLRInst_t*)knh_Array_n(DP(ctx->kc)->lstacks, 2);
 	KNH_ASM(JMP, TADDR lbEND);
 }

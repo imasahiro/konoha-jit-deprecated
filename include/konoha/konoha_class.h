@@ -544,6 +544,13 @@ typedef struct knh_Method_t {
 #define knh_Class_getMethod(ctx, c, mn)    knh_Class_getMethod__(ctx, c, mn, 0)
 #define knh_Class_findMethod(ctx, c, mn)   knh_Class_getMethod__(ctx, c, mn, 1)
 
+#define KNH_NOTRACE         0
+#define KNH_SECURITYTRACE   1
+#define KNH_AUDITTRACE      2
+#define KNH_PROFILER        3
+#define KNH_STACKTRACE      4
+#define KNH_FUNCTIONTRACE   5
+
 /* ------------------------------------------------------------------------ */
 //## @Struct class Mapper Object;
 //## flag Mapper Interface     0 DP(%s)->flag is set is *;

@@ -126,7 +126,6 @@ knh_KLRCode_t* knh_InstList_newKLRCode(Ctx *ctx, knh_Array_t *insts)
 	knh_KLRInst_t *inst = knh_InstList_lastNULL(insts);
 	// add RET to last KLRInst
 	if(inst != NULL && inst->opcode != OPCODE_RET) {
-		DBG2_ABORT();
 		KNH_ASM(RET);
 		inst_size += 1;
 	}
@@ -244,7 +243,7 @@ knh_KLRCode_t* knh_InstList_newKLRCode(Ctx *ctx, knh_Array_t *insts)
 void knh_code_thread(Ctx *ctx, knh_code_t *pc, void **codeaddr)
 {
 #ifdef KNH_USING_THREADEDCODE
-	while(KNH_OPCODE(pc) != OPCODE_RET) {
+	while(1) {
 		knh_inst_t *op = (knh_inst_t*)pc;
 		DBG2_ASSERT_OPCODE(op->opcode);
 		op->codeaddr = codeaddr[op->opcode];
@@ -253,6 +252,7 @@ void knh_code_thread(Ctx *ctx, knh_code_t *pc, void **codeaddr)
 			//DBG2_P("%p(%d) GOTO %p(%d)", op, op->opcode, op->jumppc, jopcode);
 			op->jumpaddr = codeaddr[jopcode];
 		}
+		if(op->opcode == OPCODE_RET) break;
 		pc += knh_opcode_size(op->opcode);
 	}
 #endif

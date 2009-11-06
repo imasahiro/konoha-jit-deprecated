@@ -120,6 +120,15 @@ static METHOD Method_getName(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 }
 
 /* ------------------------------------------------------------------------ */
+//## @Const method void Method.setTrace(int trace);
+
+static METHOD Method_setTrace(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+{
+	knh_Method_trace(ctx, sfp[0].mtd, (int)sfp[1].ivalue);
+	KNH_RETURN_void(ctx, sfp);
+}
+
+/* ------------------------------------------------------------------------ */
 //## method T0 Closure.invoke(T1 x, T2 y, T3 z, ...);
 
 static METHOD Closure_invoke(Ctx *ctx, knh_sfp_t *sfp METHODOPT)

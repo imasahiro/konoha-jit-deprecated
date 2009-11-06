@@ -2548,17 +2548,19 @@ static void knh_loadStringPropertyData(Ctx *ctx, knh_StringConstData_t *data)
 static knh_IntConstData_t IntConstData[] = {
 	{"Int.MAX", KNH_INT_MAX},
 	{"Int.MIN", KNH_INT_MIN},
+	{"Method.NOTRACE", KNH_NOTRACE},
+	{"Method.SECURITY", KNH_SECURITYTRACE},
+	{"Method.AUDIT", KNH_AUDITTRACE},
+	{"Method.PROFILE", KNH_PROFILER},
+	{"Method.STACK", KNH_STACKTRACE},
+	{"Method.FUNCTION", KNH_FUNCTIONTRACE},
 	{NULL, 0}
 };
 
 static knh_FloatConstData_t FloatConstData[] = {
 	{"Float.MAX", KNH_FLOAT_MAX},
 	{"Float.MIN", KNH_FLOAT_MIN},
-#ifndef KONOHA_ON_LKM
-	{NULL, 0.0}
-#else
-	{NULL, 0.0}
-#endif
+	{NULL, KNH_FLOAT_ZERO}
 };
 
 static knh_StringConstData_t StringConstData[] = {

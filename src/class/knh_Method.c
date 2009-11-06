@@ -750,53 +750,78 @@ knh_Method_t *knh_lookupFormatter(Ctx *ctx, knh_class_t cid, knh_methodn_t mn)
 	return mtd;
 }
 
-///* ------------------------------------------------------------------------ */
-///* [tracer] */
-//
-//static
-//METHOD knh_fmethod_security(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
-//{
-//	knh_Method_t *mtd = sfp[-1].mtd;
-//
-//}
-//
-//static
-//METHOD knh_fmethod_profiler(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
-//{
-//	knh_Method_t *mtd = sfp[-1].mtd;
-//#if defined(KNH_USING_WINDOWS)
-//	DWORD start, end;
-//	start = GetTickCount();
-//#elif defined(KNH_USING_POSIX)
-//	struct timeval start, end;
-//	gettimeofday(&start, NULL);
-////	return tv.tv_sec * 1000 + tv.tv_usec / 1000;
-//#endif
-//	DP(mtd)->proceed(ctx, sfp);
-//#if defined(KNH_USING_WINDOWS)
-//	end = GetTickCount();
-//#elif defined(KNH_USING_POSIX)
-//	gettimeofday(&end, NULL);
-////	return tv.tv_sec * 1000 + tv.tv_usec / 1000;
-//#endif
-//
-//}
-//
-//static
-//METHOD knh_fmethod_function(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
-//{
-//	knh_Method_t *mtd = sfp[-1].mtd;
-//
-//}
+/* ------------------------------------------------------------------------ */
+/* [tracer] */
+
+
+METHOD knh_fmethod_securityTrace(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+{
+	knh_Method_t *mtd = sfp[-1].mtd;
+
+}
+
+
+static
+void knh_stack_writeReturnValue(Ctx *ctx, knh_sfp_t *sfp, knh_OutputStream_t *w, knh_type_t rtype)
+{
+	if(rtype == TYPE_void) {
+		knh_write(ctx, w, STEXT("void"));
+	}
+	if(IS_ubxtype(rtype)) {
+		knh_write_ifmt(ctx, w, KNH_INT_FMT, sfp[-1].ivalue);
+	}
+	else if (IS_ubxfloat(rtype)) {
+		knh_write_ifmt(ctx, w, KNH_FLOAT_FMT, sfp[-1].fvalue);
+	}
+	else if(rtype == NNTYPE_Boolean){
+		knh_write_bool(ctx, w, sfp[-1].bvalue);
+	}
+	else {
+		knh_stack_w(ctx, ctx->esp, &sfp[-1], METHODN__k, w, KNH_NULL);
+	}
+}
+
+/* ------------------------------------------------------------------------ */
+
+METHOD knh_fmethod_stackTrace(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+{
+	knh_Method_t *mtd = sfp[-1].mtd;
+	knh_OutputStream_t *w = KNH_STDERR;
+	knh_intptr_t count = DP(mtd)->prof_count;
+	knh_sfp_t *esp = ctx->esp;
+	knh_type_t rtype = knh_Method_rztype(mtd);
+	knh_putc(ctx, w, '#');
+	knh_write_ifmt(ctx, w, KNH_INT_FMT, (knh_int_t)count);
+	knh_putc(ctx, w, ':');
+	knh_stack_writeStackTrace(ctx, sfp, w);
+	knh_write_EOL(ctx, w);
+	DBG2_ASSERT(ctx->esp == esp);
+	DP(mtd)->prof_count += 1;
+	DP(mtd)->fproceed(ctx, sfp);
+	knh_putc(ctx, w, '#');
+	knh_write_ifmt(ctx, w, KNH_INT_FMT, (knh_int_t)count);
+	knh_write(ctx, w, STEXT(":-> "));
+	knh_stack_writeReturnValue(ctx, sfp, w, rtype);
+	knh_write_EOL(ctx, w);
+}
+
+/* ------------------------------------------------------------------------ */
 
 void knh_Method_trace(Ctx *ctx, knh_Method_t *mtd, int trace)
 {
+	DP(mtd)->prof_count = 0;
+	DP(mtd)->prof_time = 0;
 	switch(trace) {
-	case 1:
-		DP(mtd)->prof_count = 0;
-		DP(mtd)->prof_time = 0;
+	case KNH_SECURITYTRACE:
 		break;
-	case 0:
+	case KNH_AUDITTRACE:
+		break;
+	case KNH_PROFILER:
+		break;
+	case KNH_STACKTRACE:
+		(mtd)->fcall_1 = knh_fmethod_stackTrace;
+		break;
+	case KNH_NOTRACE:
 	default:
 		(mtd)->fcall_1 = DP(mtd)->fproceed;
 	}
