@@ -554,7 +554,7 @@ void KNH_ASM_XMOV(Ctx *ctx, knh_type_t atype, int a, size_t an, knh_Token_t *tkb
 			}
 			if(IS_ubxboolean(atype)) {
 				KNH_ASM(MOVi, DP(kc)->esp, knh_Object_data(v));
-				KNH_ASM(XMOVsf, ax, DP(kc)->esp);
+				KNH_ASM(XMOVsb, ax, DP(kc)->esp);
 				break;
 			}
 #endif/*KNU_USING_UNBOXFIED*/
