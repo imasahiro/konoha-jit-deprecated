@@ -722,7 +722,6 @@ int knh_stack_argc(Ctx *ctx, knh_sfp_t *v);
 knh_Array_t* knh_stack_toArray(Ctx *ctx, knh_sfp_t *sfp, knh_class_t cid);
 void knh_stack_typecheck(Ctx *ctx, knh_sfp_t *sfp, knh_Method_t *mtd, knh_code_t *pc);
 knh_sfp_t* knh_stack_callee(Ctx *ctx, knh_sfp_t *sfp, char **file, int *linenum);
-void knh_stack_writeStackTrace(Ctx *ctx, knh_sfp_t *sfp, knh_OutputStream_t *w);
 Object *knh_getClassConstNULL(Ctx *ctx, knh_class_t cid, knh_bytes_t name);
 int knh_addClassConst(Ctx *ctx, knh_class_t cid, knh_String_t* name, Object *value);
 Object *knh_getSystemConst(Ctx *ctx, int n);

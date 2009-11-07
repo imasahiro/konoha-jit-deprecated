@@ -2148,6 +2148,173 @@ Term *knh_StmtINVOKE_typing(Ctx *ctx, knh_Stmt_t *stmt)
 	}
 }
 
+/* ------------------------------------------------------------------------ */
+/* [built-in function] */
+
+static Term* knh_StmtTYPEOF_typing(Ctx *ctx, knh_Stmt_t *stmt)
+{
+	if(TERMs_typing(ctx, stmt, 2, TYPE_Any, TWARN_)) {
+		knh_Token_t *tk = DP(stmt)->tokens[0];
+		knh_Token_setCONST(ctx, tk, UP(new_Type(ctx, TERMs_gettype(stmt, 2))));
+		return TM(tk);
+	}
+	return NULL;
+}
+
+static Term* knh_StmtLIKELY_typing(Ctx *ctx, knh_Stmt_t *stmt)
+{
+	if(TERMs_typing(ctx, stmt, 2, NNTYPE_Boolean, TCHECK_)) {
+		return DP(stmt)->terms[2];
+	}
+	return NULL;
+}
+
+static Term* knh_StmtFFORMAT_typing(Ctx *ctx, knh_Stmt_t *stmt)
+{
+	int i;
+	for(i = 1; i < DP(stmt)->size-1; i++) {
+		KNH_SETv(ctx, DP(stmt)->terms[i], DP(stmt)->terms[i+1]);
+	}
+	DP(stmt)->size -= 1;
+	if(!TERMs_typing(ctx, stmt, 1, CLASS_String, TCHECK_)) {
+		return NULL;
+	}
+	return TM(stmt);
+}
+
+static Term* knh_StmtDEFAULT_typing(Ctx *ctx, knh_Stmt_t *stmt)
+{
+	if(TERMs_typing(ctx, stmt, 2, CLASS_Any, TWARN_)) {
+		knh_Token_t *tk = DP(stmt)->tokens[0];
+		if(TERMs_isCLASSID(stmt, 2)) {
+			tk = DP(stmt)->tokens[2];
+			knh_Token_toDEFVAL(tk, DP(tk)->cid);
+		}
+		else {
+			knh_Token_toDEFVAL(tk, TERMs_getcid(stmt, 2));
+		}
+		return TM(tk);
+	}
+	return NULL;
+}
+
+static Term* knh_StmtDOMAIN_typing(Ctx *ctx, knh_Stmt_t *stmt)
+{
+	if(TERMs_typing(ctx, stmt, 2, CLASS_Any, TWARN_)) {
+		knh_class_t cid;
+		if(TERMs_isCLASSID(stmt, 2)) {
+			cid = DP(DP(stmt)->tokens[2])->cid;
+		}
+		else {
+			cid = TERMs_getcid(stmt, 2);
+		}
+		DBG2_ASSERT_cid(cid);
+		knh_Token_setCONST(ctx, DP(stmt)->tokens[1], UP(new_Class(ctx, cid)));
+		DP(stmt)->size = 2;
+		knh_Token_toMTD(ctx, DP(stmt)->tokens[0], METHODN_domain, knh_Class_getMethod(ctx, CLASS_Class, METHODN_domain));
+		return knh_Stmt_typed(ctx, stmt, NNTYPE_cid(knh_class_Generics(ctx, CLASS_Array, cid, CLASS_Any)));
+	}
+	return NULL;
+}
+
+static Term* knh_StmtDEFINED_typing(Ctx *ctx, knh_Stmt_t *stmt)
+{
+	knh_Token_t *tk = DP(stmt)->tokens[0];
+	if(TERMs_typing(ctx, stmt, 2, CLASS_Any, TWARN_)) {
+		knh_Token_setCONST(ctx, tk, KNH_TRUE);
+	}
+	else {
+		knh_Token_setCONST(ctx, tk, KNH_FALSE);
+	}
+	return TM(tk);
+}
+
+static Term* knh_StmtTHIS_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_methodn_t mn)
+{
+	knh_class_t mtd_cid = DP(ctx->kc)->this_cid;
+	knh_Token_t *tkMTD = DP(stmt)->tokens[0]; /* change */
+	knh_Method_t *mtd;
+	if(mn == METHODN_super) {
+		DBG2_ASSERT_cid(mtd_cid);
+		if(ClassTable(mtd_cid).supcid == CLASS_Object) {
+			knh_Gamma_perror(ctx, KERR_ERROR, _("not extended: %C"), mtd_cid);
+			return NULL;
+		}
+		mtd_cid = ClassTable(mtd_cid).supcid;
+	}
+	mtd = knh_Class_getMethod(ctx, mtd_cid, METHODN_new);
+	if(IS_NULL(mtd) || DP(mtd)->cid != mtd_cid) {
+		knh_Gamma_perror(ctx, KERR_ERROR, _("undefined constructor: %C"), mtd_cid);
+		return NULL;
+	}
+	knh_Token_toLOCAL(ctx, DP(stmt)->tokens[1], NNTYPE_cid(mtd_cid), 0); /* this */
+	knh_Token_toMTD(ctx, tkMTD, METHODN_new, mtd);
+	return TM(stmt);
+}
+
+static Term* knh_StmtDELEGATE_typing(Ctx *ctx, knh_Stmt_t *stmt)
+{
+	if(DP(stmt)->size == 4) { /* delegate(a,f) */
+		knh_Token_t *tkF = DP(stmt)->tokens[3];
+		if(!IS_Token(tkF)) {
+			knh_Gamma_perror(ctx, KERR_ERROR, _("not function: %s"), sToken(tkF));
+			return NULL;
+		}
+		if(!TERMs_typing(ctx, stmt, 2, TYPE_Any, TWARN_)) {
+			return NULL;
+		}
+		if(TERMs_isCLASSID(stmt, 2)) { /* delegate(Class, f) */
+			knh_Token_t *tkC = DP(stmt)->tokens[2];
+			knh_Token_toDEFVAL(tkC, DP(tkC)->cid);
+		}
+		knh_class_t cid = TERMs_getcid(stmt, 2);
+		knh_methodn_t mn = knh_Token_getmn(ctx, tkF);
+		knh_Method_t *mtd = knh_Class_getMethod(ctx, cid, mn);
+		if(IS_NULL(mtd)) {
+			knh_Gamma_perror(ctx, KERR_ERROR, _("undefined method: %s"), sToken(tkF));
+			return NULL;
+		}
+		knh_Token_setCONST(ctx, DP(stmt)->tokens[3], UP(mtd));
+		cid = knh_class_MethodClosure(ctx, cid, mtd);
+		knh_Token_toCLASSID(ctx, DP(stmt)->tokens[1], cid);
+		SP(stmt)->stt = STT_NEW;
+		mtd = knh_Class_getMethod(ctx, CLASS_Closure, METHODN_new);
+		KNH_ASSERT((IS_Method(mtd)));
+		knh_Token_toMTD(ctx, DP(stmt)->tokens[0], mn, mtd);
+		//DBG2_P("cid=%s", CLASSN(cid));
+		return knh_Stmt_typed(ctx, stmt, NNTYPE_cid(cid));
+	}
+	else if(DP(stmt)->size == 3) { /* delegate(f) */
+		knh_Token_t *tkF = DP(stmt)->tokens[2];
+		if(!IS_Token(tkF)) {
+			knh_Gamma_perror(ctx, KERR_ERROR, _("not function: %s"), sToken(tkF));
+			return NULL;
+		}
+		knh_Method_t *mtd = knh_NameSpace_findFuncMethod(ctx, DP(ctx->kc)->ns, DP(ctx->kc)->this_cid, knh_Token_getmn(ctx, tkF));
+		if(IS_NULL(mtd)) {
+			knh_Gamma_perror(ctx, KERR_ERROR, _("undefined function: %s"), sToken(tkF));
+			return NULL;
+		}
+		knh_Token_toCLOSURE(ctx, tkF, mtd);
+		return TM(tkF);
+	}
+	knh_Gamma_perror(ctx, KERR_ERROR, _("syntax error: %s"), sToken(DP(stmt)->tokens[0]));
+	return  NULL;
+}
+
+static Term *knh_StmtTRACE_typing(Ctx *ctx, knh_Stmt_t *stmt)
+{
+	/* trace(funcname, 1) */
+	if(TERMs_typing(ctx, stmt, 2, NNTYPE_Method, TCHECK_)) {
+
+	}
+	if(TERMs_typing(ctx, stmt, 3, NNTYPE_Int, TCHECK_)) {
+
+	}
+	knh_Gamma_perror(ctx, KERR_ERROR, _("syntax error: %s"), sToken(DP(stmt)->tokens[0]));
+	return NULL;
+}
+
 /* ------------------------------------------------------------------------- */
 
 static
@@ -2167,151 +2334,30 @@ Term *knh_StmtCALLBASE_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_methodn_t mn)
 
 	/* (func _ ...) */
 	/* built-in function */
-	char *emsg = _("built-in function %s()");
-	if(mn == METHODN_typeof) {
-		if(DP(stmt)->size != 3) goto L_ERROR;
-		if(TERMs_typing(ctx, stmt, 2, TYPE_Any, TWARN_)) {
-			knh_Token_setCONST(ctx, tk1, UP(new_Type(ctx, TERMs_gettype(stmt, 2))));
-			return TM(tk1);
-		}
-		return NULL;
+	switch(mn) {
+	case METHODN_typeof:
+		return knh_StmtTYPEOF_typing(ctx, stmt);
+	case METHODN_likely:
+	case METHODN_unlikely:
+		return knh_StmtLIKELY_typing(ctx, stmt);
+	case METHODN_format:
+		return knh_StmtFFORMAT_typing(ctx, stmt);
+	case METHODN_default:
+		return knh_StmtDEFAULT_typing(ctx, stmt);
+	case METHODN_domain:
+		return knh_StmtDOMAIN_typing(ctx, stmt);
+	case METHODN_defined:
+		return knh_StmtDEFINED_typing(ctx, stmt);
+	case METHODN_this:
+	case METHODN_super:
+		return knh_StmtTHIS_typing(ctx, stmt, mn);
+	case METHODN_delegate:
+		return knh_StmtDELEGATE_typing(ctx, stmt);
+	case FIELDN_trace:
+		return knh_StmtTRACE_typing(ctx, stmt);
 	}
-	else if(mn == METHODN_likely || mn == METHODN_unlikely) { /* likely() */
-		if(DP(stmt)->size != 3) goto L_ERROR;
-		if(TERMs_typing(ctx, stmt, 2, TYPE_Boolean, TCHECK_)) {
-			return DP(stmt)->terms[2];
-		}
-		return NULL;
-	}
-	else if(mn == METHODN_format) {
-		int i;
-		for(i = 1; i < DP(stmt)->size-1; i++) {
-			KNH_SETv(ctx, DP(stmt)->terms[i], DP(stmt)->terms[i+1]);
-		}
-		DP(stmt)->size -= 1;
-		if(!TERMs_typing(ctx, stmt, 1, CLASS_String, TCHECK_)) {
-			return NULL;
-		}
-		return TM(stmt);
-	}
-	else if(mn == METHODN_default) {
-		if(DP(stmt)->size != 3) goto L_ERROR;
-		if(TERMs_typing(ctx, stmt, 2, CLASS_Any, TWARN_)) {
-			if(TERMs_isCLASSID(stmt, 2)) {
-				tk1 = DP(stmt)->tokens[2];
-				knh_Token_toDEFVAL(tk1, DP(tk1)->cid);
-			}
-			else {
-				knh_Token_toDEFVAL(tk1, TERMs_getcid(stmt, 2));
-			}
-			return TM(tk1);
-		}
-		return NULL;
-	}
-	else if(mn == METHODN_domain) {
-		if(DP(stmt)->size != 3) goto L_ERROR;
-		if(TERMs_typing(ctx, stmt, 2, CLASS_Any, TWARN_)) {
-			knh_class_t cid1;
-			if(TERMs_isCLASSID(stmt, 2)) {
-				cid1 = DP(DP(stmt)->tokens[2])->cid;
-			}
-			else {
-				cid1 = TERMs_getcid(stmt, 2);
-			}
-			DBG2_ASSERT_cid(cid1);
-			knh_Token_setCONST(ctx, tk1, UP(new_Class(ctx, cid1)));
-			DP(stmt)->size = 2;
-			knh_Token_toMTD(ctx, DP(stmt)->tokens[0], METHODN_domain,
-					knh_Class_getMethod(ctx, CLASS_Class, METHODN_domain));
-			return knh_Stmt_typed(ctx, stmt,
-					NNTYPE_cid(knh_class_Generics(ctx, CLASS_Array, cid1, CLASS_Any)));
-		}
-		return NULL;
-	}
-	else if(mn == METHODN_defined) {
-		if(DP(stmt)->size != 3) goto L_ERROR;
-		if(TERMs_typing(ctx, stmt, 2, CLASS_Any, TWARN_)) {
-			knh_Token_setCONST(ctx, tk1, KNH_TRUE);
-		}
-		else {
-			knh_Token_setCONST(ctx, tk1, KNH_FALSE);
-		}
-		return TM(tk1);
-	}
-	else if(mn == METHODN_super || mn == METHODN_this) {
-		knh_class_t mtd_cid = DP(kc)->this_cid; /* CLASS_type(DP(kc)->vars[0].type)*/;
-		knh_Token_t *tkMTD = DP(stmt)->tokens[0]; /* change */
-		knh_Method_t *mtd;
-		if(mn == METHODN_super) {
-			DBG2_ASSERT_cid(mtd_cid);
-			if(ClassTable(mtd_cid).supcid == CLASS_Object) {
-				knh_Gamma_perror(ctx, KERR_ERROR, _("not extended: %C"), mtd_cid);
-				return NULL;
-			}
-			mtd_cid = ClassTable(mtd_cid).supcid;
-		}
-		mtd = knh_Class_getMethod(ctx, mtd_cid, METHODN_new);
-		if(IS_NULL(mtd) || DP(mtd)->cid != mtd_cid) {
-			knh_Gamma_perror(ctx, KERR_ERROR, _("undefined constructor: %C"), mtd_cid);
-			return NULL;
-		}
-		knh_Token_toLOCAL(ctx, tk1, NNTYPE_cid(mtd_cid), 0); /* this */
-		knh_Token_toMTD(ctx, tkMTD, METHODN_new, mtd);
-		return TM(stmt);
-	}
-	else if(mn == METHODN_delegate) { /* delegate */
-		if(DP(stmt)->size == 4) { /* delegate(a,f) */
-			knh_Token_t *tkF = DP(stmt)->tokens[3];
-			if(!IS_Token(tkF)) goto L_ERROR;
-			if(!TERMs_typing(ctx, stmt, 2, TYPE_Any, TWARN_)) {
-				return NULL;
-			}
-			if(TERMs_isCLASSID(stmt, 2)) { /* delegate(Class, f) */
-				knh_Token_t *tkC = DP(stmt)->tokens[2];
-				knh_Token_toDEFVAL(tkC, DP(tkC)->cid);
-			}
-			knh_class_t cid = TERMs_getcid(stmt, 2);
-			knh_methodn_t mn = knh_Token_getmn(ctx, tkF);
-			knh_Method_t *mtd = knh_Class_getMethod(ctx, cid, mn);
-			if(IS_NULL(mtd)) {
-				knh_Gamma_perror(ctx, KERR_ERROR, _("undefined method: %s"), sToken(tkF));
-				return NULL;
-			}
-			knh_Token_setCONST(ctx, DP(stmt)->tokens[3], UP(mtd));
-			cid = knh_class_MethodClosure(ctx, cid, mtd);
-			knh_Token_toCLASSID(ctx, tk1, cid);
-			SP(stmt)->stt = STT_NEW;
-			mtd = knh_Class_getMethod(ctx, CLASS_Closure, METHODN_new);
-			KNH_ASSERT((IS_Method(mtd)));
-			knh_Token_toMTD(ctx, DP(stmt)->tokens[0], mn, mtd);
-			//DBG2_P("cid=%s", CLASSN(cid));
-			return knh_Stmt_typed(ctx, stmt, NNTYPE_cid(cid));
-		}
-		else if(DP(stmt)->size == 3) { /* delegate(f) */
-			knh_Token_t *tkF = DP(stmt)->tokens[2];
-			if(!IS_Token(tkF)) goto L_ERROR;
-			knh_Method_t *mtd = knh_NameSpace_findFuncMethod(ctx, DP(kc)->ns, DP(kc)->this_cid, knh_Token_getmn(ctx, tkF));
-			if(IS_NULL(mtd)) {
-				knh_Gamma_perror(ctx, KERR_ERROR, _("undefined function: %s"), sToken(tkF));
-				return NULL;
-			}
-			knh_Token_toCLOSURE(ctx, tkF, mtd);
-			return TM(tkF);
-		}
-	}
-//	else if(mn == METHODN_proceed) { /* proceed() */
-//		knh_Gamma_setPROCEED(kc, 1);
-//		SP(stmt)->stt = STT_PROCEED;
-//		Method *mtd = DP(kc)->mtd;
-//		knh_Token_toMTD(ctx, DP(stmt)->tokens[0], DP(mtd)->mn, mtd);
-//		knh_Token_toSTACK(ctx, tk1, 0, DP(kc)->vars[0].type);
-//		if(DP(stmt)->size > 1) {
-//			knh_StmtPARAMS_typing(ctx, stmt, CLASS_type(DP(kc)->vars[0].type), mtd);
-//		}
-//		knh_Stmt_setType(ctx, stmt, DP(kc)->rtype);
-//		return TM(stmt);
-//	}
-	else {
+
+	{
 		knh_Method_t *mtd;
 		if(knh_TokenNAME_typing(ctx, DP(stmt)->tokens[0], 1/*checkClosure*/)) {
 			return knh_StmtINVOKE_typing(ctx, stmt);
@@ -2331,11 +2377,9 @@ Term *knh_StmtCALLBASE_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_methodn_t mn)
 			knh_Token_toMTD(ctx, DP(stmt)->tokens[0], mn, mtd);
 			return TM(stmt);
 		}
-		emsg = _("undefined function: %s");
 	}
 
-	L_ERROR:;
-	knh_Gamma_perror(ctx, KERR_ERROR, emsg, sToken(DP(stmt)->tokens[0]));
+	knh_Gamma_perror(ctx, KERR_ERROR, _("undefined function: %s"), sToken(DP(stmt)->tokens[0]));
 	return NULL;
 }
 

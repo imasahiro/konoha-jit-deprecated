@@ -180,8 +180,7 @@ knh_sfp_t* knh_stack_callee(Ctx *ctx, knh_sfp_t *sfp, char **file, int *linenum)
 	return ctx->stack;
 }
 
-/* ------------------------------------------------------------------------ */
-
+static
 void knh_stack_writeStackTrace(Ctx *ctx, knh_sfp_t *sfp, knh_OutputStream_t *w)
 {
 	knh_Method_t *mtd = sfp[-1].mtd;
@@ -214,6 +213,51 @@ void knh_stack_writeStackTrace(Ctx *ctx, knh_sfp_t *sfp, knh_OutputStream_t *w)
 		}
 		knh_putc(ctx, w, ')');
 	}
+}
+
+
+static
+void knh_stack_writeReturnValue(Ctx *ctx, knh_sfp_t *sfp, knh_OutputStream_t *w, knh_type_t rtype)
+{
+	if(rtype == TYPE_void) {
+		knh_write(ctx, w, STEXT("void"));
+	}
+	if(IS_ubxtype(rtype)) {
+		knh_write_ifmt(ctx, w, KNH_INT_FMT, sfp[-1].ivalue);
+	}
+	else if (IS_ubxfloat(rtype)) {
+		knh_write_ifmt(ctx, w, KNH_FLOAT_FMT, sfp[-1].fvalue);
+	}
+	else if(rtype == NNTYPE_Boolean){
+		knh_write_bool(ctx, w, sfp[-1].bvalue);
+	}
+	else {
+		knh_stack_w(ctx, ctx->esp, &sfp[-1], METHODN__k, w, KNH_NULL);
+	}
+}
+
+/* ------------------------------------------------------------------------ */
+
+METHOD knh_fmethod_stackTrace(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+{
+	knh_Method_t *mtd = sfp[-1].mtd;
+	knh_OutputStream_t *w = KNH_STDERR;
+	knh_intptr_t count = DP(mtd)->prof_count;
+	knh_sfp_t *esp = ctx->esp;
+	knh_type_t rtype = knh_Method_rztype(mtd);
+	knh_putc(ctx, w, '#');
+	knh_write_ifmt(ctx, w, KNH_INT_FMT, (knh_int_t)count);
+	knh_putc(ctx, w, ':');
+	knh_stack_writeStackTrace(ctx, sfp, w);
+	knh_write_EOL(ctx, w);
+	DBG2_ASSERT(ctx->esp == esp);
+	DP(mtd)->prof_count += 1;
+	DP(mtd)->fproceed(ctx, sfp);
+	knh_putc(ctx, w, '#');
+	knh_write_ifmt(ctx, w, KNH_INT_FMT, (knh_int_t)count);
+	knh_write(ctx, w, STEXT(":-> "));
+	knh_stack_writeReturnValue(ctx, sfp, w, rtype);
+	knh_write_EOL(ctx, w);
 }
 
 /* ------------------------------------------------------------------------ */
