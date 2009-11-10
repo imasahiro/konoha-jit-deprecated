@@ -148,7 +148,6 @@ METHOD knh_fmethod_profiler(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 #elif defined(KNH_USING_POSIX)
 	struct timeval start, end;
 	gettimeofday(&start, NULL);
-//	return tv.tv_sec * 1000 + tv.tv_usec / 1000;
 #endif
 	DP(mtd)->prof_count += 1;
 	DP(mtd)->fproceed(ctx, sfp);
@@ -156,9 +155,10 @@ METHOD knh_fmethod_profiler(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 	end = GetTickCount();
 #elif defined(KNH_USING_POSIX)
 	gettimeofday(&end, NULL);
-//	return tv.tv_sec * 1000 + tv.tv_usec / 1000;
+	knh_uintptr_t diff = (end.tv_sec * 1000 + end.tv_usec/1000) -
+	  (start.tv_sec * 1000 + start.tv_usec / 1000);
+	DP(mtd)->prof_time = diff;
 #endif
-
 }
 
 /* ======================================================================== */
