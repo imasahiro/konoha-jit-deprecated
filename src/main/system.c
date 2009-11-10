@@ -138,9 +138,12 @@ Object *knh_getSystemConst(Ctx *ctx, int n)
 {
 	switch(n) {
 		case KNH_SYS_CTX:     return (Object*)ctx;
-		case KNH_SYS_STDIN:   return (Object*)((ctx)->in);
-		case KNH_SYS_STDOUT:  return (Object*)((ctx)->out);
-		case KNH_SYS_STDERR:  return (Object*)((ctx)->err);
+		case KNH_SYS_CTXIN:   return (Object*)((ctx)->in);
+		case KNH_SYS_CTXOUT:  return (Object*)((ctx)->out);
+		case KNH_SYS_CTXERR:  return (Object*)((ctx)->err);
+		case KNH_SYS_STDIN:   return (Object*)(DP((ctx)->sys)->in);
+		case KNH_SYS_STDOUT:  return (Object*)(DP((ctx)->sys)->out);
+		case KNH_SYS_STDERR:  return (Object*)(DP((ctx)->sys)->err);
 		case KNH_SYS_OS:      return (Object*)knh_getClassDefaultValue(ctx, CLASS_System);
 		case KNH_SYS_SCRIPT:  return (Object*)knh_NameSpace_getScript(ctx, (ctx->share)->mainns);
 	}
