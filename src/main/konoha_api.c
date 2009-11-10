@@ -171,6 +171,85 @@ static void knh_dumpInit(void)
 }
 
 /* ----------------------------------------------------------------------- */
+static void knh_Context_setCompilingMode(Ctx *ctx, int mode)
+{
+	knh_Context_setCompiling(ctx, 1);
+}
+
+static void knh_setInteractiveMode(Ctx *ctx, int mode)
+{
+	toInteractiveMode = 1;
+}
+
+static void knh_Context_setVerboseMode(Ctx *ctx, int mode)
+{
+	knh_Context_setVerbose(ctx, 1);
+	if(mode == 2) {
+		debugLevel = 2;
+		knh_Context_setDebug(ctx, 1);
+		dumpLevel2 = 2;
+		knh_dumpInit();
+	}
+}
+
+static void knh_Context_setDebugMode(Ctx *ctx, int mode)
+{
+	if(mode == 2) {
+		debugLevel = 2;
+	} else {
+		debugLevel = 1;
+	}
+	knh_Context_setDebug(ctx, 1);
+}
+
+static void knh_setUserExperienceProgram(Ctx *ctx, int mode)
+{
+	if(userExperienceProgram != 0) {
+		userExperienceProgram = 0;
+	}
+	else {
+		userExperienceProgram = 1;
+	}
+}
+
+typedef void (*knh_fopt)(Ctx *ctx, int n);
+
+struct option {
+	char *name;
+	knh_bool_t arg;
+	void (*func)(Ctx *ctx, int mode);
+};
+
+typedef const struct option option_t;
+
+#define OPTION(_name, _handler) \
+	{ .name = _name, .arg = false, .func = _handler}
+#define OPTION_ARG(_name, _handler) \
+	{ .name = _name, .arg = true,  .func = _handler}
+
+static option_t options[] = {
+	//OPTION("s", knh_setSecureMode),
+	OPTION_ARG("c", knh_Context_setCompilingMode),
+	OPTION("i", knh_setInteractiveMode),
+	OPTION_ARG("v", knh_Context_setVerboseMode),
+	OPTION_ARG("g",  knh_Context_setDebugMode),
+	OPTION("x",  knh_setUserExperienceProgram),
+	{NULL}
+};
+
+#define OPTIONS_SIZE (sizeof(options) / sizeof((options)[0]))
+
+static option_t *knh_get_opt(char *name)
+{
+	int i;
+	for (i = 0; i < OPTIONS_SIZE; i++) {
+		option_t *opt = &options[i];
+		if (strncmp(opt->name, name, strlen(opt->name)) == 0) {
+			return opt;
+		}
+	}
+	return NULL;
+}
 
 KNHAPI(int) konoha_parseopt(konoha_t konoha, int argc, char **argv)
 {
@@ -179,46 +258,24 @@ KNHAPI(int) konoha_parseopt(konoha_t konoha, int argc, char **argv)
 	for(n = 1; n < argc; n++) {
 		char *t = argv[n];
 		if(t[0] != '-') return n;
-		if(t[1] == 's' && t[2] == 0) {
-			knh_setSecureMode();
-		}
-		else if(t[1] == 'c' && t[2] == 0) {
-			knh_Context_setCompiling(konoha.ctx, 1);
-		}
-		else if(t[1] == 'i' && t[2] == 0) {
-			toInteractiveMode = 1;
-		}
-		else if(t[1] == 'v') {
-			knh_Context_setVerbose(konoha.ctx, 1);
-			if(t[2] == '2') {
-				debugLevel = 2;
-				knh_Context_setDebug(konoha.ctx, 1);
-				dumpLevel2 = 2;
-				knh_dumpInit();
+		option_t *opt = knh_get_opt(&t[1]);
+		if(!opt) continue;
+		int arg = 0;
+		if(opt->arg == true) {
+			if(t[2] != '0') {
+				arg = knh_bytes_toint(B(&t[2]));
+				arg = (arg == 0) ? 1 : arg;
 			}
 		}
-		else if(t[1] == 'g' && t[2] == 0) {
-			debugLevel = 1;
-			knh_Context_setDebug(konoha.ctx, 1);
-		}
-		else if(t[1] == 'g' && t[2] == '2' && t[3] == 0) {
-			debugLevel = 2;
-			knh_Context_setDebug(konoha.ctx, 1);
-		}
-		else if(t[1] == 'x' && t[2] == 0) {
-			if(userExperienceProgram != 0) {
-				userExperienceProgram = 0;
-			}
-			else {
-				userExperienceProgram = 1;
-			}
-		}
+		opt->func(konoha.ctx, arg);
 	}
 #if defined(KNH_DBGMODE2)
 	knh_Context_setVerbose(konoha.ctx, 1);
 #endif
 	return n;
 }
+
+
 
 /* ======================================================================== */
 /* [konoha] */
