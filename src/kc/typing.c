@@ -189,23 +189,20 @@ knh_class_t knh_Token_getcid(Ctx *ctx, knh_Token_t *tk, knh_NameSpace_t *ns, knh
 /* ======================================================================== */
 /* [Type Inference] */
 
-static
-Term *knh_Stmt_typed(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t type)
+static Term *knh_Stmt_typed(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t type)
 {
 	DP(stmt)->type = type;
 	return TM(stmt);
 }
 
-static
-Term *knh_Stmt_untyped(Ctx *ctx, knh_Stmt_t *stmt)
+static Term *knh_Stmt_untyped(Ctx *ctx, knh_Stmt_t *stmt)
 {
 	DBG2_ASSERT(DP(stmt)->type == TYPE_var);
 	DBG2_P("stt=%s untyped", cSTT_((stmt)));
 	return TM(stmt);
 }
 
-static
-int knh_Token_isUntyped(knh_Token_t *tk)
+static int knh_Token_isUntyped(knh_Token_t *tk)
 {
 	return (DP(tk)->type == TYPE_var
 		&& (TT_(tk) == TT_LOCAL || TT_(tk) == TT_STACK));
@@ -428,15 +425,27 @@ int knh_Token_toSYSVAL(Ctx *ctx, knh_Token_t *tk)
 		TT_(tk) = TT_SYSVAL;
 		DP(tk)->index = KNH_SYS_CTX; DP(tk)->type = NNTYPE_Context;
 	}
-	else if(IS_SYSVAL(t, "IN") || IS_SYSVAL(t, "STDIN")) {
+	else if(IS_SYSVAL(t, "IN")) {
+		TT_(tk) = TT_SYSVAL;
+		DP(tk)->index = KNH_SYS_CTXIN; DP(tk)->type = NNTYPE_InputStream;
+	}
+	else if(IS_SYSVAL(t, "OUT")) {
+		TT_(tk) = TT_SYSVAL;
+		DP(tk)->index = KNH_SYS_CTXOUT; DP(tk)->type = NNTYPE_OutputStream;
+	}
+	else if(IS_SYSVAL(t, "ERR")) {
+		TT_(tk) = TT_SYSVAL;
+		DP(tk)->index = KNH_SYS_CTXERR; DP(tk)->type = NNTYPE_OutputStream;
+	}
+	else if(IS_SYSVAL(t, "STDIN")) {
 		TT_(tk) = TT_SYSVAL;
 		DP(tk)->index = KNH_SYS_STDIN; DP(tk)->type = NNTYPE_InputStream;
 	}
-	else if(IS_SYSVAL(t, "OUT") || IS_SYSVAL(t, "STDOUT")) {
+	else if(IS_SYSVAL(t, "STDOUT")) {
 		TT_(tk) = TT_SYSVAL;
 		DP(tk)->index = KNH_SYS_STDOUT; DP(tk)->type = NNTYPE_OutputStream;
 	}
-	else if(IS_SYSVAL(t, "ERR") || IS_SYSVAL(t, "STDERR")) {
+	else if(IS_SYSVAL(t, "STDERR")) {
 		TT_(tk) = TT_SYSVAL;
 		DP(tk)->index = KNH_SYS_STDERR; DP(tk)->type = NNTYPE_OutputStream;
 	}
@@ -925,31 +934,9 @@ int knh_TokenNUM_typing(Ctx *ctx, knh_Token_t *tk, knh_NameSpace_t *ns, knh_clas
 static
 int knh_TokenSTR_typing(Ctx *ctx, knh_Token_t *tk, knh_NameSpace_t *ns, knh_class_t reqt)
 {
-//	knh_class_t reqc = CLASS_type(reqt);
 	DBG2_ASSERT(IS_String(DP(tk)->data));
-//	if(reqc == CLASS_Exception) {
-//		knh_Token_setCONST(ctx, tk, UP(new_Exception(ctx, DP(tk)->text)));
-//		return 1;
-//	}
-//	else {
-//		knh_class_t breqc = ClassTable(reqc).bcid;
-//		if(breqc == CLASS_String) {
-//			knh_bytes_t t = knh_Token_tobytes(ctx, tk);
-//			knh_ClassSpec_t *u = knh_getClassSpec(ctx, reqc);
-//			int foundError = 0;
-//			knh_String_t *s = DP(u)->fsnew(ctx, reqc, t, NULL, &foundError);
-//			if(foundError) {
-//				knh_Token_perror(ctx, tk, KERR_TERROR, _("invalid string: %O of %C"), DP(tk)->data, reqc);
-//				return 0;
-//			}
-//			knh_Token_setCONST(ctx, tk, UP(s));
-//			return 1;
-//		}
-//	}
 	knh_Token_toCONST(ctx, tk);
 	return 1;
-//	knh_Token_perror(ctx, tk, KERR_TERROR, _("not string: %C"), reqc);
-//	return 0;
 }
 
 /* ------------------------------------------------------------------------ */

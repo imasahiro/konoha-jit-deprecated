@@ -1034,11 +1034,14 @@ typedef knh_ushort_t   knh_stmt_t;
 
 #define KNH_SYS(ctx, n)    knh_getSystemConst(ctx, n)
 #define KNH_SYS_CTX    0
-#define KNH_SYS_STDIN  1
-#define KNH_SYS_STDOUT 2
-#define KNH_SYS_STDERR 3
-#define KNH_SYS_OS     4
-#define KNH_SYS_SCRIPT 5
+#define KNH_SYS_CTXIN  1
+#define KNH_SYS_CTXOUT 2
+#define KNH_SYS_CTXERR 3
+#define KNH_SYS_STDIN  4
+#define KNH_SYS_STDOUT 5
+#define KNH_SYS_STDERR 6
+#define KNH_SYS_OS     7
+#define KNH_SYS_SCRIPT 8
 
 #define KNH_FLAG_PF_STDERR      KNH_FLAG_T0
 #define KNH_FLAG_PF_EOL         KNH_FLAG_T1

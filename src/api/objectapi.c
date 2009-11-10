@@ -173,9 +173,6 @@ static METHOD Thunk_value(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 	}
 }
 
-
-
-
 /* ------------------------------------------------------------------------ */
 
 #endif/* KNH_CC_METHODAPI*/
