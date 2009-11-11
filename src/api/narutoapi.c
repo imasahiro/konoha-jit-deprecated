@@ -169,9 +169,6 @@ static METHOD Method_getProfCount(Ctx *ctx, knh_sfp_t *sfp)
   KNH_RETURN_Int(ctx, sfp, DP(mtd)->prof_count);
 }
 
-/* ------------------------------------------------------------------------ */
-
-int knh_Object_
 
 /* ------------------------------------------------------------------------ */
 #endif/* KNH_CC_METHODAPI*/
