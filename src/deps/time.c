@@ -157,7 +157,7 @@ METHOD knh_fmethod_profiler(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 	gettimeofday(&end, NULL);
 	knh_uintptr_t diff = (end.tv_sec * 1000 + end.tv_usec/1000) -
 	  (start.tv_sec * 1000 + start.tv_usec / 1000);
-	DP(mtd)->prof_time = diff;
+	DP(mtd)->prof_time += diff;
 #endif
 }
 

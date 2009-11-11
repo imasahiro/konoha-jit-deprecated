@@ -151,9 +151,29 @@ static METHOD System_setMethodCompilationListener(Ctx *ctx, knh_sfp_t *sfp METHO
 	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
 	KNH_RETURN_void(ctx, sfp);
 }
+/* ------------------------------------------------------------------------ */
+//## method int Method.getProfTime();
+
+static METHOD Method_getProfTime(Ctx *ctx, knh_sfp_t *sfp)
+{
+  knh_Method_t *mtd = sfp[0].mtd;
+  KNH_RETURN_Int(ctx, sfp, DP(mtd)->prof_time);
+}
+
+/* ------------------------------------------------------------------------ */
+//## method int Method.getProfCount();
+
+static METHOD Method_getProfCount(Ctx *ctx, knh_sfp_t *sfp)
+{
+  knh_Method_t *mtd = sfp[0].mtd;
+  KNH_RETURN_Int(ctx, sfp, DP(mtd)->prof_count);
+}
 
 /* ------------------------------------------------------------------------ */
 
+int knh_Object_
+
+/* ------------------------------------------------------------------------ */
 #endif/* KNH_CC_METHODAPI*/
 
 #ifdef __cplusplus
