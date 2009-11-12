@@ -886,6 +886,11 @@ typedef void   (KNH_CC_FASTCALL *knh_fmapper)(Ctx *, knh_sfp_t *);
 typedef MAPPER (*knh_fmapper)(Ctx *, knh_sfp_t *);
 #endif
 
+typedef struct {
+  Ctx *ctx;
+  knh_sfp_t *sfp;
+} knh_env_t;
+  
 /* ======================================================================== */
 /* driver */
 /* ======================================================================== */
