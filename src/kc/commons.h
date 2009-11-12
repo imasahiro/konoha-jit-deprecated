@@ -79,6 +79,8 @@ extern "C" {
 
 /* ------------------------------------------------------------------------ */
 
+#define METHOD_getSize  METHODN_TO_GETTER(FIELDN_size)
+
 #if defined(KNH_USING_THREADEDCODE)
 #define TADDR   NULL,
 #else

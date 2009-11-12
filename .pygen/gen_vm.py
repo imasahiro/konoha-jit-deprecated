@@ -153,6 +153,7 @@ fGTn  sfpidx sfpidx float
 fGTE  sfpidx sfpidx sfpidx
 fGTEn  sfpidx sfpidx float
 
+SIZE      sfpidx sfpidx
 ARYGET    sfpidx sfpidx sfpidx
 ARYGETn   sfpidx sfpidx intptr
 iARYGET   sfpidx sfpidx sfpidx

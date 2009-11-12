@@ -1060,6 +1060,21 @@ int knh_StmtOP_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 	knh_class_t cid = CLASS_type(DP(DP(stmt)->tokens[1])->type);
 
 	if(cid == CLASS_Int) {
+		if(mn == METHODN_opNext) {
+			int a = TERMs_putLOCAL(ctx, stmt, 1, NNTYPE_Int, local + 1);
+			KNH_ASM(iADDn, sfi_(sfpidx), sfi_(a), 1);
+			return 1;
+		}
+		if(mn == METHODN_opPrev) {
+			int a = TERMs_putLOCAL(ctx, stmt, 1, NNTYPE_Int, local + 1);
+			KNH_ASM(iSUBn, sfi_(sfpidx), sfi_(a), 1);
+			return 1;
+		}
+		if(mn == METHODN_opNeg) {
+			int a = TERMs_putLOCAL(ctx, stmt, 1, NNTYPE_Int, local + 1);
+			KNH_ASM(iNEG, sfi_(sfpidx), sfi_(a));
+			return 1;
+		}
 		if(IS_OPSIM(mn)) {
 			if(knh_StmtOP_checkConst(ctx, stmt, &mn, /*swap*/ 1)) {
 				int a = TERMs_putLOCAL(ctx, stmt, 1, NNTYPE_Int, local + 1);
@@ -1168,6 +1183,22 @@ int knh_StmtOP_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 		}
 	} /* CLASS_Int */
 	if(cid == CLASS_Float) {
+		if(mn == METHODN_opNext) {
+			int a = TERMs_putLOCAL(ctx, stmt, 1, NNTYPE_Float, local + 1);
+			KNH_ASM(fADDn, sfi_(sfpidx), sfi_(a), KNH_FLOAT_ONE);
+			return 1;
+		}
+		if(mn == METHODN_opPrev) {
+			int a = TERMs_putLOCAL(ctx, stmt, 1, NNTYPE_Float, local + 1);
+			KNH_ASM(fSUBn, sfi_(sfpidx), sfi_(a), KNH_FLOAT_ONE);
+			return 1;
+		}
+		if(mn == METHODN_opNeg) {
+			int a = TERMs_putLOCAL(ctx, stmt, 1, NNTYPE_Float, local + 1);
+			KNH_ASM(fNEG, sfi_(sfpidx), sfi_(a));
+			return 1;
+		}
+
 		if(IS_OPSIM(mn)) {
 			if(knh_StmtOP_checkConst(ctx, stmt, &mn, /*swap*/ 1)) {
 				int a = TERMs_putLOCAL(ctx, stmt, 1, NNTYPE_Float, local + 1);
@@ -1285,6 +1316,7 @@ int TERMs_isLOCAL(knh_Stmt_t *stmt, size_t n)
 
 /* ------------------------------------------------------------------------ */
 
+
 static
 void knh_StmtCALL_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 {
@@ -1304,6 +1336,19 @@ void knh_StmtCALL_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 		goto L_RTYPE;
 	}
 	/* INSTRUCTION */
+	if(DP(mtd)->mn == METHOD_getSize) {
+		switch(mtd_cid) {
+		case CLASS_Bytes:
+		case CLASS_Array:
+		case CLASS_IArray:
+		case CLASS_FArray:
+			{
+				int a = TERMs_putLOCAL(ctx, stmt, 1, NNTYPE_cid(mtd_cid), local + 1);
+				KNH_ASM(SIZE, sfi_(sfpidx), sfi_(a));
+				return;
+			}
+		}
+	}
 	if(mtd_cid == CLASS_Array || mtd_cid == CLASS_IArray || mtd_cid == CLASS_FArray) {
 		if(DP(mtd)->mn == METHODN_get) {
 			int a = TERMs_putLOCAL(ctx, stmt, 1, NNTYPE_Array, local + 1);

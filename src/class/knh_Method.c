@@ -756,7 +756,7 @@ knh_Method_t *knh_lookupFormatter(Ctx *ctx, knh_class_t cid, knh_methodn_t mn)
 
 METHOD knh_fmethod_securityTrace(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
-	knh_Method_t *mtd = sfp[-1].mtd;
+	//knh_Method_t *mtd = sfp[-1].mtd;
 
 }
 

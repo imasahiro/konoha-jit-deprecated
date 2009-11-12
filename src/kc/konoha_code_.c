@@ -828,6 +828,7 @@ static knh_OPDATA_t OPDATA[] = {
 	{"fGTn", OPSIZE_fGTn, 0, HALT_traverse, fADDn_dump, fADDn_shift}, 
 	{"fGTE", OPSIZE_fGTE, 0, HALT_traverse, iADD_dump, iADD_shift}, 
 	{"fGTEn", OPSIZE_fGTEn, 0, HALT_traverse, fADDn_dump, fADDn_shift}, 
+	{"SIZE", OPSIZE_SIZE, 0, HALT_traverse, MOVa_dump, MOVa_shift}, 
 	{"ARYGET", OPSIZE_ARYGET, 0, HALT_traverse, iADD_dump, iADD_shift}, 
 	{"ARYGETn", OPSIZE_ARYGETn, 0, HALT_traverse, ARYGETn_dump, ARYGETn_shift}, 
 	{"iARYGET", OPSIZE_iARYGET, 0, HALT_traverse, iADD_dump, iADD_shift}, 
@@ -943,11 +944,11 @@ METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 		&&L_fMULn, &&L_fDIV, &&L_fDIVn, &&L_fEQ, 
 		&&L_fEQn, &&L_fNEQ, &&L_fNEQn, &&L_fLT, 
 		&&L_fLTn, &&L_fLTE, &&L_fLTEn, &&L_fGT, 
-		&&L_fGTn, &&L_fGTE, &&L_fGTEn, &&L_ARYGET, 
-		&&L_ARYGETn, &&L_iARYGET, &&L_iARYGETn, &&L_fARYGET, 
-		&&L_fARYGETn, &&L_ARYSET, &&L_ARYSETn, &&L_iARYSET, 
-		&&L_iARYSETn, &&L_fARYSET, &&L_fARYSETn, &&L_THCODE, 
-		&&L_NOP, 
+		&&L_fGTn, &&L_fGTE, &&L_fGTEn, &&L_SIZE, 
+		&&L_ARYGET, &&L_ARYGETn, &&L_iARYGET, &&L_iARYGETn, 
+		&&L_fARYGET, &&L_fARYGETn, &&L_ARYSET, &&L_ARYSETn, 
+		&&L_iARYSET, &&L_iARYSETn, &&L_fARYSET, &&L_fARYSETn, 
+		&&L_THCODE, &&L_NOP, 
 	};
 #endif
 	register knh_code_t *pc = (sfp[-1].mtd)->pc_start;
@@ -1665,6 +1666,12 @@ METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 		const klr_fGTEn_t *op = (klr_fGTEn_t*)pc;
 		KLR_fGTEn(ctx, op->a1, op->a2, op->a3);
 		pc += OPSIZE_fGTEn;
+		goto NEXT_OP;
+	} 
+	CASE(SIZE) {
+		const klr_SIZE_t *op = (klr_SIZE_t*)pc;
+		KLR_SIZE(ctx, op->a1, op->a2);
+		pc += OPSIZE_SIZE;
 		goto NEXT_OP;
 	} 
 	CASE(ARYGET) {

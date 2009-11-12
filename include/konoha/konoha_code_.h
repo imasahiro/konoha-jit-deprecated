@@ -1362,7 +1362,18 @@ typedef struct {
 
 #define OPSIZE_fGTEn  (sizeof(klr_fGTEn_t)-sizeof(void*))
 
-#define OPCODE_ARYGET ((knh_opcode_t)119)
+#define OPCODE_SIZE ((knh_opcode_t)119)
+typedef struct {
+	THREADEDCODE(void *codeaddr;)
+	knh_opcode_t opcode;
+	knh_sfpidx_t a1;
+	knh_sfpidx_t a2;
+	void *nextaddr;   /* sameas next codeaddr */
+} klr_SIZE_t;
+
+#define OPSIZE_SIZE  (sizeof(klr_SIZE_t)-sizeof(void*))
+
+#define OPCODE_ARYGET ((knh_opcode_t)120)
 typedef struct {
 	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
@@ -1374,7 +1385,7 @@ typedef struct {
 
 #define OPSIZE_ARYGET  (sizeof(klr_ARYGET_t)-sizeof(void*))
 
-#define OPCODE_ARYGETn ((knh_opcode_t)120)
+#define OPCODE_ARYGETn ((knh_opcode_t)121)
 typedef struct {
 	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
@@ -1386,7 +1397,7 @@ typedef struct {
 
 #define OPSIZE_ARYGETn  (sizeof(klr_ARYGETn_t)-sizeof(void*))
 
-#define OPCODE_iARYGET ((knh_opcode_t)121)
+#define OPCODE_iARYGET ((knh_opcode_t)122)
 typedef struct {
 	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
@@ -1398,7 +1409,7 @@ typedef struct {
 
 #define OPSIZE_iARYGET  (sizeof(klr_iARYGET_t)-sizeof(void*))
 
-#define OPCODE_iARYGETn ((knh_opcode_t)122)
+#define OPCODE_iARYGETn ((knh_opcode_t)123)
 typedef struct {
 	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
@@ -1410,7 +1421,7 @@ typedef struct {
 
 #define OPSIZE_iARYGETn  (sizeof(klr_iARYGETn_t)-sizeof(void*))
 
-#define OPCODE_fARYGET ((knh_opcode_t)123)
+#define OPCODE_fARYGET ((knh_opcode_t)124)
 typedef struct {
 	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
@@ -1422,7 +1433,7 @@ typedef struct {
 
 #define OPSIZE_fARYGET  (sizeof(klr_fARYGET_t)-sizeof(void*))
 
-#define OPCODE_fARYGETn ((knh_opcode_t)124)
+#define OPCODE_fARYGETn ((knh_opcode_t)125)
 typedef struct {
 	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
@@ -1434,7 +1445,7 @@ typedef struct {
 
 #define OPSIZE_fARYGETn  (sizeof(klr_fARYGETn_t)-sizeof(void*))
 
-#define OPCODE_ARYSET ((knh_opcode_t)125)
+#define OPCODE_ARYSET ((knh_opcode_t)126)
 typedef struct {
 	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
@@ -1446,7 +1457,7 @@ typedef struct {
 
 #define OPSIZE_ARYSET  (sizeof(klr_ARYSET_t)-sizeof(void*))
 
-#define OPCODE_ARYSETn ((knh_opcode_t)126)
+#define OPCODE_ARYSETn ((knh_opcode_t)127)
 typedef struct {
 	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
@@ -1458,7 +1469,7 @@ typedef struct {
 
 #define OPSIZE_ARYSETn  (sizeof(klr_ARYSETn_t)-sizeof(void*))
 
-#define OPCODE_iARYSET ((knh_opcode_t)127)
+#define OPCODE_iARYSET ((knh_opcode_t)128)
 typedef struct {
 	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
@@ -1470,7 +1481,7 @@ typedef struct {
 
 #define OPSIZE_iARYSET  (sizeof(klr_iARYSET_t)-sizeof(void*))
 
-#define OPCODE_iARYSETn ((knh_opcode_t)128)
+#define OPCODE_iARYSETn ((knh_opcode_t)129)
 typedef struct {
 	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
@@ -1482,7 +1493,7 @@ typedef struct {
 
 #define OPSIZE_iARYSETn  (sizeof(klr_iARYSETn_t)-sizeof(void*))
 
-#define OPCODE_fARYSET ((knh_opcode_t)129)
+#define OPCODE_fARYSET ((knh_opcode_t)130)
 typedef struct {
 	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
@@ -1494,7 +1505,7 @@ typedef struct {
 
 #define OPSIZE_fARYSET  (sizeof(klr_fARYSET_t)-sizeof(void*))
 
-#define OPCODE_fARYSETn ((knh_opcode_t)130)
+#define OPCODE_fARYSETn ((knh_opcode_t)131)
 typedef struct {
 	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
@@ -1506,7 +1517,7 @@ typedef struct {
 
 #define OPSIZE_fARYSETn  (sizeof(klr_fARYSETn_t)-sizeof(void*))
 
-#define OPCODE_THCODE ((knh_opcode_t)131)
+#define OPCODE_THCODE ((knh_opcode_t)132)
 typedef struct {
 	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;
@@ -1516,7 +1527,7 @@ typedef struct {
 
 #define OPSIZE_THCODE  (sizeof(klr_THCODE_t)-sizeof(void*))
 
-#define OPCODE_NOP ((knh_opcode_t)132)
+#define OPCODE_NOP ((knh_opcode_t)133)
 typedef struct {
 	THREADEDCODE(void *codeaddr;)
 	knh_opcode_t opcode;

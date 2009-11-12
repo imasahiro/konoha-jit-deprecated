@@ -597,6 +597,11 @@ void JIT_OP_fGTEn_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfpidx_t a2,knh_
 	KLR_fGTEn(ctx,a1,a2,a3);
 }
 
+void JIT_OP_SIZE_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfpidx_t a2)
+{
+	KLR_SIZE(ctx,a1,a2);
+}
+
 void JIT_OP_ARYGET_(Ctx *ctx, knh_sfp_t* sfp,knh_sfpidx_t a1,knh_sfpidx_t a2,knh_sfpidx_t a3)
 {
 	KLR_ARYGET(ctx,a1,a2,a3);

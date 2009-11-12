@@ -211,6 +211,10 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 #define KLR_ARRAY_CHECK(n, size) \
 	if(unlikely(n >= size)) knh_throw_OutOfIndex(ctx, n, size, _HERE_)
 
+#define KLR_SIZE(ctx, c, aidx)  {\
+		sfp[c].ivalue = (sfp[aidx].a)->size; \
+	}\
+
 #define KLR_ARYGET(ctx, bidx, aidx, nidx)  {\
 		Object *v_;\
 		size_t idxn_ = KLR_ARRAY_INDEX(ctx, sfp[nidx].ivalue, (sfp[aidx].a)->size);\
