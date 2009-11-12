@@ -223,9 +223,9 @@ struct option {
 typedef const struct option option_t;
 
 #define OPTION(_name, _handler) \
-	{ .name = _name, .arg = false, .func = _handler}
+	{ .name = _name, .arg = 0/*false*/, .func = _handler}
 #define OPTION_ARG(_name, _handler) \
-	{ .name = _name, .arg = true,  .func = _handler}
+	{ .name = _name, .arg = 1/*true*/,  .func = _handler}
 
 static option_t options[] = {
 	//OPTION("s", knh_setSecureMode),
@@ -261,7 +261,7 @@ KNHAPI(int) konoha_parseopt(konoha_t konoha, int argc, char **argv)
 		option_t *opt = knh_get_opt(&t[1]);
 		if(!opt) continue;
 		int arg = 0;
-		if(opt->arg == true) {
+		if(opt->arg == 1/*true*/) {
 			if(t[2] != '0') {
 				arg = knh_bytes_toint(B(&t[2]));
 				arg = (arg == 0) ? 1 : arg;
