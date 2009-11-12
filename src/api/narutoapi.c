@@ -184,7 +184,7 @@ static int knh_env_comp(knh_env_t *env, Object **a1, Object **a2)
 
 
 /* ------------------------------------------------------------------------ */
-//## method void Array.sortByClosure(Closure cc);
+//## method void Array.sortByClosure(Cmpr cc);
 static METHOD Array_sortByClosure(Ctx *ctx, knh_sfp_t *sfp)
 {
   knh_Array_t *o = sfp[0].a;
@@ -192,6 +192,14 @@ static METHOD Array_sortByClosure(Ctx *ctx, knh_sfp_t *sfp)
   knh_qsort_r(o->list, o->size, sizeof(Object*), &env,
 			  (int (*)(void *, const void* , const void*))knh_env_comp);
   KNH_RETURN_void(ctx, sfp);
+}
+
+/* ------------------------------------------------------------------------ */
+//## method int System.getTickCount();
+
+static METHOD System_getTimeMilliSecond(Ctx *ctx, knh_sfp_t *sfp)
+{
+  KNH_RETURN_Int(ctx, sfp, knh_getTimeMilliSecond());
 }
 
 /* ------------------------------------------------------------------------ */
