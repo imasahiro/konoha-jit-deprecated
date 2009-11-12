@@ -503,16 +503,30 @@ static knh_Array_t* knh_Class_domain(Ctx *ctx)
 static knh_Array_t* knh_Method_domain(Ctx *ctx)
 {
 	knh_Array_t *a = new_Array(ctx, CLASS_Method, 0);
-	size_t i = 0;
-	for(i = 0; i < ctx->share->StructTableSize; i++) {
-		knh_ClassField_t *cs = ClassTable(i).cstruct;
+	size_t cid = 0;
+	for(cid = 0; cid < ctx->share->StructTableSize; cid++) {
+		int i;
+		knh_ClassField_t *cs = ClassTable(cid).cstruct;
+		knh_Array_t *ma = cs->methods;
 		DBG2_ASSERT(cs != NULL);
-		knh_Array_addArray(ctx, a, cs->methods);
+		for(i = 0; i < knh_Array_size(ma); i++) {
+			knh_Method_t *mtd = (knh_Method_t*)knh_Array_n(ma, i);
+			if(DP(mtd)->cid == cid) {
+				knh_Array_add(ctx, a, UP(mtd));
+			}
+		}
 	}
-	for(i = ctx->share->ClassTableSize; i < KNH_TCLASS_SIZE; i++) {
-		knh_ClassField_t *cs = ClassTable(i).cstruct;
+	for(cid = ctx->share->ClassTableSize; cid < KNH_TCLASS_SIZE; cid++) {
+		int i;
+		knh_ClassField_t *cs = ClassTable(cid).cstruct;
+		knh_Array_t *ma = cs->methods;
 		DBG2_ASSERT(cs != NULL);
-		knh_Array_addArray(ctx, a, cs->methods);
+		for(i = 0; i < knh_Array_size(ma); i++) {
+			knh_Method_t *mtd = (knh_Method_t*)knh_Array_n(ma, i);
+			if(DP(mtd)->cid == cid) {
+				knh_Array_add(ctx, a, UP(mtd));
+			}
+		}
 	}
 	return a;
 }
