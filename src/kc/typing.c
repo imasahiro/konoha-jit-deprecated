@@ -1036,7 +1036,8 @@ int knh_Token_typing(Ctx *ctx, knh_Token_t *tk, knh_type_t reqt)
 
 static int knh_ismtchar(int c)
 {
-	return isalnum(c);
+  //  return isalnum(c) ? 1 : ((c == '.') ? 1 : 0);
+  return isalnum(c) | (c == '.');
 }
 
 /* ------------------------------------------------------------------------ */
