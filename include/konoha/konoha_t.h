@@ -448,7 +448,7 @@ typedef struct knh_Object_t {
 #define T2              knh_Object_t
 #define UP(o)           (Object*)(o)
 
-#define KNH_FIELDn(v,n)            ((knh_Script_t*)(v))->fields[(n)]
+//#define KNH_FIELDn(v,n)            ((knh_Script_t*)(v))->fields[(n)]
 
 /* ------------------------------------------------------------------------ */
 /* Common Object Structure */
@@ -568,6 +568,7 @@ typedef struct knh_sfp_t {
 		struct knh_ExceptionHandler_t *hdr;
 		struct knh_NameSpace_t *ns;
 		struct knh_Glue_t   *glue;
+		struct knh_ObjectField_t *ox;
 	};
 	union {
 		knh_boolean_t bvalue;

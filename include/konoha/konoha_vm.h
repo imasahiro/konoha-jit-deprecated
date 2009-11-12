@@ -149,10 +149,10 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 
 /* ------------------------------------------------------------------------ */
 
-#define SFXo(x)   KNH_FIELDn(sfp[x.i].o, x.n)
-#define SFXi(x)   (*((knh_int_t*)(&KNH_FIELDn(sfp[x.i].o, x.n))))
-#define SFXf(x)   (*((knh_float_t*)(&KNH_FIELDn(sfp[x.i].o, x.n))))
-#define SFXb(x)   (*((knh_bool_t*)(&KNH_FIELDn(sfp[x.i].o, x.n))))
+#define SFXo(x)   (sfp[x.i].ox)->fields[x.n]
+#define SFXi(x)   (*((knh_int_t*)(&(sfp[x.i].ox)->fields[x.n])))
+#define SFXf(x)   (*((knh_float_t*)(&(sfp[x.i].ox)->fields[x.n])))
+#define SFXb(x)   (*((knh_bool_t*)(&(sfp[x.i].ox)->fields[x.n])))
 
 #define KLR_MOVx(ctx, a, b) {\
 		knh_Int_t *v_ = (knh_Int_t*)SFXo(b);\
