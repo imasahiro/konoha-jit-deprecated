@@ -77,21 +77,21 @@ knh_thread_t knh_thread_self(void)
 
 #ifdef KNH_USING_BTRON
 typedef struct {
-    void* (*func)(void*);
-    void* arg;
+	void* (*func)(void*);
+	void* arg;
 } knh_thread_target_btron;
 
 static void knh_thread_btronEntryPoint(knh_thread_target_btron* arg)
 {
-    knh_thread_target_btron target = *arg;
-    free(arg);
+	knh_thread_target_btron target = *arg;
+	free(arg);
 
-    // FIXME: return value is ignored
-    target.func(target.arg);
+	// FIXME: return value is ignored
+	target.func(target.arg);
 
-    // BTRON threads must terminate with b_ext_tsk;
-    //       that's why we need this stub function
-    b_ext_tsk();
+	// BTRON threads must terminate with b_ext_tsk;
+	//       that's why we need this stub function
+	b_ext_tsk();
 }
 #endif /* KNH_USING_BTRON */
 
@@ -103,22 +103,22 @@ int knh_thread_create(Ctx *ctx, knh_thread_t *thread, void *attr, void *(*frun)(
 #if defined(KNH_USING_PTHREAD)
 	return pthread_create((pthread_t*)thread, attr, frun, arg);
 #elif defined(KNH_USING_BTRON)
-        // FIXME: attr is ignored
-        W err;
-        knh_thread_target_btron* target =
-            (knh_thread_target_btron*)malloc(sizeof(knh_thread_target_btron));
-        if (target == NULL) {
-            return -1;
-        }
-        target->func = frun;
-        target->arg = arg;
-        err = b_cre_tsk((FP)knh_thread_btronEntryPoint, -1, (W)target);
-        if (err < 0) {
-            free(target);
-            return -1;
-        }
-        *thread = err;
-        return 0;
+	// FIXME: attr is ignored
+	W err;
+	knh_thread_target_btron* target =
+		(knh_thread_target_btron*)malloc(sizeof(knh_thread_target_btron));
+	if (target == NULL) {
+		return -1;
+	}
+	target->func = frun;
+	target->arg = arg;
+	err = b_cre_tsk((FP)knh_thread_btronEntryPoint, -1, (W)target);
+	if (err < 0) {
+		free(target);
+		return -1;
+	}
+	*thread = err;
+	return 0;
 #else
 	return -1;
 #endif
@@ -140,9 +140,9 @@ int knh_thread_detach(Ctx *ctx, knh_thread_t th)
 int knh_thread_join(Ctx *ctx, knh_thread_t thread, void **ret)
 {
 #if defined(KNH_USING_PTHREAD)
-    return pthread_join((pthread_t)thread, ret);
+	return pthread_join((pthread_t)thread, ret);
 #else
-    return -1;
+	return -1;
 #endif
 }
 
@@ -181,14 +181,14 @@ static void *threading(void *p)
 		goto L_FINALLY;
 	}
 	/* catch */
-	L_CATCH:;
-	KNH_PRINT_STACKTRACE(ctx, lsfp, 0);
+L_CATCH:;
+		KNH_PRINT_STACKTRACE(ctx, lsfp, 0);
 
-	L_FINALLY:
-	knh_Context_clearstack(ctx);
-	knh_endContext(ctx);
-	knh_ThreadContext_dispose(ctx);
-	return NULL;
+L_FINALLY:
+		knh_Context_clearstack(ctx);
+		knh_endContext(ctx);
+		knh_ThreadContext_dispose(ctx);
+		return NULL;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -245,6 +245,19 @@ int knh_mutex_lock(knh_mutex_t *m)
 	return -1;
 #endif
 }
+
+/* ------------------------------------------------------------------------ */
+
+int knh_mutex_trylock(knh_mutex_t *m)
+{
+	DBG2_P("trylock %p", m);
+#if defined(KNH_USING_PTHREAD)
+	return pthread_mutex_trylock((pthread_mutex_t*)m);
+#else
+	return -1;
+#endif
+}
+
 
 /* ------------------------------------------------------------------------ */
 

@@ -764,23 +764,23 @@ METHOD knh_fmethod_securityTrace(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 
 void knh_Method_trace(Ctx *ctx, knh_Method_t *mtd, int trace)
 {
-  DP(mtd)->prof_count = 0;
-  DP(mtd)->prof_time = 0;
-  switch(trace) {
-  case KNH_SECURITYTRACE:
-	break;
-  case KNH_AUDITTRACE:
-	break;
-  case KNH_PROFILER:
-	(mtd)->fcall_1 = knh_fmethod_profiler;
-	break;
-  case KNH_STACKTRACE:
-	(mtd)->fcall_1 = knh_fmethod_stackTrace;
-	break;
-  case KNH_NOTRACE:
-  default:
-	(mtd)->fcall_1 = DP(mtd)->fproceed;
-  }
+	DP(mtd)->prof_count = 0;
+	DP(mtd)->prof_time  = 0;
+	switch(trace) {
+		case KNH_SECURITYTRACE:
+			break;
+		case KNH_AUDITTRACE:
+			break;
+		case KNH_PROFILER:
+			(mtd)->fcall_1 = knh_fmethod_profiler;
+			break;
+		case KNH_STACKTRACE:
+			(mtd)->fcall_1 = knh_fmethod_stackTrace;
+			break;
+		case KNH_NOTRACE:
+		default:
+			(mtd)->fcall_1 = DP(mtd)->fproceed;
+	}
 }
 
 /* ------------------------------------------------------------------------ */

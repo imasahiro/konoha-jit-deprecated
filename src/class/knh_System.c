@@ -90,6 +90,13 @@ KNHAPI(void) knh_setSystemPropertyText(Ctx *ctx, char *key, char *value)
 
 /* ------------------------------------------------------------------------ */
 
+KNHAPI(void) knh_System_setExceptionHandler(Ctx *ctx, knh_System_t *o, knh_ExceptionHandler_t *hdr)
+{
+	//DP(o)->excepthook = hdr;
+}
+
+/* ------------------------------------------------------------------------ */
+
 knh_bool_t konoha_initcheck(void)
 {
 #ifdef KONOHA_SAFEMODE

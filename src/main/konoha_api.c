@@ -71,7 +71,7 @@ void konoha_init(void)
 KNHAPI(Ctx*) knh_beginContext(Ctx *ctx)
 {
 #ifdef KNH_USING_THREAD
-	knh_mutex_lock(ctx->ctxlock);
+	knh_mutex_init(ctx->ctxlock);
 	knh_thread_setspecific(ctxkey, ctx);
 #else
 	curctx = ctx;
@@ -85,7 +85,7 @@ KNHAPI(void) knh_endContext(Ctx *ctx)
 {
 #ifdef KNH_USING_THREAD
 	knh_thread_setspecific(ctxkey, NULL);
-	knh_mutex_unlock(ctx->ctxlock);
+	knh_mutex_destroy(ctx->ctxlock);
 #else
 	curctx = NULL;
 #endif
