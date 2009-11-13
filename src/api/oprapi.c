@@ -610,6 +610,9 @@ static METHOD String_opSub(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 
 METHOD Any_opAdd(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
+	// FIXME
+	// 'mtd' is used uninitialized in this function
+	// And, accsess to DP(mtd)->mn.
 	knh_Method_t *mtd = knh_lookupMethod(ctx, knh_Object_cid(sfp[0].o), DP(mtd)->mn);
 	KNH_SETv(ctx, sfp[-1].mtd, mtd);
 	knh_stack_typecheck(ctx, sfp, mtd, NULL);
@@ -621,6 +624,9 @@ METHOD Any_opAdd(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 
 METHOD Any_opNeg(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
+	// FIXME
+	// 'mtd' is used uninitialized in this function
+	// And, accsess to DP(mtd)->mn.
 	knh_Method_t *mtd = knh_lookupMethod(ctx, knh_Object_cid(sfp[0].o), DP(mtd)->mn);
 	KNH_SETv(ctx, sfp[-1].mtd, mtd);
 	knh_stack_typecheck(ctx, sfp, mtd, NULL);

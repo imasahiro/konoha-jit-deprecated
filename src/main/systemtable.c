@@ -308,6 +308,8 @@ void knh_initSharedData(knh_Context_t *ctx)
 	share->LockTable = (knh_LockTable_t*)KNH_MALLOC(ctx, SIZEOF_TLOCK);
 	knh_bzero(share->LockTable, SIZEOF_TLOCK);
 	for(i = 0; i < KNH_TLOCK_SIZE; i++) {
+		share->LockTable[i].mutex = (knh_mutex_t*)KNH_MALLOC(ctx, sizeof(knh_mutex_t));
+		knh_mutex_init(share->LockTable[i].mutex);
 		if(LOCK_UNUSED <= i && i < KNH_TLOCK_SIZE - 1) {
 			share->LockTable[i].unused = &(share->LockTable[i+1]);
 		}
@@ -418,6 +420,8 @@ void knh_traverseSharedData(Ctx *ctx, knh_SharedData_t *share, knh_ftraverse ftr
 	}
 
 	for(i = 0; i < KNH_TLOCK_SIZE; i++) {
+		knh_mutex_destroy(share->LockTable[i].mutex);
+		KNH_FREE(ctx, share->LockTable[i].mutex, sizeof(knh_mutex_t));
 		if(share->LockTable[i].name != NULL) {
 			ftr(ctx, UP(share->LockTable[i].name));
 			if(share->LockTable[i].so != NULL) {
