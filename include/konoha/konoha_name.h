@@ -2,9 +2,9 @@
 
 /* ======================================================================== */
 /* MACROS */
-#define KONOHA_REVISION                 977
+#define KONOHA_REVISION                 982
 #define KONOHA_BUILDID                  756
-#define KONOHA_EXPIRE                   1258312277LL
+#define KONOHA_EXPIRE                   1258339914LL
 
 /* ======================================================================== */
 /* STRUCT */

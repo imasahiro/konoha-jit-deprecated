@@ -1271,29 +1271,38 @@ void TERMs_perrorTYPE(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_type_t reqt)
 	}
 
 	switch(SP(stmt)->stt) {
-	case STT_CALL:
 	case STT_NEW:
+	{
+		knh_Method_t *mtd = DP(DP(stmt)->tokens[0])->mtd;
+		knh_perror(ctx, SP(stmt)->uri, SP(stmt)->line,
+			KERR_TERROR, _("parameter %d of %M %C must be %T, not %T"), n - 1, DP(mtd)->mn, DP(mtd)->cid, reqt, type);
+		break;
+	}
+	case STT_CALL:
 	case STT_OP:
 	{
 		knh_Method_t *mtd = DP(DP(stmt)->tokens[0])->mtd;
 		if(IS_Method(mtd)) {
 			knh_perror(ctx, SP(stmt)->uri, SP(stmt)->line,
-				KERR_TERROR, _("%T must be %T at the parameter %d of %M"), type, reqt, n - 1, DP(mtd)->mn);
+				KERR_TERROR, _("parameter of %d of %M must be %T, not %T"), n - 1, DP(mtd)->mn, reqt, type);
 		}
 		else {
 			knh_perror(ctx, SP(stmt)->uri, SP(stmt)->line,
-				KERR_TERROR, _("%T must be %T at the parameter %d"), type, reqt, n - 1);
+				KERR_TERROR, _("parameter of %d must be %T, not %T"), n - 1, reqt, type);
 		}
+		break;
 	}
-	break;
 	case STT_DECL:
+		knh_perror(ctx, SP(stmt)->uri, SP(stmt)->line,
+				KERR_TERROR, _("%s must be %T, not %T"), sToken(DP(stmt)->tokens[1]), reqt, type);
+		break;
 	case STT_LET:
 		knh_perror(ctx, SP(stmt)->uri, SP(stmt)->line,
-				KERR_TERROR, _("%T must be %T at ="), type, reqt);
+				KERR_TERROR, _("%s must be %T, not %T"), sToken(DP(stmt)->tokens[0]), reqt, type);
 		break;
 	default :
 		knh_perror(ctx, SP(stmt)->uri, SP(stmt)->line,
-				KERR_TERROR, _("%T must be %T at %s(%d)"), type, reqt, knh_stmt_tochar(SP(stmt)->stt), n);
+				KERR_TERROR, _("%s(%d) must be %T, not %T"), knh_stmt_tochar(SP(stmt)->stt), n, reqt, type);
 	}
 }
 
@@ -3548,7 +3557,6 @@ int TERMs_typing(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_type_t reqt, int mode
 			//if(mode == TITERCONV_) goto L_ERROR;
 		}
 		DBG_P("stt=%s n=%d, reqt=%s%s, vart=%s%s", knh_stmt_tochar(SP(stmt)->stt), (int)n, TYPEQN(reqt), TYPEQN(vart));
-		DBG2_ASSERT(vart != TYPE_Array);
 		TERMs_perrorTYPE(ctx, stmt, n, reqt);
 	}
 
