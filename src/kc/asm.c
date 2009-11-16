@@ -1336,7 +1336,7 @@ void knh_StmtCALL_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 		goto L_RTYPE;
 	}
 	/* INSTRUCTION */
-	if(DP(mtd)->mn == METHOD_getSize) {
+	if(IS_Method(mtd) && DP(mtd)->mn == METHOD_getSize) {
 		switch(mtd_cid) {
 		case CLASS_Bytes:
 		case CLASS_Array:
@@ -1349,6 +1349,7 @@ void knh_StmtCALL_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 			}
 		}
 	}
+	/* Array */
 	if(mtd_cid == CLASS_Array || mtd_cid == CLASS_IArray || mtd_cid == CLASS_FArray) {
 		if(DP(mtd)->mn == METHODN_get) {
 			int a = TERMs_putLOCAL(ctx, stmt, 1, NNTYPE_Array, local + 1);
