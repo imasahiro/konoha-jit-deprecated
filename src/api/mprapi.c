@@ -170,7 +170,7 @@ static MAPPER String_Bytes(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 /* [Iterator] */
 
 /* ------------------------------------------------------------------------ */
-//## mapper Object Iterator! @Const */
+//## @Const mapper Object Iterator!;
 
 static MAPPER Object_Iterator(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
@@ -190,7 +190,7 @@ static METHOD Object_opItr(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 /* [Iterator] */
 
 /* ------------------------------------------------------------------------ */
-//## mapper Iterator Array! */
+//## mapper Iterator Array!;
 
 static MAPPER Iterator_Array(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {

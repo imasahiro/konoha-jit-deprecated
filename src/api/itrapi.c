@@ -285,7 +285,7 @@ static MAPPER knh_DictMap_String__(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 }
 
 /* ------------------------------------------------------------------------ */
-//## method String.. DictMap.opItr() */
+//## method String.. DictMap.opItr();
 
 static METHOD DictMap_opItr(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
@@ -295,7 +295,7 @@ static METHOD DictMap_opItr(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 }
 
 /* ------------------------------------------------------------------------ */
-//## method PairST1.. DictMap.opItr:2() */
+//## method PairST1.. DictMap.opItr:2();
 
 static METHOD DictMap_opItr__2(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {

@@ -59,7 +59,7 @@ static METHOD Object_opAddr(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 }
 
 /* ------------------------------------------------------------------------ */
-//## @NullBase method Boolean Object.opInstanceof(Class c) */
+//## @NullBase method Boolean Object.opInstanceof(Class c);
 
 METHOD Object_opInstanceof(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
@@ -827,7 +827,7 @@ static METHOD Array_getSize(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 }
 
 /* ------------------------------------------------------------------------ */
-//## method Int! DictMap.getSize() @NullBase */
+//## @NullBase method Int! DictMap.getSize();
 
 static METHOD DictMap_getSize(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
