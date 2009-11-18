@@ -39,6 +39,9 @@
 #include<btron/taskcomm.h>
 #endif
 
+#ifdef KONOHA_ON_LKM
+#include <linux/mutex.h>
+#endif
 
 /* ************************************************************************ */
 
@@ -67,7 +70,7 @@ knh_thread_t knh_thread_self(void)
 #if defined(KNH_USING_PTHREAD)
 	return (knh_thread_t)pthread_self();
 #elif defined(KNH_USING_BTRON)
-        return b_get_tid();
+	return b_get_tid();
 #else
 	return 0;
 #endif
@@ -222,6 +225,9 @@ int knh_mutex_init(knh_mutex_t *m)
 	}
 	*m = sem;
 	return 0;
+#elif defined(KONOHA_ON_LKM)
+	mutex_init((struct mutex *)m);
+	return 0;
 #else
 	return -1;
 #endif
@@ -233,13 +239,16 @@ int knh_mutex_lock(knh_mutex_t *m)
 {
 	DBG2_P("locking %p", m);
 #if defined(KNH_USING_PTHREAD)
-	//return pthread_mutex_lock((pthread_mutex_t*)m);
-	return 0;
+	int ret = pthread_mutex_lock((pthread_mutex_t*)m);
+	return ret;
 #elif defined(KNH_USING_BTRON)
 	W err = b_wai_sem(*m, T_FOREVER);
 	if (err < 0) {
 		return -1;
 	}
+	return 0;
+#elif defined(KONOHA_ON_LKM)
+	mutex_lock((struct mutex *) m);
 	return 0;
 #else
 	return -1;
@@ -253,6 +262,8 @@ int knh_mutex_trylock(knh_mutex_t *m)
 	DBG2_P("trylock %p", m);
 #if defined(KNH_USING_PTHREAD)
 	return pthread_mutex_trylock((pthread_mutex_t*)m);
+#elif defined(KONOHA_ON_LKM)
+	return mutex_trylock((struct mutex *) m);
 #else
 	return -1;
 #endif
@@ -265,13 +276,16 @@ int knh_mutex_unlock(knh_mutex_t *m)
 {
 	DBG2_P("unlocking %p", m);
 #if defined(KNH_USING_PTHREAD)
-	//return pthread_mutex_unlock((pthread_mutex_t*)m);
-	return 0;
+	int ret = pthread_mutex_unlock((pthread_mutex_t*)m);
+	return ret;
 #elif defined(KNH_USING_BTRON)
 	W err = b_sig_sem(*m);
 	if (err < 0) {
 		return -1;
 	}
+	return 0;
+#elif defined(KONOHA_ON_LKM)
+	mutex_unlock((struct mutex *) m);
 	return 0;
 #else
 	return -1;
@@ -290,6 +304,8 @@ int knh_mutex_destroy(knh_mutex_t *m)
 	if (err < 0) {
 		return -1;
 	}
+	return 0;
+#elif defined(KONOHA_ON_LKM)
 	return 0;
 #else
 	return -1;
