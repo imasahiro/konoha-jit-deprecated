@@ -131,11 +131,7 @@ static METHOD FArray_add(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_FArray_t *o = (knh_FArray_t*)sfp[0].o;
 	if(o->size == o->capacity) {
-#if !defined(KNH_USING_NOFLOT)
-		knh_FArray_grow(ctx, o, knh_array_newsize(o->capacity * 2, sizeof(knh_float_t)), 0.0);
-#else
-		knh_FArray_grow(ctx, o, knh_array_newsize(o->capacity * 2, sizeof(knh_float_t)), 0);
-#endif
+		knh_FArray_grow(ctx, o, knh_array_newsize(o->capacity * 2, sizeof(knh_float_t)), KNH_FLOAT_ZERO);
 	}
 	o->flist[o->size] = sfp[1].fvalue;
 	o->size++;

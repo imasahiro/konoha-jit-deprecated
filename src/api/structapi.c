@@ -2224,6 +2224,27 @@ static void knh_KLRCode_traverse(Ctx *ctx, knh_KLRCode_t *o, knh_ftraverse ftr)
 		KNH_FREE(ctx, b->code, KNH_SIZE(b->size));
 	}
 }
+/* ======================================================================== */
+/* Thread */
+
+#define knh_Thread_init_ NULL
+#define knh_Thread_copy NULL
+#define knh_Thread_traverse_ NULL
+#define knh_Thread_compareTo NULL
+#define knh_Thread_hashCode NULL
+#define knh_Thread_newClass NULL
+#define knh_Thread_getkey NULL
+
+static void knh_Thread_init(Ctx *ctx, knh_Thread_t *o, int init)
+{
+}
+
+static void knh_Thread_traverse(Ctx *ctx, knh_Thread_t *o, knh_ftraverse ftr)
+{
+}
+
+/* ======================================================================== */
+
 
 /* ======================================================================== */
 

@@ -1334,6 +1334,17 @@ typedef struct knh_KLRCode_t {
 	knh_uri_t uri; knh_ushort_t line;
 } knh_KLRCode_t;
 
+/* ------------------------------------------------------------------------ */
+//## class Thread Object;
+//## flag Thread Active  0 DP(%s)->flag is  set   * *;
+
+typedef struct knh_Thread_t {
+	knh_hObject_t h;
+	knh_thread_t thid;
+	knh_sfp_t *envsfp;
+	size_t envsize;
+} knh_Thread_t;
+
 
 /* ======================================================================== */
 
