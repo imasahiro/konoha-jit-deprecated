@@ -35,3 +35,25 @@ test "No Such Method #19581" {
 		assert b;
 	}
 }
+
+class Box {
+	Any m;
+	Box (int n) {
+		m = n;
+	}
+}
+
+class Box2 {
+	Any m;
+	Box2 (String n) {
+		m = n;
+	}
+}
+
+test "UNBOX, BOX" {
+	int i = 5;
+	String str = "5";
+	b1 = new Box(i);
+	b2 = new Box2(str);
+	assert (int)b1.m == (int)b2.m;
+}

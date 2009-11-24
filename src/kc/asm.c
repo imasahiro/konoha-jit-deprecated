@@ -286,8 +286,12 @@ void KNH_ASM_BOX(Ctx *ctx, knh_type_t reqt, knh_type_t atype, int a)
 		else if(OPCODE_NNBOXnc == iLAST->opcode) { /* PEEPHOLE */
 			knh_KLRInst_setopcode(iLAST, OPCODE_BOXnc);
 		}
+		if (OPCODE_LABEL != iLAST->opcode) {
+			return;
+		}
 	}
-	else {
+
+	{
 		knh_class_t cid = CLASS_type(atype);
 		DBG2_ASSERT_cid(cid);
 		knh_class_t bcid = ClassTable(cid).bcid;

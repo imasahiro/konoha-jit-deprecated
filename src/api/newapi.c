@@ -496,6 +496,23 @@ static METHOD Closure_new(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 }
 
 /* ------------------------------------------------------------------------ */
+//## type void(Array) Thrd Closure void Array! void;
+//## method Thread! Thread.new(Thrd! c, Array! args);
+
+static METHOD Thread_new(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+{
+	knh_Thread_t *t = (knh_Thread_t*)sfp[0].o;
+	DBG2_ASSERT(IS_bThread(t));
+	DBG2_ASSERT(IS_bClosure(sfp[1].cc));
+	DBG2_ASSERT(IS_Array(sfp[2].a));
+	//KNH_INITv((sfp[0].cc)->base, sfp[1].o);
+	//KNH_INITv((sfp[0].cc)->mtd, sfp[2].mtd);
+	//(sfp[0].cc)->envsfp = NULL;
+	KNH_RETURN(ctx, sfp, sfp[0].o);
+}
+
+
+/* ------------------------------------------------------------------------ */
 
 #endif/* KNH_CC_METHODAPI*/
 
