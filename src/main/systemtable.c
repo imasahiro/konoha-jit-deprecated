@@ -261,7 +261,7 @@ void knh_lockID(Ctx *ctx, knh_lock_t lockid, Object *ref, char *filename, int li
 {
 	knh_LockTable_t *t = pLockTable(lockid);
 	if(t->mutex != NULL) {
-		DBG_(fprintf(stderr, "LOCK[%d] count=%d at %s:%d\n", (int)lockid, (int)(t->count + 1), filename, lineno));
+		//DBG2_(fprintf(stderr, "LOCK[%d] count=%d at %s:%d\n", (int)lockid, (int)(t->count + 1), filename, lineno));
 		knh_mutex_lock(t->mutex);
 		t->count += 1;
 		DBG2_({
@@ -277,7 +277,7 @@ void knh_unlockID(Ctx *ctx, knh_lock_t lockid, char *filename, int lineno)
 {
 	knh_LockTable_t *t = pLockTable(lockid);
 	if(t->mutex != NULL) {
-		DBG_(fprintf(stderr, "UNLOCK[%d] count=%d at %s:%d\n", (int)lockid, (int)t->count, filename, lineno));
+		//DBG2_(fprintf(stderr, "UNLOCK[%d] count=%d at %s:%d\n", (int)lockid, (int)t->count, filename, lineno));
 		t->count -= 1;
 		knh_mutex_unlock(t->mutex);
 	}

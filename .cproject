@@ -73,7 +73,7 @@
 </toolChain>
 </folderInfo>
 <sourceEntries>
-<entry excluding="src/labs|dist|tshell|tbmx1|build|.pygen|package" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+<entry excluding="test|src/labs|dist|tshell|tbmx1|build|.pygen|package" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 </sourceEntries>
 </configuration>
 </storageModule>
@@ -382,7 +382,7 @@
 </toolChain>
 </folderInfo>
 <sourceEntries>
-<entry excluding="src/labs|dist|tshell|tbmx1|build|.pygen|package" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+<entry excluding="test|src/labs|dist|tshell|tbmx1|build|.pygen|package" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 </sourceEntries>
 </configuration>
 </storageModule>

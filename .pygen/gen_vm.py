@@ -350,10 +350,10 @@ static void knh_write__sfpidx(Ctx *ctx, knh_OutputStream_t* w, knh_sfpidx_t a)
 {
 	knh_printf(ctx, w, " sfp[%d]", (knh_intptr_t)a);
 }
-static void knh_write__sfe(Ctx *ctx, knh_OutputStream_t* w, knh_sfe_t a)
-{
-	knh_printf(ctx, w, " sfe[%d]", (knh_intptr_t)a);
-}
+//static void knh_write__sfe(Ctx *ctx, knh_OutputStream_t* w, knh_sfe_t a)
+//{
+//	knh_printf(ctx, w, " sfe[%d]", (knh_intptr_t)a);
+//}
 static void knh_write__sfx(Ctx *ctx, knh_OutputStream_t* w, knh_sfx_t a)
 {
 	knh_printf(ctx, w, " sfx[%d]+%d", (knh_intptr_t)a.i, (knh_intptr_t)a.n);
