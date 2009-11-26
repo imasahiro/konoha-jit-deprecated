@@ -405,9 +405,10 @@ static int knh_Float_compareTo(Ctx *ctx, knh_Float_t *o, knh_Float_t *o2)
 
 static void knh_String_init(Ctx *ctx, knh_String_t *s, int init)
 {
-	s->str = (knh_uchar_t*)""; // for safety
+	s->str = (knh_uchar_t*)"";
 	s->size = 0;
 	s->orign = NULL;
+	knh_String_setTextSgm(s, 1);
 }
 
 static void knh_String_traverse(Ctx *ctx, knh_String_t *s, knh_ftraverse ftr)
@@ -425,7 +426,7 @@ static void knh_String_traverse(Ctx *ctx, knh_String_t *s, knh_ftraverse ftr)
 
 static knh_hashcode_t knh_String_hashCode(Ctx *ctx, knh_String_t *o)
 {
-	KNH_ASSERT(IS_bString(o));
+	DBG2_ASSERT(IS_bString(o));
 	knh_hashcode_t h = o->size;
 	size_t i;
 	for(i = 0; i < o->size; i++) {
