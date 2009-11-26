@@ -223,9 +223,9 @@ struct option {
 typedef const struct option option_t;
 
 #define OPTION(_name, _handler) \
-	{ .name = _name, .arg = 0/*false*/, .func = _handler}
+	{ _name, 0/*false*/, _handler}
 #define OPTION_ARG(_name, _handler) \
-	{ .name = _name, .arg = 1/*true*/,  .func = _handler}
+	{ _name, 1/*true*/, _handler}
 
 static option_t options[] = {
 	//OPTION("s", knh_setSecureMode),
