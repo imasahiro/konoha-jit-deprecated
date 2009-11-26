@@ -503,6 +503,8 @@ typedef knh_intptr_t knh_thread_key_t;
 typedef knh_intptr_t knh_mutex_t;
 #endif
 
+typedef void* (*knh_fgo)(void *);
+
 typedef struct knh_LockTable_t {
 	knh_mutex_t *mutex;
 	size_t count;

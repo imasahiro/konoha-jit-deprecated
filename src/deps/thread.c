@@ -101,10 +101,10 @@ static void knh_thread_btronEntryPoint(knh_thread_target_btron* arg)
 
 /* ------------------------------------------------------------------------ */
 
-int knh_thread_create(Ctx *ctx, knh_thread_t *thread, void *attr, void *(*frun)(void *), void * arg)
+int knh_thread_create(Ctx *ctx, knh_thread_t *thread, void *attr, knh_fgo fgo, void * arg)
 {
 #if defined(KNH_USING_PTHREAD)
-	return pthread_create((pthread_t*)thread, attr, frun, arg);
+	return pthread_create((pthread_t*)thread, attr, fgo, arg);
 #elif defined(KNH_USING_BTRON)
 	// FIXME: attr is ignored
 	W err;
@@ -113,7 +113,7 @@ int knh_thread_create(Ctx *ctx, knh_thread_t *thread, void *attr, void *(*frun)(
 	if (target == NULL) {
 		return -1;
 	}
-	target->func = frun;
+	target->func = fgo;
 	target->arg = arg;
 	err = b_cre_tsk((FP)knh_thread_btronEntryPoint, -1, (W)target);
 	if (err < 0) {
@@ -237,7 +237,7 @@ int knh_mutex_init(knh_mutex_t *m)
 
 int knh_mutex_lock(knh_mutex_t *m)
 {
-	DBG2_P("locking %p", m);
+	//DBG2_P("locking %p", m);
 #if defined(KNH_USING_PTHREAD)
 	int ret = pthread_mutex_lock((pthread_mutex_t*)m);
 	return ret;
@@ -259,7 +259,7 @@ int knh_mutex_lock(knh_mutex_t *m)
 
 int knh_mutex_trylock(knh_mutex_t *m)
 {
-	DBG2_P("trylock %p", m);
+	//DBG2_P("trylock %p", m);
 #if defined(KNH_USING_PTHREAD)
 	return pthread_mutex_trylock((pthread_mutex_t*)m);
 #elif defined(KONOHA_ON_LKM)
@@ -274,7 +274,7 @@ int knh_mutex_trylock(knh_mutex_t *m)
 
 int knh_mutex_unlock(knh_mutex_t *m)
 {
-	DBG2_P("unlocking %p", m);
+	//DBG2_P("unlocking %p", m);
 #if defined(KNH_USING_PTHREAD)
 	int ret = pthread_mutex_unlock((pthread_mutex_t*)m);
 	return ret;
@@ -296,7 +296,7 @@ int knh_mutex_unlock(knh_mutex_t *m)
 
 int knh_mutex_destroy(knh_mutex_t *m)
 {
-	DBG2_P("destroying %p", m);
+	//DBG2_P("destroying %p", m);
 #if defined(KNH_USING_PTHREAD)
 	return pthread_mutex_destroy((pthread_mutex_t*)m);
 #elif defined(KNH_USING_BTRON)
