@@ -358,13 +358,12 @@ static METHOD Tuple__k(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 		knh_format(ctx, w, METHODN__k, o->third, KNH_NULL);
 	}
 	else {
-		size_t i, c = 0;
-		for(i = 0; o->size; i++) {
-			if(c > 0) {
+		size_t i;
+		for(i = 0; i < o->size; i++) {
+			if(i > 0) {
 				knh_write_delim(ctx,w);
 			}
-			knh_format(ctx, w, METHODN__k, o->list[c], KNH_NULL);
-			c++;
+			knh_format(ctx, w, METHODN__k, o->list[i], KNH_NULL);
 		}
 	}
 	knh_putc(ctx, w, ')');
