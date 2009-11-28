@@ -71,29 +71,22 @@ void *knh_cwb_dlopen(Ctx *ctx, knh_cwb_t *cwb)
 	DBG_P("knh_dlopen .. '%s'\n", file);
 	return dlopen(file, RTLD_LAZY);
 #elif defined(KNH_USING_BTRON)
-//	// YASHORO KUN ZENZEN WAKARIMASEN
-//        char buff[FILEPATH_BUFSIZ];
-//        TC buff_tc[FILEPATH_BUFSIZ];
-//        LINK lnk;
-//        W err;
-//	if(knh_bytes_endsWith(libname, STEXT(KONOHA_OS_DLLEXT))) {
-//		knh_format_ospath(ctx, buff, sizeof(buff), libname);
-//	}
-//	else {
-//		knh_format_ospath2(ctx, buff, sizeof(buff), libname, KONOHA_OS_DLLEXT);
-//	}
-//	DBG_P("knh_dlopen .. '%s'\n", buff);
-//        eucstotcs(buff_tc, buff);
-//        err = b_get_lnk(buff_tc, &lnk, F_NORM);
-//        if (err < 0) {
-//            return NULL;
-//        }
-//        err = b_dlopen(&lnk, DL_LAZY);
-//        if (err <= 0) {
-//            return NULL;
-//        }
-//        // Be careful that BTRON dlopen handles are of type W, not void*!
-//        return (void*)err;
+	// TODO
+        TC buff_tc[FILEPATH_BUFSIZ];
+        LINK lnk;
+        W err;
+	DBG_P("btron knh_dlopen .. '%s'\n", file);
+        eucstotcs(buff_tc, file);
+        err = b_get_lnk(buff_tc, &lnk, F_NORM);
+        if (err < 0) {
+            return NULL;
+        }
+        err = b_dlopen(&lnk, DL_LAZY);
+        if (err <= 0) {
+            return NULL;
+        }
+        // Be careful that BTRON dlopen handles are of type W, not void*!
+        return (void*)err;
 #else
 	return NULL;
 #endif
@@ -113,7 +106,7 @@ void *knh_dlsym(Ctx *ctx, void* hdr, const char* symbol)
     if (err < 0) {
         return NULL;
     }
-    return val;
+    return (void*)val;
 #else
     return NULL;
 #endif

@@ -116,7 +116,7 @@ static METHOD Script_system(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_SECURE(ctx,sfp);
 	int ret = -1;
-#if !defined(KONOHA_ON_LKM)
+#if !defined(KONOHA_ON_LKM) && !defined(KONOHA_ON_TB)
 	ret = system(String_to(char*, sfp[1]));
 	if(ret  == -1) {
 		KNH_PERRNO(ctx, NULL, "OS!!", "system", knh_Context_isStrict(ctx));
