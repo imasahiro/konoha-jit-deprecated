@@ -4,7 +4,7 @@
 /* MACROS */
 #define KONOHA_REVISION                 1005
 #define KONOHA_BUILDID                  759
-#define KONOHA_EXPIRE                   1259737299LL
+#define KONOHA_EXPIRE                   1259740824LL
 
 /* ======================================================================== */
 /* STRUCT */
@@ -525,9 +525,33 @@
 #define FLAG_Context            knh_flag_oflag(CFLAG_Context)
 
 /* ------------------------------------------------------------------------ */
+/* Thread */
+#define CLASS_Thread            ((knh_class_t)43)
+#define STRUCT_Thread           ((knh_struct_t)43)
+#define IS_Thread(o)            ((o)->h.cid == CLASS_Thread)
+#define IS_bThread(o)           ((o)->h.bcid == CLASS_Thread)
+#define TYPE_Thread             CLASS_Thread
+#define NNTYPE_Thread           NNTYPE_cid(CLASS_Thread)
+#define NATYPE_Thread           NATYPE_cid(CLASS_Thread)
+#define CFLAG_Thread            ((knh_flag_t)0)
+#define FLAG_Thread             knh_flag_oflag(CFLAG_Thread)
+
+/* ------------------------------------------------------------------------ */
+/* ScriptEngine */
+#define CLASS_ScriptEngine      ((knh_class_t)44)
+#define STRUCT_ScriptEngine     ((knh_struct_t)44)
+#define IS_ScriptEngine(o)      ((o)->h.cid == CLASS_ScriptEngine)
+#define IS_bScriptEngine(o)     ((o)->h.bcid == CLASS_ScriptEngine)
+#define TYPE_ScriptEngine       CLASS_ScriptEngine
+#define NNTYPE_ScriptEngine     NNTYPE_cid(CLASS_ScriptEngine)
+#define NATYPE_ScriptEngine     NATYPE_cid(CLASS_ScriptEngine)
+#define CFLAG_ScriptEngine      ((knh_flag_t)0)
+#define FLAG_ScriptEngine       knh_flag_oflag(CFLAG_ScriptEngine)
+
+/* ------------------------------------------------------------------------ */
 /* Token */
-#define CLASS_Token             ((knh_class_t)43)
-#define STRUCT_Token            ((knh_struct_t)43)
+#define CLASS_Token             ((knh_class_t)45)
+#define STRUCT_Token            ((knh_struct_t)45)
 #define IS_Token(o)             ((o)->h.cid == CLASS_Token)
 #define IS_bToken(o)            ((o)->h.bcid == CLASS_Token)
 #define TYPE_Token              CLASS_Token
@@ -538,8 +562,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* Stmt */
-#define CLASS_Stmt              ((knh_class_t)44)
-#define STRUCT_Stmt             ((knh_struct_t)44)
+#define CLASS_Stmt              ((knh_class_t)46)
+#define STRUCT_Stmt             ((knh_struct_t)46)
 #define IS_Stmt(o)              ((o)->h.cid == CLASS_Stmt)
 #define IS_bStmt(o)             ((o)->h.bcid == CLASS_Stmt)
 #define TYPE_Stmt               CLASS_Stmt
@@ -550,8 +574,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* Gamma */
-#define CLASS_Gamma             ((knh_class_t)45)
-#define STRUCT_Gamma            ((knh_struct_t)45)
+#define CLASS_Gamma             ((knh_class_t)47)
+#define STRUCT_Gamma            ((knh_struct_t)47)
 #define IS_Gamma(o)             ((o)->h.cid == CLASS_Gamma)
 #define IS_bGamma(o)            ((o)->h.bcid == CLASS_Gamma)
 #define TYPE_Gamma              CLASS_Gamma
@@ -562,8 +586,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* KLRInst */
-#define CLASS_KLRInst           ((knh_class_t)46)
-#define STRUCT_KLRInst          ((knh_struct_t)46)
+#define CLASS_KLRInst           ((knh_class_t)48)
+#define STRUCT_KLRInst          ((knh_struct_t)48)
 #define IS_KLRInst(o)           ((o)->h.cid == CLASS_KLRInst)
 #define IS_bKLRInst(o)          ((o)->h.bcid == CLASS_KLRInst)
 #define TYPE_KLRInst            CLASS_KLRInst
@@ -574,8 +598,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* KLRCode */
-#define CLASS_KLRCode           ((knh_class_t)47)
-#define STRUCT_KLRCode          ((knh_struct_t)47)
+#define CLASS_KLRCode           ((knh_class_t)49)
+#define STRUCT_KLRCode          ((knh_struct_t)49)
 #define IS_KLRCode(o)           ((o)->h.cid == CLASS_KLRCode)
 #define IS_bKLRCode(o)          ((o)->h.bcid == CLASS_KLRCode)
 #define TYPE_KLRCode            CLASS_KLRCode
@@ -583,18 +607,6 @@
 #define NATYPE_KLRCode          NATYPE_cid(CLASS_KLRCode)
 #define CFLAG_KLRCode           ((knh_flag_t)0)
 #define FLAG_KLRCode            knh_flag_oflag(CFLAG_KLRCode)
-
-/* ------------------------------------------------------------------------ */
-/* Thread */
-#define CLASS_Thread            ((knh_class_t)48)
-#define STRUCT_Thread           ((knh_struct_t)48)
-#define IS_Thread(o)            ((o)->h.cid == CLASS_Thread)
-#define IS_bThread(o)           ((o)->h.bcid == CLASS_Thread)
-#define TYPE_Thread             CLASS_Thread
-#define NNTYPE_Thread           NNTYPE_cid(CLASS_Thread)
-#define NATYPE_Thread           NATYPE_cid(CLASS_Thread)
-#define CFLAG_Thread            ((knh_flag_t)0)
-#define FLAG_Thread             knh_flag_oflag(CFLAG_Thread)
 
 /* ======================================================================== */
 /* CLASS */
@@ -1265,46 +1277,46 @@
 #define knh_Gamma_isCancelled(o)  ((DP(o)->flag & FLAG_Gamma_Cancelled) == FLAG_Gamma_Cancelled)
 
 #define knh_Gamma_setCancelled(o,b) if(b) DP(o)->flag |= FLAG_Gamma_Cancelled; else DP(o)->flag &= ~(FLAG_Gamma_Cancelled);
-#define FLAG_Gamma_PROCEED              (knh_flag_t)(1<<1)
+#define FLAG_Gamma_Quiet                (knh_flag_t)(1<<1)
+
+#define knh_Gamma_isQuiet(o)  ((DP(o)->flag & FLAG_Gamma_Quiet) == FLAG_Gamma_Quiet)
+
+#define knh_Gamma_setQuiet(o,b) if(b) DP(o)->flag |= FLAG_Gamma_Quiet; else DP(o)->flag &= ~(FLAG_Gamma_Quiet);
+#define FLAG_Gamma_Throwable            (knh_flag_t)(1<<2)
+
+#define knh_Gamma_isThrowable(o)  ((DP(o)->flag & FLAG_Gamma_Throwable) == FLAG_Gamma_Throwable)
+
+#define knh_Gamma_setThrowable(o,b) if(b) DP(o)->flag |= FLAG_Gamma_Throwable; else DP(o)->flag &= ~(FLAG_Gamma_Throwable);
+#define FLAG_Gamma_PROCEED              (knh_flag_t)(1<<3)
 
 #define knh_Gamma_hasPROCEED(o)  ((DP(o)->flag & FLAG_Gamma_PROCEED) == FLAG_Gamma_PROCEED)
 
 #define knh_Gamma_foundPROCEED(o,b) if(b) DP(o)->flag |= FLAG_Gamma_PROCEED; else DP(o)->flag &= ~(FLAG_Gamma_PROCEED);
-#define FLAG_Gamma_RETURN               (knh_flag_t)(1<<2)
+#define FLAG_Gamma_RETURN               (knh_flag_t)(1<<4)
 
 #define knh_Gamma_hasRETURN(o)  ((DP(o)->flag & FLAG_Gamma_RETURN) == FLAG_Gamma_RETURN)
 
 #define knh_Gamma_foundRETURN(o,b) if(b) DP(o)->flag |= FLAG_Gamma_RETURN; else DP(o)->flag &= ~(FLAG_Gamma_RETURN);
-#define FLAG_Gamma_YEILD                (knh_flag_t)(1<<3)
+#define FLAG_Gamma_YEILD                (knh_flag_t)(1<<5)
 
 #define knh_Gamma_hasYEILD(o)  ((DP(o)->flag & FLAG_Gamma_YEILD) == FLAG_Gamma_YEILD)
 
 #define knh_Gamma_foundYEILD(o,b) if(b) DP(o)->flag |= FLAG_Gamma_YEILD; else DP(o)->flag &= ~(FLAG_Gamma_YEILD);
-#define FLAG_Gamma_FIELD                (knh_flag_t)(1<<4)
+#define FLAG_Gamma_FIELD                (knh_flag_t)(1<<6)
 
 #define knh_Gamma_hasFIELD(o)  ((DP(o)->flag & FLAG_Gamma_FIELD) == FLAG_Gamma_FIELD)
 
 #define knh_Gamma_foundFIELD(o,b) if(b) DP(o)->flag |= FLAG_Gamma_FIELD; else DP(o)->flag &= ~(FLAG_Gamma_FIELD);
-#define FLAG_Gamma_STACK                (knh_flag_t)(1<<5)
+#define FLAG_Gamma_STACK                (knh_flag_t)(1<<7)
 
 #define knh_Gamma_hasSTACK(o)  ((DP(o)->flag & FLAG_Gamma_STACK) == FLAG_Gamma_STACK)
 
 #define knh_Gamma_foundSTACK(o,b) if(b) DP(o)->flag |= FLAG_Gamma_STACK; else DP(o)->flag &= ~(FLAG_Gamma_STACK);
-#define FLAG_Gamma_SCRIPT               (knh_flag_t)(1<<6)
+#define FLAG_Gamma_SCRIPT               (knh_flag_t)(1<<7)
 
 #define knh_Gamma_hasSCRIPT(o)  ((DP(o)->flag & FLAG_Gamma_SCRIPT) == FLAG_Gamma_SCRIPT)
 
 #define knh_Gamma_foundSCRIPT(o,b) if(b) DP(o)->flag |= FLAG_Gamma_SCRIPT; else DP(o)->flag &= ~(FLAG_Gamma_SCRIPT);
-#define FLAG_Gamma_Data                 (knh_flag_t)(1<<0)
-
-#define knh_Gamma_isData(o)  ((DP(o)->pflag & FLAG_Gamma_Data) == FLAG_Gamma_Data)
-
-#define knh_Gamma_setData(o,b) if(b) DP(o)->pflag |= FLAG_Gamma_Data; else DP(o)->pflag &= ~(FLAG_Gamma_Data);
-#define FLAG_Thread_Active              (knh_flag_t)(1<<0)
-
-#define knh_Thread_isActive(o)  ((DP(o)->flag & FLAG_Thread_Active) == FLAG_Thread_Active)
-
-#define knh_Thread_setActive(o,b) if(b) DP(o)->flag |= FLAG_Thread_Active; else DP(o)->flag &= ~(FLAG_Thread_Active);
 
 /* ======================================================================== */
 /* EXPT */

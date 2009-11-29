@@ -1025,6 +1025,24 @@ typedef struct knh_System_t {
 //## flag Context Interactive  3 ((knh_Context_t*)%s)->flag is set is *;
 //## flag Context Compiling    4 ((knh_Context_t*)%s)->flag is set * *;
 
+
+/* ------------------------------------------------------------------------ */
+//## class Thread Object;
+
+typedef struct knh_Thread_t {
+	knh_hObject_t h;
+	knh_Context_t *ctx;
+	knh_thread_t  threadid;
+} knh_Thread_t;
+
+/* ------------------------------------------------------------------------ */
+//## class ScriptEngine Object;
+
+typedef struct knh_ScriptEngine_t {
+	knh_hObject_t h;
+	konoha_t konoha;
+} knh_ScriptEngine_t;
+
 /* ------------------------------------------------------------------------ */
 /* konohac.h */
 
@@ -1195,21 +1213,20 @@ typedef struct knh_Stmt_t {
 #define TERMs_getbcid(stmt, n)   ctx->share->ClassTable[TERMs_getcid(stmt,n)].bcid
 
 /* ------------------------------------------------------------------------ */
-/* KLRCode */
+/* Gamma */
 /* ------------------------------------------------------------------------ */
-
 
 /* ------------------------------------------------------------------------ */
 //## @Struct @Private class Gamma Object;
 //## flag Gamma Cancelled  0 DP(%s)->flag is  set   * *;
-//## flag Gamma PROCEED    1 DP(%s)->flag has found * *;
-//## flag Gamma RETURN     2 DP(%s)->flag has found * *;
-//## flag Gamma YEILD      3 DP(%s)->flag has found * *;
-//## flag Gamma FIELD      4 DP(%s)->flag has found * *;
-//## flag Gamma STACK      5 DP(%s)->flag has found * *;
-//## flag Gamma SCRIPT     6 DP(%s)->flag has found * *;
-
-//## flag Gamma Data       0 DP(%s)->pflag is set   * *;
+//## flag Gamma Quiet      1 DP(%s)->flag is  set   * *;
+//## flag Gamma Throwable  2 DP(%s)->flag is  set   * *;
+//## flag Gamma PROCEED    3 DP(%s)->flag has found * *;
+//## flag Gamma RETURN     4 DP(%s)->flag has found * *;
+//## flag Gamma YEILD      5 DP(%s)->flag has found * *;
+//## flag Gamma FIELD      6 DP(%s)->flag has found * *;
+//## flag Gamma STACK      7 DP(%s)->flag has found * *;
+//## flag Gamma SCRIPT     7 DP(%s)->flag has found * *;
 
 #ifndef K_GAMMASIZE
 #define K_GAMMASIZE 64
@@ -1333,18 +1350,6 @@ typedef struct knh_KLRCode_t {
 	knh_KLRCode_struct *b;
 	knh_uri_t uri; knh_ushort_t line;
 } knh_KLRCode_t;
-
-/* ------------------------------------------------------------------------ */
-//## class Thread Object;
-//## flag Thread Active  0 DP(%s)->flag is  set   * *;
-
-typedef struct knh_Thread_t {
-	knh_hObject_t h;
-	knh_thread_t thid;
-	knh_sfp_t *envsfp;
-	size_t envsize;
-} knh_Thread_t;
-
 
 /* ======================================================================== */
 
