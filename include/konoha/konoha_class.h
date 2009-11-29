@@ -1268,6 +1268,12 @@ typedef struct {
 	void                  *dlhdr;
 	struct knh_DictMap_t  *symbolDictMap;
 
+	/*stat*/
+	size_t statError;
+	size_t statWarning;
+	size_t statBadManner;
+	size_t statKonohaStyle;
+	size_t statStmt;
 } knh_Gamma_struct;
 
 typedef struct knh_Gamma_t {

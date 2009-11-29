@@ -38,47 +38,9 @@ extern "C" {
 /* ======================================================================== */
 /* [perror] */
 
-static volatile size_t countErrorWarning = 0;
-static volatile size_t countBadManner    = 0;
-static volatile size_t countKonohaStyle  = 0;
-static volatile size_t countLine         = 1;
-
-/* ------------------------------------------------------------------------ */
-
-void knh_resetSourceMoniter(void)
+void knh_foundKonohaStyle(Ctx *ctx, size_t score)
 {
-	countErrorWarning = 0;
-	countBadManner = 0;
-	countKonohaStyle = 0;
-	countLine = 1;
-}
-
-/* ------------------------------------------------------------------------ */
-
-void knh_addSourceLine(size_t line)
-{
-	countLine += line;
-}
-
-/* ------------------------------------------------------------------------ */
-
-void knh_foundKonohaStyle(size_t score)
-{
-	countKonohaStyle += score;
-}
-
-/* ------------------------------------------------------------------------ */
-
-size_t knh_getSourceScore(void)
-{
-	return (countErrorWarning + countBadManner) * 1000 / countLine;
-}
-
-/* ------------------------------------------------------------------------ */
-
-size_t knh_getKonohaScore(void)
-{
-	return (countKonohaStyle) * 1000 / countLine;
+	DP(ctx->kc)->statKonohaStyle += score;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -94,12 +56,16 @@ static const char *KERR_MSG[] = {
 
 void knh_vperror(Ctx *ctx, knh_uri_t uri, int line, int pe, char *fmt, va_list ap)
 {
-	KNH_ASSERT(pe <= KERR_INFO);
+	DBG2_ASSERT(pe <= KERR_INFO);
+	knh_Gamma_t *kc = ctx->kc;
 	if(pe < KERR_DWARN) {
-		countErrorWarning += 1;
+		DP(kc)->statError += 1;
 	}
 	else if(pe < KERR_TINFO) {
-		countBadManner += 1;
+		DP(kc)->statBadManner += 1;
+	}
+	if(knh_Gamma_isQuiet(kc)) {
+		return;
 	}
 	if(knh_Context_isInteractive(ctx)) {
 		goto L_PRINT;

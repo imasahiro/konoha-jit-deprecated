@@ -43,6 +43,8 @@ extern "C" {
 #define FL(o)            ((Object*)o)
 #define TM(o)            ((Term*)o)
 
+#define knh_style(ctx, score)    knh_foundKonohaStyle(ctx, score)
+
 /* error */
 #define KERR_ERROR     0
 #define KERR_TERROR    1

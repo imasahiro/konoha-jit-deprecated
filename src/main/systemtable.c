@@ -694,8 +694,7 @@ KNHAPI(void) konoha_close(konoha_t konoha)
 	}
 	{
 		knh_ObjectField_t *scr = (knh_ObjectField_t*)knh_NameSpace_getScript(ctx, ctx->share->mainns);
-		//knh_ObjectField_traverse(konoha.ctx, scr, ctx->fsweep);
-		StructTable(CLASS_ObjectField).ftraverse(ctx,UP(scr), ctx->fsweep);
+		StructTable(CLASS_ObjectField).ftraverse(ctx, UP(scr), ctx->fsweep);
 		(scr)->h.cid = CLASS_Object;
 		(scr)->h.bcid = CLASS_Object;
 		KNH_FREE(ctx, scr->fields, sizeof(Object*) * KNH_SCRIPT_FIELDSIZE);

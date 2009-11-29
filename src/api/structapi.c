@@ -2170,6 +2170,12 @@ static void knh_Gamma_init(Ctx *ctx, knh_Gamma_t *kc, int init)
 	b->dlhdr = NULL;
 	KNH_INITv(b->symbolDictMap, new_DictMap0(ctx, 256));
 	KNH_INITv(b->constPools, KNH_NULL);
+
+	b->statStmt = 1;
+	b->statError = 0;
+	b->statWarning = 0;
+	b->statBadManner = 0;
+	b->statKonohaStyle = 0;
 }
 
 static void knh_Gamma_traverse(Ctx *ctx, knh_Gamma_t *kc, knh_ftraverse ftr)

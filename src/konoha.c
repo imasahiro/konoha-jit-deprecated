@@ -31,8 +31,7 @@
 extern "C" {
 #endif
 
-int
-main(int argc, char **argv)
+int main(int argc, char **argv)
 {
 #if defined(KNH_USING_BTRON)
 	char buf[4096];
@@ -66,6 +65,12 @@ main(int argc, char **argv)
 				if(knh_isToInteractiveMode()) {
 					konoha_shell(konoha);
 				}
+			}
+			else {
+				knh_Gamma_t *kc = (konoha.ctx)->kc;
+				int score = DP(kc)->statKonohaStyle - DP(kc)->statBadManner;
+				score = score * 1000 / (DP(kc)->statStmt);
+				fprintf(stdout, "source score: %d\n", score);
 			}
 		}
 		else {

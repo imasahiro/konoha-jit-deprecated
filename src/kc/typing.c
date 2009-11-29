@@ -310,7 +310,7 @@ static int knh_Token_toSYSVAL(Ctx *ctx, knh_Token_t *tk)
 	else {
 		return 0;
 	}
-	knh_foundKonohaStyle(1);
+	knh_style(ctx, 1);
 	return 1;
 }
 
@@ -323,7 +323,7 @@ knh_index_t knh_Gamma_addVariableTable(Ctx *ctx, knh_cfield_t *gamma, size_t max
 {
 	knh_index_t idx;
 	if(decl->type == TYPE_var) {
-		knh_foundKonohaStyle(1);
+		knh_style(ctx, 1);
 	}
 	for(idx = 0; idx < max - 1; idx++) {
 		if(gamma[idx].fn == FIELDN_NONAME) {
@@ -695,7 +695,7 @@ knh_class_t knh_Token_tagcNUM(Ctx *ctx, knh_Token_t *tk, knh_class_t reqc, knh_N
 	if(t.buf[0] == '0' && (t.buf[1] == 'x' || t.buf[1] == 'b')) {
 		i = 2;
 		ishex = 1;
-		knh_foundKonohaStyle(1);
+		knh_style(ctx, 1);
 	}
 	for(; i < t.len; i++) {
 		if(isdigit(t.buf[i]) || t.buf[i] == '_' || t.buf[i] == '.') continue;
@@ -736,7 +736,7 @@ knh_class_t knh_Token_tagcNUM(Ctx *ctx, knh_Token_t *tk, knh_class_t reqc, knh_N
 			knh_Token_perror(ctx, tk, KERR_DWARN, _("unknown class tag: %s"), sToken(tk));
 			return reqc;
 		}
-		knh_foundKonohaStyle(1);
+		knh_style(ctx, 1);
 		return tagc;
 	}
 }
@@ -879,7 +879,7 @@ int knh_TokenTSTR_typing(Ctx *ctx, knh_Token_t *tk, knh_NameSpace_t *ns, knh_cla
 			knh_Token_setCONST(ctx, tk, new_Object_parseOf(ctx, (knh_String_t*)DP(tk)->data));
 		}
 	}
-	knh_foundKonohaStyle(1);
+	knh_style(ctx, 1);
 	return 1;
 }
 
@@ -1071,7 +1071,7 @@ Term *knh_TokenESTR_toTerm(Ctx *ctx, knh_Token_t *tk)
 			knh_Stmt_add(ctx, stmt, new_TermCONST(ctx, FL(tk), UP(new_String(ctx, text, NULL))));
 		}
 		KNH_LOCALBACK(ctx, lsfp);
-		knh_foundKonohaStyle(1);
+		knh_style(ctx, 1);
 		knh_Stmt_setAutoReturn(stmt, 0);
 		return TM(stmt);
 	}
@@ -1456,7 +1456,7 @@ Term * knh_StmtDECL_typing(Ctx *ctx, knh_Stmt_t *stmt)
 			if(TERMs_typing(ctx, stmt, 2, TYPE_Any, TWARN_)) {
 				decl->type = TERMs_gettype(stmt, 2);
 				knh_Gamma_derivedVariable(ctx, UP(tkN), decl->type, decl->fn);
-				knh_foundKonohaStyle(1);
+				knh_style(ctx, 1);
 			}
 			else {
 				return NULL;
@@ -1480,7 +1480,7 @@ Term * knh_StmtDECL_typing(Ctx *ctx, knh_Stmt_t *stmt)
 			else {
 				decl->type = TYPE_Any;
 				knh_Gamma_derivedVariable(ctx, UP(tkN), decl->type, decl->fn);
-				knh_foundKonohaStyle(1);
+				knh_style(ctx, 1);
 			}
 		}
 	}
@@ -2555,7 +2555,7 @@ Term *knh_StmtNEW_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_class_t reqt)
 		if(reqc != CLASS_Any) {
 			mtd_cid = reqc;
 			knh_Gamma_derivedClass(ctx, CLASS_Object, mtd_cid);
-			knh_foundKonohaStyle(1);
+			knh_style(ctx, 1);
 		}
 		else {
 			knh_Token_perror(ctx, tkC, KERR_TERROR, _("needs class"));
@@ -2609,7 +2609,7 @@ Term *knh_StmtNEW_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_class_t reqt)
 			mtd_cid = knh_class_Generics(ctx, CLASS_Pair, p1, p2);
 			knh_Gamma_derivedClass(ctx, CLASS_Pair, mtd_cid);
 		}
-		knh_foundKonohaStyle(1);
+		knh_style(ctx, 1);
 		goto L_LOOKUPMETHOD;
 	}
 
@@ -2631,7 +2631,7 @@ Term *knh_StmtNEW_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_class_t reqt)
 				return NULL;
 			}
 		}
-		knh_foundKonohaStyle(1);
+		knh_style(ctx, 1);
 		goto L_LOOKUPMETHOD;
 	}
 
@@ -2645,7 +2645,7 @@ Term *knh_StmtNEW_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_class_t reqt)
 		if(mn == METHODN_new__array) {
 			if(DP(stmt)->size == 4) mn = METHODN_new__array2D;
 			if(DP(stmt)->size == 5) mn = METHODN_new__array3D;
-			knh_foundKonohaStyle(1);
+			knh_style(ctx, 1);
 			goto L_LOOKUPMETHOD;
 		}
 		if(mn == METHODN_new__init) {
@@ -2662,7 +2662,7 @@ Term *knh_StmtNEW_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_class_t reqt)
 			else {
 				return NULL;
 			}
-			knh_foundKonohaStyle(1);
+			knh_style(ctx, 1);
 			goto L_LOOKUPMETHOD;
 		}
 	}

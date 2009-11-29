@@ -2902,6 +2902,7 @@ static knh_Stmt_t *new_StmtSTMT1(Ctx *ctx, knh_tkc_t *tc, int isData)
 
 	tk0 = TK0(tc);
 	tc->c += 1;
+	DP(ctx->kc)->statStmt += 1;
 	if(knh_Token_isDEBUG(tk0)) {
 		knh_Stmt_t *stmt = new_StmtBLOCK(ctx, tc);
 		knh_Stmt_setDEBUG(stmt, 1);
