@@ -67,8 +67,6 @@ static knh_fieldn_t knh_Token_getfnq(Ctx *ctx, knh_Token_t *tk)
 	else if(TT_(tk) == TT_FN) {
 		return DP(tk)->fn;
 	}
-	DBG2_P("TT_(tk)=%s, '%s'", knh_token_tochar(TT_(tk)), sToken(tk));
-	DBG2_ABORT();
 	return FIELDN_NONAME;
 }
 

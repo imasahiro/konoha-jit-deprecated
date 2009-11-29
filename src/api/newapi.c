@@ -124,19 +124,46 @@ static METHOD Object_new__dictmap(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 
 /* ------------------------------------------------------------------------ */
 /* [Bytes] */
-//## method This! Bytes.new(Int init);
+//## method This! Bytes.new(Int? init);
 
 static METHOD Bytes_new(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_Bytes_t *o = (knh_Bytes_t*)sfp[0].o;
 	size_t init = IS_NULL(sfp[1].o) ? 0 : knh_bytes_newsize(p_size(sfp[1]));
 	DBG2_ASSERT(o->capacity == 0);
-	if(init > 0) {
-		if(init > KNH_FASTMALLOC_SIZE && init < KONOHA_SMALLPAGESIZE) init = KONOHA_SMALLPAGESIZE;
-		o->buf = (knh_uchar_t*)KNH_MALLOC(ctx, init);
-		o->capacity = init;
-		knh_bzero(o->buf, init);
+	if(init < KNH_FASTMALLOC_SIZE) {
+		init = KNH_FASTMALLOC_SIZE;
 	}
+	else if(init < KONOHA_SMALLPAGESIZE) {
+		init = KONOHA_SMALLPAGESIZE;
+	}
+	o->buf = (knh_uchar_t*)KNH_MALLOC(ctx, init);
+	knh_bzero(o->buf, init);
+	o->capacity = init;
+	KNH_RETURN(ctx, sfp, o);
+}
+
+/* ------------------------------------------------------------------------ */
+//## method Bytes! Bytes.new:array(Int init);
+
+static METHOD Bytes_new__array(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+{
+	knh_Bytes_t *o = (knh_Bytes_t*)sfp[0].o;
+	size_t init, size = IS_NULL(sfp[1].o) ? 0 : knh_bytes_newsize(p_size(sfp[1]));
+	DBG2_ASSERT(o->capacity == 0);
+	if(size < KNH_FASTMALLOC_SIZE) {
+		init = KNH_FASTMALLOC_SIZE;
+	}
+	else if(size < KONOHA_SMALLPAGESIZE) {
+		init = KONOHA_SMALLPAGESIZE;
+	}
+	else {
+		size = init;
+	}
+	o->buf = (knh_uchar_t*)KNH_MALLOC(ctx, init);
+	knh_bzero(o->buf, init);
+	o->capacity = init;
+	o->size = size;
 	KNH_RETURN(ctx, sfp, o);
 }
 
