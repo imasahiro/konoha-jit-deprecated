@@ -170,14 +170,25 @@ void knh_Context_initCommon(Ctx *ctx, knh_Context_t *o, size_t stacksize)
 	KNH_INITv(o->bconvbuf, new_Bytes(ctx, KONOHA_PAGESIZE));
 	KNH_INITv(o->props, new_DictMap0(ctx, 16));
 
-	o->ctxlock = (knh_mutex_t*)KNH_MALLOC(ctx, sizeof(knh_mutex_t));
-	knh_mutex_init(o->ctxlock);
 	DBG2_ASSERT(ctx->sys != NULL);
 	KNH_INITv(o->enc, DP(ctx->sys)->enc);
 	KNH_INITv(o->in,  DP(ctx->sys)->in);
 	KNH_INITv(o->out, DP(ctx->sys)->out);
 	KNH_INITv(o->err, DP(ctx->sys)->err);
-	KNH_INITv(o->kc, new_Object_bcid(ctx, CLASS_Gamma, 0));
+
+	o->ctxlock = (knh_mutex_t*)KNH_MALLOC(ctx, sizeof(knh_mutex_t));
+	knh_bzero(o->ctxlock, sizeof(knh_mutex_t));
+	knh_mutex_init(o->ctxlock);
+
+	if(ctx->ctxid == 0) {
+		knh_Gamma_t *kc = (knh_Gamma_t*)new_Object_bcid(ctx, CLASS_Gamma, 0);
+		KNH_INITv(o->kc, kc);
+		KNH_INITv(DP(kc)->symbolDictMap, new_DictMap0(ctx, 256));
+		KNH_INITv(DP(kc)->constPools, new_Array0(ctx, 0));
+	}
+	else {
+		KNH_INITv(o->kc, ctx->kc);
+	}
 	KNH_INITv(o->msgError, UP(TS_EMPTY));
 }
 

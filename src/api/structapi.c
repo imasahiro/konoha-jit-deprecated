@@ -2143,14 +2143,15 @@ Term *knh_Stmt_done(Ctx *ctx, knh_Stmt_t *o)
 
 static void knh_Gamma_init(Ctx *ctx, knh_Gamma_t *kc, int init)
 {
+	knh_intptr_t i;
 	knh_Gamma_struct *b = DP(kc);
+
 	b->flag = 0;
 	b->this_cid = CLASS_Object;
 	KNH_INITv(b->ns, ctx->share->mainns);
 	DBG2_ASSERT(IS_NameSpace(b->ns));
 	KNH_INITv(b->mtd,   KNH_NULL);
 
-	knh_intptr_t i;
 	b->gamma = (knh_cfield_t*)KNH_MALLOC(ctx, K_GAMMASIZE * sizeof(knh_cfield_t));
 	knh_bzero(b->gamma, K_GAMMASIZE * sizeof(knh_cfield_t));
 	for(i = 0; i < K_GAMMASIZE; i++) {
@@ -2168,8 +2169,10 @@ static void knh_Gamma_init(Ctx *ctx, knh_Gamma_t *kc, int init)
 	KNH_INITv(b->finallyStmt, KNH_NULL);
 
 	b->dlhdr = NULL;
-	KNH_INITv(b->symbolDictMap, new_DictMap0(ctx, 256));
-	KNH_INITv(b->constPools, KNH_NULL);
+	b->symbolDictMap = NULL;
+	b->constPools = NULL;
+//	KNH_INITv(b->symbolDictMap, new_DictMap0(ctx, 256));
+//	KNH_INITv(b->constPools, KNH_NULL);
 
 	b->statStmt = 1;
 	b->statError = 0;
@@ -2198,8 +2201,12 @@ static void knh_Gamma_traverse(Ctx *ctx, knh_Gamma_t *kc, knh_ftraverse ftr)
 	ftr(ctx, UP(b->decls));
 	ftr(ctx, UP(b->untypes));
 	ftr(ctx, UP(b->finallyStmt));
-	ftr(ctx, UP(b->symbolDictMap));
-	ftr(ctx, UP(b->constPools));
+	if(b->symbolDictMap != NULL) {
+		ftr(ctx, UP(b->symbolDictMap));
+	}
+	if(b->constPools != NULL) {
+		ftr(ctx, UP(b->constPools));
+	}
 }
 
 /* ======================================================================== */
