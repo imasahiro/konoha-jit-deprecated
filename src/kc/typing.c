@@ -37,7 +37,7 @@ extern "C" {
 
 /* ======================================================================== */
 
-static knh_index_t knh_Gamma_declareLocalVariable(Ctx *ctx, knh_cfield_t *decl);
+//static knh_index_t knh_Gamma_declareLocalVariable(Ctx *ctx, knh_cfield_t *decl);
 static Term *knh_Stmt_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt);
 static Term *knh_StmtCALL_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_class_t reqt);
 static int TERMs_typing(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_type_t reqt, int mode);
@@ -54,7 +54,7 @@ static int TERMs_typing(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_type_t reqt, i
 	}\
 
 /* ======================================================================== */
-/* [get] */
+/* [Token] */
 
 static knh_fieldn_t knh_Token_getfnq(Ctx *ctx, knh_Token_t *tk)
 {
@@ -182,219 +182,55 @@ knh_class_t knh_Token_getcid(Ctx *ctx, knh_Token_t *tk, knh_NameSpace_t *ns, knh
 	return cid;
 }
 
-/* ======================================================================== */
-/* [Type Inference] */
-
-static Term *knh_Stmt_typed(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t type)
-{
-	DP(stmt)->type = type;
-	return TM(stmt);
-}
-
-static Term *knh_Stmt_untyped(Ctx *ctx, knh_Stmt_t *stmt)
-{
-	DBG2_ASSERT(DP(stmt)->type == TYPE_var);
-	DBG2_P("stt=%s untyped", cSTT_((stmt)));
-	return TM(stmt);
-}
-
-static int knh_Token_isUntyped(knh_Token_t *tk)
-{
-	return (DP(tk)->type == TYPE_var
-		&& (TT_(tk) == TT_LOCAL || TT_(tk) == TT_STACK));
-}
-
-static
-knh_Token_t *knh_Gamma_getUntypedName(Ctx *ctx, size_t n)
-{
-	knh_Gamma_t *kc = ctx->kc;
-	knh_Token_t *tkVAR = (knh_Token_t*)DP(kc)->gamma[n+1-DP(kc)->goffset].value;
-	DBG2_ASSERT(knh_Token_isUntyped(tkVAR));
-	return tkVAR;
-}
-
-static
-knh_Token_t *knh_Gamma_getSharedUntypedToken(Ctx *ctx, knh_Token_t *tkN)
-{
-	knh_Gamma_t *kc = ctx->kc;
-	int idx = DP(tkN)->index;
-	if(TT_(tkN) == TT_LOCAL) idx += DP(kc)->goffset;
-	knh_Token_t *tkVAR = (knh_Token_t*)DP(kc)->gamma[idx].value;
-	DBG2_ASSERT(IS_Token(tkVAR) && DP(tkN)->index == DP(tkVAR)->index);
-	return tkVAR;
-}
-
-static
-void knh_Gamma_derivedClass(Ctx *ctx, knh_class_t origc, knh_class_t cid)
-{
-	if(origc != cid) {
-		knh_Gamma_perror(ctx, KERR_TINFO, _("specialized: %C => %C"), origc, cid);
-	}
-}
-
-static
-void knh_Gamma_derivedVariable(Ctx *ctx, Object *tm, knh_type_t itype, knh_fieldn_t fn)
-{
-	DBG2_ASSERT(itype != TYPE_var);
-	if(tm == NULL) {
-		if(CLASS_type(itype) == CLASS_Any) {
-			knh_Gamma_perror(ctx, KERR_DWARN,
-					_("failed to type inference: %T %N"), itype, fn);
-		}
-		else {
-			knh_Gamma_perror(ctx, KERR_TINFO, _("%T %N"), itype, fn);
-		}
-	}
-	else if(IS_Token(tm)) {
-		knh_Token_t *tk = (knh_Token_t*)tm;
-		if(CLASS_type(itype) == CLASS_Any) {
-			knh_Gamma_perror(ctx, KERR_DWARN,
-					_("failed to type inference: %T %s"), itype, sToken(tk));
-		}
-		else {
-			knh_Gamma_perror(ctx, KERR_TINFO, _("%T %s"), itype, sToken(tk));
-		}
-	}
-	else {
-		knh_Method_t *mtd = (knh_Method_t*)tm;
-		DBG2_ASSERT(IS_Method(mtd));
-		if(CLASS_type(itype) == CLASS_Any) {
-			knh_Gamma_perror(ctx, KERR_DWARN,
-					_("failed to type inference: %C.%M : return %T"), DP(mtd)->cid, DP(mtd)->mn, itype);
-		}
-		else {
-			knh_Gamma_perror(ctx, KERR_TINFO, _("%C.%M : return %T"), DP(mtd)->cid, DP(mtd)->mn, itype);
-		}
-	}
-}
-
-static
-void knh_Gamma_derivedParamType(Ctx *ctx, knh_Token_t *tkVAR, knh_type_t itype)
-{
-	knh_Gamma_t *kc = ctx->kc;
-	int idx = DP(tkVAR)->index + DP(kc)->goffset;
-	DBG2_ASSERT(knh_Token_isUntyped(tkVAR));
-	DBG2_ASSERT(DP(kc)->gamma[idx].value == (Object*)tkVAR);
-	DBG2_P("@@@@@@@ idx=%d type=%s%s", idx, TYPEQN(itype));
-	knh_Gamma_derivedVariable(ctx, NULL, itype, DP(kc)->gamma[idx].fn);
-	DP(tkVAR)->type = itype;
-	DP(kc)->gamma[idx].type = itype;
-	KNH_FINALv(ctx, DP(kc)->gamma[idx].value);
-	DP(kc)->gamma[idx].value = NULL;
-}
-
-static
-void knh_Gamma_derivedReturnType(Ctx *ctx, knh_Method_t *mtd, knh_type_t itype)
-{
-	knh_Gamma_t *kc = ctx->kc;
-	DBG2_ASSERT(DP(kc)->rtype == TYPE_var);
-	DP(kc)->rtype = itype;
-	knh_Gamma_derivedVariable(ctx, UP(mtd), itype, FIELDN_NONAME);
-}
-
-static
-knh_type_t TERMs_inferType(Ctx *ctx, knh_Stmt_t *stmt, size_t n)
-{
-	if(n < DP(stmt)->size) {
-		if(TERMs_typing(ctx, stmt, n, TYPE_Any, TWARN_)) {
-			return TERMs_gettype(stmt, n);
-		}
-		return TYPE_var;
-	}
-	else {
-		DBG2_ASSERT(STT_(stmt) == STT_RETURN);
-		return TYPE_void;
-	}
-}
-
-static int knh_Method_isUntyped(knh_Method_t *mtd)
-{
-	int i, psize = knh_Method_psize(mtd);
-	if(knh_Method_rztype(mtd) == TYPE_var) return 1;
-	for(i = 0; i < psize; i++) {
-		if(knh_Method_pztype(mtd,i) == TYPE_var) return 1;
-	}
-	return 0;
-}
-
-static int knh_Gamma_updateMethodType(Ctx *ctx)
-{
-	knh_Gamma_t *kc = ctx->kc;
-	int hasUntypedType = 0;
-	knh_Method_t *mtd = DP(kc)->mtd;
-	int i, psize = knh_Method_psize(mtd);
-	knh_MethodField_t *mf = DP(mtd)->mf;
-	if(mf->rtype == TYPE_var) {
-		if(DP(kc)->rtype != TYPE_var) {
-			mf->rtype = DP(kc)->rtype;
-		}
-		else {
-			hasUntypedType = 1;
-		}
-	}
-	for(i = 0; i < psize; i++) {
-		if(knh_Method_pztype(mtd,i) == TYPE_var) {
-			knh_Token_t *tkVAR = knh_Gamma_getUntypedName(ctx, i);
-			if(DP(tkVAR)->type != TYPE_var) {
-				knh_mparam_t p = knh_MethodField_param(mf, i);
-				knh_MethodField_set(mf, i, DP(tkVAR)->type, p.fn);
-			}
-			else {
-				hasUntypedType = 1;
-			}
-		}
-	}
-	return hasUntypedType;
-}
-
-static knh_class_t knh_Token_unifyClass(Ctx *ctx, knh_Token_t *tkVAR, knh_type_t reqt, knh_Stmt_t *stmt)
-{
-	DBG2_(knh_Token_t *tkM = DP(stmt)->tokens[0]);
-	DBG2_(knh_methodn_t mn = DP(tkM)->mn;);
-	DBG2_P("*** %s reqt=%s%s mn(fn)=%s", sToken(tkVAR), TYPEQN(reqt), FIELDN(METHODN_TOFIELDN(mn)));
-	return CLASS_type(TYPE_var); /* not derived */
-}
 
 /* ======================================================================== */
-/* [CONST] */
+/* [LOCAL, STACK, FIELD, SCRIPT] */
 
-knh_Token_t* new_TokenCONST(Ctx *ctx, Any *fln, Any *data)
+static
+void knh_Token_toLOCAL(Ctx *ctx, knh_Token_t *tk, knh_type_t type, int sfpidx)
 {
-	knh_Token_t *o = (knh_Token_t*)new_Object_bcid(ctx, CLASS_Token, 0);
-	knh_Token_setFL(o, fln);
-	knh_Token_setCONST(ctx, o, data);
-	return o;
-}
-
-/* ------------------------------------------------------------------------ */
-
-void knh_Token_setCONST(Ctx *ctx, knh_Token_t *o, Any *data)
-{
-	KNH_SETv(ctx, DP(o)->data, data);
-	knh_Token_toCONST(ctx, o);
-}
-
-/* ------------------------------------------------------------------------ */
-
-knh_Token_t* knh_Token_toCONST(Ctx *ctx, knh_Token_t *o)
-{
-	TT_(o) = TT_CONST;
-	DP(o)->type = knh_Object_cid(DP(o)->data);
-	if(IS_NULL(DP(o)->data)) DP(o)->type = TYPE_Any;
-	return o;
-}
-
-/* ------------------------------------------------------------------------ */
-
-knh_Token_t* new_TokenNULL(Ctx *ctx, Any *fln, knh_type_t type)
-{
-	knh_Token_t *tk = new_TokenCONST(ctx, fln, KNH_NULL);
-	DP(tk)->type = CLASS_type(type);
-	return tk;
+	TT_(tk) = TT_LOCAL;
+	DP(tk)->index = (knh_short_t)sfpidx;
+	DP(tk)->type = type;
 }
 
 static
-knh_Token_t* knh_Token_toDEFVAL(knh_Token_t *o, knh_class_t cid)
+void knh_Token_toSTACK(Ctx *ctx, knh_Token_t *tk, knh_type_t type, int sfpidx)
+{
+	DBG2_ASSERT(type != TYPE_var);
+	TT_(tk) = TT_STACK;
+	DP(tk)->index = (knh_short_t)sfpidx;
+	DP(tk)->type = type;
+}
+
+static
+void knh_Token_toFIELD(Ctx *ctx, knh_Token_t *tk, knh_type_t type, int idx)
+{
+	DBG2_ASSERT(type != TYPE_var);
+	TT_(tk) = TT_FIELD;
+	DP(tk)->index = (knh_short_t)idx;
+	DP(tk)->type = type;
+}
+
+static
+void knh_Token_toSCRIPT(Ctx *ctx, knh_Token_t *tk, knh_type_t type, int idx)
+{
+	DBG2_ASSERT(type != TYPE_var);
+	TT_(tk) = TT_SCRIPT;
+	DP(tk)->index = (knh_short_t)idx;
+	DP(tk)->type = type;
+}
+
+static
+void knh_Token_toCLOSURE(Ctx *ctx, knh_Token_t *tk, knh_Method_t *mtd)
+{
+	TT_(tk) = TT_CLOSURE;
+	KNH_SETv(ctx, DP(tk)->data, mtd);
+	DP(tk)->type = NNTYPE_cid(knh_class_MethodClosure(ctx, DP(mtd)->cid, mtd));
+	knh_Token_setOUTERCLOSURE(tk, 0);
+}
+
+static knh_Token_t* knh_Token_toDEFVAL(knh_Token_t *o, knh_class_t cid)
 {
 	DBG2_ASSERT(cid != TYPE_var);
 	TT_(o) = TT_DEFVAL;
@@ -408,13 +244,9 @@ knh_Token_t* knh_Token_toDEFVAL(knh_Token_t *o, knh_class_t cid)
 	return o;
 }
 
-/* ======================================================================== */
-/* [SYSVAL] */
-
 #define IS_SYSVAL(t,v)  (knh_bytes_strcasecmp(t, STEXT(v)) == 0)
 
-static
-int knh_Token_toSYSVAL(Ctx *ctx, knh_Token_t *tk)
+static int knh_Token_toSYSVAL(Ctx *ctx, knh_Token_t *tk)
 {
 	knh_bytes_t t = knh_Token_tobytes(ctx, tk);
 	if(IS_SYSVAL(t, "CTX")) {
@@ -482,72 +314,146 @@ int knh_Token_toSYSVAL(Ctx *ctx, knh_Token_t *tk)
 	return 1;
 }
 
-/* ======================================================================== */
-/* [STACK, FIELD, GLOBAL, MEMBER] */
-
-static
-void knh_Token_toLOCAL(Ctx *ctx, knh_Token_t *tk, knh_type_t type, int sfpidx)
-{
-	TT_(tk) = TT_LOCAL;
-	DP(tk)->index = (knh_short_t)sfpidx;
-	DP(tk)->type = type;
-//	if(type == TYPE_var) {
-//		DBG2_P("needs type inferencing LOCAL[%d]", sfpidx);
-//	}
-}
-
-static
-void knh_Token_toSTACK(Ctx *ctx, knh_Token_t *tk, knh_type_t type, int sfpidx)
-{
-	DBG2_ASSERT(type != TYPE_var);
-	TT_(tk) = TT_STACK;
-	DP(tk)->index = (knh_short_t)sfpidx;
-	DP(tk)->type = type;
-}
-
-static
-void knh_Token_toFIELD(Ctx *ctx, knh_Token_t *tk, knh_type_t type, int idx)
-{
-	DBG2_ASSERT(type != TYPE_var);
-	TT_(tk) = TT_FIELD;
-	DP(tk)->index = (knh_short_t)idx;
-	DP(tk)->type = type;
-}
-
-static
-void knh_Token_toSCRIPT(Ctx *ctx, knh_Token_t *tk, knh_type_t type, int idx)
-{
-	DBG2_ASSERT(type != TYPE_var);
-	TT_(tk) = TT_SCRIPT;
-	DP(tk)->index = (knh_short_t)idx;
-	DP(tk)->type = type;
-}
-
-static
-void knh_Token_toCLOSURE(Ctx *ctx, knh_Token_t *tk, knh_Method_t *mtd)
-{
-	TT_(tk) = TT_CLOSURE;
-	KNH_SETv(ctx, DP(tk)->data, mtd);
-	DP(tk)->type = NNTYPE_cid(knh_class_MethodClosure(ctx, DP(mtd)->cid, mtd));
-	knh_Token_setOUTERCLOSURE(tk, 0);
-}
-
-/* ------------------------------------------------------------------------ */
-
-//static
-//void knh_Token_toMEMBER(Ctx *ctx, Token *tk, int sfi, int idx, knh_type_t type)
-//{
-//	TT_(tk) = TT_MEMBER;
-//	DP(tk)->index = (knh_short_t)sfi;
-//	KNH_SETv(ctx, DP(tk)->data, new_Int(ctx, idx));
-//	DP(tk)->type = type;
-//}
-
 /* ------------------------------------------------------------------------ */
 /* [VARIABLE] */
 /* ------------------------------------------------------------------------ */
 
-knh_index_t knh_Gamma_indexoffn(Ctx *ctx, knh_fieldn_t fnq)
+static
+knh_index_t knh_Gamma_addVariableTable(Ctx *ctx, knh_cfield_t *gamma, size_t max, knh_cfield_t *decl, int isField)
+{
+	knh_index_t idx;
+	if(decl->type == TYPE_var) {
+		knh_foundKonohaStyle(1);
+	}
+	for(idx = 0; idx < max - 1; idx++) {
+		if(gamma[idx].fn == FIELDN_NONAME) {
+			DBG2_ASSERT(gamma[idx].value == NULL);
+			gamma[idx] = *decl;
+			if(decl->value != NULL) {
+				KNH_INITv(gamma[idx].value, decl->value);
+			}
+			if(isField) {
+				if(gamma[idx].value == NULL && IS_NATYPE(gamma[idx].type)) {
+					KNH_INITv(gamma[idx].value, KNH_NULL);
+				}
+#ifdef KNH_USING_UNBOXFIELD
+				if((IS_ubxint(decl->type) && (sizeof(knh_int_t) > sizeof(void*))) ||
+					(IS_ubxfloat(decl->type) && (sizeof(knh_float_t) > sizeof(void*)))) {
+					gamma[idx+1].flag = 0;
+					gamma[idx+1].type = TYPE_void;
+					gamma[idx+1].fn   = FIELDN_/*register*/;
+					DBG2_ASSERT(gamma[idx+1].value == NULL);
+				}
+#endif
+			}
+			else {
+				DP(ctx->kc)->esp = -1;
+			}
+			return idx;
+		}
+		if(gamma[idx].fn == decl->fn && decl->fn != FIELDN_) {
+			if(isField) {
+				if(gamma[idx].type == decl->type) return idx;
+				if(!knh_Context_isInteractive(ctx)) {
+					knh_Gamma_perror(ctx, KERR_TERROR, _("differently declared: previous type %T %N"), gamma->type, decl->fn);
+					return -1;
+				}
+				else {
+					knh_Gamma_perror(ctx, KERR_EWARN,
+						_("different types are only allowed in an interactive mode: previous type %T %N"), gamma->type, decl->fn);
+				}
+			}
+		}
+	}
+	knh_Gamma_perror(ctx, KERR_ERROR, _("too many variables: %d"), max);
+	return -1;
+}
+
+static size_t knh_Gamma_unused(Ctx *ctx)
+{
+	knh_Gamma_t *kc = ctx->kc;
+	int i;
+	for(i = 0; i < K_GAMMASIZE; i++) {
+		if(DP(kc)->gamma[i].fn == FIELDN_NONAME) {
+			return i;
+		}
+	}
+	return K_GAMMASIZE;
+}
+
+static size_t knh_Gamma_top(Ctx *ctx)
+{
+	knh_Gamma_t *kc = ctx->kc;
+	int i;
+	for(i = K_GAMMASIZE -1; i >= 0; i--) {
+		if(DP(kc)->gamma[i].fn != FIELDN_NONAME) {
+			return i+1;
+		}
+	}
+	return 0;
+}
+
+static int knh_Gamma_esp(Ctx *ctx)
+{
+	knh_Gamma_t *kc = ctx->kc;
+	if(DP(kc)->esp == -1) {
+		DP(kc)->esp = knh_Gamma_top(ctx);
+	}
+	return DP(kc)->esp;
+}
+
+static
+knh_index_t knh_Gamma_declareScriptVariable(Ctx *ctx, knh_cfield_t *decl)
+{
+	knh_Script_t *scr = knh_getGammaScript(ctx);
+	knh_class_t cid = knh_Object_cid(scr);
+	knh_cfield_t *gamma = (ClassTable(cid).cstruct)->fields;
+	knh_index_t idx = knh_Gamma_addVariableTable(ctx, gamma, KNH_SCRIPT_FIELDSIZE, decl, 1/*isField*/);
+	if(idx != -1) {
+		knh_Object_t *value = decl->value;
+#ifdef KNH_USING_UNBOXFIELD
+		knh_type_t type = decl->type;
+		if(IS_ubxint(type)) {
+			knh_int_t *v = (knh_int_t*)(scr->fields + idx);
+			v[0] = (value == NULL) ? 0 : ((knh_Int_t*)value)->n.ivalue;
+			return 1;
+		}
+		if(IS_ubxfloat(type)) {
+			knh_float_t *v = (knh_float_t*)(scr->fields + idx);
+			v[0] = (value == NULL) ? KNH_FLOAT_ZERO : ((knh_Float_t*)value)->n.fvalue;
+			return 1;
+		}
+		if(IS_ubxboolean(type)) {
+			knh_bool_t *v = (knh_bool_t*)(scr->fields + idx);
+			v[0] = (value == NULL) ? 0 : ((knh_Boolean_t*)value)->n.bvalue;
+			return 1;
+		}
+#endif/*KNH_USING_UNBOXFIELD*/
+		if(value == NULL) {
+			value = KNH_DEF(ctx, CLASS_type(type));
+		}
+		KNH_INITv(scr->fields[idx], value);
+		return 1;
+	}
+	return 0;
+}
+
+static
+knh_index_t knh_Gamma_declareFieldVariable(Ctx *ctx, knh_cfield_t *decl)
+{
+	return knh_Gamma_addVariableTable(ctx, DP(ctx->kc)->gamma, K_GAMMASIZE, decl, 1/*isField*/);
+}
+
+static
+knh_index_t knh_Gamma_declareLocalVariable(Ctx *ctx, knh_cfield_t *decl)
+{
+	knh_Gamma_t *kc = ctx->kc;
+	DP(kc)->esp = -1;
+	return knh_Gamma_addVariableTable(ctx, DP(kc)->gamma + DP(kc)->goffset, K_GAMMASIZE - DP(kc)->goffset, decl, 0/*isField*/);
+}
+
+static
+knh_index_t knh_Gamma_indexOfFIELDN(Ctx *ctx, knh_fieldn_t fnq)
 {
 	knh_Gamma_t *kc = ctx->kc;
 	knh_fieldn_t fn = FIELDN_UNMASK(fnq);
@@ -564,8 +470,8 @@ static
 knh_cfield_t *knh_Gamma_getLocalField(Ctx *ctx, knh_index_t idx)
 {
 	knh_Gamma_t *kc = ctx->kc;
-	KNH_ASSERT(idx != -1 && idx < K_GAMMASIZE);
-	KNH_ASSERT(DP(kc)->gamma[idx].fn != FIELDN_NONAME);
+	DBG2_ASSERT(idx != -1 && idx < K_GAMMASIZE);
+	DBG2_ASSERT(DP(kc)->gamma[idx].fn != FIELDN_NONAME);
 	return (knh_cfield_t*)&(DP(kc)->gamma[idx]);
 }
 
@@ -629,7 +535,7 @@ static int knh_TokenNAME_typing(Ctx *ctx, knh_Token_t *tk, int checkClosure)
 	if(FIELDN_IS_U1(fnq) || FIELDN_IS_SUPER(fnq)) goto L_FIELD;  /* _name */
 	if(FIELDN_IS_U2(fnq)) goto L_SCRIPT; /* __name */
 
-	idx = knh_Gamma_indexoffn(ctx, FIELDN_UNMASK(fnq));
+	idx = knh_Gamma_indexOfFIELDN(ctx, FIELDN_UNMASK(fnq));
 	if(idx != -1) {
 		knh_cfield_t *cf = knh_Gamma_getLocalField(ctx, idx);
 		knh_type_t type = knh_pmztype_totype(ctx, cf->type, DP(kc)->this_cid);
@@ -1171,6 +1077,7 @@ Term *knh_TokenESTR_toTerm(Ctx *ctx, knh_Token_t *tk)
 	}
 }
 
+
 /* ======================================================================== */
 /* [TERMs] */
 
@@ -1311,6 +1218,182 @@ void TERMs_perrorTYPE(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_type_t reqt)
 	}
 }
 
+/* ======================================================================== */
+/* [Type Inference] */
+
+static Term *knh_Stmt_typed(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t type)
+{
+	DP(stmt)->type = type;
+	return TM(stmt);
+}
+
+static Term *knh_Stmt_untyped(Ctx *ctx, knh_Stmt_t *stmt)
+{
+	DBG2_ASSERT(DP(stmt)->type == TYPE_var);
+	DBG2_P("stt=%s untyped", cSTT_((stmt)));
+	return TM(stmt);
+}
+
+static int knh_Token_isUntyped(knh_Token_t *tk)
+{
+	return (DP(tk)->type == TYPE_var
+		&& (TT_(tk) == TT_LOCAL || TT_(tk) == TT_STACK));
+}
+
+static
+knh_Token_t *knh_Gamma_getUntypedName(Ctx *ctx, size_t n)
+{
+	knh_Gamma_t *kc = ctx->kc;
+	knh_Token_t *tkVAR = (knh_Token_t*)DP(kc)->gamma[n+1-DP(kc)->goffset].value;
+	DBG2_ASSERT(knh_Token_isUntyped(tkVAR));
+	return tkVAR;
+}
+
+static
+knh_Token_t *knh_Gamma_getSharedUntypedToken(Ctx *ctx, knh_Token_t *tkN)
+{
+	knh_Gamma_t *kc = ctx->kc;
+	int idx = DP(tkN)->index;
+	if(TT_(tkN) == TT_LOCAL) idx += DP(kc)->goffset;
+	knh_Token_t *tkVAR = (knh_Token_t*)DP(kc)->gamma[idx].value;
+	DBG2_ASSERT(IS_Token(tkVAR) && DP(tkN)->index == DP(tkVAR)->index);
+	return tkVAR;
+}
+
+static
+void knh_Gamma_derivedClass(Ctx *ctx, knh_class_t origc, knh_class_t cid)
+{
+	if(origc != cid) {
+		knh_Gamma_perror(ctx, KERR_TINFO, _("specialized: %C => %C"), origc, cid);
+	}
+}
+
+static
+void knh_Gamma_derivedVariable(Ctx *ctx, Object *tm, knh_type_t itype, knh_fieldn_t fn)
+{
+	DBG2_ASSERT(itype != TYPE_var);
+	if(tm == NULL) {
+		if(CLASS_type(itype) == CLASS_Any) {
+			knh_Gamma_perror(ctx, KERR_DWARN,
+					_("failed to type inference: %T %N"), itype, fn);
+		}
+		else {
+			knh_Gamma_perror(ctx, KERR_TINFO, _("%T %N"), itype, fn);
+		}
+	}
+	else if(IS_Token(tm)) {
+		knh_Token_t *tk = (knh_Token_t*)tm;
+		if(CLASS_type(itype) == CLASS_Any) {
+			knh_Gamma_perror(ctx, KERR_DWARN,
+					_("failed to type inference: %T %s"), itype, sToken(tk));
+		}
+		else {
+			knh_Gamma_perror(ctx, KERR_TINFO, _("%T %s"), itype, sToken(tk));
+		}
+	}
+	else {
+		knh_Method_t *mtd = (knh_Method_t*)tm;
+		DBG2_ASSERT(IS_Method(mtd));
+		if(CLASS_type(itype) == CLASS_Any) {
+			knh_Gamma_perror(ctx, KERR_DWARN,
+					_("failed to type inference: %C.%M : return %T"), DP(mtd)->cid, DP(mtd)->mn, itype);
+		}
+		else {
+			knh_Gamma_perror(ctx, KERR_TINFO, _("%C.%M : return %T"), DP(mtd)->cid, DP(mtd)->mn, itype);
+		}
+	}
+}
+
+static
+void knh_Gamma_derivedParamType(Ctx *ctx, knh_Token_t *tkVAR, knh_type_t itype)
+{
+	knh_Gamma_t *kc = ctx->kc;
+	int idx = DP(tkVAR)->index + DP(kc)->goffset;
+	DBG2_ASSERT(knh_Token_isUntyped(tkVAR));
+	DBG2_ASSERT(DP(kc)->gamma[idx].value == (Object*)tkVAR);
+	DBG2_P("@@@@@@@ idx=%d type=%s%s", idx, TYPEQN(itype));
+	knh_Gamma_derivedVariable(ctx, NULL, itype, DP(kc)->gamma[idx].fn);
+	DP(tkVAR)->type = itype;
+	DP(kc)->gamma[idx].type = itype;
+	KNH_FINALv(ctx, DP(kc)->gamma[idx].value);
+	DP(kc)->gamma[idx].value = NULL;
+}
+
+static
+void knh_Gamma_derivedReturnType(Ctx *ctx, knh_Method_t *mtd, knh_type_t itype)
+{
+	knh_Gamma_t *kc = ctx->kc;
+	DBG2_ASSERT(DP(kc)->rtype == TYPE_var);
+	DP(kc)->rtype = itype;
+	knh_Gamma_derivedVariable(ctx, UP(mtd), itype, FIELDN_NONAME);
+}
+
+static
+knh_type_t TERMs_inferType(Ctx *ctx, knh_Stmt_t *stmt, size_t n)
+{
+	if(n < DP(stmt)->size) {
+		if(TERMs_typing(ctx, stmt, n, TYPE_Any, TWARN_)) {
+			return TERMs_gettype(stmt, n);
+		}
+		return TYPE_var;
+	}
+	else {
+		DBG2_ASSERT(STT_(stmt) == STT_RETURN);
+		return TYPE_void;
+	}
+}
+
+static int knh_Method_isUntyped(knh_Method_t *mtd)
+{
+	int i, psize = knh_Method_psize(mtd);
+	if(knh_Method_rztype(mtd) == TYPE_var) return 1;
+	for(i = 0; i < psize; i++) {
+		if(knh_Method_pztype(mtd,i) == TYPE_var) return 1;
+	}
+	return 0;
+}
+
+static int knh_Gamma_updateMethodType(Ctx *ctx)
+{
+	knh_Gamma_t *kc = ctx->kc;
+	int hasUntypedType = 0;
+	knh_Method_t *mtd = DP(kc)->mtd;
+	int i, psize = knh_Method_psize(mtd);
+	knh_MethodField_t *mf = DP(mtd)->mf;
+	if(mf->rtype == TYPE_var) {
+		if(DP(kc)->rtype != TYPE_var) {
+			mf->rtype = DP(kc)->rtype;
+		}
+		else {
+			hasUntypedType = 1;
+		}
+	}
+	for(i = 0; i < psize; i++) {
+		if(knh_Method_pztype(mtd,i) == TYPE_var) {
+			knh_Token_t *tkVAR = knh_Gamma_getUntypedName(ctx, i);
+			if(DP(tkVAR)->type != TYPE_var) {
+				knh_mparam_t p = knh_MethodField_param(mf, i);
+				knh_MethodField_set(mf, i, DP(tkVAR)->type, p.fn);
+			}
+			else {
+				hasUntypedType = 1;
+			}
+		}
+	}
+	return hasUntypedType;
+}
+
+static knh_class_t knh_Token_unifyClass(Ctx *ctx, knh_Token_t *tkVAR, knh_type_t reqt, knh_Stmt_t *stmt)
+{
+	DBG2_(knh_Token_t *tkM = DP(stmt)->tokens[0]);
+	DBG2_(knh_methodn_t mn = DP(tkM)->mn;);
+	DBG2_P("*** %s reqt=%s%s mn(fn)=%s", sToken(tkVAR), TYPEQN(reqt), FIELDN(METHODN_TOFIELDN(mn)));
+	return CLASS_type(TYPE_var); /* not derived */
+}
+
+
+
+
 /* ------------------------------------------------------------------------ */
 /* [DECL] */
 
@@ -1339,143 +1422,6 @@ knh_flag_t knh_StmtDECL_flag(Ctx *ctx, knh_Stmt_t *o)
 	return flag;
 }
 
-static
-knh_index_t knh_Gamma_addVariableTable(Ctx *ctx, knh_cfield_t *gamma, size_t max, knh_cfield_t *decl, int isField)
-{
-	knh_index_t idx;
-	if(decl->type == TYPE_var) {
-		knh_foundKonohaStyle(1);
-	}
-	for(idx = 0; idx < max - 1; idx++) {
-		if(gamma[idx].fn == FIELDN_NONAME) {
-			DBG2_ASSERT(gamma[idx].value == NULL);
-			gamma[idx] = *decl;
-			if(decl->value != NULL) {
-				KNH_INITv(gamma[idx].value, decl->value);
-			}
-			if(isField) {
-				if(gamma[idx].value == NULL && IS_NATYPE(gamma[idx].type)) {
-					KNH_INITv(gamma[idx].value, KNH_NULL);
-				}
-#ifdef KNH_USING_UNBOXFIELD
-				if((IS_ubxint(decl->type) && (sizeof(knh_int_t) > sizeof(void*))) ||
-					(IS_ubxfloat(decl->type) && (sizeof(knh_float_t) > sizeof(void*)))) {
-					gamma[idx+1].flag = 0;
-					gamma[idx+1].type = TYPE_void;
-					gamma[idx+1].fn   = FIELDN_/*register*/;
-					DBG2_ASSERT(gamma[idx+1].value == NULL);
-				}
-#endif
-			}
-			else {
-				DP(ctx->kc)->esp = -1;
-			}
-			return idx;
-		}
-		if(gamma[idx].fn == decl->fn && decl->fn != FIELDN_) {
-			if(isField) {
-				if(gamma[idx].type == decl->type) return idx;
-				if(!knh_Context_isInteractive(ctx)) {
-					knh_Gamma_perror(ctx, KERR_TERROR, _("differently declared: previous type %T %N"), gamma->type, decl->fn);
-					return -1;
-				}
-				else {
-					knh_Gamma_perror(ctx, KERR_EWARN,
-						_("different types are only allowed in an interactive mode: previous type %T %N"), gamma->type, decl->fn);
-				}
-			}
-		}
-	}
-	knh_Gamma_perror(ctx, KERR_ERROR, _("too many variables: %d"), max);
-	return -1;
-}
-
-static size_t knh_Gamma_unused(Ctx *ctx)
-{
-	knh_Gamma_t *kc = ctx->kc;
-	int i;
-	for(i = 0; i < K_GAMMASIZE; i++) {
-		if(DP(kc)->gamma[i].fn == FIELDN_NONAME) {
-			return i;
-		}
-	}
-	return K_GAMMASIZE;
-}
-
-static size_t knh_Gamma_top(Ctx *ctx)
-{
-	knh_Gamma_t *kc = ctx->kc;
-	int i;
-	for(i = K_GAMMASIZE -1; i >= 0; i--) {
-		if(DP(kc)->gamma[i].fn != FIELDN_NONAME) {
-			return i+1;
-		}
-	}
-	return 0;
-}
-
-static int knh_Gamma_esp(Ctx *ctx)
-{
-	knh_Gamma_t *kc = ctx->kc;
-	if(DP(kc)->esp == -1) {
-		DP(kc)->esp = knh_Gamma_top(ctx);
-	}
-	return DP(kc)->esp;
-}
-
-static
-knh_index_t knh_Gamma_declareScriptVariable(Ctx *ctx, knh_cfield_t *decl)
-{
-	knh_Script_t *scr = knh_getGammaScript(ctx);
-	knh_class_t cid = knh_Object_cid(scr);
-	knh_cfield_t *gamma = (ClassTable(cid).cstruct)->fields;
-	knh_index_t idx = knh_Gamma_addVariableTable(ctx, gamma, KNH_SCRIPT_FIELDSIZE, decl, 1/*isField*/);
-	if(idx != -1) {
-		knh_Object_t *value = decl->value;
-#ifdef KNH_USING_UNBOXFIELD
-		knh_type_t type = decl->type;
-		if(IS_ubxint(type)) {
-			knh_int_t *v = (knh_int_t*)(scr->fields + idx);
-			v[0] = (value == NULL) ? 0 : ((knh_Int_t*)value)->n.ivalue;
-			return 1;
-		}
-		if(IS_ubxfloat(type)) {
-			knh_float_t *v = (knh_float_t*)(scr->fields + idx);
-			v[0] = (value == NULL) ? KNH_FLOAT_ZERO : ((knh_Float_t*)value)->n.fvalue;
-			return 1;
-		}
-		if(IS_ubxboolean(type)) {
-			knh_bool_t *v = (knh_bool_t*)(scr->fields + idx);
-			v[0] = (value == NULL) ? 0 : ((knh_Boolean_t*)value)->n.bvalue;
-			return 1;
-		}
-#endif/*KNH_USING_UNBOXFIELD*/
-		if(value == NULL) {
-			value = KNH_DEF(ctx, CLASS_type(type));
-		}
-		KNH_INITv(scr->fields[idx], value);
-		return 1;
-	}
-	return 0;
-}
-
-/* ------------------------------------------------------------------------ */
-
-static
-knh_index_t knh_Gamma_declareFieldVariable(Ctx *ctx, knh_cfield_t *decl)
-{
-	return knh_Gamma_addVariableTable(ctx, DP(ctx->kc)->gamma, K_GAMMASIZE, decl, 1/*isField*/);
-}
-
-/* ------------------------------------------------------------------------ */
-
-static
-knh_index_t knh_Gamma_declareLocalVariable(Ctx *ctx, knh_cfield_t *decl)
-{
-	knh_Gamma_t *kc = ctx->kc;
-	DP(kc)->esp = -1;
-	return knh_Gamma_addVariableTable(ctx, DP(kc)->gamma + DP(kc)->goffset, K_GAMMASIZE - DP(kc)->goffset, decl, 0/*isField*/);
-}
 
 /* ------------------------------------------------------------------------ */
 
@@ -1717,7 +1663,7 @@ static knh_bool_t knh_Gamma_existsName(Ctx *ctx, knh_fieldn_t fnq)
 	if(FIELDN_IS_U2(fnq)) goto L_GLOBAL;
 	if(FIELDN_IS_U1(fnq)) goto L_FIELD;
 
-	idx = knh_Gamma_indexoffn(ctx, fn);
+	idx = knh_Gamma_indexOfFIELDN(ctx, fn);
 	if(idx != -1) return 1;
 
 	L_FIELD:;

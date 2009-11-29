@@ -1997,6 +1997,48 @@ static void knh_Context_newClass(Ctx *ctx, knh_class_t cid)
 }
 
 /* ======================================================================== */
+/* Thread */
+
+#define knh_Thread_init_ NULL
+#define knh_Thread_copy NULL
+#define knh_Thread_traverse_ NULL
+#define knh_Thread_compareTo NULL
+#define knh_Thread_hashCode NULL
+#define knh_Thread_newClass NULL
+#define knh_Thread_getkey NULL
+
+static void knh_Thread_init(Ctx *ctx, knh_Thread_t *o, int init)
+{
+
+}
+
+static void knh_Thread_traverse(Ctx *ctx, knh_Thread_t *o, knh_ftraverse ftr)
+{
+
+}
+
+/* ======================================================================== */
+/* ScriptEngine */
+
+#define knh_ScriptEngine_init_ NULL
+#define knh_ScriptEngine_copy NULL
+#define knh_ScriptEngine_traverse_ NULL
+#define knh_ScriptEngine_compareTo NULL
+#define knh_ScriptEngine_hashCode NULL
+#define knh_ScriptEngine_newClass NULL
+#define knh_ScriptEngine_getkey NULL
+
+static void knh_ScriptEngine_init(Ctx *ctx, knh_ScriptEngine_t *o, int init)
+{
+
+}
+
+static void knh_ScriptEngine_traverse(Ctx *ctx, knh_ScriptEngine_t *o, knh_ftraverse ftr)
+{
+
+}
+
+/* ======================================================================== */
 /* Token */
 
 #define knh_Token_init_ NULL
@@ -2224,24 +2266,6 @@ static void knh_KLRCode_traverse(Ctx *ctx, knh_KLRCode_t *o, knh_ftraverse ftr)
 	if(IS_SWEEP(ftr)) {
 		KNH_FREE(ctx, b->code, KNH_SIZE(b->size));
 	}
-}
-/* ======================================================================== */
-/* Thread */
-
-#define knh_Thread_init_ NULL
-#define knh_Thread_copy NULL
-#define knh_Thread_traverse_ NULL
-#define knh_Thread_compareTo NULL
-#define knh_Thread_hashCode NULL
-#define knh_Thread_newClass NULL
-#define knh_Thread_getkey NULL
-
-static void knh_Thread_init(Ctx *ctx, knh_Thread_t *o, int init)
-{
-}
-
-static void knh_Thread_traverse(Ctx *ctx, knh_Thread_t *o, knh_ftraverse ftr)
-{
 }
 
 /* ======================================================================== */

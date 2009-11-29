@@ -73,6 +73,43 @@ void knh_Token_setFL(knh_Token_t *o, Any *fln)
 
 /* ------------------------------------------------------------------------ */
 
+knh_Token_t* new_TokenCONST(Ctx *ctx, Any *fln, Any *data)
+{
+	knh_Token_t *o = (knh_Token_t*)new_Object_bcid(ctx, CLASS_Token, 0);
+	knh_Token_setFL(o, fln);
+	knh_Token_setCONST(ctx, o, data);
+	return o;
+}
+
+/* ------------------------------------------------------------------------ */
+
+void knh_Token_setCONST(Ctx *ctx, knh_Token_t *o, Any *data)
+{
+	KNH_SETv(ctx, DP(o)->data, data);
+	knh_Token_toCONST(ctx, o);
+}
+
+/* ------------------------------------------------------------------------ */
+
+knh_Token_t* knh_Token_toCONST(Ctx *ctx, knh_Token_t *o)
+{
+	TT_(o) = TT_CONST;
+	DP(o)->type = knh_Object_cid(DP(o)->data);
+	if(IS_NULL(DP(o)->data)) DP(o)->type = TYPE_Any;
+	return o;
+}
+
+/* ------------------------------------------------------------------------ */
+
+knh_Token_t* new_TokenNULL(Ctx *ctx, Any *fln, knh_type_t type)
+{
+	knh_Token_t *tk = new_TokenCONST(ctx, fln, KNH_NULL);
+	DP(tk)->type = CLASS_type(type);
+	return tk;
+}
+
+/* ------------------------------------------------------------------------ */
+
 knh_Token_t *new_TokenASIS(Ctx *ctx, Any *fln)
 {
 	knh_Token_t *o = (knh_Token_t*)new_Object_bcid(ctx, CLASS_Token, 0);

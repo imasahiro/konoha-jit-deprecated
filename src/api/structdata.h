@@ -345,12 +345,13 @@ static char * StructNameData[] = {
 	"NameSpace",
 	"System",
 	"Context",
+	"Thread",
+	"ScriptEngine",
 	"Token",
 	"Stmt",
 	"Gamma",
 	"KLRInst",
 	"KLRCode",
-	"Thread",
 	NULL
 };
 
@@ -786,6 +787,26 @@ static knh_StructData_t StructData[] = {
 		knh_Context_getkey
 	},
 	{
+		"Thread", STRUCT_Thread, FLAG_Thread, 0,
+		(knh_fstruct_init)knh_Thread_init,
+		(knh_fstruct_copy)knh_Thread_copy, 
+		(knh_fstruct_traverse)knh_Thread_traverse,
+		(knh_fstruct_compareTo)knh_Thread_compareTo,
+		(knh_fstruct_hashCode)knh_Thread_hashCode,
+		(knh_fstruct_newClass)knh_Thread_newClass,
+		knh_Thread_getkey
+	},
+	{
+		"ScriptEngine", STRUCT_ScriptEngine, FLAG_ScriptEngine, 0,
+		(knh_fstruct_init)knh_ScriptEngine_init,
+		(knh_fstruct_copy)knh_ScriptEngine_copy, 
+		(knh_fstruct_traverse)knh_ScriptEngine_traverse,
+		(knh_fstruct_compareTo)knh_ScriptEngine_compareTo,
+		(knh_fstruct_hashCode)knh_ScriptEngine_hashCode,
+		(knh_fstruct_newClass)knh_ScriptEngine_newClass,
+		knh_ScriptEngine_getkey
+	},
+	{
 		"Token", STRUCT_Token, FLAG_Token, sizeof(knh_Token_struct),
 		(knh_fstruct_init)knh_Token_init,
 		(knh_fstruct_copy)knh_Token_copy, 
@@ -834,16 +855,6 @@ static knh_StructData_t StructData[] = {
 		(knh_fstruct_hashCode)knh_KLRCode_hashCode,
 		(knh_fstruct_newClass)knh_KLRCode_newClass,
 		knh_KLRCode_getkey
-	},
-	{
-		"Thread", STRUCT_Thread, FLAG_Thread, 0,
-		(knh_fstruct_init)knh_Thread_init,
-		(knh_fstruct_copy)knh_Thread_copy, 
-		(knh_fstruct_traverse)knh_Thread_traverse,
-		(knh_fstruct_compareTo)knh_Thread_compareTo,
-		(knh_fstruct_hashCode)knh_Thread_hashCode,
-		(knh_fstruct_newClass)knh_Thread_newClass,
-		knh_Thread_getkey
 	},
 	{NULL}
 };
@@ -978,6 +989,12 @@ static knh_ClassData_t ClassData[] = {
 	{"Context", CLASS_Context, FLAG_Context, 
 	   CLASS_Context, CLASS_Object, 14, 1, 0,
 	   TYPE_void, TYPE_void, TYPE_void, TYPE_void},
+	{"Thread", CLASS_Thread, FLAG_Thread, 
+	   CLASS_Thread, CLASS_Object, 1, 0, 0,
+	   TYPE_void, TYPE_void, TYPE_void, TYPE_void},
+	{"ScriptEngine", CLASS_ScriptEngine, FLAG_ScriptEngine, 
+	   CLASS_ScriptEngine, CLASS_Object, 0, 0, 0,
+	   TYPE_void, TYPE_void, TYPE_void, TYPE_void},
 	{"Token", CLASS_Token, FLAG_Token, 
 	   CLASS_Token, CLASS_Object, 0, 3, 0,
 	   TYPE_void, TYPE_void, TYPE_void, TYPE_void},
@@ -992,9 +1009,6 @@ static knh_ClassData_t ClassData[] = {
 	   TYPE_void, TYPE_void, TYPE_void, TYPE_void},
 	{"KLRCode", CLASS_KLRCode, FLAG_KLRCode, 
 	   CLASS_KLRCode, CLASS_Object, 0, 0, 0,
-	   TYPE_void, TYPE_void, TYPE_void, TYPE_void},
-	{"Thread", CLASS_Thread, FLAG_Thread, 
-	   CLASS_Thread, CLASS_Object, 1, 0, 0,
 	   TYPE_void, TYPE_void, TYPE_void, TYPE_void},
 	{"This", CLASS_This, FLAG_This, 
 	   CLASS_Any, CLASS_Any, 0, 0, 0,
