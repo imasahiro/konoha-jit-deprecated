@@ -58,14 +58,14 @@ void knh_vperror(Ctx *ctx, knh_uri_t uri, int line, int pe, char *fmt, va_list a
 {
 	DBG2_ASSERT(pe <= KERR_INFO);
 	knh_Gamma_t *kc = ctx->kc;
+	if(knh_Gamma_isQuiet(kc)) {
+		return;
+	}
 	if(pe < KERR_DWARN) {
 		DP(kc)->statError += 1;
 	}
 	else if(pe < KERR_TINFO) {
 		DP(kc)->statBadManner += 1;
-	}
-	if(knh_Gamma_isQuiet(kc)) {
-		return;
 	}
 	if(knh_Context_isInteractive(ctx)) {
 		goto L_PRINT;

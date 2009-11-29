@@ -2168,12 +2168,16 @@ static Term* knh_StmtDOMAIN_typing(Ctx *ctx, knh_Stmt_t *stmt)
 static Term* knh_StmtDEFINED_typing(Ctx *ctx, knh_Stmt_t *stmt)
 {
 	knh_Token_t *tk = DP(stmt)->tokens[0];
+	knh_Gamma_t *kc = ctx->kc;
+	knh_flag_t flag = DP(kc)->flag;
+	knh_Gamma_setQuiet(kc, 1);
 	if(TERMs_typing(ctx, stmt, 2, CLASS_Any, TWARN_)) {
 		knh_Token_setCONST(ctx, tk, KNH_TRUE);
 	}
 	else {
 		knh_Token_setCONST(ctx, tk, KNH_FALSE);
 	}
+	DP(kc)->flag = flag;
 	return TM(tk);
 }
 
