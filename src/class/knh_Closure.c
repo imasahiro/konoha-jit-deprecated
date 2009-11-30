@@ -473,7 +473,7 @@ knh_class_t knh_class_Thunk(Ctx *ctx, knh_type_t rtype)
 		knh_putc(ctx, cwb->w, '<');
 		knh_write_ltype(ctx, cwb->w, rtype);
 		knh_putc(ctx, cwb->w, '>');
-		/* knh_class_t*/ cid = knh_getcid(ctx, knh_cwb_tobytes(cwb));
+		cid = knh_getcid(ctx, knh_cwb_tobytes(cwb));
 		if(cid == CLASS_unknown) {
 			cid = knh_addThunkClass(ctx, CLASS_newid, knh_cwb_newString(ctx, cwb), rtype);
 		} else {

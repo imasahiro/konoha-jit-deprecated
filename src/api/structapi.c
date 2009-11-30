@@ -2146,8 +2146,10 @@ static void knh_Gamma_init(Ctx *ctx, knh_Gamma_t *kc, int init)
 	knh_intptr_t i;
 	knh_Gamma_struct *b = DP(kc);
 
+	knh_bzero(b, sizeof(*b));
 	b->flag = 0;
 	b->this_cid = CLASS_Object;
+	b->goffset = 0;
 	KNH_INITv(b->ns, ctx->share->mainns);
 	DBG2_ASSERT(IS_NameSpace(b->ns));
 	KNH_INITv(b->mtd,   KNH_NULL);
