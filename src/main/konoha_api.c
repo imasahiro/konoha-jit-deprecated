@@ -160,14 +160,14 @@ void knh_startUserExperienceProgram(Ctx *ctx)
 
 static void knh_dumpInit(void)
 {
-	fprintf(stderr, "sizeof(knh_intptr_t)=%d, sizeof(void*)=%d\n", (int)sizeof(knh_intptr_t), (int)sizeof(void*));
+	fprintf(stderr, "sizeof(knh_intptr_t)=%zd, sizeof(void*)=%zd\n", sizeof(knh_intptr_t), sizeof(void*));
 	KNH_ASSERT(sizeof(knh_intptr_t) == sizeof(void*));
-	fprintf(stderr, "sizeof(knh_int_t)=%d, sizeof(knh_float_t)=%d\n", (int)sizeof(knh_int_t), (int)sizeof(knh_float_t));
+	fprintf(stderr, "sizeof(knh_int_t)=%zd, sizeof(knh_float_t)=%zd\n", sizeof(knh_int_t), sizeof(knh_float_t));
 	KNH_ASSERT(sizeof(knh_int_t) <= sizeof(knh_float_t));
-	fprintf(stderr, "sizeof(knh_sfp_t)=%d, sizeof(Ctx)=%d\n", (int)sizeof(knh_sfp_t), (int)sizeof(knh_Context_t));
-	fprintf(stderr, "sizeof(Object)=%d FASTMALLOC=%d\n", (int)sizeof(knh_Object_t), (int)KNH_FASTMALLOC_SIZE);
-	fprintf(stderr, "sizeof(Int)=%d, sizeof(Method)=%d\n", (int)sizeof(knh_Int_t), (int)sizeof(knh_Method_struct));
-	fprintf(stderr, "sizeof(knh_thread_t)=%d, sizeof(knh_mutex_t)=%d\n", (int)sizeof(knh_thread_t), (int)sizeof(knh_mutex_t));
+	fprintf(stderr, "sizeof(knh_sfp_t)=%zd, sizeof(Ctx)=%zd\n", sizeof(knh_sfp_t), sizeof(knh_Context_t));
+	fprintf(stderr, "sizeof(Object)=%zd FASTMALLOC=%zd\n", sizeof(knh_Object_t), KNH_FASTMALLOC_SIZE);
+	fprintf(stderr, "sizeof(Int)=%zd, sizeof(Method)=%zd\n", sizeof(knh_Int_t), sizeof(knh_Method_struct));
+	fprintf(stderr, "sizeof(knh_thread_t)=%zd, sizeof(knh_mutex_t)=%zd\n", sizeof(knh_thread_t), sizeof(knh_mutex_t));
 }
 
 /* ----------------------------------------------------------------------- */
@@ -212,20 +212,20 @@ static void knh_setUserExperienceProgram(Ctx *ctx, int mode)
 	}
 }
 
-typedef void (*knh_fopt)(Ctx *ctx, int n);
+typedef void (*foption)(Ctx *ctx, int n);
 
 struct option {
 	char *name;
 	knh_bool_t arg;
-	void (*func)(Ctx *ctx, int mode);
+	foption fopt;
 };
 
 typedef const struct option option_t;
 
 #define OPTION(_name, _handler) \
-	{ _name, 0/*false*/, _handler}
+	{ _name, 0, _handler}
 #define OPTION_ARG(_name, _handler) \
-	{ _name, 1/*true*/, _handler}
+	{ _name, 1, _handler}
 
 static option_t options[] = {
 	//OPTION("s", knh_setSecureMode),
@@ -267,7 +267,7 @@ KNHAPI(int) konoha_parseopt(konoha_t konoha, int argc, char **argv)
 				arg = (arg == 0) ? 1 : arg;
 			}
 		}
-		opt->func(konoha.ctx, arg);
+		opt->fopt(konoha.ctx, arg);
 	}
 #if defined(KNH_DBGMODE2)
 	knh_Context_setVerbose(konoha.ctx, 1);

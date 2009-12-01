@@ -185,6 +185,7 @@
 
 #ifdef KONOHA_MONOLITHIC
 #undef KNHAPI
+#undef KNH_EXPORTS
 #define KNHAPI(T__)        T__
 #define KNH_EXPORTS(T__)   T__
 #endif
