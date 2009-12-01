@@ -57,6 +57,7 @@ Object *knh_getClassConstNULL(Ctx *ctx, knh_class_t cid, knh_bytes_t name)
 
 int knh_addClassConst(Ctx *ctx, knh_class_t cid, knh_String_t* name, Object *value)
 {
+	int ret;
 	DBG2_ASSERT_cid(cid);
 	if(ClassTable(cid).constPool == NULL) {
 		knh_ClassTable_t *t = pClassTable(cid);
@@ -65,11 +66,18 @@ int knh_addClassConst(Ctx *ctx, knh_class_t cid, knh_String_t* name, Object *val
 	knh_DictMap_t *cmap = ClassTable(cid).constPool;
 	KNH_ASSERT(IS_DictMap(cmap));
 	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
-	int res = knh_DictMap_index(cmap, __tobytes(name));
-	if(res != -1) return 0;
+	int idx = knh_DictMap_index(cmap, __tobytes(name));
+	// Const data is already added.
+	if(idx != -1) {
+		ret =  0;
+		goto L_UNLOCK;
+	}
 	knh_DictMap_append(ctx, cmap, name, value);
+	ret = 1;
+
+	L_UNLOCK:
 	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
-	return 1;
+	return ret;
 }
 
 

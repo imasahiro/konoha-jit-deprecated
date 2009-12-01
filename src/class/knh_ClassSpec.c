@@ -617,13 +617,14 @@ knh_ClassSpec_t *new_ClassSpecNULL(Ctx *ctx, knh_bytes_t urn)
 			if(u != NULL) {
 				KNH_SETv(ctx, DP(u)->urn, new_String(ctx, urn, NULL));
 			}
-			return u;
+			goto L_UNLOCK;
 		}
 		loc = knh_bytes_rindex(p, '/');
 		if(loc != -1) {
 			p = knh_bytes_first(p, loc);
 		}
 	}
+L_UNLOCK:;
 	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
 	return u;
 }
