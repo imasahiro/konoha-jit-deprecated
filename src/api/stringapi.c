@@ -477,7 +477,7 @@ static knh_Array_t *knh_String_toCharArray(Ctx *ctx, knh_String_t *bs, int istri
 }
 
 /* ------------------------------------------------------------------------ */
-//## @Const method String[] String.split(String delim, Int isTrim);
+//## @Const method String[] String.split(String delim, Int? isTrim);
 
 static METHOD String_split(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
@@ -519,8 +519,6 @@ static METHOD String_split(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 }
 
 /* ======================================================================== */
-
-/* ------------------------------------------------------------------------ */
 
 static
 int knh_String_opMatch(Ctx *ctx, knh_String_t *o, knh_Regex_t *re)

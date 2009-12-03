@@ -1475,7 +1475,7 @@ static knh_MethodFieldData_t MethodFieldData[] = {
 	{130, 1, NNTYPE_String, NATYPE_Any, FIELDN_value},
 	{131, 1, TYPE_PairSS, NNTYPE_String, FIELDN_s},
 	{132, 2, NNTYPE_String, NNTYPE_String, FIELDN_s, NNTYPE_String, FIELDN_newone},
-	{133, 2, TYPE_String_Ary, TYPE_String, FIELDN_delim, TYPE_Int, FIELDN_isTrim},
+	{133, 2, TYPE_String_Ary, TYPE_String, FIELDN_delim, NATYPE_Int, FIELDN_isTrim},
 	{134, 1, NNTYPE_Boolean, NNTYPE_Regex, FIELDN_re},
 	{135, 1, TYPE_String_Ary, TYPE_Regex, FIELDN_pattern},
 	{136, 1, NATYPE_Any, NNTYPE_String, FIELDN_key},

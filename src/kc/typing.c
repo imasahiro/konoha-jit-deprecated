@@ -4483,6 +4483,8 @@ Term * knh_StmtMETHOD_typing(Ctx *ctx, knh_Stmt_t *stmt)
 	return TM(stmt);
 }
 
+/* ------------------------------------------------------------------------ */
+
 static knh_Gamma_t *new_Gamma(Ctx *ctx)
 {
 	knh_Gamma_t *ctxkc = ctx->kc, *kc = (knh_Gamma_t*)new_Object_bcid(ctx, CLASS_Gamma, 0);
@@ -4493,23 +4495,164 @@ static knh_Gamma_t *new_Gamma(Ctx *ctx)
 	return kc;
 }
 
+static int knh_class_psize(Ctx *ctx, knh_class_t cid)
+{
+	int ret = -1;
+	DBG2_ASSERT_cid(cid);
+	if(cid == CLASS_Closure) {
+		ret = 32;
+	}
+	else if(ClassTable(cid).bcid == CLASS_Closure) {
+		if(ClassTable(cid).p1 == TYPE_void) {
+			ret = 1;
+		}
+		else if(ClassTable(cid).p2 == TYPE_void) {
+			ret = 2;
+		}
+		else if(ClassTable(cid).p3 == TYPE_void) {
+			ret = 3;
+		}
+		else {
+			ret = 4;
+		}
+	}
+	return ret;
+}
+
+static knh_type_t knh_class_zptype(Ctx *ctx, knh_class_t cid, int n)
+{
+	DBG2_ASSERT_cid(cid);
+	if(cid != CLASS_Closure && ClassTable(cid).bcid == CLASS_Closure) {
+		switch(n) {
+		case 0: return ClassTable(cid).r0;
+		case 1: return ClassTable(cid).p1;
+		case 2: return ClassTable(cid).p2;
+		case 3: return ClassTable(cid).p3;
+		}
+	}
+	return TYPE_Any;
+}
+
 /* ------------------------------------------------------------------------ */
 
 Term * knh_StmtFUNCTION_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
 {
 	Term *tm = NULL;
-	knh_Gamma_t *kc = ctx->kc;
 	knh_sfp_t *lsfp = KNH_LOCAL(ctx);
-	KNH_LPUSH(ctx, kc);
+	KNH_LPUSH(ctx, ctx->kc);
 	KNH_SETv(ctx, ((knh_Context_t*)ctx)->kc, new_Gamma(ctx));
 	{
-//		int hasUntyped = 0;
-//		knh_class_t reqc = CLASS_type(reqt);
+		knh_Gamma_t *kc = ctx->kc;
+		knh_class_t reqc = CLASS_type(reqt);
+		int hasUntyped = 0;
+
 		knh_type_t rztype = knh_Token_gettype(ctx, DP(stmt)->tokens[0], DP(kc)->ns, TYPE_var);
+		knh_type_t rtype = knh_pmztype_totype(ctx, rztype, DP(kc)->this_cid);
 		DBG2_P("rztype=%s%s", TYPEQN(rztype));
-//		knh_Method_t *mtd = new_Method(ctx, 0, DP(kc)->this_cid, METHODN_LAMBDA, NULL);
-//		DP(mtd)->uri = SP(stmt)->uri;
-//		knh_Token_setCONST(ctx, DP(stmt)->tokens[0], UP(mtd));
+		knh_Method_t *mtd = new_Method(ctx, 0, DP(kc)->this_cid, METHODN_LAMBDA, NULL);
+		DP(mtd)->uri = SP(stmt)->uri;
+		knh_Token_setCONST(ctx, DP(stmt)->tokens[0], UP(mtd));
+//
+//		DP(kc)->scope = SCOPE_PARAM;
+//		if(!knh_Stmt_initParams(ctx, DP(stmt)->stmts[1])) {
+//			goto L_RETURN;
+//		}
+//		size_t i, psize = DP(kc)->psize, offset = DP(kc)->goffset + 1;
+//
+//		if(knh_class_psize(reqc) != -1) {
+//
+//		}
+//
+//		if(rztype == TYPE_var) {
+//			if(ClassTable(reqc).bcid == CLASS_Closure) {
+//				rtype = (reqc == CLASS_Closure) ?
+//					knh_pmztype_totype(ctx, ClassTable(reqc).r0, DP(kc)->this_cid) : TYPE_Any;
+//				knh_Gamma_derivedVariable(ctx, NULL, rztype, FIELDN_return);
+//			}
+//			else {
+//				hasUntyped = 1;
+//			}
+//		}
+//		if(ClassTable(reqc).bcid == CLASS_Closure) {
+//			int ptsize = -1;
+//			if(ptsize != -1 && psize != ptsize) {
+//				knh_Gamma_perror(ctx, KERR_TERROR,
+//					_("different parameter size of lambda function"));
+//				return NULL;
+//			}
+//		}
+//
+//		knh_MethodField_t *mf = new_MethodField(ctx, rztype, psize);
+//		KNH_SETv(ctx, DP(mtd)->mf, mf);
+//
+//		for(i = 0; i < psize; i++) {
+//			knh_type_t ctype = TYPE_Any, gtype = DP(kc)->gamma[i+offset].type;
+//			if(i == 1 && ClassTable(reqc).bcid == CLASS_Closure) {
+//				ctype = knh_pmztype_totype(ctx, ClassTable(reqc).p1, DP(kc)->this_cid);
+//			}
+//			if(i == 2 && ClassTable(reqc).bcid == CLASS_Closure) {
+//				ctype = knh_pmztype_totype(ctx, ClassTable(reqc).p2, DP(kc)->this_cid);
+//			}
+//			if(i == 3 && ClassTable(reqc).bcid == CLASS_Closure) {
+//				ctype = knh_pmztype_totype(ctx, ClassTable(reqc).p3, DP(kc)->this_cid);
+//			}
+//			if(ctype == TYPE_void) ctype = TYPE_Any;
+//			if(gtype == TYPE_var) {
+//				if(ClassTable(reqc).bcid == CLASS_Closure && reqc != CLASS_Closure) {
+//					gtype = ctype;
+//					knh_Gamma_derivedVariable(ctx, NULL, gtype, DP(kc)->gamma[i+offset].fn);
+//				}
+//				else {
+//					hasUntyped = 1;
+//				}
+//			}
+//			else if(ctype != TYPE_Any && gtype != ctype) {
+//				knh_Gamma_perror(ctx, KERR_TERROR, _("parameter %d of lambda function"), i+1);
+//				return NULL;
+//			}
+//
+//			knh_MethodField_set(mf, i, gtype, DP(kc)->gamma[i+offset].fn);
+//		}
+//
+//		if(hasUntyped) { /* type inferencing */
+//			hasUntyped = 0;
+//			DBG2_P("**** START TO INFER METHOD TYPE.. ****");
+//			knh_StmtMETHOD_typingBODY(ctx, mtd, DP(stmt)->stmts[1], DP(stmt)->stmts[2], 1 /*Iteration */);
+//			if(DP(kc)->rtype == TYPE_var) {
+//				hasUntyped = 1;
+//				knh_Gamma_derivedReturnType(ctx, mtd, TYPE_Any);
+//			}
+//			for(i = 0; i < psize; i++) {
+//				if(DP(kc)->gamma[i+offset].type == TYPE_var) {
+//					hasUntyped = 1;
+//					knh_Gamma_derivedParamType(ctx, (knh_Token_t*)DP(kc)->gamma[i+offset].value, TYPE_Any);
+//					DBG2_ASSERT(DP(kc)->gamma[i+offset].type != TYPE_var) ;
+//				}
+//			}
+//			if(hasUntyped) {
+//				knh_Gamma_perror(ctx, KERR_DWARN, _("failed to infer types in %C.%M"), DP(mtd)->cid, DP(mtd)->mn);
+//			}
+//			DBG2_P("***** END OF TYPE INFERENCE.. ******");
+//		}
+//		KNH_ASM_METHOD(ctx, mtd, DP(stmt)->stmts[1], DP(stmt)->stmts[2], 1 /*Iteration*/);
+//
+//		if(knh_Method_isAbstract(mtd)) {
+//			knh_Gamma_perror(ctx, KERR_EWARN, _("abstract lambda function"));
+//		}
+//		knh_Token_toCLOSURE(ctx, DP(stmt)->tokens[0], mtd);
+//		if(knh_Gamma_hasSTACK(kc)) {
+//			knh_Token_setOUTERCLOSURE(DP(stmt)->tokens[0], 1);
+//			knh_Gamma_perror(ctx, KERR_ERROR, _("OUTER CLOSURE IS NOT COMPLETE"));
+//		}
+//		if(reqt == TYPE_void) {
+//			STT_(stmt) = STT_CALL1;
+//			knh_Stmt_resize(ctx, stmt, 1);
+//			tm = knh_Stmt_typed(ctx, stmt, DP(DP(stmt)->tokens[0])->type);
+//		}
+//		else {
+//			tm = DP(stmt)->terms[0];
+//		}
+
 	}
 	//	L_RETURN:
 	DBG2_ASSERT(IS_Gamma(lsfp[0].o));
@@ -4517,118 +4660,6 @@ Term * knh_StmtFUNCTION_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
 	KNH_SETv(ctx, lsfp[0].o, KNH_NULL);
 	KNH_LOCALBACK(ctx, lsfp);
 	return tm;
-
-//
-//
-//	DP(kc)->scope = SCOPE_PARAM;
-//	if(!knh_Stmt_initParams(ctx, DP(stmt)->stmts[1])) {
-//		goto L_RETURN;
-//	}
-//	size_t i, psize = DP(kc)->psize, offset = DP(kc)->goffset + 1;
-//
-//	if(rztype == TYPE_var) {
-//		if(ClassTable(reqc).bcid == CLASS_Closure && reqc != CLASS_Closure) {
-//			rztype = knh_pmztype_totype(ctx, ClassTable(reqc).r0, DP(kc)->this_cid);
-//			knh_Gamma_derivedVariable(ctx, NULL, rztype, FIELDN_return);
-//		}
-//		else {
-//			hasUntyped = 1;
-//		}
-//	}
-//	if(ClassTable(reqc).bcid == CLASS_Closure) {
-//		int ptsize = -1;
-//		if(ClassTable(reqc).p1 == TYPE_void) {
-//			ptsize = 0;
-//		}
-//		else if(ClassTable(reqc).p2 == TYPE_void) {
-//			ptsize = 1;
-//		}
-//		else if(ClassTable(reqc).p3 == TYPE_void) {
-//			ptsize = 2;
-//		}
-//		else if(reqc != CLASS_Closure) {
-//			ptsize = 3;
-//		}
-//		if(ptsize != -1 && psize != ptsize) {
-//			knh_Gamma_perror(ctx, KERR_TERROR,
-//				_("different parameter size of lambda function"));
-//			return NULL;
-//		}
-//	}
-//
-//	knh_MethodField_t *mf = new_MethodField(ctx, rztype, psize);
-//	KNH_SETv(ctx, DP(mtd)->mf, mf);
-//
-//	for(i = 0; i < psize; i++) {
-//		knh_type_t ctype = TYPE_Any, gtype = DP(kc)->gamma[i+offset].type;
-//		if(i == 1 && ClassTable(reqc).bcid == CLASS_Closure) {
-//			ctype = knh_pmztype_totype(ctx, ClassTable(reqc).p1, DP(kc)->this_cid);
-//		}
-//		if(i == 2 && ClassTable(reqc).bcid == CLASS_Closure) {
-//			ctype = knh_pmztype_totype(ctx, ClassTable(reqc).p2, DP(kc)->this_cid);
-//		}
-//		if(i == 3 && ClassTable(reqc).bcid == CLASS_Closure) {
-//			ctype = knh_pmztype_totype(ctx, ClassTable(reqc).p3, DP(kc)->this_cid);
-//		}
-//		if(ctype == TYPE_void) ctype = TYPE_Any;
-//		if(gtype == TYPE_var) {
-//			if(ClassTable(reqc).bcid == CLASS_Closure && reqc != CLASS_Closure) {
-//				gtype = ctype;
-//				knh_Gamma_derivedVariable(ctx, NULL, gtype, DP(kc)->gamma[i+offset].fn);
-//			}
-//			else {
-//				hasUntyped = 1;
-//			}
-//		}
-//		else if(ctype != TYPE_Any && gtype != ctype) {
-//			knh_Gamma_perror(ctx, KERR_TERROR, _("parameter %d of lambda function"), i+1);
-//			return NULL;
-//		}
-//
-//		knh_MethodField_set(mf, i, gtype, DP(kc)->gamma[i+offset].fn);
-//	}
-//
-//	if(hasUntyped) { /* type inferencing */
-//		hasUntyped = 0;
-//		DBG2_P("**** START TO INFER METHOD TYPE.. ****");
-//		knh_StmtMETHOD_typingBODY(ctx, mtd, DP(stmt)->stmts[1], DP(stmt)->stmts[2], 1 /*Iteration */);
-//		if(DP(kc)->rtype == TYPE_var) {
-//			hasUntyped = 1;
-//			knh_Gamma_derivedReturnType(ctx, mtd, TYPE_Any);
-//		}
-//		for(i = 0; i < psize; i++) {
-//			if(DP(kc)->gamma[i+offset].type == TYPE_var) {
-//				hasUntyped = 1;
-//				knh_Gamma_derivedParamType(ctx, (knh_Token_t*)DP(kc)->gamma[i+offset].value, TYPE_Any);
-//				DBG2_ASSERT(DP(kc)->gamma[i+offset].type != TYPE_var) ;
-//			}
-//		}
-//		if(hasUntyped) {
-//			knh_Gamma_perror(ctx, KERR_DWARN, _("failed to infer types in %C.%M"), DP(mtd)->cid, DP(mtd)->mn);
-//		}
-//		DBG2_P("***** END OF TYPE INFERENCE.. ******");
-//	}
-//	KNH_ASM_METHOD(ctx, mtd, DP(stmt)->stmts[1], DP(stmt)->stmts[2], 1 /*Iteration*/);
-//
-//	if(knh_Method_isAbstract(mtd)) {
-//		knh_Gamma_perror(ctx, KERR_EWARN, _("abstract lambda function"));
-//	}
-//	knh_Token_toCLOSURE(ctx, DP(stmt)->tokens[0], mtd);
-//	if(knh_Gamma_hasSTACK(kc)) {
-//		knh_Token_setOUTERCLOSURE(DP(stmt)->tokens[0], 1);
-//		knh_Gamma_perror(ctx, KERR_ERROR, _("OUTER CLOSURE IS NOT COMPLETE"));
-//	}
-//	if(reqt == TYPE_void) {
-//		STT_(stmt) = STT_CALL1;
-//		knh_Stmt_resize(ctx, stmt, 1);
-//		tm = knh_Stmt_typed(ctx, stmt, DP(DP(stmt)->tokens[0])->type);
-//	}
-//	else {
-//		tm = DP(stmt)->terms[0];
-//	}
-//
-//	knh_Gamma_closeClosure(ctx);
-//	return tm;
 }
 
 /* ------------------------------------------------------------------------ */
