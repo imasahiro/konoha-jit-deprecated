@@ -40,12 +40,11 @@ extern "C" {
 /* ======================================================================== */
 /* [common] */
 
-static
-knh_hashcode_t knh_stack_hashCode(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+static knh_hashcode_t knh_stack_hashCode(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_class_t bcid = (sfp[0].o)->h.bcid;
 	if(CLASS_Boolean <= bcid && bcid <= CLASS_Float) {
-		return (knh_hashcode_t)(sfp[0].i)->n.data;
+		return (knh_hashcode_t)sfp[0].data;
 	}
 	return ctx->share->StructTable[bcid].fhashCode(ctx, sfp[0].o);
 }
@@ -57,7 +56,7 @@ int knh_stack_equals(Ctx *ctx, knh_sfp_t *sfp, Object *o)
 {
 	knh_class_t bcid = (sfp[0].o)->h.bcid;
 	if(CLASS_Boolean <= bcid && bcid <= CLASS_Float) {
-		return ((sfp[0].i)->n.data == ((knh_Int_t*)o)->n.data);
+		return (sfp[0].data == knh_Object_data(o));
 	}
 	return (knh_Object_compareTo(ctx, sfp[0].o, o) == 0);
 }
