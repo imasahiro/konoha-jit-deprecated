@@ -64,12 +64,12 @@ extern "C" {
 #define ITRNEXT            int   KNH_CC_FASTCALL
 
 #ifdef KNH_USING_THREAD
-#define KNH_MT_VOLATILE           volatile
+#define KNH_MT_VOLATILE    volatile
 #else
 #define KNH_MT_VOLATILE
 #endif
 
-#define KONOHA_SYSTEM_BIT        (sizeof(void*) * CHAR_BIT))
+#define KONOHA_SYSTEM_BIT  (sizeof(void*) * CHAR_BIT)
 
 typedef int16_t           knh_int16_t;
 typedef uint16_t          knh_uint16_t;

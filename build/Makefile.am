@@ -43,6 +43,7 @@ libkonoha_la_SOURCES += ../src/class/knh_Script.c
 libkonoha_la_SOURCES += ../src/class/knh_String.c
 libkonoha_la_SOURCES += ../src/class/knh_String_mbytes.c
 libkonoha_la_SOURCES += ../src/class/knh_System.c
+libkonoha_la_SOURCES += ../src/class/knh_Tuple.c
 libkonoha_la_SOURCES += ../src/class/knh_type_t.c
 libkonoha_la_SOURCES += ../src/class/knh_write.c
 libkonoha_la_SOURCES += ../src/deps/dlopen.c
