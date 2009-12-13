@@ -41,8 +41,8 @@ extern "C" {
 Object *knh_getClassConstNULL(Ctx *ctx, knh_class_t cid, knh_bytes_t name)
 {
 	DBG2_ASSERT_cid(cid);
-	if(ClassTable(cid).constPool == NULL) return NULL;
-	knh_DictMap_t *cmap = ClassTable(cid).constPool;
+	if(ClassTable(cid).constDictMap == NULL) return NULL;
+	knh_DictMap_t *cmap = ClassTable(cid).constDictMap;
 	Object *value = NULL;
 	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
 	int res = knh_DictMap_index(cmap, name);
@@ -59,11 +59,11 @@ int knh_addClassConst(Ctx *ctx, knh_class_t cid, knh_String_t* name, Object *val
 {
 	int ret;
 	DBG2_ASSERT_cid(cid);
-	if(ClassTable(cid).constPool == NULL) {
+	if(ClassTable(cid).constDictMap == NULL) {
 		knh_ClassTable_t *t = pClassTable(cid);
-		KNH_INITv(t->constPool, new_DictMap0(ctx, 0));
+		KNH_INITv(t->constDictMap, new_DictMap0(ctx, 0));
 	}
-	knh_DictMap_t *cmap = ClassTable(cid).constPool;
+	knh_DictMap_t *cmap = ClassTable(cid).constDictMap;
 	KNH_ASSERT(IS_DictMap(cmap));
 	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
 	int idx = knh_DictMap_index(cmap, __tobytes(name));

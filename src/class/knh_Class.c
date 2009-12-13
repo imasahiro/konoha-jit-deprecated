@@ -38,56 +38,33 @@ extern "C" {
 /* ======================================================================== */
 /* [ClassTable] */
 
-knh_struct_t knh_StructTable_newId(Ctx *ctx)
-{
-	knh_class_t newid;
-	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
-	size_t structmax = ctx->share->ClassTableSize;
-	if(KNH_TSTRUCT_SIZE < structmax) structmax = KNH_TSTRUCT_SIZE;
-	if(!(ctx->share->StructTableSize < structmax)) {
-		KNH_EXIT("Enlarge KNH_TSTRUCT_SIZE %d", KNH_TSTRUCT_SIZE);
-		newid = CLASS_unknown;
-		goto L_UNLOCK;
-	}
-	newid = ctx->share->StructTableSize;
-	((knh_SharedData_t*)ctx->share)->StructTableSize += 1;
-	L_UNLOCK:;
-	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
-	return newid;
-}
-
-/* ------------------------------------------------------------------------ */
-
 knh_class_t knh_ClassTable_newId(Ctx *ctx)
 {
 	knh_class_t newid;
 	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
-	if(ctx->share->StructTableSize < ctx->share->ClassTableSize) {
-		((knh_SharedData_t*)ctx->share)->ClassTableSize -= 1;
-		newid = ctx->share->ClassTableSize;
+	newid = ctx->share->ClassTableSize;
+	if(ctx->share->ClassTableSize == ctx->share->ClassTableMax) {
+		knh_expandClassTable(ctx);
 	}
-	else {
-		newid = CLASS_unknown;
-		KNH_EXIT("Enlarge KNH_TCLASS_SIZE %d", KNH_TCLASS_SIZE);
-	}
+	((knh_SharedData_t*)ctx->share)->ClassTableSize = newid + 1;
 	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
 	return newid;
 }
 
-/* ------------------------------------------------------------------------ */
-
-knh_Class_t *new_Class(Ctx *ctx, knh_class_t cid)
-{
-	DBG2_ASSERT_cid(cid);
-	knh_ClassTable_t *t = pClassTable(cid);
-	if(t->class_cid == NULL) {
-		knh_Class_t *o = (knh_Class_t*)new_hObject(ctx, FLAG_Class, CLASS_Class, CLASS_Class);
-		o->cid = cid;
-		o->type = cid;
-		KNH_INITv(t->class_cid, o);
-	}
-	return t->class_cid;
-}
+///* ------------------------------------------------------------------------ */
+//
+//knh_Class_t *new_Class(Ctx *ctx, knh_class_t cid)
+//{
+//	DBG2_ASSERT_cid(cid);
+//	knh_ClassTable_t *t = pClassTable(cid);
+//	if(t->class_cid == NULL) {
+//		knh_Class_t *o = (knh_Class_t*)new_hObject(ctx, FLAG_Class, CLASS_Class, CLASS_Class);
+//		o->cid = cid;
+//		o->type = cid;
+//		KNH_INITv(t->class_cid, o);
+//	}
+//	return t->class_cid;
+//}
 
 /* ------------------------------------------------------------------------ */
 
@@ -123,7 +100,7 @@ void knh_setClassName(Ctx *ctx, knh_class_t cid, knh_String_t *lname)
 	DBG2_ASSERT_cid(cid);
 	knh_ClassTable_t *t = pClassTable(cid);
 	//KNH_NOTICE(ctx, _("added new class: %s"), __tochar(lname));
-	KNH_ASSERT(ClassTable(cid).class_cid == NULL);
+	DBG2_ASSERT(ClassTable(cid).class_cid == NULL);
 	KNH_INITv(t->lname, lname);
 	{
 		knh_bytes_t n = __tobytes(lname);
@@ -186,7 +163,7 @@ char *knh_ClassTable_CLASSN(Ctx *ctx, knh_class_t cid)
 
 knh_Object_t *knh_fdefault__CONST(Ctx *ctx, knh_class_t cid)
 {
-	return ClassTable(cid).cspec;
+	return ClassTable(cid).defval;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -199,7 +176,7 @@ knh_Object_t *knh_fdefault__NEWVALUE(Ctx *ctx, knh_class_t cid)
 	KNH_ASSERT(t->cspec == NULL);
 	KNH_INITv(t->cspec, v);
 	t->fdefault = knh_fdefault__CONST;
-	return t->cspec;
+	return t->defval;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -227,20 +204,6 @@ Object *knh_getClassDefaultValue(Ctx *ctx, knh_class_t cid)
 	return ClassTable(cid).fdefault(ctx, cid);
 }
 
-///* ------------------------------------------------------------------------ */
-//
-//Object *knh_getDefaultValue(Ctx *ctx, knh_type_t type)
-//{
-//	if(IS_NNTYPE(type)) {
-//		knh_class_t cid = CLASS_type(type);
-//		DBG2_ASSERT_cid(cid);
-//		return ClassTable(cid).fdefault(ctx, cid);
-//	}
-//	else {
-//		return KNH_NULL;
-//	}
-//}
-
 /* ======================================================================== */
 /* [PARAM] */
 
@@ -266,9 +229,6 @@ knh_addGenericsClass(Ctx *ctx, knh_class_t cid, knh_String_t *name, knh_class_t 
 	knh_flag_t mask = 0;
 	if(cid == CLASS_newid) {
 		cid = knh_ClassTable_newId(ctx);
-	}else {
-		//KNH_ASSERT(cid + 1 == ctx->share->ClassTableSize);
-		((knh_SharedData_t*)ctx->share)->ClassTableSize = cid;
 	}
 	/* knh_ClassTable_t */t = pClassTable(cid);
 	DBG2_ASSERT(bcid < cid);
@@ -280,12 +240,10 @@ knh_addGenericsClass(Ctx *ctx, knh_class_t cid, knh_String_t *name, knh_class_t 
 
 	t->cflag  = ClassTable(bcid).cflag;
 	t->oflag  = ClassTable(bcid).oflag;
-
-	t->sid    = ClassTable(bcid).sid;
+	t->ofunc    = ClassTable(bcid).ofunc;
 
 	t->bcid   = bcid;
 	t->supcid = ClassTable(bcid).supcid;
-	//TC->supcid = bcid;
 
 	t->offset = ClassTable(bcid).offset;
 
@@ -296,7 +254,6 @@ knh_addGenericsClass(Ctx *ctx, knh_class_t cid, knh_String_t *name, knh_class_t 
 	KNH_INITv(t->cstruct, ClassTable(bcid).cstruct);
 	KNH_INITv(t->cmap, new_ClassMap0(ctx, 0));
 	knh_setClassParam(ctx, cid, p1, p2);
-	StructTable(bcid).fnewClass(ctx, cid);
 	return cid;
 }
 
@@ -487,13 +444,9 @@ static knh_Array_t* knh_Class_domain(Ctx *ctx)
 {
 	knh_Array_t *a = new_Array(ctx, CLASS_Class, 0);
 	size_t cid = 0;
-	for(cid = 0; cid < ctx->share->StructTableSize; cid++) {
+	for(cid = 0; cid < ctx->share->ClassTableSize; cid++) {
 		if(knh_class_isPrivate(cid) || knh_class_isTypeVariable(cid)) continue;
-		knh_Array_add(ctx, a, UP(new_Class(ctx, cid)));
-	}
-	for(cid = ctx->share->ClassTableSize; cid < KNH_TCLASS_SIZE; cid++) {
-		if(knh_class_isPrivate(cid) || knh_class_isTypeVariable(cid)) continue;
-		knh_Array_add(ctx, a, UP(new_Class(ctx, cid)));
+		knh_Array_add(ctx, a, UP(new_Type(ctx, cid)));
 	}
 	return a;
 }
@@ -504,19 +457,7 @@ static knh_Array_t* knh_Method_domain(Ctx *ctx)
 {
 	knh_Array_t *a = new_Array(ctx, CLASS_Method, 0);
 	size_t cid = 0;
-	for(cid = 0; cid < ctx->share->StructTableSize; cid++) {
-		int i;
-		knh_ClassField_t *cs = ClassTable(cid).cstruct;
-		knh_Array_t *ma = cs->methods;
-		DBG2_ASSERT(cs != NULL);
-		for(i = 0; i < knh_Array_size(ma); i++) {
-			knh_Method_t *mtd = (knh_Method_t*)knh_Array_n(ma, i);
-			if(DP(mtd)->cid == cid) {
-				knh_Array_add(ctx, a, UP(mtd));
-			}
-		}
-	}
-	for(cid = ctx->share->ClassTableSize; cid < KNH_TCLASS_SIZE; cid++) {
+	for(cid = 0; cid < ctx->share->ClassTableSize; cid++) {
 		int i;
 		knh_ClassField_t *cs = ClassTable(cid).cstruct;
 		knh_Array_t *ma = cs->methods;

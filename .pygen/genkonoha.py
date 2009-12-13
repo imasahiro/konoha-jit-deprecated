@@ -125,20 +125,8 @@ class Class :
 
     def StructData(self):
         fmt = '''
-\t{
-\t\t"$C", STRUCT_$C, FLAG_$C, $SIZE,
-\t\t(knh_fstruct_init)knh_$C_init,
-\t\t(knh_fstruct_copy)knh_$C_copy, 
-\t\t(knh_fstruct_traverse)knh_$C_traverse,
-\t\t(knh_fstruct_compareTo)knh_$C_compareTo,
-\t\t(knh_fstruct_hashCode)knh_$C_hashCode,
-\t\t(knh_fstruct_newClass)knh_$C_newClass,
-\t\tknh_$C_getkey
-\t},'''
+\t{(knh_ObjectFunc_t*)&($CFunc), CLASS_$C, FLAG_$C},'''
         fmt = fmt.replace('$C', self.cname)
-        size = '0'
-        if self.has('@Struct'): size = 'sizeof(knh_%s_struct)' % self.cname
-        fmt = fmt.replace('$SIZE', size)
         fmt = fmt.replace('_Object_', '_ObjectField_')
         return fmt
 
@@ -153,7 +141,7 @@ class Class :
         for n in range(4) : self.cparams.append(t)
         cparam = '%s, %s, %s, %s' % (TYPE_(self.cparams[0]), TYPE_(self.cparams[1]), TYPE_(self.cparams[2]), TYPE_(self.cparams[3]))
         fmt = '''
-\t{"%s", %s, FLAG_%s, 
+\t{"konoha.%s", %s, FLAG_%s, 
 \t   %s, %s, %s, %s, %s,
 \t   %s},''' % (self.name, CLASS_(self.cname), self.cname, 
                 CLASS_(self.base), CLASS_(self.parent), 
@@ -188,7 +176,7 @@ def write_class_h(f, c, cid):
         write_define(f, CLASS_(c.cname), '((knh_class_t)%d)' % cid, 32)
         write_define(f, STRUCT_(c.cname), '((knh_struct_t)%d)' % cid, 32)
     else :
-        write_define(f, CLASS_(c.cname), '((knh_class_t)KNH_TCLASS_SIZE-(%d+1))' % cid, 32)
+        write_define(f, CLASS_(c.cname), '((knh_class_t)%d)' % cid, 32)
         write_define(f, STRUCT_(c.cname), STRUCT_(c.base), 32)
     write_define(f, 'IS_%s(o)' % c.cname,  '((o)->h.cid == %s)' % CLASS_(c.cname), 32)
     if(c.cname == c.base) :
@@ -629,7 +617,9 @@ def readdoc(doc, funcname, data):
         parsedoc(meta, tokens, data)
 
 def readfunc(funcdata, data):
+    funcdata = funcdata.replace('FASTAPI(', 'FASTAPI_')
     t = funcdata.split('(')
+    funcdata = funcdata.replace('FASTAPI_', 'FASTAPI(')
     if funcdata.find('KNHAPI') >= 0:
         data.KNHAPI_LIST.append(funcdata)
         return ""
@@ -700,12 +690,13 @@ def write_name_h(f, data):
         cid += 1    
 
     write_chapter(f, 'CLASS')
-    cid = 0
     for c in data.CLASS_LIST :
         if c.struct != None: continue
         if c.base == c.cname: continue
         write_class_h(f, c, cid)
         cid += 1
+
+    write_define(f, 'KNH_CLASS_INITSIZE', '%d' % (cid+1), 40)
     
     write_chapter(f, 'FLAG')
     for fg in data.FLAG_LIST :
@@ -750,7 +741,7 @@ def write_Data(f, data):
         fmt = '''
 \t"%s", /* TS_%s */''' % (s, n)
         dlist0.append(fmt)
-    write_data(f, 'char *', 'StringData', dlist0, 'NULL')
+    write_data(f, 'char *', 'StringData0', dlist0, 'NULL')
     dlist0 = []
     dlist = []
     for c in data.STRUCT_LIST :
@@ -758,8 +749,8 @@ def write_Data(f, data):
 \t"%s",''' % c.cname
         dlist0.append(fmt)
         dlist.append(c.StructData())
-    write_data(f, 'char *', 'StructNameData', dlist0, 'NULL')
-    write_data(f, 'knh_StructData_t', 'StructData', dlist)
+    #write_data(f, 'char *', 'StructNameData', dlist0, 'NULL')
+    write_data(f, 'knh_StructData0_t', 'StructData0', dlist)
     #
     dlist=[]
     for c in data.CLASS_LIST :
@@ -768,12 +759,12 @@ def write_Data(f, data):
     for c in data.CLASS_LIST :
         if c.struct is not None: continue
         dlist.append(c.ClassData())
-    write_data(f, 'knh_ClassData_t', 'ClassData', dlist)
+    write_data(f, 'knh_ClassData0_t', 'ClassData0', dlist)
     #
     dlist=[]
     for c in data.EXPT_LIST :
         dlist.append(c.ExptData())
-    write_data(f, 'knh_ExptData_t', 'ExptData', dlist)
+    write_data(f, 'knh_ExptData0_t', 'ExptData0', dlist)
     #
     dlist = []
     l = data.NAME.items()
@@ -782,23 +773,23 @@ def write_Data(f, data):
         fmt = '''
 \t{"%s", %s},''' % (fn, FIELDN_(fn))
         dlist.append(fmt)
-    write_data(f, 'knh_FieldNameData_t', 'FieldNameData', dlist)
+    write_data(f, 'knh_FieldNameData0_t', 'FieldNameData0', dlist)
     #
     dlist = ['\n\t{0, 0, TYPE_void},']
     for mtd in data.METHODFIELD_LIST:
         dlist.append(mtd.MethodFieldData())
-    write_data(f, 'knh_MethodFieldData_t', 'MethodFieldData', dlist, '{-1}')
+    write_data(f, 'knh_MethodFieldData0_t', 'MethodFieldData0', dlist, '{-1}')
     write_define(f, 'KNH_TMETHODFIELD_SIZE', '%d' % len(dlist))
     #
     dlist = []
     for mtd in data.METHOD_LIST:
         dlist.append(mtd.MethodData())
-    write_data(f, 'knh_MethodData_t', 'MethodData', dlist)
+    write_data(f, 'knh_MethodData0_t', 'MethodData0', dlist)
     #
     dlist = []
     for mpr in data.MAPPER_LIST:
         dlist.append(mpr.MapperData())
-    write_data(f, 'knh_MapperData_t', 'MapperData', dlist)
+    write_data(f, 'knh_MapperData0_t', 'MapperData0', dlist)
     pass
 
 def genkonoha():

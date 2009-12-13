@@ -47,8 +47,8 @@ knh_Script_t *new_Script(Ctx *ctx, knh_bytes_t nsname)
 	char buf[CLASSNAME_BUFSIZ];
 	knh_ClassTable_t *t = (knh_ClassTable_t*)(&ClassTable(cid));
 	knh_snprintf(buf, sizeof(buf), "%s.Script", (char*)nsname.buf);
-
-	KNH_ASSERT(ClassTable(cid).sname == NULL);
+	DBG2_ASSERT(ClassTable(cid).ofunc == NULL);
+	t->ofunc  = ClassTable(CLASS_Script).ofunc;
 
 	t->cflag  = CFLAG_Script;
 	t->oflag  = FLAG_Script;
@@ -57,19 +57,18 @@ knh_Script_t *new_Script(Ctx *ctx, knh_bytes_t nsname)
 	t->supcid = CLASS_Script;
 
 	t->offset = 0;
-	t->sid    = CLASS_Script;
+	t->ofunc = ClassTable(CLASS_Script).ofunc;
 	t->bsize  = KNH_SCRIPT_FIELDSIZE;
 	t->size = t->bsize * sizeof(knh_Object_t*);
 
 	knh_setClassName(ctx, cid, new_String(ctx, B(buf), NULL));
 	KNH_INITv(t->cstruct, new_ClassField0(ctx, KNH_SCRIPT_FIELDSIZE, KNH_SCRIPT_FIELDSIZE/2));
 
-	KNH_ASSERT(t->cmap == NULL);
+	DBG2_ASSERT(t->cmap == NULL);
 	KNH_INITv(t->cmap, ctx->share->ClassTable[CLASS_Script].cmap);
 
-	KNH_ASSERT(t->cspec == NULL);
+	DBG2_ASSERT(t->cspec == NULL);
 	knh_setClassDefaultValue(ctx, cid, UP(o), NULL);
-	StructTable(CLASS_Script).fnewClass(ctx, cid);
 
 	knh_Method_t *mtd = new_Method(ctx, 0, cid, METHODN_LAMBDA, NULL);
 	KNH_SETv(ctx, DP(mtd)->mf, knh_findMethodField0(ctx, TYPE_Any));

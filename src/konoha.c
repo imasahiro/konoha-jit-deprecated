@@ -67,10 +67,10 @@ int main(int argc, char **argv)
 				}
 			}
 			else {
-				knh_Gamma_t *kc = (konoha.ctx)->kc;
-				int score = DP(kc)->statKonohaStyle - DP(kc)->statBadManner;
-				score = score * 1000 / (DP(kc)->statStmt);
-				fprintf(stdout, "source score: %d\n", score);
+//				knh_Gamma_t *kc = (konoha.ctx)->kc;
+//				int score = DP(kc)->statKonohaStyle - DP(kc)->statBadManner;
+//				score = score * 1000 / (DP(kc)->statStmt);
+//				fprintf(stdout, "source score: %d\n", score);
 			}
 		}
 		else {

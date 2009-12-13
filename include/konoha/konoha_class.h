@@ -364,7 +364,7 @@ typedef struct knh_hashentry_t {
 } knh_hashentry_t;
 
 typedef knh_hashentry_t* (*knh_fhashentry_init)(Ctx *);
-typedef void (*knh_fhashentry_traverse)(Ctx *, knh_hashentry_t*, knh_ftraverse);
+typedef void KNH_CC_FASTCALL (*knh_fhashentry_traverse)(Ctx *, knh_hashentry_t*, knh_ftraverse);
 
 typedef struct {
 	size_t size;
@@ -394,7 +394,7 @@ typedef struct {
 typedef struct {
 	knh_hObject_t h;
 	knh_Hash_struct *b;
-	knh_fstruct_compareTo fcmp;
+	knh_fobject_compareTo fcmp;
 	knh_hash_op *hashop;
 } knh_Hash_t ;
 

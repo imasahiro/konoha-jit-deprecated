@@ -829,6 +829,12 @@ static METHOD Exception__dump(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 /* ======================================================================== */
 /* [data] */
 
+static int knh_Object_isFieldObject(Ctx *ctx, Object *o)
+{
+	return knh_Object_bcid(o) == CLASS_Script
+		|| ClassTable(knh_Object_cid(o)).ofunc == ClassTable(CLASS_Object).ofunc;
+}
+
 /* ------------------------------------------------------------------------ */
 //## method void Object.%data(OutputStream w, String? fmt);
 
@@ -839,7 +845,7 @@ static METHOD Object__data(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 	if(knh_Object_isUndefined(o)) {
 		knh_write(ctx, w, STEXT("null/*undefined*/"));
 	}
-	else if(knh_Object_bcid(o) == CLASS_Object && knh_Object_cid(o) > KNH_TSTRUCT_SIZE) {
+	else if(knh_Object_isFieldObject(ctx, o)) {
 		knh_intptr_t i;
 		knh_class_t cid = knh_Object_cid(o);
 		Object **v = (Object**)o->ref;
@@ -1042,8 +1048,8 @@ static
 void knh_ClassCONST__man(Ctx *ctx, knh_class_t cid, knh_OutputStream_t *w)
 {
 	DBG2_ASSERT_cid(cid);
-	if(ClassTable(cid).constPool == NULL) return ;
-	knh_DictMap_t *tcmap = ClassTable(cid).constPool;
+	if(ClassTable(cid).constDictMap == NULL) return ;
+	knh_DictMap_t *tcmap = ClassTable(cid).constDictMap;
 	size_t i, size = knh_DictMap_size(tcmap);
 	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
 	int hasCaption = 0;

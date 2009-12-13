@@ -80,8 +80,7 @@ static knh_System_t *new_System(Ctx *ctx)
 
 /* ------------------------------------------------------------------------ */
 
-static
-void knh_Object_finalSweep(Ctx *ctx, Object *o)
+static FASTAPI(void) knh_Object_finalSweep(Ctx *ctx, Object *o)
 {
 	// DO Nothing;
 }
@@ -148,7 +147,7 @@ void knh_Context_initCommon(Ctx *ctx, knh_Context_t *o, size_t stacksize)
 		}
 	}
 
-	o->cachesize = (KNH_TCLASS_SIZE / 2) + 1;
+	o->cachesize = 509 /* prime number */;
 	o->mtdCache = (knh_Method_t**)KNH_MALLOC(ctx, sizeof(knh_Method_t*) * o->cachesize);
 	o->fmtCache = (knh_Method_t**)KNH_MALLOC(ctx, sizeof(knh_Method_t*) * o->cachesize);
 	o->mprCache = (knh_Mapper_t**)KNH_MALLOC(ctx, sizeof(knh_Mapper_t*) * o->cachesize);
@@ -297,7 +296,46 @@ void knh_unlockID(Ctx *ctx, knh_lock_t lockid, char *filename, int lineno)
 /* ------------------------------------------------------------------------ */
 
 static
-void knh_initSharedData(knh_Context_t *ctx)
+void knh_initClassTable(knh_ClassTable_t *t, size_t s, size_t e)
+{
+	size_t i;
+	knh_bzero(&t[s], SIZEOF_TCLASS(e-s));
+	for(i = s; i < e; i++) {
+		t[i].p1     = CLASS_Tvoid;
+		t[i].p2       = CLASS_Tvoid;
+		t[i].keyidx   = -1;
+		t[i].keyidx2   = -1;
+		t[i].fdefault = knh_fdefault__NEWVALUE;
+	}
+}
+
+/* ------------------------------------------------------------------------ */
+
+void knh_expandClassTable(Ctx *ctx)
+{
+	size_t s = ctx->share->ClassTableSize, max = ctx->share->ClassTableMax * 2;
+	knh_ClassTable_t *newt = (knh_ClassTable_t*)KNH_MALLOC(ctx, SIZEOF_TCLASS(max));
+	knh_memcpy(newt, ctx->share->ClassTable, SIZEOF_TCLASS(s));
+	knh_initClassTable(newt, s, max);
+	((knh_SharedData_t*)ctx->share)->ClassTable = newt;
+	((knh_SharedData_t*)ctx->share)->ClassTableMax = max;
+}
+
+/* ------------------------------------------------------------------------ */
+
+void knh_expandExptTable(Ctx *ctx)
+{
+	size_t s = ctx->share->ExptTableSize, max = ctx->share->ExptTableMax * 2;
+	knh_ExptTable_t *newt = (knh_ExptTable_t*)KNH_MALLOC(ctx, SIZEOF_TEXPT(max));
+	knh_bzero(newt, SIZEOF_TEXPT(max));
+	knh_memcpy(newt, ctx->share->ExptTable, SIZEOF_TEXPT(s));
+	((knh_SharedData_t*)ctx->share)->ExptTable = newt;
+	((knh_SharedData_t*)ctx->share)->ExptTableMax = max;
+}
+
+/* ------------------------------------------------------------------------ */
+
+static void knh_initSharedData(knh_Context_t *ctx)
 {
 	size_t i;
 	knh_SharedData_t *share = (knh_SharedData_t*)malloc(sizeof(knh_SharedData_t) + sizeof(knh_ctxstat_t));
@@ -307,12 +345,12 @@ void knh_initSharedData(knh_Context_t *ctx)
 	ctx->stat = (knh_ctxstat_t*)((share+1));
 
 	DBG2_ASSERT(share->ObjectPageTable == NULL);
-	share->ObjectPageTableMaxSize = KNH_TOBJECTPAGE_INITSIZE;
+	share->ObjectPageTableMax = KNH_TOBJECTPAGE_INITSIZE;
 	share->ObjectPageTable =
 		(knh_ObjectPageTable_t*)KNH_MALLOC(ctx,
-			share->ObjectPageTableMaxSize * sizeof(knh_ObjectPageTable_t));
+			share->ObjectPageTableMax * sizeof(knh_ObjectPageTable_t));
 	knh_bzero(share->ObjectPageTable,
-		share->ObjectPageTableMaxSize * sizeof(knh_ObjectPageTable_t));
+		share->ObjectPageTableMax * sizeof(knh_ObjectPageTable_t));
 	share->ObjectPageTableSize = 0;
 
 	DBG2_ASSERT(share->LockTable == NULL);
@@ -327,29 +365,18 @@ void knh_initSharedData(knh_Context_t *ctx)
 	}
 	share->unusedLockTable = &(share->LockTable[LOCK_UNUSED]);
 
-	DBG2_ASSERT(share->StructTable == NULL);
-	share->StructTable = (knh_StructTable_t*)KNH_MALLOC(ctx, SIZEOF_TSTRUCT);
-	knh_bzero((void*)share->StructTable, SIZEOF_TSTRUCT);
-	share->StructTableSize = 0;
-
 	DBG2_ASSERT(share->ClassTable == NULL);
-	share->ClassTable = (knh_ClassTable_t*)KNH_MALLOC((Ctx*)ctx, SIZEOF_TCLASS);
-	knh_bzero((void*)share->ClassTable, SIZEOF_TCLASS);
-	for(i = 0; i < KNH_TCLASS_SIZE; i++) {
-		knh_ClassTable_t *t = pClassTable(i);
-		t->p1       = CLASS_Tvoid;   /* @deps knh_class_isGenerics(cid)*/
-		t->p2       = CLASS_Tvoid;
-		t->keyidx   = -1;
-		t->keyidx2   = -1;
-		t->fdefault = knh_fdefault__NEWVALUE;
-	}
-	share->ClassTableSize = KNH_TCLASS_SIZE;
-	share->ExptTable = (knh_ExptTable_t*)KNH_MALLOC(ctx, SIZEOF_TEXPT);
-	knh_bzero((void*)share->ExptTable, SIZEOF_TEXPT);
+	share->ClassTable = (knh_ClassTable_t*)KNH_MALLOC((Ctx*)ctx, SIZEOF_TCLASS(KNH_CLASSTABLE_INIT));
+	knh_initClassTable((knh_ClassTable_t*)share->ClassTable, 0, KNH_CLASSTABLE_INIT);
+	share->ClassTableSize = 0;
+	share->ClassTableMax  = KNH_CLASSTABLE_INIT;
+
+	share->ExptTable = (knh_ExptTable_t*)KNH_MALLOC(ctx, SIZEOF_TEXPT(KNH_EXPTTABLE_INIT));
+	knh_bzero((void*)share->ExptTable, SIZEOF_TEXPT(KNH_EXPTTABLE_INIT));
 	share->ExptTableSize = 0;
+	share->ExptTableMax  = KNH_EXPTTABLE_INIT;
 
 	knh_loadSystemStructData(ctx);
-
 	KNH_INITv(share->constNull, new_Null(ctx));
 	KNH_INITv(share->constTrue, new_Boolean0(ctx, 1));
 	KNH_INITv(share->constFalse, new_Boolean0(ctx, 0));
@@ -449,17 +476,13 @@ void knh_traverseSharedData(Ctx *ctx, knh_SharedData_t *share, knh_ftraverse ftr
 
 	/* tclass */
 	if(IS_SWEEP(ftr)) {
-		for(i = 0; i < share->StructTableSize; i++) {
-			DBG2_ASSERT(ClassTable(i).sname != NULL);
-			knh_ClassField_toAbstractAll(ctx, ClassTable(i).cstruct);
-		}
-		for(i = share->ClassTableSize; i < KNH_TCLASS_SIZE; i++) {
+		for(i = 0; i < share->ClassTableSize; i++) {
 			DBG2_ASSERT(ClassTable(i).sname != NULL);
 			knh_ClassField_toAbstractAll(ctx, ClassTable(i).cstruct);
 		}
 	}
 
-	for(i = 0; i < share->StructTableSize; i++) {
+	for(i = 0; i < share->ClassTableSize; i++) {
 		DBG2_ASSERT(ClassTable(i).sname != NULL);
 		if(ClassTable(i).class_cid != NULL)
 			ftr(ctx, UP(ClassTable(i).class_cid));
@@ -469,46 +492,13 @@ void knh_traverseSharedData(Ctx *ctx, knh_SharedData_t *share, knh_ftraverse ftr
 		if(ClassTable(i).cspec != NULL) {
 			ftr(ctx, UP(ClassTable(i).cspec));
 		}
-		if(ClassTable(i).constPool != NULL) {
-			ftr(ctx, UP(ClassTable(i).constPool));
-		}
-		if(ClassTable(i).dataList != NULL) {
-			ftr(ctx, UP(ClassTable(i).dataList));
-		}
-		if(ClassTable(i).dataKeyMap != NULL) {
-			ftr(ctx, UP(ClassTable(i).dataKeyMap));
+		if(ClassTable(i).constDictMap != NULL) {
+			ftr(ctx, UP(ClassTable(i).constDictMap));
 		}
 		ftr(ctx, UP(ClassTable(i).lname));
 	}
 
-	for(i = share->ClassTableSize; i < KNH_TCLASS_SIZE; i++) {
-		DBG2_ASSERT(ClassTable(i).sname != NULL);
-		if(ClassTable(i).class_cid != NULL)
-			ftr(ctx, UP(ClassTable(i).class_cid));
-		if(ClassTable(i).class_natype != NULL)
-			ftr(ctx, UP(ClassTable(i).class_natype));
-		ftr(ctx, UP(ClassTable(i).cmap));
-		if(ClassTable(i).cspec != NULL) {
-			ftr(ctx, UP(ClassTable(i).cspec));
-		}
-		if(ClassTable(i).constPool != NULL) {
-			ftr(ctx, UP(ClassTable(i).constPool));
-		}
-		if(ClassTable(i).dataList != NULL) {
-			ftr(ctx, UP(ClassTable(i).dataList));
-		}
-		if(ClassTable(i).dataKeyMap != NULL) {
-			ftr(ctx, UP(ClassTable(i).dataKeyMap));
-		}
-		ftr(ctx, UP(ClassTable(i).lname));
-	}
-
-	for(i = 0; i < share->StructTableSize; i++) {
-		DBG2_ASSERT(ClassTable(i).sname != NULL);
-		ftr(ctx, UP(ClassTable(i).cstruct));
-		ftr(ctx, UP(ClassTable(i).sname));
-	}
-	for(i = share->ClassTableSize; i < KNH_TCLASS_SIZE; i++) {
+	for(i = 0; i < share->ClassTableSize; i++) {
 		DBG2_ASSERT(ClassTable(i).sname != NULL);
 		ftr(ctx, UP(ClassTable(i).cstruct));
 		ftr(ctx, UP(ClassTable(i).sname));
@@ -518,7 +508,7 @@ void knh_traverseSharedData(Ctx *ctx, knh_SharedData_t *share, knh_ftraverse ftr
 	if(IS_SWEEP(ftr)) {
 		DBG2_P("*** FREEING ALL SYSTEM TABLES ***");
 
-		KNH_FREE(ctx, (void*)share->ExptTable, SIZEOF_TEXPT);
+		KNH_FREE(ctx, (void*)share->ExptTable, SIZEOF_TEXPT(ctx->share->ExptTableMax));
 		share->ExptTable = NULL;
 		KNH_FREE(ctx, share->tString, SIZEOF_TSTRING);
 		share->tString = NULL;
@@ -534,14 +524,11 @@ void knh_traverseSharedData(Ctx *ctx, knh_SharedData_t *share, knh_ftraverse ftr
 		KNH_FREE(ctx, share->LockTable, SIZEOF_TLOCK);
 		share->unusedLockTable = NULL;
 
-		KNH_FREE(ctx, (void*)share->ClassTable, SIZEOF_TCLASS);
+		KNH_FREE(ctx, (void*)share->ClassTable, SIZEOF_TCLASS(share->ClassTableMax));
 		share->ClassTable = NULL;
 
-		KNH_FREE(ctx, (void*)share->StructTable, SIZEOF_TSTRUCT);
-		share->StructTable = NULL;
-
 		KNH_FREE(ctx, share->ObjectPageTable,
-				share->ObjectPageTableMaxSize * sizeof(knh_ObjectPageTable_t));
+				share->ObjectPageTableMax * sizeof(knh_ObjectPageTable_t));
 		share->ObjectPageTable = NULL;
 
 		if(ctx->stat->usedMemorySize != 0) {
@@ -705,7 +692,7 @@ KNHAPI(void) konoha_close(konoha_t konoha)
 	}
 	{
 		knh_ObjectField_t *scr = (knh_ObjectField_t*)knh_NameSpace_getScript(ctx, ctx->share->mainns);
-		StructTable(CLASS_ObjectField).ftraverse(ctx, UP(scr), ctx->fsweep);
+		ClassTable(CLASS_ObjectField).ofunc->traverse(ctx, UP(scr), ctx->fsweep);
 		(scr)->h.cid = CLASS_Object;
 		(scr)->h.bcid = CLASS_Object;
 		KNH_FREE(ctx, scr->fields, sizeof(Object*) * KNH_SCRIPT_FIELDSIZE);

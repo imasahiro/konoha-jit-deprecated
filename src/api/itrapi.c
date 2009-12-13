@@ -164,7 +164,6 @@ static knh_Iterator_t *new_RangeIterator(Ctx *ctx, knh_Range_t *rng)
 static MAPPER Range_Iterator(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	KNH_MAPPED(ctx, sfp, new_RangeIterator(ctx, sfp[0].range));
-
 }
 
 /* ------------------------------------------------------------------------ */

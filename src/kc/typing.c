@@ -638,7 +638,7 @@ void knh_Token_toCLASSID(Ctx *ctx, knh_Token_t *o, knh_class_t cid)
 	TT_(o) = TT_CLASSID;
 	DP(o)->cid = cid;
 	DP(o)->type = NNTYPE_Class;
-	KNH_SETv(ctx, DP(o)->data, new_Class(ctx, cid));
+	KNH_SETv(ctx, DP(o)->data, new_Type(ctx, cid));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -2157,7 +2157,7 @@ static Term* knh_StmtDOMAIN_typing(Ctx *ctx, knh_Stmt_t *stmt)
 			cid = TERMs_getcid(stmt, 2);
 		}
 		DBG2_ASSERT_cid(cid);
-		knh_Token_setCONST(ctx, DP(stmt)->tokens[1], UP(new_Class(ctx, cid)));
+		knh_Token_setCONST(ctx, DP(stmt)->tokens[1], UP(new_Type(ctx, cid)));
 		DP(stmt)->size = 2;
 		knh_Token_toMTD(ctx, DP(stmt)->tokens[0], METHODN_domain, knh_Class_getMethod(ctx, CLASS_Class, METHODN_domain));
 		return knh_Stmt_typed(ctx, stmt, NNTYPE_cid(knh_class_Generics(ctx, CLASS_Array, cid, CLASS_Any)));
@@ -4726,7 +4726,7 @@ void knh_Gamma_declareClassField(Ctx *ctx, knh_NameSpace_t* ns, knh_class_t cid)
 	}
 	(t->cstruct)->fields = cf;
 	(t->cstruct)->fsize = fsize;
-	t->sid = BSIZE_TOSID(fsize);
+	t->ofunc = ClassTable(CLASS_Object).ofunc;
 	if(t->supcid != CLASS_Object) {
 		t->offset = ClassTable(t->supcid).bsize;
 		//DBG2_P("offset extending 0 -> %d", TC->offset);
@@ -4749,7 +4749,7 @@ void knh_Gamma_declareClassField(Ctx *ctx, knh_NameSpace_t* ns, knh_class_t cid)
 		else {
 			of->fields = (knh_Object_t**)KNH_MALLOC(ctx, sizeof(Object*) * of->bsize);
 			//knh_ObjectField_init(ctx, of, 0);
-			StructTable(CLASS_ObjectField).finit(ctx, UP(of), 0);
+			ClassTable(CLASS_ObjectField).ofunc->init(ctx, UP(of), 0);
 		}
 	}
 }

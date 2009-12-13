@@ -127,15 +127,15 @@ knh_Object_t *new_UnusedObject(Ctx *ctx)
 {
 	KNH_LOCK(ctx, LOCK_MEMORY, NULL);
 	int tindex = ctx->share->ObjectPageTableSize;
-	if(unlikely(!(tindex < ctx->share->ObjectPageTableMaxSize))) {
-		size_t newsize = ctx->share->ObjectPageTableMaxSize * 2;
+	if(unlikely(!(tindex < ctx->share->ObjectPageTableMax))) {
+		size_t newsize = ctx->share->ObjectPageTableMax * 2;
 		knh_ObjectPageTable_t *newpage
 			= (knh_ObjectPageTable_t*)KNH_MALLOC(ctx, sizeof(knh_ObjectPageTable_t) * newsize);
 		knh_bzero(newpage, sizeof(knh_ObjectPageTable_t) * newsize);
-		knh_memcpy(newpage, ctx->share->ObjectPageTable, ctx->share->ObjectPageTableMaxSize);
-		KNH_FREE(ctx, ctx->share->ObjectPageTable, ctx->share->ObjectPageTableMaxSize);
+		knh_memcpy(newpage, ctx->share->ObjectPageTable, ctx->share->ObjectPageTableMax);
+		KNH_FREE(ctx, ctx->share->ObjectPageTable, ctx->share->ObjectPageTableMax);
 		((knh_SharedData_t*)ctx->share)->ObjectPageTable = newpage;
-		((knh_SharedData_t*)ctx->share)->ObjectPageTableMaxSize = newsize;
+		((knh_SharedData_t*)ctx->share)->ObjectPageTableMax = newsize;
 	}
 	((knh_SharedData_t*)ctx->share)->ObjectPageTableSize += 1;
 	KNH_UNLOCK(ctx, LOCK_MEMORY, NULL);
@@ -271,8 +271,6 @@ void knh_fastfree(Ctx *ctx, void *block, size_t size)
 knh_Object_t *new_hObject(Ctx *ctx, knh_flag_t flag, knh_class_t bcid, knh_class_t cid)
 {
 	DBG2_ASSERT(bcid != CLASS_Context);
-	DBG2_ASSERT(bcid < KNH_TSTRUCT_SIZE);
-	DBG2_ASSERT(ctx != NULL);
 	CHECK_UNUSED_OBJECT(ctx);
 	{
 		knh_Object_t *o = ctx->unusedObject;
@@ -293,10 +291,9 @@ knh_Object_t *new_hObject(Ctx *ctx, knh_flag_t flag, knh_class_t bcid, knh_class
 
 /* ------------------------------------------------------------------------ */
 
-knh_Object_t *new_Object_bcid(Ctx *ctx, knh_class_t bcid, int init)
+knh_Object_t *new_Object_bcid(Ctx *ctx, /*knh_flag_t flag,*/ knh_class_t bcid, int init)
 {
 	DBG2_ASSERT(bcid != CLASS_Context);
-	DBG2_ASSERT(bcid < KNH_TSTRUCT_SIZE);
 	CHECK_UNUSED_OBJECT(ctx);
 	{
 		knh_Object_t *o = ctx->unusedObject;
@@ -305,20 +302,19 @@ knh_Object_t *new_Object_bcid(Ctx *ctx, knh_class_t bcid, int init)
 		knh_stat_incUsedObjectSize(ctx, 1);
 		o->h.magic = KNH_OBJECT_MAGIC;
 		knh_Object_RCset(o, KNH_RCGC_INIT);
-		o->h.flag = ctx->share->StructTable[bcid].flag;
+		o->h.flag = ClassTable(bcid).oflag;
 		o->h.bcid = bcid;
 		o->h.cid  = bcid;
 		o->h.ctxid = ctx->ctxid;
 		o->h.lock  = LOCK_NOP;
-		size_t size = ctx->share->StructTable[bcid].size;
-		//DBG2_P("cid=%d,%s,size=%d", bcid, STRUCTN(bcid), size);
+		size_t size = ClassTable(bcid).size;
 		if(size > 0) {
 			o->ref = KNH_MALLOC(ctx, size);
 		}
 		else {
 			o->ref = NULL;
 		}
-		ctx->share->StructTable[bcid].finit(ctx, o, init);
+		ClassTable(bcid).ofunc->init(ctx, o, init);
 		return o;
 	}
 }
@@ -350,7 +346,7 @@ knh_Object_t *new_Object_init(Ctx *ctx, knh_flag_t flag, knh_class_t cid, int in
 		else {
 			o->ref = NULL;
 		}
-		ctx->share->StructTable[bcid].finit(ctx, o, init);
+		ClassTable(bcid).ofunc->init(ctx, o, init);
 		return o;
 	}
 }
@@ -381,17 +377,16 @@ KNHAPI(Object*) new_Object_boxing(Ctx *ctx, knh_class_t cid, knh_sfp_t *sfp)
 
 /* ------------------------------------------------------------------------ */
 
-void knh_Object_free(Ctx *ctx, knh_Object_t *o)
+FASTAPI(void) knh_Object_free(Ctx *ctx, knh_Object_t *o)
 {
 	DBG_ASSERT_FREE();
 #ifdef KNH_USING_RCGC
 	DBG2_ASSERT(knh_Object_isRC0(o));
 #endif
-//	DBG2_P("o=%p, sid=%d,%s", o, o->h.bcid, STRUCTN(o->h.bcid));
 	if(unlikely(o->h.magic == 0)) return;
 	if(unlikely(o->h.bcid == CLASS_Context)) return;
 	o->h.magic = 0;
-	StructTable(o->h.bcid).ftraverse(ctx, o, knh_Object_sweep);
+	ClassTable(o->h.bcid).ofunc->traverse(ctx, o, knh_Object_sweep);
 	size_t size = ClassTable(o->h.cid).size;
 	if(size > 0) {
 		KNH_FREE(ctx, o->ref, size);
@@ -408,7 +403,7 @@ void knh_Object_traverse(Ctx *ctx, knh_Object_t *o, knh_ftraverse ftr)
 		knh_Object_free(ctx, o);
 	}
 	else {
-		StructTable(o->h.bcid).ftraverse(ctx, o, ftr);
+		ClassTable(o->h.bcid).ofunc->traverse(ctx, o, knh_Object_sweep);
 	}
 }
 
@@ -420,7 +415,8 @@ volatile static size_t markedObjectSize = 0;
 
 /* ------------------------------------------------------------------------ */
 
-void knh_Object_mark1(Ctx *ctx, Object *o)
+static
+FASTAPI(void) knh_Object_mark1(Ctx *ctx, Object *o)
 {
 	if(IS_Context(o)) {
 		//DBG2_P("marked %p, cid=%d,%s", o, knh_Object_cid(o), CLASSN(knh_Object_cid(o)));
@@ -447,8 +443,7 @@ void knh_Object_mark1(Ctx *ctx, Object *o)
 
 /* ------------------------------------------------------------------------ */
 
-static
-void knh_Object_finalSweep(Ctx *ctx, Object *o)
+static FASTAPI(void) knh_Object_finalSweep(Ctx *ctx, Object *o)
 {
 	// DO Nothing;
 }
@@ -517,7 +512,7 @@ void knh_System_gc(Ctx *ctx)
 /* ------------------------------------------------------------------------ */
 /* [RCGC] */
 
-void knh_Object_RCsweep(Ctx *ctx, Object *o)
+FASTAPI(void) knh_Object_RCsweep(Ctx *ctx, Object *o)
 {
 	knh_Object_RCdec(o);
 	if(knh_Object_isRC0(o)) {

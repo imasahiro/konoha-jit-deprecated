@@ -180,9 +180,9 @@ knh_Object_t *knh_fdefault__NEWCLOSURE(Ctx *ctx, knh_class_t cid)
 
 	DBG2_P("create new default value of %s", CLASSN(cid));
 	KNH_ASSERT(t->cspec == NULL);
-	KNH_INITv(t->cspec, cc);
+	KNH_INITv(t->defval, cc);
 	t->fdefault = knh_fdefault__CONST;
-	return t->cspec;
+	return t->defval;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -194,8 +194,6 @@ knh_addClosureClass(Ctx *ctx, knh_class_t cid, knh_String_t *name, knh_type_t r0
 	knh_flag_t mask = 0;
 	if(cid == CLASS_newid) {
 		cid = knh_ClassTable_newId(ctx);
-	} else {
-		((knh_SharedData_t*)ctx->share)->ClassTableSize = cid;
 	}
 	/* knh_ClassTable_t */ t = pClassTable(cid);
 	KNH_ASSERT(ClassTable(cid).sname == NULL);
@@ -210,7 +208,7 @@ knh_addClosureClass(Ctx *ctx, knh_class_t cid, knh_String_t *name, knh_type_t r0
 	knh_setClassName(ctx, cid, name);
 	t->cflag  = ClassTable(CLASS_Closure).cflag | mask;
 	t->oflag  = ClassTable(CLASS_Closure).oflag;
-	t->sid    = ClassTable(CLASS_Closure).sid;
+	t->ofunc    = ClassTable(CLASS_Closure).ofunc;
 
 	t->bcid   = CLASS_Closure;
 	t->supcid = ClassTable(CLASS_Closure).supcid;
@@ -225,17 +223,9 @@ knh_addClosureClass(Ctx *ctx, knh_class_t cid, knh_String_t *name, knh_type_t r0
 	t->p1 = p1;
 	t->p2 = p2;
 	t->p3 = p3;
-	StructTable(CLASS_Closure).fnewClass(ctx, cid);
+	knh_setClassDefaultValue(ctx, cid, NULL, knh_fdefault__NEWCLOSURE);
 	return cid;
 }
-
-/* ------------------------------------------------------------------------ */
-
-void knh_Closure_newClass(Ctx *ctx, knh_class_t cid)
-{
-	knh_setClassDefaultValue(ctx, cid, NULL, knh_fdefault__NEWCLOSURE);
-}
-
 
 /* ------------------------------------------------------------------------ */
 
@@ -433,9 +423,8 @@ knh_class_t knh_addThunkClass(Ctx *ctx, knh_class_t cid, knh_String_t *name, knh
 	knh_flag_t mask = 0;
 	if(cid == CLASS_newid) {
 		cid = knh_ClassTable_newId(ctx);
-	} else {
-		((knh_SharedData_t*)ctx->share)->ClassTableSize = cid;
 	}
+
 	/* knh_ClassTable_t */ t = pClassTable(cid);
 	KNH_ASSERT(ClassTable(cid).sname == NULL);
 	if(knh_class_isTypeVariable(CLASS_type(rtype))) {
@@ -445,7 +434,7 @@ knh_class_t knh_addThunkClass(Ctx *ctx, knh_class_t cid, knh_String_t *name, knh
 	knh_setClassName(ctx, cid, name);
 	t->cflag  = ClassTable(CLASS_Thunk).cflag | mask;
 	t->oflag  = ClassTable(CLASS_Thunk).oflag;
-	t->sid    = ClassTable(CLASS_Thunk).sid;
+	t->ofunc  = ClassTable(CLASS_Thunk).ofunc;
 
 	t->bcid   = CLASS_Thunk;
 	t->supcid = ClassTable(CLASS_Thunk).supcid;
@@ -458,7 +447,6 @@ knh_class_t knh_addThunkClass(Ctx *ctx, knh_class_t cid, knh_String_t *name, knh
 	KNH_INITv(t->cmap, new_ClassMap0(ctx, 0));
 	t->p1 = rtype;
 	t->p2 = CLASS_Tvoid;
-	StructTable(CLASS_Thunk).fnewClass(ctx, cid);
 	return cid;
 }
 

@@ -47,8 +47,8 @@ extern "C" {
 
 knh_NameSpace_t* new_NameSpace(Ctx *ctx, knh_String_t *nsname)
 {
-	knh_NameSpace_t* ns = (knh_NameSpace_t*)new_Object_bcid(ctx, CLASS_NameSpace, KNH_OBJECT_RAWINIT);
-	KNH_INITv(DP(ns)->nsname, nsname);
+	knh_NameSpace_t* ns = (knh_NameSpace_t*)new_Object_bcid(ctx, CLASS_NameSpace, 0);
+	KNH_SETv(ctx, DP(ns)->nsname, nsname);
 	return ns;
 }
 
@@ -309,7 +309,7 @@ void knh_NameSpace_importClass(Ctx *ctx, knh_NameSpace_t *o, knh_bytes_t pkgname
 	if(pkgname.buf[pkgname.len-1] == '.') {
 		pkgname.len--;
 	}
-	for(i = 0; i < KNH_TCLASS_SIZE; i++) {
+	for(i = 0; i < ctx->share->ClassTableSize; i++) {
 		if(ClassTable(i).sname == NULL) continue;
 		KNH_ASSERT(IS_bString(ClassTable(i).lname));
 		if(knh_class_isPrivate(i)) continue;

@@ -45,7 +45,7 @@ extern "C" {
 
 static METHOD Object_getClass(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
-	KNH_RETURN(ctx, sfp, new_Class(ctx, (sfp[0].o)->h.cid));
+	KNH_RETURN(ctx, sfp, new_Type(ctx, (sfp[0].o)->h.cid));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -53,14 +53,8 @@ static METHOD Object_getClass(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 
 static METHOD Object_hashCode(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
-	knh_hashcode_t h = 0;
-	knh_Object_t *o = sfp[0].o;
-	if(IS_bInt(o) || IS_bFloat(o) || IS_bBoolean(o)) {
-		h = (knh_hashcode_t)sfp[0].ivalue;
-	}
-	else {
-		h = StructTable(o->h.bcid).fhashCode(ctx, o);
-	}
+	knh_hashcode_t h =
+		(knh_hashcode_t)ClassTable(knh_Object_bcid(sfp[0].o)).ofunc->hashkey(ctx, sfp, KNH_FOBJECT_HASH);
 	KNH_RETURN_Int(ctx, sfp, h);
 }
 
@@ -85,7 +79,10 @@ static METHOD Object_isNotNull(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 
 static METHOD Object_getKey(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
-	KNH_RETURN(ctx, sfp, StructTable(knh_Object_bcid(sfp[0].o)).fgetkey(ctx, sfp));
+	knh_String_t *s =
+		(knh_String_t*)ClassTable(knh_Object_bcid(sfp[0].o)).ofunc->hashkey(ctx, sfp, KNH_FOBJECT_KEY);
+	KNH_ASSERT(IS_String(s));
+	KNH_RETURN(ctx, sfp, s);
 }
 
 /* ======================================================================== */

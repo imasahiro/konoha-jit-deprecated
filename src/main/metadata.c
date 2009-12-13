@@ -43,50 +43,50 @@ extern "C" {
 //	return 1;
 //}
 
-/* ------------------------------------------------------------------------ */
-
-Object *knh_getKeyObject(Ctx *ctx, knh_String_t *key)
-{
-	knh_class_t cid;
-	knh_bytes_t k = __tobytes(key);
-	k = knh_bytes_parsecid(ctx, k, ':', &cid);
-	if(cid == CLASS_unknown) cid = CLASS_Object;
-	DBG2_ASSERT_cid(cid);
-	{
-		knh_ClassTable_t *t = (knh_ClassTable_t*)(&ClassTable(cid));
-		if(t->dataKeyMap == NULL) return KNH_NULL;
-		return knh_DictMap_get__b(ctx, t->dataKeyMap, k);
-	}
-}
-
-/* ------------------------------------------------------------------------ */
-
-void knh_addKeyObject(Ctx *ctx, Object *value)
-{
-	knh_String_t *key = knh_Object_key(ctx, value);
-	knh_bytes_t k = __tobytes(key);
-	knh_class_t cid;
-	if(knh_bytes_index(k, ':') > 0) {
-		knh_bytes_parsecid(ctx, k, ':', &cid);
-		if(cid == CLASS_unknown) cid = CLASS_Object;
-	}
-	else {
-		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-		cid = knh_Object_cid(value);
-		knh_write_cid(ctx, cwb->w, knh_Object_cid(value));
-		knh_putc(ctx, cwb->w, ':');
-		knh_write(ctx, cwb->w, k);
-		key = knh_cwb_newString(ctx, cwb);
-	}
-	{
-		knh_ClassTable_t *t = (knh_ClassTable_t*)(&ClassTable(cid));
-		if(t->dataKeyMap == NULL) {
-			DBG2_P("initiating dataKeyMap of %s", CLASSN(cid));
-			KNH_INITv(t->dataKeyMap, new_DictMap0(ctx, 4));
-		}
-		return knh_DictMap_set(ctx, t->dataKeyMap, key, value);
-	}
-}
+///* ------------------------------------------------------------------------ */
+//
+//Object *knh_getKeyObject(Ctx *ctx, knh_String_t *key)
+//{
+//	knh_class_t cid;
+//	knh_bytes_t k = __tobytes(key);
+//	k = knh_bytes_parsecid(ctx, k, ':', &cid);
+//	if(cid == CLASS_unknown) cid = CLASS_Object;
+//	DBG2_ASSERT_cid(cid);
+//	{
+//		knh_ClassTable_t *t = (knh_ClassTable_t*)(&ClassTable(cid));
+//		if(t->dataKeyMap == NULL) return KNH_NULL;
+//		return knh_DictMap_get__b(ctx, t->dataKeyMap, k);
+//	}
+//}
+//
+///* ------------------------------------------------------------------------ */
+//
+//void knh_addKeyObject(Ctx *ctx, Object *value)
+//{
+//	knh_String_t *key = knh_Object_key(ctx, value);
+//	knh_bytes_t k = __tobytes(key);
+//	knh_class_t cid;
+//	if(knh_bytes_index(k, ':') > 0) {
+//		knh_bytes_parsecid(ctx, k, ':', &cid);
+//		if(cid == CLASS_unknown) cid = CLASS_Object;
+//	}
+//	else {
+//		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
+//		cid = knh_Object_cid(value);
+//		knh_write_cid(ctx, cwb->w, knh_Object_cid(value));
+//		knh_putc(ctx, cwb->w, ':');
+//		knh_write(ctx, cwb->w, k);
+//		key = knh_cwb_newString(ctx, cwb);
+//	}
+//	{
+//		knh_ClassTable_t *t = (knh_ClassTable_t*)(&ClassTable(cid));
+//		if(t->dataKeyMap == NULL) {
+//			DBG2_P("initiating dataKeyMap of %s", CLASSN(cid));
+//			KNH_INITv(t->dataKeyMap, new_DictMap0(ctx, 4));
+//		}
+//		return knh_DictMap_set(ctx, t->dataKeyMap, key, value);
+//	}
+//}
 
 /* ======================================================================== */
 

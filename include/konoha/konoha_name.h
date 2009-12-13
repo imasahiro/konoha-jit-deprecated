@@ -2,9 +2,8 @@
 
 /* ======================================================================== */
 /* MACROS */
-#define KONOHA_REVISION                 1023
-#define KONOHA_BUILDID                  761
-#define KONOHA_EXPIRE                   1260710476LL
+#define KONOHA_REVISION                 1025
+#define KONOHA_BUILDID                  768
 
 /* ======================================================================== */
 /* STRUCT */
@@ -613,7 +612,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* This */
-#define CLASS_This              ((knh_class_t)KNH_TCLASS_SIZE-(0+1))
+#define CLASS_This              ((knh_class_t)50)
 #define STRUCT_This             STRUCT_Any
 #define IS_This(o)              ((o)->h.cid == CLASS_This)
 #define TYPE_This               CLASS_This
@@ -624,7 +623,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* Tvoid */
-#define CLASS_Tvoid             ((knh_class_t)KNH_TCLASS_SIZE-(1+1))
+#define CLASS_Tvoid             ((knh_class_t)51)
 #define STRUCT_Tvoid            STRUCT_Any
 #define IS_Tvoid(o)             ((o)->h.cid == CLASS_Tvoid)
 #define TYPE_Tvoid              CLASS_Tvoid
@@ -635,7 +634,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* T0 */
-#define CLASS_T0                ((knh_class_t)KNH_TCLASS_SIZE-(2+1))
+#define CLASS_T0                ((knh_class_t)52)
 #define STRUCT_T0               STRUCT_Any
 #define IS_T0(o)                ((o)->h.cid == CLASS_T0)
 #define TYPE_T0                 CLASS_T0
@@ -646,7 +645,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* T1 */
-#define CLASS_T1                ((knh_class_t)KNH_TCLASS_SIZE-(3+1))
+#define CLASS_T1                ((knh_class_t)53)
 #define STRUCT_T1               STRUCT_Any
 #define IS_T1(o)                ((o)->h.cid == CLASS_T1)
 #define TYPE_T1                 CLASS_T1
@@ -657,7 +656,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* T2 */
-#define CLASS_T2                ((knh_class_t)KNH_TCLASS_SIZE-(4+1))
+#define CLASS_T2                ((knh_class_t)54)
 #define STRUCT_T2               STRUCT_Any
 #define IS_T2(o)                ((o)->h.cid == CLASS_T2)
 #define TYPE_T2                 CLASS_T2
@@ -668,7 +667,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* T3 */
-#define CLASS_T3                ((knh_class_t)KNH_TCLASS_SIZE-(5+1))
+#define CLASS_T3                ((knh_class_t)55)
 #define STRUCT_T3               STRUCT_Any
 #define IS_T3(o)                ((o)->h.cid == CLASS_T3)
 #define TYPE_T3                 CLASS_T3
@@ -679,7 +678,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* Tx */
-#define CLASS_Tx                ((knh_class_t)KNH_TCLASS_SIZE-(6+1))
+#define CLASS_Tx                ((knh_class_t)56)
 #define STRUCT_Tx               STRUCT_Any
 #define IS_Tx(o)                ((o)->h.cid == CLASS_Tx)
 #define TYPE_Tx                 CLASS_Tx
@@ -690,7 +689,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* Tvar */
-#define CLASS_Tvar              ((knh_class_t)KNH_TCLASS_SIZE-(7+1))
+#define CLASS_Tvar              ((knh_class_t)57)
 #define STRUCT_Tvar             STRUCT_Any
 #define IS_Tvar(o)              ((o)->h.cid == CLASS_Tvar)
 #define TYPE_Tvar               CLASS_Tvar
@@ -701,7 +700,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* PairSS */
-#define CLASS_PairSS            ((knh_class_t)KNH_TCLASS_SIZE-(8+1))
+#define CLASS_PairSS            ((knh_class_t)58)
 #define STRUCT_PairSS           STRUCT_Pair
 #define IS_PairSS(o)            ((o)->h.cid == CLASS_PairSS)
 #define TYPE_PairSS             CLASS_PairSS
@@ -712,7 +711,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* PairST1 */
-#define CLASS_PairST1           ((knh_class_t)KNH_TCLASS_SIZE-(9+1))
+#define CLASS_PairST1           ((knh_class_t)59)
 #define STRUCT_PairST1          STRUCT_Pair
 #define IS_PairST1(o)           ((o)->h.cid == CLASS_PairST1)
 #define TYPE_PairST1            CLASS_PairST1
@@ -723,7 +722,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* PairT1T2 */
-#define CLASS_PairT1T2          ((knh_class_t)KNH_TCLASS_SIZE-(10+1))
+#define CLASS_PairT1T2          ((knh_class_t)60)
 #define STRUCT_PairT1T2         STRUCT_Pair
 #define IS_PairT1T2(o)          ((o)->h.cid == CLASS_PairT1T2)
 #define TYPE_PairT1T2           CLASS_PairT1T2
@@ -734,7 +733,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* Cmpr */
-#define CLASS_Cmpr              ((knh_class_t)KNH_TCLASS_SIZE-(11+1))
+#define CLASS_Cmpr              ((knh_class_t)61)
 #define STRUCT_Cmpr             STRUCT_Closure
 #define IS_Cmpr(o)              ((o)->h.cid == CLASS_Cmpr)
 #define TYPE_Cmpr               CLASS_Cmpr
@@ -745,7 +744,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* String_Itr */
-#define CLASS_String_Itr        ((knh_class_t)KNH_TCLASS_SIZE-(12+1))
+#define CLASS_String_Itr        ((knh_class_t)62)
 #define STRUCT_String_Itr       STRUCT_Iterator
 #define IS_String_Itr(o)        ((o)->h.cid == CLASS_String_Itr)
 #define TYPE_String_Itr         CLASS_String_Itr
@@ -756,7 +755,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* T1_Itr */
-#define CLASS_T1_Itr            ((knh_class_t)KNH_TCLASS_SIZE-(13+1))
+#define CLASS_T1_Itr            ((knh_class_t)63)
 #define STRUCT_T1_Itr           STRUCT_Iterator
 #define IS_T1_Itr(o)            ((o)->h.cid == CLASS_T1_Itr)
 #define TYPE_T1_Itr             CLASS_T1_Itr
@@ -767,7 +766,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* PairST1_Itr */
-#define CLASS_PairST1_Itr       ((knh_class_t)KNH_TCLASS_SIZE-(14+1))
+#define CLASS_PairST1_Itr       ((knh_class_t)64)
 #define STRUCT_PairST1_Itr      STRUCT_Iterator
 #define IS_PairST1_Itr(o)       ((o)->h.cid == CLASS_PairST1_Itr)
 #define TYPE_PairST1_Itr        CLASS_PairST1_Itr
@@ -778,7 +777,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* PairT1T2_Itr */
-#define CLASS_PairT1T2_Itr      ((knh_class_t)KNH_TCLASS_SIZE-(15+1))
+#define CLASS_PairT1T2_Itr      ((knh_class_t)65)
 #define STRUCT_PairT1T2_Itr     STRUCT_Iterator
 #define IS_PairT1T2_Itr(o)      ((o)->h.cid == CLASS_PairT1T2_Itr)
 #define TYPE_PairT1T2_Itr       CLASS_PairT1T2_Itr
@@ -789,7 +788,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* This_Itr */
-#define CLASS_This_Itr          ((knh_class_t)KNH_TCLASS_SIZE-(16+1))
+#define CLASS_This_Itr          ((knh_class_t)66)
 #define STRUCT_This_Itr         STRUCT_Iterator
 #define IS_This_Itr(o)          ((o)->h.cid == CLASS_This_Itr)
 #define TYPE_This_Itr           CLASS_This_Itr
@@ -800,7 +799,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* Thrd */
-#define CLASS_Thrd              ((knh_class_t)KNH_TCLASS_SIZE-(17+1))
+#define CLASS_Thrd              ((knh_class_t)67)
 #define STRUCT_Thrd             STRUCT_Closure
 #define IS_Thrd(o)              ((o)->h.cid == CLASS_Thrd)
 #define TYPE_Thrd               CLASS_Thrd
@@ -811,7 +810,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* String_Ary */
-#define CLASS_String_Ary        ((knh_class_t)KNH_TCLASS_SIZE-(18+1))
+#define CLASS_String_Ary        ((knh_class_t)68)
 #define STRUCT_String_Ary       STRUCT_Array
 #define IS_String_Ary(o)        ((o)->h.cid == CLASS_String_Ary)
 #define TYPE_String_Ary         CLASS_String_Ary
@@ -819,6 +818,7 @@
 #define NATYPE_String_Ary       NATYPE_cid(CLASS_String_Ary)
 #define CFLAG_String_Ary        ((knh_flag_t)0)
 #define FLAG_String_Ary         knh_flag_oflag(CFLAG_String_Ary)
+#define KNH_CLASS_INITSIZE              70
 
 /* ======================================================================== */
 /* FLAG */

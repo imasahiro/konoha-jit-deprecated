@@ -60,7 +60,7 @@
 <listOptionValue builtIn="false" value="KNH_USING_READLINE"/>
 </option>
 <option id="gnu.c.compiler.option.include.paths.448397425" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
-<listOptionValue builtIn="false" value="&quot;${workspace_loc:/konoha-0.7/include}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/konoha/include}&quot;"/>
 </option>
 <option id="gnu.c.compiler.option.misc.other.114357357" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0" valueType="string"/>
 <option id="gnu.c.compiler.option.misc.ansi.1015537612" name="Support ANSI programs (-ansi)" superClass="gnu.c.compiler.option.misc.ansi" value="false" valueType="boolean"/>

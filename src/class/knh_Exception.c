@@ -54,13 +54,11 @@ static knh_expt_t knh_ExptTable_newId(Ctx *ctx)
 {
 	knh_class_t newid = 0;
 	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
-	if(!(ctx->share->ExptTableSize < KNH_TEXPT_SIZE)) {
-		KNH_EXIT("Enlarge KNH_TEXPT_SIZE %d", KNH_TEXPT_SIZE);
-		goto L_UNLOCK;
+	if(ctx->share->ExptTableSize == ctx->share->ExptTableMax) {
+		knh_expandExptTable(ctx);
 	}
 	((knh_SharedData_t*)ctx->share)->ExptTableSize += 1;
 	newid = ctx->share->ExptTableSize;
-	L_UNLOCK:
 	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
 	return newid;
 }

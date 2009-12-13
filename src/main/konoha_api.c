@@ -829,14 +829,14 @@ static void knh_Context_initSymbolTable(Ctx *ctx)
 {
 	knh_DictMap_t *symbolDictMap = DP((ctx)->kc)->symbolDictMap;
 	int i, j;
-	for(i = 0; i < KNH_TCLASS_SIZE; i++) {
+	for(i = 0; i < ctx->share->ClassTableSize; i++) {
 		knh_String_t *sname = ClassTable(i).sname;
 		if(sname != NULL) {
 			if(knh_class_isPrivate(i)) continue;
 			knh_DictMap_set(ctx, symbolDictMap, sname, UP(sname));
 		}
-		if(ClassTable(i).constPool != NULL) {
-			knh_DictMap_t *dm = ClassTable(i).constPool;
+		if(ClassTable(i).constDictMap != NULL) {
+			knh_DictMap_t *dm = ClassTable(i).constDictMap;
 			for(j = 0; j < knh_DictMap_size(dm); j++) {
 				knh_String_t *s = knh_DictMap_keyAt(dm, j);
 				knh_DictMap_set(ctx, symbolDictMap, s, UP(s));

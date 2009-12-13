@@ -53,7 +53,7 @@ knh_MethodField_t* new_MethodField(Ctx *ctx, knh_type_t rtype, size_t psize)
 
 knh_hashcode_t knh_mparam_hcode(knh_hashcode_t h, knh_type_t type, knh_fieldn_t fn)
 {
-	h = h * (KNH_TCLASS_SIZE+1) + type;
+	h = h * 31 + type;
 	return h + fn;
 }
 
@@ -326,7 +326,9 @@ void knh_Class_addMethod(Ctx *ctx, knh_class_t cid, knh_Method_t *mtd)
 
 void knh_addMethodFieldTable(Ctx *ctx, knh_MethodField_t *mf)
 {
-	knh_hashcode_t h = knh_MethodField_hashCode(ctx, mf);
+	knh_sfp_t lsfp = {{mf}, {0}};
+	knh_hashcode_t h =
+		(knh_hashcode_t)ClassTable(CLASS_MethodField).ofunc->hashkey(ctx, &lsfp, KNH_FOBJECT_HASH);
 	knh_HashMap_t *hmap = DP(ctx->sys)->MethodFieldHashMap;
 	if(IS_NOTNULL(hmap)) {
 		KNH_LOCK(ctx, LOCK_SYSTBL, NULL);

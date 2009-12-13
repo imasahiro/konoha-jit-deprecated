@@ -43,16 +43,12 @@ extern "C" {
 static knh_hashcode_t knh_stack_hashCode(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_class_t bcid = (sfp[0].o)->h.bcid;
-	if(CLASS_Boolean <= bcid && bcid <= CLASS_Float) {
-		return (knh_hashcode_t)sfp[0].data;
-	}
-	return ctx->share->StructTable[bcid].fhashCode(ctx, sfp[0].o);
+	return (knh_hashcode_t)ClassTable(bcid).ofunc->hashkey(ctx, sfp, KNH_FOBJECT_HASH);
 }
 
 /* ------------------------------------------------------------------------ */
 
-static
-int knh_stack_equals(Ctx *ctx, knh_sfp_t *sfp, Object *o)
+static int knh_stack_equals(Ctx *ctx, knh_sfp_t *sfp, Object *o)
 {
 	knh_class_t bcid = (sfp[0].o)->h.bcid;
 	if(CLASS_Boolean <= bcid && bcid <= CLASS_Float) {
@@ -69,7 +65,7 @@ static METHOD HashMap_new(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 	knh_HashMap_t *o = (knh_HashMap_t*)sfp[0].o;
 	int init = IS_NULL(sfp[1].o) ? KNH_HASH_INITSIZE: p_int(sfp[1]);
 	if(init > 0) {
-		ctx->share->StructTable[STRUCT_HashMap].finit(ctx, sfp[0].o, init);
+		ClassTable(CLASS_HashMap).ofunc->init(ctx, sfp[0].o, init);
 	}
 	KNH_RETURN(ctx, sfp, o);
 }

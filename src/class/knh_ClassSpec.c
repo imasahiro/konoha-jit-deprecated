@@ -687,17 +687,11 @@ knh_class_t knh_addSpecializedType(Ctx *ctx, knh_class_t cid, knh_class_t bcid, 
 
 		t->bcid   = bcid;
 		t->supcid = bcid;
-
-		//	if(bcid == CLASS_Int) bcid = CLASS_IntX;
-		//	else if(bcid == CLASS_Float) bcid = CLASS_FloatX;
-		//	else if(bcid == CLASS_String) bcid = CLASS_StringX;
-
-		//DBG2_P("%s\n\tcopying from %s", bufcn, CLASSN(bcid));
 		t->cflag  = ClassTable(bcid).cflag | FLAG_Class_Final;
 		t->oflag  = ClassTable(bcid).oflag;
 		t->offset = ClassTable(bcid).offset;
 
-		t->sid  = ClassTable(bcid).sid;
+		t->ofunc  = ClassTable(bcid).ofunc;
 		t->size = ClassTable(bcid).size;
 		t->bsize  = ClassTable(bcid).bsize;
 
