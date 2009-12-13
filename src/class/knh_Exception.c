@@ -57,7 +57,7 @@ static knh_expt_t knh_ExptTable_newId(Ctx *ctx)
 	if(ctx->share->ExptTableSize == ctx->share->ExptTableMax) {
 		knh_expandExptTable(ctx);
 	}
-	((knh_SharedData_t*)ctx->share)->ExptTableSize += 1;
+	((knh_share_t*)ctx->share)->ExptTableSize += 1;
 	newid = ctx->share->ExptTableSize;
 	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
 	return newid;
@@ -121,7 +121,7 @@ knh_addException(Ctx *ctx, knh_flag_t flag, knh_class_t eid, knh_String_t *name,
 	if(eid == EXPT_newid) {
 		eid = knh_ExptTable_newId(ctx);
 	}else {
-		((knh_SharedData_t*)ctx->share)->ExptTableSize += 1;
+		((knh_share_t*)ctx->share)->ExptTableSize += 1;
 		DBG2_ASSERT(eid == ctx->share->ExptTableSize);
 	}
 	KNH_ASSERT_eid(eid);

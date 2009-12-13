@@ -692,7 +692,7 @@ typedef struct {
 	size_t fmtCacheMiss;
 	size_t mprCacheHit;
 	size_t mprCacheMiss;
-} knh_ctxstat_t;
+} knh_stat_t;
 
 #define knh_stat_incUsedMemorySize(ctx, n)   (ctx->stat)->usedMemorySize += (n)
 #define knh_stat_dclUsedMemorySize(ctx, n)   (ctx->stat)->usedMemorySize -= (n)
@@ -765,7 +765,7 @@ typedef struct {
 	struct knh_Int_t     *constInt0;
 	struct knh_Float_t   *constFloat0;
 	struct knh_String_t  **tString;
-	/* share level=2 */
+	struct knh_Context_t     *ctx0;
 	struct knh_NameSpace_t   *mainns;
 
 	/* thread */
@@ -773,7 +773,7 @@ typedef struct {
 	size_t              threadCounter;
 	knh_LockTable_t    *LockTable;
 	knh_LockTable_t    *unusedLockTable;
-} knh_SharedData_t ;
+} knh_share_t ;
 
 #define LockTable(mx)     ctx->share->LockTable[mx]
 #define pLockTable(mx)    (knh_LockTable_t*)(ctx->share->LockTable + (mx))
@@ -803,8 +803,8 @@ typedef struct knh_Context_t {
 	struct knh_Mapper_t         **mprCache;
 
 	/* shared table */
-	const knh_SharedData_t       *share;
-	knh_ctxstat_t                *stat;
+	const knh_share_t       *share;
+	knh_stat_t                *stat;
 
 	knh_flag_t                   flag;
 	knh_ushort_t                 ctxid;

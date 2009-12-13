@@ -46,7 +46,7 @@ knh_class_t knh_ClassTable_newId(Ctx *ctx)
 	if(ctx->share->ClassTableSize == ctx->share->ClassTableMax) {
 		knh_expandClassTable(ctx);
 	}
-	((knh_SharedData_t*)ctx->share)->ClassTableSize = newid + 1;
+	((knh_share_t*)ctx->share)->ClassTableSize = newid + 1;
 	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
 	return newid;
 }

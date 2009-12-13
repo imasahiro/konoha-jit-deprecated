@@ -43,12 +43,12 @@ extern "C" {
 size_t knh_bytes_newsize(size_t s)
 {
 	if(s <= KONOHA_SMALLPAGESIZE) return KONOHA_SMALLPAGESIZE;
-	if(s <= KONOHA_PAGESIZE) {
+	if(s <= KNH_PAGESIZE) {
 		if(s <= 1024) return 1024;
-		return KONOHA_PAGESIZE;
+		return KNH_PAGESIZE;
 	}
-	if((s % KONOHA_PAGESIZE) == 0) return s;
-	return ((s / KONOHA_PAGESIZE)+1) * KONOHA_PAGESIZE;
+	if((s % KNH_PAGESIZE) == 0) return s;
+	return ((s / KNH_PAGESIZE)+1) * KNH_PAGESIZE;
 }
 
 /* ------------------------------------------------------------------------ */

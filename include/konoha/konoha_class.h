@@ -375,7 +375,7 @@ typedef struct {
 /* ------------------------------------------------------------------------ */
 
 #define KNH_HASH_INITSIZE 83
-#define KNH_HASH_TABLESIZE  KONOHA_PAGESIZE
+#define KNH_HASH_TABLESIZE  KNH_PAGESIZE
 #define KNH_HASHENTRY(T,ESIZE,i)  (knh_hashentry_t*)&((T)[(ESIZE) * (i)])
 
 typedef struct {

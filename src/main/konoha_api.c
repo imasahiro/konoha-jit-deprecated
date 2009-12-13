@@ -43,12 +43,12 @@ extern "C" {
 /* ======================================================================== */
 /* [ctxkey] */
 
-static int isInit = 0;
+static volatile int isInit = 0;
 
 #ifdef KNH_USING_THREAD
-static knh_thread_key_t ctxkey;
+static volatile knh_thread_key_t ctxkey;
 #else
-static Ctx *curctx = NULL;
+static volatile Ctx *curctx = NULL;
 #endif
 
 /* ------------------------------------------------------------------------ */
