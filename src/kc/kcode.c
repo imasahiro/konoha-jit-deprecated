@@ -38,7 +38,7 @@ extern "C" {
 /* ======================================================================== */
 /* [kcode] */
 
-static FASTAPI(void) knh_ftraverse_inc(Ctx* ctx, Object *o)
+static void knh_ftraverse_inc(Ctx* ctx, Object *o)
 {
 	knh_Object_RCinc(o);
 }

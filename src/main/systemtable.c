@@ -80,13 +80,6 @@ static knh_System_t *new_System(Ctx *ctx)
 
 /* ------------------------------------------------------------------------ */
 
-static FASTAPI(void) knh_Object_finalSweep(Ctx *ctx, Object *o)
-{
-	// DO Nothing;
-}
-
-/* ------------------------------------------------------------------------ */
-
 static
 void knh_ObjectPageTable_free(Ctx *ctx, char *thead)
 {
@@ -228,9 +221,8 @@ void knh_Context_traverseCommon(Ctx *ctx, knh_Context_t *o, knh_ftraverse ftr)
 		KNH_FREE(ctx, o->ctxlock, sizeof(knh_mutex_t));
 		o->ctxlock = NULL;
 	} else {
-	  ftr(ctx, UP(o->lines));
+		ftr(ctx, UP(o->lines));
 	}
-
 }
 
 /* ------------------------------------------------------------------------ */
@@ -654,8 +646,6 @@ void knh_ThreadContext_dispose(Ctx *ctx)
 
 /* ======================================================================== */
 /* [konohaapi] */
-
-/* ------------------------------------------------------------------------ */
 
 static int isFirstVirtualMachine = 1;
 

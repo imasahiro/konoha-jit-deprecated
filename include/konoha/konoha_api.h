@@ -696,8 +696,9 @@ knh_Object_t *new_Object_bcid(Ctx *ctx, /*knh_flag_t flag,*/ knh_class_t bcid, i
 knh_Object_t *new_Object_init(Ctx *ctx, knh_flag_t flag, knh_class_t cid, int init);
 FASTAPI(void) knh_Object_free(Ctx *ctx, knh_Object_t *o);
 void knh_Object_traverse(Ctx *ctx, knh_Object_t *o, knh_ftraverse ftr);
+void knh_Object_finalSweep(Ctx *ctx, Object *o);
 void knh_System_gc(Ctx *ctx);
-FASTAPI(void) knh_Object_RCsweep(Ctx *ctx, Object *o);
+void knh_Object_RCsweep(Ctx *ctx, Object *o);
 knh_ftraverse knh_getDefaultSweepFunc(void);
 void knh_setSecureMode(void);
 knh_bool_t knh_isTrustedPath(Ctx *ctx, knh_bytes_t path);

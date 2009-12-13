@@ -301,15 +301,6 @@ typedef knh_uint16_t       knh_type_t;    /* extended knh_type_t */
 typedef knh_uint16_t       knh_expt_t;    /* knh_expt_t */
 
 /* knh_struct_t */
-//#define KNH_FLAG_SF_FIELD          KNH_FLAG_T1
-//#define STRUCT_ISFIELD(sid)        ((sid & KNH_FLAG_SF_FIELD) == KNH_FLAG_SF_FIELD)
-//#define BSIZE_TOSID(bsize)         (((knh_struct_t)bsize)|KNH_FLAG_SF_FIELD)
-//#define STRUCT_FIELD(bsize)        (((knh_struct_t)bsize)|KNH_FLAG_SF_FIELD)
-//#define STRUCT_FIELDSIZE(sid)      (sid & (~KNH_FLAG_SF_FIELD))
-//#define STRUCT_UNMASK(sid)         (sid & (~KNH_FLAG_SF_FIELD))
-//#define KNH_ASSERT_sid(sid)        KNH_ASSERT(((knh_struct_t)sid) < ctx->share->StructTableSize)
-
-#define STRUCTN(bcid)              knh_getStructTableName(ctx, bcid)
 
 
 /* knh_class_t */
@@ -318,6 +309,7 @@ typedef knh_uint16_t       knh_expt_t;    /* knh_expt_t */
 
 #define DBG2_ASSERT_cid(cid)       KNH_ASSERT(cid < ctx->share->ClassTableSize)
 #define CLASSN(cid)                knh_ClassTable_CLASSN(ctx, cid)
+#define STRUCTN(bcid)              knh_getStructTableName(ctx, bcid)
 #define CLASSNo(o)                 knh_ClassTable_CLASSN(ctx, knh_Object_cid(o))
 #define CTXCLASSN(cid)     knh_Context_CLASSN(ctx,cid)
 
@@ -587,7 +579,7 @@ typedef struct knh_sfp_t {
 
 #define FASTAPI(t)       t KNH_CC_FASTCALL
 
-typedef void KNH_CC_FASTCALL (*knh_ftraverse)(Ctx *ctx, Object *);
+typedef void (*knh_ftraverse)(Ctx *ctx, Object *);
 typedef int (*knh_finit)(Ctx *);
 
 typedef knh_uintptr_t                knh_hashcode_t;  /* knh_hashcode_t */

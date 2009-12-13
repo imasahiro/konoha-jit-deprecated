@@ -141,7 +141,7 @@ class Class :
         for n in range(4) : self.cparams.append(t)
         cparam = '%s, %s, %s, %s' % (TYPE_(self.cparams[0]), TYPE_(self.cparams[1]), TYPE_(self.cparams[2]), TYPE_(self.cparams[3]))
         fmt = '''
-\t{"konoha.%s", %s, FLAG_%s, 
+\t{"%s", %s, FLAG_%s, 
 \t   %s, %s, %s, %s, %s,
 \t   %s},''' % (self.name, CLASS_(self.cname), self.cname, 
                 CLASS_(self.base), CLASS_(self.parent), 

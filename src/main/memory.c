@@ -416,7 +416,7 @@ volatile static size_t markedObjectSize = 0;
 /* ------------------------------------------------------------------------ */
 
 static
-FASTAPI(void) knh_Object_mark1(Ctx *ctx, Object *o)
+void knh_Object_mark1(Ctx *ctx, Object *o)
 {
 	if(IS_Context(o)) {
 		//DBG2_P("marked %p, cid=%d,%s", o, knh_Object_cid(o), CLASSN(knh_Object_cid(o)));
@@ -443,7 +443,7 @@ FASTAPI(void) knh_Object_mark1(Ctx *ctx, Object *o)
 
 /* ------------------------------------------------------------------------ */
 
-static FASTAPI(void) knh_Object_finalSweep(Ctx *ctx, Object *o)
+void knh_Object_finalSweep(Ctx *ctx, Object *o)
 {
 	// DO Nothing;
 }
@@ -512,7 +512,7 @@ void knh_System_gc(Ctx *ctx)
 /* ------------------------------------------------------------------------ */
 /* [RCGC] */
 
-FASTAPI(void) knh_Object_RCsweep(Ctx *ctx, Object *o)
+void knh_Object_RCsweep(Ctx *ctx, Object *o)
 {
 	knh_Object_RCdec(o);
 	if(knh_Object_isRC0(o)) {

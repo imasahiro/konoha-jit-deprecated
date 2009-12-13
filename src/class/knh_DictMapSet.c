@@ -282,8 +282,7 @@ void knh_dictmap_finit(Ctx *ctx, knh_dict_t *p)
 
 /* ------------------------------------------------------------------------ */
 
-static
-void knh_dictmap_ftraverse(Ctx *ctx, knh_dict_t *p, knh_ftraverse ftr)
+static void knh_dictmap_ftraverse(Ctx *ctx, knh_dict_t *p, knh_ftraverse ftr)
 {
 	knh_dictmape_t *e = (knh_dictmape_t*)p;
 	ftr(ctx, UP(e->key));
@@ -302,8 +301,7 @@ void knh_dictset_finit(Ctx *ctx, knh_dict_t *p)
 
 /* ------------------------------------------------------------------------ */
 
-static
-void knh_dictset_ftraverse(Ctx *ctx, knh_dict_t *p, knh_ftraverse ftr)
+static void knh_dictset_ftraverse(Ctx *ctx, knh_dict_t *p, knh_ftraverse ftr)
 {
 	knh_dictsete_t *e = (knh_dictsete_t*)p;
 	ftr(ctx, UP(e->key));
