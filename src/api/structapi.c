@@ -2554,8 +2554,12 @@ static void knh_initDefaultValue(Ctx *ctx)
 		knh_setClassDefaultValue(ctx, CLASS_String, UP(u), knh_String_fdefault);
 	}
 
-	// load file drivers
+	// load file/socket/regex/db drivers
 	knh_InputStream_newClass(ctx, CLASS_InputStream);
+	knh_Socket_newClass(ctx, CLASS_Socket);
+	knh_Regex_newClass(ctx, CLASS_Regex);
+	knh_Connection_newClass(ctx, CLASS_Connection);
+
 	knh_setClassDefaultValue(ctx, CLASS_InputStream, KNH_NULL, knh_InputStream_fdefault);
 	knh_setClassDefaultValue(ctx, CLASS_OutputStream, KNH_NULL, knh_OutputStream_fdefault);
 
