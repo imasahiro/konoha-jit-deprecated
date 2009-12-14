@@ -237,7 +237,7 @@ static option_t options[] = {
 	{NULL}
 };
 
-#define OPTIONS_SIZE (sizeof(options) / sizeof((options)[0]))
+#define OPTIONS_SIZE ((sizeof(options) / sizeof((options)[0])) - 1)
 
 static option_t *knh_get_opt(char *name)
 {
@@ -261,7 +261,7 @@ KNHAPI(int) konoha_parseopt(konoha_t konoha, int argc, char **argv)
 		option_t *opt = knh_get_opt(&t[1]);
 		if(!opt) continue;
 		int arg = 0;
-		if(opt->arg == 1/*true*/) {
+		if(opt->arg == 1) {
 			if(t[2] != '0') {
 				arg = knh_bytes_toint(B(&t[2]));
 				arg = (arg == 0) ? 1 : arg;
