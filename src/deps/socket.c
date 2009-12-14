@@ -365,7 +365,7 @@ static knh_iodrv_t IO__HTTP = {
 /* ======================================================================== */
 /* [KNHAPI] */
 
-void knh_Socket_newClass(Ctx *ctx, knh_class_t cid)
+void knh_loadDefaultSocketDriver(Ctx *ctx)
 {
 	knh_addIODriver(ctx, NULL, &IO__SOCKET);
 	knh_addIODriver(ctx, "ip", &IO__SOCKET);

@@ -443,7 +443,7 @@ KNHAPI(void) knh_addDBDriver(Ctx *ctx, char *alias, knh_db_drvapi_t *d)
 /* ======================================================================== */
 /* [init] */
 
-void knh_Connection_newClass(Ctx *ctx, knh_class_t cid)
+void knh_loadDefaultDBDriver(Ctx *ctx)
 {
 	knh_addDBDriver(ctx, NULL, &DB__NOP);
 #ifdef KNH_USING_SQLITE3

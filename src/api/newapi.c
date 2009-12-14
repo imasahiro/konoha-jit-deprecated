@@ -158,7 +158,7 @@ static METHOD Bytes_new__array(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 		init = KONOHA_SMALLPAGESIZE;
 	}
 	else {
-		size = init;
+		init = size;
 	}
 	o->buf = (knh_uchar_t*)KNH_MALLOC(ctx, init);
 	knh_bzero(o->buf, init);

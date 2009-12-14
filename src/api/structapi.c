@@ -2538,7 +2538,7 @@ static Object *knh_System_fdefault(Ctx *ctx, knh_class_t cid)
 	return (Object*)ctx->sys;
 }
 
-static void knh_initDefaultValue(Ctx *ctx)
+static void knh_setDefaultValues(Ctx *ctx)
 {
 	knh_setClassDefaultValue(ctx, CLASS_Boolean, UP(KNH_FALSE), NULL);
 	knh_setClassDefaultValue(ctx, CLASS_Class, UP(new_Type(ctx, CLASS_Object)), NULL);
@@ -2555,13 +2555,10 @@ static void knh_initDefaultValue(Ctx *ctx)
 	}
 
 	// load file/socket/regex/db drivers
-	knh_InputStream_newClass(ctx, CLASS_InputStream);
-	knh_Socket_newClass(ctx, CLASS_Socket);
-	knh_Regex_newClass(ctx, CLASS_Regex);
-	knh_Connection_newClass(ctx, CLASS_Connection);
-
-	knh_setClassDefaultValue(ctx, CLASS_InputStream, KNH_NULL, knh_InputStream_fdefault);
-	knh_setClassDefaultValue(ctx, CLASS_OutputStream, KNH_NULL, knh_OutputStream_fdefault);
+	knh_loadDefaultIODriver(ctx);
+	knh_loadDefaultSocketDriver(ctx);
+	knh_loadDefaultRegexDriver(ctx);
+	knh_loadDefaultDBDriver(ctx);
 
 	knh_setClassDefaultValue(ctx, CLASS_Context, KNH_NULL, knh_Context_fdefault);
 	knh_setClassDefaultValue(ctx, CLASS_NameSpace, KNH_NULL, knh_NameSpace_fdefault);
@@ -2745,7 +2742,7 @@ void knh_loadSystemData(Ctx *ctx)
 		}
 	}
 	knh_loadMapperData(ctx, MapperData0);
-	knh_initDefaultValue(ctx);
+	knh_setDefaultValues(ctx);
 }
 
 /* ------------------------------------------------------------------------ */

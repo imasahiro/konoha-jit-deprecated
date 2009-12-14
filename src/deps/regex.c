@@ -247,7 +247,7 @@ KNHAPI(void) knh_addRegexDriver(Ctx *ctx, char *alias, knh_regex_drvapi_t *d)
 /* ======================================================================== */
 /* [init] */
 
-void knh_Regex_newClass(Ctx *ctx, knh_class_t cid)
+void knh_loadDefaultRegexDriver(Ctx *ctx)
 {
 	knh_addRegexDriver(ctx, NULL, &RE__NOP);
 #ifdef KNH_USING_REGEX

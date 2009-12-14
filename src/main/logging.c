@@ -41,6 +41,18 @@ extern "C" {
 /* ======================================================================== */
 /* [verbose] */
 
+void knh_syslog(int p, const char *fmt, ...)
+{
+//	Ctx *ctx = knh_getCurrentContext();
+	va_list ap;
+	va_start(ap , fmt);
+	vfprintf(stderr, fmt, ap);
+	va_end(ap);
+}
+
+/* ======================================================================== */
+/* [verbose] */
+
 static
 knh_OutputStream_t *knh_stack_pstream(Ctx *ctx, knh_flag_t flag)
 {

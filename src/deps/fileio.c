@@ -259,7 +259,7 @@ KNHAPI(void) knh_addIODriver(Ctx *ctx, char *alias, knh_iodrv_t *d)
 /* ======================================================================== */
 /* [init] */
 
-void knh_InputStream_newClass(Ctx *ctx, knh_class_t cid)
+void knh_loadDefaultIODriver(Ctx *ctx)
 {
 	knh_addIODriver(ctx, NULL, &IO__NOP);
 	knh_addIODriver(ctx, NULL, &IO__FILE);
