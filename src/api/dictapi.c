@@ -87,39 +87,39 @@ static METHOD DictMap_clear(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 	KNH_RETURN_void(ctx, sfp);
 }
 
-///* ------------------------------------------------------------------------ */
-////## method String[] DictMap.keys();
-//
-//static METHOD DictMap_keys(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
-//{
-//	// TODO
-//	// we must test this method.
-//	knh_DictMap_t *o = (knh_DictMap_t*)sfp[0].o;
-//	knh_Array_t *a = new_Array(ctx, CLASS_String, o->size);
-//	int i;
-//	for(i=0; i<o->size; i++) {
-//		KNH_SETv(ctx, a->list[i], o->list[i].key);
-//		//fprintf(stderr, "%d:%s\n",i,o->list[i].key->str);
-//	}
-//	KNH_RETURN(ctx, sfp, UP(a));
-//}
-//
-///* ------------------------------------------------------------------------ */
-////## method Any[] DictMap.values();
-//
-//static METHOD DictMap_keys(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
-//{
-//	// TODO
-//	// we must test this method.
-//	knh_DictMap_t *o = (knh_DictMap_t*)sfp[0].o;
-//	knh_Array_t *a = new_Array(ctx, o->size);
-//	int i;
-//	for(i=0; i<o->size; i++) {
-//		KNH_SETv(ctx, a->list[i], o->list[i].value);
-//		//fprintf(stderr, "%d:%p\n",i,o->list[i].value);
-//	}
-//	KNH_RETURN(ctx, sfp, UP(a));
-//}
+/* ------------------------------------------------------------------------ */
+//## method String[] DictMap.keys();
+
+static METHOD DictMap_keys(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+{
+	// TODO
+	// we must test this method.
+	knh_DictMap_t *o = (knh_DictMap_t*)sfp[0].o;
+	knh_Array_t *a = new_Array(ctx, CLASS_String, o->size);
+	int i;
+	for(i=0; i<o->size; i++) {
+		knh_Array_add(ctx, a, UP(o->list[i].key));
+		//fprintf(stderr, "%d:%s\n",i,o->list[i].key->str);
+	}
+	KNH_RETURN(ctx, sfp, UP(a));
+}
+
+/* ------------------------------------------------------------------------ */
+//## method Any[] DictMap.values();
+
+static METHOD DictMap_values(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+{
+	// TODO
+	// we must test this method.
+	knh_DictMap_t *o = (knh_DictMap_t*)sfp[0].o;
+	knh_Array_t *a = new_Array0(ctx, o->size);
+	int i;
+	for(i=0; i<o->size; i++) {
+		knh_Array_add(ctx, a, UP(o->list[i].value));
+		//fprintf(stderr, "%d:%p\n",i,o->list[i].value);
+	}
+	KNH_RETURN(ctx, sfp, UP(a));
+}
 
 ///* ======================================================================== */
 ///* [DictSet] */
