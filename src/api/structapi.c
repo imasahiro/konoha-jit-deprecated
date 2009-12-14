@@ -2508,6 +2508,16 @@ static Object *knh_String_fdefault(Ctx *ctx, knh_class_t cid)
 	return (Object*)TS_EMPTY;
 }
 
+static Object *knh_InputStream_fdefault(Ctx *ctx, knh_class_t cid)
+{
+	return UP(DP(ctx->sys)->in);
+}
+
+static Object *knh_OutputStream_fdefault(Ctx *ctx, knh_class_t cid)
+{
+	return UP(DP(ctx->sys)->out);
+}
+
 static Object *knh_Context_fdefault(Ctx *ctx, knh_class_t cid)
 {
 	return (Object*)ctx;
@@ -2543,6 +2553,12 @@ static void knh_initDefaultValue(Ctx *ctx)
 		knh_setClassDefaultValue(ctx, CLASS_Float,  UP(u), knh_Float_fdefault);
 		knh_setClassDefaultValue(ctx, CLASS_String, UP(u), knh_String_fdefault);
 	}
+
+	// load file drivers
+	knh_InputStream_newClass(ctx, CLASS_InputStream);
+	knh_setClassDefaultValue(ctx, CLASS_InputStream, KNH_NULL, knh_InputStream_fdefault);
+	knh_setClassDefaultValue(ctx, CLASS_OutputStream, KNH_NULL, knh_OutputStream_fdefault);
+
 	knh_setClassDefaultValue(ctx, CLASS_Context, KNH_NULL, knh_Context_fdefault);
 	knh_setClassDefaultValue(ctx, CLASS_NameSpace, KNH_NULL, knh_NameSpace_fdefault);
 	knh_setClassDefaultValue(ctx, CLASS_System, KNH_NULL, knh_System_fdefault);
