@@ -103,35 +103,35 @@ KNHAPI(knh_intptr_t) knh_socket_open(Ctx *ctx, char *ip_or_host, int port, int i
 	}
 	return sd;
 #elif defined(KNH_USING_BTRON)
-        char tmp[HBUFLEN];
-        struct hostent host;
-        struct sockaddr_in server = {0};
-        W err, sd;
+	char tmp[HBUFLEN];
+	struct hostent host;
+	struct sockaddr_in server = {0};
+	W err, sd;
 
-        err = so_gethostbyname(ip_or_host, &host, tmp);
-        if (err < 0) {
-            KNH_PERRNO(ctx, NULL, "Socket!!", "gethostbyname", isThrowable);
-            return -1;
-        }
+	err = so_gethostbyname(ip_or_host, &host, tmp);
+	if (err < 0) {
+		KNH_PERRNO(ctx, NULL, "Socket!!", "gethostbyname", isThrowable);
+		return -1;
+	}
 
-        server.sin_family = PF_INET;
-        memcpy(&(server.sin_addr), host.h_addr, host.h_length);
-        server.sin_port = htons(port);
+	server.sin_family = PF_INET;
+	memcpy(&(server.sin_addr), host.h_addr, host.h_length);
+	server.sin_port = htons(port);
 
-        err = so_socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-        if (err < 0) {
-            KNH_PERRNO(ctx, NULL, "Socket!!", "socket", isThrowable);
-            return -1;
-        }
-        sd = err;
+	err = so_socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if (err < 0) {
+		KNH_PERRNO(ctx, NULL, "Socket!!", "socket", isThrowable);
+		return -1;
+	}
+	sd = err;
 
-        err = so_connect(sd, (struct sockaddr*)&server, sizeof(server));
-        if (err < 0) {
-            KNH_PERRNO(ctx, NULL, "Socket!!", "connect", isThrowable);
-            so_close(sd);
-            return -1;
-        }
-        return (knh_intptr_t)sd;
+	err = so_connect(sd, (struct sockaddr*)&server, sizeof(server));
+	if (err < 0) {
+		KNH_PERRNO(ctx, NULL, "Socket!!", "connect", isThrowable);
+		so_close(sd);
+		return -1;
+	}
+	return (knh_intptr_t)sd;
 #else
 	return -1;
 #endif
@@ -147,8 +147,8 @@ KNHAPI(int) knh_socket_send(Ctx *ctx, knh_intptr_t sd, char *buf, size_t bufsiz,
 #elif defined(KNH_USING_POSIX)
 	res = send(sd, buf, bufsiz, flags);
 #elif defined(KNH_USING_BTRON)
-        res = so_send(sd, buf, bufsiz, flags);
-        if (res < 0) res = -1;
+	res = so_send(sd, buf, bufsiz, flags);
+	if (res < 0) res = -1;
 #endif
 	if(res == -1) {
 		KNH_PERRNO(ctx, NULL, "Socket!!", "send", knh_Context_isStrict(ctx));
@@ -183,7 +183,7 @@ KNHAPI(int) knh_socket_close(Ctx *ctx, knh_intptr_t sd)
 #elif defined(KNH_USING_POSIX)
 	return close((int)sd);
 #elif defined(KNH_USING_BTRON)
-        return so_close(sd);
+	return so_close(sd);
 #else
 	return 0;  /* becuase, it wasn't opened. */
 #endif
@@ -196,8 +196,7 @@ KNHAPI(int) knh_socket_close(Ctx *ctx, knh_intptr_t sd)
 /* 'host:localhost:80' */
 /* 'socket:localhost:80' */
 
-static
-knh_io_t knh_iodrv_open__SOCKET(Ctx *ctx, knh_bytes_t file, char *mode, int isThrowable)
+static knh_io_t knh_iodrv_open__SOCKET(Ctx *ctx, knh_bytes_t file, char *mode, int isThrowable)
 {
 	knh_bytes_t urn = knh_bytes_skipscheme(file);
 	knh_index_t loc = knh_bytes_rindex(urn, ':');
@@ -214,30 +213,26 @@ knh_io_t knh_iodrv_open__SOCKET(Ctx *ctx, knh_bytes_t file, char *mode, int isTh
 
 /* ------------------------------------------------------------------------ */
 
-static
-void knh_iodrv_init__SOCKET(Ctx *ctx, Object *stream, char *mode)
+static void knh_iodrv_init__SOCKET(Ctx *ctx, Object *stream, char *mode)
 {
 }
 
 /* ------------------------------------------------------------------------ */
-static
-knh_intptr_t knh_iodrv_read__SOCKET(Ctx *ctx, knh_io_t sd, char *buf, size_t bufsiz)
+static knh_intptr_t knh_iodrv_read__SOCKET(Ctx *ctx, knh_io_t sd, char *buf, size_t bufsiz)
 {
 	return knh_socket_recv(ctx, (knh_intptr_t)sd, buf, bufsiz, 0);
 }
 
 /* ------------------------------------------------------------------------ */
 
-static
-knh_intptr_t knh_iodrv_write__SOCKET(Ctx *ctx, knh_io_t sd, char *buf, size_t bufsiz)
+static knh_intptr_t knh_iodrv_write__SOCKET(Ctx *ctx, knh_io_t sd, char *buf, size_t bufsiz)
 {
 	return knh_socket_send(ctx, (knh_intptr_t)sd, buf, bufsiz, 0);
 }
 
 /* ------------------------------------------------------------------------ */
 
-static
-void knh_iodrv_close__SOCKET(Ctx *ctx, knh_io_t sd)
+static void knh_iodrv_close__SOCKET(Ctx *ctx, knh_io_t sd)
 {
 	knh_socket_close(ctx, (knh_intptr_t)sd);
 }
@@ -268,8 +263,7 @@ knh_iodrv_t *knh_getSocketDriver(void)
 /* 'host:localhost:80' */
 /* 'socket:localhost:80' */
 
-static
-knh_io_t knh_iodrv_open__HTTP(Ctx *ctx, knh_bytes_t url, char *mode, int isThrowable)
+static knh_io_t knh_iodrv_open__HTTP(Ctx *ctx, knh_bytes_t url, char *mode, int isThrowable)
 {
 	char bfscheme[20], bfhost[80];
 	char bfuname[20];
@@ -301,8 +295,7 @@ knh_io_t knh_iodrv_open__HTTP(Ctx *ctx, knh_bytes_t url, char *mode, int isThrow
 
 /* ------------------------------------------------------------------------ */
 
-static
-void knh_iodrv_init__HTTP(Ctx *ctx, Object *stream, char *mode)
+static void knh_iodrv_init__HTTP(Ctx *ctx, Object *stream, char *mode)
 {
 	if(IS_InputStream(stream) && mode[0] != 'h') {
 		knh_InputStream_t *in = (knh_InputStream_t*)stream;
@@ -327,24 +320,21 @@ void knh_iodrv_init__HTTP(Ctx *ctx, Object *stream, char *mode)
 
 /* ------------------------------------------------------------------------ */
 
-static
-knh_intptr_t knh_iodrv_read__HTTP(Ctx *ctx, knh_io_t sd, char *buf, size_t bufsiz)
+static knh_intptr_t knh_iodrv_read__HTTP(Ctx *ctx, knh_io_t sd, char *buf, size_t bufsiz)
 {
-  return knh_socket_recv(ctx, (knh_intptr_t)sd, buf, bufsiz, 0);
+	return knh_socket_recv(ctx, (knh_intptr_t)sd, buf, bufsiz, 0);
 }
 
 /* ------------------------------------------------------------------------ */
 
-static
-knh_intptr_t knh_iodrv_write__HTTP(Ctx *ctx, knh_io_t sd, char *buf, size_t bufsiz)
+static knh_intptr_t knh_iodrv_write__HTTP(Ctx *ctx, knh_io_t sd, char *buf, size_t bufsiz)
 {
 	return 0; //knh_socket_send(ctx, (knh_intptr_t)sd, buf, bufsiz, 0);
 }
 
 /* ------------------------------------------------------------------------ */
 
-static
-void knh_iodrv_close__HTTP(Ctx *ctx, knh_io_t sd)
+static void knh_iodrv_close__HTTP(Ctx *ctx, knh_io_t sd)
 {
 	knh_socket_close(ctx, (knh_intptr_t)sd);
 }

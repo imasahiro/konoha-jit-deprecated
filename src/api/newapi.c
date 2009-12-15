@@ -149,7 +149,7 @@ static METHOD Bytes_new(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 static METHOD Bytes_new__array(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
 	knh_Bytes_t *o = (knh_Bytes_t*)sfp[0].o;
-	size_t init, size = IS_NULL(sfp[1].o) ? 0 : knh_bytes_newsize(p_size(sfp[1]));
+	size_t init = 0, size = IS_NULL(sfp[1].o) ? 0 : knh_bytes_newsize(p_size(sfp[1]));
 	DBG2_ASSERT(o->capacity == 0);
 	if(size < KNH_FASTMALLOC_SIZE) {
 		init = KNH_FASTMALLOC_SIZE;

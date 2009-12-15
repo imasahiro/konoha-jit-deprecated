@@ -732,6 +732,9 @@ debug:
 		-DHAVE_CONFIG_H -I. -I.. -I./include -o ./debug/konoha \
 	$(AM_LDFLAGS) $(LDFLAGS) $(LIBS)
 
+test: ./build/konoha
+	konoha ./test/run.k ./build/konoha ./test/
+
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

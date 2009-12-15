@@ -15,4 +15,5 @@ debug:
 		-DHAVE_CONFIG_H -I. -I.. -I./include -o ./debug/konoha \
 	$(AM_LDFLAGS) $(LDFLAGS) $(LIBS)
 
-
+test: ./build/konoha
+	konoha ./test/run.k ./build/konoha ./test/
