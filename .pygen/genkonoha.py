@@ -680,8 +680,8 @@ def write_name_h(f, data):
     write_chapter(f, 'MACROS')
     write_define(f, 'KONOHA_REVISION', '%d' % svnrev(), 40)
     write_define(f, 'KONOHA_BUILDID', '%d' % data.serial_number, 40)
-    if not '-c' in data.OPTIONS:
-        write_define(f,  'KONOHA_EXPIRE', '%dLL' % (int(time.time()) + 259200), 40)
+    #if not '-c' in data.OPTIONS:
+        #write_define(f,  'KONOHA_EXPIRE', '%dLL' % (int(time.time()) + 259200), 40)
         #write_define(f,  'KONOHA_EXPIRE', '%dLL' % (int(time.time()) + 2), 40)
     write_chapter(f, 'STRUCT')
     cid = 0

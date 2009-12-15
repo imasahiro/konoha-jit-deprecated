@@ -2548,7 +2548,6 @@ static void knh_setDefaultValues(Ctx *ctx)
 		KNH_INITv(DP(u)->fvalue, KNH_FLOAT0);
 		KNH_INITv(DP(u)->svalue, TS_EMPTY);
 		knh_setClassDefaultValue(ctx, CLASS_ClassSpec, UP(u), NULL);
-
 		knh_setClassDefaultValue(ctx, CLASS_Int,    UP(u), knh_Int_fdefault);
 		knh_setClassDefaultValue(ctx, CLASS_Float,  UP(u), knh_Float_fdefault);
 		knh_setClassDefaultValue(ctx, CLASS_String, UP(u), knh_String_fdefault);
