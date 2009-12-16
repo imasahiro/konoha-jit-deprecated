@@ -26,7 +26,6 @@ test "Any Method #19581" {
 test "No Such Method #19581" {
 	boolean b = false;
 	Any a;
-	Any a1;
 	try {
 		a.hi();
 	} catch(Exception e) {

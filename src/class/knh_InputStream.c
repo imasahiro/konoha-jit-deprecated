@@ -287,7 +287,7 @@ KNHAPI(knh_InputStream_t*) new_StringInputStream(Ctx *ctx, knh_String_t *str, si
 {
 	knh_InputStream_t* o = (knh_InputStream_t*)new_Object_bcid(ctx, CLASS_InputStream, 0);
 	DP(o)->fd = -1;
-	DBG2_ASSERT(IS_Bytes(str));
+	DBG2_ASSERT(IS_String(str));
 	KNH_SETv(ctx, DP(o)->str, str);
 	DP(o)->buf = (char*)(str)->str;
 	DP(o)->bufsiz = (str)->size;

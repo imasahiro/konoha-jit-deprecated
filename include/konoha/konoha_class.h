@@ -786,7 +786,11 @@ typedef struct knh_InputStream_t {
 typedef struct {
 	knh_io_t fd;
 	knh_iodrv_t *driver;
-	knh_Bytes_t* ba;
+	union {
+		struct knh_Bytes_t *ba;
+		struct knh_String_t *str;
+	};
+
 	knh_String_t *enc;
 	struct knh_BytesConv_t* bconv;
 	knh_String_t*  urn;

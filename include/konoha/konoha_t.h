@@ -619,7 +619,7 @@ typedef struct {
 
 #define KNH_CLASSTABLE_INIT 128
 
-#define SIZEOF_TCLASS(n)  (n * sizeof(knh_ClassTable_t))
+#define SIZEOF_TCLASS(n)  ((n) * sizeof(knh_ClassTable_t))
 
 typedef knh_Object_t* (*knh_fdefault)(Ctx *ctx, knh_class_t cid);
 
