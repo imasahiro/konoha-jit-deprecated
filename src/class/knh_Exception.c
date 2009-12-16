@@ -36,7 +36,7 @@ static int errno;
 
 #ifdef KNH_USING_POSIX
 #include<errno.h>
-#else
+#elif !defined(KONOHA_ON_WINDOWS)
 static int errno;
 #endif
 #endif

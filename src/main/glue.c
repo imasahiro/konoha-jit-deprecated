@@ -29,7 +29,7 @@
 
 #include"commons.h"
 
-#if !defined(KONOHA_ON_LKM) && !defined(KONOHA_ON_TB)
+#if !defined(KONOHA_ON_LKM) && !defined(KONOHA_ON_TB) && !defined(KONOHA_ON_WINDOWS)
 #include <sys/mman.h> // for PROT_READ,PROT_WRITE,PROT_EXEC
 #endif
 
@@ -120,7 +120,7 @@ static inline int knh_pow2(int n)
 void *knh_copyCallbackfunc(Ctx* ctx, void *func, void *target,knh_Closure_t *cc)
 {
 	void *callback = NULL;
-#if !defined(KONOHA_ON_LKM) && !defined(KONOHA_ON_TB)
+#if !defined(KONOHA_ON_LKM) && !defined(KONOHA_ON_TB) && !defined(KONOHA_ON_WINDOWS)
 	int i,_ffffffff = -1,jmp_pos = -1;
 	knh_uchar_t *f = (knh_uchar_t *) func;
 
