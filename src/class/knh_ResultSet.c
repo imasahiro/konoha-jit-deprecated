@@ -248,7 +248,7 @@ KNHAPI(void) knh_ResultSet_setNULL(Ctx *ctx, knh_ResultSet_t *o, size_t n)
 knh_int_t knh_ResultSet_getInt(Ctx *ctx, knh_ResultSet_t *o, size_t n)
 {
 	KNH_ASSERT(n < DP(o)->column_size);
-	char *p = knh_Bytes__tochar(DP(o)->databuf) + DP(o)->column[n].start;
+	char *p = knh_Bytes_tochar(DP(o)->databuf) + DP(o)->column[n].start;
 	switch(DP(o)->column[n].ctype) {
 	case knh_ResultSet_CTYPE__null :
 		return 0;
@@ -268,7 +268,7 @@ knh_int_t knh_ResultSet_getInt(Ctx *ctx, knh_ResultSet_t *o, size_t n)
 knh_float_t knh_ResultSet_getFloat(Ctx *ctx, knh_ResultSet_t *o, size_t n)
 {
 	KNH_ASSERT(n < DP(o)->column_size);
-	char *p = knh_Bytes__tochar(DP(o)->databuf) + DP(o)->column[n].start;
+	char *p = knh_Bytes_tochar(DP(o)->databuf) + DP(o)->column[n].start;
 	switch(DP(o)->column[n].ctype) {
 	case knh_ResultSet_CTYPE__null :
 		return 0.0;
@@ -288,7 +288,7 @@ knh_float_t knh_ResultSet_getFloat(Ctx *ctx, knh_ResultSet_t *o, size_t n)
 knh_String_t* knh_ResultSet_getString(Ctx *ctx, knh_ResultSet_t *o, size_t n)
 {
 	KNH_ASSERT(n < DP(o)->column_size);
-	char *p = knh_Bytes__tochar(DP(o)->databuf) + DP(o)->column[n].start;
+	char *p = knh_Bytes_tochar(DP(o)->databuf) + DP(o)->column[n].start;
 	switch(DP(o)->column[n].ctype) {
 	case knh_ResultSet_CTYPE__null :
 		return (knh_String_t*)KNH_NULL;

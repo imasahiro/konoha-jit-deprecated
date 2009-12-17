@@ -390,7 +390,7 @@ static knh_ClassData0_t ClassData0[] = {
 	   CLASS_Tuple, CLASS_Object, 8, 1, 0,
 	   TYPE_void, TYPE_void, TYPE_void, TYPE_void},
 	{"Range", CLASS_Range, FLAG_Range, 
-	   CLASS_Range, CLASS_Object, 6, 1, 0,
+	   CLASS_Range, CLASS_Object, 6, 1, 1,
 	   TYPE_void, TYPE_Any, TYPE_void, TYPE_void},
 	{"Array", CLASS_Array, FLAG_Array, 
 	   CLASS_Array, CLASS_Object, 34, 2, 1,
@@ -1477,6 +1477,7 @@ static knh_MethodData0_t MethodData0[] = {
 static knh_MapperData0_t MapperData0[] = {
 	{String_Iterator, FLAG_Mapper_Total, CLASS_String, CLASS_Iterator},
 	{String_Iterator, FLAG_Mapper_Total, CLASS_String, CLASS_String_Itr},
+	{Range_Iterator, FLAG_Mapper_Total, CLASS_Range, CLASS_Iterator},
 	{Array_Iterator, FLAG_Mapper_Total, CLASS_Array, CLASS_Iterator},
 	{knh_IArray_Iterator, FLAG_Mapper_Total, CLASS_IArray, CLASS_Iterator},
 	{knh_FArray_Iterator, FLAG_Mapper_Total, CLASS_FArray, CLASS_Iterator},

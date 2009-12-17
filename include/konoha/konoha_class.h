@@ -65,16 +65,18 @@ typedef struct knh_ObjectField_t {
 #define CLASS_ObjectField           CLASS_Object
 #define knh_Object_cid(o)           (o)->h.cid
 #define knh_Object_bcid(o)          (o)->h.bcid
+#define knh_Object_r0(o)            (ClassTable((o)->h.cid).r0)
 #define knh_Object_p1(o)            (ClassTable((o)->h.cid).p1)
 #define knh_Object_p2(o)            (ClassTable((o)->h.cid).p2)
+#define knh_Object_p3(o)            (ClassTable((o)->h.cid).p3)
 
 /* ------------------------------------------------------------------------ */
 //## @Immutable class Boolean Object;
 
 typedef struct {
 	union {
-		knh_bool_t bvalue;
-		knh_int_t ivalue;
+		knh_bool_t    bvalue;
+		knh_int_t     ivalue;
 		knh_float_t   fvalue;
 		knh_uint64_t  data;
 	};
@@ -109,8 +111,6 @@ typedef struct knh_Int_t {
 	knh_nObject_t n;
 } knh_Int_t;
 
-//typedef knh_Int_t knh_IntX_t;
-
 /* ------------------------------------------------------------------------ */
 //## @Immutable class Float Number;
 
@@ -118,8 +118,6 @@ typedef struct knh_Float_t {
 	knh_hObject_t h;
 	knh_nObject_t n;
 } knh_Float_t;
-
-//typedef knh_Float_t knh_FloatX_t;
 
 /* ------------------------------------------------------------------------ */
 //## @Immutable class String Object;
@@ -152,7 +150,7 @@ typedef struct knh_Bytes_t {
 #define knh_Bytes_size(o)      (o)->size
 #define knh_Bytes_value(o)     (o)->buf
 #define knh_Bytes_last(o)      ((o)->buf + (o)->size)
-#define knh_Bytes__tochar(b)  (char*)knh_Bytes_value(b)
+#define knh_Bytes_tochar(b)  (char*)knh_Bytes_value(b)
 #define KNH_SIZE(v)         knh_size(v)
 
 /* ------------------------------------------------------------------------ */
@@ -996,7 +994,6 @@ typedef struct {
 	struct knh_OutputStream_t* out;
 	struct knh_OutputStream_t* err;
 	struct knh_String_t*       enc;
-//	knh_String_t              *homeDir;
 
 	struct knh_DictIdx_t *ResourceDictIdx;
 	struct knh_DictIdx_t *FieldNameDictIdx;
@@ -1028,7 +1025,6 @@ typedef struct knh_System_t {
 //## flag Context Verbose      2 ((knh_Context_t*)%s)->flag is set is set;
 //## flag Context Interactive  3 ((knh_Context_t*)%s)->flag is set is *;
 //## flag Context Compiling    4 ((knh_Context_t*)%s)->flag is set * *;
-
 
 /* ------------------------------------------------------------------------ */
 //## class Thread Object;

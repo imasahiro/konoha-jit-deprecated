@@ -550,12 +550,13 @@ static MAPPER Range_Iterator(Ctx *ctx, knh_sfp_t *sfp);
 
 static knh_Mapper_t* knh_Range_genmap(Ctx *ctx, knh_class_t cid, knh_class_t tcid)
 {
-	TODO();
-//	DBG2_ASSERT_cid(cid);
-//	knh_class_t p1 = ClassTable(cid).p1;
-//	knh_class_t icid = knh_class_Iterator(ctx, p1);
-//	DBG2_P("*** %s, %s", CLASSN(p1), CLASSN(icid));
-//	knh_addMapperFunc(ctx, FLAG_Mapper_Iteration, cid, icid, Range_Iterator, KNH_NULL);
+	if(knh_class_bcid(tcid) == CLASS_Iterator) {
+		knh_class_t p1 = knh_class_p1(cid); //Range<p1>
+		knh_class_t tp1 = knh_class_p1(tcid);  //Iterator<tp2>
+		if(p1 == tp1 || tp1 == CLASS_Any || knh_class_instanceof(ctx, p1, tp1)) {
+			return new_Mapper(ctx, FLAG_Mapper_Iteration, cid, tcid, Range_Iterator, KNH_NULL);
+		}
+	}
 	return NULL;
 }
 
@@ -608,9 +609,8 @@ static knh_Mapper_t* knh_Array_genmap(Ctx *ctx, knh_class_t cid, knh_class_t tci
 	if(knh_class_bcid(tcid) == CLASS_Iterator) {
 		knh_class_t p1 = knh_class_p1(cid);
 		knh_class_t tp1 = knh_class_p1(tcid);
-		if(p1 == tp1 || knh_class_instanceof(ctx, p1, tp1)) {
-			//knh_addMapperFunc(ctx, FLAG_Mapper_Iteration, tcid, cid, Iterator_Array, KNH_NULL);
-			return new_Mapper(ctx, FLAG_Mapper_Iteration, cid, tcid, Iterator_Array, KNH_NULL);
+		if(p1 == tp1 || tp1 == CLASS_Any || knh_class_instanceof(ctx, p1, tp1)) {
+			return new_Mapper(ctx, FLAG_Mapper_Iteration, cid, tcid, Array_Iterator, KNH_NULL);
 		}
 	}
 	return NULL;
@@ -758,6 +758,13 @@ static knh_Mapper_t* knh_Iterator_genmap(Ctx *ctx, knh_class_t cid, knh_class_t 
 {
 	if(cid == CLASS_Iterator && knh_class_bcid(cid) == CLASS_Iterator) {
 		return new_Mapper(ctx, FLAG_Mapper_Iteration, CLASS_Iterator, cid, Iterator_Iterator, KNH_NULL);
+	}
+	if(knh_class_bcid(tcid) == CLASS_Array) {
+		knh_class_t p1 = knh_class_p1(cid);
+		knh_class_t tp1 = knh_class_p1(tcid);
+		if(p1 == tp1 || tp1 == CLASS_Any || knh_class_instanceof(ctx, p1, tp1)) {
+			return new_Mapper(ctx, FLAG_Mapper_Iteration, cid, tcid, Iterator_Array, KNH_NULL);
+		}
 	}
 	return NULL;
 }
