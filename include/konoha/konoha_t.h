@@ -649,7 +649,7 @@ typedef struct {
 	struct knh_ClassMap_t     *cmap;
 	union {
 		struct knh_Object_t       *defval;
-		struct knh_ClassSpec_t    *cspec;
+		struct knh_Semantics_t    *cspec;
 	};
 	knh_fdefault               fdefault;
 	struct knh_DictMap_t      *constDictMap;

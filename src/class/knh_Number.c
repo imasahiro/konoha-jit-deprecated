@@ -95,7 +95,7 @@ KNHAPI(knh_Int_t*) new_IntX__fast(Ctx *ctx, knh_class_t cid, knh_int_t value)
 
 KNHAPI(knh_Int_t*) new_IntX(Ctx *ctx, knh_class_t cid, knh_int_t value)
 {
-	knh_ClassSpec_t *u = knh_getClassSpec(ctx, cid);
+	knh_Semantics_t *u = knh_getSemantics(ctx, cid);
 	if(DP(u)->fichk(u, value)) {
 		knh_Int_t *n = (knh_Int_t*)new_hObject(ctx, FLAG_Int, CLASS_Int, cid);
 		n->n.ivalue = value;
@@ -136,7 +136,7 @@ KNHAPI(knh_Float_t*) new_FloatX__fast(Ctx *ctx, knh_class_t cid, knh_float_t val
 KNHAPI(knh_Float_t*) new_FloatX(Ctx *ctx, knh_class_t cid, knh_float_t value)
 {
 	DBG2_ASSERT_cid(cid);
-	knh_ClassSpec_t *u = knh_getClassSpec(ctx, cid);
+	knh_Semantics_t *u = knh_getSemantics(ctx, cid);
 	if(DP(u)->ffchk(u, value)) {
 		knh_Float_t *f = (knh_Float_t*)new_hObject(ctx, FLAG_Float, CLASS_Float, cid);
 		f->n.fvalue = value;

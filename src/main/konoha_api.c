@@ -99,7 +99,7 @@ KNHAPI(Ctx*) knh_getCurrentContext(void)
 #ifdef KNH_USING_THREAD
 	ctx = (Ctx*)knh_thread_getspecific(ctxkey);
 #else
-	ctx = curctx;
+	ctx = (Ctx*)curctx;
 #endif
 	if(ctx == NULL) {
 		fprintf(stderr, "NOT IN THE CONTEXT OF KONOHA\n");

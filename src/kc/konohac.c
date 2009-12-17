@@ -609,7 +609,7 @@ int knh_StmtUALIAS_decl(Ctx *ctx, knh_Stmt_t *stmt)
 static
 char *knh_format_classurn(Ctx *ctx, char *buf, size_t bufsiz, knh_class_t bcid, knh_bytes_t urn)
 {
-	knh_snprintf(buf, bufsiz, KNH_CLASSSPEC_FMT, CLASSN(bcid), urn.buf);
+	knh_snprintf(buf, bufsiz, KNH_SEMANTICS_FMT, CLASSN(bcid), urn.buf);
 	return buf;
 }
 

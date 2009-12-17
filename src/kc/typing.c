@@ -804,7 +804,7 @@ int knh_TokenNUM_typing(Ctx *ctx, knh_Token_t *tk, knh_NameSpace_t *ns, knh_clas
 			knh_Token_perror(ctx, tk, KERR_EWARN, _("float overflow: %B"), t);
 		}
 		knh_class_t tagc = knh_Token_tagcNUM(ctx, tk, reqc, ns);
-		knh_ClassSpec_t *u = knh_getClassSpec(ctx, tagc);
+		knh_Semantics_t *u = knh_getSemantics(ctx, tagc);
 		if(!DP(u)->ffchk(u, n)) {
 			knh_Token_perror(ctx, tk, KERR_ERRATA, _("%C: out of range: %B ==> %O"), tagc, t, DP(u)->fvalue);
 			knh_Token_setCONST(ctx, tk, UP(DP(u)->fvalue));
@@ -819,7 +819,7 @@ int knh_TokenNUM_typing(Ctx *ctx, knh_Token_t *tk, knh_NameSpace_t *ns, knh_clas
 			knh_Token_perror(ctx, tk, KERR_EWARN, _("int overflow: %B"), t);
 		}
 		knh_class_t tagc = knh_Token_tagcNUM(ctx, tk, reqc, ns);
-		knh_ClassSpec_t *u = knh_getClassSpec(ctx, tagc);
+		knh_Semantics_t *u = knh_getSemantics(ctx, tagc);
 		if(!DP(u)->fichk(u, n)) {
 			knh_Token_perror(ctx, tk, KERR_ERRATA, _("%C: out of range: %B ==> %O"), tagc, t, DP(u)->ivalue);
 			knh_Token_setCONST(ctx, tk, UP(DP(u)->ivalue));
@@ -866,7 +866,7 @@ int knh_TokenTSTR_typing(Ctx *ctx, knh_Token_t *tk, knh_NameSpace_t *ns, knh_cla
 	else {
 		knh_class_t tagcid = knh_NameSpace_tagcid(ctx, ctx->share->mainns, CLASS_String, tag);
 		if(tagcid != CLASS_unknown) {
-			knh_ClassSpec_t *u = knh_getClassSpec(ctx, tagcid);
+			knh_Semantics_t *u = knh_getSemantics(ctx, tagcid);
 			int foundError = 0;
 			knh_String_t *s = DP(u)->fsnew(ctx, tagcid, t, NULL, &foundError);
 			knh_Token_setCONST(ctx, tk, UP(s));

@@ -271,7 +271,7 @@ static METHOD Object__k(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 
 static METHOD Int__k(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
-	knh_ClassSpec_t *u = knh_getClassSpec(ctx, knh_Object_cid(sfp[0].o));
+	knh_Semantics_t *u = knh_getSemantics(ctx, knh_Object_cid(sfp[0].o));
 	knh_write_intx(ctx, sfp[1].w, u, sfp[0].ivalue);
 }
 
@@ -282,7 +282,7 @@ static METHOD Int__k(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 
 static METHOD Float__k(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
-	knh_ClassSpec_t *u = knh_getClassSpec(ctx, knh_Object_cid(sfp[0].o));
+	knh_Semantics_t *u = knh_getSemantics(ctx, knh_Object_cid(sfp[0].o));
 	knh_write_floatx(ctx, sfp[1].w, u, p_float(sfp[0]));
 }
 

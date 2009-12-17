@@ -286,7 +286,7 @@ static int knh_Int_compareTo(Ctx *ctx, Object *o, Object *o2)
 //		return (int)(o->n.ivalue - o2->n.ivalue);
 //	}
 //	else {
-//		knh_ClassSpec_t *u = knh_getClassSpec(ctx, o->h.cid);
+//		knh_Semantics_t *u = knh_getSemantics(ctx, o->h.cid);
 //		return DP(u)->ficmp(u, o->n.ivalue, o2->n.ivalue);
 //	}
 }
@@ -402,7 +402,7 @@ static int knh_String_compareTo(Ctx *ctx, knh_Object_t *o, knh_Object_t *o2)
 	}
 	else {
 		if(s->h.cid == s2->h.cid) {
-			knh_ClassSpec_t *u = knh_getClassSpec(ctx, s->h.cid);
+			knh_Semantics_t *u = knh_getSemantics(ctx, s->h.cid);
 			return DP(u)->fscmp(u, __tobytes(s), __tobytes(s2));
 		}
 		return (int)(s - s2);
@@ -1438,28 +1438,28 @@ static knh_ObjectFunc_t BytesConvFunc = {
 };
 
 /* ======================================================================== */
-/* ClassSpec */
+/* Semantics */
 
 static
-int knh_fichk__nop(knh_ClassSpec_t *u, knh_int_t v)
+int knh_fichk__nop(knh_Semantics_t *u, knh_int_t v)
 {
 	return 1;
 }
 
 static
-int knh_ficmp__signed(knh_ClassSpec_t *u, knh_int_t v1, knh_int_t v2)
+int knh_ficmp__signed(knh_Semantics_t *u, knh_int_t v1, knh_int_t v2)
 {
 	return (int)(v1 - v2);
 }
 
 static
-int knh_ffchk__default(knh_ClassSpec_t *u, knh_float_t v)
+int knh_ffchk__default(knh_Semantics_t *u, knh_float_t v)
 {
 	return 1;
 }
 
 static
-int knh_ffcmp__default(knh_ClassSpec_t *u, knh_float_t v1, knh_float_t v2)
+int knh_ffcmp__default(knh_Semantics_t *u, knh_float_t v1, knh_float_t v2)
 {
 	knh_float_t delta = v1 - v2;
 	if(delta == KNH_FLOAT_ZERO) return 0;
@@ -1472,15 +1472,15 @@ knh_String_t *knh_fsnew__default(Ctx *ctx, knh_class_t cid, knh_bytes_t t, knh_S
 	return new_StringX__fast(ctx, cid, t, orig);
 }
 
-static int knh_fscmp__default(knh_ClassSpec_t *u, knh_bytes_t v1, knh_bytes_t v2)
+static int knh_fscmp__default(knh_Semantics_t *u, knh_bytes_t v1, knh_bytes_t v2)
 {
 	return knh_bytes_strcmp(v1, v2);
 }
 
-static FASTAPI(void) knh_ClassSpec_init(Ctx *ctx, Object *o, int init)
+static FASTAPI(void) knh_Semantics_init(Ctx *ctx, Object *o, int init)
 {
-	knh_ClassSpec_t *u = (knh_ClassSpec_t*)o;
-	knh_ClassSpec_struct *b = DP(u);
+	knh_Semantics_t *u = (knh_Semantics_t*)o;
+	knh_Semantics_struct *b = DP(u);
 	// common
 	b->flag = 0;
 	b->ucid  = (knh_class_t)init;
@@ -1520,10 +1520,10 @@ static FASTAPI(void) knh_ClassSpec_init(Ctx *ctx, Object *o, int init)
 	KNH_INITv(b->vocabDictIdx, KNH_NULL);
 }
 
-static FASTAPI(void) knh_ClassSpec_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr)
+static FASTAPI(void) knh_Semantics_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr)
 {
-	knh_ClassSpec_t *u = (knh_ClassSpec_t*)o;
-	knh_ClassSpec_struct *b = DP(u);
+	knh_Semantics_t *u = (knh_Semantics_t*)o;
+	knh_Semantics_struct *b = DP(u);
 	ftr(ctx, UP(b->urn));
 	ftr(ctx, UP(b->tag));
 
@@ -1536,23 +1536,23 @@ static FASTAPI(void) knh_ClassSpec_traverse(Ctx *ctx, Object *o, knh_ftraverse f
 	ftr(ctx, UP(b->vocabDictIdx));
 }
 
-static FASTAPI(void*) knh_ClassSpec_hashkey(Ctx *ctx, knh_sfp_t *sfp, int opt)
+static FASTAPI(void*) knh_Semantics_hashkey(Ctx *ctx, knh_sfp_t *sfp, int opt)
 {
 	if(opt == KNH_FOBJECT_KEY) {
-		return (void*)DP((knh_ClassSpec_t*)sfp[0].o)->urn;
+		return (void*)DP((knh_Semantics_t*)sfp[0].o)->urn;
 	}
 	return DEFAULT_hashkey(ctx, sfp, opt);
 }
 
 
-static knh_ObjectFunc_t ClassSpecFunc = {
-	knh_ClassSpec_init,
+static knh_ObjectFunc_t SemanticsFunc = {
+	knh_Semantics_init,
 	DEFAULT_copy,
-	knh_ClassSpec_traverse,
+	knh_Semantics_traverse,
 	DEFAULT_compareTo,
-	knh_ClassSpec_hashkey,
+	knh_Semantics_hashkey,
 	DEFAULT_genmap,
-	"ClassSpec", sizeof(knh_ClassSpec_struct),
+	"Semantics", sizeof(knh_Semantics_struct),
 };
 
 /* ======================================================================== */
@@ -2508,16 +2508,6 @@ static Object *knh_String_fdefault(Ctx *ctx, knh_class_t cid)
 	return (Object*)TS_EMPTY;
 }
 
-static Object *knh_InputStream_fdefault(Ctx *ctx, knh_class_t cid)
-{
-	return UP(DP(ctx->sys)->in);
-}
-
-static Object *knh_OutputStream_fdefault(Ctx *ctx, knh_class_t cid)
-{
-	return UP(DP(ctx->sys)->out);
-}
-
 static Object *knh_Context_fdefault(Ctx *ctx, knh_class_t cid)
 {
 	return (Object*)ctx;
@@ -2543,11 +2533,11 @@ static void knh_setDefaultValues(Ctx *ctx)
 	knh_setClassDefaultValue(ctx, CLASS_Boolean, UP(KNH_FALSE), NULL);
 	knh_setClassDefaultValue(ctx, CLASS_Class, UP(new_Type(ctx, CLASS_Object)), NULL);
 	{
-		knh_ClassSpec_t *u = (knh_ClassSpec_t*)new_Object_bcid(ctx, CLASS_ClassSpec, 0);
+		knh_Semantics_t *u = (knh_Semantics_t*)new_Object_bcid(ctx, CLASS_Semantics, 0);
 		KNH_INITv(DP(u)->ivalue, KNH_INT0);
 		KNH_INITv(DP(u)->fvalue, KNH_FLOAT0);
 		KNH_INITv(DP(u)->svalue, TS_EMPTY);
-		knh_setClassDefaultValue(ctx, CLASS_ClassSpec, UP(u), NULL);
+		knh_setClassDefaultValue(ctx, CLASS_Semantics, UP(u), NULL);
 		knh_setClassDefaultValue(ctx, CLASS_Int,    UP(u), knh_Int_fdefault);
 		knh_setClassDefaultValue(ctx, CLASS_Float,  UP(u), knh_Float_fdefault);
 		knh_setClassDefaultValue(ctx, CLASS_String, UP(u), knh_String_fdefault);

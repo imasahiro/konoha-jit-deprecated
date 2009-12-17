@@ -146,8 +146,8 @@ knh_String_t *new_StringX(Ctx *ctx, knh_class_t cid, knh_bytes_t t, knh_String_t
 		TODO();
 		return new_String(ctx, t, orign);
 	}
-//	ClassSpec *u = knh_getClassSpec(ctx, cid].cspec;
-//	KNH_ASSERT(IS_ClassSpec(u));
+//	Semantics *u = knh_getSemantics(ctx, cid].cspec;
+//	KNH_ASSERT(IS_Semantics(u));
 //		if(DP(u)->fbconv != NULL) {
 //		return new_String__fcnv(ctx, DP(u)->)
 //		Bytes *ba = knh_Context_openBConvBuf(ctx);

@@ -678,19 +678,19 @@ typedef struct knh_BytesConv_t {
 } knh_BytesConv_t;
 
 /* ------------------------------------------------------------------------ */
-//## @Struct @Private class ClassSpec Object;
+//## @Struct @Private class Semantics Object;
 
-#define KNH_CLASSSPEC_FMT    "%s{%s}"
-struct  knh_ClassSpec_t;
+#define KNH_SEMANTICS_FMT    "%s{%s}"
+struct  knh_Semantics_t;
 
-typedef int (*knh_fichk)(struct knh_ClassSpec_t *, knh_int_t v);
-typedef int (*knh_ficmp)(struct knh_ClassSpec_t *, knh_int_t v1, knh_int_t v2);
+typedef int (*knh_fichk)(struct knh_Semantics_t *, knh_int_t v);
+typedef int (*knh_ficmp)(struct knh_Semantics_t *, knh_int_t v1, knh_int_t v2);
 
-typedef int (*knh_ffchk)(struct knh_ClassSpec_t *, knh_float_t v);
-typedef int (*knh_ffcmp)(struct knh_ClassSpec_t *, knh_float_t v1, knh_float_t v2);
+typedef int (*knh_ffchk)(struct knh_Semantics_t *, knh_float_t v);
+typedef int (*knh_ffcmp)(struct knh_Semantics_t *, knh_float_t v1, knh_float_t v2);
 
 typedef knh_String_t *(*knh_fsnew)(Ctx *, knh_class_t cid, knh_bytes_t, struct knh_String_t *, int *);
-typedef int (*knh_fscmp)(struct knh_ClassSpec_t *, knh_bytes_t, knh_bytes_t);
+typedef int (*knh_fscmp)(struct knh_Semantics_t *, knh_bytes_t, knh_bytes_t);
 
 typedef struct {
 	knh_flag_t  flag;
@@ -729,14 +729,14 @@ typedef struct {
 	struct knh_BytesConv_t *bconv;
 	knh_fsnew    fsnew;
 	knh_fscmp    fscmp;
-} knh_ClassSpec_struct;
+} knh_Semantics_struct;
 
-typedef struct knh_ClassSpec_t* (*knh_fspec)(Ctx *ctx, knh_bytes_t urn);
+typedef struct knh_Semantics_t* (*knh_fspec)(Ctx *ctx, knh_bytes_t urn);
 
-typedef struct knh_ClassSpec_t {
+typedef struct knh_Semantics_t {
 	knh_hObject_t h;
-	knh_ClassSpec_struct *b;
-} knh_ClassSpec_t;
+	knh_Semantics_struct *b;
+} knh_Semantics_t;
 
 /* ------------------------------------------------------------------------ */
 /* InputStream, OutputStream */

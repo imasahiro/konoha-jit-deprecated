@@ -2,8 +2,8 @@
 
 /* ======================================================================== */
 /* MACROS */
-#define KONOHA_REVISION                 1033
-#define KONOHA_BUILDID                  770
+#define KONOHA_REVISION                 1040
+#define KONOHA_BUILDID                  771
 
 /* ======================================================================== */
 /* STRUCT */
@@ -380,16 +380,16 @@
 #define FLAG_BytesConv          knh_flag_oflag(CFLAG_BytesConv)
 
 /* ------------------------------------------------------------------------ */
-/* ClassSpec */
-#define CLASS_ClassSpec         ((knh_class_t)31)
-#define STRUCT_ClassSpec        ((knh_struct_t)31)
-#define IS_ClassSpec(o)         ((o)->h.cid == CLASS_ClassSpec)
-#define IS_bClassSpec(o)        ((o)->h.bcid == CLASS_ClassSpec)
-#define TYPE_ClassSpec          CLASS_ClassSpec
-#define NNTYPE_ClassSpec        NNTYPE_cid(CLASS_ClassSpec)
-#define NATYPE_ClassSpec        NATYPE_cid(CLASS_ClassSpec)
-#define CFLAG_ClassSpec         ((knh_flag_t)FLAG_Class_Private)
-#define FLAG_ClassSpec          knh_flag_oflag(CFLAG_ClassSpec)
+/* Semantics */
+#define CLASS_Semantics         ((knh_class_t)31)
+#define STRUCT_Semantics        ((knh_struct_t)31)
+#define IS_Semantics(o)         ((o)->h.cid == CLASS_Semantics)
+#define IS_bSemantics(o)        ((o)->h.bcid == CLASS_Semantics)
+#define TYPE_Semantics          CLASS_Semantics
+#define NNTYPE_Semantics        NNTYPE_cid(CLASS_Semantics)
+#define NATYPE_Semantics        NATYPE_cid(CLASS_Semantics)
+#define CFLAG_Semantics         ((knh_flag_t)FLAG_Class_Private)
+#define FLAG_Semantics          knh_flag_oflag(CFLAG_Semantics)
 
 /* ------------------------------------------------------------------------ */
 /* InputStream */
