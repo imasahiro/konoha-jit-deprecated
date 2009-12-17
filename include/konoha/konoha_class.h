@@ -582,8 +582,8 @@ typedef struct knh_Mapper_t {
 	knh_fmapper fmap_1;
 } knh_Mapper_t;
 
-#define knh_findMapper(ctx, scid, tcid) knh_findMapper_(ctx, scid, tcid, 1)
-#define knh_Class_getMapper(ctx, scid, tcid)  knh_findMapper_(ctx, scid, tcid, 0)
+#define knh_findMapper(ctx, scid, tcid) knh_findMapperCommon(ctx, scid, tcid, 1)
+#define knh_Class_getMapper(ctx, scid, tcid)  knh_findMapperCommon(ctx, scid, tcid, 0)
 
 /* ------------------------------------------------------------------------ */
 //## @Private class ClassMap Object;

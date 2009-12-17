@@ -59,9 +59,13 @@ extern "C" {
 #define METHOD             void  KNH_CC_FASTCALL
 #endif
 
-#define METHODOPT
 #define MAPPER             METHOD
 #define ITRNEXT            int   KNH_CC_FASTCALL
+
+
+#define METHODOPT
+#define MAPPERARG
+#define METHODOPT
 
 #ifdef KNH_USING_THREAD
 #define KNH_MT_VOLATILE    volatile
