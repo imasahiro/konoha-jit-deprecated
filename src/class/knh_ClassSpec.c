@@ -567,10 +567,10 @@ knh_bytes_t knh_getURNAlias(Ctx *ctx, knh_bytes_t aurn)
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(void) knh_loadURNAliasData(Ctx *ctx, knh_StringConstData_t *data)
+KNHAPI(void) knh_loadURNAliasData(Ctx *ctx, knh_StringData_t *data)
 {
 	knh_DictMap_t *map = DP(ctx->sys)->URNAliasDictMap;
-	knh_StringConstData_t *d = data;
+	knh_StringData_t *d = data;
 	while(d->name != NULL) {
 		knh_String_t *s =(knh_String_t*)knh_DictMap_get__b(ctx,  map, B(d->name));
 		if(IS_NOTNULL(s) && !knh_String_equals(s, B(d->value))) {

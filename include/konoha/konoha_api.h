@@ -52,7 +52,7 @@ KNHAPI(knh_String_t*) new_String__fbcnv(Ctx *ctx, knh_String_t *s, knh_fbyteconv
 KNHAPI(knh_Semantics_t*) new_Enum(Ctx *ctx, char *tag, knh_bytes_t urn, knh_int_t min, knh_int_t max);
 KNHAPI(knh_Semantics_t*) new_Unit(Ctx *ctx, char *tag, knh_bytes_t urn, knh_float_t min, knh_float_t max, knh_float_t step);
 KNHAPI(knh_Semantics_t*) new_Vocab(Ctx *ctx, char *tag, knh_bytes_t urn, int base, char **terms);
-KNHAPI(void) knh_loadURNAliasData(Ctx *ctx, knh_StringConstData_t *data);
+KNHAPI(void) knh_loadURNAliasData(Ctx *ctx, knh_StringData_t *data);
 KNHAPI(void) knh_loadSemanticsFuncData(Ctx *ctx, knh_NamedPointerData_t *data);
 KNHAPI(void) knh_putsfp(Ctx *ctx, knh_sfp_t *lsfp, int n, Object *obj);
 KNHAPI(void) knh_Closure_invokesfp(Ctx *ctx, knh_Closure_t *cc, knh_sfp_t *lsfp, int argc);
@@ -163,9 +163,9 @@ KNHAPI(void) knh_stack_boxing(Ctx *ctx, knh_sfp_t *sfp);
 KNHAPI(void) knh_stack_unboxing(Ctx *ctx, knh_sfp_t *sfp);
 KNHAPI(void) knh_stack_w(Ctx *ctx, knh_sfp_t *sfp, knh_sfp_t *one, knh_methodn_t mn, knh_OutputStream_t *w, Any *m);
 KNHAPI(void) knh_stack_throw(Ctx *ctx, knh_sfp_t *sfp, knh_Exception_t *e, char *file, int line);
-KNHAPI(void) knh_loadIntConstData(Ctx *ctx, knh_IntConstData_t *data);
-KNHAPI(void) knh_loadFloatConstData(Ctx *ctx, knh_FloatConstData_t *data);
-KNHAPI(void) knh_loadStringConstData(Ctx *ctx, knh_StringConstData_t *data);
+KNHAPI(void) knh_loadIntConst(Ctx *ctx, knh_IntData_t *data);
+KNHAPI(void) knh_loadFloatConst(Ctx *ctx, knh_FloatData_t *data);
+KNHAPI(void) knh_loadStringConst(Ctx *ctx, knh_StringData_t *data);
 KNHAPI(konoha_t) konoha_open(size_t stacksize);
 KNHAPI(void) konoha_close(konoha_t konoha);
 

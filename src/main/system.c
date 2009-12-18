@@ -58,13 +58,14 @@ Object *knh_getClassConstNULL(Ctx *ctx, knh_class_t cid, knh_bytes_t name)
 int knh_addClassConst(Ctx *ctx, knh_class_t cid, knh_String_t* name, Object *value)
 {
 	int ret;
-	DBG2_ASSERT_cid(cid);
-	if(ClassTable(cid).constDictMap == NULL) {
-		knh_ClassTable_t *t = pClassTable(cid);
-		KNH_INITv(t->constDictMap, new_DictMap0(ctx, 0));
-	}
 	knh_DictMap_t *cmap = ClassTable(cid).constDictMap;
-	KNH_ASSERT(IS_DictMap(cmap));
+	DBG2_ASSERT_cid(cid);
+	if(cmap == NULL) {
+		knh_ClassTable_t *t = pClassTable(cid);
+		cmap = new_DictMap0(ctx, 0);
+		KNH_INITv(t->constDictMap, cmap);
+	}
+	DBG2_ASSERT(IS_DictMap(cmap));
 	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
 	int idx = knh_DictMap_index(cmap, __tobytes(name));
 	// Const data is already added.
@@ -83,8 +84,7 @@ int knh_addClassConst(Ctx *ctx, knh_class_t cid, knh_String_t* name, Object *val
 
 /* ------------------------------------------------------------------------ */
 
-static
-void knh_addConstData(Ctx *ctx, char *dname, Object *value)
+static void knh_addConstData(Ctx *ctx, char *dname, Object *value)
 {
 	knh_bytes_t n = B(dname);
 	knh_index_t loc = knh_bytes_rindex(n, '.');
@@ -92,7 +92,6 @@ void knh_addConstData(Ctx *ctx, char *dname, Object *value)
 	knh_class_t cid = CLASS_Any;
 	if(loc != -1) {
 		if(ctx->kc != NULL && IS_Gamma(ctx->kc)) {
-			DBG2_P("nsname=%s", __tochar(DP(DP(ctx->kc)->ns)->nsname));
 			cid = knh_NameSpace_getcid(ctx, DP(ctx->kc)->ns, knh_bytes_first(n, loc));
 		}
 		else {
@@ -108,7 +107,7 @@ void knh_addConstData(Ctx *ctx, char *dname, Object *value)
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(void) knh_loadIntConstData(Ctx *ctx, knh_IntConstData_t *data)
+KNHAPI(void) knh_loadIntConst(Ctx *ctx, knh_IntData_t *data)
 {
 	while(data->name != NULL) {
 		Object *value = UP(new_Int(ctx, data->ivalue));
@@ -119,7 +118,7 @@ KNHAPI(void) knh_loadIntConstData(Ctx *ctx, knh_IntConstData_t *data)
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(void) knh_loadFloatConstData(Ctx *ctx, knh_FloatConstData_t *data)
+KNHAPI(void) knh_loadFloatConst(Ctx *ctx, knh_FloatData_t *data)
 {
 	while(data->name != NULL) {
 		Object *value = UP(new_Float(ctx, data->fvalue));
@@ -130,7 +129,7 @@ KNHAPI(void) knh_loadFloatConstData(Ctx *ctx, knh_FloatConstData_t *data)
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(void) knh_loadStringConstData(Ctx *ctx, knh_StringConstData_t *data)
+KNHAPI(void) knh_loadStringConst(Ctx *ctx, knh_StringData_t *data)
 {
 	while(data->name != NULL) {
 		Object *value = UP(T__(data->value));
@@ -162,8 +161,7 @@ Object *knh_getSystemConst(Ctx *ctx, int n)
 /* ======================================================================== */
 /* [tfieldn, tmethodn] */
 
-static
-char *knh_format_nzname(char *buf, size_t bufsiz, knh_bytes_t t)
+static char *knh_format_nzname(char *buf, size_t bufsiz, knh_bytes_t t)
 {
 	size_t i = 0, u =  0, c = 0;
 	if(isdigit(t.buf[i])) {

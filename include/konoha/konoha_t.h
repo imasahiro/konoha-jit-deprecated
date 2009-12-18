@@ -249,22 +249,23 @@ typedef struct {
 typedef struct {
 	char *name;
 	knh_int_t ivalue;
-} knh_IntConstData_t;
+} knh_IntData_t;
 
 typedef struct {
 	char *name;
 	knh_float_t fvalue;
-} knh_FloatConstData_t;
+} knh_FloatData_t;
 
 typedef struct {
 	char *name;
 	char *value;
-} knh_StringConstData_t;
+} knh_StringData_t;
 
 typedef struct {
 	char *name;
 	void *ptr;
 } knh_NamedPointerData_t;
+
 
 /* ------------------------------------------------------------------------ */
 /* knh_flag_t */

@@ -2454,7 +2454,7 @@ void knh_loadStructData(Ctx *ctx, knh_StructData0_t *data)
 
 /* ------------------------------------------------------------------------ */
 
-static void knh_loadClassData(Ctx *ctx, knh_ClassData0_t *data)
+static void knh_loadClassData0(Ctx *ctx, knh_ClassData0_t *data)
 {
 	while(data->name != NULL) {
 		knh_class_t cid = knh_ClassTable_newId(ctx);
@@ -2564,7 +2564,7 @@ static void knh_setDefaultValues(Ctx *ctx)
 
 /* ------------------------------------------------------------------------ */
 
-static void knh_loadExptData(Ctx *ctx, knh_ExptData0_t *data)
+static void knh_loadExptData0(Ctx *ctx, knh_ExptData0_t *data)
 {
 	while(data->name != NULL) {
 		knh_addException(ctx, data->flag, data->eid, T__(data->name), data->peid);
@@ -2574,7 +2574,7 @@ static void knh_loadExptData(Ctx *ctx, knh_ExptData0_t *data)
 
 /* ------------------------------------------------------------------------ */
 
-static void knh_loadFieldNameData(Ctx *ctx, knh_FieldNameData0_t *data)
+static void knh_loadFieldNameData0(Ctx *ctx, knh_FieldNameData0_t *data)
 {
 	while(data->name != NULL) {
 		knh_String_t *name = T__(data->name);
@@ -2592,7 +2592,7 @@ static void knh_loadFieldNameData(Ctx *ctx, knh_FieldNameData0_t *data)
 /* ------------------------------------------------------------------------ */
 
 static
-void knh_loadMethodFieldData(Ctx *ctx, knh_MethodFieldData0_t *data, knh_MethodField_t **pools)
+void knh_loadMethodFieldData0(Ctx *ctx, knh_MethodFieldData0_t *data, knh_MethodField_t **pools)
 {
 	int chk = -1;
 	while(data->mfindex != -1) {
@@ -2632,7 +2632,7 @@ void knh_loadMethodFieldData(Ctx *ctx, knh_MethodFieldData0_t *data, knh_MethodF
 /* ------------------------------------------------------------------------ */
 
 static
-void knh_loadMethodData(Ctx *ctx, knh_MethodData0_t *data, knh_MethodField_t **pools)
+void knh_loadMethodData0(Ctx *ctx, knh_MethodData0_t *data, knh_MethodField_t **pools)
 {
 	while(data->func != NULL) {
 		DBG2_ASSERT_cid(data->cid);
@@ -2656,8 +2656,7 @@ void knh_loadMethodData(Ctx *ctx, knh_MethodData0_t *data, knh_MethodField_t **p
 
 /* ------------------------------------------------------------------------ */
 
-static
-void knh_loadMapperData(Ctx *ctx, knh_MapperData0_t *data)
+static void knh_loadMapperData0(Ctx *ctx, knh_MapperData0_t *data)
 {
 	while(data->func != NULL) {
 		knh_addMapperFunc(ctx, data->flag, data->scid, data->tcid, data->func, KNH_NULL);
@@ -2667,7 +2666,7 @@ void knh_loadMapperData(Ctx *ctx, knh_MapperData0_t *data)
 
 /* ------------------------------------------------------------------------ */
 
-static void knh_loadStringPropertyData(Ctx *ctx, knh_StringConstData_t *data)
+static void knh_loadStringPropertyData0(Ctx *ctx, knh_StringData_t *data)
 {
 	knh_DictMap_t *pmap = DP(ctx->sys)->props;
 	while(data->name != NULL) {
@@ -2680,7 +2679,7 @@ static void knh_loadStringPropertyData(Ctx *ctx, knh_StringConstData_t *data)
 /* ------------------------------------------------------------------------ */
 /* @data */
 
-static knh_IntConstData_t IntConstData0[] = {
+static knh_IntData_t IntConstData0[] = {
 	{"Int.MAX", KNH_INT_MAX},
 	{"Int.MIN", KNH_INT_MIN},
 	{"Method.NOTRACE", KNH_NOTRACE},
@@ -2692,17 +2691,17 @@ static knh_IntConstData_t IntConstData0[] = {
 	{NULL, 0}
 };
 
-static knh_FloatConstData_t FloatConstData0[] = {
+static knh_FloatData_t FloatConstData0[] = {
 	{"Float.MAX", KNH_FLOAT_MAX},
 	{"Float.MIN", KNH_FLOAT_MIN},
 	{NULL, KNH_FLOAT_ZERO}
 };
 
-static knh_StringConstData_t StringConstData0[] = {
+static knh_StringData_t StringConstData0[] = {
 	{NULL, NULL}
 };
 
-static knh_StringConstData_t StringPropertyData0[] = {
+static knh_StringData_t StringPropertyData0[] = {
 	{"konoha.version", KONOHA_VERSION},
 	{"konoha.os", KONOHA_OS},
 	{"konoha.platform", KONOHA_PLATFORM},
@@ -2720,24 +2719,24 @@ void knh_loadSystemStructData(Ctx *ctx)
 
 void knh_loadSystemData(Ctx *ctx)
 {
-	knh_loadClassData(ctx, ClassData0);
-	knh_loadIntConstData(ctx, IntConstData0);
-	knh_loadFloatConstData(ctx, FloatConstData0);
-	knh_loadStringConstData(ctx, StringConstData0);
-	knh_loadStringPropertyData(ctx, StringPropertyData0);
+	knh_loadClassData0(ctx, ClassData0);
+	knh_loadIntConst(ctx, IntConstData0);
+	knh_loadFloatConst(ctx, FloatConstData0);
+	knh_loadStringConst(ctx, StringConstData0);
+	knh_loadStringPropertyData0(ctx, StringPropertyData0);
 	knh_getResourceId(ctx, STEXT("(eval)"));  // URI_EVAL
-	knh_loadExptData(ctx, ExptData0);
-	knh_loadFieldNameData(ctx, FieldNameData0);
+	knh_loadExptData0(ctx, ExptData0);
+	knh_loadFieldNameData0(ctx, FieldNameData0);
 	{
 		int i;
 		knh_MethodField_t *pools[KNH_TMETHODFIELD_SIZE];
-		knh_loadMethodFieldData(ctx, MethodFieldData0, pools);
-		knh_loadMethodData(ctx, MethodData0, pools);
+		knh_loadMethodFieldData0(ctx, MethodFieldData0, pools);
+		knh_loadMethodData0(ctx, MethodData0, pools);
 		for(i = 0; i < KNH_TMETHODFIELD_SIZE; i++) {
 			knh_addMethodFieldTable(ctx, pools[i]);
 		}
 	}
-	knh_loadMapperData(ctx, MapperData0);
+	knh_loadMapperData0(ctx, MapperData0);
 	knh_setDefaultValues(ctx);
 }
 
