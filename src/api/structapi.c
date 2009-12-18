@@ -2408,43 +2408,6 @@ char *knh_getStructTableName(Ctx *ctx, knh_class_t bcid)
 	DBG2_P("unknown bcid=%d", bcid);
 	return "STRUCT_unknown";
 }
-
-/* ------------------------------------------------------------------------ */
-
-static
-void knh_loadStringData(Ctx *ctx, char **data)
-{
-	size_t i = 0;
-	for(i = 0; *data != NULL; i++) {
-		DBG2_ASSERT(ctx->share->tString[i] == NULL);
-		DBG2_ASSERT(i < (SIZEOF_TSTRING / sizeof(knh_String_t*)));
-		KNH_INITv(ctx->share->tString[i], T__(*data));
-		data++;
-	}
-}
-
-/* ------------------------------------------------------------------------ */
-
-void knh_loadSystemString(Ctx *ctx)
-{
-	knh_loadStringData(ctx, StringData0);
-}
-
-/* ------------------------------------------------------------------------ */
-
-static
-void knh_loadStructData(Ctx *ctx, knh_StructData0_t *data)
-{
-	while(data->cspi != NULL) {
-		knh_ClassTable_t *t = pClassTable(data->cid);
-		t->cspi = data->cspi;
-		t->cflag = data->flag;
-		t->oflag = knh_flag_oflag(data->flag);
-		t->size = data->cspi->size;
-		data++;
-	}
-}
-
 /* ------------------------------------------------------------------------ */
 
 static void knh_loadClassData0(Ctx *ctx, knh_ClassData0_t *data)
@@ -2474,7 +2437,8 @@ static void knh_loadClassData0(Ctx *ctx, knh_ClassData0_t *data)
 				t->r0 = data->r0; t->p3 = data->p3;
 			}
 			else {
-				t->p1 = CLASS_type(data->p1); t->p2 = CLASS_type(data->p2);
+				t->p1 = CLASS_type(data->p1);
+				t->p2 = CLASS_type(data->p2);
 			}
 			t->offset = 0;
 			t->bsize  = t->size / sizeof(knh_Object_t*);
@@ -2555,8 +2519,6 @@ static void knh_setDefaultValues(Ctx *ctx)
 	knh_setClassDefaultValue(ctx, CLASS_ExceptionHandler, KNH_NULL, knh_ExceptionHandler_fdefault);
 }
 
-/* ------------------------------------------------------------------------ */
-
 static void knh_loadExptData0(Ctx *ctx, knh_ExptData0_t *data)
 {
 	while(data->name != NULL) {
@@ -2564,8 +2526,6 @@ static void knh_loadExptData0(Ctx *ctx, knh_ExptData0_t *data)
 		data++;
 	}
 }
-
-/* ------------------------------------------------------------------------ */
 
 static void knh_loadFieldNameData0(Ctx *ctx, knh_FieldNameData0_t *data)
 {
@@ -2581,8 +2541,6 @@ static void knh_loadFieldNameData0(Ctx *ctx, knh_FieldNameData0_t *data)
 		data++;
 	}
 }
-
-/* ------------------------------------------------------------------------ */
 
 static
 void knh_loadMethodFieldData0(Ctx *ctx, knh_MethodFieldData0_t *data, knh_MethodField_t **pools)
@@ -2622,8 +2580,6 @@ void knh_loadMethodFieldData0(Ctx *ctx, knh_MethodFieldData0_t *data, knh_Method
 	}
 }
 
-/* ------------------------------------------------------------------------ */
-
 static
 void knh_loadMethodData0(Ctx *ctx, knh_MethodData0_t *data, knh_MethodField_t **pools)
 {
@@ -2647,8 +2603,6 @@ void knh_loadMethodData0(Ctx *ctx, knh_MethodData0_t *data, knh_MethodField_t **
 	}
 }
 
-/* ------------------------------------------------------------------------ */
-
 static void knh_loadMapperData0(Ctx *ctx, knh_MapperData0_t *data)
 {
 	while(data->func != NULL) {
@@ -2656,8 +2610,6 @@ static void knh_loadMapperData0(Ctx *ctx, knh_MapperData0_t *data)
 		data++;
 	}
 }
-
-/* ------------------------------------------------------------------------ */
 
 static void knh_loadStringPropertyData0(Ctx *ctx, knh_StringData_t *data)
 {
@@ -2705,7 +2657,29 @@ static knh_StringData_t StringPropertyData0[] = {
 
 void knh_loadSystemStructData(Ctx *ctx)
 {
-	knh_loadStructData(ctx, StructData0);
+	knh_StructData0_t *data = StructData0;
+	while(data->cspi != NULL) {
+		knh_ClassTable_t *t = pClassTable(data->cid);
+		t->cspi = data->cspi;
+		t->cflag = data->flag;
+		t->oflag = knh_flag_oflag(data->flag);
+		t->size = data->cspi->size;
+		data++;
+	}
+}
+
+/* ------------------------------------------------------------------------ */
+
+void knh_loadSystemString(Ctx *ctx)
+{
+	char **data = StringData0;
+	size_t i = 0;
+	for(i = 0; *data != NULL; i++) {
+		DBG2_ASSERT(ctx->share->tString[i] == NULL);
+		DBG2_ASSERT(i < (SIZEOF_TSTRING / sizeof(knh_String_t*)));
+		KNH_INITv(ctx->share->tString[i], T__(*data));
+		data++;
+	}
 }
 
 /* ------------------------------------------------------------------------ */
