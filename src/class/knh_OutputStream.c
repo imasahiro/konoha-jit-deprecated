@@ -38,7 +38,7 @@ extern "C" {
 /* ======================================================================== */
 /* [constructor] */
 
-KNHAPI(knh_OutputStream_t*) new_OutputStream__io(Ctx *ctx, knh_String_t *urn, knh_io_t fd, knh_iodrv_t *drv)
+KNHAPI(knh_OutputStream_t*) new_OutputStream__io(Ctx *ctx, knh_String_t *urn, knh_io_t fd, knh_StreamDSPI_t *drv)
 {
 	knh_OutputStream_t* o = (knh_OutputStream_t*)new_Object_bcid(ctx, CLASS_OutputStream, 0);
 	KNH_SETv(ctx, DP(o)->urn, urn);
@@ -53,7 +53,7 @@ KNHAPI(knh_OutputStream_t*) new_OutputStream__io(Ctx *ctx, knh_String_t *urn, kn
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(knh_OutputStream_t*) new_OutputStream__FILE(Ctx *ctx, knh_String_t *urn, FILE *fp, knh_iodrv_t *drv)
+KNHAPI(knh_OutputStream_t*) new_OutputStream__FILE(Ctx *ctx, knh_String_t *urn, FILE *fp, knh_StreamDSPI_t *drv)
 {
 	knh_OutputStream_t* o = (knh_OutputStream_t*)new_Object_bcid(ctx, CLASS_OutputStream, 0);
 	KNH_SETv(ctx, DP(o)->urn, urn);
@@ -150,7 +150,7 @@ void knh_OutputStream_clear(Ctx *ctx, knh_OutputStream_t *o)
 void knh_OutputStream_close(Ctx *ctx, knh_OutputStream_t *o)
 {
 	knh_OutputStream_flush(ctx, o);
-	f_io_close f = DP(o)->driver->fclose;
+	knh_Fclose f = DP(o)->driver->fclose;
 	DP(o)->driver = knh_getDefaultIODriver();
 	f(ctx, DP(o)->fd);
 	DP(o)->fd = -1;
@@ -214,7 +214,7 @@ void knh_OutputStream_print_(Ctx *ctx, knh_OutputStream_t *o, knh_bytes_t str, k
 
 KNHAPI(knh_OutputStream_t*) new_FileOutputStream(Ctx *ctx, knh_bytes_t file, char *mode, int isThrowable)
 {
-	knh_iodrv_t *drv = knh_getIODriver(ctx, STEXT("file"));
+	knh_StreamDSPI_t *drv = knh_getIODriver(ctx, STEXT("file"));
 	knh_io_t fd = drv->fopen(ctx, file, mode, isThrowable);
 	return new_OutputStream__io(ctx, new_String(ctx, file, NULL), fd, drv);
 }

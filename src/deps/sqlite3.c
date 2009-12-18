@@ -87,8 +87,8 @@ void knh_dbcurfree__NOP(knh_dbcur_t *dbcur)
 /* ------------------------------------------------------------------------ */
 /* @data */
 
-static knh_db_drvapi_t DB__NOP = {
-	KNH_DRVAPI_TYPE__DB, "NOP",
+static knh_QueryDSPI_t DB__NOP = {
+	KNH_SQL_DSPI, "NOP",
 	knh_dbopen__NOP,
 	knh_dbquery__NOP,
 	knh_dbclose__NOP,
@@ -242,8 +242,8 @@ void knh_dbcurfree__sqlite3(knh_dbcur_t *dbcur)
 /* ------------------------------------------------------------------------ */
 /* @data */
 
-static knh_db_drvapi_t DB__sqlite3 = {
-	KNH_DRVAPI_TYPE__DB, "sqlite3",
+static knh_QueryDSPI_t DB__sqlite3 = {
+	KNH_SQL_DSPI, "sqlite3",
 	knh_dbopen__sqlite3,
 	knh_dbquery__sqlite3,
 	knh_dbclose__sqlite3,
@@ -392,8 +392,8 @@ void knh_dbcurfree__mysql(knh_dbcur_t *dbcur)
 /* ------------------------------------------------------------------------ */
 /* @data */
 
-static knh_db_drvapi_t DB__mysql = {
-	KNH_DRVAPI_TYPE__DB, "mysql",
+static knh_QueryDSPI_t DB__mysql = {
+	KNH_SQL_DSPI, "mysql",
 	knh_dbopen__mysql,
 	knh_dbquery__mysql,
 	knh_dbclose__mysql,
@@ -407,20 +407,20 @@ static knh_db_drvapi_t DB__mysql = {
 /* ======================================================================== */
 /* [drivers] */
 
-knh_db_drvapi_t *knh_System_getDefaultDBDriver(void)
+knh_QueryDSPI_t *knh_System_getDefaultDBDriver(void)
 {
 	return &DB__NOP;
 }
 
 /* ------------------------------------------------------------------------ */
 
-knh_db_drvapi_t *knh_System_getDBDriver(Ctx *ctx, knh_bytes_t name)
+knh_QueryDSPI_t *knh_System_getDBDriver(Ctx *ctx, knh_bytes_t name)
 {
     if(ctx == NULL) {
         return &DB__NOP;
     }
     else {
-        knh_db_drvapi_t *p = (knh_db_drvapi_t *)knh_getDriverAPI(ctx, KNH_DRVAPI_TYPE__DB, name);
+        knh_QueryDSPI_t *p = (knh_QueryDSPI_t *)knh_getDriverAPI(ctx, KNH_SQL_DSPI, name);
         if(p == NULL) {
 #ifdef KNHX_SQLITE3_EXCEPTION
             KNH_THROWf(ctx, "DB!!: unsupported scheme '%s'", name);
@@ -435,9 +435,9 @@ knh_db_drvapi_t *knh_System_getDBDriver(Ctx *ctx, knh_bytes_t name)
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(void) knh_addDBDriver(Ctx *ctx, char *alias, knh_db_drvapi_t *d)
+KNHAPI(void) knh_addDBDriver(Ctx *ctx, char *alias, knh_QueryDSPI_t *d)
 {
-	knh_addDriverAPI(ctx, alias, (knh_drvapi_t*)d);
+	knh_addDriverAPI(ctx, alias, (knh_DriverSPI_t*)d);
 }
 
 /* ======================================================================== */

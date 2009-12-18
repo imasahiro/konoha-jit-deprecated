@@ -90,7 +90,7 @@ int knh_NameSpace_isLoaded(Ctx *ctx, knh_NameSpace_t *ns, knh_uri_t uri)
 knh_InputStream_t* new_ScriptInputStream(Ctx *ctx, knh_bytes_t path, knh_cwb_t *cwb, knh_NameSpace_t *ns, int isThrowable)
 {
 	knh_uri_t uri = 0;
-	knh_iodrv_t *drv = NULL;
+	knh_StreamDSPI_t *drv = NULL;
 	knh_cwb_t cwbbuf;
 	if(cwb == NULL) {
 		cwb = knh_cwb_openinit(ctx, &cwbbuf, path);

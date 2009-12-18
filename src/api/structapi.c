@@ -1016,7 +1016,7 @@ static FASTAPI(void*) knh_Class_hashkey(Ctx *ctx,knh_sfp_t *sfp, int opt)
 	}
 }
 
-static knh_ObjectCSPI_t CSPI = {
+static knh_ObjectCSPI_t ClassSPI = {
 	"Class", 0,
 	knh_Class_init,
 	DEFAULT_copy,
@@ -1886,7 +1886,7 @@ static FASTAPI(void*) knh_NameSpace_hashkey(Ctx *ctx, knh_sfp_t *sfp, int opt)
 	return DEFAULT_hashkey(ctx, sfp, opt);
 }
 
-static knh_ObjectCSPI_t NameSpaceFunc = {
+static knh_ObjectCSPI_t NameSpaceSPI = {
 	"NameSpace", sizeof(knh_NameSpace_struct),
 	knh_NameSpace_init,
 	DEFAULT_copy,
@@ -1963,7 +1963,7 @@ static FASTAPI(void) knh_System_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr)
 	ftr(ctx, UP(sys->trustedPathDictSet));
 }
 
-static knh_ObjectCSPI_t SystemFunc = {
+static knh_ObjectCSPI_t SystemSPI = {
 	"System", sizeof(knh_System_struct),
 	knh_System_init,
 	DEFAULT_copy,
@@ -1982,7 +1982,7 @@ static FASTAPI(void) knh_Context_init(Ctx *ctx, Object *o, int init)
 	KNH_THROW__T(ctx, "Abort!!");
 }
 
-static knh_ObjectCSPI_t ContextFunc = {
+static knh_ObjectCSPI_t ContextSPI = {
 	"Context", 0,
 	knh_Context_init,
 	DEFAULT_copy,
@@ -2003,7 +2003,7 @@ static FASTAPI(void) knh_Thread_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr)
 {
 }
 
-static knh_ObjectCSPI_t ThreadFunc = {
+static knh_ObjectCSPI_t ThreadSPI = {
 	"Thread", 0,
 	knh_Thread_init,
 	DEFAULT_copy,
@@ -2024,7 +2024,7 @@ static FASTAPI(void) knh_ScriptEngine_traverse(Ctx *ctx, Object *o, knh_ftravers
 {
 }
 
-static knh_ObjectCSPI_t ScriptEngineFunc = {
+static knh_ObjectCSPI_t ScriptEngineSPI = {
 	"ScriptEngine", 0,
 	knh_ScriptEngine_init,
 	DEFAULT_copy,
@@ -2051,7 +2051,7 @@ static FASTAPI(void) knh_Token_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr)
 	ftr(ctx, b->data);
 }
 
-static knh_ObjectCSPI_t TokenFunc = {
+static knh_ObjectCSPI_t TokenSPI = {
 	"Token", sizeof(knh_Token_struct),
 	knh_Token_init,
 	DEFAULT_copy,
@@ -2108,7 +2108,7 @@ static FASTAPI(void) knh_Stmt_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr)
 	ftr(ctx, UP(b->next));
 }
 
-static knh_ObjectCSPI_t StmtFunc = {
+static knh_ObjectCSPI_t StmtSPI = {
 	"Stmt", sizeof(knh_Stmt_struct),
 	knh_Stmt_init,
 	DEFAULT_copy,
@@ -2203,7 +2203,7 @@ static FASTAPI(void) knh_Gamma_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr)
 	}
 }
 
-static knh_ObjectCSPI_t GammaFunc = {
+static knh_ObjectCSPI_t GammaSPI = {
 	"Gamma", sizeof(knh_Gamma_struct),
 	knh_Gamma_init,
 	DEFAULT_copy,
@@ -2245,7 +2245,7 @@ static FASTAPI(void) knh_KLRInst_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr
 	}
 }
 
-static knh_ObjectCSPI_t KLRInstFunc = {
+static knh_ObjectCSPI_t KLRInstSPI = {
 	"KLRInst", 0,
 	knh_KLRInst_init,
 	DEFAULT_copy,
@@ -2281,7 +2281,7 @@ static FASTAPI(void) knh_KLRCode_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr
 	}
 }
 
-static knh_ObjectCSPI_t KLRCodeFunc = {
+static knh_ObjectCSPI_t KLRCodeSPI = {
 	"KLRCode", sizeof(knh_KLRCode_struct),
 	knh_KLRCode_init,
 	DEFAULT_copy,

@@ -892,22 +892,24 @@ typedef struct {
 /* driver */
 /* ======================================================================== */
 
-#define KNHINIT
+//#define KNHINIT
 
 typedef struct {
 	int   type;
 	char *name;
-} knh_drvapi_t ;
+} knh_DriverSPI_t ;
 
-#define KNH_DRVAPI_TYPE__UNKNOWN          0
-#define KNH_DRVAPI_TYPE__BCONV            1
-#define KNH_DRVAPI_TYPE__SCONV            2
-#define KNH_DRVAPI_TYPE__IO               3
-#define KNH_DRVAPI_TYPE__PARSER           4
-#define KNH_DRVAPI_TYPE__REGEX            5
-#define KNH_DRVAPI_TYPE__DB               6
+//#define KNH_DRVAPI_TYPE__UNKNOWN          0
+#define KNH_BCONV_DSPI            1
+#define KNH_SCONV_DSPI            2
+#define KNH_PARSER_DSPI           3
+#define KNH_STREAM_DSPI           4
+#define KNH_REGEX_DSPI            5
+#define KNH_SQL_DSPI              6
+#define KNH_QUERY_DSPI            6
+#define KNH_JIT_DSPI              7
 
-#define IS_DRVAPI(c)   (0 < c && c < 7)
+#define IS_DRVAPI(c)   (0 < c && c < 8)
 
 /* ------------------------------------------------------------------------ */
 /* KNH_DRVAPI_TYPE__BYTECONV */
@@ -921,44 +923,44 @@ typedef struct {
 	char *name;
 	knh_fbyteconv  fbconv;
 	knh_fbyteconv  fbconv_inverse;
-} knh_bconv_driapi_t;
+} knh_BytesConvDSPI_t;
 
 /* ------------------------------------------------------------------------ */
-/* KNH_DRVAPI_TYPE__IO */
+/* KNH_PARSER_DSPI */
 
-typedef knh_intptr_t knh_io_t;
-
-typedef knh_io_t (*f_io_open)(Ctx *ctx, knh_bytes_t urn, char *mode, int isThrowable);
-typedef void (*f_io_init)(Ctx *ctx, Object *stream, char *mode);
-typedef knh_intptr_t (*f_io_read)(Ctx *ctx, knh_io_t fd, char *buf, size_t bufsiz);
-typedef knh_intptr_t (*f_io_write)(Ctx *ctx, knh_io_t fd, char *buf, size_t bufsiz);
-typedef void   (*f_io_close)(Ctx *ctx, knh_io_t fd);
-
-typedef struct {
-	int type;
-	char *name;
-	size_t bufsiz;  /* knh_io_t == FILE* if bufsiz == 0 */
-	f_io_open    fopen;
-	f_io_init    finit;
-	f_io_read    fread;
-	f_io_write   fwrite;
-	f_io_close   fclose;
-} knh_iodrv_t;
-
-/* ------------------------------------------------------------------------ */
-/* KNH_DRVAPI_TYPE__PARSER */
-
-typedef knh_Object_t* (*knh_fparser)(Ctx *, struct knh_String_t *p);
+typedef knh_Object_t* (*knh_Fparser)(Ctx *, struct knh_String_t *p);
 
 typedef struct {
 	int   type;
 	char *name;
 	knh_type_t  rtype;
-	knh_fparser parser;
-} knh_parser_drvapi_t;
+	knh_Fparser parser;
+} knh_ParserDSPI_t;
 
 /* ------------------------------------------------------------------------ */
-/* KNH_DRVAPI_TYPE__REGEX */
+/* KNH_STREAM_DSPI */
+
+typedef knh_intptr_t knh_io_t;
+
+typedef knh_io_t (*knh_Fopen)(Ctx *ctx, knh_bytes_t urn, char *mode, int isThrowable);
+typedef void (*knh_Finit)(Ctx *ctx, Object *stream, char *mode);
+typedef knh_intptr_t (*knh_Fread)(Ctx *ctx, knh_io_t fd, char *buf, size_t bufsiz);
+typedef knh_intptr_t (*knh_Fwrite)(Ctx *ctx, knh_io_t fd, char *buf, size_t bufsiz);
+typedef void   (*knh_Fclose)(Ctx *ctx, knh_io_t fd);
+
+typedef struct {
+	int type;
+	char *name;
+	size_t bufsiz;  /* knh_io_t == FILE* if bufsiz == 0 */
+	knh_Fopen    fopen;
+	knh_Finit    finit;
+	knh_Fread    fread;
+	knh_Fwrite   fwrite;
+	knh_Fclose   fclose;
+} knh_StreamDSPI_t;
+
+/* ------------------------------------------------------------------------ */
+/* KNH_REGEX_DSPI */
 
 typedef void knh_regex_t;
 
@@ -972,47 +974,42 @@ typedef struct {
 	knh_bytes_t rm_name;  /* {NULL, 0}, if not NAMED */
 } knh_regmatch_t;
 
-typedef knh_regex_t* (*knh_fregmalloc)(Ctx *);
-typedef int (*knh_fregcomp)(Ctx *, knh_regex_t *, char *pattern, char *option);
-typedef int (*knh_fregexec)(Ctx *, knh_regex_t *, char *str, size_t nmatch, knh_regmatch_t p[], int flags);
-typedef void (*knh_fregfree)(Ctx *, knh_regex_t *);
+typedef knh_regex_t* (*knh_Fregmalloc)(Ctx *);
+typedef int (*knh_Fregcomp)(Ctx *, knh_regex_t *, char *pattern, char *option);
+typedef int (*knh_Fregexec)(Ctx *, knh_regex_t *, char *str, size_t nmatch, knh_regmatch_t p[], int flags);
+typedef void (*knh_Fregfree)(Ctx *, knh_regex_t *);
 
 typedef struct {
 	int  type;
 	char *name;
-	knh_fregmalloc regmalloc;
-	knh_fregcomp   regcomp;
-	knh_fregexec   regexec;
-	knh_fregfree   regfree;
-} knh_regex_drvapi_t;
+	knh_Fregmalloc regmalloc;
+	knh_Fregcomp   regcomp;
+	knh_Fregexec   regexec;
+	knh_Fregfree   regfree;
+} knh_RegexDSPI_t;
 
 /* ------------------------------------------------------------------------ */
-/* KNH_DRVAPI_TYPE__DB */
+/* KNH_SQL_DSPI */
 
 typedef void   knh_db_t;
 typedef void   knh_dbcur_t;
 struct knh_ResultSet_t;
-typedef knh_db_t* (*knh_fdbopen)(Ctx *ctx, knh_bytes_t url);
-typedef knh_dbcur_t* (*knh_fdbquery)(Ctx *ctx, knh_db_t *, knh_bytes_t query, struct knh_ResultSet_t*);
-typedef void   (*knh_fdbclose)(Ctx *ctx, knh_db_t *);
+typedef knh_db_t* (*knh_Fdbopen)(Ctx *ctx, knh_bytes_t url);
+typedef knh_dbcur_t* (*knh_Fdbquery)(Ctx *ctx, knh_db_t *, knh_bytes_t query, struct knh_ResultSet_t*);
+typedef void   (*knh_Fdbclose)(Ctx *ctx, knh_db_t *);
 
-typedef int    (*knh_fdbcurnext)(Ctx *, knh_dbcur_t *, struct knh_ResultSet_t*);
-typedef void   (*knh_fdbcurfree)(knh_dbcur_t *);
+typedef int    (*knh_Fcurnext)(Ctx *, knh_dbcur_t *, struct knh_ResultSet_t*);
+typedef void   (*knh_Fcurfree)(knh_dbcur_t *);
 
 typedef struct {
 	int  type;
 	char *name;
-	knh_fdbopen   dbopen;
-	knh_fdbquery  dbquery;
-	knh_fdbclose  dbclose;
-	knh_fdbcurnext dbcurnext;
-	knh_fdbcurfree dbcurfree;
-} knh_db_drvapi_t;
-
-/* ======================================================================== */
-/* mutex */
-/* ======================================================================== */
-
+	knh_Fdbopen   dbopen;
+	knh_Fdbquery  dbquery;
+	knh_Fdbclose  dbclose;
+	knh_Fcurnext  dbcurnext;
+	knh_Fcurfree  dbcurfree;
+} knh_QueryDSPI_t;
 
 /* ------------------------------------------------------------------------ */
 

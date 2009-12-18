@@ -539,7 +539,7 @@ knh_String_t *knh_getResourceName(Ctx *ctx, knh_uri_t uri)
 /* ======================================================================== */
 /* [DRVAPI] */
 
-void knh_addDriverAPI(Ctx *ctx, char *alias, knh_drvapi_t* p)
+void knh_addDriverAPI(Ctx *ctx, char *alias, knh_DriverSPI_t* p)
 {
 	char bufn[CLASSNAME_BUFSIZ];
 	KNH_ASSERT(IS_DRVAPI(p->type));
@@ -556,13 +556,13 @@ void knh_addDriverAPI(Ctx *ctx, char *alias, knh_drvapi_t* p)
 
 /* ------------------------------------------------------------------------ */
 
-knh_drvapi_t *knh_getDriverAPI(Ctx *ctx, int type, knh_bytes_t name)
+knh_DriverSPI_t *knh_getDriverAPI(Ctx *ctx, int type, knh_bytes_t name)
 {
 	char bufn[CLASSNAME_BUFSIZ], bufn2[CLASSNAME_BUFSIZ];
 	knh_format_bytes(bufn2, sizeof(bufn2), name);
 	knh_snprintf(bufn, sizeof(bufn), "%s:%02d", bufn2, type);
 	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
-	knh_drvapi_t *p = (knh_drvapi_t*)knh_DictSet_get__b(DP(ctx->sys)->DriversTableDictSet, B(bufn));
+	knh_DriverSPI_t *p = (knh_DriverSPI_t*)knh_DictSet_get__b(DP(ctx->sys)->DriversTableDictSet, B(bufn));
 	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
 	return p;
 }

@@ -652,7 +652,7 @@ typedef struct knh_AffineConv_t {
 typedef struct {
 	knh_hObject_t h;
 	knh_regex_t *reg;
-	knh_regex_drvapi_t *df;
+	knh_RegexDSPI_t *df;
 	struct knh_String_t *pattern;
 } knh_Regex_t;
 
@@ -752,7 +752,7 @@ typedef struct knh_InputStream {
 		knh_io_t fd;
 		FILE *fp;
 	};
-	knh_iodrv_t *driver;
+	knh_StreamDSPI_t *driver;
 	union {
 		struct knh_Bytes_t *ba;
 		struct knh_String_t *str;
@@ -783,7 +783,7 @@ typedef struct knh_InputStream_t {
 
 typedef struct {
 	knh_io_t fd;
-	knh_iodrv_t *driver;
+	knh_StreamDSPI_t *driver;
 	union {
 		struct knh_Bytes_t *ba;
 		struct knh_String_t *str;
@@ -835,7 +835,7 @@ typedef struct knh_Socket_t {
 typedef struct knh_Connection_t {
 	knh_hObject_t h;
 	knh_db_t           *conn;
-	knh_db_drvapi_t    *df;
+	knh_QueryDSPI_t    *df;
 	knh_String_t       *urn;
 } knh_Connection_t;
 
@@ -860,7 +860,7 @@ typedef struct {
 typedef struct knh_ResultSet_struct {
 	struct knh_Connection_t *conn;
 	knh_dbcur_t             *dbcur;
-	knh_fdbcurfree           dbcur_free;  /* necessary if conn is closed before */
+	knh_Fcurfree           dbcur_free;  /* necessary if conn is closed before */
 	knh_String_t            *tableName;
 	knh_class_t              tcid;
 	knh_ushort_t             column_size;

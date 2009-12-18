@@ -209,8 +209,8 @@ void knh_iodrv_close__FILE(Ctx *ctx, knh_io_t fd)
 /* ======================================================================== */
 /* @data */
 
-static knh_iodrv_t IO__NOP = {
-	KNH_DRVAPI_TYPE__IO, "NOP",
+static knh_StreamDSPI_t IO__NOP = {
+	KNH_STREAM_DSPI, "NOP",
 	0,
 	knh_iodrv_open__NOP,
 	knh_iodrv_init__NOP,
@@ -219,8 +219,8 @@ static knh_iodrv_t IO__NOP = {
 	knh_iodrv_close__NOP
 };
 
-static knh_iodrv_t IO__FILE = {
-	KNH_DRVAPI_TYPE__IO, "file",
+static knh_StreamDSPI_t IO__FILE = {
+	KNH_STREAM_DSPI, "file",
 	0,
 	knh_iodrv_open__FILE,
 	knh_iodrv_init__NOP,
@@ -232,9 +232,9 @@ static knh_iodrv_t IO__FILE = {
 /* ======================================================================== */
 /* [drivers] */
 
-knh_iodrv_t *knh_getIODriver(Ctx *ctx, knh_bytes_t name)
+knh_StreamDSPI_t *knh_getIODriver(Ctx *ctx, knh_bytes_t name)
 {
-	knh_iodrv_t *p = (knh_iodrv_t*)knh_getDriverAPI(ctx, KNH_DRVAPI_TYPE__IO, name);
+	knh_StreamDSPI_t *p = (knh_StreamDSPI_t*)knh_getDriverAPI(ctx, KNH_STREAM_DSPI, name);
 	if(p == NULL) {
 		KNH_WARNING(ctx, "IO!!: unsupported scheme '%s'", name);
 		p = &IO__NOP;
@@ -244,16 +244,16 @@ knh_iodrv_t *knh_getIODriver(Ctx *ctx, knh_bytes_t name)
 
 /* ------------------------------------------------------------------------ */
 
-knh_iodrv_t *knh_getDefaultIODriver(void)
+knh_StreamDSPI_t *knh_getDefaultIODriver(void)
 {
 	return &IO__NOP;
 }
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(void) knh_addIODriver(Ctx *ctx, char *alias, knh_iodrv_t *d)
+KNHAPI(void) knh_addIODriver(Ctx *ctx, char *alias, knh_StreamDSPI_t *d)
 {
-	knh_addDriverAPI(ctx, alias, (knh_drvapi_t*)d);
+	knh_addDriverAPI(ctx, alias, (knh_DriverSPI_t*)d);
 }
 
 /* ======================================================================== */
@@ -269,8 +269,8 @@ void knh_loadDefaultIODriver(Ctx *ctx)
 /* [init] */
 /* @data */
 
-static knh_iodrv_t IO__stdio = {
-	KNH_DRVAPI_TYPE__IO, "stdio",
+static knh_StreamDSPI_t IO__stdio = {
+	KNH_STREAM_DSPI, "stdio",
 	0,
 	knh_iodrv_open__NOP,
 	knh_iodrv_init__NOP,

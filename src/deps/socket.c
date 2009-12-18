@@ -240,8 +240,8 @@ static void knh_iodrv_close__SOCKET(Ctx *ctx, knh_io_t sd)
 /* ------------------------------------------------------------------------ */
 /* @data */
 
-static knh_iodrv_t IO__SOCKET = {
-	KNH_DRVAPI_TYPE__IO, "socket",
+static knh_StreamDSPI_t IO__SOCKET = {
+	KNH_STREAM_DSPI, "socket",
 	4096,
 	knh_iodrv_open__SOCKET,
 	knh_iodrv_init__SOCKET,
@@ -252,7 +252,7 @@ static knh_iodrv_t IO__SOCKET = {
 
 /* ------------------------------------------------------------------------ */
 
-knh_iodrv_t *knh_getSocketDriver(void)
+knh_StreamDSPI_t *knh_getSocketDriver(void)
 {
 	return &IO__SOCKET;
 }
@@ -342,8 +342,8 @@ static void knh_iodrv_close__HTTP(Ctx *ctx, knh_io_t sd)
 /* ------------------------------------------------------------------------ */
 /* @data */
 
-static knh_iodrv_t IO__HTTP = {
-	KNH_DRVAPI_TYPE__IO, "http",
+static knh_StreamDSPI_t IO__HTTP = {
+	KNH_STREAM_DSPI, "http",
 	4096,
 	knh_iodrv_open__HTTP,
 	knh_iodrv_init__HTTP,
