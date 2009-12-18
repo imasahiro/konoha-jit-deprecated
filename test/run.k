@@ -5,11 +5,7 @@ void main (String[] args)
 		}
 		dir = args[2];
 		String[] files = os.listDir(dir);
-		// FIXME
-		// cant find String[] to String_Itrator mapper
-		//foreach(String file in files) {
-		for(i=0;i<|files|;i++) {
-			file = files[i];
+		foreach(String file in files) {
 			if (file.endsWith(".k") && file.split("/",0).pop() != args[0].split("/",0).pop()) {
 				file = dir + "/" + file;
 				int ret = system(args[1] + " " + file);
