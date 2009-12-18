@@ -314,7 +314,7 @@ knh_Object_t *new_Object_bcid(Ctx *ctx, /*knh_flag_t flag,*/ knh_class_t bcid, i
 		else {
 			o->ref = NULL;
 		}
-		ClassTable(bcid).ofunc->init(ctx, o, init);
+		ClassTable(bcid).cspi->init(ctx, o, init);
 		return o;
 	}
 }
@@ -346,7 +346,7 @@ knh_Object_t *new_Object_init(Ctx *ctx, knh_flag_t flag, knh_class_t cid, int in
 		else {
 			o->ref = NULL;
 		}
-		ClassTable(bcid).ofunc->init(ctx, o, init);
+		ClassTable(bcid).cspi->init(ctx, o, init);
 		return o;
 	}
 }
@@ -386,7 +386,7 @@ FASTAPI(void) knh_Object_free(Ctx *ctx, knh_Object_t *o)
 	if(unlikely(o->h.magic == 0)) return;
 	if(unlikely(o->h.bcid == CLASS_Context)) return;
 	o->h.magic = 0;
-	ClassTable(o->h.bcid).ofunc->traverse(ctx, o, knh_Object_sweep);
+	ClassTable(o->h.bcid).cspi->traverse(ctx, o, knh_Object_sweep);
 	size_t size = ClassTable(o->h.cid).size;
 	if(size > 0) {
 		KNH_FREE(ctx, o->ref, size);
@@ -403,7 +403,7 @@ void knh_Object_traverse(Ctx *ctx, knh_Object_t *o, knh_ftraverse ftr)
 		knh_Object_free(ctx, o);
 	}
 	else {
-		ClassTable(o->h.bcid).ofunc->traverse(ctx, o, knh_Object_sweep);
+		ClassTable(o->h.bcid).cspi->traverse(ctx, o, knh_Object_sweep);
 	}
 }
 

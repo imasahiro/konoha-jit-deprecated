@@ -208,7 +208,7 @@ knh_addClosureClass(Ctx *ctx, knh_class_t cid, knh_String_t *name, knh_type_t r0
 	knh_setClassName(ctx, cid, name);
 	t->cflag  = ClassTable(CLASS_Closure).cflag | mask;
 	t->oflag  = ClassTable(CLASS_Closure).oflag;
-	t->ofunc    = ClassTable(CLASS_Closure).ofunc;
+	t->cspi    = ClassTable(CLASS_Closure).cspi;
 
 	t->bcid   = CLASS_Closure;
 	t->supcid = ClassTable(CLASS_Closure).supcid;
@@ -434,7 +434,7 @@ knh_class_t knh_addThunkClass(Ctx *ctx, knh_class_t cid, knh_String_t *name, knh
 	knh_setClassName(ctx, cid, name);
 	t->cflag  = ClassTable(CLASS_Thunk).cflag | mask;
 	t->oflag  = ClassTable(CLASS_Thunk).oflag;
-	t->ofunc  = ClassTable(CLASS_Thunk).ofunc;
+	t->cspi  = ClassTable(CLASS_Thunk).cspi;
 
 	t->bcid   = CLASS_Thunk;
 	t->supcid = ClassTable(CLASS_Thunk).supcid;

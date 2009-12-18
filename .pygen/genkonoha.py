@@ -125,7 +125,7 @@ class Class :
 
     def StructData(self):
         fmt = '''
-\t{(knh_ObjectFunc_t*)&($CFunc), CLASS_$C, FLAG_$C},'''
+\t{(knh_ObjectCSPI_t*)&($CSPI), CLASS_$C, FLAG_$C},'''
         fmt = fmt.replace('$C', self.cname)
         fmt = fmt.replace('_Object_', '_ObjectField_')
         return fmt

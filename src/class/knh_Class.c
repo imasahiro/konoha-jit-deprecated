@@ -240,7 +240,7 @@ knh_addGenericsClass(Ctx *ctx, knh_class_t cid, knh_String_t *name, knh_class_t 
 
 	t->cflag  = ClassTable(bcid).cflag;
 	t->oflag  = ClassTable(bcid).oflag;
-	t->ofunc    = ClassTable(bcid).ofunc;
+	t->cspi    = ClassTable(bcid).cspi;
 
 	t->bcid   = bcid;
 	t->supcid = ClassTable(bcid).supcid;

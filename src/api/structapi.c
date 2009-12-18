@@ -197,14 +197,14 @@ static FASTAPI(void*) knh_ObjectField_hashkey(Ctx *ctx, knh_sfp_t *sfp, int opt)
 }
 
 
-static knh_ObjectFunc_t ObjectFunc = {
+static knh_ObjectCSPI_t ObjectSPI = {
+	"Object", 0,
 	knh_ObjectField_init,
 	DEFAULT_copy,
 	knh_ObjectField_traverse,
 	knh_ObjectField_compareTo,
 	knh_ObjectField_hashkey,
 	DEFAULT_genmap,
-	"Object", 0,
 };
 
 /* ======================================================================== */
@@ -230,14 +230,14 @@ static FASTAPI(void) knh_Any_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr)
 	}
 }
 
-static knh_ObjectFunc_t AnyFunc = {
+static knh_ObjectCSPI_t AnySPI = {
+	"Any", 0,
 	knh_Any_init,
 	DEFAULT_copy,
 	knh_Any_traverse,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
-	"Any", 0,
 };
 
 /* ======================================================================== */
@@ -253,27 +253,27 @@ static FASTAPI(void*) knh_Boolean_hashkey(Ctx *ctx, knh_sfp_t *sfp, int opt)
 	}
 }
 
-static knh_ObjectFunc_t BooleanFunc = {
+static knh_ObjectCSPI_t BooleanSPI = {
+	"Boolean", 0,
 	DEFAULT_init,
 	DEFAULT_copy,
 	DEFAULT_traverse,
 	DEFAULT_compareTo,
 	knh_Boolean_hashkey,
 	DEFAULT_genmap,
-	"Boolean", 0,
 };
 
 /* ======================================================================== */
 /* Number */
 
-static knh_ObjectFunc_t NumberFunc = {
+static knh_ObjectCSPI_t NumberSPI = {
+	"Number", 0,
 	DEFAULT_init,
 	DEFAULT_copy,
 	DEFAULT_traverse,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
-	"Number", 0,
 };
 
 /* ======================================================================== */
@@ -318,14 +318,14 @@ static FASTAPI(knh_float_t) knh_Int_tofloat(Ctx *ctx, knh_sfp_t *sfp)
 	return (knh_float_t)sfp[0].ivalue;
 }
 
-static knh_NumberFunc_t IntFunc = {
-	{ DEFAULT_init,
+static knh_NumberCSPI_t IntSPI = {
+	{"Int", 0,
+	DEFAULT_init,
 	DEFAULT_copy,
 	DEFAULT_traverse,
 	knh_Int_compareTo,
 	knh_Int_hashkey,
-	DEFAULT_genmap,
-	"Int", 0},
+	DEFAULT_genmap},
 	knh_Int_toint,
 	knh_Int_tofloat,
 };
@@ -351,14 +351,14 @@ static FASTAPI(knh_float_t) knh_Float_tofloat(Ctx *ctx, knh_sfp_t *sfp)
 	return sfp[0].fvalue;
 }
 
-static knh_NumberFunc_t FloatFunc = {
-	{DEFAULT_init,
+static knh_NumberCSPI_t FloatSPI = {
+	{"Float", 0,
+	DEFAULT_init,
 	DEFAULT_copy,
 	DEFAULT_traverse,
 	knh_Float_compareTo,
 	knh_Int_hashkey,
-	DEFAULT_genmap,
-	"Float", 0},
+	DEFAULT_genmap},
 	knh_Float_toint, knh_Float_tofloat,
 };
 
@@ -425,14 +425,14 @@ static FASTAPI(void*) knh_String_hashkey(Ctx *ctx, knh_sfp_t *sfp, int opt)
 	}
 }
 
-static knh_ObjectFunc_t StringFunc = {
+static knh_ObjectCSPI_t StringSPI = {
+	"String", 0,
 	knh_String_init,
 	DEFAULT_copy,
 	knh_String_traverse,
 	knh_String_compareTo,
 	knh_String_hashkey,
 	DEFAULT_genmap,
-	"String", 0,
 };
 
 /* ======================================================================== */
@@ -463,14 +463,14 @@ static FASTAPI(void) knh_Bytes_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr)
 	}
 }
 
-static knh_ObjectFunc_t BytesFunc = {
+static knh_ObjectCSPI_t BytesSPI = {
+	"Bytes", 0,
 	knh_Bytes_init,
 	DEFAULT_copy,
 	knh_Bytes_traverse,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
-	"Bytes", 0,
 };
 
 /* ======================================================================== */
@@ -490,14 +490,14 @@ static FASTAPI(void) knh_Pair_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr)
 	ftr(ctx, t->second);
 }
 
-static knh_ObjectFunc_t PairFunc = {
+static knh_ObjectCSPI_t PairSPI = {
+	"Pair", 0,
 	knh_Pair_init,
 	DEFAULT_copy,
 	knh_Pair_traverse,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
-	"Pair", 0,
 };
 
 
@@ -532,14 +532,14 @@ static FASTAPI(void) knh_Tuple_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr)
 	}
 }
 
-static knh_ObjectFunc_t TupleFunc = {
+static knh_ObjectCSPI_t TupleSPI = {
+	"Tuple", 0,
 	knh_Tuple_init,
 	DEFAULT_copy,
 	knh_Tuple_traverse,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
-	"Tuple", 0,
 };
 
 /* ======================================================================== */
@@ -560,14 +560,14 @@ static knh_Mapper_t* knh_Range_genmap(Ctx *ctx, knh_class_t cid, knh_class_t tci
 	return NULL;
 }
 
-static knh_ObjectFunc_t RangeFunc = {
+static knh_ObjectCSPI_t RangeSPI = {
+	"Range", 0,
 	knh_Pair_init,
 	DEFAULT_copy,
 	knh_Pair_traverse,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	knh_Range_genmap,
-	"Range", 0,
 };
 
 /* ======================================================================== */
@@ -616,14 +616,14 @@ static knh_Mapper_t* knh_Array_genmap(Ctx *ctx, knh_class_t cid, knh_class_t tci
 	return NULL;
 }
 
-static knh_ObjectFunc_t ArrayFunc = {
+static knh_ObjectCSPI_t ArraySPI = {
+	"Array", 0,
 	knh_Array_init,
 	DEFAULT_copy,
 	knh_Array_traverse,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	knh_Array_genmap,
-	"Array", 0,
 };
 
 /* ======================================================================== */
@@ -653,14 +653,14 @@ static FASTAPI(void) knh_IArray_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr)
 	}
 }
 
-static knh_ObjectFunc_t IArrayFunc = {
+static knh_ObjectCSPI_t IArraySPI = {
+	"IArray", 0,
 	knh_IArray_init,
 	DEFAULT_copy,
 	knh_IArray_traverse,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap/*knh_IArray_genmap*/,
-	"IArray", 0,
 };
 
 /* ======================================================================== */
@@ -690,14 +690,14 @@ static FASTAPI(void) knh_FArray_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr)
 	}
 }
 
-static knh_ObjectFunc_t FArrayFunc = {
+static knh_ObjectCSPI_t FArraySPI = {
+	"FArray", 0,
 	knh_FArray_init,
 	DEFAULT_copy,
 	knh_FArray_traverse,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap /*knh_FArray_genmap*/,
-	"FArray", 0,
 };
 
 /* ======================================================================== */
@@ -769,14 +769,14 @@ static knh_Mapper_t* knh_Iterator_genmap(Ctx *ctx, knh_class_t cid, knh_class_t 
 	return NULL;
 }
 
-static knh_ObjectFunc_t IteratorFunc = {
+static knh_ObjectCSPI_t IteratorSPI = {
+	"Iterator", sizeof(knh_Iterator_struct),
 	knh_Iterator_init,
 	DEFAULT_copy,
 	knh_Iterator_traverse,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	knh_Iterator_genmap,
-	"Iterator", sizeof(knh_Iterator_struct),
 };
 
 /* ======================================================================== */
@@ -796,14 +796,14 @@ static FASTAPI(void) knh_DictMap_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr
 	knh_dict_traverse(ctx, d->_list, ftr);
 }
 
-static knh_ObjectFunc_t DictMapFunc = {
+static knh_ObjectCSPI_t DictMapSPI = {
+	"DictMap", 0,
 	knh_DictMap_init,
 	DEFAULT_copy,
 	knh_DictMap_traverse,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap /*knh_DictMap_genmap*/,
-	"DictMap", 0,
 };
 
 /* ======================================================================== */
@@ -817,14 +817,14 @@ static FASTAPI(void) knh_DictSet_init(Ctx *ctx, Object *o, int init)
 	d->fcmp = knh_bytes_strcmp;
 }
 
-static knh_ObjectFunc_t DictSetFunc = {
+static knh_ObjectCSPI_t DictSetSPI = {
+	"DictSet", 0,
 	knh_DictSet_init,
 	DEFAULT_copy,
 	knh_DictMap_traverse,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap /*knh_DictMap_genmap*/,
-	"DictSet", 0,
 };
 
 /* ======================================================================== */
@@ -914,14 +914,14 @@ static FASTAPI(void) knh_Hash_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr)
 	}
 }
 
-static knh_ObjectFunc_t HashMapFunc = {
+static knh_ObjectCSPI_t HashMapSPI = {
+	"HashMap", sizeof(knh_HashMap_struct),
 	knh_HashMap_init,
 	DEFAULT_copy,
 	knh_Hash_traverse,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap /*knh_DictMap_genmap*/,
-	"HashMap", sizeof(knh_HashMap_struct),
 };
 
 /* ======================================================================== */
@@ -948,14 +948,14 @@ static FASTAPI(void) knh_HashSet_init(Ctx *ctx, Object *o, int init)
 	hash->hashop = &knh_hashset_op;
 }
 
-static knh_ObjectFunc_t HashSetFunc = {
+static knh_ObjectCSPI_t HashSetSPI = {
+	"HashSet", sizeof(knh_HashSet_struct),
 	knh_HashSet_init,
 	DEFAULT_copy,
 	knh_Hash_traverse,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap /*knh_DictMap_genmap*/,
-	"HashSet", sizeof(knh_HashSet_struct),
 };
 
 /* ======================================================================== */
@@ -976,14 +976,14 @@ static FASTAPI(void) knh_DictIdx_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr
 	ftr(ctx, UP(d->termsDictSet));
 }
 
-static knh_ObjectFunc_t DictIdxFunc = {
+static knh_ObjectCSPI_t DictIdxSPI = {
+	"DictIdx", 0,
 	knh_DictIdx_init,
 	DEFAULT_copy,
 	knh_DictIdx_traverse,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap /*knh_DictMap_genmap*/,
-	"DictIdx", 0,
 };
 
 /* ======================================================================== */
@@ -1016,14 +1016,14 @@ static FASTAPI(void*) knh_Class_hashkey(Ctx *ctx,knh_sfp_t *sfp, int opt)
 	}
 }
 
-static knh_ObjectFunc_t ClassFunc = {
+static knh_ObjectCSPI_t CSPI = {
+	"Class", 0,
 	knh_Class_init,
 	DEFAULT_copy,
 	DEFAULT_traverse,
 	knh_Class_compareTo,
 	knh_Class_hashkey,
 	DEFAULT_genmap /*knh_DictMap_genmap*/,
-	"Class", 0,
 };
 
 /* ======================================================================== */
@@ -1067,14 +1067,14 @@ static FASTAPI(void) knh_ClassField_traverse(Ctx *ctx, Object *o, knh_ftraverse 
 	}
 }
 
-static knh_ObjectFunc_t ClassFieldFunc = {
+static knh_ObjectCSPI_t ClassFieldSPI = {
+	"ClassField", 0,
 	knh_ClassField_init,
 	DEFAULT_copy,
 	knh_ClassField_traverse,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap /*knh_DictMap_genmap*/,
-	"ClassField", 0,
 };
 
 /* ======================================================================== */
@@ -1132,14 +1132,14 @@ static FASTAPI(void*) knh_MethodField_hashkey(Ctx *ctx, knh_sfp_t *sfp, int opt)
 	return DEFAULT_hashkey(ctx, sfp, opt);
 }
 
-static knh_ObjectFunc_t MethodFieldFunc = {
+static knh_ObjectCSPI_t MethodFieldSPI = {
+	"MethodField", 0,
 	knh_MethodField_init,
 	DEFAULT_copy,
 	knh_MethodField_traverse,
 	DEFAULT_compareTo,
 	knh_MethodField_hashkey,
 	DEFAULT_genmap /*knh_DictMap_genmap*/,
-	"MethodField", 0,
 };
 
 /* ======================================================================== */
@@ -1187,14 +1187,14 @@ static FASTAPI(void*) knh_Method_hashkey(Ctx *ctx, knh_sfp_t *sfp, int opt)
 	return DEFAULT_hashkey(ctx, sfp, opt);
 }
 
-static knh_ObjectFunc_t MethodFunc = {
+static knh_ObjectCSPI_t MethodSPI = {
+	"Method", sizeof(knh_Method_struct),
 	knh_Method_init,
 	DEFAULT_copy,
 	knh_Method_traverse,
 	DEFAULT_compareTo,
 	knh_Method_hashkey,
 	DEFAULT_genmap /*knh_DictMap_genmap*/,
-	"Method", sizeof(knh_Method_struct),
 };
 
 /* ======================================================================== */
@@ -1233,14 +1233,14 @@ static FASTAPI(void*) knh_Mapper_hashkey(Ctx *ctx, knh_sfp_t *sfp, int opt)
 	return DEFAULT_hashkey(ctx, sfp, opt);
 }
 
-static knh_ObjectFunc_t MapperFunc = {
+static knh_ObjectCSPI_t MapperSPI = {
+	"Mapper", sizeof(knh_Mapper_struct),
 	knh_Mapper_init,
 	DEFAULT_copy,
 	knh_Mapper_traverse,
 	DEFAULT_compareTo,
 	knh_Mapper_hashkey,
 	DEFAULT_genmap /*knh_DictMap_genmap*/,
-	"Mapper", sizeof(knh_Mapper_struct),
 };
 
 
@@ -1268,14 +1268,14 @@ static FASTAPI(void) knh_ClassMap_traverse(Ctx *ctx, Object *o, knh_ftraverse ft
 	}
 }
 
-static knh_ObjectFunc_t ClassMapFunc = {
+static knh_ObjectCSPI_t ClassMapSPI = {
+	"ClassMap", 0,
 	knh_ClassMap_init,
 	DEFAULT_copy,
 	knh_ClassMap_traverse,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
-	"ClassMap", 0,
 };
 
 /* ======================================================================== */
@@ -1309,14 +1309,14 @@ static FASTAPI(void) knh_Closure_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr
 	}
 }
 
-static knh_ObjectFunc_t ClosureFunc = {
+static knh_ObjectCSPI_t ClosureSPI = {
+	"Closure", 0,
 	knh_Closure_init,
 	DEFAULT_copy,
 	knh_Closure_traverse,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
-	"Closure", 0,
 };
 
 /* ======================================================================== */
@@ -1347,27 +1347,27 @@ static FASTAPI(void) knh_Thunk_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr)
 	}
 }
 
-static knh_ObjectFunc_t ThunkFunc = {
+static knh_ObjectCSPI_t ThunkSPI = {
+	"Thunk", 0,
 	knh_Thunk_init,
 	DEFAULT_copy,
 	knh_Thunk_traverse,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
-	"Thunk", 0,
 };
 
 /* ======================================================================== */
 /* AffineConv */
 
-static knh_ObjectFunc_t AffineConvFunc = {
+static knh_ObjectCSPI_t AffineConvSPI = {
+	"AffineConv", 0,
 	DEFAULT_init,
 	DEFAULT_copy,
 	DEFAULT_traverse,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
-	"AffineConv", 0,
 };
 
 /* ======================================================================== */
@@ -1394,14 +1394,14 @@ static FASTAPI(void) knh_Regex_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr)
 	}
 }
 
-static knh_ObjectFunc_t RegexFunc = {
+static knh_ObjectCSPI_t RegexSPI = {
+	"Regex", 0,
 	knh_Regex_init,
 	DEFAULT_copy,
 	knh_Regex_traverse,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
-	"Regex", 0,
 };
 
 /* ======================================================================== */
@@ -1434,47 +1434,42 @@ static FASTAPI(void) knh_BytesConv_traverse(Ctx *ctx, Object *o, knh_ftraverse f
 	}
 }
 
-static knh_ObjectFunc_t BytesConvFunc = {
+static knh_ObjectCSPI_t BytesConvSPI = {
+	"BytesConv", 0,
 	knh_BytesConv_init,
 	DEFAULT_copy,
 	knh_BytesConv_traverse,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
-	"BytesConv", 0,
 };
 
 /* ======================================================================== */
 /* Semantics */
 
-static
-int knh_fichk__nop(knh_Semantics_t *u, knh_int_t v)
+static int knh_fichk__nop(knh_Semantics_t *u, knh_int_t v)
 {
 	return 1;
 }
 
-static
-int knh_ficmp__signed(knh_Semantics_t *u, knh_int_t v1, knh_int_t v2)
+static int knh_ficmp__signed(knh_Semantics_t *u, knh_int_t v1, knh_int_t v2)
 {
 	return (int)(v1 - v2);
 }
 
-static
-int knh_ffchk__default(knh_Semantics_t *u, knh_float_t v)
+static int knh_ffchk__default(knh_Semantics_t *u, knh_float_t v)
 {
 	return 1;
 }
 
-static
-int knh_ffcmp__default(knh_Semantics_t *u, knh_float_t v1, knh_float_t v2)
+static int knh_ffcmp__default(knh_Semantics_t *u, knh_float_t v1, knh_float_t v2)
 {
 	knh_float_t delta = v1 - v2;
 	if(delta == KNH_FLOAT_ZERO) return 0;
 	return delta < 0 ? -1 : 1;
 }
 
-static
-knh_String_t *knh_fsnew__default(Ctx *ctx, knh_class_t cid, knh_bytes_t t, knh_String_t *orig, int *foundError)
+static knh_String_t *knh_fsnew__default(Ctx *ctx, knh_class_t cid, knh_bytes_t t, knh_String_t *orig, int *foundError)
 {
 	return new_StringX__fast(ctx, cid, t, orig);
 }
@@ -1552,14 +1547,14 @@ static FASTAPI(void*) knh_Semantics_hashkey(Ctx *ctx, knh_sfp_t *sfp, int opt)
 }
 
 
-static knh_ObjectFunc_t SemanticsFunc = {
+static knh_ObjectCSPI_t SemanticsSPI = {
+	"Semantics", sizeof(knh_Semantics_struct),
 	knh_Semantics_init,
 	DEFAULT_copy,
 	knh_Semantics_traverse,
 	DEFAULT_compareTo,
 	knh_Semantics_hashkey,
 	DEFAULT_genmap,
-	"Semantics", sizeof(knh_Semantics_struct),
 };
 
 /* ======================================================================== */
@@ -1597,14 +1592,14 @@ static FASTAPI(void) knh_InputStream_traverse(Ctx *ctx, Object *o, knh_ftraverse
 	ftr(ctx, UP(b->urn));
 }
 
-static knh_ObjectFunc_t InputStreamFunc = {
+static knh_ObjectCSPI_t InputStreamSPI = {
+	"InputStream", sizeof(knh_InputStream_struct),
 	knh_InputStream_init,
 	DEFAULT_copy,
 	knh_InputStream_traverse,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
-	"InputStream", sizeof(knh_InputStream_struct),
 };
 
 /* ======================================================================== */
@@ -1647,14 +1642,14 @@ static FASTAPI(void) knh_OutputStream_traverse(Ctx *ctx, Object *o, knh_ftravers
 	ftr(ctx, UP(b->TAB));
 }
 
-static knh_ObjectFunc_t OutputStreamFunc = {
+static knh_ObjectCSPI_t OutputStreamSPI = {
+	"OutputStream", sizeof(knh_InputStream_struct),
 	knh_OutputStream_init,
 	DEFAULT_copy,
 	knh_OutputStream_traverse,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
-	"OutputStream", sizeof(knh_InputStream_struct),
 };
 
 /* ======================================================================== */
@@ -1686,14 +1681,14 @@ static FASTAPI(void) knh_Socket_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr)
 	ftr(ctx, UP(so->out));
 }
 
-static knh_ObjectFunc_t SocketFunc = {
+static knh_ObjectCSPI_t SocketSPI = {
+	"Socket", sizeof(knh_Socket_struct),
 	knh_Socket_init,
 	DEFAULT_copy,
 	knh_Socket_traverse,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
-	"Socket", sizeof(knh_Socket_struct),
 };
 
 /* ======================================================================== */
@@ -1718,14 +1713,14 @@ static FASTAPI(void) knh_Connection_traverse(Ctx *ctx, Object *o, knh_ftraverse 
 	}
 }
 
-static knh_ObjectFunc_t ConnectionFunc = {
+static knh_ObjectCSPI_t ConnectionSPI = {
+	"Connection", 0,
 	knh_Connection_init,
 	DEFAULT_copy,
 	knh_Connection_traverse,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
-	"Connection", 0,
 };
 
 /* ======================================================================== */
@@ -1765,14 +1760,14 @@ static FASTAPI(void) knh_ResultSet_traverse(Ctx *ctx, Object *o, knh_ftraverse f
 	ftr(ctx, UP(b->conn));
 }
 
-static knh_ObjectFunc_t ResultSetFunc = {
+static knh_ObjectCSPI_t ResultSetSPI = {
+	"ResultSet", sizeof(knh_ResultSet_struct),
 	knh_ResultSet_init,
 	DEFAULT_copy,
 	knh_ResultSet_traverse,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
-	"ResultSet", sizeof(knh_ResultSet_struct),
 };
 
 /* ======================================================================== */
@@ -1798,14 +1793,14 @@ static FASTAPI(void) knh_Exception_traverse(Ctx *ctx, Object *o, knh_ftraverse f
 	ftr(ctx, UP(b->traces));
 }
 
-static knh_ObjectFunc_t ExceptionFunc = {
+static knh_ObjectCSPI_t ExceptionSPI = {
+	"Exception", sizeof(knh_Exception_struct),
 	knh_Exception_init,
 	DEFAULT_copy,
 	knh_Exception_traverse,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
-	"Exception", sizeof(knh_Exception_struct),
 };
 
 /* ======================================================================== */
@@ -1824,14 +1819,14 @@ static FASTAPI(void) knh_ExceptionHandler_traverse(Ctx *ctx, Object *o, knh_ftra
 	ftr(ctx, UP(b->caught));
 }
 
-static knh_ObjectFunc_t ExceptionHandlerFunc = {
+static knh_ObjectCSPI_t ExceptionHandlerSPI = {
+	"ExceptionHandler", sizeof(knh_ExceptionHandler_struct),
 	knh_ExceptionHandler_init,
 	DEFAULT_copy,
 	knh_ExceptionHandler_traverse,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
-	"ExceptionHandler", sizeof(knh_ExceptionHandler_struct),
 };
 
 /* ======================================================================== */
@@ -1844,14 +1839,14 @@ static FASTAPI(void) knh_Script_init(Ctx *ctx, Object *o, int init)
 	knh_bzero(s->fields, sizeof(Object*) * KNH_SCRIPT_FIELDSIZE);
 }
 
-static knh_ObjectFunc_t ScriptFunc = {
+static knh_ObjectCSPI_t ScriptSPI = {
+	"Script", 0,
 	knh_Script_init,
 	DEFAULT_copy,
 	knh_ObjectField_traverse,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
-	"Script", 0,
 };
 
 /* ======================================================================== */
@@ -1891,14 +1886,14 @@ static FASTAPI(void*) knh_NameSpace_hashkey(Ctx *ctx, knh_sfp_t *sfp, int opt)
 	return DEFAULT_hashkey(ctx, sfp, opt);
 }
 
-static knh_ObjectFunc_t NameSpaceFunc = {
+static knh_ObjectCSPI_t NameSpaceFunc = {
+	"NameSpace", sizeof(knh_NameSpace_struct),
 	knh_NameSpace_init,
 	DEFAULT_copy,
 	knh_NameSpace_traverse,
 	DEFAULT_compareTo,
 	knh_NameSpace_hashkey,
 	DEFAULT_genmap,
-	"NameSpace", sizeof(knh_NameSpace_struct),
 };
 
 /* ======================================================================== */
@@ -1968,14 +1963,14 @@ static FASTAPI(void) knh_System_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr)
 	ftr(ctx, UP(sys->trustedPathDictSet));
 }
 
-static knh_ObjectFunc_t SystemFunc = {
+static knh_ObjectCSPI_t SystemFunc = {
+	"System", sizeof(knh_System_struct),
 	knh_System_init,
 	DEFAULT_copy,
 	knh_System_traverse,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
-	"System", sizeof(knh_System_struct),
 };
 
 /* ======================================================================== */
@@ -1987,14 +1982,14 @@ static FASTAPI(void) knh_Context_init(Ctx *ctx, Object *o, int init)
 	KNH_THROW__T(ctx, "Abort!!");
 }
 
-static knh_ObjectFunc_t ContextFunc = {
+static knh_ObjectCSPI_t ContextFunc = {
+	"Context", 0,
 	knh_Context_init,
 	DEFAULT_copy,
 	DEFAULT_traverse,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
-	"Context", 0,
 };
 
 /* ======================================================================== */
@@ -2008,14 +2003,14 @@ static FASTAPI(void) knh_Thread_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr)
 {
 }
 
-static knh_ObjectFunc_t ThreadFunc = {
+static knh_ObjectCSPI_t ThreadFunc = {
+	"Thread", 0,
 	knh_Thread_init,
 	DEFAULT_copy,
 	knh_Thread_traverse,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
-	"Thread", 0,
 };
 
 /* ======================================================================== */
@@ -2029,14 +2024,14 @@ static FASTAPI(void) knh_ScriptEngine_traverse(Ctx *ctx, Object *o, knh_ftravers
 {
 }
 
-static knh_ObjectFunc_t ScriptEngineFunc = {
+static knh_ObjectCSPI_t ScriptEngineFunc = {
+	"ScriptEngine", 0,
 	knh_ScriptEngine_init,
 	DEFAULT_copy,
 	knh_ScriptEngine_traverse,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
-	"ScriptEngine", 0,
 };
 
 /* ======================================================================== */
@@ -2056,14 +2051,14 @@ static FASTAPI(void) knh_Token_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr)
 	ftr(ctx, b->data);
 }
 
-static knh_ObjectFunc_t TokenFunc = {
+static knh_ObjectCSPI_t TokenFunc = {
+	"Token", sizeof(knh_Token_struct),
 	knh_Token_init,
 	DEFAULT_copy,
 	knh_Token_traverse,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
-	"Token", sizeof(knh_Token_struct),
 };
 
 /* ======================================================================== */
@@ -2113,14 +2108,14 @@ static FASTAPI(void) knh_Stmt_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr)
 	ftr(ctx, UP(b->next));
 }
 
-static knh_ObjectFunc_t StmtFunc = {
+static knh_ObjectCSPI_t StmtFunc = {
+	"Stmt", sizeof(knh_Stmt_struct),
 	knh_Stmt_init,
 	DEFAULT_copy,
 	knh_Stmt_traverse,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
-	"Stmt", sizeof(knh_Stmt_struct),
 };
 
 /* ------------------------------------------------------------------------ */
@@ -2208,14 +2203,14 @@ static FASTAPI(void) knh_Gamma_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr)
 	}
 }
 
-static knh_ObjectFunc_t GammaFunc = {
+static knh_ObjectCSPI_t GammaFunc = {
+	"Gamma", sizeof(knh_Gamma_struct),
 	knh_Gamma_init,
 	DEFAULT_copy,
 	knh_Gamma_traverse,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
-	"Gamma", sizeof(knh_Gamma_struct),
 };
 
 /* ======================================================================== */
@@ -2250,14 +2245,14 @@ static FASTAPI(void) knh_KLRInst_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr
 	}
 }
 
-static knh_ObjectFunc_t KLRInstFunc = {
+static knh_ObjectCSPI_t KLRInstFunc = {
+	"KLRInst", 0,
 	knh_KLRInst_init,
 	DEFAULT_copy,
 	knh_KLRInst_traverse,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
-	"KLRInst", 0,
 };
 
 /* ======================================================================== */
@@ -2286,19 +2281,17 @@ static FASTAPI(void) knh_KLRCode_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr
 	}
 }
 
-static knh_ObjectFunc_t KLRCodeFunc = {
+static knh_ObjectCSPI_t KLRCodeFunc = {
+	"KLRCode", sizeof(knh_KLRCode_struct),
 	knh_KLRCode_init,
 	DEFAULT_copy,
 	knh_KLRCode_traverse,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
-	"KLRCode", sizeof(knh_KLRCode_struct),
 };
 
 /* ======================================================================== */
-
-/* ------------------------------------------------------------------------ */
 /* @data*/
 
 typedef struct {
@@ -2307,7 +2300,7 @@ typedef struct {
 } knh_StringData0_t ;
 
 typedef struct {
-	knh_ObjectFunc_t *ofunc;
+	knh_ObjectCSPI_t *cspi;
 	knh_class_t cid;
 	knh_flag_t flag;
 } knh_StructData0_t ;
@@ -2410,7 +2403,7 @@ extern "C" {
 char *knh_getStructTableName(Ctx *ctx, knh_class_t bcid)
 {
 	if(bcid < ctx->share->ClassTableSize) {
-		return ClassTable(bcid).ofunc->name;
+		return ClassTable(bcid).cspi->name;
 	}
 	DBG2_P("unknown bcid=%d", bcid);
 	return "STRUCT_unknown";
@@ -2442,12 +2435,12 @@ void knh_loadSystemString(Ctx *ctx)
 static
 void knh_loadStructData(Ctx *ctx, knh_StructData0_t *data)
 {
-	while(data->ofunc != NULL) {
+	while(data->cspi != NULL) {
 		knh_ClassTable_t *t = pClassTable(data->cid);
-		t->ofunc = data->ofunc;
+		t->cspi = data->cspi;
 		t->cflag = data->flag;
 		t->oflag = knh_flag_oflag(data->flag);
-		t->size = data->ofunc->size;
+		t->size = data->cspi->size;
 		data++;
 	}
 }
@@ -2472,8 +2465,8 @@ static void knh_loadClassData0(Ctx *ctx, knh_ClassData0_t *data)
 			t->oflag  = knh_flag_oflag(data->flag);
 			t->bcid   = data->bcid;
 			if(cid != data->bcid) {
-				t->ofunc = ClassTable(data->bcid).ofunc;
-				t->size =  ClassTable(data->bcid).ofunc->size;
+				t->cspi = ClassTable(data->bcid).cspi;
+				t->size =  ClassTable(data->bcid).cspi->size;
 			}
 			t->supcid = data->supcid;
 			if(data->bcid == CLASS_Closure) {

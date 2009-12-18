@@ -266,7 +266,6 @@ typedef struct {
 	void *ptr;
 } knh_NamedPointerData_t;
 
-
 /* ------------------------------------------------------------------------ */
 /* knh_flag_t */
 /* ------------------------------------------------------------------------ */
@@ -601,24 +600,24 @@ typedef void*   KNH_CC_FASTCALL (*knh_fobject_hashkey)(Ctx *, knh_sfp_t *, int);
 typedef struct knh_Mapper_t* (*knh_fobject_genmap)(Ctx *, knh_class_t, knh_class_t);
 
 typedef struct {
+	char                   *name;
+	size_t                  size;
 	knh_fobject_init        init;
 	knh_fobject_copy        copy;
 	knh_fobject_traverse    traverse;
 	knh_fobject_compareTo   compareTo;
 	knh_fobject_hashkey     hashkey;
 	knh_fobject_genmap      genmap;
-	char                   *name;
-	size_t                  size;
-} knh_ObjectFunc_t ;
+} knh_ObjectCSPI_t ;
 
 typedef knh_int_t    KNH_CC_FASTCALL (*knh_fnumber_toint)(Ctx *, knh_sfp_t *);
 typedef knh_float_t  KNH_CC_FASTCALL (*knh_fnumber_tofloat)(Ctx *, knh_sfp_t *);
 
 typedef struct {
-	knh_ObjectFunc_t common;
+	knh_ObjectCSPI_t    common;
 	knh_fnumber_toint       toint;
 	knh_fnumber_tofloat     tofloat;
-} knh_NumberFunc_t ;
+} knh_NumberCSPI_t ;
 
 /* ------------------------------------------------------------------------ */
 
@@ -642,8 +641,8 @@ typedef struct {
 		knh_type_t    p3;
 	};
 	union {
-		knh_ObjectFunc_t *ofunc;
-		knh_NumberFunc_t *numfunc;
+		knh_ObjectCSPI_t *cspi;
+		knh_NumberCSPI_t *numcspi;
 	};
 	size_t size;
 	struct knh_String_t       *sname;

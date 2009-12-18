@@ -832,7 +832,7 @@ static METHOD Exception__dump(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 static int knh_Object_isFieldObject(Ctx *ctx, Object *o)
 {
 	return knh_Object_bcid(o) == CLASS_Script
-		|| ClassTable(knh_Object_cid(o)).ofunc == ClassTable(CLASS_Object).ofunc;
+		|| ClassTable(knh_Object_cid(o)).cspi == ClassTable(CLASS_Object).cspi;
 }
 
 /* ------------------------------------------------------------------------ */

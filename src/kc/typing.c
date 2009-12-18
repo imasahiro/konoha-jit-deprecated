@@ -4726,7 +4726,7 @@ void knh_Gamma_declareClassField(Ctx *ctx, knh_NameSpace_t* ns, knh_class_t cid)
 	}
 	(t->cstruct)->fields = cf;
 	(t->cstruct)->fsize = fsize;
-	t->ofunc = ClassTable(CLASS_Object).ofunc;
+	t->cspi = ClassTable(CLASS_Object).cspi;
 	if(t->supcid != CLASS_Object) {
 		t->offset = ClassTable(t->supcid).bsize;
 		//DBG2_P("offset extending 0 -> %d", TC->offset);
@@ -4749,7 +4749,7 @@ void knh_Gamma_declareClassField(Ctx *ctx, knh_NameSpace_t* ns, knh_class_t cid)
 		else {
 			of->fields = (knh_Object_t**)KNH_MALLOC(ctx, sizeof(Object*) * of->bsize);
 			//knh_ObjectField_init(ctx, of, 0);
-			ClassTable(CLASS_ObjectField).ofunc->init(ctx, UP(of), 0);
+			ClassTable(CLASS_ObjectField).cspi->init(ctx, UP(of), 0);
 		}
 	}
 }

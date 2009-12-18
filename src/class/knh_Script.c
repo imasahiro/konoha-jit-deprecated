@@ -47,8 +47,8 @@ knh_Script_t *new_Script(Ctx *ctx, knh_bytes_t nsname)
 	char buf[CLASSNAME_BUFSIZ];
 	knh_ClassTable_t *t = (knh_ClassTable_t*)(&ClassTable(cid));
 	knh_snprintf(buf, sizeof(buf), "%s.Script", (char*)nsname.buf);
-	DBG2_ASSERT(ClassTable(cid).ofunc == NULL);
-	t->ofunc  = ClassTable(CLASS_Script).ofunc;
+	DBG2_ASSERT(ClassTable(cid).cspi == NULL);
+	t->cspi  = ClassTable(CLASS_Script).cspi;
 
 	t->cflag  = CFLAG_Script;
 	t->oflag  = FLAG_Script;
@@ -57,7 +57,7 @@ knh_Script_t *new_Script(Ctx *ctx, knh_bytes_t nsname)
 	t->supcid = CLASS_Script;
 
 	t->offset = 0;
-	t->ofunc = ClassTable(CLASS_Script).ofunc;
+	t->cspi = ClassTable(CLASS_Script).cspi;
 	t->bsize  = KNH_SCRIPT_FIELDSIZE;
 	t->size = t->bsize * sizeof(knh_Object_t*);
 

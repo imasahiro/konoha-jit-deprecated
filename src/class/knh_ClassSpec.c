@@ -691,7 +691,7 @@ knh_class_t knh_addSpecializedType(Ctx *ctx, knh_class_t cid, knh_class_t bcid, 
 		t->oflag  = ClassTable(bcid).oflag;
 		t->offset = ClassTable(bcid).offset;
 
-		t->ofunc  = ClassTable(bcid).ofunc;
+		t->cspi  = ClassTable(bcid).cspi;
 		t->size = ClassTable(bcid).size;
 		t->bsize  = ClassTable(bcid).bsize;
 

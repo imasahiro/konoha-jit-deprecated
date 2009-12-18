@@ -328,7 +328,7 @@ void knh_addMethodFieldTable(Ctx *ctx, knh_MethodField_t *mf)
 {
 	knh_sfp_t lsfp = {{mf}, {0}};
 	knh_hashcode_t h =
-		(knh_hashcode_t)ClassTable(CLASS_MethodField).ofunc->hashkey(ctx, &lsfp, KNH_FOBJECT_HASH);
+		(knh_hashcode_t)ClassTable(CLASS_MethodField).cspi->hashkey(ctx, &lsfp, KNH_FOBJECT_HASH);
 	knh_HashMap_t *hmap = DP(ctx->sys)->MethodFieldHashMap;
 	if(IS_NOTNULL(hmap)) {
 		KNH_LOCK(ctx, LOCK_SYSTBL, NULL);

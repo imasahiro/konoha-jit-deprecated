@@ -269,7 +269,7 @@ knh_Mapper_t *knh_findMapperCommon(Ctx *ctx, knh_class_t scid, knh_class_t tcid,
 		goto L_ADDMAPPER;
 	}
 
-	mpr = ClassTable(scid).ofunc->genmap(ctx, scid, tcid);
+	mpr = ClassTable(scid).cspi->genmap(ctx, scid, tcid);
 	if(mpr != NULL) {
 		goto L_ADDMAPPER;
 	}

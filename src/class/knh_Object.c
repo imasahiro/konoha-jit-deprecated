@@ -80,7 +80,7 @@ knh_String_t *knh_Object_getkey(Ctx *ctx, Object *o)
 	knh_sfp_t lsfp;
 	lsfp.o = o;
 	lsfp.data = ((knh_Int_t*)o)->n.data;
-	return (knh_String_t*)ClassTable(knh_Object_bcid(o)).ofunc->hashkey(ctx, &lsfp, KNH_FOBJECT_KEY);
+	return (knh_String_t*)ClassTable(knh_Object_bcid(o)).cspi->hashkey(ctx, &lsfp, KNH_FOBJECT_KEY);
 }
 
 /* ======================================================================== */
@@ -103,7 +103,7 @@ knh_hashcode_t knh_Object_hashCode(Ctx *ctx, Object *o)
 	knh_sfp_t lsfp;
 	lsfp.o = o;
 	lsfp.data = ((knh_Int_t*)o)->n.data;
-	return (knh_hashcode_t)ClassTable(knh_Object_bcid(o)).ofunc->hashkey(ctx, &lsfp, KNH_FOBJECT_HASH);
+	return (knh_hashcode_t)ClassTable(knh_Object_bcid(o)).cspi->hashkey(ctx, &lsfp, KNH_FOBJECT_HASH);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -114,7 +114,7 @@ knh_String_t *knh_Object_key(Ctx *ctx, Object *o)
 	knh_sfp_t *lsfp = ctx->esp + 1;
 	KNH_SETv(ctx, lsfp[0].o, o);
 	lsfp[0].data = knh_Object_data(o);
-	s = (knh_String_t*)ClassTable(o->h.bcid).ofunc->hashkey(ctx, lsfp, KNH_FOBJECT_KEY);
+	s = (knh_String_t*)ClassTable(o->h.bcid).cspi->hashkey(ctx, lsfp, KNH_FOBJECT_KEY);
 	KNH_SETv(ctx, lsfp[-1].o, s);
 	return s;
 }
@@ -126,7 +126,7 @@ int knh_Object_compareTo(Ctx *ctx, Object *o1, Object *o2)
 	knh_class_t bcid2 = o2->h.bcid;
 	int res;
 	if(bcid1 == bcid2) {
-		res = ClassTable(bcid1).ofunc->compareTo(ctx, o1, o2);
+		res = ClassTable(bcid1).cspi->compareTo(ctx, o1, o2);
 	}
 	else {
 		if((o1->h.cid == CLASS_Int || o1->h.cid == CLASS_Float)
@@ -151,7 +151,7 @@ int knh_Object_compareTo2(Ctx *ctx, Object **o1, Object **o2)
 	knh_class_t bcid2 = _o2->h.bcid;
 	int res;
 	if(bcid1 == bcid2) {
-		res = ClassTable(bcid1).ofunc->compareTo(ctx, _o1, _o2);
+		res = ClassTable(bcid1).cspi->compareTo(ctx, _o1, _o2);
 	}
 	else {
 		if((_o1->h.cid == CLASS_Int || _o1->h.cid == CLASS_Float)
