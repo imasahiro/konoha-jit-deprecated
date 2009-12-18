@@ -40,6 +40,7 @@ extern "C" {
 
 knh_Script_t *new_Script(Ctx *ctx, knh_bytes_t nsname)
 {
+	size_t i;
 	knh_class_t cid = knh_ClassTable_newId(ctx);
 	knh_Script_t *o = (knh_Script_t*)new_Object_init(ctx, FLAG_Script, CLASS_Script, 0);
 	o->h.cid = cid;
@@ -62,10 +63,19 @@ knh_Script_t *new_Script(Ctx *ctx, knh_bytes_t nsname)
 	t->size = t->bsize * sizeof(knh_Object_t*);
 
 	knh_setClassName(ctx, cid, new_String(ctx, B(buf), NULL));
-	KNH_INITv(t->cstruct, new_ClassField0(ctx, KNH_SCRIPT_FIELDSIZE, KNH_SCRIPT_FIELDSIZE/2));
+	KNH_INITv(t->methods, new_Array0(ctx, 0));
+	t->fsize = KNH_SCRIPT_FIELDSIZE;
+	t->fields = KNH_MALLOC(ctx, sizeof(knh_fields_t) * KNH_SCRIPT_FIELDSIZE);
+	knh_bzero(t->fields, sizeof(knh_fields_t) * KNH_SCRIPT_FIELDSIZE);
+	for(i=0; i < KNH_SCRIPT_FIELDSIZE; i++) {
+		t->fields[i].flag  = 0;
+		t->fields[i].type  = TYPE_void;
+		t->fields[i].fn    = FIELDN_NONAME;
+		t->fields[i].value = NULL;
+	}
 
 	DBG2_ASSERT(t->cmap == NULL);
-	KNH_INITv(t->cmap, ctx->share->ClassTable[CLASS_Script].cmap);
+	KNH_INITv(t->cmap, ClassTable(CLASS_Script).cmap);
 
 	DBG2_ASSERT(t->cspec == NULL);
 	knh_setClassDefaultValue(ctx, cid, UP(o), NULL);

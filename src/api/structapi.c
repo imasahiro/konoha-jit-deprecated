@@ -91,14 +91,14 @@ static knh_Mapper_t* DEFAULT_genmap(Ctx *ctx, knh_class_t scid, knh_class_t tcid
 /* Object */
 
 static
-void knh_ClassField_initField(Ctx *ctx, knh_ClassField_t *cs, knh_class_t self_cid, Object **v)
+void knh_ClassField_initField(Ctx *ctx, knh_ClassTable_t *t, knh_class_t self_cid, Object **v)
 {
 	size_t i;
-	knh_cfield_t *cf = cs->fields;
-	for(i = 0; i < cs->fsize; i++) {
+	knh_fields_t *cf = t->fields;
+	for(i = 0; i < t->fsize; i++) {
 		knh_type_t type = cf[i].type;
 		Object *value = cf[i].value;
-		if(KNH_FLAG_IS(cf[i].flag, FLAG_ClassField_Property)) {
+		if(KNH_FLAG_IS(cf[i].flag, FLAG_Field_Property)) {
 			value = knh_getProperty(ctx, __tobytes((knh_String_t*)value));
 			DBG2_P("type=%s%s object=%s", TYPEQN(cf[i].type), CLASSNo(value));
 		}
@@ -142,13 +142,13 @@ static FASTAPI(void) knh_ObjectField_init(Ctx *ctx, Object *o, int init)
 		Object **v = (Object**)of->fields;
 		size_t offset;
 		while((offset = ClassTable(cid).offset) != 0) {
-			knh_ClassField_initField(ctx, ClassTable(cid).cstruct, of->h.cid, v + offset);
+			knh_ClassField_initField(ctx, pClassTable(cid), of->h.cid, v + offset);
 			cid = ClassTable(cid).supcid;
 			DBG2_ASSERT_cid(cid);
 		}
-		knh_ClassField_initField(ctx, ClassTable(cid).cstruct, of->h.cid, v + offset);
+		knh_ClassField_initField(ctx, pClassTable(cid), of->h.cid, v + offset);
 		of->fields = v;
-		of->bsize = ctx->share->ClassTable[of->h.cid].bsize;
+		of->bsize = ClassTable(of->h.cid).bsize;
 	}
 	else {
 		of->fields = NULL;
@@ -161,16 +161,16 @@ static FASTAPI(void) knh_ObjectField_traverse(Ctx *ctx, Object *o, knh_ftraverse
 	knh_ObjectField_t *of = (knh_ObjectField_t*)o;
 	knh_class_t cid = knh_Object_cid(of);
 	while(cid != CLASS_Object) {
-		knh_ClassField_t *cs = ClassTable(cid).cstruct;
+		knh_ClassTable_t *t = pClassTable(cid);
 		size_t i, offset = ClassTable(cid).offset;
-		for(i = 0; i < cs->fsize; i++) {
-			knh_type_t type = cs->fields[i].type;
+		for(i = 0; i < t->fsize; i++) {
+			knh_type_t type = t->fields[i].type;
 			//DBG2_P("i=%d, fn=%s, type=%s%s", i, FIELDN(cs->fields[i].fn), TYPEQN(type));
 			if(IS_ubxtype(type) || type == TYPE_void) {
 				continue;
 			}
 			if(of->fields[i + offset] == NULL) return; /* for Script */
-			if(cs->fields[i].fn == FIELDN_/*register*/) continue;
+			if(t->fields[i].fn == FIELDN_/*register*/) continue;
 			ftr(ctx, of->fields[i + offset]);
 		}
 		cid = ClassTable(cid).supcid;
@@ -1023,57 +1023,6 @@ static knh_ObjectCSPI_t ClassSPI = {
 	DEFAULT_traverse,
 	knh_Class_compareTo,
 	knh_Class_hashkey,
-	DEFAULT_genmap /*knh_DictMap_genmap*/,
-};
-
-/* ======================================================================== */
-/* ClassField */
-
-static FASTAPI(void) knh_ClassField_init(Ctx *ctx, Object *o, int init)
-{
-	knh_ClassField_t *b = (knh_ClassField_t*)o;
-	b->fsize = init;
-	if(b->fsize == 0) {
-		b->fields = NULL;
-	}else {
-		size_t i;
-		b->fields = (knh_cfield_t*)KNH_MALLOC(ctx, b->fsize * sizeof(knh_cfield_t));
-		for(i = 0; i < b->fsize; i++) {
-			b->fields[i].flag  = 0;
-			b->fields[i].type  = TYPE_void;
-			b->fields[i].fn    = FIELDN_NONAME;
-			b->fields[i].value = NULL;
-		}
-	}
-	KNH_INITv(b->methods, KNH_NULL);
-}
-
-static FASTAPI(void) knh_ClassField_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr)
-{
-	knh_ClassField_t *b = (knh_ClassField_t*)o;
-	ftr(ctx, UP(b->methods));
-	if(b->fields != NULL) {
-		size_t i;
-		for(i = 0; i < b->fsize; i++) {
-			if(b->fields[i].value !=NULL) {
-				ftr(ctx, b->fields[i].value);
-			}
-		}
-		if(IS_SWEEP(ftr)) {
-			//DBG2_P("freeing b->fields=%p", b->fields);
-			KNH_FREE(ctx, b->fields, b->fsize * sizeof(knh_cfield_t));
-			b->fields = NULL;
-		}
-	}
-}
-
-static knh_ObjectCSPI_t ClassFieldSPI = {
-	"ClassField", 0,
-	knh_ClassField_init,
-	DEFAULT_copy,
-	knh_ClassField_traverse,
-	DEFAULT_compareTo,
-	DEFAULT_hashkey,
 	DEFAULT_genmap /*knh_DictMap_genmap*/,
 };
 
@@ -2146,8 +2095,8 @@ static FASTAPI(void) knh_Gamma_init(Ctx *ctx, Object *o, int init)
 	DBG2_ASSERT(IS_NameSpace(b->ns));
 	KNH_INITv(b->mtd,   KNH_NULL);
 
-	b->gamma = (knh_cfield_t*)KNH_MALLOC(ctx, K_GAMMASIZE * sizeof(knh_cfield_t));
-	knh_bzero(b->gamma, K_GAMMASIZE * sizeof(knh_cfield_t));
+	b->gamma = (knh_fields_t*)KNH_MALLOC(ctx, K_GAMMASIZE * sizeof(knh_fields_t));
+	knh_bzero(b->gamma, K_GAMMASIZE * sizeof(knh_fields_t));
 	for(i = 0; i < K_GAMMASIZE; i++) {
 		b->gamma[i].flag  = 0;
 		b->gamma[i].type  = TYPE_void;
@@ -2185,7 +2134,7 @@ static FASTAPI(void) knh_Gamma_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr)
 		}
 	}
 	if(IS_SWEEP(ftr)) {
-		KNH_FREE(ctx, b->gamma, K_GAMMASIZE * sizeof(knh_cfield_t));
+		KNH_FREE(ctx, b->gamma, K_GAMMASIZE * sizeof(knh_fields_t));
 		b->dlhdr = NULL;
 	}
 	ftr(ctx, UP(b->ns));
@@ -2442,13 +2391,8 @@ static void knh_loadClassData0(Ctx *ctx, knh_ClassData0_t *data)
 			}
 			t->offset = 0;
 			t->bsize  = t->size / sizeof(knh_Object_t*);
-			DBG2_ASSERT(t->cstruct == NULL);
-			if(data->method_size + data->formatter_size > 0) {
-				KNH_INITv(t->cstruct, new_ClassField0(ctx, 0, data->method_size + data->formatter_size));
-			}
-			else {
-				KNH_INITv(t->cstruct, ClassTable(data->supcid).cstruct);
-			}
+			DBG2_ASSERT(t->methods == NULL);
+			KNH_INITv(t->methods, new_Array0(ctx, data->method_size + data->formatter_size));
 			if(t->cmap == NULL) {
 				KNH_INITv(t->cmap, knh_ClassMap_fdefault(ctx, CLASS_ClassMap));
 			}
@@ -2595,10 +2539,7 @@ void knh_loadMethodData0(Ctx *ctx, knh_MethodData0_t *data, knh_MethodField_t **
 		if(knh_class_isSingleton(data->cid)) {
 			DP(mtd)->flag = DP(mtd)->flag | FLAG_Method_Static;
 		}
-		{
-			knh_ClassField_t *cs = ClassTable(data->cid).cstruct;
-			knh_Array_add(ctx, cs->methods, UP(mtd));
-		}
+		knh_Array_add(ctx, ClassTable(data->cid).methods, UP(mtd));
 		data++;
 	}
 }

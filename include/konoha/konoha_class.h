@@ -432,6 +432,19 @@ typedef struct knh_DictIdx_t {
 //## flag Class Interface      8 (pClassTable(%s))->cflag  is * is *;
 //## flag Class TypeVariable   9 (pClassTable(%s))->cflag  is set * *;
 
+#define FLAG_Field_Hidden          (knh_flag_t)(1<<0)
+#define FLAG_Field_Protected       (knh_flag_t)(1<<1)
+#define FLAG_Field_Getter          (knh_flag_t)(1<<2)
+#define FLAG_Field_Setter          (knh_flag_t)(1<<3)
+#define FLAG_Field_Key             (knh_flag_t)(1<<4)
+#define FLAG_Field_Volatile        (knh_flag_t)(1<<5)
+#define FLAG_Field_ReadOnly        (knh_flag_t)(1<<6)
+#define FLAG_Field_Property        (knh_flag_t)(1<<7)
+#define FLAG_Field_Principle       (knh_flag_t)(1<<8)
+
+#define FLAG_GAMMA_Register    FLAG_Field_Getter
+#define FLAG_GAMMA_FuncScope   FLAG_Field_Setter
+
 typedef struct knh_Class_t {
 	knh_hObject_t h;
 	knh_class_t   cid;
@@ -445,35 +458,6 @@ typedef struct knh_Class_t {
 #define knh_Class_cid(c)     (knh_class_t)(c)->cid
 #define knh_flag_oflag(f)        (f)
 #define knh_class_isGenerics(cid)    (ClassTable(cid).p1 != TYPE_Tvoid)
-
-/* ------------------------------------------------------------------------ */
-//## @Private class ClassField Object;
-//## flag ClassField Hidden     0 (%s)->fields[n].flag is set * *;
-//## flag ClassField Protected  1 (%s)->fields[n].flag is set * *;
-//## flag ClassField Getter     2 (%s)->fields[n].flag is set * *;
-//## flag ClassField Setter     3 (%s)->fields[n].flag is set * *;
-//## flag ClassField Key        4 (%s)->fields[n].flag is set * *;
-//## flag ClassField Volatile   5 (%s)->fields[n].flag is set * *;
-//## flag ClassField ReadOnly   6 (%s)->fields[n].flag is set * *;
-//## flag ClassField Property   7 (%s)->fields[n].flag is set * *;
-//## flag ClassField Principle  8 (%s)->fields[n].flag is set * *;
-
-#define FLAG_GAMMA_Register    FLAG_ClassField_Getter
-#define FLAG_GAMMA_FuncScope   FLAG_ClassField_Setter
-
-typedef struct knh_cfield_t {
-	knh_flag_t    flag  ;
-	knh_type_t    type  ;
-	knh_fieldn_t  fn    ;
-	Object        *value;
-} knh_cfield_t ;
-
-typedef struct knh_ClassField_t {
-	knh_hObject_t h;
-	knh_cfield_t* fields;
-	size_t fsize;
-	knh_Array_t*  methods;
-} knh_ClassField_t;
 
 /* ------------------------------------------------------------------------ */
 //## @Private class MethodField Object;
@@ -1251,7 +1235,7 @@ typedef struct {
 	/*stack*/
 	knh_ushort_t           goffset;
 	knh_short_t            psize; /* param size */
-	knh_cfield_t*          gamma; /* type environment */
+	knh_fields_t*          gamma; /* type environment */
 
 	knh_ushort_t           scope;
 	knh_short_t            esp;

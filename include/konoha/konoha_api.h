@@ -187,8 +187,8 @@ size_t knh_fbyteconv_nop(Ctx *ctx, knh_BytesConv_t *bc, knh_bytes_t t, knh_Bytes
 void knh_fbyteconvfree_nop(Ctx *ctx, knh_BytesConv_t *bc);
 Term *knh_Stmt_done(Ctx *ctx, knh_Stmt_t *o);
 char *knh_getStructTableName(Ctx *ctx, knh_class_t bcid);
-void knh_loadSystemString(Ctx *ctx);
 void knh_loadSystemStructData(Ctx *ctx);
+void knh_loadSystemString(Ctx *ctx);
 void knh_loadSystemData(Ctx *ctx);
 size_t knh_array_newsize(size_t newsize, size_t usize);
 size_t knh_array_index0(Ctx *ctx, knh_intptr_t n, size_t size);
@@ -249,10 +249,9 @@ Object *knh_getClassDefaultValue(Ctx *ctx, knh_class_t cid);
 void knh_setClassParam(Ctx *ctx, knh_class_t cid, knh_class_t p1, knh_class_t p2);
 knh_class_t
 knh_addGenericsClass(Ctx *ctx, knh_class_t cid, knh_String_t *name, knh_class_t bcid, knh_class_t p1, knh_class_t p2);
-knh_ClassField_t* new_ClassField0(Ctx *ctx, int field_size, int method_size);
 knh_index_t knh_Class_indexOfField(Ctx *ctx, knh_class_t cid, knh_fieldn_t fn);
 knh_index_t knh_Class_queryField(Ctx *ctx, knh_class_t cid, knh_fieldn_t fnq);
-knh_cfield_t *knh_Class_fieldAt(Ctx *ctx, knh_class_t cid, size_t n);
+knh_fields_t *knh_Class_fieldAt(Ctx *ctx, knh_class_t cid, size_t n);
 knh_ClassMap_t* new_ClassMap0(Ctx *ctx, knh_ushort_t capacity);
 Object *knh_ClassMap_fdefault(Ctx *ctx, knh_class_t cid);
 void knh_readyClassMap(Ctx *ctx, knh_class_t cid);

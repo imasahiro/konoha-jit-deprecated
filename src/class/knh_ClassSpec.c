@@ -669,8 +669,9 @@ Object *knh_ClassTable_fdefault__SSPEC(Ctx *ctx, knh_class_t cid)
 /* ------------------------------------------------------------------------ */
 
 static
-knh_class_t knh_addSpecializedType(Ctx *ctx, knh_class_t cid, knh_class_t bcid, knh_Semantics_t *u)
+knh_class_t knh_addSpecializedType(Ctx *ctx, knh_class_t cid, knh_class_t supcid, knh_Semantics_t *u)
 {
+	knh_class_t bcid = knh_class_bcid(supcid);
 	char bufcn[CLASSNAME_BUFSIZ];
 	if(cid == CLASS_newid) {
 		cid = knh_ClassTable_newId(ctx);
@@ -695,17 +696,17 @@ knh_class_t knh_addSpecializedType(Ctx *ctx, knh_class_t cid, knh_class_t bcid, 
 		t->size = ClassTable(bcid).size;
 		t->bsize  = ClassTable(bcid).bsize;
 
-		KNH_ASSERT(t->cstruct == NULL);
-		KNH_INITv(t->cstruct, ClassTable(bcid).cstruct);
+		DBG2_ASSERT(t->fields == NULL);
+		KNH_INITv(t->methods, ClassTable(supcid).methods);
 
 		if(t->cmap == NULL) {
-			KNH_INITv(t->cmap, new_ClassMap0(ctx, 4));
+			KNH_INITv(t->cmap, knh_ClassMap_fdefault(ctx, CLASS_ClassMap));
 		}
 		else {
 			KNH_ASSERT(IS_ClassMap(t->cmap));
 		}
 
-		KNH_ASSERT(t->cspec == NULL);
+		DBG2_ASSERT(t->cspec == NULL);
 		KNH_INITv(t->cspec, u);
 
 		if(DP(u)->ucid != cid) {

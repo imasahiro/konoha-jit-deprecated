@@ -2,8 +2,8 @@
 
 /* ======================================================================== */
 /* MACROS */
-#define KONOHA_REVISION                 1045
-#define KONOHA_BUILDID                  772
+#define KONOHA_REVISION                 1048
+#define KONOHA_BUILDID                  773
 
 /* ======================================================================== */
 /* STRUCT */
@@ -260,21 +260,9 @@
 #define FLAG_Class              knh_flag_oflag(CFLAG_Class)
 
 /* ------------------------------------------------------------------------ */
-/* ClassField */
-#define CLASS_ClassField        ((knh_class_t)21)
-#define STRUCT_ClassField       ((knh_struct_t)21)
-#define IS_ClassField(o)        ((o)->h.cid == CLASS_ClassField)
-#define IS_bClassField(o)       ((o)->h.bcid == CLASS_ClassField)
-#define TYPE_ClassField         CLASS_ClassField
-#define NNTYPE_ClassField       NNTYPE_cid(CLASS_ClassField)
-#define NATYPE_ClassField       NATYPE_cid(CLASS_ClassField)
-#define CFLAG_ClassField        ((knh_flag_t)FLAG_Class_Private)
-#define FLAG_ClassField         knh_flag_oflag(CFLAG_ClassField)
-
-/* ------------------------------------------------------------------------ */
 /* MethodField */
-#define CLASS_MethodField       ((knh_class_t)22)
-#define STRUCT_MethodField      ((knh_struct_t)22)
+#define CLASS_MethodField       ((knh_class_t)21)
+#define STRUCT_MethodField      ((knh_struct_t)21)
 #define IS_MethodField(o)       ((o)->h.cid == CLASS_MethodField)
 #define IS_bMethodField(o)      ((o)->h.bcid == CLASS_MethodField)
 #define TYPE_MethodField        CLASS_MethodField
@@ -285,8 +273,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* Method */
-#define CLASS_Method            ((knh_class_t)23)
-#define STRUCT_Method           ((knh_struct_t)23)
+#define CLASS_Method            ((knh_class_t)22)
+#define STRUCT_Method           ((knh_struct_t)22)
 #define IS_Method(o)            ((o)->h.cid == CLASS_Method)
 #define IS_bMethod(o)           ((o)->h.bcid == CLASS_Method)
 #define TYPE_Method             CLASS_Method
@@ -297,8 +285,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* Mapper */
-#define CLASS_Mapper            ((knh_class_t)24)
-#define STRUCT_Mapper           ((knh_struct_t)24)
+#define CLASS_Mapper            ((knh_class_t)23)
+#define STRUCT_Mapper           ((knh_struct_t)23)
 #define IS_Mapper(o)            ((o)->h.cid == CLASS_Mapper)
 #define IS_bMapper(o)           ((o)->h.bcid == CLASS_Mapper)
 #define TYPE_Mapper             CLASS_Mapper
@@ -309,8 +297,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* ClassMap */
-#define CLASS_ClassMap          ((knh_class_t)25)
-#define STRUCT_ClassMap         ((knh_struct_t)25)
+#define CLASS_ClassMap          ((knh_class_t)24)
+#define STRUCT_ClassMap         ((knh_struct_t)24)
 #define IS_ClassMap(o)          ((o)->h.cid == CLASS_ClassMap)
 #define IS_bClassMap(o)         ((o)->h.bcid == CLASS_ClassMap)
 #define TYPE_ClassMap           CLASS_ClassMap
@@ -321,8 +309,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* Closure */
-#define CLASS_Closure           ((knh_class_t)26)
-#define STRUCT_Closure          ((knh_struct_t)26)
+#define CLASS_Closure           ((knh_class_t)25)
+#define STRUCT_Closure          ((knh_struct_t)25)
 #define IS_Closure(o)           ((o)->h.cid == CLASS_Closure)
 #define IS_bClosure(o)          ((o)->h.bcid == CLASS_Closure)
 #define TYPE_Closure            CLASS_Closure
@@ -333,8 +321,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* Thunk */
-#define CLASS_Thunk             ((knh_class_t)27)
-#define STRUCT_Thunk            ((knh_struct_t)27)
+#define CLASS_Thunk             ((knh_class_t)26)
+#define STRUCT_Thunk            ((knh_struct_t)26)
 #define IS_Thunk(o)             ((o)->h.cid == CLASS_Thunk)
 #define IS_bThunk(o)            ((o)->h.bcid == CLASS_Thunk)
 #define TYPE_Thunk              CLASS_Thunk
@@ -345,8 +333,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* AffineConv */
-#define CLASS_AffineConv        ((knh_class_t)28)
-#define STRUCT_AffineConv       ((knh_struct_t)28)
+#define CLASS_AffineConv        ((knh_class_t)27)
+#define STRUCT_AffineConv       ((knh_struct_t)27)
 #define IS_AffineConv(o)        ((o)->h.cid == CLASS_AffineConv)
 #define IS_bAffineConv(o)       ((o)->h.bcid == CLASS_AffineConv)
 #define TYPE_AffineConv         CLASS_AffineConv
@@ -357,8 +345,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* Regex */
-#define CLASS_Regex             ((knh_class_t)29)
-#define STRUCT_Regex            ((knh_struct_t)29)
+#define CLASS_Regex             ((knh_class_t)28)
+#define STRUCT_Regex            ((knh_struct_t)28)
 #define IS_Regex(o)             ((o)->h.cid == CLASS_Regex)
 #define IS_bRegex(o)            ((o)->h.bcid == CLASS_Regex)
 #define TYPE_Regex              CLASS_Regex
@@ -369,8 +357,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* BytesConv */
-#define CLASS_BytesConv         ((knh_class_t)30)
-#define STRUCT_BytesConv        ((knh_struct_t)30)
+#define CLASS_BytesConv         ((knh_class_t)29)
+#define STRUCT_BytesConv        ((knh_struct_t)29)
 #define IS_BytesConv(o)         ((o)->h.cid == CLASS_BytesConv)
 #define IS_bBytesConv(o)        ((o)->h.bcid == CLASS_BytesConv)
 #define TYPE_BytesConv          CLASS_BytesConv
@@ -381,8 +369,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* Semantics */
-#define CLASS_Semantics         ((knh_class_t)31)
-#define STRUCT_Semantics        ((knh_struct_t)31)
+#define CLASS_Semantics         ((knh_class_t)30)
+#define STRUCT_Semantics        ((knh_struct_t)30)
 #define IS_Semantics(o)         ((o)->h.cid == CLASS_Semantics)
 #define IS_bSemantics(o)        ((o)->h.bcid == CLASS_Semantics)
 #define TYPE_Semantics          CLASS_Semantics
@@ -393,8 +381,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* InputStream */
-#define CLASS_InputStream       ((knh_class_t)32)
-#define STRUCT_InputStream      ((knh_struct_t)32)
+#define CLASS_InputStream       ((knh_class_t)31)
+#define STRUCT_InputStream      ((knh_struct_t)31)
 #define IS_InputStream(o)       ((o)->h.cid == CLASS_InputStream)
 #define IS_bInputStream(o)      ((o)->h.bcid == CLASS_InputStream)
 #define TYPE_InputStream        CLASS_InputStream
@@ -405,8 +393,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* OutputStream */
-#define CLASS_OutputStream      ((knh_class_t)33)
-#define STRUCT_OutputStream     ((knh_struct_t)33)
+#define CLASS_OutputStream      ((knh_class_t)32)
+#define STRUCT_OutputStream     ((knh_struct_t)32)
 #define IS_OutputStream(o)      ((o)->h.cid == CLASS_OutputStream)
 #define IS_bOutputStream(o)     ((o)->h.bcid == CLASS_OutputStream)
 #define TYPE_OutputStream       CLASS_OutputStream
@@ -417,8 +405,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* Socket */
-#define CLASS_Socket            ((knh_class_t)34)
-#define STRUCT_Socket           ((knh_struct_t)34)
+#define CLASS_Socket            ((knh_class_t)33)
+#define STRUCT_Socket           ((knh_struct_t)33)
 #define IS_Socket(o)            ((o)->h.cid == CLASS_Socket)
 #define IS_bSocket(o)           ((o)->h.bcid == CLASS_Socket)
 #define TYPE_Socket             CLASS_Socket
@@ -429,8 +417,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* Connection */
-#define CLASS_Connection        ((knh_class_t)35)
-#define STRUCT_Connection       ((knh_struct_t)35)
+#define CLASS_Connection        ((knh_class_t)34)
+#define STRUCT_Connection       ((knh_struct_t)34)
 #define IS_Connection(o)        ((o)->h.cid == CLASS_Connection)
 #define IS_bConnection(o)       ((o)->h.bcid == CLASS_Connection)
 #define TYPE_Connection         CLASS_Connection
@@ -441,8 +429,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* ResultSet */
-#define CLASS_ResultSet         ((knh_class_t)36)
-#define STRUCT_ResultSet        ((knh_struct_t)36)
+#define CLASS_ResultSet         ((knh_class_t)35)
+#define STRUCT_ResultSet        ((knh_struct_t)35)
 #define IS_ResultSet(o)         ((o)->h.cid == CLASS_ResultSet)
 #define IS_bResultSet(o)        ((o)->h.bcid == CLASS_ResultSet)
 #define TYPE_ResultSet          CLASS_ResultSet
@@ -453,8 +441,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* Exception */
-#define CLASS_Exception         ((knh_class_t)37)
-#define STRUCT_Exception        ((knh_struct_t)37)
+#define CLASS_Exception         ((knh_class_t)36)
+#define STRUCT_Exception        ((knh_struct_t)36)
 #define IS_Exception(o)         ((o)->h.cid == CLASS_Exception)
 #define IS_bException(o)        ((o)->h.bcid == CLASS_Exception)
 #define TYPE_Exception          CLASS_Exception
@@ -465,8 +453,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* ExceptionHandler */
-#define CLASS_ExceptionHandler  ((knh_class_t)38)
-#define STRUCT_ExceptionHandler ((knh_struct_t)38)
+#define CLASS_ExceptionHandler  ((knh_class_t)37)
+#define STRUCT_ExceptionHandler ((knh_struct_t)37)
 #define IS_ExceptionHandler(o)  ((o)->h.cid == CLASS_ExceptionHandler)
 #define IS_bExceptionHandler(o) ((o)->h.bcid == CLASS_ExceptionHandler)
 #define TYPE_ExceptionHandler   CLASS_ExceptionHandler
@@ -477,8 +465,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* Script */
-#define CLASS_Script            ((knh_class_t)39)
-#define STRUCT_Script           ((knh_struct_t)39)
+#define CLASS_Script            ((knh_class_t)38)
+#define STRUCT_Script           ((knh_struct_t)38)
 #define IS_Script(o)            ((o)->h.cid == CLASS_Script)
 #define IS_bScript(o)           ((o)->h.bcid == CLASS_Script)
 #define TYPE_Script             CLASS_Script
@@ -489,8 +477,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* NameSpace */
-#define CLASS_NameSpace         ((knh_class_t)40)
-#define STRUCT_NameSpace        ((knh_struct_t)40)
+#define CLASS_NameSpace         ((knh_class_t)39)
+#define STRUCT_NameSpace        ((knh_struct_t)39)
 #define IS_NameSpace(o)         ((o)->h.cid == CLASS_NameSpace)
 #define IS_bNameSpace(o)        ((o)->h.bcid == CLASS_NameSpace)
 #define TYPE_NameSpace          CLASS_NameSpace
@@ -501,8 +489,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* System */
-#define CLASS_System            ((knh_class_t)41)
-#define STRUCT_System           ((knh_struct_t)41)
+#define CLASS_System            ((knh_class_t)40)
+#define STRUCT_System           ((knh_struct_t)40)
 #define IS_System(o)            ((o)->h.cid == CLASS_System)
 #define IS_bSystem(o)           ((o)->h.bcid == CLASS_System)
 #define TYPE_System             CLASS_System
@@ -513,8 +501,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* Context */
-#define CLASS_Context           ((knh_class_t)42)
-#define STRUCT_Context          ((knh_struct_t)42)
+#define CLASS_Context           ((knh_class_t)41)
+#define STRUCT_Context          ((knh_struct_t)41)
 #define IS_Context(o)           ((o)->h.cid == CLASS_Context)
 #define IS_bContext(o)          ((o)->h.bcid == CLASS_Context)
 #define TYPE_Context            CLASS_Context
@@ -525,8 +513,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* Thread */
-#define CLASS_Thread            ((knh_class_t)43)
-#define STRUCT_Thread           ((knh_struct_t)43)
+#define CLASS_Thread            ((knh_class_t)42)
+#define STRUCT_Thread           ((knh_struct_t)42)
 #define IS_Thread(o)            ((o)->h.cid == CLASS_Thread)
 #define IS_bThread(o)           ((o)->h.bcid == CLASS_Thread)
 #define TYPE_Thread             CLASS_Thread
@@ -537,8 +525,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* ScriptEngine */
-#define CLASS_ScriptEngine      ((knh_class_t)44)
-#define STRUCT_ScriptEngine     ((knh_struct_t)44)
+#define CLASS_ScriptEngine      ((knh_class_t)43)
+#define STRUCT_ScriptEngine     ((knh_struct_t)43)
 #define IS_ScriptEngine(o)      ((o)->h.cid == CLASS_ScriptEngine)
 #define IS_bScriptEngine(o)     ((o)->h.bcid == CLASS_ScriptEngine)
 #define TYPE_ScriptEngine       CLASS_ScriptEngine
@@ -549,8 +537,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* Token */
-#define CLASS_Token             ((knh_class_t)45)
-#define STRUCT_Token            ((knh_struct_t)45)
+#define CLASS_Token             ((knh_class_t)44)
+#define STRUCT_Token            ((knh_struct_t)44)
 #define IS_Token(o)             ((o)->h.cid == CLASS_Token)
 #define IS_bToken(o)            ((o)->h.bcid == CLASS_Token)
 #define TYPE_Token              CLASS_Token
@@ -561,8 +549,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* Stmt */
-#define CLASS_Stmt              ((knh_class_t)46)
-#define STRUCT_Stmt             ((knh_struct_t)46)
+#define CLASS_Stmt              ((knh_class_t)45)
+#define STRUCT_Stmt             ((knh_struct_t)45)
 #define IS_Stmt(o)              ((o)->h.cid == CLASS_Stmt)
 #define IS_bStmt(o)             ((o)->h.bcid == CLASS_Stmt)
 #define TYPE_Stmt               CLASS_Stmt
@@ -573,8 +561,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* Gamma */
-#define CLASS_Gamma             ((knh_class_t)47)
-#define STRUCT_Gamma            ((knh_struct_t)47)
+#define CLASS_Gamma             ((knh_class_t)46)
+#define STRUCT_Gamma            ((knh_struct_t)46)
 #define IS_Gamma(o)             ((o)->h.cid == CLASS_Gamma)
 #define IS_bGamma(o)            ((o)->h.bcid == CLASS_Gamma)
 #define TYPE_Gamma              CLASS_Gamma
@@ -585,8 +573,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* KLRInst */
-#define CLASS_KLRInst           ((knh_class_t)48)
-#define STRUCT_KLRInst          ((knh_struct_t)48)
+#define CLASS_KLRInst           ((knh_class_t)47)
+#define STRUCT_KLRInst          ((knh_struct_t)47)
 #define IS_KLRInst(o)           ((o)->h.cid == CLASS_KLRInst)
 #define IS_bKLRInst(o)          ((o)->h.bcid == CLASS_KLRInst)
 #define TYPE_KLRInst            CLASS_KLRInst
@@ -597,8 +585,8 @@
 
 /* ------------------------------------------------------------------------ */
 /* KLRCode */
-#define CLASS_KLRCode           ((knh_class_t)49)
-#define STRUCT_KLRCode          ((knh_struct_t)49)
+#define CLASS_KLRCode           ((knh_class_t)48)
+#define STRUCT_KLRCode          ((knh_struct_t)48)
 #define IS_KLRCode(o)           ((o)->h.cid == CLASS_KLRCode)
 #define IS_bKLRCode(o)          ((o)->h.bcid == CLASS_KLRCode)
 #define TYPE_KLRCode            CLASS_KLRCode
@@ -612,7 +600,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* This */
-#define CLASS_This              ((knh_class_t)50)
+#define CLASS_This              ((knh_class_t)49)
 #define STRUCT_This             STRUCT_Any
 #define IS_This(o)              ((o)->h.cid == CLASS_This)
 #define TYPE_This               CLASS_This
@@ -623,7 +611,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* Tvoid */
-#define CLASS_Tvoid             ((knh_class_t)51)
+#define CLASS_Tvoid             ((knh_class_t)50)
 #define STRUCT_Tvoid            STRUCT_Any
 #define IS_Tvoid(o)             ((o)->h.cid == CLASS_Tvoid)
 #define TYPE_Tvoid              CLASS_Tvoid
@@ -634,7 +622,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* T0 */
-#define CLASS_T0                ((knh_class_t)52)
+#define CLASS_T0                ((knh_class_t)51)
 #define STRUCT_T0               STRUCT_Any
 #define IS_T0(o)                ((o)->h.cid == CLASS_T0)
 #define TYPE_T0                 CLASS_T0
@@ -645,7 +633,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* T1 */
-#define CLASS_T1                ((knh_class_t)53)
+#define CLASS_T1                ((knh_class_t)52)
 #define STRUCT_T1               STRUCT_Any
 #define IS_T1(o)                ((o)->h.cid == CLASS_T1)
 #define TYPE_T1                 CLASS_T1
@@ -656,7 +644,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* T2 */
-#define CLASS_T2                ((knh_class_t)54)
+#define CLASS_T2                ((knh_class_t)53)
 #define STRUCT_T2               STRUCT_Any
 #define IS_T2(o)                ((o)->h.cid == CLASS_T2)
 #define TYPE_T2                 CLASS_T2
@@ -667,7 +655,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* T3 */
-#define CLASS_T3                ((knh_class_t)55)
+#define CLASS_T3                ((knh_class_t)54)
 #define STRUCT_T3               STRUCT_Any
 #define IS_T3(o)                ((o)->h.cid == CLASS_T3)
 #define TYPE_T3                 CLASS_T3
@@ -678,7 +666,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* Tx */
-#define CLASS_Tx                ((knh_class_t)56)
+#define CLASS_Tx                ((knh_class_t)55)
 #define STRUCT_Tx               STRUCT_Any
 #define IS_Tx(o)                ((o)->h.cid == CLASS_Tx)
 #define TYPE_Tx                 CLASS_Tx
@@ -689,7 +677,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* Tvar */
-#define CLASS_Tvar              ((knh_class_t)57)
+#define CLASS_Tvar              ((knh_class_t)56)
 #define STRUCT_Tvar             STRUCT_Any
 #define IS_Tvar(o)              ((o)->h.cid == CLASS_Tvar)
 #define TYPE_Tvar               CLASS_Tvar
@@ -700,7 +688,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* PairSS */
-#define CLASS_PairSS            ((knh_class_t)58)
+#define CLASS_PairSS            ((knh_class_t)57)
 #define STRUCT_PairSS           STRUCT_Pair
 #define IS_PairSS(o)            ((o)->h.cid == CLASS_PairSS)
 #define TYPE_PairSS             CLASS_PairSS
@@ -711,7 +699,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* PairST1 */
-#define CLASS_PairST1           ((knh_class_t)59)
+#define CLASS_PairST1           ((knh_class_t)58)
 #define STRUCT_PairST1          STRUCT_Pair
 #define IS_PairST1(o)           ((o)->h.cid == CLASS_PairST1)
 #define TYPE_PairST1            CLASS_PairST1
@@ -722,7 +710,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* PairT1T2 */
-#define CLASS_PairT1T2          ((knh_class_t)60)
+#define CLASS_PairT1T2          ((knh_class_t)59)
 #define STRUCT_PairT1T2         STRUCT_Pair
 #define IS_PairT1T2(o)          ((o)->h.cid == CLASS_PairT1T2)
 #define TYPE_PairT1T2           CLASS_PairT1T2
@@ -733,7 +721,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* Cmpr */
-#define CLASS_Cmpr              ((knh_class_t)61)
+#define CLASS_Cmpr              ((knh_class_t)60)
 #define STRUCT_Cmpr             STRUCT_Closure
 #define IS_Cmpr(o)              ((o)->h.cid == CLASS_Cmpr)
 #define TYPE_Cmpr               CLASS_Cmpr
@@ -744,7 +732,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* String_Ary */
-#define CLASS_String_Ary        ((knh_class_t)62)
+#define CLASS_String_Ary        ((knh_class_t)61)
 #define STRUCT_String_Ary       STRUCT_Array
 #define IS_String_Ary(o)        ((o)->h.cid == CLASS_String_Ary)
 #define TYPE_String_Ary         CLASS_String_Ary
@@ -755,7 +743,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* Any_Ary */
-#define CLASS_Any_Ary           ((knh_class_t)63)
+#define CLASS_Any_Ary           ((knh_class_t)62)
 #define STRUCT_Any_Ary          STRUCT_Array
 #define IS_Any_Ary(o)           ((o)->h.cid == CLASS_Any_Ary)
 #define TYPE_Any_Ary            CLASS_Any_Ary
@@ -766,7 +754,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* String_Itr */
-#define CLASS_String_Itr        ((knh_class_t)64)
+#define CLASS_String_Itr        ((knh_class_t)63)
 #define STRUCT_String_Itr       STRUCT_Iterator
 #define IS_String_Itr(o)        ((o)->h.cid == CLASS_String_Itr)
 #define TYPE_String_Itr         CLASS_String_Itr
@@ -777,7 +765,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* T1_Itr */
-#define CLASS_T1_Itr            ((knh_class_t)65)
+#define CLASS_T1_Itr            ((knh_class_t)64)
 #define STRUCT_T1_Itr           STRUCT_Iterator
 #define IS_T1_Itr(o)            ((o)->h.cid == CLASS_T1_Itr)
 #define TYPE_T1_Itr             CLASS_T1_Itr
@@ -788,7 +776,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* PairST1_Itr */
-#define CLASS_PairST1_Itr       ((knh_class_t)66)
+#define CLASS_PairST1_Itr       ((knh_class_t)65)
 #define STRUCT_PairST1_Itr      STRUCT_Iterator
 #define IS_PairST1_Itr(o)       ((o)->h.cid == CLASS_PairST1_Itr)
 #define TYPE_PairST1_Itr        CLASS_PairST1_Itr
@@ -799,7 +787,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* PairT1T2_Itr */
-#define CLASS_PairT1T2_Itr      ((knh_class_t)67)
+#define CLASS_PairT1T2_Itr      ((knh_class_t)66)
 #define STRUCT_PairT1T2_Itr     STRUCT_Iterator
 #define IS_PairT1T2_Itr(o)      ((o)->h.cid == CLASS_PairT1T2_Itr)
 #define TYPE_PairT1T2_Itr       CLASS_PairT1T2_Itr
@@ -810,7 +798,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* This_Itr */
-#define CLASS_This_Itr          ((knh_class_t)68)
+#define CLASS_This_Itr          ((knh_class_t)67)
 #define STRUCT_This_Itr         STRUCT_Iterator
 #define IS_This_Itr(o)          ((o)->h.cid == CLASS_This_Itr)
 #define TYPE_This_Itr           CLASS_This_Itr
@@ -821,7 +809,7 @@
 
 /* ------------------------------------------------------------------------ */
 /* Thrd */
-#define CLASS_Thrd              ((knh_class_t)69)
+#define CLASS_Thrd              ((knh_class_t)68)
 #define STRUCT_Thrd             STRUCT_Closure
 #define IS_Thrd(o)              ((o)->h.cid == CLASS_Thrd)
 #define TYPE_Thrd               CLASS_Thrd
@@ -829,7 +817,7 @@
 #define NATYPE_Thrd             NATYPE_cid(CLASS_Thrd)
 #define CFLAG_Thrd              ((knh_flag_t)0)
 #define FLAG_Thrd               knh_flag_oflag(CFLAG_Thrd)
-#define KNH_CLASS_INITSIZE              71
+#define KNH_CLASS_INITSIZE              70
 
 /* ======================================================================== */
 /* FLAG */
@@ -962,51 +950,6 @@
 #define knh_class_isTypeVariable(o)  (((pClassTable(o))->cflag & FLAG_Class_TypeVariable) == FLAG_Class_TypeVariable)
 
 #define knh_class_setTypeVariable(o,b) if(b) (pClassTable(o))->cflag |= FLAG_Class_TypeVariable; else (pClassTable(o))->cflag &= ~(FLAG_Class_TypeVariable);
-#define FLAG_ClassField_Hidden          (knh_flag_t)(1<<0)
-
-#define knh_ClassField_isHidden(o,n)  (((o)->fields[n].flag & FLAG_ClassField_Hidden) == FLAG_ClassField_Hidden)
-
-#define knh_ClassField_setHidden(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassField_Hidden; else (o)->fields[n].flag &= ~(FLAG_ClassField_Hidden);
-#define FLAG_ClassField_Protected       (knh_flag_t)(1<<1)
-
-#define knh_ClassField_isProtected(o,n)  (((o)->fields[n].flag & FLAG_ClassField_Protected) == FLAG_ClassField_Protected)
-
-#define knh_ClassField_setProtected(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassField_Protected; else (o)->fields[n].flag &= ~(FLAG_ClassField_Protected);
-#define FLAG_ClassField_Getter          (knh_flag_t)(1<<2)
-
-#define knh_ClassField_isGetter(o,n)  (((o)->fields[n].flag & FLAG_ClassField_Getter) == FLAG_ClassField_Getter)
-
-#define knh_ClassField_setGetter(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassField_Getter; else (o)->fields[n].flag &= ~(FLAG_ClassField_Getter);
-#define FLAG_ClassField_Setter          (knh_flag_t)(1<<3)
-
-#define knh_ClassField_isSetter(o,n)  (((o)->fields[n].flag & FLAG_ClassField_Setter) == FLAG_ClassField_Setter)
-
-#define knh_ClassField_setSetter(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassField_Setter; else (o)->fields[n].flag &= ~(FLAG_ClassField_Setter);
-#define FLAG_ClassField_Key             (knh_flag_t)(1<<4)
-
-#define knh_ClassField_isKey(o,n)  (((o)->fields[n].flag & FLAG_ClassField_Key) == FLAG_ClassField_Key)
-
-#define knh_ClassField_setKey(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassField_Key; else (o)->fields[n].flag &= ~(FLAG_ClassField_Key);
-#define FLAG_ClassField_Volatile        (knh_flag_t)(1<<5)
-
-#define knh_ClassField_isVolatile(o,n)  (((o)->fields[n].flag & FLAG_ClassField_Volatile) == FLAG_ClassField_Volatile)
-
-#define knh_ClassField_setVolatile(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassField_Volatile; else (o)->fields[n].flag &= ~(FLAG_ClassField_Volatile);
-#define FLAG_ClassField_ReadOnly        (knh_flag_t)(1<<6)
-
-#define knh_ClassField_isReadOnly(o,n)  (((o)->fields[n].flag & FLAG_ClassField_ReadOnly) == FLAG_ClassField_ReadOnly)
-
-#define knh_ClassField_setReadOnly(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassField_ReadOnly; else (o)->fields[n].flag &= ~(FLAG_ClassField_ReadOnly);
-#define FLAG_ClassField_Property        (knh_flag_t)(1<<7)
-
-#define knh_ClassField_isProperty(o,n)  (((o)->fields[n].flag & FLAG_ClassField_Property) == FLAG_ClassField_Property)
-
-#define knh_ClassField_setProperty(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassField_Property; else (o)->fields[n].flag &= ~(FLAG_ClassField_Property);
-#define FLAG_ClassField_Principle       (knh_flag_t)(1<<8)
-
-#define knh_ClassField_isPrinciple(o,n)  (((o)->fields[n].flag & FLAG_ClassField_Principle) == FLAG_ClassField_Principle)
-
-#define knh_ClassField_setPrinciple(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassField_Principle; else (o)->fields[n].flag &= ~(FLAG_ClassField_Principle);
 #define FLAG_Method_Private             (knh_flag_t)(1<<0)
 
 #define knh_Method_isPrivate(o)  ((DP(o)->flag & FLAG_Method_Private) == FLAG_Method_Private)

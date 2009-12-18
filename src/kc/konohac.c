@@ -395,10 +395,10 @@ void knh_class_addInterface(Ctx *ctx, knh_class_t cid, knh_class_t icid)
 		knh_class_t isupcid = icid;
 		int allchecked = 1;
 		while(isupcid != CLASS_Object) {
-			knh_ClassField_t *cs = ctx->share->ClassTable[isupcid].cstruct;
+			knh_ClassTable_t *t = pClassTable(isupcid);
 			size_t i;
-			for(i = 0; i < knh_Array_size(cs->methods); i++) {
-				knh_Method_t *imtd = (knh_Method_t*)knh_Array_n(cs->methods, i);
+			for(i = 0; i < knh_Array_size(t->methods); i++) {
+				knh_Method_t *imtd = (knh_Method_t*)knh_Array_n(t->methods, i);
 				if(knh_Method_isPrivate(imtd)) {
 					continue;
 				}
@@ -417,10 +417,10 @@ void knh_class_addInterface(Ctx *ctx, knh_class_t cid, knh_class_t icid)
 		if(allchecked) {
 			isupcid = icid;
 			while(isupcid != CLASS_Object) {
-				knh_ClassField_t *cs = ctx->share->ClassTable[isupcid].cstruct;
+				knh_ClassTable_t *t = pClassTable(isupcid);
 				size_t i;
-				for(i = 0; i < knh_Array_size(cs->methods); i++) {
-					knh_Method_t *imtd = (knh_Method_t*)knh_Array_n(cs->methods, i);
+				for(i = 0; i < knh_Array_size(t->methods); i++) {
+					knh_Method_t *imtd = (knh_Method_t*)knh_Array_n(t->methods, i);
 					if(knh_Method_isPrivate(imtd)) {
 						continue;
 					}
@@ -477,7 +477,7 @@ int knh_StmtCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt)
 
 	DP(StmtCLASS_class(stmt))->cid = cid;
 	{
-		knh_ClassTable_t *t = (knh_ClassTable_t*)&(ClassTable(cid));
+		knh_ClassTable_t *t = pClassTable(cid);
 		t->cflag  = knh_StmtCLASS_flag(ctx, stmt);
 		t->oflag  = knh_flag_oflag(t->cflag);
 		if(SP(StmtCLASS_instmt(stmt))->stt == STT_DONE) {
@@ -490,9 +490,11 @@ int knh_StmtCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt)
 		t->offset = 0; /* will be extended in CLASS_typing */
 		DBG2_ASSERT_cid(supcid);
 		t->keyidx = ClassTable(supcid).keyidx;
-		KNH_ASSERT(t->sname == NULL);
+		DBG2_ASSERT(t->sname == NULL);
 		knh_setClassName(ctx, cid, new_String(ctx, B(bufn), NULL));
-		KNH_INITv(t->cstruct, new_ClassField0(ctx, 0, 8));
+		DBG2_ASSERT(t->fields == NULL);
+		DBG2_ASSERT(t->fsize  == NULL);
+		KNH_INITv(t->methods, new_Array0(ctx, 0));
 		KNH_INITv(t->cmap, ctx->share->ClassTable[CLASS_Any].cmap);
 		knh_setClassDefaultValue(ctx, cid, new_hObject(ctx, t->oflag | FLAG_Object_Undefined, t->bcid, cid), NULL);
 		if(t->bcid == CLASS_Any) {
@@ -708,7 +710,7 @@ static int knh_StmtUFUNC_decl(Ctx *ctx, knh_Stmt_t *stmt)
 		}
 		else {
 			DBG2_ASSERT_cid(cid);
-			knh_Array_t *a = (ClassTable(cid).cstruct)->methods;
+			knh_Array_t *a = ClassTable(cid).methods;
 			size_t i;
 			for(i = 0; i < knh_Array_size(a); i++) {
 				knh_Method_t *mtd = (knh_Method_t*)knh_Array_n(a, i);

@@ -217,8 +217,9 @@ knh_addClosureClass(Ctx *ctx, knh_class_t cid, knh_String_t *name, knh_type_t r0
 	t->size = ClassTable(CLASS_Closure).size;
 	t->bsize  = ClassTable(CLASS_Closure).bsize;
 
-	KNH_INITv(t->cstruct, ClassTable(CLASS_Closure).cstruct);
-	KNH_INITv(t->cmap, ClassTable(CLASS_Closure).cmap);
+	DBG2_ASSERT(t->fields == NULL);
+	KNH_INITv(t->methods, ClassTable(CLASS_Closure).methods);
+	KNH_INITv(t->cmap, knh_ClassMap_fdefault(ctx, CLASS_ClassMap));
 	t->r0 = r0;
 	t->p1 = p1;
 	t->p2 = p2;
@@ -443,8 +444,8 @@ knh_class_t knh_addThunkClass(Ctx *ctx, knh_class_t cid, knh_String_t *name, knh
 	t->size = ClassTable(CLASS_Thunk).size;
 	t->bsize  = ClassTable(CLASS_Thunk).bsize;
 
-	KNH_INITv(t->cstruct, ClassTable(CLASS_Thunk).cstruct);
-	KNH_INITv(t->cmap, new_ClassMap0(ctx, 0));
+	KNH_INITv(t->methods, ClassTable(CLASS_Thunk).methods);
+	KNH_INITv(t->cmap, knh_ClassMap_fdefault(ctx, CLASS_ClassMap));
 	t->p1 = rtype;
 	t->p2 = CLASS_Tvoid;
 	return cid;

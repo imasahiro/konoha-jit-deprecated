@@ -624,8 +624,21 @@ typedef struct {
 #define KNH_CLASSTABLE_INIT 128
 
 #define SIZEOF_TCLASS(n)  ((n) * sizeof(knh_ClassTable_t))
-
 typedef knh_Object_t* (*knh_fdefault)(Ctx *ctx, knh_class_t cid);
+
+typedef struct {
+	knh_flag_t    flag  ;
+	knh_type_t    type  ;
+	knh_fieldn_t  fn    ;
+	knh_type_t    type2 ;
+	Object        *value;
+	union {
+		knh_int_t   ivalue;
+		knh_float_t fvalue;
+		knh_bool_t  bvalue;
+		void       *ref;
+	};
+} knh_fields_t ;
 
 typedef struct {
 	knh_flag_t    cflag;   knh_flag_t    oflag;
@@ -649,7 +662,11 @@ typedef struct {
 	struct knh_String_t       *lname;
 	struct knh_Class_t        *class_cid;
 	struct knh_Class_t        *class_natype;
-	struct knh_ClassField_t   *cstruct;
+//	struct knh_ClassField_t   *cstruct;
+	knh_fields_t              *fields;
+	size_t                     fsize;
+	struct knh_Array_t        *methods;
+
 	struct knh_ClassMap_t     *cmap;
 	union {
 		struct knh_Object_t       *defval;

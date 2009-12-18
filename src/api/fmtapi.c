@@ -249,7 +249,7 @@ static METHOD Object__k(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 			Object **v = (Object**)o->ref;
 			knh_putc(ctx, w, '{');
 			for(i = 0; i < bsize; i++) {
-				knh_cfield_t *cf = knh_Class_fieldAt(ctx, knh_Object_cid(o), i);
+				knh_fields_t *cf = knh_Class_fieldAt(ctx, knh_Object_cid(o), i);
 				if(cf->fn == FIELDN_NONAME) break;
 				if(cf->fn == FIELDN_/*register*/) continue;
 				if(i > 0) {
@@ -663,7 +663,7 @@ METHOD Script__k(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 		knh_Script_t *o = (knh_Script_t*)sfp[0].o;
 		knh_OutputStream_t *w = sfp[1].w;
 		for(i = 0; i < KNH_SCRIPT_FIELDSIZE; i++) {
-			knh_cfield_t *cf = knh_Class_fieldAt(ctx, knh_Object_cid(o), i);
+			knh_fields_t *cf = knh_Class_fieldAt(ctx, knh_Object_cid(o), i);
 			if(cf == NULL) break;
 			if(cf->fn == FIELDN_NONAME) break;
 			{
@@ -853,10 +853,10 @@ static METHOD Object__data(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 		knh_putc(ctx, w, ' ');
 		knh_write_begin(ctx, w, '{');
 		for(i = 0; i < ClassTable(cid).bsize; i++) {
-			knh_cfield_t *cf = knh_Class_fieldAt(ctx, cid, i);
+			knh_fields_t *cf = knh_Class_fieldAt(ctx, cid, i);
 			if(cf->fn == FIELDN_/*register*/) continue;
 			if(cf->fn == FIELDN_NONAME
-				|| KNH_FLAG_IS(cf->flag, FLAG_ClassField_Volatile)) continue;
+				|| KNH_FLAG_IS(cf->flag, FLAG_Field_Volatile)) continue;
 			knh_write_BOL(ctx, w);
 			knh_printf(ctx, w, "\"%s\": ", FIELDN(cf->fn));
 			knh_write_ObjectField(ctx, w, v, i, cf->type, METHODN__data);
@@ -1169,7 +1169,7 @@ static METHOD Class__man(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 	cid = this_cid;
 	while(1) {
 		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-		knh_Array_t *a = ClassTable(cid).cstruct->methods;
+		knh_Array_t *a = ClassTable(cid).methods;
 		for(i = 0; i < knh_Array_size(a); i++) {
 			knh_Method_t *mtd = (knh_Method_t*)knh_Array_n(a, i);
 			char *op = knh_methodop__tochar(DP(mtd)->mn);

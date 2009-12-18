@@ -37,7 +37,7 @@ extern "C" {
 
 /* ======================================================================== */
 
-//static knh_index_t knh_Gamma_declareLocalVariable(Ctx *ctx, knh_cfield_t *decl);
+//static knh_index_t knh_Gamma_declareLocalVariable(Ctx *ctx, knh_fields_t *decl);
 static Term *knh_Stmt_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt);
 static Term *knh_StmtCALL_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_class_t reqt);
 static int TERMs_typing(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_type_t reqt, int mode);
@@ -319,7 +319,7 @@ static int knh_Token_toSYSVAL(Ctx *ctx, knh_Token_t *tk)
 /* ------------------------------------------------------------------------ */
 
 static
-knh_index_t knh_Gamma_addVariableTable(Ctx *ctx, knh_cfield_t *gamma, size_t max, knh_cfield_t *decl, int isField)
+knh_index_t knh_Gamma_addVariableTable(Ctx *ctx, knh_fields_t *gamma, size_t max, knh_fields_t *decl, int isField)
 {
 	knh_index_t idx;
 	if(decl->type == TYPE_var) {
@@ -403,11 +403,11 @@ static int knh_Gamma_esp(Ctx *ctx)
 }
 
 static
-knh_index_t knh_Gamma_declareScriptVariable(Ctx *ctx, knh_cfield_t *decl)
+knh_index_t knh_Gamma_declareScriptVariable(Ctx *ctx, knh_fields_t *decl)
 {
 	knh_Script_t *scr = knh_getGammaScript(ctx);
 	knh_class_t cid = knh_Object_cid(scr);
-	knh_cfield_t *gamma = (ClassTable(cid).cstruct)->fields;
+	knh_fields_t *gamma = ClassTable(cid).fields;
 	knh_index_t idx = knh_Gamma_addVariableTable(ctx, gamma, KNH_SCRIPT_FIELDSIZE, decl, 1/*isField*/);
 	if(idx != -1) {
 		knh_Object_t *value = decl->value;
@@ -439,13 +439,13 @@ knh_index_t knh_Gamma_declareScriptVariable(Ctx *ctx, knh_cfield_t *decl)
 }
 
 static
-knh_index_t knh_Gamma_declareFieldVariable(Ctx *ctx, knh_cfield_t *decl)
+knh_index_t knh_Gamma_declareFieldVariable(Ctx *ctx, knh_fields_t *decl)
 {
 	return knh_Gamma_addVariableTable(ctx, DP(ctx->kc)->gamma, K_GAMMASIZE, decl, 1/*isField*/);
 }
 
 static
-knh_index_t knh_Gamma_declareLocalVariable(Ctx *ctx, knh_cfield_t *decl)
+knh_index_t knh_Gamma_declareLocalVariable(Ctx *ctx, knh_fields_t *decl)
 {
 	knh_Gamma_t *kc = ctx->kc;
 	DP(kc)->esp = -1;
@@ -467,19 +467,19 @@ knh_index_t knh_Gamma_indexOfFIELDN(Ctx *ctx, knh_fieldn_t fnq)
 }
 
 static
-knh_cfield_t *knh_Gamma_getLocalField(Ctx *ctx, knh_index_t idx)
+knh_fields_t *knh_Gamma_getLocalField(Ctx *ctx, knh_index_t idx)
 {
 	knh_Gamma_t *kc = ctx->kc;
 	DBG2_ASSERT(idx != -1 && idx < K_GAMMASIZE);
 	DBG2_ASSERT(DP(kc)->gamma[idx].fn != FIELDN_NONAME);
-	return (knh_cfield_t*)&(DP(kc)->gamma[idx]);
+	return (knh_fields_t*)&(DP(kc)->gamma[idx]);
 }
 
 static int knh_Gamma_globalIndex(Ctx *ctx, knh_Script_t *scr)
 {
 	knh_Gamma_t *kc = ctx->kc;
 	if(DP(kc)->globalidx == -1) {
-		knh_cfield_t decl = {FLAG_GAMMA_FuncScope, NNTYPE_cid(knh_Object_cid(scr)), FIELDN_, NULL};
+		knh_fields_t decl = {FLAG_GAMMA_FuncScope, NNTYPE_cid(knh_Object_cid(scr)), FIELDN_, 0, NULL};
 		DP(kc)->globalidx = knh_Gamma_declareLocalVariable(ctx, &decl);
 		if(DP(kc)->globalidx == -1) return 0;
 	}
@@ -515,7 +515,7 @@ knh_Method_t *knh_NameSpace_findFuncMethod(Ctx *ctx, knh_NameSpace_t *ns, knh_cl
 }
 
 /* ------------------------------------------------------------------------ */
-#define _READONLY   FLAG_ClassField_ReadOnly
+#define _READONLY   FLAG_Field_ReadOnly
 
 static int knh_TokenNAME_typing(Ctx *ctx, knh_Token_t *tk, int checkClosure)
 {
@@ -537,7 +537,7 @@ static int knh_TokenNAME_typing(Ctx *ctx, knh_Token_t *tk, int checkClosure)
 
 	idx = knh_Gamma_indexOfFIELDN(ctx, FIELDN_UNMASK(fnq));
 	if(idx != -1) {
-		knh_cfield_t *cf = knh_Gamma_getLocalField(ctx, idx);
+		knh_fields_t *cf = knh_Gamma_getLocalField(ctx, idx);
 		knh_type_t type = knh_pmztype_totype(ctx, cf->type, DP(kc)->this_cid);
 		if(cf->type == TYPE_var) type = TYPE_var;
 		if(checkClosure && !knh_type_isClosure(ctx, type)) goto L_FIELD;
@@ -558,7 +558,7 @@ static int knh_TokenNAME_typing(Ctx *ctx, knh_Token_t *tk, int checkClosure)
 	L_FIELD:;
 	idx = knh_Class_queryField(ctx, DP(kc)->this_cid, fnq);
 	if(idx != -1) {
-		knh_cfield_t *cf = knh_Class_fieldAt(ctx, DP(kc)->this_cid, idx);
+		knh_fields_t *cf = knh_Class_fieldAt(ctx, DP(kc)->this_cid, idx);
 		knh_type_t type = knh_pmztype_totype(ctx, cf->type, DP(kc)->this_cid);
 		if(checkClosure && !knh_type_isClosure(ctx, type)) goto L_SCRIPT;
 		knh_Gamma_foundFIELD(kc, 1);
@@ -576,7 +576,7 @@ static int knh_TokenNAME_typing(Ctx *ctx, knh_Token_t *tk, int checkClosure)
 		knh_Script_t *scr = knh_getGammaScript(ctx);
 		idx = knh_Class_queryField(ctx, knh_Object_cid(scr), fnq);
 		if(idx != -1) {
-			knh_cfield_t *cf = knh_Class_fieldAt(ctx, knh_Object_cid(scr), idx);
+			knh_fields_t *cf = knh_Class_fieldAt(ctx, knh_Object_cid(scr), idx);
 			knh_type_t type = knh_pmztype_totype(ctx, cf->type, knh_Object_cid(scr));
 			if(checkClosure && !knh_type_isClosure(ctx, type)) goto L_ERROR;
 			knh_Token_toSCRIPT(ctx, tk, type, idx);
@@ -1404,19 +1404,19 @@ knh_flag_t knh_StmtDECL_flag(Ctx *ctx, knh_Stmt_t *o)
 	if(IS_DictMap(DP(o)->metaDictMap)) {
 		Object *v = knh_DictMap_get__b(ctx, DP(o)->metaDictMap, STEXT("Getter"));
 		if(IS_NOTNULL(v)) {
-			flag |= FLAG_ClassField_Getter;
+			flag |= FLAG_Field_Getter;
 		}
 		v = knh_DictMap_get__b(ctx, DP(o)->metaDictMap, STEXT("Setter"));
 		if(IS_NOTNULL(v)) {
-			flag |= FLAG_ClassField_Setter;
+			flag |= FLAG_Field_Setter;
 		}
 		v = knh_DictMap_get__b(ctx, DP(o)->metaDictMap, STEXT("Volatile"));
 		if(IS_NOTNULL(v)) {
-			flag |= FLAG_ClassField_Volatile;
+			flag |= FLAG_Field_Volatile;
 		}
 		v = knh_DictMap_get__b(ctx, DP(o)->metaDictMap, STEXT("ReadOnly"));
 		if(IS_NOTNULL(v)) {
-			flag |= FLAG_ClassField_ReadOnly;
+			flag |= FLAG_Field_ReadOnly;
 		}
 	}
 	return flag;
@@ -1428,7 +1428,7 @@ knh_flag_t knh_StmtDECL_flag(Ctx *ctx, knh_Stmt_t *o)
 Term * knh_StmtDECL_typing(Ctx *ctx, knh_Stmt_t *stmt)
 {
 	knh_Gamma_t *kc = ctx->kc;
-	knh_cfield_t declbuf, *decl = &declbuf;
+	knh_fields_t declbuf, *decl = &declbuf;
 	knh_Token_t *tkT = StmtDECL_type(stmt);
 	knh_Token_t *tkN = StmtDECL_name(stmt);
 	knh_fieldn_t fnq = knh_Token_getfnq(ctx, tkN);
@@ -1471,7 +1471,7 @@ Term * knh_StmtDECL_typing(Ctx *ctx, knh_Stmt_t *stmt)
 			}
 			else if(DP(kc)->scope == DECL_FOREACH) {
 				decl->value = (Object*)tkN;
-				decl->flag |= FLAG_ClassField_Principle;
+				decl->flag |= FLAG_Field_Principle;
 				decl->type = TYPE_var;
 				DP(tkN)->index = knh_Gamma_declareLocalVariable(ctx, decl);
 				knh_Token_toLOCAL(ctx, tkN, TYPE_var, DP(tkN)->index);
@@ -1530,11 +1530,11 @@ Term * knh_StmtDECL_typing(Ctx *ctx, knh_Stmt_t *stmt)
 		}
 		case SCOPE_FIELD : {
 			if(!FIELDN_IS_U1(fnq)) {
-				decl->flag |= FLAG_ClassField_Getter | FLAG_ClassField_Setter;
+				decl->flag |= FLAG_Field_Getter | FLAG_Field_Setter;
 			}
 			if(knh_StmtMETA_is(ctx, stmt, STEXT("Key")) || decl->fn == FIELDN_key) {
 				if(IS_NNTYPE(decl->type) && ClassTable((CLASS_type(decl->type))).bcid == CLASS_String) {
-					decl->flag |= FLAG_ClassField_Key;
+					decl->flag |= FLAG_Field_Key;
 				}
 				else {
 					knh_Gamma_perror(ctx, KERR_EWARN, _("%T is not for key"), decl->type);
@@ -1544,7 +1544,7 @@ Term * knh_StmtDECL_typing(Ctx *ctx, knh_Stmt_t *stmt)
 				knh_String_t *pn = knh_Stmt_getPropertyNameNULL(ctx, DP(stmt)->stmts[2]);
 				if(pn != NULL) {
 					if(DP(DP(stmt)->stmts[2])->type != TYPE_Any) {
-						decl->flag |= FLAG_ClassField_Property;
+						decl->flag |= FLAG_Field_Property;
 						decl->value = (knh_Object_t*)pn;
 					}
 					else {
@@ -1560,7 +1560,7 @@ Term * knh_StmtDECL_typing(Ctx *ctx, knh_Stmt_t *stmt)
 			return knh_Stmt_typed(ctx, stmt, decl->type);
 		}
 		case SCOPE_SCRIPT : {
-			decl->flag |= FLAG_ClassField_Getter | FLAG_ClassField_Setter;
+			decl->flag |= FLAG_Field_Getter | FLAG_Field_Setter;
 			if(!knh_Gamma_declareScriptVariable(ctx, decl)) {
 				return NULL;
 			}
@@ -2437,7 +2437,7 @@ knh_type_t knh_class_getFieldType(Ctx *ctx, knh_class_t cid, knh_bytes_t name)
 	if(fn == FIELDN_NONAME) return TYPE_Any;
 	knh_index_t idx = knh_Class_queryField(ctx, cid, fn);
 	if(idx != -1) {
-		knh_cfield_t *cf = knh_Class_fieldAt(ctx, cid, idx);
+		knh_fields_t *cf = knh_Class_fieldAt(ctx, cid, idx);
 		return knh_pmztype_totype(ctx, cf->type, cid);
 	}
 	else {
@@ -3566,7 +3566,7 @@ knh_Token_t *knh_Stmt_addLOCAL(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t type, size
 		DBG2_ASSERT(TT_(tkIT) == TT_LOCAL);
 	}
 	else {
-		knh_cfield_t decl = {0, type, FIELDN_/*register*/, NULL};
+		knh_fields_t decl = {0, type, FIELDN_/*register*/, 0, NULL};
 		knh_index_t idx = knh_Gamma_declareLocalVariable(ctx, &decl);
 		tkIT = new_TokenLOCAL(ctx, FL(stmt), type, idx);
 		DBG2_ASSERT(loc == DP(stmt)->size);
@@ -3892,7 +3892,7 @@ Term *knh_StmtTRY_typing(Ctx *ctx, knh_Stmt_t *stmt)
 				BEGIN_BLOCK(esp2);
 				knh_Token_t *tkV = DP(stmtCATCH)->tokens[1];
 				knh_fieldn_t fn = knh_Token_getfnq(ctx, tkV);
-				knh_cfield_t decl = {0, TYPE_Exception, fn, NULL};
+				knh_fields_t decl = {0, TYPE_Exception, fn, 0, NULL};
 				knh_index_t idx = knh_Gamma_declareLocalVariable(ctx, &decl);
 				if(idx == -1) {
 					knh_Stmt_done(ctx, stmtCATCH);
@@ -3983,7 +3983,7 @@ static
 knh_Stmt_t *knh_Gamma_register(Ctx *ctx, knh_Stmt_t *stmt)
 {
 	knh_type_t type = DP(stmt)->type;
-	knh_cfield_t decl = {FLAG_GAMMA_Register, type, FIELDN_/*register*/, UP(stmt)};
+	knh_fields_t decl = {FLAG_GAMMA_Register, type, FIELDN_/*register*/, UP(stmt)};
 	knh_index_t idx = knh_Gamma_declareLocalVariable(ctx, &decl);
 	knh_Stmt_t *stmtLET = new_Stmt(ctx, 0, STT_LET);
 	knh_Token_t *tkN = new_TokenLOCAL(ctx, FL(stmt), type, idx);
@@ -4543,15 +4543,15 @@ Term * knh_StmtFUNCTION_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
 	KNH_SETv(ctx, ((knh_Context_t*)ctx)->kc, new_Gamma(ctx));
 	{
 		knh_Gamma_t *kc = ctx->kc;
-		knh_class_t reqc = CLASS_type(reqt);
-		int hasUntyped = 0;
+//		knh_class_t reqc = CLASS_type(reqt);
+//		int hasUntyped = 0;
 
-		knh_type_t rztype = knh_Token_gettype(ctx, DP(stmt)->tokens[0], DP(kc)->ns, TYPE_var);
-		knh_type_t rtype = knh_pmztype_totype(ctx, rztype, DP(kc)->this_cid);
-		DBG2_P("rztype=%s%s", TYPEQN(rztype));
-		knh_Method_t *mtd = new_Method(ctx, 0, DP(kc)->this_cid, METHODN_LAMBDA, NULL);
-		DP(mtd)->uri = SP(stmt)->uri;
-		knh_Token_setCONST(ctx, DP(stmt)->tokens[0], UP(mtd));
+//		knh_type_t rztype = knh_Token_gettype(ctx, DP(stmt)->tokens[0], DP(kc)->ns, TYPE_var);
+//		knh_type_t rtype = knh_pmztype_totype(ctx, rztype, DP(kc)->this_cid);
+//		DBG2_P("rztype=%s%s", TYPEQN(rztype));
+//		knh_Method_t *mtd = new_Method(ctx, 0, DP(kc)->this_cid, METHODN_LAMBDA, NULL);
+//		DP(mtd)->uri = SP(stmt)->uri;
+//		knh_Token_setCONST(ctx, DP(stmt)->tokens[0], UP(mtd));
 //
 //		DP(kc)->scope = SCOPE_PARAM;
 //		if(!knh_Stmt_initParams(ctx, DP(stmt)->stmts[1])) {
@@ -4686,7 +4686,7 @@ void knh_Gamma_initClassTableField(Ctx *ctx, knh_class_t cid)
 
 #ifdef KNH_DBGMODE2
 static
-void knh_cfield_dump(Ctx *ctx, knh_cfield_t *cf, size_t offset, size_t fsize, knh_OutputStream_t *w)
+void knh_cfield_dump(Ctx *ctx, knh_fields_t *cf, size_t offset, size_t fsize, knh_OutputStream_t *w)
 {
 	size_t idx = 0;
 	for(idx = 0; idx < fsize; idx++) {
@@ -4709,23 +4709,23 @@ static
 void knh_Gamma_declareClassField(Ctx *ctx, knh_NameSpace_t* ns, knh_class_t cid)
 {
 	knh_Gamma_t *kc = ctx->kc;
-	knh_ClassTable_t *t = (knh_ClassTable_t*)(&ClassTable(cid));
-		DBG2_ASSERT(IS_ClassField(t->cstruct));
-		DBG2_ASSERT((t->cstruct)->fields == NULL);
+	knh_ClassTable_t *t = pClassTable(cid);
+		DBG2_ASSERT(t->fields == NULL);
+		DBG2_ASSERT(t->fsize == 0);
 	int i, fsize = knh_Gamma_top(ctx);
-	knh_cfield_t *cf = (knh_cfield_t*)KNH_MALLOC(ctx, sizeof(knh_cfield_t) * fsize);
+	knh_fields_t *cf = (knh_fields_t*)KNH_MALLOC(ctx, sizeof(knh_fields_t) * fsize);
 	for(i = 0; i < fsize; i++) {
 		cf[i] = DP(kc)->gamma[i];
 		if(cf[i].value != NULL) {
 			DP(kc)->gamma[i].value = NULL; /* COPY TO GC */
 		}
-		if(KNH_FLAG_IS(cf[i].flag, FLAG_ClassField_Key)) {
+		if(KNH_FLAG_IS(cf[i].flag, FLAG_Field_Key)) {
 			DBG2_P("@Key keyidx=%d, %d", t->keyidx, i);
 			if(t->keyidx == -1) t->keyidx = i;
 		}
 	}
-	(t->cstruct)->fields = cf;
-	(t->cstruct)->fsize = fsize;
+	t->fields = cf;
+	t->fsize = fsize;
 	t->cspi = ClassTable(CLASS_Object).cspi;
 	if(t->supcid != CLASS_Object) {
 		t->offset = ClassTable(t->supcid).bsize;

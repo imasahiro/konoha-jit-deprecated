@@ -306,10 +306,10 @@ void knh_Class_addMethod(Ctx *ctx, knh_class_t cid, knh_Method_t *mtd)
 	KNH_ASSERT(IS_Method(mtd));
 	KNH_ASSERT(cid == DP(mtd)->cid);
 	DBG2_ASSERT_cid(cid);
-	knh_ClassField_t *cs = ClassTable(cid).cstruct;;
+	knh_Array_t *methods = ClassTable(cid).methods;
 	size_t i;
-	for(i = 0; i < knh_Array_size(cs->methods); i++) {
-		knh_Method_t *mtd2 = (knh_Method_t*)knh_Array_n(cs->methods, i);
+	for(i = 0; i < knh_Array_size(methods); i++) {
+		knh_Method_t *mtd2 = (knh_Method_t*)knh_Array_n(methods, i);
 		if(DP(mtd2)->mn == DP(mtd)->mn) {
 			KNH_WARNING(ctx, "Duplicated method: %s", FIELDN(METHODN_TOFIELDN(DP(mtd)->mn)));
 			return ;
@@ -318,7 +318,7 @@ void knh_Class_addMethod(Ctx *ctx, knh_class_t cid, knh_Method_t *mtd)
 	if(knh_class_isSingleton(cid)) {
 		DP(mtd)->flag = DP(mtd)->flag | FLAG_Method_Static;
 	}
-	knh_Array_add(ctx, cs->methods, UP(mtd));
+	knh_Array_add(ctx, methods, UP(mtd));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -638,10 +638,10 @@ knh_Class_getMethod__(Ctx *ctx, knh_class_t this_cid, knh_methodn_t mn, knh_bool
 	TAIL_RECURSION:;
 	DBG2_ASSERT_cid(cid);
 	{
-		knh_ClassField_t *cs = ClassTable(cid).cstruct;;
+		knh_Array_t *methods = ClassTable(cid).methods;
 		size_t i;
-		for(i = 0; i < knh_Array_size(cs->methods); i++) {
-			knh_Method_t *mtd = (knh_Method_t*)knh_Array_n(cs->methods, i);
+		for(i = 0; i < knh_Array_size(methods); i++) {
+			knh_Method_t *mtd = (knh_Method_t*)knh_Array_n(methods, i);
 			if(DP(mtd)->mn == mn) return mtd;
 		}
 		if(cid == CLASS_Object) {
@@ -660,14 +660,14 @@ knh_Class_getMethod__(Ctx *ctx, knh_class_t this_cid, knh_methodn_t mn, knh_bool
 			goto L_NoSuchMethod;
 		}
 		else {
-			knh_cfield_t *cf = knh_Class_fieldAt(ctx, this_cid, idx);
-			if(!KNH_FLAG_IS(cf->flag, FLAG_ClassField_Getter)) {
+			knh_fields_t *cf = knh_Class_fieldAt(ctx, this_cid, idx);
+			if(!KNH_FLAG_IS(cf->flag, FLAG_Field_Getter)) {
 				goto L_NoSuchMethod;
 			}
 			else {
 				knh_Method_t *mtd = new_Method_getter(ctx, this_cid, mn, cf->type, idx);
-				knh_ClassField_t *cs = ctx->share->ClassTable[this_cid].cstruct;;
-				knh_Array_add(ctx, cs->methods, UP(mtd));
+				knh_Array_t *methods = ClassTable(this_cid).methods;
+				knh_Array_add(ctx, methods, UP(mtd));
 				return mtd;
 			}
 		}
@@ -678,14 +678,14 @@ knh_Class_getMethod__(Ctx *ctx, knh_class_t this_cid, knh_methodn_t mn, knh_bool
 			goto L_NoSuchMethod;
 		}
 		else {
-			knh_cfield_t *cf = knh_Class_fieldAt(ctx, this_cid, idx);
-			if(!KNH_FLAG_IS(cf->flag, FLAG_ClassField_Setter)) {
+			knh_fields_t *cf = knh_Class_fieldAt(ctx, this_cid, idx);
+			if(!KNH_FLAG_IS(cf->flag, FLAG_Field_Setter)) {
 				goto L_NoSuchMethod;
 			}
 			else {
 				knh_Method_t *mtd = new_Method_setter(ctx, this_cid, mn, cf->type, idx);
-				knh_ClassField_t *cs = ctx->share->ClassTable[this_cid].cstruct;;
-				knh_Array_add(ctx, cs->methods, UP(mtd));
+				knh_Array_t *methods = ClassTable(this_cid).methods;
+				knh_Array_add(ctx, methods, UP(mtd));
 				return mtd;
 			}
 		}
@@ -707,8 +707,8 @@ knh_Class_getMethod__(Ctx *ctx, knh_class_t this_cid, knh_methodn_t mn, knh_bool
 		}
 		else {
 			knh_Method_t *mtd = new_Method__NoSuchMethod(ctx, cid, mn);
-			knh_ClassField_t *cs = ctx->share->ClassTable[this_cid].cstruct;;
-			knh_Array_add(ctx, cs->methods, UP(mtd));
+			knh_Array_t *methods = ClassTable(this_cid).methods;
+			knh_Array_add(ctx, methods, UP(mtd));
 			return mtd;
 		}
 	}

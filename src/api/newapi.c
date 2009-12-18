@@ -112,7 +112,7 @@ static METHOD Object_new__dictmap(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 			if(fn == FIELDN_NONAME) continue;
 			knh_index_t idx = knh_Class_queryField(ctx, cid, fn);
 			if(idx == -1) continue;
-			knh_cfield_t *cf = knh_Class_fieldAt(ctx, cid, idx);
+			knh_fields_t *cf = knh_Class_fieldAt(ctx, cid, idx);
 			knh_type_t type = knh_pmztype_totype(ctx, cf->type, cid);
 			if(type == TYPE_void) continue;
 			DBG2_P("[%d] %s%s %s", (int)(idx), TYPEQN(type), __tochar(v[i].s));
