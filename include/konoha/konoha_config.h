@@ -122,6 +122,9 @@
 	#define KONOHA_OS "LKM"
 #endif
 
+#ifdef KONOHA_ON_FREEBSD
+#define KONOHA_OS  "freebsd"
+#endif
 
 /* ======================================================================== */
 /* [CC] */
@@ -159,6 +162,10 @@
 		#ifdef TBMX1
 			#define KONOHA_OS  "teaboard"
 			#define KONOHA_ON_TB       1
+		#endif
+		#ifdef __FreeBSD__
+			#define KONOHA_OS  "freebsd"
+			#define KONOHA_ON_FREEBSD 1
 		#endif
 	#endif/*KONOHA_OS*/
 #endif/*__GNUC__*/

@@ -70,6 +70,13 @@
 #define     KONOHA_OS_DLLEXT ".dylib"
 #endif
 
+#ifdef KONOHA_ON_FREEBSD
+#define     KNH_USING_POSIX    1
+#define     KONOHA_OS_ENCODING "UTF-8"
+#define     KONOHA_OS_LINEFEED "\n"
+#define     KONOHA_OS_DLLEXT ".so"
+#endif
+
 /* ------------------------------------------------------------------------ */
 
 #ifdef KONOHA_ON_LKM
