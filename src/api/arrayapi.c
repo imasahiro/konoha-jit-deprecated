@@ -472,13 +472,37 @@ static METHOD FArray_lastIndexOf(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ======================================================================== */
 /* [Collections] */
 
+
+typedef struct {
+	Ctx *ctx;
+	knh_sfp_t *sfp;
+} knh_env_t;
+
+static int knh_env_comp(knh_env_t *env, Object **a1, Object **a2)
+{
+  Ctx *ctx = env->ctx;
+  knh_sfp_t *lsfp = env->sfp + 2;
+  knh_putsfp(ctx, lsfp, 2, a1[0]);
+  knh_putsfp(ctx, lsfp, 3, a2[0]);
+  knh_Closure_invokesfp(ctx, env->sfp[1].cc, lsfp, 2);
+  return (int)lsfp[0].ivalue;
+}
+
 /* ------------------------------------------------------------------------ */
-//## method void Array.sort();
+//## method void Array.sort(Cmpr? cc);
 
 static METHOD Array_sort(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	knh_Array_t *o = (knh_Array_t*)sfp[0].o;
-	knh_qsort_r(o->list, o->size, sizeof(Object*), (void*)ctx, (int (*)(void*, const void*, const void*))knh_Object_compareTo2);
+	knh_Array_t *o = sfp[0].a;
+	if(IS_NULL(sfp[1].o)) {
+		knh_qsort_r(o->list, o->size, sizeof(Object*),
+			(void*)ctx, (int (*)(void*, const void*, const void*))knh_Object_compareTo2);
+	}
+	else {
+		knh_env_t env = {ctx, sfp};
+		knh_qsort_r(o->list, o->size, sizeof(Object*), &env,
+				(int (*)(void *, const void* , const void*))knh_env_comp);
+	}
 	KNH_RETURN_void(ctx, sfp);
 }
 

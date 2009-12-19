@@ -169,36 +169,6 @@ static METHOD Method_getProfCount(Ctx *ctx, knh_sfp_t *sfp)
   KNH_RETURN_Int(ctx, sfp, DP(mtd)->prof_count);
 }
 
-
-/* ------------------------------------------------------------------------ */
-
-typedef struct {
-	Ctx *ctx;
-	knh_sfp_t *sfp;
-} knh_env_t;
-
-static int knh_env_comp(knh_env_t *env, Object **a1, Object **a2)
-{
-  Ctx *ctx = env->ctx;
-  knh_sfp_t *lsfp = env->sfp + 2;
-  knh_putsfp(ctx, lsfp, 2, a1[0]);
-  knh_putsfp(ctx, lsfp, 3, a2[0]);
-  knh_Closure_invokesfp(ctx, env->sfp[1].cc, lsfp, 2);
-  return (int)lsfp[0].ivalue;
-}
-
-
-/* ------------------------------------------------------------------------ */
-//## method void Array.sortByClosure(Cmpr cc);
-static METHOD Array_sortByClosure(Ctx *ctx, knh_sfp_t *sfp)
-{
-  knh_Array_t *o = sfp[0].a;
-  knh_env_t env = {ctx, sfp};
-  knh_qsort_r(o->list, o->size, sizeof(Object*), &env,
-			  (int (*)(void *, const void* , const void*))knh_env_comp);
-  KNH_RETURN_void(ctx, sfp);
-}
-
 /* ------------------------------------------------------------------------ */
 //## method int System.getTickCount();
 

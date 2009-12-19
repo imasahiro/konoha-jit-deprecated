@@ -556,7 +556,7 @@ def write_exec(f):
 	goto L_HEAD;
 #endif/*KNH_USING_THREADEDCODE*/
 
-METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 #ifdef KNH_USING_THREADEDCODE
 	static void *OPJUMP[] = {''')
