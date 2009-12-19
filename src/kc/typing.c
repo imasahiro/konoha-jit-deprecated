@@ -1892,7 +1892,7 @@ static void KNH_BOX(Ctx *ctx, knh_sfp_t *sfp, knh_type_t type)
 
 /* ------------------------------------------------------------------------ */
 
-static void KNH_UNBOX(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+static void KNH_UNBOX(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	sfp[0].data = (sfp[0].i)->n.ivalue;
 }
@@ -4283,7 +4283,7 @@ void *knh_Gamma_loadFunc(Ctx *ctx, char *funcname, int isNaitive)
 /* ------------------------------------------------------------------------ */
 
 static
-knh_fmethod knh_Gamma_loadMethodFunc(Ctx *ctx, knh_class_t cid, knh_methodn_t mn, int isNaitive)
+knh_Fmethod knh_Gamma_loadMethodFunc(Ctx *ctx, knh_class_t cid, knh_methodn_t mn, int isNaitive)
 {
 	DBG2_ASSERT_cid(cid);
 	char buf[80];
@@ -4304,7 +4304,7 @@ knh_fmethod knh_Gamma_loadMethodFunc(Ctx *ctx, knh_class_t cid, knh_methodn_t mn
 	else {
 		knh_snprintf(buf, sizeof(buf), "%s_%s", cname, FIELDN(mn));
 	}
-	return (knh_fmethod)knh_Gamma_loadFunc(ctx, buf, isNaitive);
+	return (knh_Fmethod)knh_Gamma_loadFunc(ctx, buf, isNaitive);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -4472,7 +4472,7 @@ Term * knh_StmtMETHOD_typing(Ctx *ctx, knh_Stmt_t *stmt)
 		}
 	}
 	{
-		knh_fmethod func = NULL;
+		knh_Fmethod func = NULL;
 		knh_invokeMethodTypingListener(ctx, DP(stmt)->metaDictMap, mtd);
 		func = knh_Gamma_loadMethodFunc(ctx, mtd_cid, DP(mtd)->mn, knh_StmtMETA_is(ctx, stmt, STEXT("Naitive")));
 		if(func != NULL) {

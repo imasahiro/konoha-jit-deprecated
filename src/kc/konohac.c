@@ -379,7 +379,7 @@ knh_flag_t knh_StmtCLASS_flag(Ctx *ctx, knh_Stmt_t *o)
 static
 knh_Mapper_t* new_Mapper__interface(Ctx *ctx, knh_class_t scid, knh_class_t tcid)
 {
-	return new_Mapper(ctx, FLAG_Mapper_Interface, scid, tcid, knh_fmapper_asis, KNH_NULL);
+	return new_Mapper(ctx, FLAG_Mapper_Interface, scid, tcid, knh_Fmapper_asis, KNH_NULL);
 }
 
 /* ------------------------------------------------------------------------ */

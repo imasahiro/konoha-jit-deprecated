@@ -164,7 +164,7 @@ knh_AffineConv_t *new_AffineConv(Ctx *ctx, knh_float_t fa, knh_float_t fb)
 /* [mapper] */
 
 static
-MAPPER knh_AffineConv_fmap__i2i(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+MAPPER knh_AffineConv_fmap__i2i(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_AffineConv_t *af = (knh_AffineConv_t*)DP(sfp[1].mpr)->mapdata;
 	KNH_ASSERT(IS_AffineConv(af));
@@ -175,7 +175,7 @@ MAPPER knh_AffineConv_fmap__i2i(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 /* ------------------------------------------------------------------------ */
 
 static
-MAPPER knh_AffineConv_fmap__i2f(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+MAPPER knh_AffineConv_fmap__i2f(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_AffineConv_t *af = (knh_AffineConv_t*)DP(sfp[1].mpr)->mapdata;
 	KNH_ASSERT(IS_AffineConv(af));
@@ -186,7 +186,7 @@ MAPPER knh_AffineConv_fmap__i2f(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 /* ------------------------------------------------------------------------ */
 
 static
-MAPPER knh_AffineConv_fmap__f2i(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+MAPPER knh_AffineConv_fmap__f2i(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_AffineConv_t *af = (knh_AffineConv_t*)DP(sfp[1].mpr)->mapdata;
 	KNH_ASSERT(IS_AffineConv(af));
@@ -197,7 +197,7 @@ MAPPER knh_AffineConv_fmap__f2i(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 /* ------------------------------------------------------------------------ */
 
 static
-MAPPER knh_AffineConv_fmap__f2f(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+MAPPER knh_AffineConv_fmap__f2f(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_AffineConv_t *af = (knh_AffineConv_t*)DP(sfp[1].mpr)->mapdata;
 	KNH_ASSERT(IS_AffineConv(af));
@@ -208,7 +208,7 @@ MAPPER knh_AffineConv_fmap__f2f(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 /* ------------------------------------------------------------------------ */
 
 static
-knh_fmapper knh_fmapper_affine(knh_class_t scid, knh_class_t tcid)
+knh_Fmapper knh_Fmapper_affine(knh_class_t scid, knh_class_t tcid)
 {
 	if(scid == CLASS_Int) {
 		if(tcid == CLASS_Int) return knh_AffineConv_fmap__i2i;
@@ -230,7 +230,7 @@ static
 void KNH_TAFFINE(Ctx *ctx, knh_class_t scid, knh_class_t tcid, knh_float_t scale, knh_float_t shift)
 {
 	knh_Mapper_t *mpr = new_Mapper(ctx, FLAG_Mapper_Affine, scid, tcid,
-			knh_fmapper_affine(ctx->share->ClassTable[scid].bcid, ctx->share->ClassTable[tcid].bcid),
+			knh_Fmapper_affine(ctx->share->ClassTable[scid].bcid, ctx->share->ClassTable[tcid].bcid),
 			(Object*)new_AffineConv(ctx, scale, shift));
 	knh_ClassMap_add(ctx, ctx->share->ClassTable[scid].cmap, mpr);
 }

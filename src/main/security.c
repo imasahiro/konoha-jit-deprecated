@@ -69,7 +69,7 @@ KNHAPI(char*) knh_getPassword(Ctx *ctx, knh_bytes_t url)
 /* ======================================================================== */
 /* [Trusted] */
 
-KNHAPI(void) knh_stack_checkSecurityManager(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+KNHAPI(void) knh_stack_checkSecurityManager(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	/* VERY SLOW */
 	knh_sfp_t *sp = sfp - 2;

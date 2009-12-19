@@ -238,7 +238,7 @@ void knh_stack_writeReturnValue(Ctx *ctx, knh_sfp_t *sfp, knh_OutputStream_t *w,
 
 /* ------------------------------------------------------------------------ */
 
-METHOD knh_fmethod_stackTrace(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+METHOD knh_Fmethod_stackTrace(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_Method_t *mtd = sfp[-1].mtd;
 	knh_OutputStream_t *w = KNH_STDERR;

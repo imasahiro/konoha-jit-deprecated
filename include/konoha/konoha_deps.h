@@ -62,9 +62,6 @@
 #define     KNH_USING_SOCKET   1
 #define     KNH_USING_ICONV    1
 #define     KNH_USING_REGEX    1
-//#define     KNH_USING_SQLITE3  1
-//#define     KNH_USING_THREAD   1
-//#define     KNH_USING_PTHREAD  1
 #define     KONOHA_OS_ENCODING "UTF-8"
 #define     KONOHA_OS_LINEFEED "\n"
 #define     KONOHA_OS_DLLEXT ".dylib"
@@ -102,7 +99,6 @@
 #define KONOHA_OS_ENCODING "UTF-8"
 #define KONOHA_OS_LINEFEED "\n"
 #define KONOHA_OS_DLLEXT   ""
-
 #endif
 
 /* ======================================================================== */
@@ -114,44 +110,49 @@
 #define 	KNH_USING_WINDOWS  1
 #define     KNH_USING_MATH     1
 #define 	KONOHA_OS_LINEFEED "\r\n"
+#define     KNH_CC_EXPORT __declspec(dllexport)
 #ifdef KNHAPI_IMPORTS
-#define 	KNHAPI(T__)     __declspec(dllimport) T__ __cdecl
+#define 	KNHAPI(T__)      KNH_CC_EXPORT T__ __cdecl
+#define     FASTAPI(T__)     T__
+#define 	KNHFASTAPI(T__)  KNH_CC_EXPORT T__
 #else
-#define 	KNHAPI(T__)     __declspec(dllexport) T__ __cdecl
+#define 	KNHAPI(T__)      KNH_CC_EXPORT  T__ __cdecl
+#define     FASTAPI(T__)     T__
+#define 	KNHFASTAPI(T__)  KNH_CC_EXPORT T__ KNH_CC_FASTCALL
 #endif
-
-#define 	KNH_EXPORTS(T__)     __declspec(dllexport) T__ __cdecl
+#define 	KNH_EXPORTS(T__)  KNH_CC_EXPORT T__ __cdecl
 
 #define 	KONOHA_OS_DLLEXT ".dll"
 #define		KONOHA_OS_FILE_SEPARATOR '\\'
 #define     KONOHA_FOLDER "Konoha"
 #endif
 
-#ifdef KONOHA_ON_MINGW
-#define 	KNH_USING_WIN32    1
-#define 	KNH_USING_WINDOWS  1
-#define 	KONOHA_OS_LINEFEED "\r\n"
-#ifdef KNHAPI_IMPORTS
-#define 	KNHAPI(T__) __declspec(dllimport) T__ __cdecl
-#else
-#define 	KNHAPI(T__) __declspec(dllexport) T__ __cdecl
-#endif
-#define 	KNH_EXPORTS(T__)  __declspec(dllexport) T__ __cdecl
-#define 	KONOHA_OS_DLLEXT ".dll"
-#define		KONOHA_OS_FILE_SEPARATOR '\\'
-#ifndef HAVE_CONFIG_H
-#define 	KNH_USING_ICONV       1
-#define 	HAVE_LOCALCHARSET_H   1
-#endif
-#endif
+//#ifdef KONOHA_ON_MINGW
+//#define 	KNH_USING_WIN32    1
+//#define 	KNH_USING_WINDOWS  1
+//#define 	KONOHA_OS_LINEFEED "\r\n"
+//#define     KNH_CC_EXPORT __declspec(dllexport)
+//#ifdef KNHAPI_IMPORTS
+//#define 	KNHAPI(T__) KNH_CC_EXPORT T__ __cdecl
+//#else
+//#define 	KNHAPI(T__) KNH_CC_EXPORT T__ __cdecl
+//#endif
+//#define 	KNH_EXPORTS(T__)  KNH_CC_EXPORT T__ __cdecl
+//#define 	KONOHA_OS_DLLEXT ".dll"
+//#define		KONOHA_OS_FILE_SEPARATOR '\\'
+//#ifndef HAVE_CONFIG_H
+//#define 	KNH_USING_ICONV       1
+//#define 	HAVE_LOCALCHARSET_H   1
+//#endif
+//#endif
 
-#ifdef KONOHA_ON_CYGWIN
-#define 	KNH_USING_POSIX    1
-#define 	KNH_USING_UNIX     1
-#define 	KNH_USING_REGEX    1
-#define 	KONOHA_OS_LINEFEED "\r\n"
-#define 	KONOHA_OS_DLLEXT ".dll.a"
-#endif
+//#ifdef KONOHA_ON_CYGWIN
+//#define 	KNH_USING_POSIX    1
+//#define 	KNH_USING_UNIX     1
+//#define 	KNH_USING_REGEX    1
+//#define 	KONOHA_OS_LINEFEED "\r\n"
+//#define 	KONOHA_OS_DLLEXT ".dll.a"
+//#endif
 
 /* ======================================================================== */
 /* [TEABOARD] */
@@ -169,36 +170,23 @@
 /* ======================================================================== */
 /* [KNHAPI] */
 
-#ifndef KNHAPI_
-#ifdef KNHAPI
-#define KNHAPI_(T__)       KNHAPI(T__)
-#else
-#define KNHAPI_(T)       T KNH_CC_FASTCALL
-#endif
-#endif
-
-#ifndef KONOHA_FOLDER
-#define KONOHA_FOLDER ".konoha"
+#ifndef KNH_CC_EXPORT
+#define KNH_CC_EXPORT
 #endif
 
 #ifndef KNHAPI
-#ifdef  KONOHA_ON_WINDOWS
-#define KNHAPI(T__)         T__ __declspec(dllexport)
-#else
 #define KNHAPI(T)         T
-#endif
+#define FASTAPI(T)        T  KNH_CC_FASTCALL
+#define KNHFASTAPI(T)     T  KNH_CC_FASTCALL
 #define KNH_EXPORTS(T)    T
-#endif
-
-#ifdef KONOHA_MONOLITHIC
-#undef KNHAPI
-#undef KNH_EXPORTS
-#define KNHAPI(T__)        T__
-#define KNH_EXPORTS(T__)   T__
 #endif
 
 #ifndef KONOHA_OS_FILE_SEPARATOR
 #define KONOHA_OS_FILE_SEPARATOR  '/'
+#endif
+
+#ifndef KONOHA_FOLDER
+#define KONOHA_FOLDER ".konoha"
 #endif
 
 #ifdef KNH_CC_LABELPTR

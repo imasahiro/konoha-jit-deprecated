@@ -46,7 +46,7 @@ KNHAPI(void) knh_addMapper(Ctx *ctx, knh_Mapper_t *mpr)
 
 /* ------------------------------------------------------------------------ */
 
-void knh_addMapperFunc(Ctx *ctx, knh_flag_t flag, knh_type_t stype, knh_type_t ttype, knh_fmapper fmap, Object *mapdata)
+void knh_addMapperFunc(Ctx *ctx, knh_flag_t flag, knh_type_t stype, knh_type_t ttype, knh_Fmapper fmap, Object *mapdata)
 {
 	knh_class_t cid = CLASS_type(stype);
 	DBG2_ASSERT_cid(cid);
@@ -57,7 +57,7 @@ void knh_addMapperFunc(Ctx *ctx, knh_flag_t flag, knh_type_t stype, knh_type_t t
 
 /* ------------------------------------------------------------------------ */
 
-static MAPPER knh_fmapper_null(Ctx *ctx, knh_sfp_t *sfp MAPPERARG)
+static MAPPER knh_Fmapper_null(Ctx *ctx, knh_sfp_t *sfp MAPPERARG)
 {
 	DBG2_(
 	knh_Mapper_t *mpr = sfp[1].mpr;
@@ -68,7 +68,7 @@ static MAPPER knh_fmapper_null(Ctx *ctx, knh_sfp_t *sfp MAPPERARG)
 
 /* ------------------------------------------------------------------------ */
 
-static MAPPER knh_fmapper_method(Ctx *ctx, knh_sfp_t *sfp MAPPERARG)
+static MAPPER knh_Fmapper_method(Ctx *ctx, knh_sfp_t *sfp MAPPERARG)
 {
 	knh_Method_t *mtd = (knh_Method_t*)DP(sfp[1].mpr)->mapdata;
 	KNH_ASSERT(IS_Method(mtd));
@@ -78,7 +78,7 @@ static MAPPER knh_fmapper_method(Ctx *ctx, knh_sfp_t *sfp MAPPERARG)
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(knh_Mapper_t*) new_Mapper(Ctx *ctx, knh_flag_t flag, knh_class_t scid, knh_class_t tcid, knh_fmapper fmap, Object *mapdata)
+KNHAPI(knh_Mapper_t*) new_Mapper(Ctx *ctx, knh_flag_t flag, knh_class_t scid, knh_class_t tcid, knh_Fmapper fmap, Object *mapdata)
 {
 	knh_Mapper_t* o = (knh_Mapper_t*)new_Object_bcid(ctx, CLASS_Mapper, 0);
 	DP(o)->size = 0;
@@ -92,10 +92,10 @@ KNHAPI(knh_Mapper_t*) new_Mapper(Ctx *ctx, knh_flag_t flag, knh_class_t scid, kn
 	DP(o)->tcid = tcid;
 	if(fmap == NULL) {
 		if(IS_Method(mapdata)) {
-			fmap = knh_fmapper_method;
+			fmap = knh_Fmapper_method;
 		}
 		else {
-			fmap = knh_fmapper_null;
+			fmap = knh_Fmapper_null;
 		}
 	}
 	o->fmap_1 = fmap;
@@ -106,7 +106,7 @@ KNHAPI(knh_Mapper_t*) new_Mapper(Ctx *ctx, knh_flag_t flag, knh_class_t scid, kn
 /* ======================================================================== */
 /* [MapMap] */
 
-static MAPPER knh_fmapper_mapmap(Ctx *ctx, knh_sfp_t *sfp MAPPERARG)
+static MAPPER knh_Fmapper_mapmap(Ctx *ctx, knh_sfp_t *sfp MAPPERARG)
 {
 	knh_Mapper_t *mpr = KNH_GETMAPPER(ctx, sfp);
 	DBG2_ASSERT(IS_Mapper(mpr));
@@ -136,7 +136,7 @@ knh_Mapper_t* new_MapMap(Ctx *ctx, knh_Mapper_t *m1, knh_Mapper_t *m2)
 	DBG2_ASSERT(IS_Mapper(m2));
 	KNH_SETv(ctx, DP(mpr)->m2, m2);
 	mpr->h.flag = m1->h.flag & m2->h.flag;
-	mpr->fmap_1 = knh_fmapper_mapmap;
+	mpr->fmap_1 = knh_Fmapper_mapmap;
 	return mpr;
 }
 
@@ -171,7 +171,7 @@ knh_Mapper_t *knh_Context_setMapperCache(Ctx *ctx, knh_class_t scid, knh_class_t
 /* ------------------------------------------------------------------------ */
 /* [Mapper] */
 
-MAPPER knh_fmapper_asis(Ctx *ctx, knh_sfp_t *sfp MAPPERARG)
+MAPPER knh_Fmapper_asis(Ctx *ctx, knh_sfp_t *sfp MAPPERARG)
 {
 }
 
@@ -179,21 +179,21 @@ MAPPER knh_fmapper_asis(Ctx *ctx, knh_sfp_t *sfp MAPPERARG)
 
 static knh_Mapper_t* new_Mapper__asis(Ctx *ctx, knh_class_t scid, knh_class_t tcid)
 {
-	return new_Mapper(ctx, 0, scid, tcid, knh_fmapper_asis, KNH_NULL);
+	return new_Mapper(ctx, 0, scid, tcid, knh_Fmapper_asis, KNH_NULL);
 }
 
 /* ------------------------------------------------------------------------ */
 
 static knh_Mapper_t* new_Mapper__NoSuchMapping(Ctx *ctx, knh_class_t scid, knh_class_t tcid)
 {
-	return new_Mapper(ctx, 0, scid, tcid, knh_fmapper_null, KNH_NULL);
+	return new_Mapper(ctx, 0, scid, tcid, knh_Fmapper_null, KNH_NULL);
 }
 
 /* ------------------------------------------------------------------------ */
 
 knh_bool_t knh_Mapper_isNoSuchMapping(knh_Mapper_t *mpr)
 {
-	return ((mpr)->fmap_1 == knh_fmapper_null);
+	return ((mpr)->fmap_1 == knh_Fmapper_null);
 }
 
 /* ======================================================================== */

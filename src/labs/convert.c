@@ -24,7 +24,7 @@ extern "C" {
 
 static void knh_ctt_patch(imem_t* mem);
 
-METHOD knh_KLRCode_toCttCode(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+METHOD knh_KLRCode_toCttCode(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	imem_t* mem = imem_new(1);
 	knh_Method_t *mtd = (knh_Method_t *) sfp[-1].o;
@@ -840,7 +840,7 @@ CTT_FIN:
 		jit_complete(mem);
 		knh_ctt_patch(mem);
 		imem_complete(mem);
-		knh_Method_syncFunc(mtd,(knh_fmethod) mem->addr);
+		knh_Method_syncFunc(mtd,(knh_Fmethod) mem->addr);
 	}
 }
 

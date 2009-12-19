@@ -40,7 +40,6 @@
 #include<stdint.h>
 #define __STDC_FORMAT_MACROS
 #include<inttypes.h>
-
 #endif
 
 #if defined(KNH_USING_PTHREAD)
@@ -52,20 +51,6 @@ extern "C" {
 #endif
 
 /* ------------------------------------------------------------------------ */
-
-#ifdef KONOHA_ON_WINDOWS
-#define METHOD             void __declspec(dllexport)
-#else
-#define METHOD             void  KNH_CC_FASTCALL
-#endif
-
-#define MAPPER             METHOD
-#define ITRNEXT            int   KNH_CC_FASTCALL
-
-
-#define METHODOPT
-#define MAPPERARG
-#define METHODOPT
 
 #ifdef KNH_USING_THREAD
 #define KNH_MT_VOLATILE    volatile
@@ -557,8 +542,6 @@ typedef struct knh_sfp_t {
 /* ------------------------------------------------------------------------ */
 /* [ObjectFunc] */
 
-#define FASTAPI(t)       t KNH_CC_FASTCALL
-
 typedef void (*knh_ftraverse)(Ctx *ctx, Object *);
 typedef int (*knh_finit)(Ctx *);
 
@@ -568,31 +551,34 @@ typedef knh_uintptr_t                knh_hashcode_t;  /* knh_hashcode_t */
 #define KNH_FOBJECT_HASH  0    /*knh_fobject_hashkey */
 #define KNH_FOBJECT_KEY   1    /*knh_fobject_hashkey */
 
-typedef void KNH_CC_FASTCALL (*knh_fobject_init)(Ctx *, Object *, int);
-typedef Object* KNH_CC_FASTCALL (*knh_fobject_copy)(Ctx *ctx, Object *, int);
-typedef void    KNH_CC_FASTCALL (*knh_fobject_traverse)(Ctx *, Object*, knh_ftraverse);
-typedef int     (*knh_fobject_compareTo)(Ctx *ctx, Object*, Object*);
-typedef void*   KNH_CC_FASTCALL (*knh_fobject_hashkey)(Ctx *, knh_sfp_t *, int);
-typedef struct knh_Mapper_t* (*knh_fobject_genmap)(Ctx *, knh_class_t, knh_class_t);
+typedef FASTAPI(void) (*knh_Fobject_init)(Ctx *, Object *, int);
+typedef FASTAPI(Object*) (*knh_Fobject_copy)(Ctx *ctx, Object *, int);
+typedef FASTAPI(void) (*knh_Fobject_traverse)(Ctx *, Object*, knh_ftraverse);
+typedef FASTAPI(void) (*knh_Fobject_checkout)(Ctx *, Object*, int);
+typedef int     (*knh_Fobject_compareTo)(Ctx *ctx, Object*, Object*);
+typedef FASTAPI(void*) (*knh_Fstack_hashkey)(Ctx *, knh_sfp_t *, int);
+typedef struct  knh_Mapper_t* (*knh_Fgenmap)(Ctx *, knh_class_t, knh_class_t);
 
 typedef struct {
 	char                   *name;
-	size_t                  size;
-	knh_fobject_init        init;
-	knh_fobject_copy        copy;
-	knh_fobject_traverse    traverse;
-	knh_fobject_compareTo   compareTo;
-	knh_fobject_hashkey     hashkey;
-	knh_fobject_genmap      genmap;
+	knh_ushort_t            size;
+	knh_flag_t              cflag;
+	knh_Fobject_init        init;
+	knh_Fobject_copy        copy;
+	knh_Fobject_traverse    traverse;
+	knh_Fobject_checkout    checkout;
+	knh_Fobject_compareTo   compareTo;
+	knh_Fstack_hashkey     hashkey;
+	knh_Fgenmap             genmap;
 } knh_ObjectCSPI_t ;
 
-typedef knh_int_t    KNH_CC_FASTCALL (*knh_fnumber_toint)(Ctx *, knh_sfp_t *);
-typedef knh_float_t  KNH_CC_FASTCALL (*knh_fnumber_tofloat)(Ctx *, knh_sfp_t *);
+typedef FASTAPI(knh_int_t) (*knh_Fnumber_toint)(Ctx *, knh_sfp_t *);
+typedef FASTAPI(knh_float_t) (*knh_Fnumber_tofloat)(Ctx *, knh_sfp_t *);
 
 typedef struct {
 	knh_ObjectCSPI_t    common;
-	knh_fnumber_toint       toint;
-	knh_fnumber_tofloat     tofloat;
+	knh_Fnumber_toint       toint;
+	knh_Fnumber_tofloat     tofloat;
 } knh_NumberCSPI_t ;
 
 /* ------------------------------------------------------------------------ */
@@ -861,22 +847,23 @@ typedef struct {
 /* Functions */
 /* ------------------------------------------------------------------------ */
 
-#ifdef _MSC_VER
-typedef void   (KNH_CC_FASTCALL *knh_fmethod)(Ctx *, knh_sfp_t* METHODOPT);
-#else
-typedef METHOD (*knh_fmethod)(Ctx*, knh_sfp_t* METHODOPT);
-#endif
+#define METHODARG
+#define MAPPERARG
 
-#ifdef _MSC_VER
-typedef void   (KNH_CC_FASTCALL *knh_fmapper)(Ctx *, knh_sfp_t *);
+#ifdef KONOHA_ON_WINDOWS
+#define METHOD  void KNH_CC_FASTCALL
+#define MAPPER             METHOD
+typedef void (KNH_CC_FASTCALL *knh_Fmethod)(Ctx *, knh_sfp_t* METHODARG);
+typedef void (KNH_CC_FASTCALL *knh_Fmapper)(Ctx *, knh_sfp_t * MAPPERARG);
+typedef int  (KNH_CC_FASTCALL *knh_fitrnext)(Ctx *, knh_sfp_t *, int n);
 #else
-typedef MAPPER (*knh_fmapper)(Ctx *, knh_sfp_t *);
+#define METHOD  void  KNH_CC_FASTCALL
+#define MAPPER             METHOD
+#define ITRNEXT int   KNH_CC_FASTCALL
+typedef METHOD (*knh_Fmethod)(Ctx*, knh_sfp_t* METHODARG);
+typedef MAPPER (*knh_Fmapper)(Ctx *, knh_sfp_t * MAPPERARG);
+typedef ITRNEXT (*knh_fitrnext)(Ctx *, knh_sfp_t *, int n);
 #endif
-
-typedef struct {
-  Ctx *ctx;
-  knh_sfp_t *sfp;
-} knh_env_t;
 
 /* ======================================================================== */
 /* driver */
@@ -1033,7 +1020,7 @@ typedef struct {
 } knh_ClassData_t;
 
 typedef struct {
-	knh_fmethod func;
+	knh_Fmethod func;
 	char *cname;
 	char *supname;
 	knh_ObjectCSPI_t *cspi;

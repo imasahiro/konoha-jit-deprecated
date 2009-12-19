@@ -41,7 +41,7 @@ extern "C" {
 /* ------------------------------------------------------------------------ */
 /* @ method void Script.changeChannel(Int! ch) */
 
-METHOD Script_changeChannel(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+METHOD Script_changeChannel(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	fprintf(stdout, "switching channel to %d..\n", (int)sfp[1].ivalue);
 	//konoha_throwSecurityException();
@@ -50,7 +50,7 @@ METHOD Script_changeChannel(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 /* ------------------------------------------------------------------------ */
 /* @ method void Script.hook(String! funcname) */
 
-METHOD Script_hook(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+METHOD Script_hook(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	char *funcname = __tochar(sfp[1].s);
 	fprintf(stdout, "hooking security point at %s\n", funcname);
@@ -66,7 +66,7 @@ METHOD Script_hook(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 //                 METHOD funcname (Ctx *ctx, knh_sfp_t* ){}
 //  @return true/false
 // */
-//KNHAPI(int) knh_registLocalFunction(konoha_t konoha, char* method, knh_fmethod func)
+//KNHAPI(int) knh_registLocalFunction(konoha_t konoha, char* method, knh_Fmethod func)
 //{
 //    Ctx *ctx = konoha.ctx;
 //    knh_setCurrentContext(ctx);

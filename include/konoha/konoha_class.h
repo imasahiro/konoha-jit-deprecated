@@ -188,11 +188,6 @@ typedef knh_Glue_t knh_T3_t;
 /* ------------------------------------------------------------------------ */
 //## @Immutable @Struct @Param1(Any) class Iterator Object;
 
-#ifdef _MSC_VER
-typedef int   (KNH_CC_FASTCALL *knh_fitrnext)(Ctx *, knh_sfp_t *, int n);
-#else
-typedef ITRNEXT (*knh_fitrnext)(Ctx *, knh_sfp_t *, int n);
-#endif
 
 typedef void (*knh_ffree)(void *ptr);
 
@@ -362,7 +357,7 @@ typedef struct knh_hashentry_t {
 } knh_hashentry_t;
 
 typedef knh_hashentry_t* (*knh_fhashentry_init)(Ctx *);
-typedef void KNH_CC_FASTCALL (*knh_fhashentry_traverse)(Ctx *, knh_hashentry_t*, knh_ftraverse);
+typedef FASTAPI(void) (*knh_fhashentry_traverse)(Ctx *, knh_hashentry_t*, knh_ftraverse);
 
 typedef struct {
 	size_t size;
@@ -392,7 +387,7 @@ typedef struct {
 typedef struct {
 	knh_hObject_t h;
 	knh_Hash_struct *b;
-	knh_fobject_compareTo fcmp;
+	knh_Fobject_compareTo fcmp;
 	knh_hash_op *hashop;
 } knh_Hash_t ;
 
@@ -499,7 +494,7 @@ typedef struct {
 	knh_class_t    cid;   knh_methodn_t  mn;
 	knh_uri_t     uri;    knh_uri_t    domain;
 	struct knh_MethodField_t* mf;
-	knh_fmethod       fproceed;
+	knh_Fmethod       fproceed;
 	union {
 		void*             code;
 		struct knh_KLRCode_t *kcode;
@@ -511,7 +506,7 @@ typedef struct {
 typedef struct knh_Method_t {
 	knh_hObject_t h;
 	knh_Method_struct *b;
-	knh_fmethod fcall_1;
+	knh_Fmethod fcall_1;
 	knh_code_t *pc_start;
 } knh_Method_t;
 
@@ -550,7 +545,7 @@ typedef struct knh_Method_t {
 typedef struct knh_Mapper {
 	knh_flag_t   flag; knh_ushort_t size;
 	knh_class_t  scid; knh_class_t  tcid;
-	//knh_fmapper     fmap;
+	//knh_Fmapper     fmap;
 	union {
 		Object*      mapdata;
 		struct knh_Mapper_t *m1;
@@ -561,7 +556,7 @@ typedef struct knh_Mapper {
 typedef struct knh_Mapper_t {
 	knh_hObject_t h;
 	knh_Mapper_struct *b;
-	knh_fmapper fmap_1;
+	knh_Fmapper fmap_1;
 } knh_Mapper_t;
 
 #define knh_findMapper(ctx, scid, tcid) knh_findMapperCommon(ctx, scid, tcid, 1)

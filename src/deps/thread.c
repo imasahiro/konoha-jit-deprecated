@@ -196,7 +196,7 @@ L_FINALLY:
 
 /* ------------------------------------------------------------------------ */
 
-void knh_stack_threadRun(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+void knh_stack_threadRun(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_thread_t th;
 	knh_threadcc_t ta = {ctx, sfp};

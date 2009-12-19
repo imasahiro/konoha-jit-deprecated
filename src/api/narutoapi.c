@@ -43,7 +43,7 @@ extern "C" {
 /* ------------------------------------------------------------------------ */
 //## @Hidden @Static method Boolean! Script.isStmt(String! script);
 
-static METHOD Script_isStmt(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+static METHOD Script_isStmt(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	KNH_RETURN_Boolean(ctx, sfp, !(knh_bytes_checkStmtLine(__tobytes(sfp[1].s))));
 }
@@ -51,7 +51,7 @@ static METHOD Script_isStmt(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 /* ------------------------------------------------------------------------ */
 //## @Hidden @Static method void Script.eval(String script);
 
-static METHOD Script_eval(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+static METHOD Script_eval(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	if(IS_NOTNULL(sfp[1].s)) {
 		knh_sfp_t *lsfp = KNH_LOCAL(ctx);
@@ -72,7 +72,7 @@ static METHOD Script_eval(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 /* ------------------------------------------------------------------------ */
 //## @Static method String Script.readLine(String prompt);
 
-static METHOD Script_readLine(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+static METHOD Script_readLine(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	char *line;
 	if(IS_NULL(sfp[1].o)) {
@@ -92,7 +92,7 @@ static METHOD Script_readLine(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 /* ------------------------------------------------------------------------ */
 //## @Static method void Script.addHistory(String! line);
 
-static METHOD Script_addHistory(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+static METHOD Script_addHistory(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_add_history(__tochar(sfp[1].s));
 	KNH_RETURN_void(ctx, sfp);
@@ -101,7 +101,7 @@ static METHOD Script_addHistory(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 /* ------------------------------------------------------------------------ */
 //## @Static method void System.setMethodTypingListener(Closure c, String anno);
 
-static METHOD System_setMethodTypingListener(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+static METHOD System_setMethodTypingListener(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_String_t *key;
 	if(IS_NULL(sfp[2].s)) {
@@ -128,7 +128,7 @@ static METHOD System_setMethodTypingListener(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 /* ------------------------------------------------------------------------ */
 //## @Static method void System.setMethodCompilationListener(Closure c, String anno);
 
-static METHOD System_setMethodCompilationListener(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+static METHOD System_setMethodCompilationListener(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_String_t *key;
 	if(IS_NULL(sfp[2].s)) {
@@ -172,12 +172,17 @@ static METHOD Method_getProfCount(Ctx *ctx, knh_sfp_t *sfp)
 
 /* ------------------------------------------------------------------------ */
 
+typedef struct {
+	Ctx *ctx;
+	knh_sfp_t *sfp;
+} knh_env_t;
+
 static int knh_env_comp(knh_env_t *env, Object **a1, Object **a2)
 {
   Ctx *ctx = env->ctx;
   knh_sfp_t *lsfp = env->sfp + 2;
   knh_putsfp(ctx, lsfp, 2, a1[0]);
-  knh_putsfp(ctx, lsfp, 3, a2[0]);  
+  knh_putsfp(ctx, lsfp, 3, a2[0]);
   knh_Closure_invokesfp(ctx, env->sfp[1].cc, lsfp, 2);
   return (int)lsfp[0].ivalue;
 }

@@ -60,7 +60,7 @@ static int knh_stack_equals(Ctx *ctx, knh_sfp_t *sfp, Object *o)
 /* ------------------------------------------------------------------------ */
 //## method This! HashMap.new(Int? initCapacity);
 
-static METHOD HashMap_new(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+static METHOD HashMap_new(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_HashMap_t *o = (knh_HashMap_t*)sfp[0].o;
 	int init = IS_NULL(sfp[1].o) ? KNH_HASH_INITSIZE: p_int(sfp[1]);
@@ -73,7 +73,7 @@ static METHOD HashMap_new(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 /* ------------------------------------------------------------------------ */
 //## method T2 HashMap.get(T1 key);
 
-static METHOD HashMap_get(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+static METHOD HashMap_get(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_HashMap_t *o = (knh_HashMap_t*)sfp[0].o;
 	knh_hashcode_t hcode = knh_stack_hashCode(ctx, sfp + 1);
@@ -94,7 +94,7 @@ static METHOD HashMap_get(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 /* ------------------------------------------------------------------------ */
 //## method Boolean! HashMap.opHas(T1 key);
 
-static METHOD HashMap_opHas(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+static METHOD HashMap_opHas(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_HashMap_t *o = (knh_HashMap_t*)sfp[0].o;
 	knh_hashcode_t hcode = knh_stack_hashCode(ctx, sfp + 1);
@@ -115,7 +115,7 @@ static METHOD HashMap_opHas(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 /* ------------------------------------------------------------------------ */
 //## method void HashMap.remove(T1 key);
 
-static METHOD HashMap_remove(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+static METHOD HashMap_remove(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_Hash_t *o = (knh_Hash_t*)sfp[0].o;
 	knh_hashcode_t hcode = knh_stack_hashCode(ctx, sfp + 1);
@@ -140,7 +140,7 @@ static METHOD HashMap_remove(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 /* ------------------------------------------------------------------------ */
 //## method void HashMap.set(T1! key, T2 value);
 
-static METHOD HashMap_set(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+static METHOD HashMap_set(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	if(IS_NULL(sfp[2].o)) {
 		HashMap_remove(ctx, sfp);

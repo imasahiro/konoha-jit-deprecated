@@ -911,7 +911,7 @@ void knh_opcode_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
 #define DISPATCH_END(pc) 	}	KNH_WARNING(ctx, "unknown opcode=%d", KNH_OPCODE(pc)); 	goto L_HEAD;
 #endif/*KNH_USING_THREADEDCODE*/
 
-METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 #ifdef KNH_USING_THREADEDCODE
 	static void *OPJUMP[] = {

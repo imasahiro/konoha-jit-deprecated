@@ -343,7 +343,7 @@ void knh_Gamma_loadCompiledMethod(Ctx *ctx)
 
 /* ------------------------------------------------------------------------ */
 
-knh_fmethod knh_Gamma_getCompiledMethod(Ctx *ctx, knh_bytes_t cname, knh_bytes_t mname)
+knh_Fmethod knh_Gamma_getCompiledMethod(Ctx *ctx, knh_bytes_t cname, knh_bytes_t mname)
 {
 	return NULL;
 }

@@ -579,7 +579,7 @@ KNHAPI(char*) konoha_invokeStringFunc(konoha_t konoha, char *fmt, ...)
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(int) konoha_setMethodFunc(konoha_t konoha, char *name, knh_fmethod func)
+KNHAPI(int) konoha_setMethodFunc(konoha_t konoha, char *name, knh_Fmethod func)
 {
 	KONOHA_CHECK(konoha, -1);
 	Ctx *ctx = knh_beginContext(konoha.ctx);
@@ -931,7 +931,7 @@ knh_String_t *knh_Context_getScriptLineNULL(Ctx *ctx, size_t at)
 /* ------------------------------------------------------------------------ */
 /* @method String[] Script.getLines() @Hidden */
 
-METHOD Script_getLines(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+METHOD Script_getLines(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_Array_t *res = (ctx->lines == NULL)
 		? new_Array(ctx, CLASS_String, 0) : ctx->lines;

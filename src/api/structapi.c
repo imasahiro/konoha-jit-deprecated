@@ -47,26 +47,40 @@ static MAPPER Iterator_Array(Ctx *ctx, knh_sfp_t *sfp);
 /* ------------------------------------------------------------------------ */
 /* DEFAULT */
 
-static FASTAPI(void) DEFAULT_init(Ctx *ctx, Object *o, int init)
+KNHFASTAPI(void) DEFAULT_init(Ctx *ctx, Object *o, int init)
 {
 }
 
-static FASTAPI(Object*) DEFAULT_copy(Ctx *ctx, Object *o, int opt)
+/* ------------------------------------------------------------------------ */
+
+KNHFASTAPI(Object*) DEFAULT_copy(Ctx *ctx, Object *o, int opt)
 {
 	return o;
 }
 
-static FASTAPI(void) DEFAULT_traverse(Ctx *ctx, Object *o, knh_ftraverse f)
+/* ------------------------------------------------------------------------ */
+
+KNHFASTAPI(void) DEFAULT_traverse(Ctx *ctx, Object *o, knh_ftraverse f)
 {
 
 }
 
-static int DEFAULT_compareTo(Ctx *ctx, Object *o1, Object *o2)
+/* ------------------------------------------------------------------------ */
+
+KNHFASTAPI(void) DEFAULT_checkout(Ctx *ctx, Object *o, int init)
+{
+}
+
+/* ------------------------------------------------------------------------ */
+
+KNHAPI(int) DEFAULT_compareTo(Ctx *ctx, Object *o1, Object *o2)
 {
 	return (int)((knh_intptr_t)o1 - (knh_intptr_t)o2);
 }
 
-static FASTAPI(void*) DEFAULT_hashkey(Ctx *ctx, knh_sfp_t *sfp, int opt)
+/* ------------------------------------------------------------------------ */
+
+KNHFASTAPI(void*) DEFAULT_hashkey(Ctx *ctx, knh_sfp_t *sfp, int opt)
 {
 	if(opt == KNH_FOBJECT_KEY) {
 		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
@@ -81,7 +95,9 @@ static FASTAPI(void*) DEFAULT_hashkey(Ctx *ctx, knh_sfp_t *sfp, int opt)
 	}
 }
 
-static knh_Mapper_t* DEFAULT_genmap(Ctx *ctx, knh_class_t scid, knh_class_t tcid)
+/* ------------------------------------------------------------------------ */
+
+KNHAPI(knh_Mapper_t*) DEFAULT_genmap(Ctx *ctx, knh_class_t scid, knh_class_t tcid)
 {
 	//DBG2_P("set default value cid=%d", cid);
 	return NULL;
@@ -198,10 +214,10 @@ static FASTAPI(void*) knh_ObjectField_hashkey(Ctx *ctx, knh_sfp_t *sfp, int opt)
 
 
 static knh_ObjectCSPI_t ObjectSPI = {
-	"Object", 0,
+	"Object", 0, CFLAG_Object,
 	knh_ObjectField_init,
 	DEFAULT_copy,
-	knh_ObjectField_traverse,
+	knh_ObjectField_traverse, DEFAULT_checkout,
 	knh_ObjectField_compareTo,
 	knh_ObjectField_hashkey,
 	DEFAULT_genmap,
@@ -231,10 +247,10 @@ static FASTAPI(void) knh_Any_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr)
 }
 
 static knh_ObjectCSPI_t AnySPI = {
-	"Any", 0,
+	"Any", 0, CFLAG_Any,
 	knh_Any_init,
 	DEFAULT_copy,
-	knh_Any_traverse,
+	knh_Any_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
@@ -254,10 +270,10 @@ static FASTAPI(void*) knh_Boolean_hashkey(Ctx *ctx, knh_sfp_t *sfp, int opt)
 }
 
 static knh_ObjectCSPI_t BooleanSPI = {
-	"Boolean", 0,
+	"Boolean", 0, CFLAG_Boolean,
 	DEFAULT_init,
 	DEFAULT_copy,
-	DEFAULT_traverse,
+	DEFAULT_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	knh_Boolean_hashkey,
 	DEFAULT_genmap,
@@ -267,10 +283,10 @@ static knh_ObjectCSPI_t BooleanSPI = {
 /* Number */
 
 static knh_ObjectCSPI_t NumberSPI = {
-	"Number", 0,
+	"Number", 0, CFLAG_Number,
 	DEFAULT_init,
 	DEFAULT_copy,
-	DEFAULT_traverse,
+	DEFAULT_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
@@ -319,10 +335,10 @@ static FASTAPI(knh_float_t) knh_Int_tofloat(Ctx *ctx, knh_sfp_t *sfp)
 }
 
 static knh_NumberCSPI_t IntSPI = {
-	{"Int", 0,
+	{"Int", 0, CFLAG_Int,
 	DEFAULT_init,
 	DEFAULT_copy,
-	DEFAULT_traverse,
+	DEFAULT_traverse, DEFAULT_checkout,
 	knh_Int_compareTo,
 	knh_Int_hashkey,
 	DEFAULT_genmap},
@@ -352,10 +368,10 @@ static FASTAPI(knh_float_t) knh_Float_tofloat(Ctx *ctx, knh_sfp_t *sfp)
 }
 
 static knh_NumberCSPI_t FloatSPI = {
-	{"Float", 0,
+	{"Float", 0, CFLAG_Float,
 	DEFAULT_init,
 	DEFAULT_copy,
-	DEFAULT_traverse,
+	DEFAULT_traverse, DEFAULT_checkout,
 	knh_Float_compareTo,
 	knh_Int_hashkey,
 	DEFAULT_genmap},
@@ -426,10 +442,10 @@ static FASTAPI(void*) knh_String_hashkey(Ctx *ctx, knh_sfp_t *sfp, int opt)
 }
 
 static knh_ObjectCSPI_t StringSPI = {
-	"String", 0,
+	"String", 0, CFLAG_String,
 	knh_String_init,
 	DEFAULT_copy,
-	knh_String_traverse,
+	knh_String_traverse, DEFAULT_checkout,
 	knh_String_compareTo,
 	knh_String_hashkey,
 	DEFAULT_genmap,
@@ -464,10 +480,10 @@ static FASTAPI(void) knh_Bytes_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr)
 }
 
 static knh_ObjectCSPI_t BytesSPI = {
-	"Bytes", 0,
+	"Bytes", 0, CFLAG_Bytes,
 	knh_Bytes_init,
 	DEFAULT_copy,
-	knh_Bytes_traverse,
+	knh_Bytes_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
@@ -491,10 +507,10 @@ static FASTAPI(void) knh_Pair_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr)
 }
 
 static knh_ObjectCSPI_t PairSPI = {
-	"Pair", 0,
+	"Pair", 0, CFLAG_Pair,
 	knh_Pair_init,
 	DEFAULT_copy,
-	knh_Pair_traverse,
+	knh_Pair_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
@@ -533,10 +549,10 @@ static FASTAPI(void) knh_Tuple_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr)
 }
 
 static knh_ObjectCSPI_t TupleSPI = {
-	"Tuple", 0,
+	"Tuple", 0, CFLAG_Tuple,
 	knh_Tuple_init,
 	DEFAULT_copy,
-	knh_Tuple_traverse,
+	knh_Tuple_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
@@ -561,10 +577,10 @@ static knh_Mapper_t* knh_Range_genmap(Ctx *ctx, knh_class_t cid, knh_class_t tci
 }
 
 static knh_ObjectCSPI_t RangeSPI = {
-	"Range", 0,
+	"Range", 0, CFLAG_Range,
 	knh_Pair_init,
 	DEFAULT_copy,
-	knh_Pair_traverse,
+	knh_Pair_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	knh_Range_genmap,
@@ -617,10 +633,10 @@ static knh_Mapper_t* knh_Array_genmap(Ctx *ctx, knh_class_t cid, knh_class_t tci
 }
 
 static knh_ObjectCSPI_t ArraySPI = {
-	"Array", 0,
+	"Array", 0, CFLAG_Array,
 	knh_Array_init,
 	DEFAULT_copy,
-	knh_Array_traverse,
+	knh_Array_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	knh_Array_genmap,
@@ -654,10 +670,10 @@ static FASTAPI(void) knh_IArray_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr)
 }
 
 static knh_ObjectCSPI_t IArraySPI = {
-	"IArray", 0,
+	"IArray", 0, CFLAG_IArray,
 	knh_IArray_init,
 	DEFAULT_copy,
-	knh_IArray_traverse,
+	knh_IArray_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap/*knh_IArray_genmap*/,
@@ -691,10 +707,10 @@ static FASTAPI(void) knh_FArray_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr)
 }
 
 static knh_ObjectCSPI_t FArraySPI = {
-	"FArray", 0,
+	"FArray", 0, CFLAG_FArray,
 	knh_FArray_init,
 	DEFAULT_copy,
-	knh_FArray_traverse,
+	knh_FArray_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap /*knh_FArray_genmap*/,
@@ -770,10 +786,10 @@ static knh_Mapper_t* knh_Iterator_genmap(Ctx *ctx, knh_class_t cid, knh_class_t 
 }
 
 static knh_ObjectCSPI_t IteratorSPI = {
-	"Iterator", sizeof(knh_Iterator_struct),
+	"Iterator", sizeof(knh_Iterator_struct), CFLAG_Iterator,
 	knh_Iterator_init,
 	DEFAULT_copy,
-	knh_Iterator_traverse,
+	knh_Iterator_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	knh_Iterator_genmap,
@@ -797,10 +813,10 @@ static FASTAPI(void) knh_DictMap_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr
 }
 
 static knh_ObjectCSPI_t DictMapSPI = {
-	"DictMap", 0,
+	"DictMap", 0, CFLAG_DictMap,
 	knh_DictMap_init,
 	DEFAULT_copy,
-	knh_DictMap_traverse,
+	knh_DictMap_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap /*knh_DictMap_genmap*/,
@@ -818,10 +834,10 @@ static FASTAPI(void) knh_DictSet_init(Ctx *ctx, Object *o, int init)
 }
 
 static knh_ObjectCSPI_t DictSetSPI = {
-	"DictSet", 0,
+	"DictSet", 0, CFLAG_DictSet,
 	knh_DictSet_init,
 	DEFAULT_copy,
-	knh_DictMap_traverse,
+	knh_DictMap_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap /*knh_DictMap_genmap*/,
@@ -868,7 +884,7 @@ static FASTAPI(void) knh_hashmapentry_traverse(Ctx *ctx, knh_hashentry_t *e, knh
 static knh_hash_op knh_hashmap_op = {
 	sizeof(knh_hashentry_t),
 	NULL,
-	knh_hashmapentry_traverse,
+	knh_hashmapentry_traverse
 };
 
 static FASTAPI(void) knh_HashMap_init(Ctx *ctx, Object *o, int init)
@@ -915,10 +931,10 @@ static FASTAPI(void) knh_Hash_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr)
 }
 
 static knh_ObjectCSPI_t HashMapSPI = {
-	"HashMap", sizeof(knh_HashMap_struct),
+	"HashMap", sizeof(knh_HashMap_struct), CFLAG_HashMap,
 	knh_HashMap_init,
 	DEFAULT_copy,
-	knh_Hash_traverse,
+	knh_Hash_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap /*knh_DictMap_genmap*/,
@@ -936,7 +952,7 @@ static FASTAPI(void) knh_hashsetentry_traverse(Ctx *ctx, knh_hashentry_t *e, knh
 static knh_hash_op knh_hashset_op = {
 	sizeof(knh_hashentry_t),
 	NULL,
-	knh_hashsetentry_traverse,
+	knh_hashsetentry_traverse
 };
 
 static FASTAPI(void) knh_HashSet_init(Ctx *ctx, Object *o, int init)
@@ -949,10 +965,10 @@ static FASTAPI(void) knh_HashSet_init(Ctx *ctx, Object *o, int init)
 }
 
 static knh_ObjectCSPI_t HashSetSPI = {
-	"HashSet", sizeof(knh_HashSet_struct),
+	"HashSet", sizeof(knh_HashSet_struct), CFLAG_HashSet,
 	knh_HashSet_init,
 	DEFAULT_copy,
-	knh_Hash_traverse,
+	knh_Hash_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap /*knh_DictMap_genmap*/,
@@ -977,10 +993,10 @@ static FASTAPI(void) knh_DictIdx_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr
 }
 
 static knh_ObjectCSPI_t DictIdxSPI = {
-	"DictIdx", 0,
+	"DictIdx", 0, CFLAG_DictIdx,
 	knh_DictIdx_init,
 	DEFAULT_copy,
-	knh_DictIdx_traverse,
+	knh_DictIdx_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap /*knh_DictMap_genmap*/,
@@ -1017,10 +1033,10 @@ static FASTAPI(void*) knh_Class_hashkey(Ctx *ctx,knh_sfp_t *sfp, int opt)
 }
 
 static knh_ObjectCSPI_t ClassSPI = {
-	"Class", 0,
+	"Class", 0, CFLAG_Class,
 	knh_Class_init,
 	DEFAULT_copy,
-	DEFAULT_traverse,
+	DEFAULT_traverse, DEFAULT_checkout,
 	knh_Class_compareTo,
 	knh_Class_hashkey,
 	DEFAULT_genmap /*knh_DictMap_genmap*/,
@@ -1082,10 +1098,10 @@ static FASTAPI(void*) knh_MethodField_hashkey(Ctx *ctx, knh_sfp_t *sfp, int opt)
 }
 
 static knh_ObjectCSPI_t MethodFieldSPI = {
-	"MethodField", 0,
+	"MethodField", 0, CFLAG_MethodField,
 	knh_MethodField_init,
 	DEFAULT_copy,
-	knh_MethodField_traverse,
+	knh_MethodField_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	knh_MethodField_hashkey,
 	DEFAULT_genmap /*knh_DictMap_genmap*/,
@@ -1102,7 +1118,7 @@ static FASTAPI(void) knh_Method_init(Ctx *ctx, Object *o, int init)
 	b->delta  = 0;
 	b->cid    = CLASS_Object;
 	b->mn     = METHODN_NONAME;
-	b->fproceed  = knh_fmethod_abstract;
+	b->fproceed  = knh_Fmethod_abstract;
 	KNH_INITv(b->mf, knh_findMethodField0(ctx, TYPE_void));
 	b->code  = NULL;
 	b->uri  = 0;  b->domain = 0;
@@ -1137,10 +1153,10 @@ static FASTAPI(void*) knh_Method_hashkey(Ctx *ctx, knh_sfp_t *sfp, int opt)
 }
 
 static knh_ObjectCSPI_t MethodSPI = {
-	"Method", sizeof(knh_Method_struct),
+	"Method", sizeof(knh_Method_struct), CFLAG_Method,
 	knh_Method_init,
 	DEFAULT_copy,
-	knh_Method_traverse,
+	knh_Method_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	knh_Method_hashkey,
 	DEFAULT_genmap /*knh_DictMap_genmap*/,
@@ -1183,10 +1199,10 @@ static FASTAPI(void*) knh_Mapper_hashkey(Ctx *ctx, knh_sfp_t *sfp, int opt)
 }
 
 static knh_ObjectCSPI_t MapperSPI = {
-	"Mapper", sizeof(knh_Mapper_struct),
+	"Mapper", sizeof(knh_Mapper_struct), CFLAG_Mapper,
 	knh_Mapper_init,
 	DEFAULT_copy,
-	knh_Mapper_traverse,
+	knh_Mapper_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	knh_Mapper_hashkey,
 	DEFAULT_genmap /*knh_DictMap_genmap*/,
@@ -1218,10 +1234,10 @@ static FASTAPI(void) knh_ClassMap_traverse(Ctx *ctx, Object *o, knh_ftraverse ft
 }
 
 static knh_ObjectCSPI_t ClassMapSPI = {
-	"ClassMap", 0,
+	"ClassMap", 0, CFLAG_ClassMap,
 	knh_ClassMap_init,
 	DEFAULT_copy,
-	knh_ClassMap_traverse,
+	knh_ClassMap_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
@@ -1259,10 +1275,10 @@ static FASTAPI(void) knh_Closure_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr
 }
 
 static knh_ObjectCSPI_t ClosureSPI = {
-	"Closure", 0,
+	"Closure", 0, CFLAG_Closure,
 	knh_Closure_init,
 	DEFAULT_copy,
-	knh_Closure_traverse,
+	knh_Closure_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
@@ -1297,10 +1313,10 @@ static FASTAPI(void) knh_Thunk_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr)
 }
 
 static knh_ObjectCSPI_t ThunkSPI = {
-	"Thunk", 0,
+	"Thunk", 0, CFLAG_Thunk,
 	knh_Thunk_init,
 	DEFAULT_copy,
-	knh_Thunk_traverse,
+	knh_Thunk_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
@@ -1310,10 +1326,10 @@ static knh_ObjectCSPI_t ThunkSPI = {
 /* AffineConv */
 
 static knh_ObjectCSPI_t AffineConvSPI = {
-	"AffineConv", 0,
+	"AffineConv", 0, CFLAG_AffineConv,
 	DEFAULT_init,
 	DEFAULT_copy,
-	DEFAULT_traverse,
+	DEFAULT_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
@@ -1344,10 +1360,10 @@ static FASTAPI(void) knh_Regex_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr)
 }
 
 static knh_ObjectCSPI_t RegexSPI = {
-	"Regex", 0,
+	"Regex", 0, CFLAG_Regex,
 	knh_Regex_init,
 	DEFAULT_copy,
-	knh_Regex_traverse,
+	knh_Regex_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
@@ -1384,10 +1400,10 @@ static FASTAPI(void) knh_BytesConv_traverse(Ctx *ctx, Object *o, knh_ftraverse f
 }
 
 static knh_ObjectCSPI_t BytesConvSPI = {
-	"BytesConv", 0,
+	"BytesConv", 0, CFLAG_BytesConv,
 	knh_BytesConv_init,
 	DEFAULT_copy,
-	knh_BytesConv_traverse,
+	knh_BytesConv_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
@@ -1497,10 +1513,10 @@ static FASTAPI(void*) knh_Semantics_hashkey(Ctx *ctx, knh_sfp_t *sfp, int opt)
 
 
 static knh_ObjectCSPI_t SemanticsSPI = {
-	"Semantics", sizeof(knh_Semantics_struct),
+	"Semantics", sizeof(knh_Semantics_struct), CFLAG_Semantics,
 	knh_Semantics_init,
 	DEFAULT_copy,
-	knh_Semantics_traverse,
+	knh_Semantics_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	knh_Semantics_hashkey,
 	DEFAULT_genmap,
@@ -1542,10 +1558,10 @@ static FASTAPI(void) knh_InputStream_traverse(Ctx *ctx, Object *o, knh_ftraverse
 }
 
 static knh_ObjectCSPI_t InputStreamSPI = {
-	"InputStream", sizeof(knh_InputStream_struct),
+	"InputStream", sizeof(knh_InputStream_struct), CFLAG_InputStream,
 	knh_InputStream_init,
 	DEFAULT_copy,
-	knh_InputStream_traverse,
+	knh_InputStream_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
@@ -1592,10 +1608,10 @@ static FASTAPI(void) knh_OutputStream_traverse(Ctx *ctx, Object *o, knh_ftravers
 }
 
 static knh_ObjectCSPI_t OutputStreamSPI = {
-	"OutputStream", sizeof(knh_InputStream_struct),
+	"OutputStream", sizeof(knh_InputStream_struct), CFLAG_OutputStream,
 	knh_OutputStream_init,
 	DEFAULT_copy,
-	knh_OutputStream_traverse,
+	knh_OutputStream_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
@@ -1631,10 +1647,10 @@ static FASTAPI(void) knh_Socket_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr)
 }
 
 static knh_ObjectCSPI_t SocketSPI = {
-	"Socket", sizeof(knh_Socket_struct),
+	"Socket", sizeof(knh_Socket_struct), CFLAG_Socket,
 	knh_Socket_init,
 	DEFAULT_copy,
-	knh_Socket_traverse,
+	knh_Socket_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
@@ -1663,10 +1679,10 @@ static FASTAPI(void) knh_Connection_traverse(Ctx *ctx, Object *o, knh_ftraverse 
 }
 
 static knh_ObjectCSPI_t ConnectionSPI = {
-	"Connection", 0,
+	"Connection", 0, CFLAG_Connection,
 	knh_Connection_init,
 	DEFAULT_copy,
-	knh_Connection_traverse,
+	knh_Connection_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
@@ -1710,10 +1726,10 @@ static FASTAPI(void) knh_ResultSet_traverse(Ctx *ctx, Object *o, knh_ftraverse f
 }
 
 static knh_ObjectCSPI_t ResultSetSPI = {
-	"ResultSet", sizeof(knh_ResultSet_struct),
+	"ResultSet", sizeof(knh_ResultSet_struct), CFLAG_ResultSet,
 	knh_ResultSet_init,
 	DEFAULT_copy,
-	knh_ResultSet_traverse,
+	knh_ResultSet_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
@@ -1743,10 +1759,10 @@ static FASTAPI(void) knh_Exception_traverse(Ctx *ctx, Object *o, knh_ftraverse f
 }
 
 static knh_ObjectCSPI_t ExceptionSPI = {
-	"Exception", sizeof(knh_Exception_struct),
+	"Exception", sizeof(knh_Exception_struct), CFLAG_Exception,
 	knh_Exception_init,
 	DEFAULT_copy,
-	knh_Exception_traverse,
+	knh_Exception_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
@@ -1769,10 +1785,10 @@ static FASTAPI(void) knh_ExceptionHandler_traverse(Ctx *ctx, Object *o, knh_ftra
 }
 
 static knh_ObjectCSPI_t ExceptionHandlerSPI = {
-	"ExceptionHandler", sizeof(knh_ExceptionHandler_struct),
+	"ExceptionHandler", sizeof(knh_ExceptionHandler_struct), CFLAG_ExceptionHandler,
 	knh_ExceptionHandler_init,
 	DEFAULT_copy,
-	knh_ExceptionHandler_traverse,
+	knh_ExceptionHandler_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
@@ -1789,10 +1805,10 @@ static FASTAPI(void) knh_Script_init(Ctx *ctx, Object *o, int init)
 }
 
 static knh_ObjectCSPI_t ScriptSPI = {
-	"Script", 0,
+	"Script", 0, CFLAG_Script,
 	knh_Script_init,
 	DEFAULT_copy,
-	knh_ObjectField_traverse,
+	knh_ObjectField_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
@@ -1836,10 +1852,10 @@ static FASTAPI(void*) knh_NameSpace_hashkey(Ctx *ctx, knh_sfp_t *sfp, int opt)
 }
 
 static knh_ObjectCSPI_t NameSpaceSPI = {
-	"NameSpace", sizeof(knh_NameSpace_struct),
+	"NameSpace", sizeof(knh_NameSpace_struct), CFLAG_NameSpace,
 	knh_NameSpace_init,
 	DEFAULT_copy,
-	knh_NameSpace_traverse,
+	knh_NameSpace_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	knh_NameSpace_hashkey,
 	DEFAULT_genmap,
@@ -1913,10 +1929,10 @@ static FASTAPI(void) knh_System_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr)
 }
 
 static knh_ObjectCSPI_t SystemSPI = {
-	"System", sizeof(knh_System_struct),
+	"System", sizeof(knh_System_struct), CFLAG_System,
 	knh_System_init,
 	DEFAULT_copy,
-	knh_System_traverse,
+	knh_System_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
@@ -1932,10 +1948,10 @@ static FASTAPI(void) knh_Context_init(Ctx *ctx, Object *o, int init)
 }
 
 static knh_ObjectCSPI_t ContextSPI = {
-	"Context", 0,
+	"Context", 0, CFLAG_Context,
 	knh_Context_init,
 	DEFAULT_copy,
-	DEFAULT_traverse,
+	DEFAULT_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
@@ -1953,10 +1969,10 @@ static FASTAPI(void) knh_Thread_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr)
 }
 
 static knh_ObjectCSPI_t ThreadSPI = {
-	"Thread", 0,
+	"Thread", 0, CFLAG_Thread,
 	knh_Thread_init,
 	DEFAULT_copy,
-	knh_Thread_traverse,
+	knh_Thread_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
@@ -1974,10 +1990,10 @@ static FASTAPI(void) knh_ScriptEngine_traverse(Ctx *ctx, Object *o, knh_ftravers
 }
 
 static knh_ObjectCSPI_t ScriptEngineSPI = {
-	"ScriptEngine", 0,
+	"ScriptEngine", 0, CFLAG_ScriptEngine,
 	knh_ScriptEngine_init,
 	DEFAULT_copy,
-	knh_ScriptEngine_traverse,
+	knh_ScriptEngine_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
@@ -2001,10 +2017,10 @@ static FASTAPI(void) knh_Token_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr)
 }
 
 static knh_ObjectCSPI_t TokenSPI = {
-	"Token", sizeof(knh_Token_struct),
+	"Token", sizeof(knh_Token_struct), CFLAG_Token,
 	knh_Token_init,
 	DEFAULT_copy,
-	knh_Token_traverse,
+	knh_Token_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
@@ -2058,10 +2074,10 @@ static FASTAPI(void) knh_Stmt_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr)
 }
 
 static knh_ObjectCSPI_t StmtSPI = {
-	"Stmt", sizeof(knh_Stmt_struct),
+	"Stmt", sizeof(knh_Stmt_struct), CFLAG_Stmt,
 	knh_Stmt_init,
 	DEFAULT_copy,
-	knh_Stmt_traverse,
+	knh_Stmt_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
@@ -2153,10 +2169,10 @@ static FASTAPI(void) knh_Gamma_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr)
 }
 
 static knh_ObjectCSPI_t GammaSPI = {
-	"Gamma", sizeof(knh_Gamma_struct),
+	"Gamma", sizeof(knh_Gamma_struct), CFLAG_Gamma,
 	knh_Gamma_init,
 	DEFAULT_copy,
-	knh_Gamma_traverse,
+	knh_Gamma_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
@@ -2195,10 +2211,10 @@ static FASTAPI(void) knh_KLRInst_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr
 }
 
 static knh_ObjectCSPI_t KLRInstSPI = {
-	"KLRInst", 0,
+	"KLRInst", 0, CFLAG_KLRInst,
 	knh_KLRInst_init,
 	DEFAULT_copy,
-	knh_KLRInst_traverse,
+	knh_KLRInst_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
@@ -2231,10 +2247,10 @@ static FASTAPI(void) knh_KLRCode_traverse(Ctx *ctx, Object *o, knh_ftraverse ftr
 }
 
 static knh_ObjectCSPI_t KLRCodeSPI = {
-	"KLRCode", sizeof(knh_KLRCode_struct),
+	"KLRCode", sizeof(knh_KLRCode_struct), CFLAG_KLRCode,
 	knh_KLRCode_init,
 	DEFAULT_copy,
-	knh_KLRCode_traverse,
+	knh_KLRCode_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	DEFAULT_hashkey,
 	DEFAULT_genmap,
@@ -2296,7 +2312,7 @@ typedef struct {
 } knh_MethodFieldData0_t ;
 
 typedef struct {
-	knh_fmethod func;
+	knh_Fmethod func;
 	knh_flag_t flag;
 	knh_class_t cid;
 	knh_methodn_t mn;
@@ -2306,7 +2322,7 @@ typedef struct {
 } knh_MethodData0_t ;
 
 typedef struct {
-	knh_fmapper func;
+	knh_Fmapper func;
 	knh_flag_t flag;
 	knh_class_t scid;
 	knh_class_t tcid;

@@ -90,7 +90,7 @@ static inline int knh_pow2(int n)
 // dummy_callback function is not used, but these replica use.
 // 
 //// void Array.myqsort(Closure c);
-//METHOD Array_myqsort(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+//METHOD Array_myqsort(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 //{
 //	knh_Array_t   *a  = (knh_Array_t *) sfp[0].o;
 //	knh_Closure_t *cc = (knh_Closure_t *) sfp[1].cc;

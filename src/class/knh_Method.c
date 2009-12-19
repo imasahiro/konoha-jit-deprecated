@@ -37,7 +37,7 @@ extern "C" {
 
 /* ------------------------------------------------------------------------ */
 
-METHOD knh_fmethod_abstract(Ctx *ctx, knh_sfp_t *sfp METHODOPT);
+METHOD knh_Fmethod_abstract(Ctx *ctx, knh_sfp_t *sfp METHODARG);
 
 /* ======================================================================== */
 /* [MethodField] */
@@ -157,7 +157,7 @@ int knh_MethodField_equalsType(knh_MethodField_t *o, knh_MethodField_t *o2)
 /* ======================================================================== */
 /* [AbstractMethod] */
 
-METHOD knh_fmethod_abstract(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+METHOD knh_Fmethod_abstract(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_Method_t *mtd = sfp[-1].mtd;
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
@@ -169,7 +169,7 @@ METHOD knh_fmethod_abstract(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 
 knh_bool_t knh_Method_isAbstract(knh_Method_t *o)
 {
-	return (DP(o)->fproceed == knh_fmethod_abstract);
+	return (DP(o)->fproceed == knh_Fmethod_abstract);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -180,17 +180,17 @@ void knh_Method_toAbstract(Ctx *ctx, knh_Method_t *o)
 		KNH_FINALv(ctx, DP(o)->code);
 		knh_Method_setObjectCode(o, 0);
 	}
-	knh_Method_syncFunc(o, knh_fmethod_abstract);
+	knh_Method_syncFunc(o, knh_Fmethod_abstract);
 	o->pc_start  = NULL;
 }
 
 /* ======================================================================== */
 /* [Method] */
 
-void knh_Method_syncFunc(knh_Method_t *o, knh_fmethod f)
+void knh_Method_syncFunc(knh_Method_t *o, knh_Fmethod f)
 {
 	if(f == NULL) {
-		f = knh_fmethod_abstract;
+		f = knh_Fmethod_abstract;
 	}
 	DP(o)->fproceed = f;
 	(o)->fcall_1 = f;
@@ -198,7 +198,7 @@ void knh_Method_syncFunc(knh_Method_t *o, knh_fmethod f)
 
 /* ------------------------------------------------------------------------ */
 
-knh_Method_t* new_Method(Ctx *ctx, knh_flag_t flag, knh_class_t cid, knh_methodn_t mn, knh_fmethod func)
+knh_Method_t* new_Method(Ctx *ctx, knh_flag_t flag, knh_class_t cid, knh_methodn_t mn, knh_Fmethod func)
 {
 	knh_Method_t* o = (knh_Method_t*)new_Object_bcid(ctx, CLASS_Method, 0);
 	DP(o)->flag  = flag;
@@ -207,7 +207,7 @@ knh_Method_t* new_Method(Ctx *ctx, knh_flag_t flag, knh_class_t cid, knh_methodn
 	if(METHODN_IS_MOVTEXT(mn)) {
 		KNH_SETv(ctx, DP(o)->mf, knh_findMethodField0(ctx, TYPE_void));
 	}
-	func = (func == NULL) ? knh_fmethod_abstract : func;
+	func = (func == NULL) ? knh_Fmethod_abstract : func;
 	knh_Method_syncFunc(o, func);
 	DP(o)->code  = NULL;
 	o->pc_start  = NULL;
@@ -218,7 +218,7 @@ knh_Method_t* new_Method(Ctx *ctx, knh_flag_t flag, knh_class_t cid, knh_methodn
 /* [NoSuchMethod] */
 
 static
-METHOD knh_fmethod_NoSuchMethod(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+METHOD knh_Fmethod_NoSuchMethod(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 	knh_Bytes_write(ctx, cwb->ba, STEXT("NoSuchMethod!!: "));
@@ -232,14 +232,14 @@ METHOD knh_fmethod_NoSuchMethod(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 
 knh_bool_t knh_Method_isNoSuchMethod(knh_Method_t *o)
 {
-	return (DP(o)->fproceed == knh_fmethod_NoSuchMethod);
+	return (DP(o)->fproceed == knh_Fmethod_NoSuchMethod);
 }
 
 /* ------------------------------------------------------------------------ */
 
 knh_Method_t* new_Method__NoSuchMethod(Ctx *ctx, knh_class_t cid, knh_methodn_t mn)
 {
-	knh_Method_t *mtd = new_Method(ctx, 0, cid, mn, knh_fmethod_NoSuchMethod);
+	knh_Method_t *mtd = new_Method(ctx, 0, cid, mn, knh_Fmethod_NoSuchMethod);
 	return mtd;
 }
 
@@ -395,7 +395,7 @@ knh_MethodField_t *knh_findMethodField1(Ctx *ctx, knh_type_t rtype, knh_type_t p
 /* ------------------------------------------------------------------------ */
 /* [field_method] */
 
-static METHOD knh_fmethod_getter(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+static METHOD knh_Fmethod_getter(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	DBG2_ASSERT(IS_Method(sfp[-1].mtd));
 	int delta = DP(sfp[-1].mtd)->delta;
@@ -405,7 +405,7 @@ static METHOD knh_fmethod_getter(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 /* ------------------------------------------------------------------------ */
 
 static
-METHOD knh_fmethod_igetter(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+METHOD knh_Fmethod_igetter(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	DBG2_ASSERT(IS_Method(sfp[-1].mtd));
 	int delta = DP(sfp[-1].mtd)->delta;
@@ -421,7 +421,7 @@ METHOD knh_fmethod_igetter(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 /* ------------------------------------------------------------------------ */
 
 static
-METHOD knh_fmethod_fgetter(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+METHOD knh_Fmethod_fgetter(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	DBG2_ASSERT(IS_Method(sfp[-1].mtd));
 	int delta = DP(sfp[-1].mtd)->delta;
@@ -437,7 +437,7 @@ METHOD knh_fmethod_fgetter(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 /* ------------------------------------------------------------------------ */
 
 static
-METHOD knh_fmethod_bgetter(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+METHOD knh_Fmethod_bgetter(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	DBG2_ASSERT(IS_Method(sfp[-1].mtd));
 	int delta = DP(sfp[-1].mtd)->delta;
@@ -453,7 +453,7 @@ METHOD knh_fmethod_bgetter(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 /* ------------------------------------------------------------------------ */
 
 static
-METHOD knh_fmethod_setter(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+METHOD knh_Fmethod_setter(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	DBG2_ASSERT(IS_Method(sfp[-1].mtd));
 	int delta = DP(sfp[-1].mtd)->delta;
@@ -464,7 +464,7 @@ METHOD knh_fmethod_setter(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 /* ------------------------------------------------------------------------ */
 
 static
-METHOD knh_fmethod_bsetter(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+METHOD knh_Fmethod_bsetter(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	DBG2_ASSERT(IS_Method(sfp[-1].mtd));
 	int delta = DP(sfp[-1].mtd)->delta;
@@ -480,7 +480,7 @@ METHOD knh_fmethod_bsetter(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 /* ------------------------------------------------------------------------ */
 
 static
-METHOD knh_fmethod_isetter(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+METHOD knh_Fmethod_isetter(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	DBG2_ASSERT(IS_Method(sfp[-1].mtd));
 	int delta = DP(sfp[-1].mtd)->delta;
@@ -497,7 +497,7 @@ METHOD knh_fmethod_isetter(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 /* ------------------------------------------------------------------------ */
 
 static
-METHOD knh_fmethod_insetter(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+METHOD knh_Fmethod_insetter(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	DBG2_ASSERT(IS_Method(sfp[-1].mtd));
 	int delta = DP(sfp[-1].mtd)->delta;
@@ -509,7 +509,7 @@ METHOD knh_fmethod_insetter(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 /* ------------------------------------------------------------------------ */
 
 static
-METHOD knh_fmethod_fsetter(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+METHOD knh_Fmethod_fsetter(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	DBG2_ASSERT(IS_Method(sfp[-1].mtd));
 	int delta = DP(sfp[-1].mtd)->delta;
@@ -526,7 +526,7 @@ METHOD knh_fmethod_fsetter(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 /* ------------------------------------------------------------------------ */
 
 static
-METHOD knh_fmethod_fnsetter(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+METHOD knh_Fmethod_fnsetter(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	DBG2_ASSERT(IS_Method(sfp[-1].mtd));
 	int delta = DP(sfp[-1].mtd)->delta;
@@ -541,15 +541,15 @@ METHOD knh_fmethod_fnsetter(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 static
 knh_Method_t *new_Method_getter(Ctx *ctx, knh_class_t cid, knh_methodn_t mn, knh_type_t type, int idx)
 {
-	knh_fmethod f = knh_fmethod_getter;
+	knh_Fmethod f = knh_Fmethod_getter;
 	if(IS_ubxint(type)) {
-		f = knh_fmethod_igetter;
+		f = knh_Fmethod_igetter;
 	}
 	else if(IS_ubxfloat(type)) {
-		f = knh_fmethod_fgetter;
+		f = knh_Fmethod_fgetter;
 	}
 	else if(IS_ubxboolean(type)) {
-		f = knh_fmethod_bgetter;
+		f = knh_Fmethod_bgetter;
 	}
 	knh_Method_t *mtd = new_Method(ctx, 0, cid, mn, f);
 	DP(mtd)->delta = idx;
@@ -562,21 +562,21 @@ knh_Method_t *new_Method_getter(Ctx *ctx, knh_class_t cid, knh_methodn_t mn, knh
 static
 knh_Method_t *new_Method_setter(Ctx *ctx, knh_class_t cid, knh_methodn_t mn, knh_type_t type, int idx)
 {
-	knh_fmethod f = knh_fmethod_setter;
+	knh_Fmethod f = knh_Fmethod_setter;
 	if(IS_ubxint(type)) {
-		f = knh_fmethod_isetter;
+		f = knh_Fmethod_isetter;
 	}
 	else if(IS_bxint(type)) {
-		f = knh_fmethod_insetter;
+		f = knh_Fmethod_insetter;
 	}
 	else if(IS_ubxfloat(type)) {
-		f = knh_fmethod_fsetter;
+		f = knh_Fmethod_fsetter;
 	}
 	else if(IS_bxfloat(type)) {
-		f = knh_fmethod_fnsetter;
+		f = knh_Fmethod_fnsetter;
 	}
 	else if(IS_ubxboolean(type)) {
-		f = knh_fmethod_bsetter;
+		f = knh_Fmethod_bsetter;
 	}
 	knh_Method_t *mtd = new_Method(ctx, 0, cid, mn, f);
 	DP(mtd)->delta = idx;
@@ -588,11 +588,11 @@ knh_Method_t *new_Method_setter(Ctx *ctx, knh_class_t cid, knh_methodn_t mn, knh
 
 knh_index_t knh_Method_indexOfGetter(knh_Method_t *o)
 {
-	knh_fmethod f = SP(o)->fcall_1;
-	if(f== knh_fmethod_getter ||
-		f == knh_fmethod_igetter ||
-		f == knh_fmethod_fgetter ||
-		f == knh_fmethod_bgetter) {
+	knh_Fmethod f = SP(o)->fcall_1;
+	if(f== knh_Fmethod_getter ||
+		f == knh_Fmethod_igetter ||
+		f == knh_Fmethod_fgetter ||
+		f == knh_Fmethod_bgetter) {
 		return (knh_index_t)DP(o)->delta;
 	}
 	return -1;
@@ -602,12 +602,12 @@ knh_index_t knh_Method_indexOfGetter(knh_Method_t *o)
 
 knh_index_t knh_Method_indexOfSetter(knh_Method_t *o)
 {
-	knh_fmethod f = SP(o)->fcall_1;
-	if(f == knh_fmethod_isetter ||
-		f == knh_fmethod_insetter ||
-		f == knh_fmethod_fsetter ||
-		f == knh_fmethod_fnsetter ||
-		f == knh_fmethod_bsetter) {
+	knh_Fmethod f = SP(o)->fcall_1;
+	if(f == knh_Fmethod_isetter ||
+		f == knh_Fmethod_insetter ||
+		f == knh_Fmethod_fsetter ||
+		f == knh_Fmethod_fnsetter ||
+		f == knh_Fmethod_bsetter) {
 		return (knh_index_t)DP(o)->delta;
 	}
 	return -1;
@@ -766,7 +766,7 @@ knh_Method_t *knh_lookupFormatter(Ctx *ctx, knh_class_t cid, knh_methodn_t mn)
 /* [tracer] */
 
 
-METHOD knh_fmethod_securityTrace(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+METHOD knh_Fmethod_securityTrace(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	//knh_Method_t *mtd = sfp[-1].mtd;
 
@@ -784,10 +784,10 @@ void knh_Method_trace(Ctx *ctx, knh_Method_t *mtd, int trace)
 		case KNH_AUDITTRACE:
 			break;
 		case KNH_PROFILER:
-			(mtd)->fcall_1 = knh_fmethod_profiler;
+			(mtd)->fcall_1 = knh_Fmethod_profiler;
 			break;
 		case KNH_STACKTRACE:
-			(mtd)->fcall_1 = knh_fmethod_stackTrace;
+			(mtd)->fcall_1 = knh_Fmethod_stackTrace;
 			break;
 		case KNH_NOTRACE:
 		default:

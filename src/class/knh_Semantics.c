@@ -217,7 +217,7 @@ void knh_write_floatx(Ctx *ctx, knh_OutputStream_t *w, knh_Semantics_t *u, knh_f
 
 /* ------------------------------------------------------------------------ */
 
-static MAPPER knh_IntX_FloatX(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+static MAPPER knh_IntX_FloatX(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_float_t v = (knh_float_t)sfp[0].ivalue;
 	KNH_MAPPED_Float(ctx, sfp, v);
@@ -225,7 +225,7 @@ static MAPPER knh_IntX_FloatX(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 
 /* ------------------------------------------------------------------------ */
 
-static MAPPER knh_FloatX_IntX(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+static MAPPER knh_FloatX_IntX(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_int_t v = (knh_int_t)sfp[0].fvalue;
 	KNH_MAPPED_Int(ctx, sfp, v);
@@ -257,7 +257,7 @@ knh_int_t knh_Semantics_getVocabIdx(Ctx *ctx, knh_Semantics_t *u, knh_String_t *
 
 /* ------------------------------------------------------------------------ */
 
-static MAPPER knh_IntX_Vocab(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+static MAPPER knh_IntX_Vocab(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_Semantics_t *u = (knh_Semantics_t*)DP(sfp[1].mpr)->mapdata;
 	KNH_ASSERT(IS_Semantics(u));
@@ -266,7 +266,7 @@ static MAPPER knh_IntX_Vocab(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 
 /* ------------------------------------------------------------------------ */
 
-static MAPPER knh_Vocab_IntX(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+static MAPPER knh_Vocab_IntX(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_Semantics_t *u = (knh_Semantics_t*)DP(sfp[1].mpr)->mapdata;
 	KNH_ASSERT(IS_Semantics(u));
@@ -421,7 +421,7 @@ knh_DictIdx_t* new_DictIdx__Array(Ctx *ctx, knh_Array_t *a)
 /* ------------------------------------------------------------------------ */
 
 static
-MAPPER knh_fmapper_vocabidx(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+MAPPER knh_Fmapper_vocabidx(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_Semantics_t *u = knh_getSemantics(ctx, knh_Object_cid(sfp[0].o));
 	knh_int_t n = knh_Semantics_getVocabIdx(ctx, u, sfp[0].s);
@@ -432,7 +432,7 @@ MAPPER knh_fmapper_vocabidx(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 /* ------------------------------------------------------------------------ */
 
 static
-MAPPER knh_fmapper_vocab(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+MAPPER knh_Fmapper_vocab(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_Semantics_t *u = (knh_Semantics_t*)DP(sfp[1].mpr)->mapdata;
 	size_t n = (size_t)(sfp[0].ivalue - DP(u)->imin);
@@ -473,9 +473,9 @@ KNHAPI(knh_Semantics_t*) new_Vocab(Ctx *ctx, char *tag, knh_bytes_t urn, int bas
 	}
 	knh_addSpecializedType(ctx, cid, CLASS_String, u);
 	{
-		knh_Mapper_t *mpr = new_Mapper(ctx, FLAG_Mapper_Total|FLAG_Mapper_Const|FLAG_Mapper_Final, cid, CLASS_Int, knh_fmapper_vocabidx, (Object*)u);
+		knh_Mapper_t *mpr = new_Mapper(ctx, FLAG_Mapper_Total|FLAG_Mapper_Const|FLAG_Mapper_Final, cid, CLASS_Int, knh_Fmapper_vocabidx, (Object*)u);
 		knh_addMapper(ctx, mpr);
-		mpr = new_Mapper(ctx, FLAG_Mapper_Const|FLAG_Mapper_Final, CLASS_Int, cid, knh_fmapper_vocab, (Object*)u);
+		mpr = new_Mapper(ctx, FLAG_Mapper_Const|FLAG_Mapper_Final, CLASS_Int, cid, knh_Fmapper_vocab, (Object*)u);
 		knh_addMapper(ctx, mpr);
 	}
 	return u;
@@ -484,7 +484,7 @@ KNHAPI(knh_Semantics_t*) new_Vocab(Ctx *ctx, char *tag, knh_bytes_t urn, int bas
 ///* ------------------------------------------------------------------------ */
 //
 //static
-//MAPPER knh_Mapper__fdict(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+//MAPPER knh_Mapper__fdict(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 //{
 //	String *s = sfp[0].s;
 //	Semantics *u = knh_getSemantics(ctx, knh_Object_cid(sfp[0].o)].cspec;

@@ -139,7 +139,7 @@ knh_uint64_t knh_getTimeMilliSecond(void)
 
 /* ------------------------------------------------------------------------ */
 
-METHOD knh_fmethod_profiler(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+METHOD knh_Fmethod_profiler(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_Method_t *mtd = sfp[-1].mtd;
 #if defined(KNH_USING_WINDOWS)

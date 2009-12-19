@@ -156,7 +156,7 @@ KNHAPI(void) knh_Closure_invoke(Ctx *ctx, knh_Closure_t *c, const char *fmt, ...
 /* ------------------------------------------------------------------------ */
 
 static
-METHOD knh_fmethod_closureDEFAULT(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+METHOD knh_Fmethod_closureDEFAULT(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_type_t rtype = knh_Method_rztype(sfp[-1].mtd);
 	if(rtype == TYPE_void) {
@@ -171,7 +171,7 @@ knh_Object_t *knh_fdefault__NEWCLOSURE(Ctx *ctx, knh_class_t cid)
 {
 	knh_ClassTable_t *t = pClassTable(cid);
 	knh_Closure_t *cc = (knh_Closure_t*)new_Object_init(ctx, FLAG_Closure, cid, 0);
-	knh_Method_t *mtd = new_Method(ctx, 0, cid, METHODN_LAMBDA, knh_fmethod_closureDEFAULT);
+	knh_Method_t *mtd = new_Method(ctx, 0, cid, METHODN_LAMBDA, knh_Fmethod_closureDEFAULT);
 	KNH_INITv((cc)->mtd, mtd);
 	KNH_SETv(ctx, DP(mtd)->mf, knh_findMethodField0(ctx, t->r0));
 	knh_Method_setVarArgs(mtd, 1);
@@ -369,7 +369,7 @@ ITRNEXT knh_Generator_fnext(Ctx *ctx, knh_sfp_t *sfp, int n)
 /* ------------------------------------------------------------------------ */
 
 static
-knh_Iterator_t* new_Generator(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+knh_Iterator_t* new_Generator(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_Closure_t *cc = (knh_Closure_t*)new_Object_init(ctx, FLAG_Closure, CLASS_Closure, 0);
 	KNH_INITv((cc)->mtd, sfp[-1].mtd);
@@ -395,7 +395,7 @@ knh_Iterator_t* new_Generator(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 /* ------------------------------------------------------------------------ */
 
 static
-METHOD knh_fmethod_generator(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
+METHOD knh_Fmethod_generator(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	KNH_RETURN(ctx, sfp, new_Generator(ctx, sfp));
 }
@@ -404,14 +404,14 @@ METHOD knh_fmethod_generator(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 //
 //int knh_Method_isGenerator(Method *mtd)
 //{
-//	return (mtd->fcall_1 == knh_fmethod_generator);
+//	return (mtd->fcall_1 == knh_Fmethod_generator);
 //}
 
 /* ------------------------------------------------------------------------ */
 
 void knh_Method_toGenerator(knh_Method_t *mtd)
 {
-	mtd->fcall_1 = knh_fmethod_generator;
+	mtd->fcall_1 = knh_Fmethod_generator;
 }
 
 /* ======================================================================== */
