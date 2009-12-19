@@ -243,30 +243,6 @@ typedef struct {
 #define ISB(t,c) (t.len == (sizeof(c)-1) && knh_strncmp((char*)t.buf,c,t.len) == 0)
 
 /* ------------------------------------------------------------------------ */
-/* ConstData  */
-/* ------------------------------------------------------------------------ */
-
-typedef struct {
-	char *name;
-	knh_int_t ivalue;
-} knh_IntData_t;
-
-typedef struct {
-	char *name;
-	knh_float_t fvalue;
-} knh_FloatData_t;
-
-typedef struct {
-	char *name;
-	char *value;
-} knh_StringData_t;
-
-typedef struct {
-	char *name;
-	void *ptr;
-} knh_NamedPointerData_t;
-
-/* ------------------------------------------------------------------------ */
 /* knh_flag_t */
 /* ------------------------------------------------------------------------ */
 
@@ -662,7 +638,6 @@ typedef struct {
 	struct knh_String_t       *lname;
 	struct knh_Class_t        *class_cid;
 	struct knh_Class_t        *class_natype;
-//	struct knh_ClassField_t   *cstruct;
 	knh_fields_t              *fields;
 	size_t                     fsize;
 	struct knh_Array_t        *methods;
@@ -751,8 +726,6 @@ typedef struct {
 #ifndef KNH_TOBJECTPAGE_INITSIZE
 #define KNH_TOBJECTPAGE_INITSIZE     1024
 #endif
-
-//#define SIZEOF_TOBJECTPAGE       (sizeof(knh_ObjectPageTable_t) * KNH_TOBJECTPAGE_INITSIZE)
 
 #ifndef KNH_OBJECTPAGE_SIZE
 #define KNH_OBJECTPAGE_SIZE     4096
@@ -1027,6 +1000,45 @@ typedef struct {
 	knh_Fcurnext  dbcurnext;
 	knh_Fcurfree  dbcurfree;
 } knh_QueryDSPI_t;
+
+/* ------------------------------------------------------------------------ */
+/* ConstData  */
+/* ------------------------------------------------------------------------ */
+
+typedef struct {
+	char *name;
+	knh_int_t ivalue;
+} knh_IntData_t;
+
+typedef struct {
+	char *name;
+	knh_float_t fvalue;
+} knh_FloatData_t;
+
+typedef struct {
+	char *name;
+	char *value;
+} knh_StringData_t;
+
+typedef struct {
+	char *name;
+	void *ptr;
+} knh_NamedPointerData_t;
+
+typedef struct {
+	knh_ObjectCSPI_t *cspi;
+	char *cname;
+	char *supname;
+	knh_flag_t flag;
+} knh_ClassData_t;
+
+typedef struct {
+	knh_fmethod func;
+	char *cname;
+	char *supname;
+	knh_ObjectCSPI_t *cspi;
+	knh_flag_t flag;
+} knh_MethodData_t;
 
 /* ------------------------------------------------------------------------ */
 

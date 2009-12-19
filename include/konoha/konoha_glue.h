@@ -34,6 +34,39 @@
 extern "C" {
 #endif
 
+#ifdef KONOHA_ON_WINDOWS
+#define _USE_MATH_DEFINES
+#undef METHOD
+#define METHOD void __declspec(dllexport)
+#undef KNHAPI
+#define KNHAPI(T) T __declspec(dllexport)
+#endif
+
+/* ------------------------------------------------------------------------ */
+/* package setup */
+
+typedef int (*knh_Fsetup)(Ctx *);
+typedef int (*knh_Fcleanup)(Ctx *);
+
+typedef struct {
+	char         *version;
+	char         *libver;
+	char         *license;
+	knh_Fsetup    setup;
+	knh_Fcleanup  cleanup;
+	int           revision;
+} knh_PackageData_t;
+
+#define KONOHA_PACKAGE(V, LV, LL, S, C) \
+	static int S (Ctx *ctx); \
+	static int C (Ctx *ctx); \
+	knh_PackageData_t* knh_pkginit(void) { \
+		static knh_PackageData_t knh_PackageData = { \
+			V, LV, LL, S, C, KONOHA_REVISION\
+		};\
+		return &knh_PackageData;\
+	}\
+
 /* ------------------------------------------------------------------------ */
 /* new version */
 
