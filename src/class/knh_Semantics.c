@@ -679,7 +679,7 @@ knh_class_t knh_addSpecializedType(Ctx *ctx, knh_class_t cid, knh_class_t supcid
 	knh_snprintf(bufcn, sizeof(bufcn), KNH_SEMANTICS_FMT, CLASSN(bcid), __tochar(DP(u)->urn));
 	knh_setClassName(ctx, cid, new_String(ctx, B(bufcn), NULL));
 	{
-		knh_ClassTable_t *t = pClassTable(cid);
+		knh_ClassTable_t *t = pClassTable(ctx, cid);
 		if((DP(u)->tag)->size > 0) {
 			knh_snprintf(bufcn, sizeof(bufcn), "%s:%s", CLASSN(bcid), __tochar(DP(u)->tag));
 			KNH_SETv(ctx, t->sname, new_String(ctx, B(bufcn), NULL));

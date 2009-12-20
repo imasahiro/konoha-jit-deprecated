@@ -222,6 +222,7 @@ typedef struct {
 
 
 #define KNH_GETMAPPER(ctx, sfp) sfp[1].mpr
+#define knh_CurrentMapper_tcid(ctx, sfp)  DP(sfp[1].mpr)->tcid
 
 #define KNH_MAPPED(ctx, sfp, v) {\
 		knh_Int_t *vn_ = (knh_Int_t*)(v);\

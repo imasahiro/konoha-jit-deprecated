@@ -755,11 +755,13 @@ typedef struct {
 	knh_LockTable_t    *unusedLockTable;
 } knh_share_t ;
 
+#define KNH_ASSERT_CTX0(ctx)   KNH_ASSERT(ctx->ctxid == 0)
+
 #define LockTable(mx)     ctx->share->LockTable[mx]
 #define pLockTable(mx)    (knh_LockTable_t*)(ctx->share->LockTable + (mx))
 
 #define ClassTable(cid)   ctx->share->ClassTable[cid]
-#define pClassTable(cid)  (knh_ClassTable_t*)(ctx->share->ClassTable + (cid))
+#define pClassTable(ctx, cid)  (knh_ClassTable_t*)((ctx)->share->ClassTable + (cid))
 #define ExptTable(eid)    ctx->share->ExptTable[eid]
 #define pExptTable(eid)   (knh_ExptTable_t*)(ctx->share->ExptTable + (eid))
 
@@ -1016,16 +1018,23 @@ typedef struct {
 	knh_ObjectCSPI_t *cspi;
 	char *cname;
 	char *supname;
-	knh_flag_t flag;
+	char *p1; char *p2;
 } knh_ClassData_t;
 
 typedef struct {
 	knh_Fmethod func;
 	char *cname;
-	char *supname;
-	knh_ObjectCSPI_t *cspi;
+	char *mname;
+	char *params;
 	knh_flag_t flag;
 } knh_MethodData_t;
+
+typedef struct {
+	knh_Fmapper func;
+	char *sname;
+	char *tname;
+	knh_flag_t flag;
+} knh_MapperData_t;
 
 /* ------------------------------------------------------------------------ */
 

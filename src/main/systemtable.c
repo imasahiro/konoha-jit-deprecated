@@ -286,7 +286,7 @@ static void knh_traverseSharedData(Ctx *ctx, knh_share_t *share, knh_ftraverse f
 
 	/* tclass */
 	if(IS_SWEEP(ftr)) {
-		knh_ClassTable_t *t = pClassTable(i);
+		knh_ClassTable_t *t = pClassTable(ctx, i);
 		for(i = 0; i < share->ClassTableSize; i++) {
 			size_t j;
 			for(j = 0; j < knh_Array_size(t->methods); j++) {
@@ -296,7 +296,7 @@ static void knh_traverseSharedData(Ctx *ctx, knh_share_t *share, knh_ftraverse f
 	}
 
 	for(i = 0; i < share->ClassTableSize; i++) {
-		knh_ClassTable_t *t = pClassTable(i);
+		knh_ClassTable_t *t = pClassTable(ctx, i);
 		DBG2_ASSERT(t->sname != NULL);
 		if(t->class_cid != NULL) ftr(ctx, UP(t->class_cid));
 		if(t->class_natype != NULL) ftr(ctx, UP(t->class_natype));
@@ -339,7 +339,7 @@ static void knh_traverseSharedData(Ctx *ctx, knh_share_t *share, knh_ftraverse f
 		share->unusedLockTable = NULL;
 
 		for(i = 0; i < share->ClassTableSize; i++) {
-			knh_ClassTable_t *t = pClassTable(i);
+			knh_ClassTable_t *t = pClassTable(ctx, i);
 			if(t->fields != NULL) {
 				KNH_FREE(ctx, t->fields, sizeof(knh_fields_t) * t->fsize);
 				t->fields = NULL;

@@ -395,7 +395,7 @@ void knh_class_addInterface(Ctx *ctx, knh_class_t cid, knh_class_t icid)
 		knh_class_t isupcid = icid;
 		int allchecked = 1;
 		while(isupcid != CLASS_Object) {
-			knh_ClassTable_t *t = pClassTable(isupcid);
+			knh_ClassTable_t *t = pClassTable(ctx, isupcid);
 			size_t i;
 			for(i = 0; i < knh_Array_size(t->methods); i++) {
 				knh_Method_t *imtd = (knh_Method_t*)knh_Array_n(t->methods, i);
@@ -417,7 +417,7 @@ void knh_class_addInterface(Ctx *ctx, knh_class_t cid, knh_class_t icid)
 		if(allchecked) {
 			isupcid = icid;
 			while(isupcid != CLASS_Object) {
-				knh_ClassTable_t *t = pClassTable(isupcid);
+				knh_ClassTable_t *t = pClassTable(ctx, isupcid);
 				size_t i;
 				for(i = 0; i < knh_Array_size(t->methods); i++) {
 					knh_Method_t *imtd = (knh_Method_t*)knh_Array_n(t->methods, i);
@@ -477,7 +477,7 @@ int knh_StmtCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt)
 
 	DP(StmtCLASS_class(stmt))->cid = cid;
 	{
-		knh_ClassTable_t *t = pClassTable(cid);
+		knh_ClassTable_t *t = pClassTable(ctx, cid);
 		t->cflag  = knh_StmtCLASS_flag(ctx, stmt);
 		t->oflag  = knh_flag_oflag(t->cflag);
 		if(SP(StmtCLASS_instmt(stmt))->stt == STT_DONE) {

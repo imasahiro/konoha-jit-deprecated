@@ -169,7 +169,7 @@ METHOD knh_Fmethod_closureDEFAULT(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 knh_Object_t *knh_fdefault__NEWCLOSURE(Ctx *ctx, knh_class_t cid)
 {
-	knh_ClassTable_t *t = pClassTable(cid);
+	knh_ClassTable_t *t = pClassTable(ctx, cid);
 	knh_Closure_t *cc = (knh_Closure_t*)new_Object_init(ctx, FLAG_Closure, cid, 0);
 	knh_Method_t *mtd = new_Method(ctx, 0, cid, METHODN_LAMBDA, knh_Fmethod_closureDEFAULT);
 	KNH_INITv((cc)->mtd, mtd);
@@ -195,7 +195,7 @@ knh_addClosureClass(Ctx *ctx, knh_class_t cid, knh_String_t *name, knh_type_t r0
 	if(cid == CLASS_newid) {
 		cid = knh_ClassTable_newId(ctx);
 	}
-	/* knh_ClassTable_t */ t = pClassTable(cid);
+	/* knh_ClassTable_t */ t = pClassTable(ctx, cid);
 	KNH_ASSERT(ClassTable(cid).sname == NULL);
 	if(knh_class_isTypeVariable(CLASS_type(r0)) ||
 			knh_class_isTypeVariable(CLASS_type(p1)) ||
@@ -426,7 +426,7 @@ knh_class_t knh_addThunkClass(Ctx *ctx, knh_class_t cid, knh_String_t *name, knh
 		cid = knh_ClassTable_newId(ctx);
 	}
 
-	/* knh_ClassTable_t */ t = pClassTable(cid);
+	/* knh_ClassTable_t */ t = pClassTable(ctx, cid);
 	KNH_ASSERT(ClassTable(cid).sname == NULL);
 	if(knh_class_isTypeVariable(CLASS_type(rtype))) {
 		mask = FLAG_Class_TypeVariable;

@@ -10808,7 +10808,7 @@ esac
 
 case "${host_os}" in
 *cygwin*) ;;
-*darwin*) ;;
+*darwin*) CFLAGS = "-m32 -m64 $CFLAGS" ;;
 *) { $as_echo "$as_me:${as_lineno-$LINENO}: checking for sin in -lm" >&5
 $as_echo_n "checking for sin in -lm... " >&6; }
 if test "${ac_cv_lib_m_sin+set}" = set; then :

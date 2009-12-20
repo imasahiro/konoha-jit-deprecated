@@ -4709,7 +4709,7 @@ static
 void knh_Gamma_declareClassField(Ctx *ctx, knh_NameSpace_t* ns, knh_class_t cid)
 {
 	knh_Gamma_t *kc = ctx->kc;
-	knh_ClassTable_t *t = pClassTable(cid);
+	knh_ClassTable_t *t = pClassTable(ctx, cid);
 		DBG2_ASSERT(t->fields == NULL);
 		DBG2_ASSERT(t->fsize == 0);
 	int i, fsize = knh_Gamma_top(ctx);

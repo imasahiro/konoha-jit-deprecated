@@ -61,7 +61,7 @@ int knh_addClassConst(Ctx *ctx, knh_class_t cid, knh_String_t* name, Object *val
 	knh_DictMap_t *cmap = ClassTable(cid).constDictMap;
 	DBG2_ASSERT_cid(cid);
 	if(cmap == NULL) {
-		knh_ClassTable_t *t = pClassTable(cid);
+		knh_ClassTable_t *t = pClassTable(ctx, cid);
 		cmap = new_DictMap0(ctx, 0);
 		KNH_INITv(t->constDictMap, cmap);
 	}

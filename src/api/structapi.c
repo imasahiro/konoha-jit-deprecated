@@ -158,11 +158,11 @@ static FASTAPI(void) knh_ObjectField_init(Ctx *ctx, Object *o, int init)
 		Object **v = (Object**)of->fields;
 		size_t offset;
 		while((offset = ClassTable(cid).offset) != 0) {
-			knh_ClassField_initField(ctx, pClassTable(cid), of->h.cid, v + offset);
+			knh_ClassField_initField(ctx, pClassTable(ctx, cid), of->h.cid, v + offset);
 			cid = ClassTable(cid).supcid;
 			DBG2_ASSERT_cid(cid);
 		}
-		knh_ClassField_initField(ctx, pClassTable(cid), of->h.cid, v + offset);
+		knh_ClassField_initField(ctx, pClassTable(ctx, cid), of->h.cid, v + offset);
 		of->fields = v;
 		of->bsize = ClassTable(of->h.cid).bsize;
 	}
@@ -177,7 +177,7 @@ static FASTAPI(void) knh_ObjectField_traverse(Ctx *ctx, Object *o, knh_ftraverse
 	knh_ObjectField_t *of = (knh_ObjectField_t*)o;
 	knh_class_t cid = knh_Object_cid(of);
 	while(cid != CLASS_Object) {
-		knh_ClassTable_t *t = pClassTable(cid);
+		knh_ClassTable_t *t = pClassTable(ctx, cid);
 		size_t i, offset = ClassTable(cid).offset;
 		for(i = 0; i < t->fsize; i++) {
 			knh_type_t type = t->fields[i].type;
@@ -763,7 +763,7 @@ static ITRNEXT knh_Iterator_filterNext(Ctx *ctx, knh_sfp_t *sfp, int n)
 	return res;
 }
 
-static MAPPER Iterator_Iterator(Ctx *ctx, knh_sfp_t *sfp)
+static MAPPER Iterator_Iterator(Ctx *ctx, knh_sfp_t *sfp MAPPERARG)
 {
 	knh_Mapper_t *mpr = KNH_GETMAPPER(ctx, sfp);
 	DBG2_ASSERT(IS_Mapper(mpr));
@@ -2387,7 +2387,7 @@ static void knh_loadClassData0(Ctx *ctx, knh_ClassData0_t *data)
 			knh_addGenericsClass(ctx, data->cid, T__(data->name), data->bcid, CLASS_type(data->p1), CLASS_type(data->p2));
 		}
 		else {
-			knh_ClassTable_t *t = pClassTable(cid);
+			knh_ClassTable_t *t = pClassTable(ctx, cid);
 			knh_setClassName(ctx, cid, T__(data->name));
 			t->cflag  = data->flag;
 			t->oflag  = knh_flag_oflag(data->flag);
@@ -2616,7 +2616,7 @@ void knh_loadSystemStructData(Ctx *ctx)
 {
 	knh_StructData0_t *data = StructData0;
 	while(data->cspi != NULL) {
-		knh_ClassTable_t *t = pClassTable(data->cid);
+		knh_ClassTable_t *t = pClassTable(ctx, data->cid);
 		t->cspi = data->cspi;
 		t->cflag = data->flag;
 		t->oflag = knh_flag_oflag(data->flag);

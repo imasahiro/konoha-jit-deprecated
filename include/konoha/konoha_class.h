@@ -416,16 +416,16 @@ typedef struct knh_DictIdx_t {
 
 /* ------------------------------------------------------------------------ */
 //## @Immutable class Class Object;
-//## flag Class Release!Debug  0 (pClassTable(%s))->cflag is * is *;
-//## flag Class Immutable      1 (pClassTable(%s))->cflag is * is *;
-//## flag Class Cyclic         2 (pClassTable(%s))->cflag is set * *;
-//## flag Class MetaClass      3 (pClassTable(%s))->cflag is * is *;
-//## flag Class Private!Public 4 (pClassTable(%s))->cflag is * is *;
-//## flag Class Final          5 (pClassTable(%s))->cflag  is * is *;
-//## flag Class Singleton      6 (pClassTable(%s))->cflag  is * is *;
-//## flag Class Unique         7 (pClassTable(%s))->cflag  is * is *;
-//## flag Class Interface      8 (pClassTable(%s))->cflag  is * is *;
-//## flag Class TypeVariable   9 (pClassTable(%s))->cflag  is set * *;
+//## flag Class Release!Debug  0 (pClassTable(ctx, %s))->cflag is * is *;
+//## flag Class Immutable      1 (pClassTable(ctx, %s))->cflag is * is *;
+//## flag Class Cyclic         2 (pClassTable(ctx, %s))->cflag is set * *;
+//## flag Class MetaClass      3 (pClassTable(ctx, %s))->cflag is * is *;
+//## flag Class Private!Public 4 (pClassTable(ctx, %s))->cflag is * is *;
+//## flag Class Final          5 (pClassTable(ctx, %s))->cflag  is * is *;
+//## flag Class Singleton      6 (pClassTable(ctx, %s))->cflag  is * is *;
+//## flag Class Unique         7 (pClassTable(ctx, %s))->cflag  is * is *;
+//## flag Class Interface      8 (pClassTable(ctx, %s))->cflag  is * is *;
+//## flag Class TypeVariable   9 (pClassTable(ctx, %s))->cflag  is set * *;
 
 #define FLAG_Field_Hidden          (knh_flag_t)(1<<0)
 #define FLAG_Field_Protected       (knh_flag_t)(1<<1)

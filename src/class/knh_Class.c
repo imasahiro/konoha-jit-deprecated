@@ -51,28 +51,13 @@ knh_class_t knh_ClassTable_newId(Ctx *ctx)
 	return newid;
 }
 
-///* ------------------------------------------------------------------------ */
-//
-//knh_Class_t *new_Class(Ctx *ctx, knh_class_t cid)
-//{
-//	DBG2_ASSERT_cid(cid);
-//	knh_ClassTable_t *t = pClassTable(cid);
-//	if(t->class_cid == NULL) {
-//		knh_Class_t *o = (knh_Class_t*)new_hObject(ctx, FLAG_Class, CLASS_Class, CLASS_Class);
-//		o->cid = cid;
-//		o->type = cid;
-//		KNH_INITv(t->class_cid, o);
-//	}
-//	return t->class_cid;
-//}
-
 /* ------------------------------------------------------------------------ */
 
 knh_Class_t *new_Type(Ctx *ctx, knh_type_t type)
 {
 	knh_class_t cid = CLASS_type(type);
 	DBG2_ASSERT_cid(cid);
-	knh_ClassTable_t *t = pClassTable(cid);
+	knh_ClassTable_t *t = pClassTable(ctx, cid);
 	if(IS_NATYPE(type)) {
 		if(t->class_natype == NULL) {
 			knh_Class_t *o = (knh_Class_t*)new_hObject(ctx, FLAG_Class, CLASS_Class, CLASS_Class);
@@ -98,7 +83,7 @@ knh_Class_t *new_Type(Ctx *ctx, knh_type_t type)
 void knh_setClassName(Ctx *ctx, knh_class_t cid, knh_String_t *lname)
 {
 	DBG2_ASSERT_cid(cid);
-	knh_ClassTable_t *t = pClassTable(cid);
+	knh_ClassTable_t *t = pClassTable(ctx, cid);
 	DBG2_ASSERT(t->sname == NULL);
 	KNH_INITv(t->lname, lname);
 	{
@@ -168,7 +153,7 @@ knh_Object_t *knh_fdefault__CONST(Ctx *ctx, knh_class_t cid)
 
 knh_Object_t *knh_fdefault__NEWVALUE(Ctx *ctx, knh_class_t cid)
 {
-	knh_ClassTable_t *t = pClassTable(cid);
+	knh_ClassTable_t *t = pClassTable(ctx, cid);
 	Object *v = new_Object_init(ctx, ClassTable(cid).oflag | FLAG_Object_Immutable | FLAG_Object_Undefined, cid, 0);
 	DBG2_P("create new default value of %s", CLASSN(cid));
 	KNH_ASSERT(t->cspec == NULL);
@@ -182,7 +167,7 @@ knh_Object_t *knh_fdefault__NEWVALUE(Ctx *ctx, knh_class_t cid)
 void knh_setClassDefaultValue(Ctx *ctx, knh_class_t cid, Object *value, knh_fdefault fdefault)
 {
 	DBG2_ASSERT_cid(cid);
-	knh_ClassTable_t *t = pClassTable(cid);
+	knh_ClassTable_t *t = pClassTable(ctx, cid);
 	if(value == NULL) {
 		if(fdefault == NULL) fdefault = knh_fdefault__NEWVALUE;
 	}
@@ -202,19 +187,56 @@ Object *knh_getClassDefaultValue(Ctx *ctx, knh_class_t cid)
 	return ClassTable(cid).fdefault(ctx, cid);
 }
 
-/* ======================================================================== */
+/* ------------------------------------------------------------------------ */
 /* [PARAM] */
 
 void knh_setClassParam(Ctx *ctx, knh_class_t cid, knh_class_t p1, knh_class_t p2)
 {
 	DBG2_ASSERT_cid(cid);
-	knh_ClassTable_t *t = pClassTable(cid);
+	knh_ClassTable_t *t = pClassTable(ctx, cid);
 	t->p1 = p1;
 	t->p2 = p2;
 	if(!knh_class_isCyclic(cid)) {
 		if(knh_class_isCyclic(p1) || (p2 != CLASS_Tvoid && knh_class_isCyclic(p2))) {
 			knh_class_setCyclic(cid, 1);
 		}
+	}
+}
+
+/* ------------------------------------------------------------------------ */
+
+KNHAPI(void) knh_loadClass(Ctx *ctx0, knh_ClassData_t *data)
+{
+	KNH_ASSERT_CTX0(ctx0);
+	while(data->cspi != NULL) {
+		knh_class_t cid = knh_ClassTable_newId(ctx0);
+		knh_class_t supcid = (data->supname == NULL) ? CLASS_Object : knh_findcid(ctx0, B(data->supname));
+		knh_class_t p1 = (data->p1 == NULL) ? TYPE_void : knh_findcid(ctx0, B(data->p1));
+		knh_class_t p2 = (data->p2 == NULL) ? TYPE_void : knh_findcid(ctx0, B(data->p2));
+		knh_ClassTable_t *t = pClassTable(ctx0, cid);
+		t->cflag  = data->cspi->cflag;
+		t->oflag  = t->oflag;
+		t->cspi   = data->cspi;
+		t->bcid   = cid;
+		t->supcid = supcid;
+		t->offset = 0;
+		t->size   = data->cspi->size;
+		t->bsize  = t->size / sizeof(Object*);
+		{
+			knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx0, &cwbbuf);
+			knh_NameSpace_t *ns = DP(ctx0->kc)->ns;
+			knh_String_t *name;
+			knh_Bytes_write(ctx0, cwb->ba, __tobytes(DP(ns)->nsname));
+			knh_Bytes_putc(ctx0, cwb->ba, '.');
+			knh_Bytes_write(ctx0, cwb->ba, B(data->cname));
+			name = knh_cwb_newString(ctx0, cwb);
+			knh_setClassName(ctx0, cid, name);
+		}
+		KNH_INITv(t->methods, new_Array0(ctx0, 0));
+		KNH_ASSERT(t->fields == NULL);  /* naitive */
+		KNH_INITv(t->cmap, knh_ClassMap_fdefault(ctx0, CLASS_ClassMap));
+		knh_setClassParam(ctx0, cid, p1, p2);
+		data++;
 	}
 }
 
@@ -229,8 +251,8 @@ knh_addGenericsClass(Ctx *ctx, knh_class_t cid, knh_String_t *name, knh_class_t 
 		cid = knh_ClassTable_newId(ctx);
 	}
 	DBG2_ASSERT(bcid < cid);
-	t = pClassTable(cid);
-	bt = pClassTable(bcid);
+	t = pClassTable(ctx, cid);
+	bt = pClassTable(ctx, bcid);
 
 	if(knh_class_isTypeVariable(CLASS_type(p1)) ||
 			(p2 != CLASS_Tvoid && knh_class_isTypeVariable(CLASS_type(p2)))) {
@@ -248,8 +270,8 @@ knh_addGenericsClass(Ctx *ctx, knh_class_t cid, knh_String_t *name, knh_class_t 
 
 	knh_setClassName(ctx, cid, name);
 	KNH_INITv(t->methods, bt->methods);
-	KNH_ASSERT(bt->fields == NULL);  /* naitive */
-	KNH_INITv(t->cmap, new_ClassMap0(ctx, 0));
+	KNH_ASSERT(bt->fields == NULL);
+	KNH_INITv(t->cmap, knh_ClassMap_fdefault(ctx, CLASS_ClassMap));
 	knh_setClassParam(ctx, cid, p1, p2);
 	return cid;
 }
@@ -261,7 +283,7 @@ knh_index_t knh_Class_indexOfField(Ctx *ctx, knh_class_t cid, knh_fieldn_t fn)
 {
 	DBG2_ASSERT_cid(cid);
 	while(1) {
-		knh_ClassTable_t *t = pClassTable(cid);
+		knh_ClassTable_t *t = pClassTable(ctx, cid);
 		if(t->fields != NULL) {
 			knh_index_t idx;
 			for(idx = 0; idx < t->fsize; idx++) {
@@ -282,7 +304,7 @@ knh_index_t knh_Class_queryField(Ctx *ctx, knh_class_t cid, knh_fieldn_t fnq)
 	knh_fieldn_t fn = FIELDN_UNMASK(fnq);
 	DBG2_ASSERT_cid(cid);
 	while(1) {
-		knh_ClassTable_t *t = pClassTable(cid);
+		knh_ClassTable_t *t = pClassTable(ctx, cid);
 		if(FIELDN_IS_SUPER(fnq)) {
 			fnq = fn;
 			goto L_SUPER;
@@ -308,7 +330,7 @@ knh_fields_t *knh_Class_fieldAt(Ctx *ctx, knh_class_t cid, size_t n)
 	DBG2_ASSERT_cid(cid);
 	KNH_ASSERT(/*0 <= n &&*/ n < ClassTable(cid).size);
 	while(1) {
-		knh_ClassTable_t *t = pClassTable(cid);
+		knh_ClassTable_t *t = pClassTable(ctx, cid);
 		size_t offset = ClassTable(cid).offset;
 		if(offset <= n) {
 			if(t->fields == NULL) {
@@ -338,7 +360,7 @@ knh_ClassMap_t* new_ClassMap0(Ctx *ctx, knh_ushort_t capacity)
 Object *knh_ClassMap_fdefault(Ctx *ctx, knh_class_t cid)
 {
 	if(unlikely(ClassTable(CLASS_Any).cmap == NULL)) {
-		knh_ClassTable_t *t = pClassTable(CLASS_Any);
+		knh_ClassTable_t *t = pClassTable(ctx, CLASS_Any);
 		KNH_INITv(t->cmap, new_ClassMap0(ctx, 0));
 	}
 	return (Object*)ClassTable(CLASS_Any).cmap;
@@ -359,7 +381,7 @@ void knh_readyClassMap(Ctx *ctx, knh_class_t cid)
 	DBG2_ASSERT_cid(cid);
 	KNH_ASSERT(cid != CLASS_Any);
 	if(knh_ClassMap_isDefault(ctx, ClassTable(cid).cmap)) {
-		knh_ClassTable_t *t = pClassTable(cid);
+		knh_ClassTable_t *t = pClassTable(ctx, cid);
 		KNH_SETv(ctx, t->cmap, new_ClassMap0(ctx, 4));
 	}
 }
