@@ -91,63 +91,63 @@ static void knh_write__mn(Ctx *ctx, knh_OutputStream_t* w, knh_methodn_t a)
 //{
 //	knh_putc(ctx, w, ' '); knh_write_type(ctx, w, (knh_type_t)a);
 //}
-static void HALT_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
+static void HALT_traverse(Ctx *ctx, knh_inst_t *c, knh_Ftraverse ftr)
 {
 }
 static void HALT_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
 {
 }
 
-static void MOVo_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
+static void MOVo_traverse(Ctx *ctx, knh_inst_t *c, knh_Ftraverse ftr)
 {
 	klr_MOVo_t *op = (klr_MOVo_t*)c; 
 	DBG2_ASSERT(op->opcode == 3);
 	ftr(ctx, UP(op->a2));
 }
 
-static void XMOVo_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
+static void XMOVo_traverse(Ctx *ctx, knh_inst_t *c, knh_Ftraverse ftr)
 {
 	klr_XMOVo_t *op = (klr_XMOVo_t*)c; 
 	DBG2_ASSERT(op->opcode == 13);
 	ftr(ctx, UP(op->a2));
 }
 
-static void PARAMo_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
+static void PARAMo_traverse(Ctx *ctx, knh_inst_t *c, knh_Ftraverse ftr)
 {
 	klr_PARAMo_t *op = (klr_PARAMo_t*)c; 
 	DBG2_ASSERT(op->opcode == 22);
 	ftr(ctx, UP(op->a2));
 }
 
-static void FCALL_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
+static void FCALL_traverse(Ctx *ctx, knh_inst_t *c, knh_Ftraverse ftr)
 {
 	klr_FCALL_t *op = (klr_FCALL_t*)c; 
 	DBG2_ASSERT(op->opcode == 36);
 	ftr(ctx, UP(op->a4));
 }
 
-static void SCALL_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
+static void SCALL_traverse(Ctx *ctx, knh_inst_t *c, knh_Ftraverse ftr)
 {
 	klr_SCALL_t *op = (klr_SCALL_t*)c; 
 	DBG2_ASSERT(op->opcode == 37);
 	ftr(ctx, UP(op->a3));
 }
 
-static void NEW_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
+static void NEW_traverse(Ctx *ctx, knh_inst_t *c, knh_Ftraverse ftr)
 {
 	klr_NEW_t *op = (klr_NEW_t*)c; 
 	DBG2_ASSERT(op->opcode == 41);
 	ftr(ctx, UP(op->a5));
 }
 
-static void STR_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
+static void STR_traverse(Ctx *ctx, knh_inst_t *c, knh_Ftraverse ftr)
 {
 	klr_STR_t *op = (klr_STR_t*)c; 
 	DBG2_ASSERT(op->opcode == 43);
 	ftr(ctx, UP(op->a4));
 }
 
-static void SSTR_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
+static void SSTR_traverse(Ctx *ctx, knh_inst_t *c, knh_Ftraverse ftr)
 {
 	klr_SSTR_t *op = (klr_SSTR_t*)c; 
 	DBG2_ASSERT(op->opcode == 44);
@@ -155,35 +155,35 @@ static void SSTR_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 	ftr(ctx, UP(op->a4));
 }
 
-static void SMAP_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
+static void SMAP_traverse(Ctx *ctx, knh_inst_t *c, knh_Ftraverse ftr)
 {
 	klr_SMAP_t *op = (klr_SMAP_t*)c; 
 	DBG2_ASSERT(op->opcode == 45);
 	ftr(ctx, UP(op->a2));
 }
 
-static void SMAPnc_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
+static void SMAPnc_traverse(Ctx *ctx, knh_inst_t *c, knh_Ftraverse ftr)
 {
 	klr_SMAPnc_t *op = (klr_SMAPnc_t*)c; 
 	DBG2_ASSERT(op->opcode == 46);
 	ftr(ctx, UP(op->a2));
 }
 
-static void CATCH_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
+static void CATCH_traverse(Ctx *ctx, knh_inst_t *c, knh_Ftraverse ftr)
 {
 	klr_CATCH_t *op = (klr_CATCH_t*)c; 
 	DBG2_ASSERT(op->opcode == 62);
 	ftr(ctx, UP(op->a4));
 }
 
-static void THROWs_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
+static void THROWs_traverse(Ctx *ctx, knh_inst_t *c, knh_Ftraverse ftr)
 {
 	klr_THROWs_t *op = (klr_THROWs_t*)c; 
 	DBG2_ASSERT(op->opcode == 66);
 	ftr(ctx, UP(op->a3));
 }
 
-static void PMSG_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
+static void PMSG_traverse(Ctx *ctx, knh_inst_t *c, knh_Ftraverse ftr)
 {
 	klr_PMSG_t *op = (klr_PMSG_t*)c; 
 	DBG2_ASSERT(op->opcode == 69);
@@ -695,7 +695,7 @@ static void ARYGETn_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
 /* ======================================================================== */
 /* [data] */
 
-typedef void (*codeftr)(Ctx *, knh_inst_t*, knh_ftraverse);
+typedef void (*codeftr)(Ctx *, knh_inst_t*, knh_Ftraverse);
 typedef void (*codedump)(Ctx *, knh_inst_t*, knh_OutputStream_t*);
 typedef void (*codeshift)(Ctx *, knh_inst_t*, int, int);
 
@@ -868,7 +868,7 @@ knh_bool_t knh_opcode_hasjump(int opcode)
 
 /* ------------------------------------------------------------------------ */
 
-void knh_opcode_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
+void knh_opcode_traverse(Ctx *ctx, knh_inst_t *c, knh_Ftraverse ftr)
 {
 	int opcode = KNH_OPCODE(c);
 	OPDATA[opcode].cftr(ctx, c, ftr);

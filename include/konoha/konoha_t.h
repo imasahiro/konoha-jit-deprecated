@@ -265,9 +265,6 @@ typedef knh_uint16_t       knh_class_t;   /* class id */
 typedef knh_uint16_t       knh_type_t;    /* extended knh_type_t */
 typedef knh_uint16_t       knh_expt_t;    /* knh_expt_t */
 
-/* knh_struct_t */
-
-
 /* knh_class_t */
 #define CLASS_newid                ((knh_class_t)-1)
 #define CLASS_unknown              ((knh_class_t)-2)
@@ -542,8 +539,8 @@ typedef struct knh_sfp_t {
 /* ------------------------------------------------------------------------ */
 /* [ObjectFunc] */
 
-typedef void (*knh_ftraverse)(Ctx *ctx, Object *);
-typedef int (*knh_finit)(Ctx *);
+typedef void (*knh_Ftraverse)(Ctx *ctx, Object *);
+typedef int (*knh_Fscriptinit)(Ctx *);
 
 typedef knh_uintptr_t                knh_hashcode_t;  /* knh_hashcode_t */
 #define knh_hcode_join(s1,s2)	   ((knh_hashcode_t)s1 << (sizeof(knh_short_t)*8)) + s2;
@@ -553,7 +550,7 @@ typedef knh_uintptr_t                knh_hashcode_t;  /* knh_hashcode_t */
 
 typedef FASTAPI(void) (*knh_Fobject_init)(Ctx *, Object *, int);
 typedef FASTAPI(Object*) (*knh_Fobject_copy)(Ctx *ctx, Object *, int);
-typedef FASTAPI(void) (*knh_Fobject_traverse)(Ctx *, Object*, knh_ftraverse);
+typedef FASTAPI(void) (*knh_Fobject_traverse)(Ctx *, Object*, knh_Ftraverse);
 typedef FASTAPI(void) (*knh_Fobject_checkout)(Ctx *, Object*, int);
 typedef int     (*knh_Fobject_compareTo)(Ctx *ctx, Object*, Object*);
 typedef FASTAPI(void*) (*knh_Fstack_hashkey)(Ctx *, knh_sfp_t *, int);
@@ -586,7 +583,7 @@ typedef struct {
 #define KNH_CLASSTABLE_INIT 128
 
 #define SIZEOF_TCLASS(n)  ((n) * sizeof(knh_ClassTable_t))
-typedef knh_Object_t* (*knh_fdefault)(Ctx *ctx, knh_class_t cid);
+typedef knh_Object_t* (*knh_Fdefault)(Ctx *ctx, knh_class_t cid);
 
 typedef struct {
 	knh_flag_t    flag  ;
@@ -633,7 +630,7 @@ typedef struct {
 		struct knh_Object_t       *defval;
 		struct knh_Semantics_t    *cspec;
 	};
-	knh_fdefault               fdefault;
+	knh_Fdefault               fdefault;
 	struct knh_DictMap_t      *constDictMap;
 //#ifndef KNH_USING_NODATAPOOL
 //	knh_mutex_t                dataLock;
@@ -776,7 +773,7 @@ typedef struct knh_Context_t {
 	knh_sfp_t*                   stack;
 	knh_sfp_t*                   esp;
 	size_t                       stacksize;
-	knh_ftraverse                fsweep;
+	knh_Ftraverse                fsweep;
 
 	/* cache (stacksize * 2 + 1) */
 	size_t                        cachesize;
@@ -857,28 +854,25 @@ typedef struct {
 #define MAPPER             METHOD
 typedef void (KNH_CC_FASTCALL *knh_Fmethod)(Ctx *, knh_sfp_t* METHODARG);
 typedef void (KNH_CC_FASTCALL *knh_Fmapper)(Ctx *, knh_sfp_t * MAPPERARG);
-typedef int  (KNH_CC_FASTCALL *knh_fitrnext)(Ctx *, knh_sfp_t *, int n);
+typedef int  (KNH_CC_FASTCALL *knh_Fitrnext)(Ctx *, knh_sfp_t *, int n);
 #else
 #define METHOD  void  KNH_CC_FASTCALL
 #define MAPPER             METHOD
 #define ITRNEXT int   KNH_CC_FASTCALL
 typedef METHOD (*knh_Fmethod)(Ctx*, knh_sfp_t* METHODARG);
 typedef MAPPER (*knh_Fmapper)(Ctx *, knh_sfp_t * MAPPERARG);
-typedef ITRNEXT (*knh_fitrnext)(Ctx *, knh_sfp_t *, int n);
+typedef ITRNEXT (*knh_Fitrnext)(Ctx *, knh_sfp_t *, int n);
 #endif
 
 /* ======================================================================== */
 /* driver */
 /* ======================================================================== */
 
-//#define KNHINIT
-
 typedef struct {
 	int   type;
 	char *name;
 } knh_DriverSPI_t ;
 
-//#define KNH_DRVAPI_TYPE__UNKNOWN          0
 #define KNH_BCONV_DSPI            1
 #define KNH_SCONV_DSPI            2
 #define KNH_PARSER_DSPI           3
@@ -894,14 +888,14 @@ typedef struct {
 /* KNH_DRVAPI_TYPE__BYTECONV */
 
 struct knh_BytesConv_t;
-typedef size_t (*knh_fbyteconv)(Ctx *ctx, struct knh_BytesConv_t *o, knh_bytes_t t, struct knh_Bytes_t *ba);
-typedef void   (*knh_fbyteconvfree)(Ctx *ctx, struct knh_BytesConv_t *);
+typedef size_t (*knh_Fbyteconv)(Ctx *ctx, struct knh_BytesConv_t *o, knh_bytes_t t, struct knh_Bytes_t *ba);
+typedef void   (*knh_Fbyteconvfree)(Ctx *ctx, struct knh_BytesConv_t *);
 
 typedef struct {
 	int  type;
 	char *name;
-	knh_fbyteconv  fbconv;
-	knh_fbyteconv  fbconv_inverse;
+	knh_Fbyteconv  fbconv;
+	knh_Fbyteconv  fbconv_inverse;
 } knh_BytesConvDSPI_t;
 
 /* ------------------------------------------------------------------------ */
@@ -970,12 +964,12 @@ typedef struct {
 /* ------------------------------------------------------------------------ */
 /* KNH_SQL_DSPI */
 
-typedef void   knh_db_t;
+typedef void   knh_dbconn_t;
 typedef void   knh_dbcur_t;
 struct knh_ResultSet_t;
-typedef knh_db_t* (*knh_Fdbopen)(Ctx *ctx, knh_bytes_t url);
-typedef knh_dbcur_t* (*knh_Fdbquery)(Ctx *ctx, knh_db_t *, knh_bytes_t query, struct knh_ResultSet_t*);
-typedef void   (*knh_Fdbclose)(Ctx *ctx, knh_db_t *);
+typedef knh_dbconn_t* (*knh_Fdbopen)(Ctx *ctx, knh_bytes_t url);
+typedef knh_dbcur_t* (*knh_Fdbquery)(Ctx *ctx, knh_dbconn_t *, knh_bytes_t query, struct knh_ResultSet_t*);
+typedef void   (*knh_Fdbclose)(Ctx *ctx, knh_dbconn_t *);
 
 typedef int    (*knh_Fcurnext)(Ctx *, knh_dbcur_t *, struct knh_ResultSet_t*);
 typedef void   (*knh_Fcurfree)(knh_dbcur_t *);

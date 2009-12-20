@@ -44,7 +44,7 @@ typedef struct {
 	size_t capacity;
 	size_t sorted;
 	void (*fdict_init)(Ctx *ctx, knh_dict_t *);
-	void (*fdict_traverse)(Ctx *ctx, knh_dict_t *, knh_ftraverse ftr);
+	void (*fdict_traverse)(Ctx *ctx, knh_dict_t *, knh_Ftraverse ftr);
 	int  (*fdict_compar)(const void *, const void *);
 	void *dummy;
 } knh_hdict_t ;
@@ -91,7 +91,7 @@ void knh_dict_setsorted(knh_dict_t *a, size_t size)
 
 static
 knh_dict_t *knh_dict_malloc(Ctx *ctx, size_t capacity,
-		void (*fdict_init)(Ctx *, knh_dict_t*), void (*fdict_traverse)(Ctx*, knh_dict_t*, knh_ftraverse),
+		void (*fdict_init)(Ctx *, knh_dict_t*), void (*fdict_traverse)(Ctx*, knh_dict_t*, knh_Ftraverse),
 		int (*fdict_compar)(const void*, const void*))
 {
 	knh_hdict_t *h;
@@ -167,7 +167,7 @@ knh_dict_t* knh_dict_resize(Ctx *ctx, knh_dict_t *a, size_t newsize)
 
 /* ------------------------------------------------------------------------ */
 
-void knh_dict_traverse(Ctx *ctx, knh_dict_t *a, knh_ftraverse ftr)
+void knh_dict_traverse(Ctx *ctx, knh_dict_t *a, knh_Ftraverse ftr)
 {
 	if(a != NULL) {
 		knh_hdict_t *h = ((knh_hdict_t*)a) - 1;
@@ -205,7 +205,7 @@ void knh_dict_sort(knh_dict_t *a, size_t size)
 #define UNSORTED_MAXSIZ 8
 
 static
-knh_index_t knh_dict_findb_between(knh_dict_t *a, knh_fbytescmp fcmp, knh_bytes_t key, size_t sp, size_t ep)
+knh_index_t knh_dict_findb_between(knh_dict_t *a, knh_Fbytescmp fcmp, knh_bytes_t key, size_t sp, size_t ep)
 {
 	L_TAIL:;
 	if(ep - sp < UNSORTED_MAXSIZ) {
@@ -233,7 +233,7 @@ knh_index_t knh_dict_findb_between(knh_dict_t *a, knh_fbytescmp fcmp, knh_bytes_
 /* ------------------------------------------------------------------------ */
 
 static
-knh_index_t knh_dict_index_b(knh_dict_t *a, size_t size, knh_fbytescmp fcmp, knh_bytes_t key)
+knh_index_t knh_dict_index_b(knh_dict_t *a, size_t size, knh_Fbytescmp fcmp, knh_bytes_t key)
 {
 	if(a == NULL) {
 		return -1;
@@ -282,7 +282,7 @@ void knh_dictmap_finit(Ctx *ctx, knh_dict_t *p)
 
 /* ------------------------------------------------------------------------ */
 
-static void knh_dictmap_ftraverse(Ctx *ctx, knh_dict_t *p, knh_ftraverse ftr)
+static void knh_dictmap_ftraverse(Ctx *ctx, knh_dict_t *p, knh_Ftraverse ftr)
 {
 	knh_dictmape_t *e = (knh_dictmape_t*)p;
 	ftr(ctx, UP(e->key));
@@ -301,7 +301,7 @@ void knh_dictset_finit(Ctx *ctx, knh_dict_t *p)
 
 /* ------------------------------------------------------------------------ */
 
-static void knh_dictset_ftraverse(Ctx *ctx, knh_dict_t *p, knh_ftraverse ftr)
+static void knh_dictset_ftraverse(Ctx *ctx, knh_dict_t *p, knh_Ftraverse ftr)
 {
 	knh_dictsete_t *e = (knh_dictsete_t*)p;
 	ftr(ctx, UP(e->key));
@@ -433,7 +433,7 @@ knh_index_t knh_DictMap_index(knh_DictMap_t *o, knh_bytes_t key)
 /* ------------------------------------------------------------------------ */
 
 static
-knh_index_t knh_dict_first(knh_dict_t *a, knh_fbytescmp fcmp, knh_bytes_t key, size_t sp, size_t ep)
+knh_index_t knh_dict_first(knh_dict_t *a, knh_Fbytescmp fcmp, knh_bytes_t key, size_t sp, size_t ep)
 {
 	L_TAIL:;
 	if(ep - sp < UNSORTED_MAXSIZ) {

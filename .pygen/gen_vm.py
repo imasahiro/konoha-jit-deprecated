@@ -371,7 +371,7 @@ static void knh_write__mn(Ctx *ctx, knh_OutputStream_t* w, knh_methodn_t a)
 //{
 //	knh_putc(ctx, w, ' '); knh_write_type(ctx, w, (knh_type_t)a);
 //}
-static void HALT_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
+static void HALT_traverse(Ctx *ctx, knh_inst_t *c, knh_Ftraverse ftr)
 {
 }
 static void HALT_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
@@ -382,7 +382,7 @@ static void HALT_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
 def write_data_c(f):
 	write_chapter(f, '[data]')
 	f.write('''
-typedef void (*codeftr)(Ctx *, knh_inst_t*, knh_ftraverse);
+typedef void (*codeftr)(Ctx *, knh_inst_t*, knh_Ftraverse);
 typedef void (*codedump)(Ctx *, knh_inst_t*, knh_OutputStream_t*);
 typedef void (*codeshift)(Ctx *, knh_inst_t*, int, int);
 
@@ -425,7 +425,7 @@ knh_bool_t knh_opcode_hasjump(int opcode)
 
 /* ------------------------------------------------------------------------ */
 
-void knh_opcode_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
+void knh_opcode_traverse(Ctx *ctx, knh_inst_t *c, knh_Ftraverse ftr)
 {
 	int opcode = KNH_OPCODE(c);
 	OPDATA[opcode].cftr(ctx, c, ftr);
@@ -451,7 +451,7 @@ void knh_opcode_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
 
 def write_kcftr(f, kc):
 	f.write('''
-static void %s_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
+static void %s_traverse(Ctx *ctx, knh_inst_t *c, knh_Ftraverse ftr)
 {
 	%s *op = (%s*)c; 
 	DBG2_ASSERT(op->opcode == %s);''' % (kc.name, kc.ctype, kc.ctype, kc.opcode))

@@ -252,7 +252,7 @@ static void knh_ObjectPageTable_free(Ctx *ctx, char *thead)
 	KNH_FREE(ctx, thead, SIZEOF_OBJECTPAGE);
 }
 
-static void knh_traverseSharedData(Ctx *ctx, knh_share_t *share, knh_ftraverse ftr)
+static void knh_traverseSharedData(Ctx *ctx, knh_share_t *share, knh_Ftraverse ftr)
 {
 	int i;
 	ftr(ctx, share->constNull);
@@ -431,7 +431,7 @@ void knh_Context_initCommon(Ctx *ctx, knh_Context_t *o, size_t stacksize)
 /* ------------------------------------------------------------------------ */
 
 static
-void knh_Context_traverseCommon(Ctx *ctx, knh_Context_t *o, knh_ftraverse ftr)
+void knh_Context_traverseCommon(Ctx *ctx, knh_Context_t *o, knh_Ftraverse ftr)
 {
 	size_t i;
 	for(i = 0; i < o->stacksize; i++) {
@@ -502,7 +502,7 @@ void knh_unlockID(Ctx *ctx, knh_lock_t lockid, char *filename, int lineno)
 /* ------------------------------------------------------------------------ */
 
 static
-void knh_traverseUnusedContext(Ctx *ctx, knh_ftraverse ftr)
+void knh_traverseUnusedContext(Ctx *ctx, knh_Ftraverse ftr)
 {
 	if(ctx->unusedContext != NULL) {
 		knh_traverseUnusedContext(ctx->unusedContext, ftr);
@@ -516,7 +516,7 @@ void knh_traverseUnusedContext(Ctx *ctx, knh_ftraverse ftr)
 
 /* ------------------------------------------------------------------------ */
 
-void knh_Context_traverse(Ctx *ctx, knh_Context_t *o, knh_ftraverse ftr)
+void knh_Context_traverse(Ctx *ctx, knh_Context_t *o, knh_Ftraverse ftr)
 {
 	knh_Context_traverseCommon(ctx, (knh_Context_t*)o, ftr);
 	if(o->parent == (knh_Context_t*)o) {
@@ -626,7 +626,7 @@ KNHAPI(konoha_t) konoha_open(size_t stacksize)
 
 /* ------------------------------------------------------------------------ */
 
-void knh_traverseAll(Ctx* ctx, knh_ftraverse ftr)
+void knh_traverseAll(Ctx* ctx, knh_Ftraverse ftr)
 {
 	knh_Context_traverse(ctx, (knh_Context_t*)ctx, ftr);
 }

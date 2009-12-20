@@ -164,7 +164,7 @@ knh_Object_t *knh_fdefault__NEWVALUE(Ctx *ctx, knh_class_t cid)
 
 /* ------------------------------------------------------------------------ */
 
-void knh_setClassDefaultValue(Ctx *ctx, knh_class_t cid, Object *value, knh_fdefault fdefault)
+void knh_setClassDefaultValue(Ctx *ctx, knh_class_t cid, Object *value, knh_Fdefault fdefault)
 {
 	DBG2_ASSERT_cid(cid);
 	knh_ClassTable_t *t = pClassTable(ctx, cid);

@@ -108,12 +108,12 @@ void knh_Semantics_initIntRange(Ctx *ctx, knh_Semantics_t *u, knh_int_t min, knh
 	DP(u)->fstep = 1;
 #endif
 	if(min >= 0) {
-		DP(u)->ficmp = (knh_ficmp)knh_ficmp__unsigned;
+		DP(u)->ficmp = (knh_Ficmp)knh_ficmp__unsigned;
 		if(min == 0) {
-			DP(u)->fichk = (knh_fichk)knh_fichk__umax;
+			DP(u)->fichk = (knh_Fichk)knh_fichk__umax;
 		}
 		else {
-			DP(u)->fichk = (knh_fichk)knh_fichk__urange;
+			DP(u)->fichk = (knh_Fichk)knh_fichk__urange;
 		}
 		DP(u)->ffchk = knh_ffchk__range;
 	}
@@ -161,12 +161,12 @@ void knh_Semantics_initFloatRange(Ctx *ctx, knh_Semantics_t *u, knh_float_t min,
 #else
 	if(min >= 0) {
 #endif
-		DP(u)->ficmp = (knh_ficmp)knh_ficmp__unsigned;
+		DP(u)->ficmp = (knh_Ficmp)knh_ficmp__unsigned;
 		if(min == 0) {
-			DP(u)->fichk = (knh_fichk)knh_fichk__umax;
+			DP(u)->fichk = (knh_Fichk)knh_fichk__umax;
 		}
 		else {
-			DP(u)->fichk = (knh_fichk)knh_fichk__urange;
+			DP(u)->fichk = (knh_Fichk)knh_fichk__urange;
 		}
 		DP(u)->ffchk = knh_ffchk__range;
 	}

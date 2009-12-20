@@ -938,7 +938,7 @@ int knh_NameSpace_compile(Ctx *ctx, knh_NameSpace_t *ns, knh_Stmt_t *stmt, int i
 			}
 		}
 		else {
-			knh_finit finit = (knh_finit)knh_dlsym(ctx, DP(kc)->dlhdr, "init");
+			knh_Fscriptinit finit = (knh_Finit)knh_dlsym(ctx, DP(kc)->dlhdr, "init");
 			if(finit != NULL) {
 				finit(ctx);
 			}

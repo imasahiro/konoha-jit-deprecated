@@ -47,7 +47,7 @@ void knh_fgfree__default(Ctx *ctx, knh_Glue_t *g)
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(void) knh_Glue_init(Ctx *ctx, knh_Glue_t *g, void *ptr, knh_fgfree gfree)
+KNHAPI(void) knh_Glue_init(Ctx *ctx, knh_Glue_t *g, void *ptr, knh_Fgluefree gfree)
 {
 	KNH_ASSERT(IS_bAny(g));
 	g->ptr = ptr;
@@ -57,7 +57,7 @@ KNHAPI(void) knh_Glue_init(Ctx *ctx, knh_Glue_t *g, void *ptr, knh_fgfree gfree)
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(Object*) new_Glue(Ctx *ctx, char *lname, void *ptr, knh_fgfree gfree)
+KNHAPI(Object*) new_Glue(Ctx *ctx, char *lname, void *ptr, knh_Fgluefree gfree)
 {
 	knh_class_t cid = knh_getcid(ctx, B(lname));
 	if(cid == CLASS_unknown) {

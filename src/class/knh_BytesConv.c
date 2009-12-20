@@ -229,7 +229,7 @@ knh_String_t *new_String__cwbconv(Ctx *ctx, knh_cwb_t *cwb, knh_BytesConv_t *bc)
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(knh_String_t*) new_String__fbcnv(Ctx *ctx, knh_String_t *s, knh_fbyteconv fbcnv, knh_BytesConv_t *bc)
+KNHAPI(knh_String_t*) new_String__fbcnv(Ctx *ctx, knh_String_t *s, knh_Fbyteconv fbcnv, knh_BytesConv_t *bc)
 {
 	knh_bytes_t base = __tobytes(s);
 	knh_Bytes_t *ba = knh_Context_openBConvBuf(ctx);

@@ -48,7 +48,7 @@ extern "C" {
 /* [NOP] */
 
 static
-knh_db_t *knh_dbopen__NOP(Ctx *ctx, knh_bytes_t url)
+knh_dbconn_t *knh_dbopen__NOP(Ctx *ctx, knh_bytes_t url)
 {
 	return NULL;
 }
@@ -56,7 +56,7 @@ knh_db_t *knh_dbopen__NOP(Ctx *ctx, knh_bytes_t url)
 /* ------------------------------------------------------------------------ */
 
 static
-knh_dbcur_t *knh_dbquery__NOP(Ctx *ctx, knh_db_t *hdr, knh_bytes_t sql, knh_ResultSet_t *b)
+knh_dbcur_t *knh_dbquery__NOP(Ctx *ctx, knh_dbconn_t *hdr, knh_bytes_t sql, knh_ResultSet_t *b)
 {
 	return NULL;
 }
@@ -64,7 +64,7 @@ knh_dbcur_t *knh_dbquery__NOP(Ctx *ctx, knh_db_t *hdr, knh_bytes_t sql, knh_Resu
 /* ------------------------------------------------------------------------ */
 
 static
-void knh_dbclose__NOP(Ctx *ctx, knh_db_t *hdr)
+void knh_dbclose__NOP(Ctx *ctx, knh_dbconn_t *hdr)
 {
 	//
 }
@@ -122,7 +122,7 @@ void knh_sqlite3_perror(Ctx *ctx, sqlite3 *db, int r)
 /* ------------------------------------------------------------------------ */
 
 static
-knh_db_t *knh_dbopen__sqlite3(Ctx *ctx, knh_bytes_t url)
+knh_dbconn_t *knh_dbopen__sqlite3(Ctx *ctx, knh_bytes_t url)
 {
 	sqlite3 *db = NULL;
 	url = knh_bytes_skipscheme(url);
@@ -130,7 +130,7 @@ knh_db_t *knh_dbopen__sqlite3(Ctx *ctx, knh_bytes_t url)
 	if (r != SQLITE_OK) {
 		return NULL;
 	}
-	return (knh_db_t*)db;
+	return (knh_dbconn_t*)db;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -182,7 +182,7 @@ int knh_dbcurnext__sqlite3(Ctx *ctx, knh_dbcur_t *dbcur, struct knh_ResultSet_t 
 /* ------------------------------------------------------------------------ */
 
 static
-knh_dbcur_t *knh_dbquery__sqlite3(Ctx *ctx, knh_db_t *hdr, knh_bytes_t sql, knh_ResultSet_t *rs)
+knh_dbcur_t *knh_dbquery__sqlite3(Ctx *ctx, knh_dbconn_t *hdr, knh_bytes_t sql, knh_ResultSet_t *rs)
 {
 	if(rs == NULL) {
 		int r = sqlite3_exec((sqlite3*)hdr, (const char*)sql.buf, NULL, NULL, NULL);
@@ -224,7 +224,7 @@ knh_dbcur_t *knh_dbquery__sqlite3(Ctx *ctx, knh_db_t *hdr, knh_bytes_t sql, knh_
 /* ------------------------------------------------------------------------ */
 
 static
-void knh_dbclose__sqlite3(Ctx *ctx, knh_db_t *hdr)
+void knh_dbclose__sqlite3(Ctx *ctx, knh_dbconn_t *hdr)
 {
 	sqlite3_close((sqlite3*)hdr);
 }
@@ -279,7 +279,7 @@ void knh_mysql_perror(Ctx *ctx, MYSQL *db, int r)
 /* ------------------------------------------------------------------------ */
 
 static
-knh_db_t *knh_dbopen__mysql(Ctx *ctx, knh_bytes_t url)
+knh_dbconn_t *knh_dbopen__mysql(Ctx *ctx, knh_bytes_t url)
 {
     MYSQL *db = NULL;
     char* server = "localhost";
@@ -293,7 +293,7 @@ knh_db_t *knh_dbopen__mysql(Ctx *ctx, knh_bytes_t url)
     if(mysql_real_connect(db,  server, user, passwd, dbname, port, NULL, 0)==NULL) {
         KNH_THROW__T(ctx, "SQL!!: connection error");
     }
-    return (knh_db_t*)db;
+    return (knh_dbconn_t*)db;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -340,7 +340,7 @@ int knh_dbcurnext__mysql(Ctx *ctx, knh_dbcur_t *dbcur, struct knh_ResultSet_t *r
 /* ------------------------------------------------------------------------ */
 
 static
-knh_dbcur_t *knh_dbquery__mysql(Ctx *ctx, knh_db_t *hdr, knh_bytes_t sql, knh_ResultSet_t *rs)
+knh_dbcur_t *knh_dbquery__mysql(Ctx *ctx, knh_dbconn_t *hdr, knh_bytes_t sql, knh_ResultSet_t *rs)
 {
     if(rs == NULL) {
         // rs is NULL
@@ -374,7 +374,7 @@ knh_dbcur_t *knh_dbquery__mysql(Ctx *ctx, knh_db_t *hdr, knh_bytes_t sql, knh_Re
 /* ------------------------------------------------------------------------ */
 
 static
-void knh_dbclose__mysql(Ctx *ctx, knh_db_t *hdr)
+void knh_dbclose__mysql(Ctx *ctx, knh_dbconn_t *hdr)
 {
     mysql_close((MYSQL*)hdr);
 }

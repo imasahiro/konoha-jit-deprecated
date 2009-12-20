@@ -128,7 +128,7 @@ static knh_Iterator_t *new_RangeIterator(Ctx *ctx, knh_Range_t *rng)
 	knh_class_t p1 = knh_Object_p1(rng);
 	if(ClassTable(p1).bcid == CLASS_Int) {
 		knh_Iterator_t *itr;
-		knh_fitrnext f = knh_Range_inext;
+		knh_Fitrnext f = knh_Range_inext;
 		if(knh_Range_isInclusive(rng)) {
 			f = knh_Range_inextInclusive;
 		}
@@ -138,7 +138,7 @@ static knh_Iterator_t *new_RangeIterator(Ctx *ctx, knh_Range_t *rng)
 	}
 	else if(ClassTable(p1).bcid == CLASS_Float) {
 		knh_Iterator_t *itr;
-		knh_fitrnext f = knh_Range_fnext;
+		knh_Fitrnext f = knh_Range_fnext;
 		knh_float_t s = tofloat((rng)->start);
 		if(knh_Range_isInclusive(rng)) {
 			f = knh_Range_fnextInclusive;

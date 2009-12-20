@@ -165,12 +165,12 @@ typedef struct knh_Bytes_t {
 //## @Cyclic @TypeVariable class Tvar  Any Any;
 
 struct knh_Glue_t;
-typedef void (*knh_fgfree)(Ctx *, struct knh_Glue_t *o);
+typedef void (*knh_Fgluefree)(Ctx *, struct knh_Glue_t *o);
 
 typedef struct knh_Glue_t {
 	knh_hObject_t h;
 	void *ptr;
-	knh_fgfree gfree;
+	knh_Fgluefree gfree;
 } knh_Glue_t ;
 
 #define CLASS_Glue    CLASS_Any
@@ -189,23 +189,23 @@ typedef knh_Glue_t knh_T3_t;
 //## @Immutable @Struct @Param1(Any) class Iterator Object;
 
 
-typedef void (*knh_ffree)(void *ptr);
+typedef void (*knh_Ffree)(void *ptr);
 
 typedef struct knh_Iterator {
-	knh_fitrnext fnext;
+	knh_Fitrnext fnext;
 	Object* source;
 	knh_int_t  pos;
 	union {
 		void*   ref;
 		knh_code_t *pc; /* @see(Generator) */
 	};
-	knh_ffree freffree;
+	knh_Ffree freffree;
 } knh_Iterator_struct;
 
 typedef struct knh_Iterator_t {
 	knh_hObject_t h;
 	knh_Iterator_struct *b;
-	knh_fitrnext fnext_1;
+	knh_Fitrnext fnext_1;
 } knh_Iterator_t;
 
 /* ------------------------------------------------------------------------ */
@@ -300,7 +300,7 @@ typedef struct knh_FArray_t {
 
 #define KNH_DICT_INITSIZE (KNH_FASTMALLOC_SIZE/(sizeof(void*)*2))
 
-typedef int (*knh_fbytescmp)(knh_bytes_t, knh_bytes_t);
+typedef int (*knh_Fbytescmp)(knh_bytes_t, knh_bytes_t);
 
 typedef struct knh_dict_t {
 	struct knh_String_t *key;
@@ -322,7 +322,7 @@ typedef struct knh_DictMap_t {
 		knh_dict_t *_list;  // To avoid stupid casting
 	};
 	size_t size;
-	knh_fbytescmp fcmp;
+	knh_Fbytescmp fcmp;
 } knh_DictMap_t;
 
 /* ------------------------------------------------------------------------ */
@@ -339,7 +339,7 @@ typedef struct knh_DictSet_t {
 		knh_dict_t *_list;  // To avoid stupid casting
 	};
 	size_t size;
-	knh_fbytescmp fcmp;
+	knh_Fbytescmp fcmp;
 } knh_DictSet_t;
 
 /* ------------------------------------------------------------------------ */
@@ -356,13 +356,13 @@ typedef struct knh_hashentry_t {
 	};
 } knh_hashentry_t;
 
-typedef knh_hashentry_t* (*knh_fhashentry_init)(Ctx *);
-typedef FASTAPI(void) (*knh_fhashentry_traverse)(Ctx *, knh_hashentry_t*, knh_ftraverse);
+typedef knh_hashentry_t* (*knh_Fhashentry_init)(Ctx *);
+typedef FASTAPI(void) (*knh_Fhashentry_traverse)(Ctx *, knh_hashentry_t*, knh_Ftraverse);
 
 typedef struct {
 	size_t size;
-	knh_fhashentry_init finit;
-	knh_fhashentry_traverse ftraverse;
+	knh_Fhashentry_init finit;
+	knh_Fhashentry_traverse ftraverse;
 } knh_hash_op ;
 
 /* ------------------------------------------------------------------------ */
@@ -646,8 +646,8 @@ typedef knh_intptr_t iconv_t;
 
 typedef struct knh_BytesConv_t {
 	knh_hObject_t h;
-	knh_fbyteconv      fbconv;
-	knh_fbyteconvfree  fbconvfree;
+	knh_Fbyteconv      fbconv;
+	knh_Fbyteconvfree  fbconvfree;
 	union {
 		iconv_t iconv_d;
 		void *convp;
@@ -660,14 +660,14 @@ typedef struct knh_BytesConv_t {
 #define KNH_SEMANTICS_FMT    "%s{%s}"
 struct  knh_Semantics_t;
 
-typedef int (*knh_fichk)(struct knh_Semantics_t *, knh_int_t v);
-typedef int (*knh_ficmp)(struct knh_Semantics_t *, knh_int_t v1, knh_int_t v2);
+typedef int (*knh_Fichk)(struct knh_Semantics_t *, knh_int_t v);
+typedef int (*knh_Ficmp)(struct knh_Semantics_t *, knh_int_t v1, knh_int_t v2);
 
-typedef int (*knh_ffchk)(struct knh_Semantics_t *, knh_float_t v);
-typedef int (*knh_ffcmp)(struct knh_Semantics_t *, knh_float_t v1, knh_float_t v2);
+typedef int (*knh_Ffchk)(struct knh_Semantics_t *, knh_float_t v);
+typedef int (*knh_Ffcmp)(struct knh_Semantics_t *, knh_float_t v1, knh_float_t v2);
 
-typedef knh_String_t *(*knh_fsnew)(Ctx *, knh_class_t cid, knh_bytes_t, struct knh_String_t *, int *);
-typedef int (*knh_fscmp)(struct knh_Semantics_t *, knh_bytes_t, knh_bytes_t);
+typedef knh_String_t *(*knh_Fsnew)(Ctx *, knh_class_t cid, knh_bytes_t, struct knh_String_t *, int *);
+typedef int (*knh_Fscmp)(struct knh_Semantics_t *, knh_bytes_t, knh_bytes_t);
 
 typedef struct {
 	knh_flag_t  flag;
@@ -688,15 +688,15 @@ typedef struct {
 		knh_int_t imax;
 		knh_uint_t umax;
 	};
-	knh_fichk fichk;
-	knh_ficmp ficmp;
+	knh_Fichk fichk;
+	knh_Ficmp ficmp;
 
 	// float
 	knh_float_t fmin;
 	knh_float_t fmax;
 	knh_float_t fstep;
-	knh_ffchk   ffchk;
-	knh_ffcmp   ffcmp;
+	knh_Ffchk   ffchk;
+	knh_Ffcmp   ffcmp;
 
 	// String
 	size_t bytelen;
@@ -704,8 +704,8 @@ typedef struct {
 	Object* pattern;
 	struct knh_DictIdx_t* vocabDictIdx;
 	struct knh_BytesConv_t *bconv;
-	knh_fsnew    fsnew;
-	knh_fscmp    fscmp;
+	knh_Fsnew    fsnew;
+	knh_Fscmp    fscmp;
 } knh_Semantics_struct;
 
 typedef struct knh_Semantics_t* (*knh_fspec)(Ctx *ctx, knh_bytes_t urn);
@@ -813,7 +813,7 @@ typedef struct knh_Socket_t {
 
 typedef struct knh_Connection_t {
 	knh_hObject_t h;
-	knh_db_t           *conn;
+	knh_dbconn_t       *conn;
 	knh_QueryDSPI_t    *df;
 	knh_String_t       *urn;
 } knh_Connection_t;
@@ -839,7 +839,7 @@ typedef struct {
 typedef struct knh_ResultSet_struct {
 	struct knh_Connection_t *conn;
 	knh_dbcur_t             *dbcur;
-	knh_Fcurfree           dbcur_free;  /* necessary if conn is closed before */
+	knh_Fcurfree             dbcur_free;  /* necessary if conn is closed before */
 	knh_String_t            *tableName;
 	knh_class_t              tcid;
 	knh_ushort_t             column_size;

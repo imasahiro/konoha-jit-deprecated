@@ -1258,8 +1258,8 @@ knh_DictMap_t *knh_DictMap_subset(Ctx *ctx, knh_DictMap_t *d, knh_String_t* ss, 
 	size_t i, dsize = d->size;
 	knh_DictMap_t *newd = new_DictMap(ctx, knh_Object_p1(d), 0);
 	int zero = (isInclusive) ?  0 : 1;
-	knh_fbytescmp f1 = (s.len > 0) ? d->fcmp : knh_fbytescmp_1;
-	knh_fbytescmp f2 = (e.len > 0) ? d->fcmp : knh_fbytescmp_1;
+	knh_Fbytescmp f1 = (s.len > 0) ? d->fcmp : knh_fbytescmp_1;
+	knh_Fbytescmp f2 = (e.len > 0) ? d->fcmp : knh_fbytescmp_1;
 	for(i = 0; i < dsize; i++) {
 		knh_bytes_t key = __tobytes(knh_DictMap_keyAt(d, i));
 		if(f1(key, s) <= 0 && f2(e, key) >= zero) {

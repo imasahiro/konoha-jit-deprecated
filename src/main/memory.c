@@ -397,7 +397,7 @@ FASTAPI(void) knh_Object_free(Ctx *ctx, knh_Object_t *o)
 
 /* ------------------------------------------------------------------------ */
 
-void knh_Object_traverse(Ctx *ctx, knh_Object_t *o, knh_ftraverse ftr)
+void knh_Object_traverse(Ctx *ctx, knh_Object_t *o, knh_Ftraverse ftr)
 {
 	if(IS_SWEEP(ftr)) {
 		knh_Object_free(ctx, o);
@@ -477,7 +477,7 @@ void knh_System_gc(Ctx *ctx)
 	DBG_P("** GC - Marked %d/%d object(s)", (int)markedObjectSize, (int)ctx->stat->usedObjectSize);
 
 	size_t cnt = 0;
-	knh_ftraverse fsweep = ctx->fsweep;
+	knh_Ftraverse fsweep = ctx->fsweep;
 	((knh_Context_t*)ctx)->fsweep = knh_Object_finalSweep;
 	for(tindex = 0; tindex < size; tindex++) {
 		char *t = ctx->share->ObjectPageTable[tindex].thead;
@@ -522,7 +522,7 @@ void knh_Object_RCsweep(Ctx *ctx, Object *o)
 
 /* ------------------------------------------------------------------------ */
 
-knh_ftraverse knh_getDefaultSweepFunc(void)
+knh_Ftraverse knh_getDefaultSweepFunc(void)
 {
 	return knh_Object_RCsweep;
 }
