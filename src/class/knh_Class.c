@@ -205,7 +205,7 @@ void knh_setClassParam(Ctx *ctx, knh_class_t cid, knh_class_t p1, knh_class_t p2
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(void) knh_loadClass(Ctx *ctx0, knh_ClassData_t *data)
+KNHAPI(void) knh_loadClassData(Ctx *ctx0, knh_ClassData_t *data)
 {
 	KNH_ASSERT_CTX0(ctx0);
 	while(data->cspi != NULL) {

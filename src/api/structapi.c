@@ -2644,9 +2644,9 @@ void knh_loadSystemString(Ctx *ctx)
 void knh_loadSystemData(Ctx *ctx)
 {
 	knh_loadClassData0(ctx, ClassData0);
-	knh_loadIntConst(ctx, IntConstData0);
-	knh_loadFloatConst(ctx, FloatConstData0);
-	knh_loadStringConst(ctx, StringConstData0);
+	knh_loadIntConstData(ctx, IntConstData0);
+	knh_loadFloatConstData(ctx, FloatConstData0);
+	knh_loadStringConstData(ctx, StringConstData0);
 	knh_loadStringPropertyData0(ctx, StringPropertyData0);
 	knh_getResourceId(ctx, STEXT("(eval)"));  // URI_EVAL
 	knh_loadExptData0(ctx, ExptData0);

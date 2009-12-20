@@ -2,7 +2,7 @@
 
 /* ======================================================================== */
 /* MACROS */
-#define KONOHA_REVISION                 1055
+#define KONOHA_REVISION                 1057
 #define KONOHA_BUILDID                  774
 
 /* ======================================================================== */
@@ -914,42 +914,42 @@
 #define knh_DictSet_setIgnoreCase(o,b) if(b) (o)->h.flag |= FLAG_DictSet_IgnoreCase; else (o)->h.flag &= ~(FLAG_DictSet_IgnoreCase);
 #define FLAG_Class_Release              (knh_flag_t)(1<<0)
 
-#define knh_class_isRelease(o)  (((pClassTable(ctx, o))->cflag & FLAG_Class_Release) == FLAG_Class_Release)
+#define knh_class_isRelease(o)  (((pClassTable(ctx,o))->cflag & FLAG_Class_Release) == FLAG_Class_Release)
 
-#define knh_class_isDebug(o)  (((pClassTable(ctx, o))->cflag & FLAG_Class_Release) != FLAG_Class_Release)
+#define knh_class_isDebug(o)  (((pClassTable(ctx,o))->cflag & FLAG_Class_Release) != FLAG_Class_Release)
 #define FLAG_Class_Immutable            (knh_flag_t)(1<<1)
 
-#define knh_class_isImmutable(o)  (((pClassTable(ctx, o))->cflag & FLAG_Class_Immutable) == FLAG_Class_Immutable)
+#define knh_class_isImmutable(o)  (((pClassTable(ctx,o))->cflag & FLAG_Class_Immutable) == FLAG_Class_Immutable)
 #define FLAG_Class_Cyclic               (knh_flag_t)(1<<2)
 
-#define knh_class_isCyclic(o)  (((pClassTable(ctx, o))->cflag & FLAG_Class_Cyclic) == FLAG_Class_Cyclic)
+#define knh_class_isCyclic(o)  (((pClassTable(ctx,o))->cflag & FLAG_Class_Cyclic) == FLAG_Class_Cyclic)
 
-#define knh_class_setCyclic(o,b) if(b) (pClassTable(ctx, o))->cflag |= FLAG_Class_Cyclic; else (pClassTable(ctx, o))->cflag &= ~(FLAG_Class_Cyclic);
+#define knh_class_setCyclic(o,b) if(b) (pClassTable(ctx,o))->cflag |= FLAG_Class_Cyclic; else (pClassTable(ctx,o))->cflag &= ~(FLAG_Class_Cyclic);
 #define FLAG_Class_MetaClass            (knh_flag_t)(1<<3)
 
-#define knh_class_isMetaClass(o)  (((pClassTable(ctx, o))->cflag & FLAG_Class_MetaClass) == FLAG_Class_MetaClass)
+#define knh_class_isMetaClass(o)  (((pClassTable(ctx,o))->cflag & FLAG_Class_MetaClass) == FLAG_Class_MetaClass)
 #define FLAG_Class_Private              (knh_flag_t)(1<<4)
 
-#define knh_class_isPrivate(o)  (((pClassTable(ctx, o))->cflag & FLAG_Class_Private) == FLAG_Class_Private)
+#define knh_class_isPrivate(o)  (((pClassTable(ctx,o))->cflag & FLAG_Class_Private) == FLAG_Class_Private)
 
-#define knh_class_isPublic(o)  (((pClassTable(ctx, o))->cflag & FLAG_Class_Private) != FLAG_Class_Private)
+#define knh_class_isPublic(o)  (((pClassTable(ctx,o))->cflag & FLAG_Class_Private) != FLAG_Class_Private)
 #define FLAG_Class_Final                (knh_flag_t)(1<<5)
 
-#define knh_class_isFinal(o)  (((pClassTable(ctx, o))->cflag & FLAG_Class_Final) == FLAG_Class_Final)
+#define knh_class_isFinal(o)  (((pClassTable(ctx,o))->cflag & FLAG_Class_Final) == FLAG_Class_Final)
 #define FLAG_Class_Singleton            (knh_flag_t)(1<<6)
 
-#define knh_class_isSingleton(o)  (((pClassTable(ctx, o))->cflag & FLAG_Class_Singleton) == FLAG_Class_Singleton)
+#define knh_class_isSingleton(o)  (((pClassTable(ctx,o))->cflag & FLAG_Class_Singleton) == FLAG_Class_Singleton)
 #define FLAG_Class_Unique               (knh_flag_t)(1<<7)
 
-#define knh_class_isUnique(o)  (((pClassTable(ctx, o))->cflag & FLAG_Class_Unique) == FLAG_Class_Unique)
+#define knh_class_isUnique(o)  (((pClassTable(ctx,o))->cflag & FLAG_Class_Unique) == FLAG_Class_Unique)
 #define FLAG_Class_Interface            (knh_flag_t)(1<<8)
 
-#define knh_class_isInterface(o)  (((pClassTable(ctx, o))->cflag & FLAG_Class_Interface) == FLAG_Class_Interface)
+#define knh_class_isInterface(o)  (((pClassTable(ctx,o))->cflag & FLAG_Class_Interface) == FLAG_Class_Interface)
 #define FLAG_Class_TypeVariable         (knh_flag_t)(1<<9)
 
-#define knh_class_isTypeVariable(o)  (((pClassTable(ctx, o))->cflag & FLAG_Class_TypeVariable) == FLAG_Class_TypeVariable)
+#define knh_class_isTypeVariable(o)  (((pClassTable(ctx,o))->cflag & FLAG_Class_TypeVariable) == FLAG_Class_TypeVariable)
 
-#define knh_class_setTypeVariable(o,b) if(b) (pClassTable(ctx, o))->cflag |= FLAG_Class_TypeVariable; else (pClassTable(ctx, o))->cflag &= ~(FLAG_Class_TypeVariable);
+#define knh_class_setTypeVariable(o,b) if(b) (pClassTable(ctx,o))->cflag |= FLAG_Class_TypeVariable; else (pClassTable(ctx,o))->cflag &= ~(FLAG_Class_TypeVariable);
 #define FLAG_Method_Private             (knh_flag_t)(1<<0)
 
 #define knh_Method_isPrivate(o)  ((DP(o)->flag & FLAG_Method_Private) == FLAG_Method_Private)

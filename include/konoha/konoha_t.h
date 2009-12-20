@@ -214,6 +214,7 @@ typedef double                    knh_float_t;
 /* ------------------------------------------------------------------------ */
 
 typedef unsigned char           knh_uchar_t;    /* byte */
+typedef const char              knh_text_t;
 
 typedef struct {
 	knh_uchar_t *buf;
@@ -1025,6 +1026,7 @@ typedef struct {
 	knh_Fmethod func;
 	char *cname;
 	char *mname;
+	char *rname;
 	char *params;
 	knh_flag_t flag;
 } knh_MethodData_t;

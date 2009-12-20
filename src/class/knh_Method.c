@@ -289,8 +289,6 @@ int knh_methodn_isOp(Ctx *ctx, knh_methodn_t mn)
 /* ======================================================================== */
 /* [methods] */
 
-/* ------------------------------------------------------------------------ */
-
 knh_String_t* knh_Method_getName(Ctx *ctx, knh_Method_t *o)
 {
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
@@ -348,6 +346,81 @@ void knh_addMethodFieldTable(Ctx *ctx, knh_MethodField_t *mf)
 }
 
 /* ------------------------------------------------------------------------ */
+/* [MethodField] */
+
+static
+knh_MethodField_t *new_MethodField__parse(Ctx *ctx, knh_type_t rtype, knh_bytes_t params, knh_NameSpace_t *ns)
+{
+	size_t i, s = 0;
+	int num = 0, psize = 0;
+	knh_MethodField_t *mf;
+	knh_type_t type = TYPE_void;
+	for(i = 0; i < params.len; i++) {
+		int ch = params.buf[i];
+		if(ch == ' ' || ch == '\t') {
+			if(i > s) {
+				num++;
+			}
+			s = i + 1;
+		}
+	}
+	psize = num / 2;
+	mf = new_MethodField(ctx, rtype, psize);
+	s = 0;
+	num = 0;
+	for(i = 0; i < params.len; i++) {
+		int ch = params.buf[i];
+		if(ch == ' ' || ch == '\t') {
+			if(i > s) {
+				knh_bytes_t sub = {params.buf + s, i - s};
+				if(type == TYPE_void) {
+					type = knh_NameSpace_gettype(ctx, ns, sub, 0);
+					if(type == CLASS_unknown) type = TYPE_Any;
+				}
+				else {
+					knh_fieldn_t fn = knh_getfnq(ctx, sub, FIELDN_NEWID);
+					knh_MethodField_set(mf, num, type, fn);
+					num++;
+					type = TYPE_void;
+				}
+				s = i + 1;
+			}
+		}
+	}
+	return mf;
+}
+
+/* ------------------------------------------------------------------------ */
+
+KNHAPI(void) knh_loadMethodData(Ctx *ctx, knh_MethodData_t *data)
+{
+	knh_MethodField_t *mf = NULL;
+	knh_NameSpace_t *ns = DP(ctx->kc)->ns;
+	knh_type_t prev_rtype = CLASS_unknown;
+	knh_bytes_t prev_params = {(knh_uchar_t*)"", 0};
+	KNH_ASSERT_CTX0(ctx);
+	while(data->func != NULL) {
+		knh_class_t cid = knh_NameSpace_getcid(ctx, ns, B(data->cname));
+		knh_methodn_t mn = knh_getmn(ctx, B(data->mname), METHODN_NEWID);
+		if(cid != CLASS_unknown) {
+			knh_Method_t *mtd = new_Method(ctx, data->flag, cid, mn, data->func);
+			knh_bytes_t params = B(data->params);
+			knh_type_t rtype = knh_NameSpace_gettype(ctx, ns, B(data->rname), 0);
+			if(rtype == CLASS_unknown) rtype = TYPE_Any;
+			if(rtype != prev_rtype || knh_bytes_strcmp(prev_params, params) != 0) {
+				mf = new_MethodField__parse(ctx, rtype, params, ns);
+			}
+			KNH_SETv(ctx, DP(mtd)->mf, mf);
+			knh_Class_addMethod(ctx, cid, mtd);
+			prev_params = params;
+			prev_rtype = rtype;
+		}
+		data++;
+	}
+}
+
+/* ------------------------------------------------------------------------ */
+/* [VirtualField] */
 
 knh_MethodField_t *knh_findMethodField0(Ctx *ctx, knh_type_t rtype)
 {
