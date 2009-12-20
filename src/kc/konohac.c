@@ -493,7 +493,7 @@ int knh_StmtCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt)
 		DBG2_ASSERT(t->sname == NULL);
 		knh_setClassName(ctx, cid, new_String(ctx, B(bufn), NULL));
 		DBG2_ASSERT(t->fields == NULL);
-		DBG2_ASSERT(t->fsize  == NULL);
+		DBG2_ASSERT(t->fsize  == 0);
 		KNH_INITv(t->methods, new_Array0(ctx, 0));
 		KNH_INITv(t->cmap, ctx->share->ClassTable[CLASS_Any].cmap);
 		knh_setClassDefaultValue(ctx, cid, new_hObject(ctx, t->oflag | FLAG_Object_Undefined, t->bcid, cid), NULL);

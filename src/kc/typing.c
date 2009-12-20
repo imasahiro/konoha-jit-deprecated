@@ -3983,7 +3983,7 @@ static
 knh_Stmt_t *knh_Gamma_register(Ctx *ctx, knh_Stmt_t *stmt)
 {
 	knh_type_t type = DP(stmt)->type;
-	knh_fields_t decl = {FLAG_GAMMA_Register, type, FIELDN_/*register*/, UP(stmt)};
+	knh_fields_t decl = {FLAG_GAMMA_Register, type, FIELDN_/*register*/, 0, UP(stmt)};
 	knh_index_t idx = knh_Gamma_declareLocalVariable(ctx, &decl);
 	knh_Stmt_t *stmtLET = new_Stmt(ctx, 0, STT_LET);
 	knh_Token_t *tkN = new_TokenLOCAL(ctx, FL(stmt), type, idx);
@@ -4542,7 +4542,7 @@ Term * knh_StmtFUNCTION_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
 	KNH_LPUSH(ctx, ctx->kc);
 	KNH_SETv(ctx, ((knh_Context_t*)ctx)->kc, new_Gamma(ctx));
 	{
-		knh_Gamma_t *kc = ctx->kc;
+//		knh_Gamma_t *kc = ctx->kc;
 //		knh_class_t reqc = CLASS_type(reqt);
 //		int hasUntyped = 0;
 
