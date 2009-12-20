@@ -174,10 +174,10 @@ def write_class_h(f, c, cid):
     write_section(f, c.cname)
     if c.struct != None:
         write_define(f, CLASS_(c.cname), '((knh_class_t)%d)' % cid, 32)
-        write_define(f, STRUCT_(c.cname), '((knh_struct_t)%d)' % cid, 32)
+        #write_define(f, STRUCT_(c.cname), '((knh_struct_t)%d)' % cid, 32)
     else :
         write_define(f, CLASS_(c.cname), '((knh_class_t)%d)' % cid, 32)
-        write_define(f, STRUCT_(c.cname), STRUCT_(c.base), 32)
+        #write_define(f, STRUCT_(c.cname), STRUCT_(c.base), 32)
     write_define(f, 'IS_%s(o)' % c.cname,  '((o)->h.cid == %s)' % CLASS_(c.cname), 32)
     if(c.cname == c.base) :
         write_define(f, 'IS_b%s(o)' % c.cname,  '((o)->h.bcid == %s)' % CLASS_(c.cname), 32)

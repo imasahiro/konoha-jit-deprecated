@@ -39,6 +39,7 @@ extern "C" {
 /* ======================================================================== */
 
 int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
+
 #define _HERE_    knh_Method_file(ctx, sfp[-1].mtd), knh_Method_pcline(sfp[-1].mtd, pc)
 
 #define KNH_SETESP(ctx, newesp)  \

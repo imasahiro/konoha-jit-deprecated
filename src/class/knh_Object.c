@@ -178,8 +178,8 @@ knh_bool_t knh_Object_equals(Ctx *ctx, Object *o1, Object *o2)
 knh_bytes_t knh_Object_tobytes(Ctx *ctx, Object *o)
 {
 	switch(o->h.bcid) {
-		case STRUCT_String : return __tobytes((knh_String_t*)o);
-		case STRUCT_Bytes : return knh_Bytes_tobytes((knh_Bytes_t*)o);
+		case CLASS_String : return __tobytes((knh_String_t*)o);
+		case CLASS_Bytes : return knh_Bytes_tobytes((knh_Bytes_t*)o);
 	}
 	return STEXT("");
 }

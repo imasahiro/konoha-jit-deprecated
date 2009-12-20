@@ -67,9 +67,9 @@ typedef uint32_t          knh_uint32_t;
 typedef int64_t           knh_int64_t;
 typedef uint64_t          knh_uint64_t;
 
-typedef intptr_t                  knh_intptr_t;
-typedef uintptr_t                 knh_uintptr_t;
-typedef knh_intptr_t              knh_index_t;
+typedef intptr_t          knh_intptr_t;
+typedef uintptr_t         knh_uintptr_t;
+typedef knh_intptr_t      knh_index_t;
 
 #if defined(__LP64__)
 typedef int32_t           knh_short_t;
@@ -261,7 +261,6 @@ typedef knh_ushort_t              knh_flag_t;    /* flag field */
 
 typedef const struct knh_Context_t    Ctx;
 
-typedef knh_uint16_t       knh_struct_t ; /* struct id*/
 typedef knh_uint16_t       knh_class_t;   /* class id */
 typedef knh_uint16_t       knh_type_t;    /* extended knh_type_t */
 typedef knh_uint16_t       knh_expt_t;    /* knh_expt_t */

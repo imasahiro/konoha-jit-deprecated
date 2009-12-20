@@ -57,6 +57,8 @@ typedef struct {
 	int           revision;
 } knh_PackageData_t;
 
+typedef knh_PackageData_t* (*knh_Fpkginit)(void);
+
 #define KONOHA_PACKAGE(V, LV, LL, S, C) \
 	static int S (Ctx *ctx); \
 	static int C (Ctx *ctx); \

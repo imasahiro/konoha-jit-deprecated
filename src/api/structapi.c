@@ -2274,7 +2274,7 @@ typedef struct {
 	char *name;
 	knh_class_t cid;
 	knh_flag_t flag;
-	knh_struct_t bcid;
+	knh_class_t bcid;
 	knh_class_t supcid;
 	int method_size;
 	int formatter_size;

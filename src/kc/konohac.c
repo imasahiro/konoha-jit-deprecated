@@ -929,11 +929,21 @@ int knh_NameSpace_compile(Ctx *ctx, knh_NameSpace_t *ns, knh_Stmt_t *stmt, int i
 		cur = DP(cur)->next;
 	}
 	if(DP(kc)->dlhdr != NULL) {
-		knh_finit finit = (knh_finit)knh_dlsym(ctx, DP(kc)->dlhdr, "init");
-		if(finit != NULL) {
-			finit(ctx);
+		knh_Fpkginit fpkginit = (knh_Fpkginit)knh_dlsym(ctx, DP(kc)->dlhdr, "pkginit");
+		if(fpkginit != NULL) {
+			knh_PackageData_t *pkgdata = fpkginit();
+			if(pkgdata->setup != NULL) {
+				DBG_P("loading %s-%s", __tochar(DP(DP(kc)->ns)->nsname), pkgdata->version);
+				pkgdata->setup(ctx);
+			}
 		}
-		DP(kc)->dlhdr = NULL;
+		else {
+			knh_finit finit = (knh_finit)knh_dlsym(ctx, DP(kc)->dlhdr, "init");
+			if(finit != NULL) {
+				finit(ctx);
+			}
+		}
+		//DP(kc)->dlhdr = NULL;
 	}
 	cur = stmt;
 	while(IS_Stmt(cur)) {
