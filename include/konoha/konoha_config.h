@@ -123,7 +123,7 @@
 #endif
 
 #ifdef KONOHA_ON_FREEBSD
-#define KONOHA_OS  "freebsd"
+#define KONOHA_OS  "FreeBSD"
 #endif
 
 /* ======================================================================== */
@@ -163,12 +163,29 @@
 			#define KONOHA_OS  "teaboard"
 			#define KONOHA_ON_TB       1
 		#endif
-		#ifdef __FreeBSD__
-			#define KONOHA_OS  "freebsd"
-			#define KONOHA_ON_FREEBSD 1
-		#endif
 	#endif/*KONOHA_OS*/
 #endif/*__GNUC__*/
+
+#if defined(HAVE_SYS_PARAM_H)
+	#include <sys/param.h>
+	#ifdef BSD
+		#if defined(__NetBSD__) 
+			#define KONOHA_OS  "NetBSD"
+		#elif defined(__FreeBSD__) 
+			#define KONOHA_OS  "FreeBSD"
+		#elif defined(__DragonFly__)
+			#define KONOHA_OS  "DragonFly"
+		#elif defined(__APPLE__)
+			#ifndef KONOHA_OS
+				#warning "KONOHA_ON_MACOSX must be defined"
+				#define KONOHA_OS  "macosx"
+			#endif
+		#else
+			#define KONOHA_OS  "BSD"
+		#endif
+		#define KONOHA_ON_BSD 1
+	#endif /* BSD */
+#endif /* HAVE_SYS_PARAM_H */
 
 #ifdef _MSC_VER
 //#define KNH_DBGMODE2

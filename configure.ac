@@ -46,7 +46,7 @@ esac
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([float.h langinfo.h localcharset.h limits.h locale.h stdlib.h string.h sys/time.h unistd.h iconv.h readline/readline.h])
+AC_CHECK_HEADERS([float.h langinfo.h localcharset.h limits.h locale.h stdlib.h string.h sys/time.h unistd.h iconv.h readline/readline.h sys/param.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST

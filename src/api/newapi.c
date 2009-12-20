@@ -532,11 +532,27 @@ static METHOD Thread_new(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 	DBG2_ASSERT(IS_bThread(t));
 	DBG2_ASSERT(IS_bClosure(sfp[1].cc));
 	DBG2_ASSERT(IS_Array(sfp[2].a));
+	fprintf(stderr, "%s,%d\n",__func__,__LINE__);
 	//KNH_INITv((sfp[0].cc)->base, sfp[1].o);
 	//KNH_INITv((sfp[0].cc)->mtd, sfp[2].mtd);
 	//(sfp[0].cc)->envsfp = NULL;
 	KNH_RETURN(ctx, sfp, sfp[0].o);
 }
+
+//## method Thread! Thread.start();
+
+static METHOD Thread_start(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+{
+	knh_Thread_t *t = (knh_Thread_t*)sfp[0].o;
+	DBG2_ASSERT(IS_bThread(t));
+	fprintf(stderr, "%s,%d\n",__func__,__LINE__);
+	knh_stack_threadRun(ctx, sfp + 1);
+	//KNH_INITv((sfp[0].cc)->base, sfp[1].o);
+	//KNH_INITv((sfp[0].cc)->mtd, sfp[2].mtd);
+	//(sfp[0].cc)->envsfp = NULL;
+	KNH_RETURN(ctx, sfp, sfp[0].o);
+}
+
 
 
 /* ------------------------------------------------------------------------ */

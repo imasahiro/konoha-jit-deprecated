@@ -117,7 +117,7 @@ static METHOD Method_getName(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 }
 
 /* ------------------------------------------------------------------------ */
-//## @Const method void Method.setTrace(int trace);
+//## @Const method void Method.setTrace(Int trace);
 
 static METHOD Method_setTrace(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {

@@ -152,7 +152,7 @@ static METHOD System_setMethodCompilationListener(Ctx *ctx, knh_sfp_t *sfp METHO
 	KNH_RETURN_void(ctx, sfp);
 }
 /* ------------------------------------------------------------------------ */
-//## method int Method.getProfTime();
+//## method Int Method.getProfTime();
 
 static METHOD Method_getProfTime(Ctx *ctx, knh_sfp_t *sfp)
 {
@@ -161,7 +161,7 @@ static METHOD Method_getProfTime(Ctx *ctx, knh_sfp_t *sfp)
 }
 
 /* ------------------------------------------------------------------------ */
-//## method int Method.getProfCount();
+//## method Int Method.getProfCount();
 
 static METHOD Method_getProfCount(Ctx *ctx, knh_sfp_t *sfp)
 {
@@ -170,7 +170,7 @@ static METHOD Method_getProfCount(Ctx *ctx, knh_sfp_t *sfp)
 }
 
 /* ------------------------------------------------------------------------ */
-//## method int System.getTickCount();
+//## method Int System.getTickCount();
 
 static METHOD System_getTimeMilliSecond(Ctx *ctx, knh_sfp_t *sfp)
 {

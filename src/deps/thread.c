@@ -195,13 +195,15 @@ L_FINALLY:
 }
 
 /* ------------------------------------------------------------------------ */
+// sfp |   0   |   1   |   2   |   3  |
+//     |  self |  mtd  | arg1  | ...  |
 
 void knh_stack_threadRun(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_thread_t th;
-	knh_threadcc_t ta = {ctx, sfp};
+	knh_threadcc_t ta = {ctx, sfp + 1};
 	knh_thread_create(ctx, &th, NULL, threading, (void*)&ta);
-	knh_thread_detach(ctx, th);
+	//knh_thread_detach(ctx, th);
 }
 
 /* ======================================================================== */

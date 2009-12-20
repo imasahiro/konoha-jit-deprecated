@@ -2,7 +2,7 @@
 
 /* ======================================================================== */
 /* MACROS */
-#define KONOHA_REVISION                 1054
+#define KONOHA_REVISION                 1055
 #define KONOHA_BUILDID                  774
 
 /* ======================================================================== */
@@ -1698,7 +1698,7 @@
 #define METHODN_getSize METHODN_TO_GETTER(FIELDN_size)
 #define METHODN_putc    FIELDN_putc
 #define METHODN_gc      FIELDN_gc
-#define METHODN_startsWith FIELDN_startswith
+#define METHODN_start   FIELDN_start
 #define METHODN_super   FIELDN_super
 #define METHODN_query   FIELDN_query
 #define METHODN_likely  FIELDN_likely
@@ -1825,6 +1825,7 @@
 #define METHODN_rename  FIELDN_rename
 #define METHODN_setTrace METHODN_TO_SETTER(FIELDN_trace)
 #define METHODN_close   FIELDN_close
+#define METHODN_startsWith FIELDN_startswith
 #define METHODN_isNull  METHODN_TO_GETTER(FIELDN_null)
 #define METHODN_isSingleton METHODN_TO_GETTER(FIELDN_singleton)
 #define METHODN_startsWith__IgnoreCase FIELDN_startswith__ignorecase
