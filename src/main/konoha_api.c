@@ -32,6 +32,9 @@
 #ifdef KNH_USING_READLINE
 	#include<readline/readline.h>  /* @using readline -lreadline */
 	#include<readline/history.h>
+	#ifdef RL_VERSION_MAJOR  /* 5, or later */
+	char **completion_matches(char *, rl_compentry_func_t *);
+	#endif
 #endif
 
 /* ************************************************************************ */
@@ -867,10 +870,6 @@ static void knh_Context_initSymbolTable(Ctx *ctx)
 
 /* ------------------------------------------------------------------------ */
 
-#ifdef RL_VERSION_MAJOR  /* 5, or later */
-char **completion_matches(const char *, rl_compentry_func_t *);
-#endif
-
 static
 char **knh_completion(const char* text, int start, int end)
 {
@@ -944,7 +943,7 @@ static
 void knh_clearScriptLine(Ctx *ctx)
 {
 	if(ctx->lines != NULL) {
-#if KONOHA_BUILDID > KONOHA_BUILDID_LATEST
+//#if KONOHA_BUILDID > KONOHA_BUILDID_LATEST
 //		if(knh_getenv("I_LOVE_KONOHA") == NULL) {
 //			char buff[FILEPATH_BUFSIZ];
 //			int i, pid = knh_getpid();
@@ -972,7 +971,7 @@ void knh_clearScriptLine(Ctx *ctx)
 //				fprintf(stdout, "Thank you, again.\n");
 //			}
 //		}
-#endif
+//#endif
 		KNH_FINALv(ctx, ((knh_Context_t*)ctx)->lines);
 		((knh_Context_t*)ctx)->lines = NULL;
 	}

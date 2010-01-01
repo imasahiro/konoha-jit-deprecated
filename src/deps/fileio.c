@@ -55,7 +55,10 @@ KNHAPI(FILE*) knh_fopen(Ctx *ctx, char *filename, char *mode, int isThrowable)
 #elif defined(KNH_USING_STDC) || defined(KNH_USING_POSIX)
 	FILE *fp = fopen(filename, mode);
 	if(fp == NULL) {
-		KNH_PERRNO(ctx, NULL, "IO!!", "fopen", isThrowable);
+		// TODO
+		// Does KNH_PERRNO throw IO Exception?
+		//KNH_PERRNO(ctx, NULL, "IO!!", "fopen", isThrowable);
+		KNH_THROW__T(ctx, "IO!!");
 	}
 	return fp;
 #else

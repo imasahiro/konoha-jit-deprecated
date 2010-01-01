@@ -37,13 +37,13 @@ int main(String[] args)
 		if(line.indexOf(".svn") >= 0) continue;
 		if(line.indexOf("/.") >= 0) continue;
 		if(line.indexOf("src/ext/mt") >= 0) continue;
-		if(line.indexOf(".c") < 0) continue;
+		if(line.indexOf(".c") < 0 && line.indexOf(".S") < 0) continue;
 		if(line == "./src/konoha.c") continue;
 		if(line.indexOf("api/") >= 0) {
 			if(line.endsWith("structapi.c") == false) continue;
 		}
 
-
+		line = line.replace(".S",".o");
 		o.println(%("%s{0} \\",line.replace(".c",".o")));
 	}
 	o.println("");
@@ -78,14 +78,7 @@ clean:
 	rm -f ./modules.order ./Module.* ./.konohadev.* 
 	rm -rf .tmp_versions
 	rm -f ./src/.*.o.cmd  ./src/*.o
-	rm -f ./src/main/.*.o.cmd  ./src/main/*.o
-	rm -f ./src/api/.*.o.cmd  ./src/api/*.o
-	rm -f ./src/class/.*.o.cmd ./src/class/*.o
-	rm -f ./src/ext/.*.o.cmd ./src/ext/*.o
-	rm -f ./src/labs/.*.o.cmd ./src/labs/*.o
-	rm -f ./src/gen/.*.o.cmd ./src/gen/*.o
-	rm -f ./src/deps/.*.o.cmd ./src/deps/*.o
-	rm -f ./src/compiler/.*.o.cmd ./src/compiler/*.o
+	rm -f ./src/*/.*.o.cmd ./src/*/*.o
 
 """;
 	o.close();

@@ -46,7 +46,11 @@ void knh_syslog(int p, const char *fmt, ...)
 //	Ctx *ctx = knh_getCurrentContext();
 	va_list ap;
 	va_start(ap , fmt);
+#ifdef KONOHA_ON_LKM
+	vprintk(fmt, ap);
+#else
 	vfprintf(stderr, fmt, ap);
+#endif
 	va_end(ap);
 }
 

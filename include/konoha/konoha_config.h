@@ -169,23 +169,40 @@
 #if defined(HAVE_SYS_PARAM_H)
 	#include <sys/param.h>
 	#ifdef BSD
-		#if defined(__NetBSD__) 
-			#define KONOHA_OS  "NetBSD"
-		#elif defined(__FreeBSD__) 
-			#define KONOHA_OS  "FreeBSD"
-		#elif defined(__DragonFly__)
-			#define KONOHA_OS  "DragonFly"
+		#if defined(__FreeBSD__)
+			#define KONOHA_OS  "freebsd"
+			#define KONOHA_ON_BSD 1
 		#elif defined(__APPLE__)
 			#ifndef KONOHA_OS
-				#warning "KONOHA_ON_MACOSX must be defined"
-				#define KONOHA_OS  "macosx"
+				#error "This must not be happen"
 			#endif
 		#else
-			#define KONOHA_OS  "BSD"
+			#warn "This OS is not surpported."
+			#define KONOHA_OS  "unknown-bsd"
+			#define KONOHA_ON_BSD 1
 		#endif
-		#define KONOHA_ON_BSD 1
 	#endif /* BSD */
 #endif /* HAVE_SYS_PARAM_H */
+
+#if !defined(KONOHA_OS)
+	/* Other POSIX system check must done before this */
+	#if defined(HAVE_UNISTD_H)
+		#include <unistd.h>
+		#if defined(_POSIX_VERSION)
+			#define KONOHA_OS  "unknown-posix"
+			#define KONOHA_ON_UNKNOWN_POSIX 1
+		#endif /* _POSIX_VERSION */
+	#endif /* HAVE_UNISTD_H */
+#endif /* KONOHA_OS */
+
+#if !defined(KONOHA_OS)
+	/* Other Unix-like system check must done before this */
+	#if defined(__unix__) || defined(__unix) || defined(unix)
+		#define KONOHA_OS  "unknown-unix"
+		#define KONOHA_ON_UNKNOWN_UNIX 1
+	#endif /* unix */
+#endif /* KONOHA_OS */
+
 
 #ifdef _MSC_VER
 //#define KNH_DBGMODE2
