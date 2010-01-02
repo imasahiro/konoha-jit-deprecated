@@ -8,6 +8,7 @@ void main (String[] args)
 		foreach(String file in files) {
 			if (file.endsWith(".k") && file.split("/",0).pop() != args[0].split("/",0).pop()) {
 				file = dir + "/" + file;
+				OUT << "file=" + file << EOL;
 				int ret = system(args[1] + " " + file);
 				if(ret != 0) {
 					ERR << "test fail" << EOL;

@@ -97,18 +97,21 @@ void *knh_cwb_dlopen(Ctx *ctx, knh_cwb_t *cwb)
 void *knh_dlsym(Ctx *ctx, void* hdr, const char* symbol)
 {
 #if defined(KNH_USING_WINDOWS)
-    return GetProcAddress((HMODULE)hdr, (LPCSTR)symbol);
+	return GetProcAddress((HMODULE)hdr, (LPCSTR)symbol);
 #elif defined(KNH_USING_POSIX)
-    return dlsym(hdr, symbol);
+	return dlsym(hdr, symbol);
 #elif defined(KNH_USING_BTRON)
-    UW val = NULL;
-    W err = b_dlsym((W)hdr, symbol, &val);
-    if (err < 0) {
-        return NULL;
-    }
-    return (void*)val;
+	UW val = NULL;
+	// FIXME
+	// If you call b_dlsym, it makes bad.
+	//W err = b_dlsym((W)hdr, symbol, &val);
+	W err = -1;
+	if (err < 0) {
+		return NULL;
+	}
+	return (void*)val;
 #else
-    return NULL;
+	return NULL;
 #endif
 }
 
