@@ -409,12 +409,8 @@ static int knh_String_compareTo(Ctx *ctx, knh_Object_t *o, knh_Object_t *o2)
 	knh_String_t *s = (knh_String_t*)o;
 	knh_String_t *s2 = (knh_String_t*)o2;
 	if(s->h.cid == CLASS_String || s2->h.cid == CLASS_String) {
-		size_t i, max = (s->size< s2->size) ? s->size : s2->size;
-		for(i = 0; i < max; i++) {
-			int res = s->str[i] - s2->str[i];
-			if(res != 0) return res;
-		}
-		return s->size - s2->size;
+		size_t max = (s->size< s2->size) ? s->size : s2->size;
+		return knh_strncmp((char*)s->str ,(char*)s2->str, max);
 	}
 	else {
 		if(s->h.cid == s2->h.cid) {
@@ -433,11 +429,7 @@ static FASTAPI(void*) knh_String_hashkey(Ctx *ctx, knh_sfp_t *sfp, int opt)
 	else {
 		knh_String_t *s = (sfp[0].s);
 		knh_hashcode_t h = s->size;
-		size_t i;
-		for(i = 0; i < s->size; i++) {
-			h = s->str[i] + 31 * h;
-		}
-		return (void*)h;
+		return (void*) knh_uchar_hcode(h, s->str, s->size);
 	}
 }
 

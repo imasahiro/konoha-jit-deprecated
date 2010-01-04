@@ -38,10 +38,10 @@
 #include <signal.h>
 #include <dirent.h>
 #include <sys/stat.h>
-#include<dlfcn.h>
-#include<time.h>
-#include<sys/time.h>
-#include<sys/param.h>
+#include <dlfcn.h>
+#include <time.h>
+#include <sys/time.h>
+#include <sys/param.h>
 #ifdef KONOHA_ON_MACOSX
 #include <mach-o/dyld.h>
 #endif
