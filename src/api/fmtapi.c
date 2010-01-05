@@ -972,6 +972,25 @@ static METHOD Exception__data(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 	knh_write_quote(ctx, sfp[1].w, __tobytes(DP(sfp[0].e)->msg), '\'');
 }
 
+/* ------------------------------------------------------------------------ */
+//## method void Closure.%data(OutputStream w, String? fmt);
+
+static METHOD Closure__data(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+{
+	// TODO
+	// We have to implement Method__data, Script__data
+	// to implement Closure__data.
+	knh_Closure_t *o = sfp[0].cc;
+	knh_OutputStream_t *w = sfp[1].w;
+	if(IS_NOTNULL(o->base)) {
+		knh_write_BOL(ctx, w);
+		knh_format(ctx, w, METHODN__data, o->base, KNH_NULL);
+		knh_putc(ctx, w, ':');
+		knh_format(ctx, w, METHODN__data, UP(o->mtd), KNH_NULL);
+		knh_putc(ctx, w, ';');
+	}
+}
+
 /* ======================================================================== */
 /* [man] */
 

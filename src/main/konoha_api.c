@@ -30,6 +30,7 @@
 #include"commons.h"
 
 #ifdef KNH_USING_READLINE
+	#define RL_NO_COMPAT
 	#include<readline/readline.h>  /* @using readline -lreadline */
 	#include<readline/history.h>
 	#ifdef RL_VERSION_MAJOR  /* 5, or later */
