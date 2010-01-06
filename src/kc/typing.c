@@ -4710,22 +4710,25 @@ void knh_Gamma_declareClassField(Ctx *ctx, knh_NameSpace_t* ns, knh_class_t cid)
 {
 	knh_Gamma_t *kc = ctx->kc;
 	knh_ClassTable_t *t = pClassTable(ctx, cid);
-		DBG2_ASSERT(t->fields == NULL);
-		DBG2_ASSERT(t->fsize == 0);
+	DBG2_ASSERT(t->fields == NULL);
+	DBG2_ASSERT(t->fsize == 0);
 	int i, fsize = knh_Gamma_top(ctx);
-	knh_fields_t *cf = (knh_fields_t*)KNH_MALLOC(ctx, sizeof(knh_fields_t) * fsize);
-	for(i = 0; i < fsize; i++) {
-		cf[i] = DP(kc)->gamma[i];
-		if(cf[i].value != NULL) {
-			DP(kc)->gamma[i].value = NULL; /* COPY TO GC */
+
+	if(fsize > 0) {
+		knh_fields_t *cf = (knh_fields_t*)KNH_MALLOC(ctx, sizeof(knh_fields_t) * fsize);
+		for(i = 0; i < fsize; i++) {
+			cf[i] = DP(kc)->gamma[i];
+			if(cf[i].value != NULL) {
+				DP(kc)->gamma[i].value = NULL; /* COPY TO GC */
+			}
+			if(KNH_FLAG_IS(cf[i].flag, FLAG_Field_Key)) {
+				DBG2_P("@Key keyidx=%d, %d", t->keyidx, i);
+				if(t->keyidx == -1) t->keyidx = i;
+			}
 		}
-		if(KNH_FLAG_IS(cf[i].flag, FLAG_Field_Key)) {
-			DBG2_P("@Key keyidx=%d, %d", t->keyidx, i);
-			if(t->keyidx == -1) t->keyidx = i;
-		}
+		t->fields = cf;
+		t->fsize = fsize;
 	}
-	t->fields = cf;
-	t->fsize = fsize;
 	t->cspi = ClassTable(CLASS_Object).cspi;
 	if(t->supcid != CLASS_Object) {
 		t->offset = ClassTable(t->supcid).bsize;
@@ -4736,7 +4739,7 @@ void knh_Gamma_declareClassField(Ctx *ctx, knh_NameSpace_t* ns, knh_class_t cid)
 	knh_NameSpace_setcid(ctx, ns, t->sname, cid);
 	DBG2_({
 		DBG2_P("HERE IS DEFINED STRUCT (offset=%d, fsize=%d)", t->offset, fsize);
-		knh_cfield_dump(ctx, cf, t->offset, fsize, KNH_STDOUT);
+		knh_cfield_dump(ctx, t->fields, t->offset, fsize, KNH_STDOUT);
 	});
 	/* update default value */
 	DBG2_ASSERT(knh_Object_cid(t->cspec) == cid);

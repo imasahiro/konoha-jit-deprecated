@@ -47,7 +47,6 @@ extern "C" {
 /* ======================================================================== */
 /* [ctxkey] */
 
-static volatile int isInit = 0;
 
 #ifdef KNH_USING_THREAD
 static volatile knh_thread_key_t ctxkey;
@@ -59,9 +58,9 @@ static volatile Ctx *curctx = NULL;
 
 void konoha_init(void)
 {
+	static int isInit = 0;
 #ifdef KNH_USING_THREAD
 	if(isInit == 0) {
-		isInit = 1;
 		knh_thread_key_create(&ctxkey);
 	}
 #endif

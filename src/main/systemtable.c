@@ -341,6 +341,7 @@ static void knh_traverseSharedData(Ctx *ctx, knh_share_t *share, knh_Ftraverse f
 		for(i = 0; i < share->ClassTableSize; i++) {
 			knh_ClassTable_t *t = pClassTable(ctx, i);
 			if(t->fields != NULL) {
+				KNH_ASSERT(t->fsize > 0);
 				KNH_FREE(ctx, t->fields, sizeof(knh_fields_t) * t->fsize);
 				t->fields = NULL;
 			}
