@@ -688,7 +688,7 @@ int knh_NameSpace_compile(Ctx *ctx, knh_NameSpace_t *ns, knh_Stmt_t *stmt, int i
 					KNH_SETv(ctx, DP(prev)->next, cur);
 				}
 				else {
-					cur = DP(cur)->next;
+					cur = DP(prev)->next;
 				}
 			}
 		}
@@ -743,7 +743,7 @@ int knh_NameSpace_compile(Ctx *ctx, knh_NameSpace_t *ns, knh_Stmt_t *stmt, int i
 		cur = DP(cur)->next;
 	}
 	if(DP(kc)->dlhdr != NULL) {
-		knh_Fpkginit fpkginit = (knh_Fpkginit)knh_dlsym(ctx, DP(kc)->dlhdr, "pkginit");
+		knh_Fpkginit fpkginit = (knh_Fpkginit)knh_dlsym(ctx, DP(kc)->dlhdr, "knh_pkginit");
 		if(fpkginit != NULL) {
 			knh_PackageData_t *pkgdata = fpkginit();
 			if(pkgdata->setup != NULL) {
