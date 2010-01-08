@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -34,220 +34,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/* ======================================================================== */
-/* [main] */
-
-static
-int knh_NameSpace_compile(Ctx *ctx, knh_NameSpace_t *ns, knh_Stmt_t *stmt, int isEval);
-
-/* ------------------------------------------------------------------------ */
-/* [import script] */
-
-static
-knh_bool_t knh_bytes_isSystemScript(knh_bytes_t path)
-{
-	size_t i;
-	for(i = 0; i < path.len; i++) {
-		int ch = path.buf[i];
-		if(ch == '/' || ch == '\\' || ch == '.') return 0;
-	}
-	return 1;
-}
-
-/* ------------------------------------------------------------------------ */
-
-static
-void knh_NameSpace_loaded(Ctx *ctx, knh_NameSpace_t *ns, knh_uri_t uri)
-{
-	KNH_ASSERT(IS_NameSpace(ns));
-	knh_String_t *s = knh_getResourceName(ctx, uri);
-	knh_uintptr_t trust = KNH_PATH_UNTRUSTED;
-	if(URI_ISTRUSTED(uri)) {
-		trust = KNH_PATH_TRUSTED;
-	}
-	if(IS_NULL(DP(ns)->pathTrustDictSet)) {
-		KNH_SETv(ctx, DP(ns)->pathTrustDictSet, new_DictSet0(ctx, 4));
-	}
-	knh_DictSet_set(ctx, DP(ns)->pathTrustDictSet, s, trust);
-}
-
-/* ------------------------------------------------------------------------ */
-
-static
-int knh_NameSpace_isLoaded(Ctx *ctx, knh_NameSpace_t *ns, knh_uri_t uri)
-{
-	if(IS_NOTNULL(DP(ns)->pathTrustDictSet)) {
-		knh_String_t *s = knh_getResourceName(ctx, uri);
-		knh_uintptr_t n = knh_DictSet_get__b(DP(ns)->pathTrustDictSet, __tobytes(s));
-		return (n != 0);
-	}
-	return 0;
-}
-
-/* ------------------------------------------------------------------------ */
-
-knh_InputStream_t* new_ScriptInputStream(Ctx *ctx, knh_bytes_t path, knh_cwb_t *cwb, knh_NameSpace_t *ns, int isThrowable)
-{
-	knh_uri_t uri = 0;
-	knh_StreamDSPI_t *drv = NULL;
-	knh_cwb_t cwbbuf;
-	if(cwb == NULL) {
-		cwb = knh_cwb_openinit(ctx, &cwbbuf, path);
-	}
-	if(knh_bytes_startsWith(path, STEXT("http://"))) {
-		drv = knh_getIODriver(ctx, STEXT("http"));
-	}
-	else {
-		drv = knh_getIODriver(ctx, STEXT("file"));
-		knh_cwb_ospath(ctx, cwb);
-		if(!knh_cwb_isfile(ctx, cwb) && knh_bytes_isSystemScript(path)) {
-			knh_String_t *spath = (knh_String_t*)knh_getProperty(ctx, STEXT("konoha.script.path"));
-			if(IS_bString(spath)) {
-				knh_cwb_subclear(cwb, 0);
-				knh_cwb_write(ctx, cwb, __tobytes(spath));
-				knh_cwb_putc(ctx, cwb, '/');
-				knh_cwb_write(ctx, cwb, path);
-				knh_cwb_ospath(ctx, cwb);
-				if(knh_cwb_isfile(ctx, cwb)) {
-					uri = knh_cwb_getResourceId(ctx, cwb);
-					DBG2_ASSERT(uri != 0);
-					uri = URI_TRUSTED(uri);
-				}
-			}
-			spath = (knh_String_t*)knh_getProperty(ctx, STEXT("user.script.path"));
-			if(IS_bString(spath) && uri == 0) {
-				knh_cwb_subclear(cwb, 0);
-				knh_cwb_write(ctx, cwb, __tobytes(spath));
-				knh_cwb_putc(ctx, cwb, '/');
-				knh_cwb_write(ctx, cwb, path);
-				knh_cwb_ospath(ctx, cwb);
-				if(knh_cwb_isfile(ctx, cwb)) {
-					uri = knh_cwb_getResourceId(ctx, cwb);
-					DBG2_ASSERT(uri != 0);
-					uri = URI_TRUSTED(uri);
-				}
-			}
-			if(uri == 0) {
-				knh_cwb_subclear(cwb, 0);
-				knh_cwb_write(ctx, cwb, path);
-			}
-		}
-	}
-	if(uri == 0) {
-		uri = knh_cwb_getResourceId(ctx, cwb);
-	}
-	if(knh_NameSpace_isLoaded(ctx, ns, uri)) {
-		KNH_WARNING(ctx, "Already imported: %s", (char*)path.buf);
-		if(!knh_ask(ctx, "Do you want to reload it [y/N] ?", 0)) {
-			return (knh_InputStream_t*)KNH_DEF(ctx, CLASS_InputStream);
-		}
-	}
-	{
-		knh_String_t *spath = knh_getResourceName(ctx, uri);
-		path = __tobytes(spath);
-		KNH_NOTICE(ctx, "importing script: %s", path.buf);
-		knh_io_t fd = drv->fopen(ctx, path, "r", isThrowable);
-		knh_InputStream_t *in = new_InputStream__io(ctx, spath, fd, drv);
-		if(!knh_InputStream_isClosed(ctx, in)) {
-			DP(in)->uri = uri;
-			if(!knh_bytes_startsWith(path, STEXT("http://"))) {
-				knh_InputStream_setEncoding(ctx, in, KNH_ENC);
-			}
-		}
-		return in;
-	}
-}
-
-/* ------------------------------------------------------------------------ */
-
-knh_Stmt_t *knh_InputStream_parseStmt(Ctx *ctx, knh_InputStream_t *in, int isData)
-{
-	knh_Token_t *tk = new_Token(ctx, 0, DP(in)->uri, 0, TT_BRACE);
-	KNH_LPUSH(ctx, tk);
-	KNH_LPUSH(ctx, in);
-	knh_InputStream_parseToken(ctx, in, tk);
-	DBG2_DUMP(ctx, tk, KNH_NULL, "tokens");
-	if(TT_(tk) != TT_ERR) {
-		knh_tkc_t tcbuf, *tc = knh_Token_tc(ctx, tk, &tcbuf);
-		return new_StmtSTMTBLOCK(ctx, tc, isData);
-	}
-	else {
-		knh_Stmt_t *stmt = new_Stmt(ctx, 0, STT_DONE);
-		knh_Stmt_toERR(ctx, stmt, TM(tk));
-		return stmt;
-	}
-}
-
-/* ------------------------------------------------------------------------ */
-
-static
-void knh_Gamma_openDynamicLinkLibrary(Ctx *ctx, knh_uri_t uri)
-{
-	knh_bytes_t path = __tobytes(knh_getResourceName(ctx, uri));
-	if(path.buf[0] != '(' && !knh_bytes_startsWith(path, STEXT("http://"))) {  // check "(eval)", "(shell)", or o
-		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-		knh_index_t idx = knh_bytes_rindex(path, '.');
-		if(idx > 0) path = knh_bytes_first(path, idx);
-		knh_cwb_write(ctx, cwb, path);
-		knh_cwb_putc(ctx, cwb, '_');
-		knh_cwb_write(ctx, cwb, STEXT(KONOHA_PLATFORM));
-		knh_cwb_ospath(ctx, cwb);
-		DP(ctx->kc)->dlhdr =knh_cwb_dlopen(ctx, cwb);
-		if(DP(ctx->kc)->dlhdr != NULL) {
-			KNH_NOTICE(ctx, "opened dynamic library: %s", knh_cwb_tochar(ctx, cwb));
-		}
-		else {
-			if(knh_cwb_isfile(ctx, cwb)) {
-				KNH_WARNING(ctx, "cannot open dynamic library: %s", knh_cwb_tochar(ctx, cwb));
-			}
-		}
-		knh_cwb_close(cwb);
-	}
-	else {
-		DP(ctx->kc)->dlhdr = NULL;
-	}
-}
-
-/* ------------------------------------------------------------------------ */
-
-int knh_NameSpace_load(Ctx *ctx, knh_NameSpace_t *ns, knh_InputStream_t *in, int isEval, int isThrowable)
-{
-	int res = 0;
-	knh_sfp_t *lsfp = KNH_LOCAL(ctx);
-	knh_uri_t uri = DP(in)->uri;
-	KNH_LPUSH(ctx, in);
-	KNH_ASSERT(!knh_InputStream_isClosed(ctx, in));
-	KNH_LPUSH(ctx, new_ExceptionHandler(ctx));
-	KNH_TRY(ctx, L_CATCH, lsfp, 1);
-	{
-		knh_Stmt_t *stmt = knh_InputStream_parseStmt(ctx, in, 0/*isData*/);
-		KNH_LPUSH(ctx, stmt);
-		if(URI_UNMASK(uri) != 0) {
-			DBG_DUMP(ctx, stmt, KNH_NULL, "stmt");
-		}
-		if(isEval) {
-			knh_Gamma_openDynamicLinkLibrary(ctx, uri);
-		}
-		res = knh_NameSpace_compile(ctx, ns, stmt, isEval);
-		if(URI_UNMASK(uri) != 0) {
-			knh_NameSpace_loaded(ctx, ns, uri);
-		}
-	}
-	KNH_SETv(ctx, lsfp[1].o, KNH_NULL);
-	KNH_LOCALBACK(ctx, lsfp);
-	return res;
-
-	/* catch */
-	L_CATCH:;
-	if(isThrowable) {
-		KNH_THROW_AGAIN(ctx, lsfp, 1);
-	}
-	else {
-		KNH_PRINT_STACKTRACE(ctx, lsfp, 1);
-	}
-	return 0;
-}
 
 /* ======================================================================== */
 /* [namespace/package] */
@@ -340,12 +126,10 @@ knh_NameSpace_t *knh_NameSpace_newPackageNULL(Ctx *ctx, knh_bytes_t pkgname)
 	return ns;
 }
 
-
 /* ======================================================================== */
 /* [CLASS] */
 
-static
-knh_flag_t knh_StmtCLASS_flag(Ctx *ctx, knh_Stmt_t *o)
+static knh_flag_t knh_StmtCLASS_flag(Ctx *ctx, knh_Stmt_t *o)
 {
 	knh_flag_t flag = 0;
 	if(IS_DictMap(DP(o)->metaDictMap)) {
@@ -479,7 +263,7 @@ int knh_StmtCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt)
 	{
 		knh_ClassTable_t *t = pClassTable(ctx, cid);
 		t->cflag  = knh_StmtCLASS_flag(ctx, stmt);
-		t->oflag  = knh_flag_oflag(t->cflag);
+		t->oflag  = FLAG_oflag(t->cflag);
 		if(SP(StmtCLASS_instmt(stmt))->stt == STT_DONE) {
 			t->bcid   = CLASS_Any;    /* Glue */
 		}
@@ -826,12 +610,23 @@ int knh_NameSpace_compile(Ctx *ctx, knh_NameSpace_t *ns, knh_Stmt_t *stmt, int i
 {
 	knh_Gamma_t *kc = ctx->kc;
 	knh_sfp_t *lsfp = KNH_LOCAL(ctx);
-	knh_Stmt_t *cur = stmt;
+	knh_Stmt_t *cur = NULL;
 	knh_NameSpace_t *oldns = DP(kc)->ns;
+
 	KNH_SETv(ctx, DP(kc)->ns, ns);
 	KNH_LPUSH(ctx, stmt);
 	SP(kc)->uri = SP(stmt)->uri;
 
+	L_IFCHECK: /* conditional compilation */
+	if(STT_(stmt) == STT_IF) {
+		cur = knh_StmtIF_decl(ctx, stmt);
+		if(cur != NULL) {
+			stmt = cur;
+			goto L_IFCHECK;
+		}
+	}
+
+	cur = stmt;
 	while(IS_Stmt(cur)) {
 		knh_stmt_t stt = SP(cur)->stt;
 		int res = 1;
@@ -877,7 +672,19 @@ int knh_NameSpace_compile(Ctx *ctx, knh_NameSpace_t *ns, knh_Stmt_t *stmt, int i
 		if(res == 0) {
 			goto L_FAILED;
 		}
-		cur = DP(cur)->next;
+		{   /* conditional compilation */
+			knh_Stmt_t *prev = cur;
+			cur = DP(cur)->next;
+			if(IS_Stmt(cur) && STT_(cur) == STT_IF) {
+				cur = knh_StmtIF_decl(ctx, cur);
+				if(cur != NULL) {
+					KNH_SETv(ctx, DP(prev)->next, cur);
+				}
+				else {
+					cur = DP(cur)->next;
+				}
+			}
+		}
 	}
 
 	cur = stmt;
@@ -1168,6 +975,214 @@ void knh_invokeMethodTypingListener(Ctx *ctx, knh_DictMap_t *meta, knh_Method_t 
 void knh_invokeMethodCompilationListener(Ctx *ctx, knh_DictMap_t *meta, knh_Method_t *mtd)
 {
 	knh_invokeMethodListener(ctx, meta, mtd, STEXT("MethodC"), STEXT("MethodC@"));
+}
+
+/* ------------------------------------------------------------------------ */
+/* [import script] */
+
+static
+knh_bool_t knh_bytes_isSystemScript(knh_bytes_t path)
+{
+	size_t i;
+	for(i = 0; i < path.len; i++) {
+		int ch = path.buf[i];
+		if(ch == '/' || ch == '\\' || ch == '.') return 0;
+	}
+	return 1;
+}
+
+/* ------------------------------------------------------------------------ */
+
+static
+void knh_NameSpace_loaded(Ctx *ctx, knh_NameSpace_t *ns, knh_uri_t uri)
+{
+	KNH_ASSERT(IS_NameSpace(ns));
+	knh_String_t *s = knh_getResourceName(ctx, uri);
+	knh_uintptr_t trust = KNH_PATH_UNTRUSTED;
+	if(URI_ISTRUSTED(uri)) {
+		trust = KNH_PATH_TRUSTED;
+	}
+	if(IS_NULL(DP(ns)->pathTrustDictSet)) {
+		KNH_SETv(ctx, DP(ns)->pathTrustDictSet, new_DictSet0(ctx, 4));
+	}
+	knh_DictSet_set(ctx, DP(ns)->pathTrustDictSet, s, trust);
+}
+
+/* ------------------------------------------------------------------------ */
+
+static
+int knh_NameSpace_isLoaded(Ctx *ctx, knh_NameSpace_t *ns, knh_uri_t uri)
+{
+	if(IS_NOTNULL(DP(ns)->pathTrustDictSet)) {
+		knh_String_t *s = knh_getResourceName(ctx, uri);
+		knh_uintptr_t n = knh_DictSet_get__b(DP(ns)->pathTrustDictSet, __tobytes(s));
+		return (n != 0);
+	}
+	return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+
+knh_InputStream_t* new_ScriptInputStream(Ctx *ctx, knh_bytes_t path, knh_cwb_t *cwb, knh_NameSpace_t *ns, int isThrowable)
+{
+	knh_uri_t uri = 0;
+	knh_StreamDSPI_t *drv = NULL;
+	knh_cwb_t cwbbuf;
+	if(cwb == NULL) {
+		cwb = knh_cwb_openinit(ctx, &cwbbuf, path);
+	}
+	if(knh_bytes_startsWith(path, STEXT("http://"))) {
+		drv = knh_getIODriver(ctx, STEXT("http"));
+	}
+	else {
+		drv = knh_getIODriver(ctx, STEXT("file"));
+		knh_cwb_ospath(ctx, cwb);
+		if(!knh_cwb_isfile(ctx, cwb) && knh_bytes_isSystemScript(path)) {
+			knh_String_t *spath = (knh_String_t*)knh_getProperty(ctx, STEXT("konoha.script.path"));
+			if(IS_bString(spath)) {
+				knh_cwb_subclear(cwb, 0);
+				knh_cwb_write(ctx, cwb, __tobytes(spath));
+				knh_cwb_putc(ctx, cwb, '/');
+				knh_cwb_write(ctx, cwb, path);
+				knh_cwb_ospath(ctx, cwb);
+				if(knh_cwb_isfile(ctx, cwb)) {
+					uri = knh_cwb_getResourceId(ctx, cwb);
+					DBG2_ASSERT(uri != 0);
+					uri = URI_TRUSTED(uri);
+				}
+			}
+			spath = (knh_String_t*)knh_getProperty(ctx, STEXT("user.script.path"));
+			if(IS_bString(spath) && uri == 0) {
+				knh_cwb_subclear(cwb, 0);
+				knh_cwb_write(ctx, cwb, __tobytes(spath));
+				knh_cwb_putc(ctx, cwb, '/');
+				knh_cwb_write(ctx, cwb, path);
+				knh_cwb_ospath(ctx, cwb);
+				if(knh_cwb_isfile(ctx, cwb)) {
+					uri = knh_cwb_getResourceId(ctx, cwb);
+					DBG2_ASSERT(uri != 0);
+					uri = URI_TRUSTED(uri);
+				}
+			}
+			if(uri == 0) {
+				knh_cwb_subclear(cwb, 0);
+				knh_cwb_write(ctx, cwb, path);
+			}
+		}
+	}
+	if(uri == 0) {
+		uri = knh_cwb_getResourceId(ctx, cwb);
+	}
+	if(knh_NameSpace_isLoaded(ctx, ns, uri)) {
+		KNH_WARNING(ctx, "Already imported: %s", (char*)path.buf);
+		if(!knh_ask(ctx, "Do you want to reload it [y/N] ?", 0)) {
+			return (knh_InputStream_t*)KNH_DEF(ctx, CLASS_InputStream);
+		}
+	}
+	{
+		knh_String_t *spath = knh_getResourceName(ctx, uri);
+		path = __tobytes(spath);
+		KNH_NOTICE(ctx, "importing script: %s", path.buf);
+		knh_io_t fd = drv->fopen(ctx, path, "r", isThrowable);
+		knh_InputStream_t *in = new_InputStream__io(ctx, spath, fd, drv);
+		if(!knh_InputStream_isClosed(ctx, in)) {
+			DP(in)->uri = uri;
+			if(!knh_bytes_startsWith(path, STEXT("http://"))) {
+				knh_InputStream_setEncoding(ctx, in, KNH_ENC);
+			}
+		}
+		return in;
+	}
+}
+
+/* ------------------------------------------------------------------------ */
+
+knh_Stmt_t *knh_InputStream_parseStmt(Ctx *ctx, knh_InputStream_t *in, int isData)
+{
+	knh_Token_t *tk = new_Token(ctx, 0, DP(in)->uri, 0, TT_BRACE);
+	KNH_LPUSH(ctx, tk);
+	KNH_LPUSH(ctx, in);
+	knh_InputStream_parseToken(ctx, in, tk);
+	DBG2_DUMP(ctx, tk, KNH_NULL, "tokens");
+	if(TT_(tk) != TT_ERR) {
+		knh_tkc_t tcbuf, *tc = knh_Token_tc(ctx, tk, &tcbuf);
+		return new_StmtSTMTBLOCK(ctx, tc, isData);
+	}
+	else {
+		knh_Stmt_t *stmt = new_Stmt(ctx, 0, STT_DONE);
+		knh_Stmt_toERR(ctx, stmt, TM(tk));
+		return stmt;
+	}
+}
+
+/* ------------------------------------------------------------------------ */
+
+static
+void knh_Gamma_openDynamicLinkLibrary(Ctx *ctx, knh_uri_t uri)
+{
+	knh_bytes_t path = __tobytes(knh_getResourceName(ctx, uri));
+	if(path.buf[0] != '(' && !knh_bytes_startsWith(path, STEXT("http://"))) {  // check "(eval)", "(shell)", or o
+		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
+		knh_index_t idx = knh_bytes_rindex(path, '.');
+		if(idx > 0) path = knh_bytes_first(path, idx);
+		knh_cwb_write(ctx, cwb, path);
+		knh_cwb_putc(ctx, cwb, '_');
+		knh_cwb_write(ctx, cwb, STEXT(KONOHA_PLATFORM));
+		knh_cwb_ospath(ctx, cwb);
+		DP(ctx->kc)->dlhdr =knh_cwb_dlopen(ctx, cwb);
+		if(DP(ctx->kc)->dlhdr != NULL) {
+			KNH_NOTICE(ctx, "opened dynamic library: %s", knh_cwb_tochar(ctx, cwb));
+		}
+		else {
+			if(knh_cwb_isfile(ctx, cwb)) {
+				KNH_WARNING(ctx, "cannot open dynamic library: %s", knh_cwb_tochar(ctx, cwb));
+			}
+		}
+		knh_cwb_close(cwb);
+	}
+	else {
+		DP(ctx->kc)->dlhdr = NULL;
+	}
+}
+
+/* ------------------------------------------------------------------------ */
+
+int knh_NameSpace_load(Ctx *ctx, knh_NameSpace_t *ns, knh_InputStream_t *in, int isEval, int isThrowable)
+{
+	int res = 0;
+	knh_sfp_t *lsfp = KNH_LOCAL(ctx);
+	knh_uri_t uri = DP(in)->uri;
+	KNH_LPUSH(ctx, in);
+	KNH_LPUSH(ctx, new_ExceptionHandler(ctx));
+	KNH_ASSERT(!knh_InputStream_isClosed(ctx, in));
+	KNH_TRY(ctx, L_CATCH, lsfp, 1);
+	{
+		knh_Stmt_t *stmt = knh_InputStream_parseStmt(ctx, in, 0/*isData*/);
+		KNH_LPUSH(ctx, stmt);
+		if(URI_UNMASK(uri) != 0) {
+			DBG_DUMP(ctx, stmt, KNH_NULL, "stmt");
+		}
+		if(isEval) {
+			knh_Gamma_openDynamicLinkLibrary(ctx, uri);
+		}
+		res = knh_NameSpace_compile(ctx, ns, stmt, isEval);
+		if(URI_UNMASK(uri) != 0) {
+			knh_NameSpace_loaded(ctx, ns, uri);
+		}
+	}
+	KNH_SETv(ctx, lsfp[1].o, KNH_NULL);
+	KNH_LOCALBACK(ctx, lsfp);
+	return res;
+
+	/* catch */
+	L_CATCH:;
+	if(isThrowable) {
+		KNH_THROW_AGAIN(ctx, lsfp, 1);
+	}
+	else {
+		KNH_PRINT_STACKTRACE(ctx, lsfp, 1);
+	}
+	return 0;
 }
 
 /* ------------------------------------------------------------------------ */
