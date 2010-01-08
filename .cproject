@@ -73,7 +73,7 @@
 </toolChain>
 </folderInfo>
 <sourceEntries>
-<entry excluding="test|src/labs|dist|tshell|tbmx1|build|.pygen|package" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+<entry excluding="package_old|test|src/labs|dist|tshell|tbmx1|build|.pygen|package" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 </sourceEntries>
 </configuration>
 </storageModule>
@@ -336,8 +336,10 @@
 <externalSetting>
 <entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/konoha-0.5"/>
 <entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/konoha-0.7"/>
+<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/konoha"/>
 <entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/konoha-0.5/Release"/>
 <entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/konoha-0.7/Release"/>
+<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/konoha/Release"/>
 </externalSetting>
 </externalSettings>
 <extensions>
@@ -382,7 +384,7 @@
 </toolChain>
 </folderInfo>
 <sourceEntries>
-<entry excluding="test|src/labs|dist|tshell|tbmx1|build|.pygen|package" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+<entry excluding="package_old|test|src/labs|dist|tshell|tbmx1|build|.pygen|package" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 </sourceEntries>
 </configuration>
 </storageModule>

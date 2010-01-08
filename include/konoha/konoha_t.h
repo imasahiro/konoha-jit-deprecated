@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -1009,8 +1009,8 @@ typedef struct {
 } knh_NamedPointerData_t;
 
 typedef struct {
-	knh_ObjectCSPI_t *cspi;
 	char *cname;
+	knh_ObjectCSPI_t *cspi;
 	char *supname;
 	char *p1; char *p2;
 } knh_ClassData_t;

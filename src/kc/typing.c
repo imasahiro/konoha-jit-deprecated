@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -3609,6 +3609,28 @@ Term *knh_StmtIF_typing(Ctx *ctx, knh_Stmt_t *stmt)
 		TERMs_typingBLOCK(ctx, stmt, 2, isIteration);
 	}
 	return TM(stmt);
+}
+
+/* ------------------------------------------------------------------------ */
+
+knh_Stmt_t *knh_StmtIF_decl(Ctx *ctx, knh_Stmt_t *stmt)
+{
+	knh_Stmt_t *thisStmt = NULL;
+	if(TERMs_typing(ctx, stmt, 0, NNTYPE_Boolean, TCHECK_)) {
+		if(TERMs_isTRUE(stmt, 0)) {
+			knh_Stmt_done(ctx, DP(stmt)->stmts[2]);
+			thisStmt = DP(stmt)->stmts[1];
+		}
+		else if(TERMs_isFALSE(stmt, 0)) {
+			knh_Stmt_done(ctx, DP(stmt)->stmts[1]);
+			thisStmt = DP(stmt)->stmts[1];
+		}
+	}
+	if(thisStmt != NULL) {
+		knh_Stmt_t *tail = knh_Stmt_tail(ctx, thisStmt);
+		KNH_SETv(ctx, DP(tail)->next, DP(stmt)->next);
+	}
+	return thisStmt;
 }
 
 /* ------------------------------------------------------------------------ */

@@ -190,7 +190,7 @@ def write_class_h(f, c, cid):
         write_define(f, 'NNTYPE_%s' % c.cname, 'NNTYPE_cid(%s)' % CLASS_(c.cname), 32)
         write_define(f, 'NATYPE_%s' % c.cname, 'NATYPE_cid(%s)' % CLASS_(c.cname), 32)
     write_define(f, 'CFLAG_%s' % c.cname, '((knh_flag_t)%s)' % c.flag(), 32)
-    write_define(f, 'FLAG_%s' % c.cname, 'knh_flag_oflag(CFLAG_%s)' % c.cname, 32)
+    write_define(f, 'FLAG_%s' % c.cname, 'FLAG_oflag(CFLAG_%s)' % c.cname, 32)
 
 class Expt:
     def __init__(self, cname, parent):

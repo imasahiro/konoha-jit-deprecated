@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -451,7 +451,7 @@ typedef struct knh_Class_t {
 #define KNH_DEF(ctx, cid)  knh_getClassDefaultValue(ctx, cid)
 
 #define knh_Class_cid(c)     (knh_class_t)(c)->cid
-#define knh_flag_oflag(f)        (f)
+#define FLAG_oflag(f)        (f)
 #define knh_class_isGenerics(cid)    (ClassTable(cid).p1 != TYPE_Tvoid)
 
 /* ------------------------------------------------------------------------ */

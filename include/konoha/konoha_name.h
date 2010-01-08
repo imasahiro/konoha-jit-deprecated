@@ -2,8 +2,8 @@
 
 /* ======================================================================== */
 /* MACROS */
-#define KONOHA_REVISION                 1065
-#define KONOHA_BUILDID                  774
+#define KONOHA_REVISION                 1076
+#define KONOHA_BUILDID                  775
 
 /* ======================================================================== */
 /* STRUCT */
@@ -16,7 +16,7 @@
 #define NNTYPE_Object           NNTYPE_cid(CLASS_Object)
 #define NATYPE_Object           NATYPE_cid(CLASS_Object)
 #define CFLAG_Object            ((knh_flag_t)0)
-#define FLAG_Object             knh_flag_oflag(CFLAG_Object)
+#define FLAG_Object             FLAG_oflag(CFLAG_Object)
 
 /* ------------------------------------------------------------------------ */
 /* Boolean */
@@ -27,7 +27,7 @@
 #define NNTYPE_Boolean          NNTYPE_cid(CLASS_Boolean)
 #define NATYPE_Boolean          NATYPE_cid(CLASS_Boolean)
 #define CFLAG_Boolean           ((knh_flag_t)FLAG_Class_Immutable)
-#define FLAG_Boolean            knh_flag_oflag(CFLAG_Boolean)
+#define FLAG_Boolean            FLAG_oflag(CFLAG_Boolean)
 
 /* ------------------------------------------------------------------------ */
 /* Number */
@@ -38,7 +38,7 @@
 #define NNTYPE_Number           NNTYPE_cid(CLASS_Number)
 #define NATYPE_Number           NATYPE_cid(CLASS_Number)
 #define CFLAG_Number            ((knh_flag_t)0)
-#define FLAG_Number             knh_flag_oflag(CFLAG_Number)
+#define FLAG_Number             FLAG_oflag(CFLAG_Number)
 
 /* ------------------------------------------------------------------------ */
 /* Int */
@@ -49,7 +49,7 @@
 #define NNTYPE_Int              NNTYPE_cid(CLASS_Int)
 #define NATYPE_Int              NATYPE_cid(CLASS_Int)
 #define CFLAG_Int               ((knh_flag_t)FLAG_Class_Immutable)
-#define FLAG_Int                knh_flag_oflag(CFLAG_Int)
+#define FLAG_Int                FLAG_oflag(CFLAG_Int)
 
 /* ------------------------------------------------------------------------ */
 /* Float */
@@ -60,7 +60,7 @@
 #define NNTYPE_Float            NNTYPE_cid(CLASS_Float)
 #define NATYPE_Float            NATYPE_cid(CLASS_Float)
 #define CFLAG_Float             ((knh_flag_t)FLAG_Class_Immutable)
-#define FLAG_Float              knh_flag_oflag(CFLAG_Float)
+#define FLAG_Float              FLAG_oflag(CFLAG_Float)
 
 /* ------------------------------------------------------------------------ */
 /* String */
@@ -71,7 +71,7 @@
 #define NNTYPE_String           NNTYPE_cid(CLASS_String)
 #define NATYPE_String           NATYPE_cid(CLASS_String)
 #define CFLAG_String            ((knh_flag_t)FLAG_Class_Immutable)
-#define FLAG_String             knh_flag_oflag(CFLAG_String)
+#define FLAG_String             FLAG_oflag(CFLAG_String)
 
 /* ------------------------------------------------------------------------ */
 /* Bytes */
@@ -82,7 +82,7 @@
 #define NNTYPE_Bytes            NNTYPE_cid(CLASS_Bytes)
 #define NATYPE_Bytes            NATYPE_cid(CLASS_Bytes)
 #define CFLAG_Bytes             ((knh_flag_t)0)
-#define FLAG_Bytes              knh_flag_oflag(CFLAG_Bytes)
+#define FLAG_Bytes              FLAG_oflag(CFLAG_Bytes)
 
 /* ------------------------------------------------------------------------ */
 /* Any */
@@ -93,7 +93,7 @@
 #define NNTYPE_Any              NATYPE_cid(CLASS_Any)
 #define NATYPE_Any              NATYPE_cid(CLASS_Any)
 #define CFLAG_Any               ((knh_flag_t)0)
-#define FLAG_Any                knh_flag_oflag(CFLAG_Any)
+#define FLAG_Any                FLAG_oflag(CFLAG_Any)
 
 /* ------------------------------------------------------------------------ */
 /* Iterator */
@@ -104,7 +104,7 @@
 #define NNTYPE_Iterator         NNTYPE_cid(CLASS_Iterator)
 #define NATYPE_Iterator         NATYPE_cid(CLASS_Iterator)
 #define CFLAG_Iterator          ((knh_flag_t)FLAG_Class_Immutable)
-#define FLAG_Iterator           knh_flag_oflag(CFLAG_Iterator)
+#define FLAG_Iterator           FLAG_oflag(CFLAG_Iterator)
 
 /* ------------------------------------------------------------------------ */
 /* Pair */
@@ -115,7 +115,7 @@
 #define NNTYPE_Pair             NNTYPE_cid(CLASS_Pair)
 #define NATYPE_Pair             NATYPE_cid(CLASS_Pair)
 #define CFLAG_Pair              ((knh_flag_t)FLAG_Class_Immutable)
-#define FLAG_Pair               knh_flag_oflag(CFLAG_Pair)
+#define FLAG_Pair               FLAG_oflag(CFLAG_Pair)
 
 /* ------------------------------------------------------------------------ */
 /* Tuple */
@@ -126,7 +126,7 @@
 #define NNTYPE_Tuple            NNTYPE_cid(CLASS_Tuple)
 #define NATYPE_Tuple            NATYPE_cid(CLASS_Tuple)
 #define CFLAG_Tuple             ((knh_flag_t)FLAG_Class_Immutable)
-#define FLAG_Tuple              knh_flag_oflag(CFLAG_Tuple)
+#define FLAG_Tuple              FLAG_oflag(CFLAG_Tuple)
 
 /* ------------------------------------------------------------------------ */
 /* Range */
@@ -137,7 +137,7 @@
 #define NNTYPE_Range            NNTYPE_cid(CLASS_Range)
 #define NATYPE_Range            NATYPE_cid(CLASS_Range)
 #define CFLAG_Range             ((knh_flag_t)FLAG_Class_Immutable)
-#define FLAG_Range              knh_flag_oflag(CFLAG_Range)
+#define FLAG_Range              FLAG_oflag(CFLAG_Range)
 
 /* ------------------------------------------------------------------------ */
 /* Array */
@@ -148,7 +148,7 @@
 #define NNTYPE_Array            NNTYPE_cid(CLASS_Array)
 #define NATYPE_Array            NATYPE_cid(CLASS_Array)
 #define CFLAG_Array             ((knh_flag_t)0)
-#define FLAG_Array              knh_flag_oflag(CFLAG_Array)
+#define FLAG_Array              FLAG_oflag(CFLAG_Array)
 
 /* ------------------------------------------------------------------------ */
 /* IArray */
@@ -159,7 +159,7 @@
 #define NNTYPE_IArray           NNTYPE_cid(CLASS_IArray)
 #define NATYPE_IArray           NATYPE_cid(CLASS_IArray)
 #define CFLAG_IArray            ((knh_flag_t)0)
-#define FLAG_IArray             knh_flag_oflag(CFLAG_IArray)
+#define FLAG_IArray             FLAG_oflag(CFLAG_IArray)
 
 /* ------------------------------------------------------------------------ */
 /* FArray */
@@ -170,7 +170,7 @@
 #define NNTYPE_FArray           NNTYPE_cid(CLASS_FArray)
 #define NATYPE_FArray           NATYPE_cid(CLASS_FArray)
 #define CFLAG_FArray            ((knh_flag_t)0)
-#define FLAG_FArray             knh_flag_oflag(CFLAG_FArray)
+#define FLAG_FArray             FLAG_oflag(CFLAG_FArray)
 
 /* ------------------------------------------------------------------------ */
 /* DictMap */
@@ -181,7 +181,7 @@
 #define NNTYPE_DictMap          NNTYPE_cid(CLASS_DictMap)
 #define NATYPE_DictMap          NATYPE_cid(CLASS_DictMap)
 #define CFLAG_DictMap           ((knh_flag_t)0)
-#define FLAG_DictMap            knh_flag_oflag(CFLAG_DictMap)
+#define FLAG_DictMap            FLAG_oflag(CFLAG_DictMap)
 
 /* ------------------------------------------------------------------------ */
 /* DictSet */
@@ -192,7 +192,7 @@
 #define NNTYPE_DictSet          NNTYPE_cid(CLASS_DictSet)
 #define NATYPE_DictSet          NATYPE_cid(CLASS_DictSet)
 #define CFLAG_DictSet           ((knh_flag_t)0)
-#define FLAG_DictSet            knh_flag_oflag(CFLAG_DictSet)
+#define FLAG_DictSet            FLAG_oflag(CFLAG_DictSet)
 
 /* ------------------------------------------------------------------------ */
 /* HashMap */
@@ -203,7 +203,7 @@
 #define NNTYPE_HashMap          NNTYPE_cid(CLASS_HashMap)
 #define NATYPE_HashMap          NATYPE_cid(CLASS_HashMap)
 #define CFLAG_HashMap           ((knh_flag_t)0)
-#define FLAG_HashMap            knh_flag_oflag(CFLAG_HashMap)
+#define FLAG_HashMap            FLAG_oflag(CFLAG_HashMap)
 
 /* ------------------------------------------------------------------------ */
 /* HashSet */
@@ -214,7 +214,7 @@
 #define NNTYPE_HashSet          NNTYPE_cid(CLASS_HashSet)
 #define NATYPE_HashSet          NATYPE_cid(CLASS_HashSet)
 #define CFLAG_HashSet           ((knh_flag_t)0)
-#define FLAG_HashSet            knh_flag_oflag(CFLAG_HashSet)
+#define FLAG_HashSet            FLAG_oflag(CFLAG_HashSet)
 
 /* ------------------------------------------------------------------------ */
 /* DictIdx */
@@ -225,7 +225,7 @@
 #define NNTYPE_DictIdx          NNTYPE_cid(CLASS_DictIdx)
 #define NATYPE_DictIdx          NATYPE_cid(CLASS_DictIdx)
 #define CFLAG_DictIdx           ((knh_flag_t)FLAG_Class_Private)
-#define FLAG_DictIdx            knh_flag_oflag(CFLAG_DictIdx)
+#define FLAG_DictIdx            FLAG_oflag(CFLAG_DictIdx)
 
 /* ------------------------------------------------------------------------ */
 /* Class */
@@ -236,7 +236,7 @@
 #define NNTYPE_Class            NNTYPE_cid(CLASS_Class)
 #define NATYPE_Class            NATYPE_cid(CLASS_Class)
 #define CFLAG_Class             ((knh_flag_t)FLAG_Class_Immutable)
-#define FLAG_Class              knh_flag_oflag(CFLAG_Class)
+#define FLAG_Class              FLAG_oflag(CFLAG_Class)
 
 /* ------------------------------------------------------------------------ */
 /* MethodField */
@@ -247,7 +247,7 @@
 #define NNTYPE_MethodField      NNTYPE_cid(CLASS_MethodField)
 #define NATYPE_MethodField      NATYPE_cid(CLASS_MethodField)
 #define CFLAG_MethodField       ((knh_flag_t)FLAG_Class_Private)
-#define FLAG_MethodField        knh_flag_oflag(CFLAG_MethodField)
+#define FLAG_MethodField        FLAG_oflag(CFLAG_MethodField)
 
 /* ------------------------------------------------------------------------ */
 /* Method */
@@ -258,7 +258,7 @@
 #define NNTYPE_Method           NNTYPE_cid(CLASS_Method)
 #define NATYPE_Method           NATYPE_cid(CLASS_Method)
 #define CFLAG_Method            ((knh_flag_t)0)
-#define FLAG_Method             knh_flag_oflag(CFLAG_Method)
+#define FLAG_Method             FLAG_oflag(CFLAG_Method)
 
 /* ------------------------------------------------------------------------ */
 /* Mapper */
@@ -269,7 +269,7 @@
 #define NNTYPE_Mapper           NNTYPE_cid(CLASS_Mapper)
 #define NATYPE_Mapper           NATYPE_cid(CLASS_Mapper)
 #define CFLAG_Mapper            ((knh_flag_t)0)
-#define FLAG_Mapper             knh_flag_oflag(CFLAG_Mapper)
+#define FLAG_Mapper             FLAG_oflag(CFLAG_Mapper)
 
 /* ------------------------------------------------------------------------ */
 /* ClassMap */
@@ -280,7 +280,7 @@
 #define NNTYPE_ClassMap         NNTYPE_cid(CLASS_ClassMap)
 #define NATYPE_ClassMap         NATYPE_cid(CLASS_ClassMap)
 #define CFLAG_ClassMap          ((knh_flag_t)FLAG_Class_Private)
-#define FLAG_ClassMap           knh_flag_oflag(CFLAG_ClassMap)
+#define FLAG_ClassMap           FLAG_oflag(CFLAG_ClassMap)
 
 /* ------------------------------------------------------------------------ */
 /* Closure */
@@ -291,7 +291,7 @@
 #define NNTYPE_Closure          NNTYPE_cid(CLASS_Closure)
 #define NATYPE_Closure          NATYPE_cid(CLASS_Closure)
 #define CFLAG_Closure           ((knh_flag_t)0)
-#define FLAG_Closure            knh_flag_oflag(CFLAG_Closure)
+#define FLAG_Closure            FLAG_oflag(CFLAG_Closure)
 
 /* ------------------------------------------------------------------------ */
 /* Thunk */
@@ -302,7 +302,7 @@
 #define NNTYPE_Thunk            NNTYPE_cid(CLASS_Thunk)
 #define NATYPE_Thunk            NATYPE_cid(CLASS_Thunk)
 #define CFLAG_Thunk             ((knh_flag_t)0)
-#define FLAG_Thunk              knh_flag_oflag(CFLAG_Thunk)
+#define FLAG_Thunk              FLAG_oflag(CFLAG_Thunk)
 
 /* ------------------------------------------------------------------------ */
 /* AffineConv */
@@ -313,7 +313,7 @@
 #define NNTYPE_AffineConv       NNTYPE_cid(CLASS_AffineConv)
 #define NATYPE_AffineConv       NATYPE_cid(CLASS_AffineConv)
 #define CFLAG_AffineConv        ((knh_flag_t)FLAG_Class_Immutable|FLAG_Class_Private)
-#define FLAG_AffineConv         knh_flag_oflag(CFLAG_AffineConv)
+#define FLAG_AffineConv         FLAG_oflag(CFLAG_AffineConv)
 
 /* ------------------------------------------------------------------------ */
 /* Regex */
@@ -324,7 +324,7 @@
 #define NNTYPE_Regex            NNTYPE_cid(CLASS_Regex)
 #define NATYPE_Regex            NATYPE_cid(CLASS_Regex)
 #define CFLAG_Regex             ((knh_flag_t)FLAG_Class_Immutable)
-#define FLAG_Regex              knh_flag_oflag(CFLAG_Regex)
+#define FLAG_Regex              FLAG_oflag(CFLAG_Regex)
 
 /* ------------------------------------------------------------------------ */
 /* BytesConv */
@@ -335,7 +335,7 @@
 #define NNTYPE_BytesConv        NNTYPE_cid(CLASS_BytesConv)
 #define NATYPE_BytesConv        NATYPE_cid(CLASS_BytesConv)
 #define CFLAG_BytesConv         ((knh_flag_t)FLAG_Class_Private)
-#define FLAG_BytesConv          knh_flag_oflag(CFLAG_BytesConv)
+#define FLAG_BytesConv          FLAG_oflag(CFLAG_BytesConv)
 
 /* ------------------------------------------------------------------------ */
 /* Semantics */
@@ -346,7 +346,7 @@
 #define NNTYPE_Semantics        NNTYPE_cid(CLASS_Semantics)
 #define NATYPE_Semantics        NATYPE_cid(CLASS_Semantics)
 #define CFLAG_Semantics         ((knh_flag_t)FLAG_Class_Private)
-#define FLAG_Semantics          knh_flag_oflag(CFLAG_Semantics)
+#define FLAG_Semantics          FLAG_oflag(CFLAG_Semantics)
 
 /* ------------------------------------------------------------------------ */
 /* InputStream */
@@ -357,7 +357,7 @@
 #define NNTYPE_InputStream      NNTYPE_cid(CLASS_InputStream)
 #define NATYPE_InputStream      NATYPE_cid(CLASS_InputStream)
 #define CFLAG_InputStream       ((knh_flag_t)0)
-#define FLAG_InputStream        knh_flag_oflag(CFLAG_InputStream)
+#define FLAG_InputStream        FLAG_oflag(CFLAG_InputStream)
 
 /* ------------------------------------------------------------------------ */
 /* OutputStream */
@@ -368,7 +368,7 @@
 #define NNTYPE_OutputStream     NNTYPE_cid(CLASS_OutputStream)
 #define NATYPE_OutputStream     NATYPE_cid(CLASS_OutputStream)
 #define CFLAG_OutputStream      ((knh_flag_t)0)
-#define FLAG_OutputStream       knh_flag_oflag(CFLAG_OutputStream)
+#define FLAG_OutputStream       FLAG_oflag(CFLAG_OutputStream)
 
 /* ------------------------------------------------------------------------ */
 /* Socket */
@@ -379,7 +379,7 @@
 #define NNTYPE_Socket           NNTYPE_cid(CLASS_Socket)
 #define NATYPE_Socket           NATYPE_cid(CLASS_Socket)
 #define CFLAG_Socket            ((knh_flag_t)0)
-#define FLAG_Socket             knh_flag_oflag(CFLAG_Socket)
+#define FLAG_Socket             FLAG_oflag(CFLAG_Socket)
 
 /* ------------------------------------------------------------------------ */
 /* Connection */
@@ -390,7 +390,7 @@
 #define NNTYPE_Connection       NNTYPE_cid(CLASS_Connection)
 #define NATYPE_Connection       NATYPE_cid(CLASS_Connection)
 #define CFLAG_Connection        ((knh_flag_t)0)
-#define FLAG_Connection         knh_flag_oflag(CFLAG_Connection)
+#define FLAG_Connection         FLAG_oflag(CFLAG_Connection)
 
 /* ------------------------------------------------------------------------ */
 /* ResultSet */
@@ -401,7 +401,7 @@
 #define NNTYPE_ResultSet        NNTYPE_cid(CLASS_ResultSet)
 #define NATYPE_ResultSet        NATYPE_cid(CLASS_ResultSet)
 #define CFLAG_ResultSet         ((knh_flag_t)0)
-#define FLAG_ResultSet          knh_flag_oflag(CFLAG_ResultSet)
+#define FLAG_ResultSet          FLAG_oflag(CFLAG_ResultSet)
 
 /* ------------------------------------------------------------------------ */
 /* Exception */
@@ -412,7 +412,7 @@
 #define NNTYPE_Exception        NNTYPE_cid(CLASS_Exception)
 #define NATYPE_Exception        NATYPE_cid(CLASS_Exception)
 #define CFLAG_Exception         ((knh_flag_t)0)
-#define FLAG_Exception          knh_flag_oflag(CFLAG_Exception)
+#define FLAG_Exception          FLAG_oflag(CFLAG_Exception)
 
 /* ------------------------------------------------------------------------ */
 /* ExceptionHandler */
@@ -423,7 +423,7 @@
 #define NNTYPE_ExceptionHandler NNTYPE_cid(CLASS_ExceptionHandler)
 #define NATYPE_ExceptionHandler NATYPE_cid(CLASS_ExceptionHandler)
 #define CFLAG_ExceptionHandler  ((knh_flag_t)FLAG_Class_Private)
-#define FLAG_ExceptionHandler   knh_flag_oflag(CFLAG_ExceptionHandler)
+#define FLAG_ExceptionHandler   FLAG_oflag(CFLAG_ExceptionHandler)
 
 /* ------------------------------------------------------------------------ */
 /* Script */
@@ -434,7 +434,7 @@
 #define NNTYPE_Script           NNTYPE_cid(CLASS_Script)
 #define NATYPE_Script           NATYPE_cid(CLASS_Script)
 #define CFLAG_Script            ((knh_flag_t)FLAG_Class_Singleton|FLAG_Class_Private)
-#define FLAG_Script             knh_flag_oflag(CFLAG_Script)
+#define FLAG_Script             FLAG_oflag(CFLAG_Script)
 
 /* ------------------------------------------------------------------------ */
 /* NameSpace */
@@ -445,7 +445,7 @@
 #define NNTYPE_NameSpace        NNTYPE_cid(CLASS_NameSpace)
 #define NATYPE_NameSpace        NATYPE_cid(CLASS_NameSpace)
 #define CFLAG_NameSpace         ((knh_flag_t)0)
-#define FLAG_NameSpace          knh_flag_oflag(CFLAG_NameSpace)
+#define FLAG_NameSpace          FLAG_oflag(CFLAG_NameSpace)
 
 /* ------------------------------------------------------------------------ */
 /* System */
@@ -456,7 +456,7 @@
 #define NNTYPE_System           NNTYPE_cid(CLASS_System)
 #define NATYPE_System           NATYPE_cid(CLASS_System)
 #define CFLAG_System            ((knh_flag_t)FLAG_Class_Singleton)
-#define FLAG_System             knh_flag_oflag(CFLAG_System)
+#define FLAG_System             FLAG_oflag(CFLAG_System)
 
 /* ------------------------------------------------------------------------ */
 /* Context */
@@ -467,7 +467,7 @@
 #define NNTYPE_Context          NNTYPE_cid(CLASS_Context)
 #define NATYPE_Context          NATYPE_cid(CLASS_Context)
 #define CFLAG_Context           ((knh_flag_t)0)
-#define FLAG_Context            knh_flag_oflag(CFLAG_Context)
+#define FLAG_Context            FLAG_oflag(CFLAG_Context)
 
 /* ------------------------------------------------------------------------ */
 /* Thread */
@@ -478,7 +478,7 @@
 #define NNTYPE_Thread           NNTYPE_cid(CLASS_Thread)
 #define NATYPE_Thread           NATYPE_cid(CLASS_Thread)
 #define CFLAG_Thread            ((knh_flag_t)0)
-#define FLAG_Thread             knh_flag_oflag(CFLAG_Thread)
+#define FLAG_Thread             FLAG_oflag(CFLAG_Thread)
 
 /* ------------------------------------------------------------------------ */
 /* ScriptEngine */
@@ -489,7 +489,7 @@
 #define NNTYPE_ScriptEngine     NNTYPE_cid(CLASS_ScriptEngine)
 #define NATYPE_ScriptEngine     NATYPE_cid(CLASS_ScriptEngine)
 #define CFLAG_ScriptEngine      ((knh_flag_t)0)
-#define FLAG_ScriptEngine       knh_flag_oflag(CFLAG_ScriptEngine)
+#define FLAG_ScriptEngine       FLAG_oflag(CFLAG_ScriptEngine)
 
 /* ------------------------------------------------------------------------ */
 /* Token */
@@ -500,7 +500,7 @@
 #define NNTYPE_Token            NNTYPE_cid(CLASS_Token)
 #define NATYPE_Token            NATYPE_cid(CLASS_Token)
 #define CFLAG_Token             ((knh_flag_t)0)
-#define FLAG_Token              knh_flag_oflag(CFLAG_Token)
+#define FLAG_Token              FLAG_oflag(CFLAG_Token)
 
 /* ------------------------------------------------------------------------ */
 /* Stmt */
@@ -511,7 +511,7 @@
 #define NNTYPE_Stmt             NNTYPE_cid(CLASS_Stmt)
 #define NATYPE_Stmt             NATYPE_cid(CLASS_Stmt)
 #define CFLAG_Stmt              ((knh_flag_t)0)
-#define FLAG_Stmt               knh_flag_oflag(CFLAG_Stmt)
+#define FLAG_Stmt               FLAG_oflag(CFLAG_Stmt)
 
 /* ------------------------------------------------------------------------ */
 /* Gamma */
@@ -522,7 +522,7 @@
 #define NNTYPE_Gamma            NNTYPE_cid(CLASS_Gamma)
 #define NATYPE_Gamma            NATYPE_cid(CLASS_Gamma)
 #define CFLAG_Gamma             ((knh_flag_t)FLAG_Class_Private)
-#define FLAG_Gamma              knh_flag_oflag(CFLAG_Gamma)
+#define FLAG_Gamma              FLAG_oflag(CFLAG_Gamma)
 
 /* ------------------------------------------------------------------------ */
 /* KLRInst */
@@ -533,7 +533,7 @@
 #define NNTYPE_KLRInst          NNTYPE_cid(CLASS_KLRInst)
 #define NATYPE_KLRInst          NATYPE_cid(CLASS_KLRInst)
 #define CFLAG_KLRInst           ((knh_flag_t)0)
-#define FLAG_KLRInst            knh_flag_oflag(CFLAG_KLRInst)
+#define FLAG_KLRInst            FLAG_oflag(CFLAG_KLRInst)
 
 /* ------------------------------------------------------------------------ */
 /* KLRCode */
@@ -544,7 +544,7 @@
 #define NNTYPE_KLRCode          NNTYPE_cid(CLASS_KLRCode)
 #define NATYPE_KLRCode          NATYPE_cid(CLASS_KLRCode)
 #define CFLAG_KLRCode           ((knh_flag_t)0)
-#define FLAG_KLRCode            knh_flag_oflag(CFLAG_KLRCode)
+#define FLAG_KLRCode            FLAG_oflag(CFLAG_KLRCode)
 
 /* ======================================================================== */
 /* CLASS */
@@ -557,7 +557,7 @@
 #define NNTYPE_This             NNTYPE_cid(CLASS_This)
 #define NATYPE_This             NATYPE_cid(CLASS_This)
 #define CFLAG_This              ((knh_flag_t)FLAG_Class_TypeVariable)
-#define FLAG_This               knh_flag_oflag(CFLAG_This)
+#define FLAG_This               FLAG_oflag(CFLAG_This)
 
 /* ------------------------------------------------------------------------ */
 /* Tvoid */
@@ -567,7 +567,7 @@
 #define NNTYPE_Tvoid            NNTYPE_cid(CLASS_Tvoid)
 #define NATYPE_Tvoid            NATYPE_cid(CLASS_Tvoid)
 #define CFLAG_Tvoid             ((knh_flag_t)FLAG_Class_TypeVariable)
-#define FLAG_Tvoid              knh_flag_oflag(CFLAG_Tvoid)
+#define FLAG_Tvoid              FLAG_oflag(CFLAG_Tvoid)
 
 /* ------------------------------------------------------------------------ */
 /* T0 */
@@ -577,7 +577,7 @@
 #define NNTYPE_T0               NNTYPE_cid(CLASS_T0)
 #define NATYPE_T0               NATYPE_cid(CLASS_T0)
 #define CFLAG_T0                ((knh_flag_t)FLAG_Class_TypeVariable)
-#define FLAG_T0                 knh_flag_oflag(CFLAG_T0)
+#define FLAG_T0                 FLAG_oflag(CFLAG_T0)
 
 /* ------------------------------------------------------------------------ */
 /* T1 */
@@ -587,7 +587,7 @@
 #define NNTYPE_T1               NNTYPE_cid(CLASS_T1)
 #define NATYPE_T1               NATYPE_cid(CLASS_T1)
 #define CFLAG_T1                ((knh_flag_t)FLAG_Class_TypeVariable)
-#define FLAG_T1                 knh_flag_oflag(CFLAG_T1)
+#define FLAG_T1                 FLAG_oflag(CFLAG_T1)
 
 /* ------------------------------------------------------------------------ */
 /* T2 */
@@ -597,7 +597,7 @@
 #define NNTYPE_T2               NNTYPE_cid(CLASS_T2)
 #define NATYPE_T2               NATYPE_cid(CLASS_T2)
 #define CFLAG_T2                ((knh_flag_t)FLAG_Class_TypeVariable)
-#define FLAG_T2                 knh_flag_oflag(CFLAG_T2)
+#define FLAG_T2                 FLAG_oflag(CFLAG_T2)
 
 /* ------------------------------------------------------------------------ */
 /* T3 */
@@ -607,7 +607,7 @@
 #define NNTYPE_T3               NNTYPE_cid(CLASS_T3)
 #define NATYPE_T3               NATYPE_cid(CLASS_T3)
 #define CFLAG_T3                ((knh_flag_t)FLAG_Class_TypeVariable)
-#define FLAG_T3                 knh_flag_oflag(CFLAG_T3)
+#define FLAG_T3                 FLAG_oflag(CFLAG_T3)
 
 /* ------------------------------------------------------------------------ */
 /* Tx */
@@ -617,7 +617,7 @@
 #define NNTYPE_Tx               NNTYPE_cid(CLASS_Tx)
 #define NATYPE_Tx               NATYPE_cid(CLASS_Tx)
 #define CFLAG_Tx                ((knh_flag_t)FLAG_Class_TypeVariable)
-#define FLAG_Tx                 knh_flag_oflag(CFLAG_Tx)
+#define FLAG_Tx                 FLAG_oflag(CFLAG_Tx)
 
 /* ------------------------------------------------------------------------ */
 /* Tvar */
@@ -627,7 +627,7 @@
 #define NNTYPE_Tvar             NNTYPE_cid(CLASS_Tvar)
 #define NATYPE_Tvar             NATYPE_cid(CLASS_Tvar)
 #define CFLAG_Tvar              ((knh_flag_t)FLAG_Class_TypeVariable)
-#define FLAG_Tvar               knh_flag_oflag(CFLAG_Tvar)
+#define FLAG_Tvar               FLAG_oflag(CFLAG_Tvar)
 
 /* ------------------------------------------------------------------------ */
 /* PairSS */
@@ -637,7 +637,7 @@
 #define NNTYPE_PairSS           NNTYPE_cid(CLASS_PairSS)
 #define NATYPE_PairSS           NATYPE_cid(CLASS_PairSS)
 #define CFLAG_PairSS            ((knh_flag_t)0)
-#define FLAG_PairSS             knh_flag_oflag(CFLAG_PairSS)
+#define FLAG_PairSS             FLAG_oflag(CFLAG_PairSS)
 
 /* ------------------------------------------------------------------------ */
 /* PairST1 */
@@ -647,7 +647,7 @@
 #define NNTYPE_PairST1          NNTYPE_cid(CLASS_PairST1)
 #define NATYPE_PairST1          NATYPE_cid(CLASS_PairST1)
 #define CFLAG_PairST1           ((knh_flag_t)0)
-#define FLAG_PairST1            knh_flag_oflag(CFLAG_PairST1)
+#define FLAG_PairST1            FLAG_oflag(CFLAG_PairST1)
 
 /* ------------------------------------------------------------------------ */
 /* PairT1T2 */
@@ -657,7 +657,7 @@
 #define NNTYPE_PairT1T2         NNTYPE_cid(CLASS_PairT1T2)
 #define NATYPE_PairT1T2         NATYPE_cid(CLASS_PairT1T2)
 #define CFLAG_PairT1T2          ((knh_flag_t)0)
-#define FLAG_PairT1T2           knh_flag_oflag(CFLAG_PairT1T2)
+#define FLAG_PairT1T2           FLAG_oflag(CFLAG_PairT1T2)
 
 /* ------------------------------------------------------------------------ */
 /* Cmpr */
@@ -667,7 +667,7 @@
 #define NNTYPE_Cmpr             NNTYPE_cid(CLASS_Cmpr)
 #define NATYPE_Cmpr             NATYPE_cid(CLASS_Cmpr)
 #define CFLAG_Cmpr              ((knh_flag_t)0)
-#define FLAG_Cmpr               knh_flag_oflag(CFLAG_Cmpr)
+#define FLAG_Cmpr               FLAG_oflag(CFLAG_Cmpr)
 
 /* ------------------------------------------------------------------------ */
 /* String_Ary */
@@ -677,7 +677,7 @@
 #define NNTYPE_String_Ary       NNTYPE_cid(CLASS_String_Ary)
 #define NATYPE_String_Ary       NATYPE_cid(CLASS_String_Ary)
 #define CFLAG_String_Ary        ((knh_flag_t)0)
-#define FLAG_String_Ary         knh_flag_oflag(CFLAG_String_Ary)
+#define FLAG_String_Ary         FLAG_oflag(CFLAG_String_Ary)
 
 /* ------------------------------------------------------------------------ */
 /* Any_Ary */
@@ -687,7 +687,7 @@
 #define NNTYPE_Any_Ary          NNTYPE_cid(CLASS_Any_Ary)
 #define NATYPE_Any_Ary          NATYPE_cid(CLASS_Any_Ary)
 #define CFLAG_Any_Ary           ((knh_flag_t)0)
-#define FLAG_Any_Ary            knh_flag_oflag(CFLAG_Any_Ary)
+#define FLAG_Any_Ary            FLAG_oflag(CFLAG_Any_Ary)
 
 /* ------------------------------------------------------------------------ */
 /* String_Itr */
@@ -697,7 +697,7 @@
 #define NNTYPE_String_Itr       NNTYPE_cid(CLASS_String_Itr)
 #define NATYPE_String_Itr       NATYPE_cid(CLASS_String_Itr)
 #define CFLAG_String_Itr        ((knh_flag_t)0)
-#define FLAG_String_Itr         knh_flag_oflag(CFLAG_String_Itr)
+#define FLAG_String_Itr         FLAG_oflag(CFLAG_String_Itr)
 
 /* ------------------------------------------------------------------------ */
 /* T1_Itr */
@@ -707,7 +707,7 @@
 #define NNTYPE_T1_Itr           NNTYPE_cid(CLASS_T1_Itr)
 #define NATYPE_T1_Itr           NATYPE_cid(CLASS_T1_Itr)
 #define CFLAG_T1_Itr            ((knh_flag_t)0)
-#define FLAG_T1_Itr             knh_flag_oflag(CFLAG_T1_Itr)
+#define FLAG_T1_Itr             FLAG_oflag(CFLAG_T1_Itr)
 
 /* ------------------------------------------------------------------------ */
 /* PairST1_Itr */
@@ -717,7 +717,7 @@
 #define NNTYPE_PairST1_Itr      NNTYPE_cid(CLASS_PairST1_Itr)
 #define NATYPE_PairST1_Itr      NATYPE_cid(CLASS_PairST1_Itr)
 #define CFLAG_PairST1_Itr       ((knh_flag_t)0)
-#define FLAG_PairST1_Itr        knh_flag_oflag(CFLAG_PairST1_Itr)
+#define FLAG_PairST1_Itr        FLAG_oflag(CFLAG_PairST1_Itr)
 
 /* ------------------------------------------------------------------------ */
 /* PairT1T2_Itr */
@@ -727,7 +727,7 @@
 #define NNTYPE_PairT1T2_Itr     NNTYPE_cid(CLASS_PairT1T2_Itr)
 #define NATYPE_PairT1T2_Itr     NATYPE_cid(CLASS_PairT1T2_Itr)
 #define CFLAG_PairT1T2_Itr      ((knh_flag_t)0)
-#define FLAG_PairT1T2_Itr       knh_flag_oflag(CFLAG_PairT1T2_Itr)
+#define FLAG_PairT1T2_Itr       FLAG_oflag(CFLAG_PairT1T2_Itr)
 
 /* ------------------------------------------------------------------------ */
 /* This_Itr */
@@ -737,7 +737,7 @@
 #define NNTYPE_This_Itr         NNTYPE_cid(CLASS_This_Itr)
 #define NATYPE_This_Itr         NATYPE_cid(CLASS_This_Itr)
 #define CFLAG_This_Itr          ((knh_flag_t)0)
-#define FLAG_This_Itr           knh_flag_oflag(CFLAG_This_Itr)
+#define FLAG_This_Itr           FLAG_oflag(CFLAG_This_Itr)
 #define KNH_CLASS_INITSIZE              69
 
 /* ======================================================================== */

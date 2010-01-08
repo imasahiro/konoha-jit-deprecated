@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -2382,7 +2382,7 @@ static void knh_loadClassData0(Ctx *ctx, knh_ClassData0_t *data)
 			knh_ClassTable_t *t = pClassTable(ctx, cid);
 			knh_setClassName(ctx, cid, T__(data->name));
 			t->cflag  = data->flag;
-			t->oflag  = knh_flag_oflag(data->flag);
+			t->oflag  = FLAG_oflag(data->flag);
 			t->bcid   = data->bcid;
 			if(cid != data->bcid) {
 				t->cspi = ClassTable(data->bcid).cspi;
@@ -2611,7 +2611,7 @@ void knh_loadSystemStructData(Ctx *ctx)
 		knh_ClassTable_t *t = pClassTable(ctx, data->cid);
 		t->cspi = data->cspi;
 		t->cflag = data->flag;
-		t->oflag = knh_flag_oflag(data->flag);
+		t->oflag = FLAG_oflag(data->flag);
 		t->size = data->cspi->size;
 		data++;
 	}

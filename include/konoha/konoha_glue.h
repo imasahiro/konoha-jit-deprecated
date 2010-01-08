@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -52,6 +52,7 @@ typedef struct {
 	char         *version;
 	char         *libver;
 	char         *license;
+	knh_Fsetup    init;
 	knh_Fsetup    setup;
 	knh_Fcleanup  cleanup;
 	int           revision;
@@ -59,12 +60,13 @@ typedef struct {
 
 typedef knh_PackageData_t* (*knh_Fpkginit)(void);
 
-#define KONOHA_PACKAGE(V, LV, LL, S, C) \
+#define KONOHA_PACKAGE(V, LV, LL, I, S, C) \
+	static int I (Ctx *ctx); \
 	static int S (Ctx *ctx); \
 	static int C (Ctx *ctx); \
 	knh_PackageData_t* knh_pkginit(void) { \
 		static knh_PackageData_t knh_PackageData = { \
-			V, LV, LL, S, C, KONOHA_REVISION\
+			V, LV, LL, I, S, C, KONOHA_REVISION\
 		};\
 		return &knh_PackageData;\
 	}\
