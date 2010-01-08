@@ -608,6 +608,7 @@ static void knh_Gamma_initThisScript(Ctx *ctx)
 static
 int knh_NameSpace_compile(Ctx *ctx, knh_NameSpace_t *ns, knh_Stmt_t *stmt, int isEval)
 {
+	int res = 1;
 	knh_Gamma_t *kc = ctx->kc;
 	knh_sfp_t *lsfp = KNH_LOCAL(ctx);
 	knh_Stmt_t *cur = NULL;
@@ -619,6 +620,7 @@ int knh_NameSpace_compile(Ctx *ctx, knh_NameSpace_t *ns, knh_Stmt_t *stmt, int i
 
 	L_IFCHECK: /* conditional compilation */
 	if(STT_(stmt) == STT_IF) {
+		knh_Gamma_initThisScript(ctx);
 		cur = knh_StmtIF_decl(ctx, stmt);
 		if(cur != NULL) {
 			stmt = cur;
@@ -629,7 +631,7 @@ int knh_NameSpace_compile(Ctx *ctx, knh_NameSpace_t *ns, knh_Stmt_t *stmt, int i
 	cur = stmt;
 	while(IS_Stmt(cur)) {
 		knh_stmt_t stt = SP(cur)->stt;
-		int res = 1;
+		res = 1;
 		SP(kc)->line = SP(cur)->line;
 		DP(kc)->scope = SCOPE_SCRIPT;
 		switch(stt) {
@@ -668,14 +670,19 @@ int knh_NameSpace_compile(Ctx *ctx, knh_NameSpace_t *ns, knh_Stmt_t *stmt, int i
 			res = knh_StmtUMAPMAP_decl(ctx, cur);
 			knh_Stmt_done(ctx, cur);
 			break;
+		case STT_RETURN:
+			knh_Gamma_perror(ctx, KERR_ERRATA, _("'break' is much better"));
+		case STT_BREAK:
+			goto L_BREAK;
 		}
 		if(res == 0) {
-			goto L_FAILED;
+			goto L_BREAK;
 		}
 		{   /* conditional compilation */
 			knh_Stmt_t *prev = cur;
 			cur = DP(cur)->next;
 			if(IS_Stmt(cur) && STT_(cur) == STT_IF) {
+				knh_Gamma_initThisScript(ctx);
 				cur = knh_StmtIF_decl(ctx, cur);
 				if(cur != NULL) {
 					KNH_SETv(ctx, DP(prev)->next, cur);
@@ -730,8 +737,8 @@ int knh_NameSpace_compile(Ctx *ctx, knh_NameSpace_t *ns, knh_Stmt_t *stmt, int i
 			}
 		}
 		if(tm == NULL) {
-			knh_Stmt_done(ctx, stmt);
-			goto L_FAILED;
+			res = 0;
+			goto L_BREAK;
 		}
 		cur = DP(cur)->next;
 	}
@@ -766,21 +773,19 @@ int knh_NameSpace_compile(Ctx *ctx, knh_NameSpace_t *ns, knh_Stmt_t *stmt, int i
 		case STT_DONE:
 			break;
 		default:
-			if(!knh_Stmt_eval(ctx, cur, isEval)) {
-				goto L_FAILED;
+			{
+				res = knh_Stmt_eval(ctx, cur, isEval);
+				if(res == 0) goto L_BREAK;
 			}
 		}
 		knh_Stmt_done(ctx, cur);
 		cur = DP(cur)->next;
 	}
+	res = 1;
+	L_BREAK:;
 	KNH_SETv(ctx, DP(kc)->ns, oldns);
 	KNH_LOCALBACK(ctx, lsfp);
-	return 1;
-
-	L_FAILED:;
-	KNH_SETv(ctx, DP(kc)->ns, oldns);
-	KNH_LOCALBACK(ctx, lsfp);
-	return 0;
+	return res;
 }
 
 /* ======================================================================== */
