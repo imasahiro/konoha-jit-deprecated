@@ -62,11 +62,11 @@ extern "C" {
 
 /* ------------------------------------------------------------------------ */
 
-#define TWARN_  0
-#define TCHECK_ 1
-#define TCONV_  2
-#define TITERCONV_ 3
-
+#define TNOP_   0
+#define TWARN_  1
+#define TCHECK_ 2
+#define TCONV_  3
+#define TITERCONV_ 4
 
 #define SWITCH_IT       2
 #define SEPARATOR_IT    2

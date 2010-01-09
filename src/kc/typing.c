@@ -2168,16 +2168,12 @@ static Term* knh_StmtDOMAIN_typing(Ctx *ctx, knh_Stmt_t *stmt)
 static Term* knh_StmtDEFINED_typing(Ctx *ctx, knh_Stmt_t *stmt)
 {
 	knh_Token_t *tk = DP(stmt)->tokens[0];
-	knh_Gamma_t *kc = ctx->kc;
-	knh_flag_t flag = DP(kc)->flag;
-	knh_Gamma_setQuiet(kc, 1);
-	if(TERMs_typing(ctx, stmt, 2, CLASS_Any, TWARN_)) {
+	if(TERMs_typing(ctx, stmt, 2, CLASS_Any, TNOP_)) {
 		knh_Token_setCONST(ctx, tk, KNH_TRUE);
 	}
 	else {
 		knh_Token_setCONST(ctx, tk, KNH_FALSE);
 	}
-	DP(kc)->flag = flag;
 	return TM(tk);
 }
 
@@ -3428,7 +3424,12 @@ Term *new_TermINCAST(Ctx *ctx, knh_class_t reqc, knh_Stmt_t *stmt, size_t n)
 static
 int TERMs_typing(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_type_t reqt, int mode)
 {
+	knh_flag_t flag = DP(ctx->kc)->flag;
 	knh_Token_t *tkN = DP(stmt)->tokens[n];
+	if(mode == TNOP_) {
+		mode = TWARN_;
+		knh_Gamma_setQuiet(ctx->kc, 1);
+	}
 	if(SP(stmt)->stt == STT_ERR) {
 		goto L_ERROR;
 	}
@@ -3470,6 +3471,7 @@ int TERMs_typing(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_type_t reqt, int mode
 	}
 
 	if(mode == TWARN_ || reqt == TYPE_Any || reqt == TYPE_var) {
+		DP(ctx->kc)->flag = flag;
 		return 1;
 	}
 
@@ -3528,6 +3530,7 @@ int TERMs_typing(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_type_t reqt, int mode
 	}
 
 	L_ERROR:;
+	DP(ctx->kc)->flag = flag;
 	if(STT_(stmt) != STT_ERR) {
 		STT_(stmt) = STT_ERR;
 	}

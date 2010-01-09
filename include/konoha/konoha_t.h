@@ -718,7 +718,7 @@ typedef struct {
 
 typedef struct knh_ObjectPageTable_t {
 	int   ctxid;
-	char *thead;
+	char *opage;
 } knh_ObjectPageTable_t ;
 
 /* ------------------------------------------------------------------------ */

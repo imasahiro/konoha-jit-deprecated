@@ -1,6 +1,8 @@
 #ifndef KONOHA_DEBUG_H_
 #define KONOHA_DEBUG_H_
 
+#include<syslog.h>
+
 /* ======================================================================== */
 /* [FASTMODE] */
 
@@ -13,9 +15,28 @@
 #define SAFE_(stmt)      stmt
 #endif/*KNH_FASTMODE*/
 
-/* ======================================================================== */
-
 #define KNH_ABORT()      abort()
+
+#define LOGARG          ,char *_file, int _line, char *_func
+#define LOGDATA         ,(char*)__FILE__, (int)__LINE__, (char*)__FUNCTION__
+
+#define KNH_SYSLOG0(ctx, priority, fmt, ...) \
+	fflush(stdout); \
+	fprintf(stderr, "konoha (log:%d): ", priority); \
+	fprintf(stderr, fmt, ## __VA_ARGS__); \
+	fprintf(stderr, "\n"); \
+
+#define KNH_SYSLOG(ctx, priority, fmt, ...) \
+	fflush(stdout); \
+	fprintf(stderr, "SYSLOG(%d)[%s:%d/%s]\n\t", priority, knh_safefile(__FILE__), __LINE__, __FUNCTION__); \
+	fprintf(stderr, fmt, ## __VA_ARGS__); \
+	fprintf(stderr, "\n"); \
+
+#define KNH_SYSLOG2(ctx, priority, fmt, ...) \
+	fflush(stdout); \
+	fprintf(stderr, "SYSLOG(%d)[%s:%d/%s]\n\t", priority, knh_safefile(_file), _line, _func); \
+	fprintf(stderr, fmt, ## __VA_ARGS__); \
+	fprintf(stderr, "\n"); \
 
 /* ======================================================================== */
 /* [DBGMODE2] */
@@ -40,12 +61,15 @@
 	knh_flush(ctx, KNH_STDOUT);\
 	fprintf(stdout, "\n"); \
 
+#ifdef KNH_USING_FASTMALLOC
+#define KNH_MALLOC(ctx, size)    knh_fastmalloc(ctx, size)
+#define KNH_FREE(ctx, p, size)   knh_fastfree(ctx, p, size)
+#else
+#define KNH_MALLOC(ctx, size)    DBG2_malloc(ctx, size, LOGDATA)
+#define KNH_FREE(ctx, p, size)   DBG2_free(ctx, p, size, LOGDATA)
+#endif
 
-#define KNH_MALLOC(ctx, size)    DBG2_malloc(ctx, size, (char*)__FUNCTION__)
-#define KNH_FREE(ctx, p, size)   DBG2_free(ctx, p, size, (char*)__FUNCTION__)
-
-
-#else /*KNH_DBGMODE2*/ 
+#else /*KNH_DBGMODE2*/
 
 #define DBG2_(stmt)
 #define DBG2_ASSERT(c) KNH_ASSERT(c)

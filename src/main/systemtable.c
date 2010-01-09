@@ -210,9 +210,9 @@ static void knh_initSharedData(knh_Context_t *ctx)
 
 /* ------------------------------------------------------------------------ */
 
-static void knh_ObjectPageTable_free(Ctx *ctx, char *thead)
+static void knh_ObjectPageTable_free(Ctx *ctx, char *opage)
 {
-	char *t = thead, *max = thead + SIZEOF_OBJECTPAGE;
+	char *t = opage, *max = opage + SIZEOF_OBJECTPAGE;
 	if((knh_uintptr_t)t % KNH_PAGESIZE != 0) {
 		t = (char*)((((knh_uintptr_t)t / KNH_PAGESIZE) + 1) * KNH_PAGESIZE);
 		KNH_ASSERT((knh_uintptr_t)t % KNH_PAGESIZE == 0);
@@ -244,12 +244,10 @@ static void knh_ObjectPageTable_free(Ctx *ctx, char *thead)
 			} );
 			o->h.refc = 0;
 #endif
-			/* BUGS: We cannot free cyclic objects at this stage */
-			// knh_Object_free(ctx, o);
+			knh_Object_free(ctx, o);
 		}
 		t += KNH_PAGESIZE;
 	}
-	KNH_FREE(ctx, thead, SIZEOF_OBJECTPAGE);
 }
 
 static void knh_traverseSharedData(Ctx *ctx, knh_share_t *share, knh_Ftraverse ftr)
@@ -307,7 +305,7 @@ static void knh_traverseSharedData(Ctx *ctx, knh_share_t *share, knh_Ftraverse f
 				if(t->fields[j].value != NULL)
 					ftr(ctx, t->fields[j].value);
 			}
-			fprintf(stderr, "free0 cid=%d, t->fsize=%d, t->fields=%p\n", i, t->fsize, t->fields);
+			DBG2_P("traverse cid=%d, t->fsize=%d, t->fields=%p\n", i, t->fsize, t->fields);
 		}
 		ftr(ctx, UP(t->cmap));
 		if(t->cspec != NULL) {
@@ -331,38 +329,46 @@ static void knh_traverseSharedData(Ctx *ctx, knh_share_t *share, knh_Ftraverse f
 		((knh_Context_t*)ctx)->fsweep = knh_Object_finalSweep;
 		KNH_ASSERT(share->ObjectPageTable != NULL);
 		for(i = 0; i < (int)(share->ObjectPageTableSize); i++) {
-			knh_ObjectPageTable_free(ctx, share->ObjectPageTable[i].thead);
-			share->ObjectPageTable[i].thead = NULL;
+			knh_ObjectPageTable_free(ctx, share->ObjectPageTable[i].opage);
 		}
-
-		KNH_ASSERT(share->LockTable != NULL);
-		KNH_FREE(ctx, share->LockTable, SIZEOF_TLOCK);
-		share->unusedLockTable = NULL;
 
 		for(i = 0; i < share->ClassTableSize; i++) {
 			knh_ClassTable_t *t = pClassTable(ctx, i);
 			if(t->fields != NULL) {
-				KNH_ASSERT(t->fsize > 0);
-				fprintf(stderr, "free cid=%d, t->fsize=%d, t->fields=%p\n", i, t->fsize, t->fields);
 				KNH_FREE(ctx, t->fields, sizeof(knh_fields_t) * t->fsize);
 				t->fields = NULL;
 			}
 		}
-
 		KNH_FREE(ctx, (void*)share->ClassTable, SIZEOF_TCLASS(share->ClassTableMax));
 		share->ClassTable = NULL;
+
+		KNH_ASSERT(share->ObjectPageTable != NULL);
+		for(i = 0; i < (int)(share->ObjectPageTableSize); i++) {
+			KNH_FREE(ctx, share->ObjectPageTable[i].opage, SIZEOF_OBJECTPAGE);
+			share->ObjectPageTable[i].opage = NULL;
+		}
 
 		KNH_FREE(ctx, share->ObjectPageTable,
 				share->ObjectPageTableMax * sizeof(knh_ObjectPageTable_t));
 		share->ObjectPageTable = NULL;
 
+		KNH_ASSERT(share->LockTable != NULL);
+		KNH_FREE(ctx, share->LockTable, SIZEOF_TLOCK);
+		share->unusedLockTable = NULL;
+
 		if(ctx->stat->usedMemorySize != 0) {
-			fprintf(stderr, "memory leaks: %d bytes", (int)ctx->stat->usedMemorySize);
+			KNH_SYSLOG0(ctx, LOG_WARNING, "memory leaks: %d bytes", (int)ctx->stat->usedMemorySize);
 		}
 
-		DBG_P("method cache hit/miss %d/%d", (int)ctx->stat->mtdCacheHit, (int)ctx->stat->mtdCacheMiss);
-		DBG_P("formatter cache hit/miss %d/%d", (int)ctx->stat->fmtCacheHit, (int)ctx->stat->fmtCacheMiss);
-		DBG_P("mapper cache hit/miss %d/%d", (int)ctx->stat->mprCacheHit, (int)ctx->stat->mprCacheMiss);
+		{
+			knh_stat_t *stat = ctx->stat;
+			KNH_SYSLOG0(ctx, LOG_INFO,
+				"method cache hit/miss %d/%d", (int)stat->mtdCacheHit, (int)stat->mtdCacheMiss);
+			KNH_SYSLOG0(ctx, LOG_INFO,
+				"formatter cache hit/miss %d/%d", (int)stat->fmtCacheHit, (int)stat->fmtCacheMiss);
+			KNH_SYSLOG0(ctx, LOG_INFO,
+				"mapper cache hit/miss %d/%d", (int)stat->mprCacheHit, (int)stat->mprCacheMiss);
+		}
 
 		knh_bzero(share, sizeof(knh_share_t) + sizeof(knh_stat_t));
 		free(share);
