@@ -307,6 +307,7 @@ static void knh_traverseSharedData(Ctx *ctx, knh_share_t *share, knh_Ftraverse f
 				if(t->fields[j].value != NULL)
 					ftr(ctx, t->fields[j].value);
 			}
+			fprintf(stderr, "free0 cid=%d, t->fsize=%d, t->fields=%p\n", i, t->fsize, t->fields);
 		}
 		ftr(ctx, UP(t->cmap));
 		if(t->cspec != NULL) {
@@ -342,6 +343,7 @@ static void knh_traverseSharedData(Ctx *ctx, knh_share_t *share, knh_Ftraverse f
 			knh_ClassTable_t *t = pClassTable(ctx, i);
 			if(t->fields != NULL) {
 				KNH_ASSERT(t->fsize > 0);
+				fprintf(stderr, "free cid=%d, t->fsize=%d, t->fields=%p\n", i, t->fsize, t->fields);
 				KNH_FREE(ctx, t->fields, sizeof(knh_fields_t) * t->fsize);
 				t->fields = NULL;
 			}

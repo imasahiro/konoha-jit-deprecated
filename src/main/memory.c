@@ -82,6 +82,7 @@ void knh_free(Ctx *ctx, void *block, size_t size)
 
 void *DBG2_malloc(Ctx *ctx, size_t size, char *func)
 {
+	DBG2_ASSERT(size != 0);
 	size_t *block = (size_t*)malloc(size + sizeof(size_t));
 	//if(size >32) { fprintf(stdout, "%p: M(%s, size=%d)\n", block, func, (int)size); };
 	if (unlikely(block == NULL)) {
@@ -99,6 +100,7 @@ void *DBG2_malloc(Ctx *ctx, size_t size, char *func)
 void DBG2_free(Ctx *ctx, void *p, size_t size, char *func)
 {
 	DBG_ASSERT_FREE();
+	DBG2_ASSERT(size != 0);
 	size_t *block = ((size_t*)p) - 1;
 	if(unlikely(size != block[0])) {
 		fprintf(stderr, "%s: ptr = %p, block.size = %d, free.size=%d", func, p, (int)block[0], (int)size);
@@ -180,55 +182,54 @@ knh_Object_t *new_UnusedObject(Ctx *ctx)
 /* ------------------------------------------------------------------------ */
 /* [fastmalloc] */
 
-static void knh_setFastMallocMemory(void *p)
+static int knh_isFastMallocMemory(void *p)
 {
 	knh_uintptr_t *b = (knh_uintptr_t*)((((knh_uintptr_t)p) / KNH_PAGESIZE) * KNH_PAGESIZE);
-	int n = ((Object*)p - (Object*)b); /*((knh_uintptr_t)p % KNH_PAGESIZE) / sizeof(knh_Object_t); */
-	int x = n / (sizeof(knh_uintptr_t)*8);
-	knh_uintptr_t mask = ((knh_uintptr_t)1) << (n % (sizeof(knh_uintptr_t)*8));
-	b[x] = b[x] | mask;
-}
-
-/* ------------------------------------------------------------------------ */
-
-static void knh_unsetFastMallocMemory(void *p)
-{
-	knh_uintptr_t *b = (knh_uintptr_t*)((((knh_uintptr_t)p) / KNH_PAGESIZE) * KNH_PAGESIZE);
-	int n = ((Object*)p - (Object*)b); /*((knh_uintptr_t)p % KNH_PAGESIZE) / sizeof(knh_Object_t); */
-	int x = n / (sizeof(knh_uintptr_t)*8);
-	knh_uintptr_t mask = ((knh_uintptr_t)1) << (n % (sizeof(knh_uintptr_t)*8));
-	b[x] = b[x] & ~(mask);
-}
-
-/* ------------------------------------------------------------------------ */
-
-int knh_isFastMallocMemory(void *p)
-{
-	knh_uintptr_t *b = (knh_uintptr_t*)((((knh_uintptr_t)p) / KNH_PAGESIZE) * KNH_PAGESIZE);
-	int n = ((Object*)p - (Object*)b); /*((knh_uintptr_t)p % KNH_PAGESIZE) / sizeof(knh_Object_t); */
+	int n = ((Object*)p - (Object*)b);
 	int x = n / (sizeof(knh_uintptr_t)*8);
 	knh_uintptr_t mask = ((knh_uintptr_t)1) << (n % (sizeof(knh_uintptr_t)*8));
 	return ((b[x] & mask) == mask);
 }
 
-/* ------------------------------------------------------------------------ */
+static void knh_setFastMallocMemory(void *p)
+{
+	knh_uintptr_t *b = (knh_uintptr_t*)((((knh_uintptr_t)p) / KNH_PAGESIZE) * KNH_PAGESIZE);
+	int n = ((Object*)p - (Object*)b);
+	int x = n / (sizeof(knh_uintptr_t)*8);
+	knh_uintptr_t mask = ((knh_uintptr_t)1) << (n % (sizeof(knh_uintptr_t)*8));
+	KNH_ASSERT((b[x] & mask) != mask);
+	b[x] = b[x] | mask;
+	KNH_ASSERT((b[x] & mask) == mask);
+}
+
+static void knh_unsetFastMallocMemory(void *p)
+{
+	knh_uintptr_t *b = (knh_uintptr_t*)((((knh_uintptr_t)p) / KNH_PAGESIZE) * KNH_PAGESIZE);
+	int n = ((Object*)p - (Object*)b);
+	int x = n / (sizeof(knh_uintptr_t)*8);
+	knh_uintptr_t mask = ((knh_uintptr_t)1) << (n % (sizeof(knh_uintptr_t)*8));
+	KNH_ASSERT((b[x] & mask) == mask);
+	b[x] = b[x] & ~(mask);
+	KNH_ASSERT((b[x] & mask) != mask);
+}
+
 #define CHECK_UNUSED_OBJECT(ctx) { \
 if(unlikely(ctx->unusedObject == NULL)) { \
 		KNH_ASSERT(ctx->unusedObjectSize == 0); \
 		((knh_Context_t*)ctx)->unusedObject = new_UnusedObject(ctx); \
 	} \
 } \
-/* ------------------------------------------------------------------------ */
 
+/* ------------------------------------------------------------------------ */
 
 void *knh_fastmalloc(Ctx *ctx, size_t size)
 {
+	DBG2_ASSERT(size != 0);
 	if(size <= KNH_FASTMALLOC_SIZE) {
 		CHECK_UNUSED_OBJECT(ctx);
 		Object *o = ctx->unusedObject;
 		((knh_Context_t*)ctx)->unusedObject = (knh_Object_t*)o->ref;
 		((knh_Context_t*)ctx)->unusedObjectSize -= 1;
-		DBG2_ASSERT(!knh_isFastMallocMemory((void*)o));
 		knh_setFastMallocMemory((void*)o);
 		return (void*)o;
 	}
@@ -250,18 +251,32 @@ void knh_fastfree(Ctx *ctx, void *block, size_t size)
 {
 	DBG_ASSERT_FREE();
 	if(size <= KNH_FASTMALLOC_SIZE) {
-		DBG2_ASSERT(knh_isFastMallocMemory(block));
-		knh_unsetFastMallocMemory(block);
 		knh_Object_t *o = (knh_Object_t*)block;
 		o->ref = ctx->unusedObject;
 		((knh_Context_t*)ctx)->unusedObject = o;
 		((knh_Context_t*)ctx)->unusedObjectSize += 1;
 		o->h.magic = 0;
+		knh_unsetFastMallocMemory(block);
 	}
 	else {
 		SECURE_bzero(block, size);
 		free(block);
 		knh_stat_dclUsedMemorySize(ctx, size);
+	}
+}
+
+void UTEST_fastmalloc(Ctx *ctx)
+{
+	int i = 0;
+	void *a[10000] = {NULL};
+	for(i = 0; i < 10000; i++) {
+		a[i] = knh_fastmalloc(ctx, KNH_FASTMALLOC_SIZE);
+		memset(a[i], i % 128, KNH_FASTMALLOC_SIZE);
+	}
+
+	for(i = 0; i < 10000; i++) {
+		knh_bzero(a[i], KNH_FASTMALLOC_SIZE);
+		knh_fastfree(ctx, a[i], KNH_FASTMALLOC_SIZE);
 	}
 }
 
