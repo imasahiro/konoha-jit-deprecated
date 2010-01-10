@@ -589,7 +589,7 @@ KNHAPI(knh_bytes_t) knh_bytes_parsecid(Ctx *ctx, knh_bytes_t t, int delim, knh_c
 {
 	knh_index_t loc = knh_bytes_index(t, delim);
 	if(loc > 0) {
-		*cid = knh_NameSpace_getcid(ctx, ctx->share->mainns, knh_bytes_first(t, loc));
+		*cid = knh_NameSpace_findcid(ctx, ctx->share->mainns, knh_bytes_first(t, loc));
 		return knh_bytes_last(t, delim + 1);
 	}
 	else {

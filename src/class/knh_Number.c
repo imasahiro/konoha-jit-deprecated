@@ -239,21 +239,12 @@ void KNH_TAFFINE(Ctx *ctx, knh_class_t scid, knh_class_t tcid, knh_float_t scale
 
 KNHAPI(void) knh_addAffineMapper(Ctx *ctx, knh_class_t scid, char *text, knh_float_t scale, knh_float_t shift)
 {
-	//DBG2_ASSERT_cid(scid);
-	knh_class_t tcid = knh_findcid(ctx, B(text));
-	if(tcid != CLASS_unknown && ctx->share->ClassTable[tcid].bcid != tcid) {
+	knh_class_t tcid = knh_getcid(ctx, B(text));
+	if(tcid != CLASS_unknown && ClassTable(tcid).bcid != tcid) {
 		KNH_TAFFINE(ctx, scid, tcid, scale, shift);
-#ifndef KONOHA_ON_LKM
-		if(scale != 0.0) {
+		if(scale != KNH_FLOAT_ZERO) {
 			KNH_TAFFINE(ctx, tcid, scid, 1.0 / scale, -(shift/scale));
 		}
-#else
-		if(scale != 0) {
-			KNH_TAFFINE(ctx, tcid, scid, 1 / scale, -(shift/scale));
-		}
-#endif
-
-
 	}
 }
 

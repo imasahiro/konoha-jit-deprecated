@@ -38,7 +38,7 @@ extern "C" {
 /* ======================================================================== */
 /* [ClassTable] */
 
-knh_class_t knh_ClassTable_newId(Ctx *ctx)
+knh_class_t new_ClassId(Ctx *ctx)
 {
 	knh_class_t newid;
 	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
@@ -208,11 +208,12 @@ void knh_setClassParam(Ctx *ctx, knh_class_t cid, knh_class_t p1, knh_class_t p2
 KNHAPI(void) knh_loadClassData(Ctx *ctx0, knh_ClassData_t *data)
 {
 	KNH_ASSERT_CTX0(ctx0);
+	knh_NameSpace_t *ns = DP(ctx0->kc)->ns;
 	while(data->cspi != NULL) {
-		knh_class_t cid = knh_ClassTable_newId(ctx0);
-		knh_class_t supcid = (data->supname == NULL) ? CLASS_Object : knh_findcid(ctx0, B(data->supname));
-		knh_class_t p1 = (data->p1 == NULL) ? TYPE_void : knh_findcid(ctx0, B(data->p1));
-		knh_class_t p2 = (data->p2 == NULL) ? TYPE_void : knh_findcid(ctx0, B(data->p2));
+		knh_class_t cid = new_ClassId(ctx0);
+		knh_class_t supcid = (data->supname == NULL) ? CLASS_Object : knh_NameSpace_findcid(ctx0, ns, B(data->supname));
+		knh_class_t p1 = (data->p1 == NULL) ? TYPE_void : knh_NameSpace_findcid(ctx0, ns, B(data->p1));
+		knh_class_t p2 = (data->p2 == NULL) ? TYPE_void : knh_NameSpace_findcid(ctx0, ns, B(data->p2));
 		knh_ClassTable_t *t = pClassTable(ctx0, cid);
 		t->cflag  = data->cspi->cflag;
 		t->oflag  = t->oflag;
@@ -248,7 +249,7 @@ knh_addGenericsClass(Ctx *ctx, knh_class_t cid, knh_String_t *name, knh_class_t 
 	knh_ClassTable_t *t, *bt;
 	knh_flag_t mask = 0;
 	if(cid == CLASS_newid) {
-		cid = knh_ClassTable_newId(ctx);
+		cid = new_ClassId(ctx);
 	}
 	DBG2_ASSERT(bcid < cid);
 	t = pClassTable(ctx, cid);

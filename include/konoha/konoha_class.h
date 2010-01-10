@@ -949,19 +949,34 @@ typedef struct knh_Script_t {
 
 typedef struct knh_NameSpace {
 	knh_String_t*           nsname;
-	struct knh_Script_t*    script;
-	knh_Array_t*            importedNameSpaces;
+	struct knh_NameSpace_t  *parent;
 	struct knh_DictSet_t*   name2cidDictSet;
 	struct knh_DictSet_t*   func2cidDictSet;
-	struct knh_DictSet_t*   pathTrustDictSet;
+/*	struct knh_DictSet_t*   pathTrustDictSet; */
 	struct knh_DictMap_t*   lconstDictMap;
-	struct knh_DictMap_t*   tag2urnDictMap;
+/*	struct knh_DictMap_t*   tag2urnDictMap; */
 } knh_NameSpace_struct;
 
 typedef struct knh_NameSpace_t {
 	knh_hObject_t h;
 	knh_NameSpace_struct *b;
 } knh_NameSpace_t;
+
+/* ------------------------------------------------------------------------ */
+//## @Struct class Package Object;
+
+typedef struct knh_Package {
+	knh_String_t*           name;
+	struct knh_Script_t    *script;
+	void *hdlr;
+	struct knh_PackageData_t* pdata;
+} knh_Package_struct;
+
+
+typedef struct knh_Package_t {
+	knh_hObject_t h;
+	knh_Package_struct *b;
+} knh_Package_t;
 
 /* ------------------------------------------------------------------------ */
 //## @Singleton @Struct class System Object;
@@ -983,7 +998,7 @@ typedef struct {
 	struct knh_DictSet_t *ClassNameDictSet;
 	struct knh_DictSet_t *ExptNameDictSet;
 
-	struct knh_DictMap_t* NameSpaceTableDictMap;
+	struct knh_DictMap_t* PackageDictMap;
 	struct knh_DictMap_t* URNAliasDictMap;
 	struct knh_DictSet_t *DriversTableDictSet;
 	struct knh_DictSet_t *SpecFuncDictSet;
@@ -1197,7 +1212,6 @@ typedef struct knh_Stmt_t {
 /* Gamma */
 /* ------------------------------------------------------------------------ */
 
-/* ------------------------------------------------------------------------ */
 //## @Struct @Private class Gamma Object;
 //## flag Gamma Cancelled  0 DP(%s)->flag is  set   * *;
 //## flag Gamma Quiet      1 DP(%s)->flag is  set   * *;
@@ -1225,6 +1239,7 @@ typedef struct {
 	knh_flag_t               flag;
 	knh_flag_t               pflag;
 	struct knh_NameSpace_t*  ns;
+	struct knh_Script_t*     script;
 	struct knh_Method_t*     mtd;
 	knh_class_t              this_cid;
 	knh_type_t               rtype;

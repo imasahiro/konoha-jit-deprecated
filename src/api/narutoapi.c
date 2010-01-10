@@ -62,7 +62,7 @@ static METHOD Script_eval(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 		KNH_LPUSH(ctx, in);
 		DP(in)->uri = URI_EVAL;
 		DP(in)->line = 0;
-		knh_NameSpace_load(ctx, ctx->share->mainns, in, 1/*isEval*/,0/*isThrowable*/);
+		knh_Script_load(ctx, ctx->share->mainns, in, 1/*isEval*/,0/*isThrowable*/);
 		knh_cwb_close(cwb);
 		KNH_LOCALBACK(ctx, lsfp);
 	}

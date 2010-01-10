@@ -72,40 +72,9 @@ void TERMs_asm(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_type_t reqt, int local)
 /* ======================================================================== */
 /* [namespace] */
 
-knh_NameSpace_t *knh_getGammaNameSpace(Ctx *ctx)
-{
-	return DP(ctx->kc)->ns;
-}
-
-/* ------------------------------------------------------------------------ */
-
-knh_NameSpace_t *knh_setGammaNameSpace(Ctx *ctx, knh_String_t *nsname)
-{
-	knh_Gamma_t *kc = ctx->kc;
-	if(IS_NULL(nsname) || knh_String_equals(nsname, STEXT("main"))) {
-		KNH_SETv(ctx, DP(kc)->ns, ctx->share->mainns);
-	}
-	else {
-		KNH_SETv(ctx, DP(kc)->ns, knh_getNameSpace(ctx, __tobytes(nsname)));
-	}
-	return DP(kc)->ns;
-}
-
-/* ------------------------------------------------------------------------ */
-
-knh_NameSpace_t *knh_switchGammaNameSpace(Ctx *ctx, knh_NameSpace_t *newns)
-{
-	knh_Gamma_t *kc = ctx->kc;
-	knh_NameSpace_t *oldns = DP(kc)->ns;
-	KNH_SETv(ctx, DP(kc)->ns, newns);
-	return oldns;
-}
-
-/* ------------------------------------------------------------------------ */
-
 knh_Script_t *knh_getGammaScript(Ctx *ctx)
 {
-	return knh_NameSpace_getScript(ctx, DP(ctx->kc)->ns);
+	return DP(ctx->kc)->script;
 }
 
 /* ------------------------------------------------------------------------ */

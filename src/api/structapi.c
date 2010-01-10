@@ -1812,27 +1812,24 @@ static knh_ObjectCSPI_t ScriptSPI = {
 static FASTAPI(void) knh_NameSpace_init(Ctx *ctx, Object *o, int init)
 {
 	knh_NameSpace_struct *b = DP((knh_NameSpace_t*)o);
-	KNH_INITv(b->nsname, KNH_NULL);
-	KNH_INITv(b->name2cidDictSet, new_DictSet(ctx, 64));
-	KNH_INITv(b->script, KNH_NULL);
-	KNH_INITv(b->importedNameSpaces, KNH_NULL);
+	KNH_INITv(b->parent, KNH_NULL);
+	KNH_INITv(b->nsname, TS_main);
+	KNH_INITv(b->name2cidDictSet, KNH_NULL);
 	KNH_INITv(b->lconstDictMap, KNH_NULL);
-	KNH_INITv(b->tag2urnDictMap, KNH_NULL);
 	KNH_INITv(b->func2cidDictSet, KNH_NULL);
-	KNH_INITv(b->pathTrustDictSet, KNH_NULL);
+//	KNH_INITv(b->tag2urnDictMap, KNH_NULL);
+//	KNH_INITv(b->pathTrustDictSet, KNH_NULL);
 }
 
 static FASTAPI(void) knh_NameSpace_traverse(Ctx *ctx, Object *o, knh_Ftraverse ftr)
 {
 	knh_NameSpace_struct *b = DP((knh_NameSpace_t*)o);
 	ftr(ctx, UP(b->nsname));
-	ftr(ctx, UP(b->script));
-	ftr(ctx, UP(b->importedNameSpaces));
 	ftr(ctx, UP(b->lconstDictMap));
 	ftr(ctx, UP(b->name2cidDictSet));
-	ftr(ctx, UP(b->tag2urnDictMap));
 	ftr(ctx, UP(b->func2cidDictSet));
-	ftr(ctx, UP(b->pathTrustDictSet));
+//	ftr(ctx, UP(b->tag2urnDictMap));
+//	ftr(ctx, UP(b->pathTrustDictSet));
 }
 
 static FASTAPI(void*) knh_NameSpace_hashkey(Ctx *ctx, knh_sfp_t *sfp, int opt)
@@ -1850,6 +1847,35 @@ static knh_ObjectCSPI_t NameSpaceSPI = {
 	knh_NameSpace_traverse, DEFAULT_checkout,
 	DEFAULT_compareTo,
 	knh_NameSpace_hashkey,
+	DEFAULT_genmap,
+};
+
+/* ======================================================================== */
+/* Package */
+
+static FASTAPI(void) knh_Package_init(Ctx *ctx, Object *o, int init)
+{
+	knh_Package_struct *b = DP((knh_Package_t*)o);
+	KNH_INITv(b->name, TS_EMPTY);
+	KNH_INITv(b->script, KNH_NULL);
+	b->hdlr = NULL;
+	b->pdata = NULL;
+}
+
+static FASTAPI(void) knh_Package_traverse(Ctx *ctx, Object *o, knh_Ftraverse ftr)
+{
+	knh_Package_struct *b = DP((knh_Package_t*)o);
+	ftr(ctx, UP(b->name));
+	ftr(ctx, UP(b->script));
+}
+
+static knh_ObjectCSPI_t PackageSPI = {
+	"Package", sizeof(knh_Package_struct), CFLAG_Package,
+	knh_Package_init,
+	DEFAULT_copy,
+	knh_Package_traverse, DEFAULT_checkout,
+	DEFAULT_compareTo,
+	DEFAULT_hashkey,
 	DEFAULT_genmap,
 };
 
@@ -1885,7 +1911,7 @@ static FASTAPI(void) knh_System_init(Ctx *ctx, Object *o, int init)
 	KNH_INITv(sys->DriversTableDictSet, new_DictSet(ctx, 32));
 	KNH_INITv(sys->SpecFuncDictSet, new_DictSet(ctx, 32));
 
-	KNH_INITv(sys->NameSpaceTableDictMap, new_DictMap0(ctx, 8));
+	KNH_INITv(sys->PackageDictMap, new_DictMap0(ctx, 8));
 	KNH_INITv(sys->URNAliasDictMap, new_DictMap0(ctx, 8));
 	KNH_INITv(sys->UsingResources, new_Array0(ctx, 0));
 
@@ -1910,7 +1936,7 @@ static FASTAPI(void) knh_System_traverse(Ctx *ctx, Object *o, knh_Ftraverse ftr)
 	ftr(ctx, UP(sys->ResourceDictIdx));
 
 	ftr(ctx, UP(sys->MethodFieldHashMap));
-	ftr(ctx, UP(sys->NameSpaceTableDictMap));
+	ftr(ctx, UP(sys->PackageDictMap));
 	ftr(ctx, UP(sys->URNAliasDictMap));
 
 	ftr(ctx, UP(sys->DriversTableDictSet));
@@ -2146,6 +2172,7 @@ static FASTAPI(void) knh_Gamma_traverse(Ctx *ctx, Object *o, knh_Ftraverse ftr)
 		b->dlhdr = NULL;
 	}
 	ftr(ctx, UP(b->ns));
+	ftr(ctx, UP(b->script));
 	ftr(ctx, UP(b->mtd));
 	ftr(ctx, UP(b->lstacks));
 	ftr(ctx, UP(b->insts));
@@ -2370,7 +2397,7 @@ char *knh_getStructTableName(Ctx *ctx, knh_class_t bcid)
 static void knh_loadClassData0(Ctx *ctx, knh_ClassData0_t *data)
 {
 	while(data->name != NULL) {
-		knh_class_t cid = knh_ClassTable_newId(ctx);
+		knh_class_t cid = new_ClassId(ctx);
 		DBG2_ASSERT(cid == data->cid);
 		if(data->bcid == CLASS_Closure && data->cid != data->bcid) {
 			knh_addClosureClass(ctx, data->cid, T__(data->name), data->r0, data->p1, data->p2, data->p3);

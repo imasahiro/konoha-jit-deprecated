@@ -389,7 +389,7 @@ KNHAPI(void) konoha_evalScript(konoha_t konoha, char *script)
 		knh_InputStream_t *in = new_BytesInputStream(ctx, cwb->ba, cwb->pos, knh_Bytes_size(cwb->ba));
 		DP(in)->uri = URI_EVAL;
 		DP(in)->line = 0;
-		knh_NameSpace_load(ctx, ctx->share->mainns, in, 1/*isEval*/,0/*isThrowable*/);
+		knh_Script_load(ctx, ctx->share->mainns, in, 1/*isEval*/,0/*isThrowable*/);
 	}
 	knh_cwb_close(cwb);
 	KNH_LOCALBACK(ctx, lsfp);
@@ -408,7 +408,7 @@ KNHAPI(int) konoha_loadScript(konoha_t konoha, char *fpath)
 	KNH_LPUSH(ctx, in);
 	if(!knh_InputStream_isClosed(ctx, in)) {
 		int isEval = (knh_Context_isCompiling(ctx)) ? 0 : 1;
-		knh_NameSpace_load(ctx, ctx->share->mainns, in, isEval, 0/*isThrowable*/);
+		knh_Script_load(ctx, ctx->share->mainns, in, isEval, 0/*isThrowable*/);
 	}
 	else {
 		knh_setRuntimeError(ctx, T__("script file doesn't exists"));
@@ -442,10 +442,7 @@ KNHAPI(int) konoha_runMain(konoha_t konoha, int argc, char **argv)
     KNH_MOV(ctx, lsfp[0].o, new_ExceptionHandler(ctx));
     KNH_TRY(ctx, L_CATCH, lsfp, 0);
     {
-        knh_NameSpace_t *ns = ctx->share->mainns;
-        knh_Script_t *scr = knh_NameSpace_getScript(ctx, ns);
-        knh_Method_t *mtd = knh_Class_getMethod(ctx, knh_Object_cid(scr), METHODN_main);
-
+        knh_Method_t *mtd = knh_Class_getMethod(ctx, knh_Object_cid(ctx->script), METHODN_main);
         knh_setArgv(ctx, argc, argv);
 
         if(IS_NULL(mtd)) {
@@ -460,7 +457,7 @@ KNHAPI(int) konoha_runMain(konoha_t konoha, int argc, char **argv)
             else {
                 //KNH_MOV(ctx, lsfp[1].o, mtd);
                 knh_Array_t *a = (knh_Array_t*)knh_getProperty(ctx, B("argv"));
-                KNH_MOV(ctx, lsfp[2].o, scr);
+                KNH_MOV(ctx, lsfp[2].o, ctx->script);
                 KNH_MOV(ctx, lsfp[3].o, a);
                 KNH_SCALL(ctx, lsfp, 1, mtd, /* args*/ 1);
             }
@@ -586,20 +583,16 @@ KNHAPI(int) konoha_setMethodFunc(konoha_t konoha, char *name, knh_Fmethod func)
 {
 	KONOHA_CHECK(konoha, -1);
 	Ctx *ctx = knh_beginContext(konoha.ctx);
-	knh_NameSpace_t *ns = ctx->share->mainns;
 	knh_class_t cid; knh_methodn_t mn;
 	knh_bytes_t n = B(name);
 	knh_index_t loc = knh_bytes_rindex(n, '.');
 	if(loc == -1) {
-		cid = knh_Object_cid(knh_NameSpace_getScript(ctx, ns));
+		cid = CLASS_Script;
 	}
 	else {
-		cid = knh_NameSpace_getcid(ctx, ns, knh_bytes_first(n, loc));
+		cid = knh_getcid(ctx, knh_bytes_first(n, loc));
 		if(cid == CLASS_unknown) {
-			cid = knh_getcid(ctx, knh_bytes_first(n, loc));
-			if(cid == CLASS_unknown) {
-				goto L_ERROR;
-			}
+			goto L_ERROR;
 		}
 		n = knh_bytes_last(n, loc+1);
 	}
@@ -1111,7 +1104,7 @@ KNHAPI(void) konoha_shell(konoha_t konoha)
 				DP(in)->line = linenum;
 				knh_InputStream_setEncoding(ctx, in, KNH_ENC);
 				shellContext = ctx;
-				knh_NameSpace_load(ctx, ctx->share->mainns, in, 1/*isEval*/, 0/*isThrowable*/);
+				knh_Script_load(ctx, ctx->share->mainns, in, 1/*isEval*/, 0/*isThrowable*/);
 				shellContext = NULL;
 				knh_cwb_close(cwb);
 			}

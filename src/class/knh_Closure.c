@@ -193,7 +193,7 @@ knh_addClosureClass(Ctx *ctx, knh_class_t cid, knh_String_t *name, knh_type_t r0
 	knh_ClassTable_t *t = NULL;
 	knh_flag_t mask = 0;
 	if(cid == CLASS_newid) {
-		cid = knh_ClassTable_newId(ctx);
+		cid = new_ClassId(ctx);
 	}
 	/* knh_ClassTable_t */ t = pClassTable(ctx, cid);
 	KNH_ASSERT(ClassTable(cid).sname == NULL);
@@ -423,7 +423,7 @@ knh_class_t knh_addThunkClass(Ctx *ctx, knh_class_t cid, knh_String_t *name, knh
 	knh_ClassTable_t *t = NULL;
 	knh_flag_t mask = 0;
 	if(cid == CLASS_newid) {
-		cid = knh_ClassTable_newId(ctx);
+		cid = new_ClassId(ctx);
 	}
 
 	/* knh_ClassTable_t */ t = pClassTable(ctx, cid);

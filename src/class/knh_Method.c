@@ -395,12 +395,12 @@ knh_MethodField_t *new_MethodField__parse(Ctx *ctx, knh_type_t rtype, knh_bytes_
 KNHAPI(void) knh_loadMethodData(Ctx *ctx, knh_MethodData_t *data)
 {
 	knh_MethodField_t *mf = NULL;
-	knh_NameSpace_t *ns = DP(ctx->kc)->ns;
+	knh_NameSpace_t *ns = knh_getGammaNameSpace(ctx);
 	knh_type_t prev_rtype = CLASS_unknown;
 	knh_bytes_t prev_params = {(knh_uchar_t*)"", 0};
 	KNH_ASSERT_CTX0(ctx);
 	while(data->func != NULL) {
-		knh_class_t cid = knh_NameSpace_getcid(ctx, ns, B(data->cname));
+		knh_class_t cid = knh_NameSpace_findcid(ctx, ns, B(data->cname));
 		knh_methodn_t mn = knh_getmn(ctx, B(data->mname), METHODN_NEWID);
 		if(cid != CLASS_unknown) {
 			knh_Method_t *mtd = new_Method(ctx, data->flag, cid, mn, data->func);

@@ -204,7 +204,8 @@ static void knh_initSharedData(knh_Context_t *ctx)
 	KNH_INITv(ctx->sys, new_Object_bcid(ctx, CLASS_System, 0));
 	knh_loadSystemData(ctx);
 
-	KNH_INITv(share->mainns, new_NameSpace(ctx, TS_main));
+	KNH_INITv(share->mainns, new_NameSpace(ctx, NULL));
+	KNH_INITv(ctx->script, new_Script(ctx, share->mainns, CLASS_Script, CLASS_Object));
 	share->ctx0 = ctx;
 }
 
@@ -320,7 +321,6 @@ static void knh_traverseSharedData(Ctx *ctx, knh_share_t *share, knh_Ftraverse f
 
 	/* System Table */
 	if(IS_SWEEP(ftr)) {
-		DBG2_P("*** FREEING ALL SYSTEM TABLES ***");
 		KNH_FREE(ctx, (void*)share->ExptTable, SIZEOF_TEXPT(ctx->share->ExptTableMax));
 		share->ExptTable = NULL;
 		KNH_FREE(ctx, share->tString, SIZEOF_TSTRING);
@@ -369,7 +369,6 @@ static void knh_traverseSharedData(Ctx *ctx, knh_share_t *share, knh_Ftraverse f
 			KNH_SYSLOG0(ctx, LOG_INFO,
 				"mapper cache hit/miss %d/%d", (int)stat->mprCacheHit, (int)stat->mprCacheMiss);
 		}
-
 		knh_bzero(share, sizeof(knh_share_t) + sizeof(knh_stat_t));
 		free(share);
 	}
@@ -416,6 +415,9 @@ void knh_Context_initCommon(Ctx *ctx, knh_Context_t *o, size_t stacksize)
 	KNH_INITv(o->props, new_DictMap0(ctx, 16));
 
 	DBG2_ASSERT(ctx->sys != NULL);
+	if(o->script == NULL) {
+		KNH_INITv(o->script, new_Script(ctx, ctx->share->mainns, new_ClassId(ctx), CLASS_Script));
+	}
 	KNH_INITv(o->enc, DP(ctx->sys)->enc);
 	KNH_INITv(o->in,  DP(ctx->sys)->in);
 	KNH_INITv(o->out, DP(ctx->sys)->out);
@@ -428,6 +430,7 @@ void knh_Context_initCommon(Ctx *ctx, knh_Context_t *o, size_t stacksize)
 	if(ctx->ctxid == 0) {
 		knh_Gamma_t *kc = (knh_Gamma_t*)new_Object_bcid(ctx, CLASS_Gamma, 0);
 		KNH_INITv(o->kc, kc);
+		KNH_INITv(DP(kc)->script, o->script);
 		KNH_INITv(DP(kc)->symbolDictMap, new_DictMap0(ctx, 256));
 		KNH_INITv(DP(kc)->constPools, new_Array0(ctx, 0));
 	}
@@ -650,13 +653,13 @@ KNHAPI(void) konoha_close(konoha_t konoha)
 		fprintf(stderr, "Many threads are still running... Found %d threads", (int)ctx->share->threadCounter);
 		return;
 	}
-	{
-		knh_ObjectField_t *scr = (knh_ObjectField_t*)knh_NameSpace_getScript(ctx, ctx->share->mainns);
-		ClassTable(CLASS_ObjectField).cspi->traverse(ctx, UP(scr), ctx->fsweep);
-		(scr)->h.cid = CLASS_Object;
-		(scr)->h.bcid = CLASS_Object;
-		KNH_FREE(ctx, scr->fields, sizeof(Object*) * KNH_SCRIPT_FIELDSIZE);
-	}
+//	{
+//		knh_ObjectField_t *scr = (knh_ObjectField_t*)ctx;
+//		ClassTable(CLASS_ObjectField).cspi->traverse(ctx, UP(scr), ctx->fsweep);
+//		(scr)->h.cid = CLASS_Object;
+//		(scr)->h.bcid = CLASS_Object;
+//		KNH_FREE(ctx, scr->fields, sizeof(Object*) * KNH_SCRIPT_FIELDSIZE);
+//	}
 	knh_Context_traverse(konoha.ctx, ctx, ctx->fsweep);
 }
 

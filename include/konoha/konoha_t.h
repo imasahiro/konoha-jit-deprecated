@@ -744,6 +744,7 @@ typedef struct {
 	struct knh_String_t  **tString;
 	struct knh_Context_t     *ctx0;
 	struct knh_NameSpace_t   *mainns;
+	struct knh_Script_t      *script;
 
 	/* thread */
 	size_t              contextCounter;
@@ -782,8 +783,8 @@ typedef struct knh_Context_t {
 	struct knh_Mapper_t         **mprCache;
 
 	/* shared table */
-	const knh_share_t       *share;
-	knh_stat_t                *stat;
+	const knh_share_t           *share;
+	knh_stat_t                  *stat;
 
 	knh_flag_t                   flag;
 	knh_ushort_t                 ctxid;
@@ -793,6 +794,7 @@ typedef struct knh_Context_t {
 	const struct knh_Context_t   *unusedContext;
 
 	struct knh_System_t*         sys;
+	struct knh_Script_t*         script;
 	struct knh_String_t*         enc;
 	struct knh_InputStream_t*    in;
 	struct knh_OutputStream_t*   out;

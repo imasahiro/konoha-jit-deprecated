@@ -325,7 +325,7 @@ void knh_Semantics_reuse(Ctx *ctx, knh_Semantics_t *u, knh_class_t cid)
 
 KNHAPI(knh_Semantics_t*) new_Enum(Ctx *ctx, char *tag, knh_bytes_t urn, knh_int_t min, knh_int_t max)
 {
-	knh_class_t cid = knh_ClassTable_newId(ctx);
+	knh_class_t cid = new_ClassId(ctx);
 	knh_Semantics_t* u = (knh_Semantics_t*)new_Object_bcid(ctx, CLASS_Semantics, (int)cid);
 	DP(u)->ubcid = CLASS_Int;
 	KNH_SETv(ctx, DP(u)->urn, new_String(ctx, urn, NULL));
@@ -348,7 +348,7 @@ KNHAPI(knh_Semantics_t*) new_Enum(Ctx *ctx, char *tag, knh_bytes_t urn, knh_int_
 
 KNHAPI(knh_Semantics_t*) new_Unit(Ctx *ctx, char *tag, knh_bytes_t urn, knh_float_t min, knh_float_t max, knh_float_t step)
 {
-	knh_class_t cid = knh_ClassTable_newId(ctx);
+	knh_class_t cid = new_ClassId(ctx);
 	knh_Semantics_t* u = (knh_Semantics_t*)new_Object_bcid(ctx, CLASS_Semantics, (int)cid);
 	DP(u)->ubcid = CLASS_Float;
 	KNH_SETv(ctx, DP(u)->urn, new_String(ctx, urn, NULL));
@@ -449,7 +449,7 @@ MAPPER knh_Fmapper_vocab(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 KNHAPI(knh_Semantics_t*) new_Vocab(Ctx *ctx, char *tag, knh_bytes_t urn, int base, char **terms)
 {
-	knh_class_t cid = knh_ClassTable_newId(ctx);
+	knh_class_t cid = new_ClassId(ctx);
 	knh_Semantics_t* u = (knh_Semantics_t*)new_Object_bcid(ctx, CLASS_Semantics, (int)cid);
 	DP(u)->ubcid = CLASS_String;
 	KNH_SETv(ctx, DP(u)->urn, new_String(ctx, urn, NULL));
@@ -674,7 +674,7 @@ knh_class_t knh_addSpecializedType(Ctx *ctx, knh_class_t cid, knh_class_t supcid
 	knh_class_t bcid = knh_class_bcid(supcid);
 	char bufcn[CLASSNAME_BUFSIZ];
 	if(cid == CLASS_newid) {
-		cid = knh_ClassTable_newId(ctx);
+		cid = new_ClassId(ctx);
 	}
 	knh_snprintf(bufcn, sizeof(bufcn), KNH_SEMANTICS_FMT, CLASSN(bcid), __tochar(DP(u)->urn));
 	knh_setClassName(ctx, cid, new_String(ctx, B(bufcn), NULL));

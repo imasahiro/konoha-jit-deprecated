@@ -38,32 +38,32 @@ extern "C" {
 /* ======================================================================== */
 /* [constructors] */
 
-knh_Script_t *new_Script(Ctx *ctx, knh_bytes_t nsname)
+knh_Script_t *new_Script(Ctx *ctx, knh_NameSpace_t *ns, knh_class_t cid, knh_class_t supcid)
 {
 	size_t i;
-	knh_class_t cid = knh_ClassTable_newId(ctx);
-	knh_Script_t *o = (knh_Script_t*)new_Object_init(ctx, FLAG_Script, CLASS_Script, 0);
-	o->h.cid = cid;
-
-	char buf[CLASSNAME_BUFSIZ];
+	knh_Script_t *script = (knh_Script_t*)new_Object_init(ctx, FLAG_Script, CLASS_Script, 0);
 	knh_ClassTable_t *t = (knh_ClassTable_t*)(&ClassTable(cid));
-	knh_snprintf(buf, sizeof(buf), "%s.Script", (char*)nsname.buf);
-	DBG2_ASSERT(ClassTable(cid).cspi == NULL);
-	t->cspi  = ClassTable(CLASS_Script).cspi;
+	if(cid != CLASS_Script) {
+		char buf[CLASSNAME_BUFSIZ];
+		script->h.cid = cid;
+		DBG2_ASSERT(ClassTable(cid).cspi == NULL);
+		DBG2_ASSERT(t->cmap == NULL);
+		knh_snprintf(buf, sizeof(buf), "%s%d.Script", __tochar(DP(ns)->nsname), (int)cid);
+		knh_setClassName(ctx, cid, new_String(ctx, B(buf), NULL));
+		t->cflag  = CFLAG_Script;
+		t->oflag  = FLAG_Script;
+		t->bcid   = CLASS_Script; /* CLASS_Object */
+		t->supcid = supcid;
+		t->offset = 0;
+		t->cspi = ClassTable(CLASS_Script).cspi;
+		KNH_INITv(t->methods, new_Array0(ctx, 0));
+		KNH_INITv(t->cmap, ClassTable(CLASS_Script).cmap);
+	}
 
-	t->cflag  = CFLAG_Script;
-	t->oflag  = FLAG_Script;
-
-	t->bcid   = CLASS_Script; /* CLASS_Object */
-	t->supcid = CLASS_Script;
-
-	t->offset = 0;
-	t->cspi = ClassTable(CLASS_Script).cspi;
+	DBG2_ASSERT(t->fsize == 0);
+	DBG2_ASSERT(t->fields == NULL);
 	t->bsize  = KNH_SCRIPT_FIELDSIZE;
 	t->size = t->bsize * sizeof(knh_Object_t*);
-
-	knh_setClassName(ctx, cid, new_String(ctx, B(buf), NULL));
-	KNH_INITv(t->methods, new_Array0(ctx, 0));
 	t->fsize = KNH_SCRIPT_FIELDSIZE;
 	t->fields = KNH_MALLOC(ctx, sizeof(knh_fields_t) * KNH_SCRIPT_FIELDSIZE);
 	knh_bzero(t->fields, sizeof(knh_fields_t) * KNH_SCRIPT_FIELDSIZE);
@@ -74,16 +74,14 @@ knh_Script_t *new_Script(Ctx *ctx, knh_bytes_t nsname)
 		t->fields[i].value = NULL;
 	}
 
-	DBG2_ASSERT(t->cmap == NULL);
-	KNH_INITv(t->cmap, ClassTable(CLASS_Script).cmap);
-
 	DBG2_ASSERT(t->cspec == NULL);
-	knh_setClassDefaultValue(ctx, cid, UP(o), NULL);
-
-	knh_Method_t *mtd = new_Method(ctx, 0, cid, METHODN_LAMBDA, NULL);
-	KNH_SETv(ctx, DP(mtd)->mf, knh_findMethodField0(ctx, TYPE_Any));
-	knh_Class_addMethod(ctx, cid, mtd);
-	return o;
+	knh_setClassDefaultValue(ctx, cid, UP(script), NULL);
+	{
+		knh_Method_t *mtd = new_Method(ctx, 0, cid, METHODN_LAMBDA, NULL);
+		KNH_SETv(ctx, DP(mtd)->mf, knh_findMethodField0(ctx, TYPE_Any));
+		knh_Class_addMethod(ctx, cid, mtd);
+	}
+	return script;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -98,9 +96,7 @@ knh_bool_t knh_hasScriptFunc(Ctx *ctx, char *fmt)
 	}
 	{
 		knh_methodn_t mn = knh_getmn(ctx, fname, METHODN_NONAME);
-		knh_NameSpace_t *ns = ctx->share->mainns;
-		knh_Script_t *scr = knh_NameSpace_getScript(ctx, ns);
-		knh_Method_t *mtd = knh_Class_getMethod(ctx, knh_Object_cid(scr), mn);
+		knh_Method_t *mtd = knh_Class_getMethod(ctx, CLASS_Script, mn);
 		return IS_Method(mtd);
 	}
 }
@@ -125,11 +121,9 @@ knh_sfp_t *knh_invokeScriptFunc(Ctx *ctx, char *fmt, va_list args)
 	KNH_TRY(ctx, L_CATCH, lsfp, 0);
 	{
 		knh_methodn_t mn = knh_getmn(ctx, fname, METHODN_NONAME);
-		knh_NameSpace_t *ns = ctx->share->mainns;
-		knh_Script_t *scr = knh_NameSpace_getScript(ctx, ns);
-		knh_Method_t *mtd = knh_lookupMethod(ctx, knh_Object_cid(scr), mn);
+		knh_Method_t *mtd = knh_lookupMethod(ctx, knh_Object_cid(ctx->script), mn);
 		int n = knh_stack_vpush(ctx, lsfp + 1, fmt, args);
-		KNH_MOV(ctx, lsfp[2].o, scr);
+		KNH_MOV(ctx, lsfp[2].o, ctx->script);
 		KNH_SCALL(ctx, lsfp, 1, mtd, /* args*/ n);
 	}
 	knh_Context_clearstack(ctx);

@@ -107,11 +107,11 @@ KNHAPI(knh_Mapper_t*) new_Mapper(Ctx *ctx, knh_flag_t flag, knh_class_t scid, kn
 
 KNHAPI(void) knh_loadMapperData(Ctx *ctx, knh_MapperData_t *data)
 {
-	knh_NameSpace_t *ns = DP(ctx->kc)->ns;
+	knh_NameSpace_t *ns = knh_getGammaNameSpace(ctx);
 	KNH_ASSERT_CTX0(ctx);
 	while(data->func != NULL) {
-		knh_class_t scid = knh_NameSpace_getcid(ctx, ns, B(data->sname));
-		knh_class_t tcid = knh_NameSpace_getcid(ctx, ns, B(data->tname));
+		knh_class_t scid = knh_NameSpace_findcid(ctx, ns, B(data->sname));
+		knh_class_t tcid = knh_NameSpace_findcid(ctx, ns, B(data->tname));
 		if(scid != CLASS_unknown && tcid != CLASS_unknown) {
 			knh_Mapper_t *mpr = new_Mapper(ctx, data->flag, scid, tcid, data->func, KNH_NULL);
 			knh_addMapper(ctx, mpr);

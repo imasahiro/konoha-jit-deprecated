@@ -92,7 +92,7 @@ static void knh_addConstData(Ctx *ctx, char *dname, Object *value)
 	knh_class_t cid = CLASS_Any;
 	if(loc != -1) {
 		if(ctx->kc != NULL && IS_Gamma(ctx->kc)) {
-			cid = knh_NameSpace_getcid(ctx, DP(ctx->kc)->ns, knh_bytes_first(n, loc));
+			cid = knh_NameSpace_findcid(ctx, knh_getGammaNameSpace(ctx), knh_bytes_first(n, loc));
 		}
 		else {
 			cid = knh_getcid(ctx, knh_bytes_first(n, loc));
@@ -152,7 +152,7 @@ Object *knh_getSystemConst(Ctx *ctx, int n)
 		case KNH_SYS_STDOUT:  return (Object*)(DP((ctx)->sys)->out);
 		case KNH_SYS_STDERR:  return (Object*)(DP((ctx)->sys)->err);
 		case KNH_SYS_OS:      return (Object*)knh_getClassDefaultValue(ctx, CLASS_System);
-		case KNH_SYS_SCRIPT:  return (Object*)knh_NameSpace_getScript(ctx, (ctx->share)->mainns);
+		case KNH_SYS_SCRIPT:  return (Object*)ctx->script;
 	}
 	DBG_P("unknown system const n=%d", n);
 	return KNH_NULL;
@@ -500,7 +500,7 @@ knh_NameSpace_t *knh_getNameSpace(Ctx *ctx, knh_bytes_t name)
 	else {
 		knh_NameSpace_t *ns;
 		KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
-		ns = (knh_NameSpace_t*)knh_DictMap_get__b(ctx,  DP(ctx->sys)->NameSpaceTableDictMap, name);
+		ns = (knh_NameSpace_t*)knh_DictMap_get__b(ctx,  DP(ctx->sys)->PackageDictMap, name);
 		KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
 		return ns;
 	}
