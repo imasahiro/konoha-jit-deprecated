@@ -450,6 +450,7 @@ void knh_Context_traverseCommon(Ctx *ctx, knh_Context_t *o, knh_Ftraverse ftr)
 		ftr(ctx, o->stack[i].o);
 	}
 
+	ftr(ctx, UP(o->script));
 	ftr(ctx, UP(o->bufa));
 	ftr(ctx, UP(o->bufw));
 	ftr(ctx, UP(o->bconvbuf));

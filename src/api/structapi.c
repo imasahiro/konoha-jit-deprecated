@@ -1824,6 +1824,7 @@ static FASTAPI(void) knh_NameSpace_init(Ctx *ctx, Object *o, int init)
 static FASTAPI(void) knh_NameSpace_traverse(Ctx *ctx, Object *o, knh_Ftraverse ftr)
 {
 	knh_NameSpace_struct *b = DP((knh_NameSpace_t*)o);
+	ftr(ctx, UP(b->parent));
 	ftr(ctx, UP(b->nsname));
 	ftr(ctx, UP(b->lconstDictMap));
 	ftr(ctx, UP(b->name2cidDictSet));
