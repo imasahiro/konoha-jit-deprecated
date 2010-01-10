@@ -100,8 +100,7 @@ static knh_Object_t *new_Boolean0(Ctx *ctx, knh_bool_t tf)
 /* ------------------------------------------------------------------------ */
 /* [Shared Data] */
 
-static
-void knh_initClassTable(knh_ClassTable_t *t, size_t s, size_t e)
+static void knh_initClassTable(knh_ClassTable_t *t, size_t s, size_t e)
 {
 	size_t i;
 	knh_bzero(&t[s], SIZEOF_TCLASS(e-s));
@@ -114,8 +113,6 @@ void knh_initClassTable(knh_ClassTable_t *t, size_t s, size_t e)
 	}
 }
 
-/* ------------------------------------------------------------------------ */
-
 void knh_expandClassTable(Ctx *ctx)
 {
 	size_t s = ctx->share->ClassTableSize, max = ctx->share->ClassTableMax * 2;
@@ -125,6 +122,22 @@ void knh_expandClassTable(Ctx *ctx)
 	((knh_share_t*)ctx->share)->ClassTable = newt;
 	((knh_share_t*)ctx->share)->ClassTableMax = max;
 }
+
+/* ------------------------------------------------------------------------ */
+
+knh_class_t new_ClassId(Ctx *ctx)
+{
+	knh_class_t newid;
+	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
+	newid = ctx->share->ClassTableSize;
+	if(ctx->share->ClassTableSize == ctx->share->ClassTableMax) {
+		knh_expandClassTable(ctx);
+	}
+	((knh_share_t*)ctx->share)->ClassTableSize = newid + 1;
+	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
+	return newid;
+}
+
 
 /* ------------------------------------------------------------------------ */
 
@@ -482,7 +495,6 @@ void knh_Context_traverseCommon(Ctx *ctx, knh_Context_t *o, knh_Ftraverse ftr)
 	}
 }
 
-
 /* ------------------------------------------------------------------------ */
 /* [LOCKTABLE] */
 
@@ -514,8 +526,7 @@ void knh_unlockID(Ctx *ctx, knh_lock_t lockid, char *filename, int lineno)
 
 /* ------------------------------------------------------------------------ */
 
-static
-void knh_traverseUnusedContext(Ctx *ctx, knh_Ftraverse ftr)
+static void knh_traverseUnusedContext(Ctx *ctx, knh_Ftraverse ftr)
 {
 	if(ctx->unusedContext != NULL) {
 		knh_traverseUnusedContext(ctx->unusedContext, ftr);
@@ -552,72 +563,71 @@ void knh_Context_traverse(Ctx *ctx, knh_Context_t *o, knh_Ftraverse ftr)
 
 /* ------------------------------------------------------------------------ */
 
-static
-Ctx *knh_getRootContext(Ctx *ctx)
+static Ctx *knh_getRootContext(Ctx *ctx)
 {
 	if(ctx->parent == ctx) return ctx;
 	return knh_getRootContext(ctx->parent);
 }
 
-/* ------------------------------------------------------------------------ */
-
-Ctx *new_ThreadContext(Ctx *parent)
-{
-	Ctx *root = knh_getRootContext(parent);
-	knh_Context_t *ctx = NULL;
-	if(root->unusedContext != NULL) {
-		KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
-		ctx = (knh_Context_t*)root->unusedContext;
-		if(ctx != NULL) {
-			((knh_Context_t*)root)->unusedContext = ctx->unusedContext;
-		}
-		KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
-		if(ctx != NULL) {
-			DBG2_P("reuseing Context: ctxid=%d", (int)ctx->ctxid);
-			ctx->parent = parent;
-			ctx->esp = ctx->stack;
-			ctx->fsweep = knh_getDefaultSweepFunc();
-			KNH_SETv(root, ctx->props, new_DictMap0(root, 16));
-			KNH_SETv(root, ctx->enc, DP(root->sys)->enc);
-			KNH_SETv(root, ctx->in,  DP(root->sys)->in);
-			KNH_SETv(root, ctx->out, DP(root->sys)->out);
-			KNH_SETv(root, ctx->err, DP(root->sys)->err);
-			KNH_SETv(root, ctx->kc, KNH_NULL);
-		}
-	}
-	if(ctx == NULL) {
-		ctx = (knh_Context_t*)new_hContext(parent);
-		ctx->share = parent->share;
-		ctx->stat = parent->stat;
-		ctx->sys  = parent->sys;
-		knh_Context_initCommon(root, ctx, parent->stacksize);
-		((knh_share_t*)ctx->share)->contextCounter += 1;
-		ctx->ctxid = (knh_ushort_t)ctx->share->contextCounter;
-	}
-	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
-	((knh_share_t*)ctx->share)->threadCounter += 1;
-	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
-	if(ctx->share->threadCounter == 2) {
-		DBG2_P("Activating multi-threading mode!!");
-
-	}
-	return (Ctx*)ctx;
-}
-
-/* ------------------------------------------------------------------------ */
-
-void knh_ThreadContext_dispose(Ctx *ctx)
-{
-	KNH_ASSERT(ctx->parent != ctx);
-	Ctx *root = knh_getRootContext(ctx);
-	knh_mutex_lock((((knh_Context_t*)ctx)->ctxlock));  // checking using or not
-	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
-	((knh_Context_t*)ctx)->unusedContext = root->unusedContext;
-	((knh_Context_t*)root)->unusedContext = ctx;
-	((knh_share_t*)ctx->share)->threadCounter -= 1;
-	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
-	knh_mutex_unlock((((knh_Context_t*)ctx)->ctxlock));
-}
+///* ------------------------------------------------------------------------ */
+//
+//Ctx *new_ThreadContext(Ctx *parent)
+//{
+//	Ctx *root = knh_getRootContext(parent);
+//	knh_Context_t *ctx = NULL;
+//	if(root->unusedContext != NULL) {
+//		KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
+//		ctx = (knh_Context_t*)root->unusedContext;
+//		if(ctx != NULL) {
+//			((knh_Context_t*)root)->unusedContext = ctx->unusedContext;
+//		}
+//		KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
+//		if(ctx != NULL) {
+//			DBG2_P("reuseing Context: ctxid=%d", (int)ctx->ctxid);
+//			ctx->parent = parent;
+//			ctx->esp = ctx->stack;
+//			ctx->fsweep = knh_getDefaultSweepFunc();
+//			KNH_SETv(root, ctx->props, new_DictMap0(root, 16));
+//			KNH_SETv(root, ctx->enc, DP(root->sys)->enc);
+//			KNH_SETv(root, ctx->in,  DP(root->sys)->in);
+//			KNH_SETv(root, ctx->out, DP(root->sys)->out);
+//			KNH_SETv(root, ctx->err, DP(root->sys)->err);
+//			KNH_SETv(root, ctx->kc, KNH_NULL);
+//		}
+//	}
+//	if(ctx == NULL) {
+//		ctx = (knh_Context_t*)new_hContext(parent);
+//		ctx->share = parent->share;
+//		ctx->stat = parent->stat;
+//		ctx->sys  = parent->sys;
+//		knh_Context_initCommon(root, ctx, parent->stacksize);
+//		((knh_share_t*)ctx->share)->contextCounter += 1;
+//		ctx->ctxid = (knh_ushort_t)ctx->share->contextCounter;
+//	}
+//	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
+//	((knh_share_t*)ctx->share)->threadCounter += 1;
+//	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
+//	if(ctx->share->threadCounter == 2) {
+//		DBG2_P("Activating multi-threading mode!!");
+//
+//	}
+//	return (Ctx*)ctx;
+//}
+//
+///* ------------------------------------------------------------------------ */
+//
+//void knh_ThreadContext_dispose(Ctx *ctx)
+//{
+//	KNH_ASSERT(ctx->parent != ctx);
+//	Ctx *root = knh_getRootContext(ctx);
+//	knh_mutex_lock((((knh_Context_t*)ctx)->ctxlock));  // checking using or not
+//	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
+//	((knh_Context_t*)ctx)->unusedContext = root->unusedContext;
+//	((knh_Context_t*)root)->unusedContext = ctx;
+//	((knh_share_t*)ctx->share)->threadCounter -= 1;
+//	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
+//	knh_mutex_unlock((((knh_Context_t*)ctx)->ctxlock));
+//}
 
 /* ======================================================================== */
 /* [konohaapi] */

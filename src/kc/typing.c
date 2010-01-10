@@ -4498,7 +4498,7 @@ Term * knh_StmtMETHOD_typing(Ctx *ctx, knh_Stmt_t *stmt)
 	}
 	{
 		knh_Fmethod func = NULL;
-		knh_invokeMethodTypingListener(ctx, DP(stmt)->metaDictMap, mtd);
+		//knh_invokeMethodTypingListener(ctx, DP(stmt)->metaDictMap, mtd);
 		func = knh_Gamma_loadMethodFunc(ctx, mtd_cid, DP(mtd)->mn, knh_StmtMETA_is(ctx, stmt, STEXT("Naitive")));
 		if(func != NULL) {
 			knh_Method_syncFunc(mtd, func);

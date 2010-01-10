@@ -38,21 +38,6 @@ extern "C" {
 /* ======================================================================== */
 /* [ClassTable] */
 
-knh_class_t new_ClassId(Ctx *ctx)
-{
-	knh_class_t newid;
-	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
-	newid = ctx->share->ClassTableSize;
-	if(ctx->share->ClassTableSize == ctx->share->ClassTableMax) {
-		knh_expandClassTable(ctx);
-	}
-	((knh_share_t*)ctx->share)->ClassTableSize = newid + 1;
-	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
-	return newid;
-}
-
-/* ------------------------------------------------------------------------ */
-
 knh_Class_t *new_Type(Ctx *ctx, knh_type_t type)
 {
 	knh_class_t cid = CLASS_type(type);
@@ -123,6 +108,35 @@ void knh_setClassName(Ctx *ctx, knh_class_t cid, knh_String_t *lname)
 
 /* ------------------------------------------------------------------------ */
 /* [name] */
+
+knh_class_t knh_getcid(Ctx *ctx, knh_bytes_t lname)
+{
+	knh_uintptr_t cid = knh_DictSet_get__b(DP(ctx->sys)->ClassNameDictSet, lname);
+	if(cid > 0) return (knh_class_t)(cid-1);
+	if(lname.buf[lname.len-1] == '}') {
+		return knh_findcidx(ctx, lname);
+	}
+	return CLASS_unknown;
+}
+
+/* ------------------------------------------------------------------------ */
+
+char* knh_Context_CLASSN(Ctx *ctx, knh_class_t cid)
+{
+	DBG2_ASSERT_cid(cid);
+	knh_String_t *name = ClassTable(cid).lname;
+	if(knh_String_startsWith(name, STEXT("konoha."))) {
+		return __tochar(ClassTable(cid).sname);
+	}
+	else {
+		knh_uintptr_t cid2 =
+			knh_DictSet_get__b(DP(ctx->share->mainns)->name2cidDictSet, __tobytes(ClassTable(cid).sname));
+		if(cid2 > 0 && cid == cid2 - 1) {
+			return __tochar(ClassTable(cid).sname);
+		}
+		return CLASSN(cid);
+	}
+}
 
 char *knh_ClassTable_CLASSN(Ctx *ctx, knh_class_t cid)
 {

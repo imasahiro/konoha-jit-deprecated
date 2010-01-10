@@ -479,6 +479,60 @@ L_CATCH:;
         return (ctx->hasError == 0 ? 0 : 1);
 }
 
+/* ------------------------------------------------------------------------ */
+/* [script] */
+/* ------------------------------------------------------------------------ */
+
+
+knh_bool_t knh_hasScriptFunc(Ctx *ctx, char *fmt)
+{
+	knh_bytes_t fname = B(fmt);
+	knh_index_t loc = knh_bytes_index(fname, '(');
+	if(loc > 0) {
+		fname = knh_bytes_first(fname, loc);
+		fmt = fmt + loc + 1;
+	}
+	{
+		knh_methodn_t mn = knh_getmn(ctx, fname, METHODN_NONAME);
+		knh_Method_t *mtd = knh_Class_getMethod(ctx, CLASS_Script, mn);
+		return IS_Method(mtd);
+	}
+}
+
+/* ------------------------------------------------------------------------ */
+
+knh_sfp_t *knh_invokeScriptFunc(Ctx *ctx, char *fmt, va_list args)
+{
+	knh_bytes_t fname = B(fmt);
+	knh_index_t loc = knh_bytes_index(fname, '(');
+	knh_sfp_t *lsfp = KNH_LOCAL(ctx);
+	if(loc == -1) {
+		knh_setRuntimeError(ctx, T__("needs ()"));
+		return lsfp+1;
+	}
+	else {
+		fname = knh_bytes_first(fname, loc);
+		fmt = fmt + loc + 1;
+	}
+
+	KNH_MOV(ctx, lsfp[0].o, new_ExceptionHandler(ctx));
+	KNH_TRY(ctx, L_CATCH, lsfp, 0);
+	{
+		knh_methodn_t mn = knh_getmn(ctx, fname, METHODN_NONAME);
+		knh_Method_t *mtd = knh_lookupMethod(ctx, knh_Object_cid(ctx->script), mn);
+		int n = knh_stack_vpush(ctx, lsfp + 1, fmt, args);
+		KNH_MOV(ctx, lsfp[2].o, ctx->script);
+		KNH_SCALL(ctx, lsfp, 1, mtd, /* args*/ n);
+	}
+	knh_Context_clearstack(ctx);
+	((knh_Context_t*)ctx)->hasError = 0;
+	return lsfp + 1;
+
+	/* catch */
+	L_CATCH:;
+	KNH_PRINT_STACKTRACE(ctx, lsfp, 0);
+	return lsfp + 1;
+}
 
 /* ------------------------------------------------------------------------ */
 

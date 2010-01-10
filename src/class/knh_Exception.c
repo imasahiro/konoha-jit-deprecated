@@ -50,7 +50,7 @@ extern "C" {
 /* ======================================================================== */
 /* [ExptTable] */
 
-static knh_expt_t knh_ExptTable_newId(Ctx *ctx)
+static knh_expt_t new_ExptId(Ctx *ctx)
 {
 	knh_class_t newid = 0;
 	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
@@ -119,7 +119,7 @@ knh_expt_t
 knh_addException(Ctx *ctx, knh_flag_t flag, knh_class_t eid, knh_String_t *name, knh_class_t peid)
 {
 	if(eid == EXPT_newid) {
-		eid = knh_ExptTable_newId(ctx);
+		eid = new_ExptId(ctx);
 	}else {
 		((knh_share_t*)ctx->share)->ExptTableSize += 1;
 		DBG2_ASSERT(eid == ctx->share->ExptTableSize);

@@ -157,54 +157,54 @@ typedef struct knh_threadcc_t {
 	knh_sfp_t *sfp;
 } knh_threadcc_t ;
 
-static void *threading(void *p)
-{
-	knh_threadcc_t ta = *((knh_threadcc_t*)p);
-	Ctx *ctx = new_ThreadContext(ta.ctx);
-
-	knh_beginContext(ctx);
-	knh_sfp_t *lsfp = ctx->stack;
-
-	KNH_MOV(ctx, lsfp[0].o, new_ExceptionHandler(ctx));
-	KNH_TRY(ctx, L_CATCH, lsfp, 0);
-	{
-		knh_Method_t *mtd = ta.sfp[0].mtd;
-		DBG2_ASSERT(IS_Method(mtd));
-		KNH_SETv(ctx, lsfp[1].o, mtd);
-		KNH_SETv(ctx, lsfp[2].o, ta.sfp[1].o);
-		lsfp[2].data = knh_Object_data(ta.sfp[1].o);
-		{
-			int i, args = knh_Method_psize(mtd);
-			for(i = 0; i < args; i++) {
-				KNH_SETv(ctx, lsfp[3+i].o, ta.sfp[2+i].o);
-				lsfp[3+i].data = knh_Object_data(ta.sfp[2+i].o);
-			}
-			KNH_SCALL(ctx, lsfp, 1, mtd, args);
-		}
-		goto L_FINALLY;
-	}
-	/* catch */
-L_CATCH:;
-		KNH_PRINT_STACKTRACE(ctx, lsfp, 0);
-
-L_FINALLY:
-		knh_Context_clearstack(ctx);
-		knh_endContext(ctx);
-		knh_ThreadContext_dispose(ctx);
-		return NULL;
-}
+//static void *threading(void *p)
+//{
+//	knh_threadcc_t ta = *((knh_threadcc_t*)p);
+//	Ctx *ctx = new_ThreadContext(ta.ctx);
+//
+//	knh_beginContext(ctx);
+//	knh_sfp_t *lsfp = ctx->stack;
+//
+//	KNH_MOV(ctx, lsfp[0].o, new_ExceptionHandler(ctx));
+//	KNH_TRY(ctx, L_CATCH, lsfp, 0);
+//	{
+//		knh_Method_t *mtd = ta.sfp[0].mtd;
+//		DBG2_ASSERT(IS_Method(mtd));
+//		KNH_SETv(ctx, lsfp[1].o, mtd);
+//		KNH_SETv(ctx, lsfp[2].o, ta.sfp[1].o);
+//		lsfp[2].data = knh_Object_data(ta.sfp[1].o);
+//		{
+//			int i, args = knh_Method_psize(mtd);
+//			for(i = 0; i < args; i++) {
+//				KNH_SETv(ctx, lsfp[3+i].o, ta.sfp[2+i].o);
+//				lsfp[3+i].data = knh_Object_data(ta.sfp[2+i].o);
+//			}
+//			KNH_SCALL(ctx, lsfp, 1, mtd, args);
+//		}
+//		goto L_FINALLY;
+//	}
+//	/* catch */
+//L_CATCH:;
+//		KNH_PRINT_STACKTRACE(ctx, lsfp, 0);
+//
+//L_FINALLY:
+//		knh_Context_clearstack(ctx);
+//		knh_endContext(ctx);
+//		knh_ThreadContext_dispose(ctx);
+//		return NULL;
+//}
 
 /* ------------------------------------------------------------------------ */
 // sfp |   0   |   1   |   2   |   3  |
 //     |  self |  mtd  | arg1  | ...  |
 
-void knh_stack_threadRun(Ctx *ctx, knh_sfp_t *sfp METHODARG)
-{
-	knh_thread_t th;
-	knh_threadcc_t ta = {ctx, sfp + 1};
-	knh_thread_create(ctx, &th, NULL, threading, (void*)&ta);
-	//knh_thread_detach(ctx, th);
-}
+//void knh_stack_threadRun(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+//{
+//	knh_thread_t th;
+//	knh_threadcc_t ta = {ctx, sfp + 1};
+//	knh_thread_create(ctx, &th, NULL, threading, (void*)&ta);
+//	//knh_thread_detach(ctx, th);
+//}
 
 /* ======================================================================== */
 /* [mutex] */

@@ -2484,7 +2484,7 @@ void knh_StmtMETHOD_asm(Ctx *ctx, knh_Stmt_t *stmt)
 	if(DP(stmt)->size == 4) return;
 	knh_Method_t *mtd = DP(StmtMETHOD_method(stmt))->mtd;
 	KNH_ASM_METHOD(ctx, mtd, DP(stmt)->stmts[3], StmtMETHOD_instmt(stmt), 1 /*Iteration */);
-	knh_invokeMethodCompilationListener(ctx, DP(stmt)->metaDictMap, mtd);
+	//knh_invokeMethodCompilationListener(ctx, DP(stmt)->metaDictMap, mtd);
 }
 
 /* ------------------------------------------------------------------------ */

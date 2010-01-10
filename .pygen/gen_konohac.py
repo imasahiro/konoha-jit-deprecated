@@ -16,10 +16,11 @@ ADD_MAP = {}
 #------------------------------------------------------------------------------
 
 STMT = '''
-done                     @stmt
-namespace NSNAME:ns ;    @stmt @token @new @eos
-import FURN:file ;        @stmt @token @new @decl @eos
+done                       @stmt
 pragma VARN:name pragma.. ANY:value ;       @stmt @token @new @eos
+namespace {:block ;        @stmt @token @new @eos
+script {:block             @stmt @new @token @eos
+include FURN:file ;        @stmt @token @new @decl @eos
 
 using uoption..            @token @stmt @eos
 using_class NSCLASSN:ns ;  @stmt @decl @eos
