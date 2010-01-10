@@ -50,6 +50,7 @@ extern "C" {
 
 #ifdef KNH_USING_THREAD
 static volatile knh_thread_key_t ctxkey;
+static volatile Ctx *curctx = NULL;
 #else
 static volatile Ctx *curctx = NULL;
 #endif
@@ -76,6 +77,7 @@ KNHAPI(Ctx*) knh_beginContext(Ctx *ctx)
 #ifdef KNH_USING_THREAD
 	knh_mutex_init(ctx->ctxlock);
 	knh_thread_setspecific(ctxkey, ctx);
+	curctx = ctx;
 #else
 	curctx = ctx;
 #endif
@@ -89,6 +91,7 @@ KNHAPI(void) knh_endContext(Ctx *ctx)
 #ifdef KNH_USING_THREAD
 	knh_thread_setspecific(ctxkey, NULL);
 	knh_mutex_destroy(ctx->ctxlock);
+	curctx = NULL;
 #else
 	curctx = NULL;
 #endif
@@ -98,11 +101,13 @@ KNHAPI(void) knh_endContext(Ctx *ctx)
 
 KNHAPI(Ctx*) knh_getCurrentContext(void)
 {
-	Ctx *ctx;
 #ifdef KNH_USING_THREAD
-	ctx = (Ctx*)knh_thread_getspecific(ctxkey);
+	Ctx *ctx = (Ctx*)knh_thread_getspecific(ctxkey);
+	if(ctx == NULL) {
+		ctx = (Ctx*)curctx;
+	}
 #else
-	ctx = (Ctx*)curctx;
+	Ctx *ctx = (Ctx*)curctx;
 #endif
 	if(ctx == NULL) {
 		fprintf(stderr, "NOT IN THE CONTEXT OF KONOHA\n");
