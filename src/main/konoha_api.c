@@ -382,51 +382,6 @@ KNHAPI(char*) konoha_getStdErrBufferText(konoha_t konoha)
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(void) konoha_evalScript(konoha_t konoha, char *script)
-{
-	KONOHA_CHECK_(konoha);
-	Ctx *ctx = knh_beginContext(konoha.ctx);
-	knh_sfp_t *lsfp = KNH_LOCAL(ctx);
-	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-	knh_Bytes_write(ctx, cwb->ba, B(script));
-	knh_Bytes_putc(ctx, cwb->ba, '\n');
-	{
-		knh_InputStream_t *in = new_BytesInputStream(ctx, cwb->ba, cwb->pos, knh_Bytes_size(cwb->ba));
-		DP(in)->uri = URI_EVAL;
-		DP(in)->line = 0;
-		knh_Script_load(ctx, ctx->share->mainns, in, 1/*isEval*/,0/*isThrowable*/);
-	}
-	knh_cwb_close(cwb);
-	KNH_LOCALBACK(ctx, lsfp);
-	knh_endContext(ctx);
-}
-
-/* ------------------------------------------------------------------------ */
-
-KNHAPI(int) konoha_loadScript(konoha_t konoha, char *fpath)
-{
-	KONOHA_CHECK(konoha, 0);
-	int res = 0;
-	Ctx *ctx = knh_beginContext(konoha.ctx);
-	knh_sfp_t *lsfp = KNH_LOCAL(ctx);
-	knh_InputStream_t *in = new_ScriptInputStream(ctx, B(fpath), NULL, ctx->share->mainns, 0);
-	KNH_LPUSH(ctx, in);
-	if(!knh_InputStream_isClosed(ctx, in)) {
-		int isEval = (knh_Context_isCompiling(ctx)) ? 0 : 1;
-		knh_Script_load(ctx, ctx->share->mainns, in, isEval, 0/*isThrowable*/);
-	}
-	else {
-		knh_setRuntimeError(ctx, T__("script file doesn't exists"));
-		res = -1;
-	}
-	KNH_LOCALBACK(ctx, lsfp);
-	knh_Context_clearstack(ctx);
-	knh_endContext(ctx);
-	return res;
-}
-
-/* ------------------------------------------------------------------------ */
-
 void knh_setArgv(Ctx* ctx, int argc, char** argv)
 {
     knh_Array_t *a = new_Array(ctx, CLASS_String, argc);
@@ -1163,7 +1118,7 @@ KNHAPI(void) konoha_shell(konoha_t konoha)
 				DP(in)->line = linenum;
 				knh_InputStream_setEncoding(ctx, in, KNH_ENC);
 				shellContext = ctx;
-				knh_Script_load(ctx, ctx->share->mainns, in, 1/*isEval*/, 0/*isThrowable*/);
+				knh_Script_loadStream(ctx, ctx->share->mainns, in, 1/*isEval*/, 0/*isThrowable*/);
 				shellContext = NULL;
 				knh_cwb_close(cwb);
 			}

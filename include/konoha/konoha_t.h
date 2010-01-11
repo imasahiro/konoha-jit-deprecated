@@ -824,13 +824,13 @@ typedef struct konoha_t {
 
 #define KONOHA_CHECK_(konoha) \
 	if(konoha.magic != KONOHA_MAGIC) { \
-		KNH_SAYS("This is not a Konoha Scripting Engine"); \
+		KNH_SYSLOG0(NULL, LOG_ERR, "this is not a Konoha Scripting Engine"); \
 		return; \
 	}\
 
 #define KONOHA_CHECK(konoha, value) \
 	if(konoha.magic != KONOHA_MAGIC) { \
-		KNH_SAYS("This is not a Konoha Scripting Engine"); \
+		KNH_SYSLOG0(NULL, LOG_ERR, "this is not a Konoha Scripting Engine"); \
 		return value; \
 	}\
 

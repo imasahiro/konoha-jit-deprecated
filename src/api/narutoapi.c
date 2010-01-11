@@ -49,27 +49,6 @@ static METHOD Script_isStmt(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 }
 
 /* ------------------------------------------------------------------------ */
-//## @Hidden @Static method void Script.eval(String script);
-
-static METHOD Script_eval(Ctx *ctx, knh_sfp_t *sfp METHODARG)
-{
-	if(IS_NOTNULL(sfp[1].s)) {
-		knh_sfp_t *lsfp = KNH_LOCAL(ctx);
-		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-		knh_cwb_write(ctx, cwb, __tobytes(sfp[1].s));
-		knh_cwb_putc(ctx, cwb, '\n');
-		knh_InputStream_t *in = new_BytesInputStream(ctx, cwb->ba, cwb->pos, knh_Bytes_size(cwb->ba));
-		KNH_LPUSH(ctx, in);
-		DP(in)->uri = URI_EVAL;
-		DP(in)->line = 0;
-		knh_Script_load(ctx, ctx->share->mainns, in, 1/*isEval*/,0/*isThrowable*/);
-		knh_cwb_close(cwb);
-		KNH_LOCALBACK(ctx, lsfp);
-	}
-	KNH_RETURN_void(ctx, sfp);
-}
-
-/* ------------------------------------------------------------------------ */
 //## @Static method String Script.readLine(String prompt);
 
 static METHOD Script_readLine(Ctx *ctx, knh_sfp_t *sfp METHODARG)
@@ -98,59 +77,60 @@ static METHOD Script_addHistory(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 	KNH_RETURN_void(ctx, sfp);
 }
 
-/* ------------------------------------------------------------------------ */
-//## @Static method void System.setMethodTypingListener(Closure c, String anno);
+///* ------------------------------------------------------------------------ */
+////## @Static method void System.setMethodTypingListener(Closure c, String anno);
+//
+//static METHOD System_setMethodTypingListener(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+//{
+//	knh_String_t *key;
+//	if(IS_NULL(sfp[2].s)) {
+//		key = T__("MethodT");
+//	}
+//	else {
+//		knh_cwb_t cwbbuf, *cwb = knh_cwb_openinit(ctx, &cwbbuf, STEXT("MethodT"));
+//		knh_bytes_t anno = __tobytes(sfp[2].s);
+//		if(anno.buf[0] != '@') {
+//			knh_cwb_putc(ctx, cwb, '@');
+//		}
+//		knh_cwb_write(ctx, cwb, anno);
+//		key = knh_cwb_newString(ctx, cwb);
+//	}
+//	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
+//	{
+//		knh_DictMap_t *dm = DP(ctx->sys)->listenerDictMap;
+//		knh_DictMap_set(ctx, dm, key, sfp[1].o);
+//	}
+//	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
+//	KNH_RETURN_void(ctx, sfp);
+//}
+//
+///* ------------------------------------------------------------------------ */
+////## @Static method void System.setMethodCompilationListener(Closure c, String anno);
+//
+//static METHOD System_setMethodCompilationListener(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+//{
+//	knh_String_t *key;
+//	if(IS_NULL(sfp[2].s)) {
+//		key = T__("MethodC");
+//	}
+//	else {
+//		knh_cwb_t cwbbuf, *cwb = knh_cwb_openinit(ctx, &cwbbuf, STEXT("MethodC"));
+//		knh_bytes_t anno = __tobytes(sfp[2].s);
+//		if(anno.buf[0] != '@') {
+//			knh_cwb_putc(ctx, cwb, '@');
+//		}
+//		knh_cwb_write(ctx, cwb, anno);
+//		key = knh_cwb_newString(ctx, cwb);
+//	}
+//	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
+//	{
+//		knh_DictMap_t *dm = DP(ctx->sys)->listenerDictMap;
+//		knh_DictMap_set(ctx, dm, key, sfp[1].o);
+//	}
+//	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
+//	KNH_RETURN_void(ctx, sfp);
+//}
 
-static METHOD System_setMethodTypingListener(Ctx *ctx, knh_sfp_t *sfp METHODARG)
-{
-	knh_String_t *key;
-	if(IS_NULL(sfp[2].s)) {
-		key = T__("MethodT");
-	}
-	else {
-		knh_cwb_t cwbbuf, *cwb = knh_cwb_openinit(ctx, &cwbbuf, STEXT("MethodT"));
-		knh_bytes_t anno = __tobytes(sfp[2].s);
-		if(anno.buf[0] != '@') {
-			knh_cwb_putc(ctx, cwb, '@');
-		}
-		knh_cwb_write(ctx, cwb, anno);
-		key = knh_cwb_newString(ctx, cwb);
-	}
-	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
-	{
-		knh_DictMap_t *dm = DP(ctx->sys)->listenerDictMap;
-		knh_DictMap_set(ctx, dm, key, sfp[1].o);
-	}
-	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
-	KNH_RETURN_void(ctx, sfp);
-}
-
-/* ------------------------------------------------------------------------ */
-//## @Static method void System.setMethodCompilationListener(Closure c, String anno);
-
-static METHOD System_setMethodCompilationListener(Ctx *ctx, knh_sfp_t *sfp METHODARG)
-{
-	knh_String_t *key;
-	if(IS_NULL(sfp[2].s)) {
-		key = T__("MethodC");
-	}
-	else {
-		knh_cwb_t cwbbuf, *cwb = knh_cwb_openinit(ctx, &cwbbuf, STEXT("MethodC"));
-		knh_bytes_t anno = __tobytes(sfp[2].s);
-		if(anno.buf[0] != '@') {
-			knh_cwb_putc(ctx, cwb, '@');
-		}
-		knh_cwb_write(ctx, cwb, anno);
-		key = knh_cwb_newString(ctx, cwb);
-	}
-	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
-	{
-		knh_DictMap_t *dm = DP(ctx->sys)->listenerDictMap;
-		knh_DictMap_set(ctx, dm, key, sfp[1].o);
-	}
-	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
-	KNH_RETURN_void(ctx, sfp);
-}
 /* ------------------------------------------------------------------------ */
 //## method Int Method.getProfTime();
 

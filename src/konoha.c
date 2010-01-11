@@ -60,7 +60,7 @@ int main(int argc, char **argv)
 		konoha_shell(konoha);
 	}
 	else {
-		if(konoha_loadScript(konoha, args[n]) != -1) {
+		if(konoha_load(konoha, args[n]) != -1) {
 			if(!knh_Context_isCompiling(konoha.ctx)) {
 				konoha_runMain(konoha, argc - n, args + n);
 				if(knh_isToInteractiveMode()) {

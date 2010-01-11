@@ -303,6 +303,9 @@
 #define  knh_qsort(b,s,w,f)           qsort(b,s,w,f)
 #endif
 
+void knh_qsort_r (void *const pbase, size_t total_elems, size_t size,
+        void* thunk,int (*cmp)(void* ,const void*,const void*));
+
 //#ifdef KONOHA_ON_MACOSX
 //#define  knh_qsort_r(b,s,w,thunk,f)   qsort_r(b,s,w,thunk,f)
 //#elif defined(KONOHA_ON_LINUX)

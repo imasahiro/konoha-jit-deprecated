@@ -239,21 +239,27 @@ static void knh_ObjectPageTable_free(Ctx *ctx, char *opage)
 #ifdef KNH_HOBJECT_REFC
 			DBG_(
 			{
+				fprintf(stderr, "async object %p cid=%s(%d), ref=%d ", o, STRUCTN(o->h.bcid), (int)o->h.cid, (int)o->h.refc);
 				switch(o->h.bcid) {
 				case CLASS_Class:
-					fprintf(stderr, "async mem cid=%d, refc=%d\n", (int)((knh_Class_t*)o)->cid, (int)o->h.refc);
+					fprintf(stderr, "o->cid=%d\n", (int)((knh_Class_t*)o)->cid);
 				break;
 				case CLASS_Int:
-					fprintf(stderr, "async mem cid=%s(%d), refc=%d ivalue='%d'\n", STRUCTN(o->h.bcid), (int)o->h.cid, (int)o->h.refc, (int)((knh_Int_t*)o)->n.ivalue);
+					fprintf(stderr, "ivalue='%lld'\n", (long long int)((knh_Int_t*)o)->n.ivalue);
 				break;
 				case CLASS_String:
-					fprintf(stderr, "async mem cid=%s(%d), refc=%d str='%s'\n", STRUCTN(o->h.bcid), (int)o->h.cid, (int)o->h.refc, (char*)((knh_String_t*)o)->str);
+					fprintf(stderr, "str='%s'\n", (char*)((knh_String_t*)o)->str);
 				break;
+				case CLASS_Method: {
+					knh_Method_t *mtd = (knh_Method_t*)o;
+					fprintf(stderr, "DP(mtd)->cid=%s, DP(mtd)->mn=%d\n", STRUCTN(DP(mtd)->cid), DP(mtd)->mn);
+					break;
+				}
 				case CLASS_Stmt:
-					fprintf(stderr, "async mem stmt='%s', refc=%d\n", knh_stmt_tochar((SP(knh_Stmt_t*)o)->stt), (int)o->h.refc);
+					fprintf(stderr, "stmt='%s'\n", knh_stmt_tochar((SP(knh_Stmt_t*)o)->stt));
 				break;
 				default:
-					fprintf(stderr, "async mem cid=%s(%d), refc=%d\n", STRUCTN(o->h.bcid), (int)o->h.cid, (int)o->h.refc);
+					fprintf(stderr, "\n");
 				}
 			} );
 			o->h.refc = 0;
