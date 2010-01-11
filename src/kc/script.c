@@ -867,10 +867,10 @@ static int knh_StmtUMAPMAP_decl(Ctx *ctx, knh_Stmt_t *stmt)
 
 static int knh_Stmt_eval(Ctx *ctx, knh_Stmt_t *stmt, int isEval)
 {
+	int res = 0;
+	knh_sfp_t *lsfp = KNH_LOCAL(ctx);
 	knh_Script_t *scr = knh_getGammaScript(ctx);
 	knh_Method_t *mtd = knh_Class_getMethod(ctx, knh_Object_cid(scr), METHODN_LAMBDA);
-	knh_sfp_t *lsfp = KNH_LOCAL(ctx);
-
 	int isExpr = knh_stmt_isExpr(SP(stmt)->stt);
 	knh_methodn_t mt = METHODN__k;
 
@@ -896,9 +896,9 @@ static int knh_Stmt_eval(Ctx *ctx, knh_Stmt_t *stmt, int isEval)
 			}
 			SP(stmt)->stt = STT_RETURN;
 		}
-		else if(SP(stmt)->stt == STT_LET) {
-			isExpr = 0;
-		}
+//		else if(SP(stmt)->stt == STT_LET) {
+//			isExpr = 0;
+//		}
 		else {
 			knh_Stmt_t *newstmt = new_Stmt(ctx, 0, STT_RETURN);
 			knh_Stmt_add(ctx, newstmt, UP(stmt));
@@ -907,14 +907,10 @@ static int knh_Stmt_eval(Ctx *ctx, knh_Stmt_t *stmt, int isEval)
 		}
 	}
 
-	if(STT_(stmt) == STT_ERR) {
-		KNH_LOCALBACK(ctx, lsfp);
-		return 0;
-	}
+	if(STT_(stmt) == STT_ERR) goto L_RETURN;
 	KNH_ASM_METHOD(ctx, mtd, NULL, stmt, 0 /* isIteration */);
 	if(knh_Method_isAbstract(mtd) || SP(stmt)->stt == STT_ERR) {
-		KNH_LOCALBACK(ctx, lsfp);
-		return 0;
+		goto L_RETURN;
 	}
 
 	int isVOID = knh_Stmt_isVOID(stmt);
@@ -933,15 +929,16 @@ static int knh_Stmt_eval(Ctx *ctx, knh_Stmt_t *stmt, int isEval)
 			}
 		}
 		KNH_SETv(ctx, lsfp[0].o, KNH_NULL);
-		KNH_LOCALBACK(ctx, lsfp);
-		return 1;
+		res = 1;
+		goto L_RETURN;
 
 		/* catch */
 		L_CATCH:;
 		KNH_PRINT_STACKTRACE(ctx, lsfp, 0);
 	}
+	L_RETURN:
 	KNH_LOCALBACK(ctx, lsfp);
-	return 1;
+	return res;
 }
 
 static void knh_Gamma_initThisScript(Ctx *ctx)
@@ -1090,6 +1087,7 @@ static int knh_interpret(Ctx *ctx, knh_Stmt_t *stmt, int isEval)
 		}
 		cur = DP(cur)->next;
 	}
+
 	if(DP(gamma)->dlhdr != NULL) {
 		knh_Fpkginit fpkginit = (knh_Fpkginit)knh_dlsym(ctx, DP(gamma)->dlhdr, "knh_pkginit");
 		if(fpkginit != NULL) {
