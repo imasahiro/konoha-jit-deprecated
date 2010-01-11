@@ -4754,7 +4754,7 @@ void knh_Gamma_declareClassField(Ctx *ctx, knh_NameSpace_t* ns, knh_class_t cid)
 		}
 		t->fields = cf;
 		t->fsize = fsize;
-		fprintf(stderr, "** cid=%d, t->fsize=%d, t->fields=%p\n", cid, t->fsize, t->fields);
+		DBG2_P("** cid=%d, t->fsize=%d, t->fields=%p\n", cid, t->fsize, t->fields);
 	}
 	t->cspi = ClassTable(CLASS_Object).cspi;
 	if(t->supcid != CLASS_Object) {

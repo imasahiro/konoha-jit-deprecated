@@ -311,6 +311,7 @@ knh_String_t *new_String__DictMap(Ctx *ctx, knh_DictMap_t *o, knh_bytes_t key);
 Object *knh_DictMap_get__b(Ctx *ctx, knh_DictMap_t *o, knh_bytes_t key);
 Object *knh_DictMap_get(Ctx *ctx, knh_DictMap_t *o, knh_String_t *key);
 void knh_DictMap_append(Ctx *ctx, knh_DictMap_t *o, knh_String_t *key, Any *value);
+void knh_DictMap_set__b(Ctx *ctx, knh_DictMap_t *o, knh_bytes_t key, Any *v);
 void knh_DictMap_set(Ctx *ctx, knh_DictMap_t *o, knh_String_t *key, Any *v);
 void knh_DictMap_remove(Ctx *ctx, knh_DictMap_t *o, knh_String_t *key);
 void knh_DictMap_clear(Ctx *ctx, knh_DictMap_t *o);

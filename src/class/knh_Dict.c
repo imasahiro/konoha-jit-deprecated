@@ -522,6 +522,22 @@ void knh_DictMap_append(Ctx *ctx, knh_DictMap_t *o, knh_String_t *key, Any *valu
 
 /* ------------------------------------------------------------------------ */
 
+void knh_DictMap_set__b(Ctx *ctx, knh_DictMap_t *o, knh_bytes_t key, Any *v)
+{
+	knh_Object_t *value = v;
+	int loc = knh_dict_index_b(o->_list, o->size, o->fcmp,key);
+	knh_String_t *k = new_String(ctx, key, NULL);
+	if(loc != -1) {
+		KNH_SETv(ctx, o->list[loc].key, k);  /* To avoid losing key */
+		KNH_SETv(ctx, o->list[loc].value, value);
+	}
+	else {
+		knh_DictMap_append(ctx, o, k, value);
+	}
+}
+
+/* ------------------------------------------------------------------------ */
+
 void knh_DictMap_set(Ctx *ctx, knh_DictMap_t *o, knh_String_t *key, Any *v)
 {
 	knh_Object_t *value = v;

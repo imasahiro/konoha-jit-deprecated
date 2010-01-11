@@ -21,16 +21,21 @@
 #define LOGDATA         ,(char*)__FILE__, (int)__LINE__, (char*)__FUNCTION__
 
 #define KNH_SYSLOG0(ctx, priority, fmt, ...) \
-	fflush(stdout); \
-	fprintf(stderr, "konoha (log:%d): ", priority); \
-	fprintf(stderr, fmt, ## __VA_ARGS__); \
-	fprintf(stderr, "\n"); \
+	if(knh_Context_isVerbose(ctx)) { \
+		fflush(stdout); \
+		fprintf(stderr, "konoha (log:%d): ", priority); \
+		fprintf(stderr, fmt, ## __VA_ARGS__); \
+		fprintf(stderr, "\n"); \
+	}
 
 #define KNH_SYSLOG(ctx, priority, fmt, ...) \
-	fflush(stdout); \
-	fprintf(stderr, "SYSLOG(%d)[%s:%d/%s]\n\t", priority, knh_safefile(__FILE__), __LINE__, __FUNCTION__); \
-	fprintf(stderr, fmt, ## __VA_ARGS__); \
-	fprintf(stderr, "\n"); \
+	if(knh_Context_isVerbose(ctx)) { \
+		fflush(stdout); \
+		fprintf(stderr, "SYSLOG(%d)[%s:%d/%s]\n\t", priority, \
+				knh_safefile(__FILE__), __LINE__, __FUNCTION__); \
+		fprintf(stderr, fmt, ## __VA_ARGS__); \
+		fprintf(stderr, "\n"); \
+	}
 
 #define KNH_SYSLOG2(ctx, priority, fmt, ...) \
 	fflush(stdout); \
