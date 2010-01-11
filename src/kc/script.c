@@ -1477,6 +1477,7 @@ int knh_Script_loadStream(Ctx *ctx, knh_Script_t *script, knh_InputStream_t *in,
 	while(!knh_InputStream_isClosed(ctx, in)){
 		stmt = knh_InputStream_parseStmt(ctx, in, 0/*isData*/);
 		KNH_SETv(ctx, lsfp[2].o, stmt);
+		if(STT_(stmt) == STT_DONE) break;
 		if(URI_UNMASK(uri) != 0) {
 			DBG_DUMP(ctx, stmt, KNH_NULL, "stmt");
 		}
