@@ -934,6 +934,7 @@ typedef struct {
 	knh_Fclose   fclose;
 } knh_StreamDSPI_t;
 
+
 /* ------------------------------------------------------------------------ */
 /* KNH_REGEX_DSPI */
 

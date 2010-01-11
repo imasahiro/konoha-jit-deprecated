@@ -137,8 +137,12 @@ int knh_InputStream_getc(Ctx *ctx, knh_InputStream_t *o)
 			if(DP(o)->prev != '\r') {
 				DP(o)->line++;
 			}
-		}else if(ch == '\r') {
+		}
+		else if(ch == '\r') {
 			DP(o)->line++;
+		}
+		else if(ch == EOF) {
+			knh_InputStream_close(ctx, o);
 		}
 	}
 	return ch;
@@ -204,11 +208,11 @@ knh_String_t* knh_InputStream_readLine(Ctx *ctx, knh_InputStream_t *in)
 
 void knh_InputStream_close(Ctx *ctx, knh_InputStream_t *o)
 {
-	knh_Fclose f = DP(o)->driver->fclose;
+	DP(o)->driver->fclose(ctx, DP(o)->fd);
 	DP(o)->driver = knh_getDefaultIODriver();
-	f(ctx, DP(o)->fd);
 	DP(o)->fd = -1;
 	KNH_SETv(ctx, DP(o)->ba, KNH_NULL);
+	knh_InputStream_setFILE(o, 0);
 }
 
 /* ------------------------------------------------------------------------ */

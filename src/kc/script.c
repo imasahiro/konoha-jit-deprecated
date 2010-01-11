@@ -1583,7 +1583,6 @@ METHOD Script_load(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 	KNH_RETURN_Boolean(ctx, sfp, res);
 }
 
-
 /* ------------------------------------------------------------------------ */
 
 #ifdef __cplusplus

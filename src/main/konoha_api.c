@@ -1118,7 +1118,7 @@ KNHAPI(void) konoha_shell(konoha_t konoha)
 				DP(in)->line = linenum;
 				knh_InputStream_setEncoding(ctx, in, KNH_ENC);
 				shellContext = ctx;
-				knh_Script_loadStream(ctx, ctx->share->mainns, in, 1/*isEval*/, 0/*isThrowable*/);
+				knh_Script_loadStream(ctx, ctx->script, in, 1/*isEval*/, 0/*isThrowable*/);
 				shellContext = NULL;
 				knh_cwb_close(cwb);
 			}
