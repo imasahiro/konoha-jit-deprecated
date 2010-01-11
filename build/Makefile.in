@@ -94,9 +94,9 @@ am_libkonoha_la_OBJECTS = structapi.lo knh_Array.lo knh_Bytes.lo \
 	knh_write.lo dlopen.lo fileio.lo filesystem.lo locale.lo \
 	regex.lo socket.lo sqlite3.lo thread.lo time.lo mt19937-64.lo \
 	mt19937ar.lo qsort.lo strerror.lo strlen.lo asm.lo kcode.lo \
-	konoha_code_.lo konohac.lo misc_.lo parser.lo perror.lo \
-	stmt.lo token.lo tokenizer.lo typing.lo b4.lo convert.lo \
-	lkm.lo ssa.lo exports.lo glue.lo konoha_api.lo konoha_ext.lo \
+	konoha_code_.lo misc_.lo parser.lo perror.lo script.lo stmt.lo \
+	token.lo tokenizer.lo typing.lo b4.lo convert.lo lkm.lo ssa.lo \
+	tb.lo exports.lo glue.lo konoha_api.lo konoha_ext.lo \
 	logging.lo memory.lo metadata.lo objectdbms.lo security.lo \
 	stack.lo system.lo systemtable.lo typesystem.lo
 libkonoha_la_OBJECTS = $(am_libkonoha_la_OBJECTS)
@@ -288,11 +288,11 @@ libkonoha_la_SOURCES = ../src/api/structapi.c ../src/class/knh_Array.c \
 	../src/ext/mt19937-64.c ../src/ext/mt19937ar.c \
 	../src/ext/qsort.c ../src/ext/strerror.c ../src/ext/strlen.c \
 	../src/kc/asm.c ../src/kc/kcode.c ../src/kc/konoha_code_.c \
-	../src/kc/konohac.c ../src/kc/misc_.c ../src/kc/parser.c \
-	../src/kc/perror.c ../src/kc/stmt.c ../src/kc/token.c \
+	../src/kc/misc_.c ../src/kc/parser.c ../src/kc/perror.c \
+	../src/kc/script.c ../src/kc/stmt.c ../src/kc/token.c \
 	../src/kc/tokenizer.c ../src/kc/typing.c ../src/labs/b4.c \
 	../src/labs/convert.c ../src/labs/lkm.c ../src/labs/ssa.c \
-	../src/main/exports.c ../src/main/glue.c \
+	../src/labs/tb.c ../src/main/exports.c ../src/main/glue.c \
 	../src/main/konoha_api.c ../src/main/konoha_ext.c \
 	../src/main/logging.c ../src/main/memory.c \
 	../src/main/metadata.c ../src/main/objectdbms.c \
@@ -592,7 +592,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/konoha_api.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/konoha_code_.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/konoha_ext.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/konohac.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lkm.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/locale.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/logging.Plo@am__quote@
@@ -606,6 +605,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/perror.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/qsort.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/regex.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/script.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/security.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/socket.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sqlite3.Plo@am__quote@
@@ -617,6 +617,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/structapi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/system.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/systemtable.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tb.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/thread.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/time.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/token.Plo@am__quote@
@@ -974,13 +975,6 @@ konoha_code_.lo: ../src/kc/konoha_code_.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o konoha_code_.lo `test -f '../src/kc/konoha_code_.c' || echo '$(srcdir)/'`../src/kc/konoha_code_.c
 
-konohac.lo: ../src/kc/konohac.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT konohac.lo -MD -MP -MF $(DEPDIR)/konohac.Tpo -c -o konohac.lo `test -f '../src/kc/konohac.c' || echo '$(srcdir)/'`../src/kc/konohac.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/konohac.Tpo $(DEPDIR)/konohac.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/kc/konohac.c' object='konohac.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o konohac.lo `test -f '../src/kc/konohac.c' || echo '$(srcdir)/'`../src/kc/konohac.c
-
 misc_.lo: ../src/kc/misc_.c
 @am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT misc_.lo -MD -MP -MF $(DEPDIR)/misc_.Tpo -c -o misc_.lo `test -f '../src/kc/misc_.c' || echo '$(srcdir)/'`../src/kc/misc_.c
 @am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/misc_.Tpo $(DEPDIR)/misc_.Plo
@@ -1001,6 +995,13 @@ perror.lo: ../src/kc/perror.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/kc/perror.c' object='perror.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o perror.lo `test -f '../src/kc/perror.c' || echo '$(srcdir)/'`../src/kc/perror.c
+
+script.lo: ../src/kc/script.c
+@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT script.lo -MD -MP -MF $(DEPDIR)/script.Tpo -c -o script.lo `test -f '../src/kc/script.c' || echo '$(srcdir)/'`../src/kc/script.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/script.Tpo $(DEPDIR)/script.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/kc/script.c' object='script.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o script.lo `test -f '../src/kc/script.c' || echo '$(srcdir)/'`../src/kc/script.c
 
 stmt.lo: ../src/kc/stmt.c
 @am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT stmt.lo -MD -MP -MF $(DEPDIR)/stmt.Tpo -c -o stmt.lo `test -f '../src/kc/stmt.c' || echo '$(srcdir)/'`../src/kc/stmt.c
@@ -1057,6 +1058,13 @@ ssa.lo: ../src/labs/ssa.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/labs/ssa.c' object='ssa.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o ssa.lo `test -f '../src/labs/ssa.c' || echo '$(srcdir)/'`../src/labs/ssa.c
+
+tb.lo: ../src/labs/tb.c
+@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT tb.lo -MD -MP -MF $(DEPDIR)/tb.Tpo -c -o tb.lo `test -f '../src/labs/tb.c' || echo '$(srcdir)/'`../src/labs/tb.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/tb.Tpo $(DEPDIR)/tb.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/labs/tb.c' object='tb.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o tb.lo `test -f '../src/labs/tb.c' || echo '$(srcdir)/'`../src/labs/tb.c
 
 exports.lo: ../src/main/exports.c
 @am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT exports.lo -MD -MP -MF $(DEPDIR)/exports.Tpo -c -o exports.lo `test -f '../src/main/exports.c' || echo '$(srcdir)/'`../src/main/exports.c

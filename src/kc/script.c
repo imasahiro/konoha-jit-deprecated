@@ -359,7 +359,6 @@ knh_Script_t *new_Script(Ctx *ctx, knh_NameSpace_t *ns, knh_class_t cid, knh_cla
 		KNH_INITv(t->methods, new_Array0(ctx, 0));
 		KNH_INITv(t->cmap, ClassTable(CLASS_Script).cmap);
 	}
-
 	DBG2_ASSERT(t->fsize == 0);
 	DBG2_ASSERT(t->fields == NULL);
 	t->bsize  = KNH_SCRIPT_FIELDSIZE;
@@ -373,7 +372,6 @@ knh_Script_t *new_Script(Ctx *ctx, knh_NameSpace_t *ns, knh_class_t cid, knh_cla
 		t->fields[i].fn    = FIELDN_NONAME;
 		t->fields[i].value = NULL;
 	}
-
 	DBG2_ASSERT(t->cspec == NULL);
 	knh_setClassDefaultValue(ctx, cid, UP(script), NULL);
 	{
@@ -961,16 +959,6 @@ static int knh_interpret(Ctx *ctx, knh_Stmt_t *stmt, int isEval)
 	KNH_LPUSH(ctx, stmt);
 	SP(gamma)->uri = SP(stmt)->uri;
 
-	L_IFCHECK: /* conditional compilation */
-	if(STT_(stmt) == STT_IF) {
-		knh_Gamma_initThisScript(ctx);
-		cur = knh_StmtIF_decl(ctx, stmt);
-		if(cur != NULL) {
-			stmt = cur;
-			goto L_IFCHECK;
-		}
-	}
-
 	cur = stmt;
 	while(IS_Stmt(cur)) {
 		SP(gamma)->line = SP(cur)->line;
@@ -992,6 +980,17 @@ static int knh_interpret(Ctx *ctx, knh_Stmt_t *stmt, int isEval)
 			KNH_SETv(ctx, DP(gamma)->script, script);
 			res = knh_interpret(ctx, DP(cur)->stmts[0], isEval);
 			KNH_SETv(ctx, DP(gamma)->script, pscript);
+			knh_Stmt_done(ctx, cur);
+			break;
+		}
+		case STT_IF: /* Conditional Compilation */
+		if(knh_Stmt_flag(ctx, cur, STEXT("@Script"), 1)) {
+			knh_Gamma_initThisScript(ctx);
+			cur = knh_StmtIF_decl(ctx, cur);
+			res = 0;
+			if(cur != NULL) {
+				res = knh_interpret(ctx, cur, isEval);
+			}
 			knh_Stmt_done(ctx, cur);
 			break;
 		}
@@ -1033,25 +1032,13 @@ static int knh_interpret(Ctx *ctx, knh_Stmt_t *stmt, int isEval)
 		case STT_RETURN:
 			knh_Gamma_perror(ctx, KERR_ERRATA, _("'break' is much better"));
 		case STT_BREAK:
+			res = 0;
 			goto L_BREAK;
 		}
 		if(res == 0) {
 			goto L_BREAK;
 		}
-		{   /* conditional compilation */
-			knh_Stmt_t *prev = cur;
-			cur = DP(cur)->next;
-			if(IS_Stmt(cur) && STT_(cur) == STT_IF) {
-				knh_Gamma_initThisScript(ctx);
-				cur = knh_StmtIF_decl(ctx, cur);
-				if(cur != NULL) {
-					KNH_SETv(ctx, DP(prev)->next, cur);
-				}
-				else {
-					cur = DP(prev)->next;
-				}
-			}
-		}
+		cur = DP(cur)->next;
 	}
 
 	cur = stmt;

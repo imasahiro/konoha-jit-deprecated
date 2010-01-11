@@ -37,7 +37,6 @@ extern "C" {
 
 /* ======================================================================== */
 
-//static knh_index_t knh_Gamma_declareLocalVariable(Ctx *ctx, knh_fields_t *decl);
 static Term *knh_Stmt_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt);
 static Term *knh_StmtCALL_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_class_t reqt);
 static int TERMs_typing(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_type_t reqt, int mode);
@@ -52,6 +51,8 @@ static int TERMs_typing(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_type_t reqt, i
 		DBG2_P("*** stt=%s release esp=%d ***", cSTT_(stmt), (int)x);\
 		knh_Gamma_clear(ctx, x, 0/*isAll*/);\
 	}\
+
+
 
 /* ======================================================================== */
 /* [Token] */
@@ -3618,8 +3619,8 @@ Term *knh_StmtIF_typing(Ctx *ctx, knh_Stmt_t *stmt)
 
 knh_Stmt_t *knh_StmtIF_decl(Ctx *ctx, knh_Stmt_t *stmt)
 {
-	knh_Stmt_t *thisStmt = NULL;
-	if(TERMs_typing(ctx, stmt, 0, NNTYPE_Boolean, TCHECK_)) {
+	knh_Stmt_t *thisStmt = NULL; /* Conditional Statement */
+	if(TERMs_typing(ctx, stmt, 0, NNTYPE_Boolean, TNOP_)) {
 		if(TERMs_isTRUE(stmt, 0)) {
 			knh_Stmt_done(ctx, DP(stmt)->stmts[2]);
 			thisStmt = DP(stmt)->stmts[1];
@@ -3629,9 +3630,9 @@ knh_Stmt_t *knh_StmtIF_decl(Ctx *ctx, knh_Stmt_t *stmt)
 			thisStmt = DP(stmt)->stmts[1];
 		}
 	}
-	if(thisStmt != NULL) {
-		knh_Stmt_t *tail = knh_Stmt_tail(ctx, thisStmt);
-		KNH_SETv(ctx, DP(tail)->next, DP(stmt)->next);
+	if(thisStmt == NULL) {
+		knh_Token_t *tk = DP(stmt)->tokens[0];
+		knh_Token_perror(ctx, tk, KERR_EWARN, _("not static condition"));
 	}
 	return thisStmt;
 }
