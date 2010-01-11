@@ -264,6 +264,7 @@ knh_class_t knh_NameSpace_findcid(Ctx *ctx, knh_NameSpace_t *ns, knh_bytes_t nam
 	cid = knh_getcid(ctx, name);
 	if(cid != CLASS_unknown) {
 		knh_NameSpace_setcid(ctx, ns, ClassTable(cid).sname, cid);
+		return cid;
 	}
 
 	if(name.buf[name.len-1] == ']' && name.buf[name.len-2] == '[') {
