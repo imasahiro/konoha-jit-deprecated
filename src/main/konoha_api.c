@@ -62,7 +62,7 @@ void konoha_init(void)
 	static int isInit = 0;
 #ifdef KNH_USING_THREAD
 	if(isInit == 0) {
-		knh_thread_key_create(&ctxkey);
+		knh_thread_key_create((knh_thread_key_t*)&ctxkey);
 	}
 #endif
 	knh_srand(0);

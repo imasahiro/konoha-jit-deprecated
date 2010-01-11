@@ -34,22 +34,7 @@ extern "C" {
 int main(int argc, char **argv)
 {
 #if defined(KNH_USING_BTRON)
-	char buf[4096];
-	char* args[256];
-	int i, pos = 0, len;
-
-	for (i = 0; i < argc; i++) {
-		args[i] = buf + pos;
-		len = tcstoeucs(args[i], (TC*)argv[i]);
-		if (len >= 0) {
-			pos += (len + 1);
-		}
-		else {
-			buf[pos] = '\0';
-			pos++;
-		}
-	}
-	args[argc] = NULL;
+	char **args = knh_tcstoeucs(argc, argv);
 #else
 	char** args = (char**) argv;
 #endif

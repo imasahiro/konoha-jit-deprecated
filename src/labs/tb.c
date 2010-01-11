@@ -2,14 +2,15 @@
  * T-Board LED 
  * written by goccy54 (at) gmail.com
  */
-#ifdef KONOHA_ON_TB
 #include "commons.h"
+#ifdef KONOHA_ON_TB
 #include <tk/syslib.h>
 #include <btron/tkcall.h>
 #include <tstring.h>
 #define DN_LECHIP -200
 #define DN_LEMode  -200
 #define DN_LEDEC  -203
+#endif
 
 /* ************************************************************************ */
 
@@ -17,6 +18,26 @@
 extern "C" {
 #endif
 
+char **knh_tcstoeucs(int argc, char **argv)
+{
+#ifdef KONOHA_ON_TB
+	char buf[256];
+	char** args = malloc(sizeof(char*) * (argc + 1));
+	int i, len;
+
+	for (i = 0; i < argc; i++) {
+		len = tcstoeucs(buf, (TC*)argv[i]);
+		if (len >= 0) {
+			args[i] = malloc(len + 1);
+			knh_memcpy(args[i], buf, len);
+		}
+	}
+	args[argc] = NULL;
+#else
+	char **args = argv;
+#endif /* KONOHA_ON_TB */
+	return args;
+}
 ///* -------------------------------------------------------------------------*/
 ////## method void System.chipLed(Int! x);
 //
@@ -56,4 +77,3 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-#endif /* KONOHA_ON_TB */
