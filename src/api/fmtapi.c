@@ -64,7 +64,6 @@ void knh_stack_reformat(Ctx *ctx, knh_sfp_t *sfp, knh_methodn_t fmt)
 static
 void knh_write_ObjectField(Ctx *ctx, knh_OutputStream_t *w, Object **v, size_t i, knh_type_t type, knh_methodn_t mn)
 {
-#ifdef KNH_USING_UNBOXFIELD
 	if(IS_ubxint(type)) {
 		knh_int_t *data = (knh_int_t*)(v + i);
 		knh_write_ifmt(ctx, w, KNH_INT_FMT, data[0]);
@@ -77,9 +76,7 @@ void knh_write_ObjectField(Ctx *ctx, knh_OutputStream_t *w, Object **v, size_t i
 		knh_bool_t *data = (knh_bool_t*)(v + i);
 		knh_write_bool(ctx, w, data[0]);
 	}
-	else
-#endif
-	{
+	else{
 		knh_format(ctx, w, mn, v[i], KNH_NULL);
 	}
 }

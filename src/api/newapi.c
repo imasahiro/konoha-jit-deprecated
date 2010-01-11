@@ -76,7 +76,6 @@ void knh_ObjectField_setValue(Ctx *ctx, knh_ObjectField_t *of, knh_index_t idx, 
 	}
 
 	L_SET:;
-#ifdef KNH_USING_UNBOXFIELD
 	if(IS_ubxint(type)) {
 		knh_int_t *data = (knh_int_t*)(of->fields + idx);
 		data[0] = toint(value);
@@ -89,9 +88,7 @@ void knh_ObjectField_setValue(Ctx *ctx, knh_ObjectField_t *of, knh_index_t idx, 
 		knh_boolean_t *data = (knh_boolean_t*)(of->fields +idx);
 		data[0] = tobool(value);
 	}
-	else
-#endif/*KNH_USING_UNBOXFIELD*/
-	{
+	else {
 		DBG2_ASSERT(of->fields[idx] != NULL);
 		KNH_SETv(ctx, of->fields[idx], value);
 	}

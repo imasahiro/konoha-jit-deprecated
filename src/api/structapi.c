@@ -118,7 +118,6 @@ void knh_ClassField_initField(Ctx *ctx, knh_ClassTable_t *t, knh_class_t self_ci
 			value = knh_getProperty(ctx, __tobytes((knh_String_t*)value));
 			DBG2_P("type=%s%s object=%s", TYPEQN(cf[i].type), CLASSNo(value));
 		}
-#ifdef KNH_USING_UNBOXFIELD
 		if(type == TYPE_void) {
 			continue;
 		}
@@ -137,9 +136,7 @@ void knh_ClassField_initField(Ctx *ctx, knh_ClassTable_t *t, knh_class_t self_ci
 			data[0] = value == NULL ? 0 : tobool(value);
 			continue;
 		}
-		else
-#endif/*KNH_USING_UNBOXFIELD*/
-		if(value == NULL) {
+		else if(value == NULL) {
 			knh_class_t cid = knh_pmztype_toclass(ctx, type, self_cid);
 			DBG2_ASSERT(IS_NNTYPE(type));
 			KNH_INITv(v[i], KNH_DEF(ctx, cid));

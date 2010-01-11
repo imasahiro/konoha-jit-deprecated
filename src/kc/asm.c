@@ -306,7 +306,6 @@ void KNH_ASM_SMOVx(Ctx *ctx, knh_type_t atype, int a, knh_type_t btype, knh_sfx_
 		KNH_ASM(MOVo, DP(kc)->globalidx, scr);
 		/** DP(kc)->globalidx = -1; I want SSA */
 	}
-#ifdef KNH_USING_UNBOXFIELD
 	if(IS_ubxint(btype)) {
 		DBG2_P("atype=%s%s, btype=%s%s", TYPEQN(atype), TYPEQN(btype));
 		KNH_ASM(MOVxi, sfi_(a), bx);
@@ -323,7 +322,6 @@ void KNH_ASM_SMOVx(Ctx *ctx, knh_type_t atype, int a, knh_type_t btype, knh_sfx_
 		KNH_ASM_NNBOX(ctx, atype, btype, sfi_(a));
 		return;
 	}
-#endif
 	if(IS_NNTYPE(atype) && !IS_NNTYPE(btype)) {
 		KNH_ASM(CHKNULx, bx);
 		btype = NNTYPE_cid(btype);
@@ -514,7 +512,6 @@ void KNH_ASM_XMOV(Ctx *ctx, knh_type_t atype, int a, size_t an, knh_Token_t *tkb
 		case TT_CLASSID:
 		case TT_CONST: {
 			Object *v = DP(tkb)->data;
-#ifdef KNH_USING_UNBOXFIELD
 			if(IS_ubxint(atype)) {
 				KNH_ASM(MOVi, DP(kc)->esp, knh_Object_data(v));
 				KNH_ASM(XMOVsi, ax, DP(kc)->esp);
@@ -530,7 +527,6 @@ void KNH_ASM_XMOV(Ctx *ctx, knh_type_t atype, int a, size_t an, knh_Token_t *tkb
 				KNH_ASM(XMOVsb, ax, DP(kc)->esp);
 				break;
 			}
-#endif/*KNU_USING_UNBOXFIED*/
 			KNH_ASM(XMOVo, ax, v);
 			break;
 		}
@@ -540,7 +536,6 @@ void KNH_ASM_XMOV(Ctx *ctx, knh_type_t atype, int a, size_t an, knh_Token_t *tkb
 			if(IS_NNTYPE(atype) && !IS_NNTYPE(btype)) {
 				KNH_ASM(CHKNUL, b);
 			}
-#ifdef KNH_USING_UNBOXFIELD
 			if(IS_ubxint(atype)) {
 				KNH_ASM(XMOVsi, ax, sfi_(b));
 				break;
@@ -553,7 +548,6 @@ void KNH_ASM_XMOV(Ctx *ctx, knh_type_t atype, int a, size_t an, knh_Token_t *tkb
 				KNH_ASM(XMOVsb, ax, sfi_(b));
 				break;
 			}
-#endif/*KNU_USING_UNBOXFIED*/
 			KNH_ASM_BOX(ctx, atype, btype, b);
 			KNH_ASM(XMOVs, ax, sfi_(b));
 			break;
@@ -583,7 +577,6 @@ void KNH_ASM_XMOV(Ctx *ctx, knh_type_t atype, int a, size_t an, knh_Token_t *tkb
 
 		}
 		case TT_DEFVAL: {
-#ifdef KNH_USING_UNBOXFIELD
 			if(IS_ubxint(atype)) {
 				KNH_ASM(MOVDEF, DP(kc)->esp, DP(tkb)->cid);
 				KNH_ASM(XMOVsi, ax, DP(kc)->esp);
@@ -597,7 +590,6 @@ void KNH_ASM_XMOV(Ctx *ctx, knh_type_t atype, int a, size_t an, knh_Token_t *tkb
 				KNH_ASM(XMOVsi, ax, DP(kc)->esp);
 			}
 			else
-#endif/*KNU_USING_UNBOXFIED*/
 			{
 				knh_class_t cid = DP(tkb)->cid;
 				KNH_ASM(XMOVDEF, ax, cid);

@@ -39,7 +39,6 @@
 
 #define KNH_USING_RCGC         1
 #define KNH_USING_FASTMALLOC   1
-#define KNH_USING_UNBOXFIELD   1
 
 /* ======================================================================== */
 /* Manifesto */
@@ -52,7 +51,7 @@
 #define KONOHA_MAJOR_VERSION  0
 #define KONOHA_MINER_VERSION  7
 #define KONOHA_PATCH_VERSION  0
-#define KONOHA_VERSION  "0.7rc"
+#define KONOHA_VERSION  "0.7-beta4"
 #endif
 
 #define LIBKONOHA_VERSION "0.7"

@@ -337,7 +337,6 @@ knh_index_t knh_Gamma_addVariableTable(Ctx *ctx, knh_fields_t *gamma, size_t max
 				if(gamma[idx].value == NULL && IS_NATYPE(gamma[idx].type)) {
 					KNH_INITv(gamma[idx].value, KNH_NULL);
 				}
-#ifdef KNH_USING_UNBOXFIELD
 				if((IS_ubxint(decl->type) && (sizeof(knh_int_t) > sizeof(void*))) ||
 					(IS_ubxfloat(decl->type) && (sizeof(knh_float_t) > sizeof(void*)))) {
 					gamma[idx+1].flag = 0;
@@ -345,7 +344,6 @@ knh_index_t knh_Gamma_addVariableTable(Ctx *ctx, knh_fields_t *gamma, size_t max
 					gamma[idx+1].fn   = FIELDN_/*register*/;
 					DBG2_ASSERT(gamma[idx+1].value == NULL);
 				}
-#endif
 			}
 			else {
 				DP(ctx->kc)->esp = -1;
@@ -412,7 +410,6 @@ knh_index_t knh_Gamma_declareScriptVariable(Ctx *ctx, knh_fields_t *decl)
 	knh_index_t idx = knh_Gamma_addVariableTable(ctx, gamma, KNH_SCRIPT_FIELDSIZE, decl, 1/*isField*/);
 	if(idx != -1) {
 		knh_Object_t *value = decl->value;
-#ifdef KNH_USING_UNBOXFIELD
 		knh_type_t type = decl->type;
 		if(IS_ubxint(type)) {
 			knh_int_t *v = (knh_int_t*)(scr->fields + idx);
@@ -429,7 +426,6 @@ knh_index_t knh_Gamma_declareScriptVariable(Ctx *ctx, knh_fields_t *decl)
 			v[0] = (value == NULL) ? 0 : ((knh_Boolean_t*)value)->n.bvalue;
 			return 1;
 		}
-#endif/*KNH_USING_UNBOXFIELD*/
 		if(value == NULL) {
 			value = KNH_DEF(ctx, CLASS_type(type));
 		}
