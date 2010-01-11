@@ -40,7 +40,6 @@ int main(int argc, char **argv)
 #endif
 	konoha_t konoha = konoha_open(4096);
 	int n = konoha_parseopt(konoha, argc, args);
-	//UTEST_fastmalloc(konoha.ctx);
 	if(argc - n == 0) {
 		konoha_shell(konoha);
 	}

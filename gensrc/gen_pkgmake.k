@@ -1,6 +1,6 @@
 #!/usr/local/bin/konoha
 using posix.*;
-import "walk.k"
+include "walk.k"
 
 void usage(String filename) {
     OUT << format("""

@@ -1,5 +1,5 @@
 #!/usr/local/bin/konoha
-import "walk.k"
+include "walk.k"
 /*
  * gen_automake.k
  * masahiro@ynu 2009

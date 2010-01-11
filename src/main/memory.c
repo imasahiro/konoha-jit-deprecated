@@ -285,20 +285,20 @@ void knh_fastfree(Ctx *ctx, void *block, size_t size)
 	}
 }
 
-void UTEST_fastmalloc(Ctx *ctx)
-{
-	int i = 0;
-	void *a[10000] = {NULL};
-	for(i = 0; i < 10000; i++) {
-		a[i] = knh_fastmalloc(ctx, KNH_FASTMALLOC_SIZE);
-		memset(a[i], i % 128, KNH_FASTMALLOC_SIZE);
-	}
-
-	for(i = 0; i < 10000; i++) {
-		knh_bzero(a[i], KNH_FASTMALLOC_SIZE);
-		knh_fastfree(ctx, a[i], KNH_FASTMALLOC_SIZE);
-	}
-}
+//void UTEST_fastmalloc(Ctx *ctx)
+//{
+//	int i = 0;
+//	void *a[10000] = {NULL};
+//	for(i = 0; i < 10000; i++) {
+//		a[i] = knh_fastmalloc(ctx, KNH_FASTMALLOC_SIZE);
+//		memset(a[i], i % 128, KNH_FASTMALLOC_SIZE);
+//	}
+//
+//	for(i = 0; i < 10000; i++) {
+//		knh_bzero(a[i], KNH_FASTMALLOC_SIZE);
+//		knh_fastfree(ctx, a[i], KNH_FASTMALLOC_SIZE);
+//	}
+//}
 
 /* ------------------------------------------------------------------------ */
 /* [hObject] */

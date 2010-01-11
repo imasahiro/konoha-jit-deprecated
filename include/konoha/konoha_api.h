@@ -691,7 +691,6 @@ void *DBG2_malloc(Ctx *ctx, size_t size LOGARG);
 void DBG2_free(Ctx *ctx, void *p, size_t size LOGARG);
 void *knh_fastmalloc(Ctx *ctx, size_t size);
 void knh_fastfree(Ctx *ctx, void *block, size_t size);
-void UTEST_fastmalloc(Ctx *ctx);
 knh_Object_t *new_hObject(Ctx *ctx, knh_flag_t flag, knh_class_t bcid, knh_class_t cid);
 knh_Object_t *new_Object_bcid(Ctx *ctx, /*knh_flag_t flag,*/ knh_class_t bcid, int init);
 knh_Object_t *new_Object_init(Ctx *ctx, knh_flag_t flag, knh_class_t cid, int init);

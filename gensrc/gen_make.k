@@ -12,7 +12,7 @@
  */
 
 
-import "walk.k"
+include "walk.k"
 
 DEV_NAME = "konohadev";
 MAKEFILE = "Makefile";

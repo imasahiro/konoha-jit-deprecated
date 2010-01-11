@@ -4,7 +4,7 @@
    emulate python's os.walk;
 */
  
-import "array.k"
+include "array.k"
  
 String[] System.walk(String path){
     String[] p = new String[]();
