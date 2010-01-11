@@ -659,10 +659,10 @@ static int knh_StmtCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt)
 
 /* ------------------------------------------------------------------------ */
 
-static int knh_StmtIMPORT_decl(Ctx *ctx, knh_Stmt_t *stmt)
+static int knh_StmtINCLUDE_decl(Ctx *ctx, knh_Stmt_t *stmt)
 {
 	int res = 1;
-	knh_bytes_t path = __tobytes(DP(StmtIMPORT_file(stmt))->text);
+	knh_bytes_t path = __tobytes(DP(StmtINCLUDE_file(stmt))->text);
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 	if(path.buf[0] != '/' && path.buf[0] != '\\' && !knh_bytes_startsWith(path, STEXT("http://"))) {
 		knh_bytes_t t = __tobytes(knh_getResourceName(ctx, SP(stmt)->uri));
@@ -982,12 +982,24 @@ static int knh_interpret(Ctx *ctx, knh_Stmt_t *stmt, int isEval)
 			KNH_SETv(ctx, DP(gamma)->ns, ns);
 			res = knh_interpret(ctx, DP(cur)->stmts[0], isEval);
 			KNH_SETv(ctx, DP(gamma)->ns, DP(ns)->parent);
+			knh_Stmt_done(ctx, cur);
+			break;
+		}
+		case STT_SCRIPT:
+		{
+			knh_Script_t *pscript = knh_getGammaScript(ctx);
+			knh_Script_t *script = new_Script(ctx, DP(gamma)->ns, new_ClassId(ctx), knh_Object_cid(pscript));
+			KNH_SETv(ctx, DP(gamma)->script, script);
+			res = knh_interpret(ctx, DP(cur)->stmts[0], isEval);
+			KNH_SETv(ctx, DP(gamma)->script, pscript);
+			knh_Stmt_done(ctx, cur);
+			break;
 		}
 		case STT_CLASS:
 			res = knh_StmtCLASS_decl(ctx, cur);
 			break;
-		case STT_IMPORT:
-			res = knh_StmtIMPORT_decl(ctx, cur);
+		case STT_INCLUDE:
+			res = knh_StmtINCLUDE_decl(ctx, cur);
 			knh_Stmt_done(ctx, cur);
 			break;
 		case STT_UCLASS:

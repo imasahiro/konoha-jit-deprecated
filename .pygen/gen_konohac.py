@@ -18,7 +18,7 @@ ADD_MAP = {}
 STMT = '''
 done                       @stmt
 pragma VARN:name pragma.. ANY:value ;       @stmt @token @new @eos
-namespace {:block ;        @stmt @token @new @eos
+namespace {:block          @stmt @token @new @eos
 script {:block             @stmt @new @token @eos
 include FURN:file ;        @stmt @token @new @decl @eos
 
@@ -193,7 +193,7 @@ SYSVAL                 @system @P99
 LOCAL                  @system @P99
 STACK                  @system @P99
 FIELD                  @system @P99
-SCRIPT                 @system @P99
+#SCRIPT                 @system @P99
 MEMBER                 @system @P99
 CLASSID                @system @P99
 CLOSURE                @system @P99
