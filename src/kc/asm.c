@@ -2095,10 +2095,7 @@ static int knh_Gamma_inTry(Ctx *ctx)
 	return IS_Stmt(DP(ctx->kc)->finallyStmt);
 }
 
-/* ------------------------------------------------------------------------ */
-
-static
-void knh_Gamma_setFinallyStmt(Ctx *ctx, knh_Stmt_t *stmt)
+static void knh_Gamma_setFinallyStmt(Ctx *ctx, knh_Stmt_t *stmt)
 {
 	knh_Gamma_t *kc = ctx->kc;
 	if(IS_NOTNULL(stmt)) {
@@ -2113,20 +2110,14 @@ void knh_Gamma_setFinallyStmt(Ctx *ctx, knh_Stmt_t *stmt)
 	}
 }
 
-/* ------------------------------------------------------------------------ */
-
-static
-void KNH_ASM_FINALLY(Ctx *ctx)
+static void KNH_ASM_FINALLY(Ctx *ctx)
 {
 	if(IS_NOTNULL(DP(ctx->kc)->finallyStmt)) {
 		knh_Stmt_asmBLOCK(ctx, DP(ctx->kc)->finallyStmt, 1/* Iteration */);
 	}
 }
 
-/* ------------------------------------------------------------------------ */
-
-static
-void knh_StmtTRY_asm(Ctx *ctx, knh_Stmt_t *stmt)
+static void knh_StmtTRY_asm(Ctx *ctx, knh_Stmt_t *stmt)
 {
 	knh_KLRInst_t*  lbCATCH   = new_KLRInstLABEL(ctx);
 	knh_KLRInst_t*  lbFINALLY = new_KLRInstLABEL(ctx);
@@ -2164,20 +2155,13 @@ void knh_StmtTRY_asm(Ctx *ctx, knh_Stmt_t *stmt)
 	KNH_ASM(MOVo, sfi_(DP(tkIT)->index), KNH_NULL);
 }
 
-/* ------------------------------------------------------------------------ */
-
-static
-void knh_StmtTHROW_asm(Ctx *ctx, knh_Stmt_t *stmt)
+static void knh_StmtTHROW_asm(Ctx *ctx, knh_Stmt_t *stmt)
 {
 	//KNH_ASM_HOOKED_FINALLY(ctx);
 	TERMs_ASM_THROW(ctx, stmt, 0);
 }
 
-
-/* ------------------------------------------------------------------------ */
-
-static
-void knh_StmtRETURN_asm(Ctx *ctx, knh_Stmt_t *stmt)
+static void knh_StmtRETURN_asm(Ctx *ctx, knh_Stmt_t *stmt)
 {
 	knh_Gamma_t *kc = ctx->kc;
 	KNH_ASM_FINALLY(ctx);
@@ -2195,10 +2179,7 @@ void knh_StmtRETURN_asm(Ctx *ctx, knh_Stmt_t *stmt)
 	KNH_ASM_RET(ctx);
 }
 
-/* ------------------------------------------------------------------------ */
-
-static
-void knh_StmtERR_asm(Ctx *ctx, knh_Stmt_t *stmt)
+static void knh_StmtERR_asm(Ctx *ctx, knh_Stmt_t *stmt)
 {
 	int start = 0;
 	if(knh_Gamma_inTry(ctx)) {

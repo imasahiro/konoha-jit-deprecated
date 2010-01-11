@@ -77,12 +77,12 @@ static METHOD System_getProperty(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 }
 
 /* ------------------------------------------------------------------------ */
-//## @Static method void System.setProperty(String! key, Any? value);
+//## @Static method Any? System.setProperty(String! key, Any? value);
 
 static METHOD System_setProperty(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_System_setProperty(ctx, (knh_System_t*)sfp[0].o, sfp[1].s, sfp[2].o);
-	KNH_RETURN_void(ctx, sfp);
+	KNH_RETURN(ctx, sfp, sfp[2].o);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -259,7 +259,7 @@ static METHOD System_rename(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* [Context] */
 
 /* ------------------------------------------------------------------------ */
-//## @Static method Any Context.getProperty(String! key);
+//## @Static method Any? Context.getProperty(String! key);
 
 static METHOD Context_getProperty(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
@@ -267,12 +267,12 @@ static METHOD Context_getProperty(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 }
 
 /* ------------------------------------------------------------------------ */
-//## @Static method void Context.setProperty(String! key, Any? value);
+//## @Static method Any? Context.setProperty(String! key, Any? value);
 
 static METHOD Context_setProperty(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_setProperty(ctx, sfp[1].s, sfp[2].o);
-	KNH_RETURN_void(ctx, sfp);
+	KNH_RETURN(ctx, sfp, sfp[2].o);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -322,45 +322,39 @@ static METHOD Context_listProperties(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 }
 
 /* ------------------------------------------------------------------------ */
-//## @Static method void Context.setIn(InputStream? in);
+//## @Static method InputStream Context.setIn(InputStream? in);
 
 static METHOD Context_setIn(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	if(IS_NULL(sfp[1].o)) {
-		KNH_SETv(ctx, ((knh_Context_t*)ctx)->in, DP(ctx->sys)->in);
+		KNH_SETv(ctx, sfp[1].o, DP(ctx->sys)->in);
 	}
-	else {
-		KNH_SETv(ctx, ((knh_Context_t*)ctx)->in, sfp[1].o);
-	}
-	KNH_RETURN_void(ctx, sfp);
+	KNH_SETv(ctx, ((knh_Context_t*)ctx)->in, sfp[1].o);
+	KNH_RETURN(ctx, sfp, sfp[1].o);
 }
 
 /* ------------------------------------------------------------------------ */
-//## @Static method void Context.setOut(OutputStream? out);
+//## @Static method OutputStream Context.setOut(OutputStream? out);
 
 static METHOD Context_setOut(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	if(IS_NULL(sfp[1].o)) {
-		KNH_SETv(ctx, ((knh_Context_t*)ctx)->out, DP(ctx->sys)->out);
+		KNH_SETv(ctx, sfp[1].o, DP(ctx->sys)->out);
 	}
-	else {
-		KNH_SETv(ctx, ((knh_Context_t*)ctx)->out, sfp[1].o);
-	}
-	KNH_RETURN_void(ctx, sfp);
+	KNH_SETv(ctx, ((knh_Context_t*)ctx)->out, sfp[1].o);
+	KNH_RETURN(ctx, sfp, sfp[1].o);
 }
 
 /* ------------------------------------------------------------------------ */
-//## @Static method void Context.setErr(OutputStream? out);
+//## @Static method OutputStream Context.setErr(OutputStream? out);
 
 static METHOD Context_setErr(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	if(IS_NULL(sfp[1].o)) {
-		KNH_SETv(ctx, ((knh_Context_t*)ctx)->err, DP(ctx->sys)->err);
+		KNH_SETv(ctx, sfp[1].o, DP(ctx->sys)->err);
 	}
-	else {
-		KNH_SETv(ctx, ((knh_Context_t*)ctx)->err, sfp[1].o);
-	}
-	KNH_RETURN_void(ctx, sfp);
+	KNH_SETv(ctx, ((knh_Context_t*)ctx)->err, sfp[1].o);
+	KNH_RETURN(ctx, sfp, sfp[1].o);
 }
 
 /* ======================================================================== */
@@ -395,11 +389,12 @@ static METHOD Exception_opInstanceof(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 }
 
 /* ------------------------------------------------------------------------ */
-//## @Hidden @Const method void NameSpace.setConst(String! name, Any value);
+//## @Hidden @Const method Object NameSpace.setConst(String! name, Object value);
 
 static METHOD NameSpace_setConst(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_NameSpace_addConst(ctx, sfp[0].ns, sfp[1].s, sfp[2].o);
+	KNH_RETURN(ctx, sfp, sfp[2].o);
 }
 
 /* ------------------------------------------------------------------------ */

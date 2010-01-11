@@ -475,10 +475,7 @@ static METHOD knh_Fmethod_getter(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 	KNH_RETURN(ctx, sfp, (sfp[0].ox)->fields[delta]);
 }
 
-/* ------------------------------------------------------------------------ */
-
-static
-METHOD knh_Fmethod_igetter(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD knh_Fmethod_igetter(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	DBG2_ASSERT(IS_Method(sfp[-1].mtd));
 	int delta = DP(sfp[-1].mtd)->delta;
@@ -491,10 +488,7 @@ METHOD knh_Fmethod_igetter(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 #endif/*KNH_USING_UNBOXFIELD*/
 }
 
-/* ------------------------------------------------------------------------ */
-
-static
-METHOD knh_Fmethod_fgetter(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD knh_Fmethod_fgetter(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	DBG2_ASSERT(IS_Method(sfp[-1].mtd));
 	int delta = DP(sfp[-1].mtd)->delta;
@@ -507,10 +501,7 @@ METHOD knh_Fmethod_fgetter(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 #endif/*KNH_USING_UNBOXFIELD*/
 }
 
-/* ------------------------------------------------------------------------ */
-
-static
-METHOD knh_Fmethod_bgetter(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD knh_Fmethod_bgetter(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	DBG2_ASSERT(IS_Method(sfp[-1].mtd));
 	int delta = DP(sfp[-1].mtd)->delta;
@@ -523,43 +514,38 @@ METHOD knh_Fmethod_bgetter(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 #endif/*KNH_USING_UNBOXFIELD*/
 }
 
-/* ------------------------------------------------------------------------ */
-
-static
-METHOD knh_Fmethod_setter(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD knh_Fmethod_setter(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	DBG2_ASSERT(IS_Method(sfp[-1].mtd));
 	int delta = DP(sfp[-1].mtd)->delta;
 	KNH_MOV(ctx, (sfp[0].ox)->fields[delta], sfp[1].o);
-	KNH_RETURN_void(ctx, sfp);
+	KNH_RETURN(ctx, sfp, sfp[1].o);
 }
 
-/* ------------------------------------------------------------------------ */
-
-static
-METHOD knh_Fmethod_bsetter(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD knh_Fmethod_bsetter(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	DBG2_ASSERT(IS_Method(sfp[-1].mtd));
 	int delta = DP(sfp[-1].mtd)->delta;
 #ifdef KNH_USING_UNBOXFIELD
 	knh_bool_t *data = (knh_bool_t*)(&((sfp[0].ox)->fields[delta]));
 	data[0] = sfp[1].bvalue;
+	KNH_RETURN_Boolean(ctx, sfp, sfp[1].bvalue);
 #else/*KNH_USING_UNBOXFIELD*/
-	KNH_MOV(ctx, KNH_FIELDn(sfp[0].o, DP(sfp[-1].mtd)->delta), new_Boolean(ctx, sfp[1].bvalue));
+//	knh_Object_t *o = new_Boolean(ctx, sfp[1].bvalue);
+//	KNH_MOV(ctx, KNH_FIELDn(sfp[0].o, DP(sfp[-1].mtd)->delta), o);
+//	KNH_RETURN_void(ctx, sfp, o);
+	TODO();
 #endif/*KNH_USING_UNBOXFIELD*/
-	KNH_RETURN_void(ctx, sfp);
 }
 
-/* ------------------------------------------------------------------------ */
-
-static
-METHOD knh_Fmethod_isetter(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD knh_Fmethod_isetter(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	DBG2_ASSERT(IS_Method(sfp[-1].mtd));
 	int delta = DP(sfp[-1].mtd)->delta;
 #ifdef KNH_USING_UNBOXFIELD
 	knh_int_t *data = (knh_int_t*)(&(sfp[0].ox)->fields[delta]);
 	data[0] = sfp[1].ivalue;
+	KNH_RETURN_Int(ctx, sfp, sfp[1].ivalue);
 #else/*KNH_USING_UNBOXFIELD*/
 	knh_Int_t *n = new_Int(ctx, sfp[1].ivalue);
 	KNH_MOV(ctx, KNH_FIELDn(sfp[0].o, DP(sfp[-1].mtd)->delta), n);
@@ -567,49 +553,37 @@ METHOD knh_Fmethod_isetter(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 	KNH_RETURN_void(ctx, sfp);
 }
 
-/* ------------------------------------------------------------------------ */
-
-static
-METHOD knh_Fmethod_insetter(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD knh_Fmethod_insetter(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	DBG2_ASSERT(IS_Method(sfp[-1].mtd));
 	int delta = DP(sfp[-1].mtd)->delta;
 	knh_Int_t *n = IS_NULL(sfp[1].o) ? sfp[1].i : new_Int(ctx, sfp[1].ivalue);
 	KNH_MOV(ctx, (sfp[0].ox)->fields[delta], n);
-	KNH_RETURN_void(ctx, sfp);
+	KNH_RETURN(ctx, sfp, n);
 }
 
-/* ------------------------------------------------------------------------ */
-
-static
-METHOD knh_Fmethod_fsetter(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD knh_Fmethod_fsetter(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	DBG2_ASSERT(IS_Method(sfp[-1].mtd));
 	int delta = DP(sfp[-1].mtd)->delta;
 #ifdef KNH_USING_UNBOXFIELD
 	knh_float_t *data = (knh_float_t*)(&(sfp[0].ox)->fields[delta]);
 	data[0] = sfp[1].fvalue;
+	KNH_RETURN_Float(ctx, sfp, sfp[1].fvalue);
 #else/*KNH_USING_UNBOXFIELD*/
 	knh_Float_t *n = new_Float(ctx, sfp[1].fvalue);
 	KNH_MOV(ctx, KNH_FIELDn(sfp[0].o, DP(sfp[-1].mtd)->delta), n);
 #endif/*KNH_USING_UNBOXFIELD*/
-	KNH_RETURN_void(ctx, sfp);
 }
 
-/* ------------------------------------------------------------------------ */
-
-static
-METHOD knh_Fmethod_fnsetter(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD knh_Fmethod_fnsetter(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	DBG2_ASSERT(IS_Method(sfp[-1].mtd));
 	int delta = DP(sfp[-1].mtd)->delta;
 	knh_Float_t *n = IS_NULL(sfp[1].o) ? sfp[1].f : new_Float(ctx, sfp[1].fvalue);
 	KNH_MOV(ctx, (sfp[0].ox)->fields[delta], n);
-	KNH_RETURN_void(ctx, sfp);
+	KNH_RETURN(ctx, sfp, n);
 }
-
-
-/* ------------------------------------------------------------------------ */
 
 static
 knh_Method_t *new_Method_getter(Ctx *ctx, knh_class_t cid, knh_methodn_t mn, knh_type_t type, int idx)
@@ -624,13 +598,13 @@ knh_Method_t *new_Method_getter(Ctx *ctx, knh_class_t cid, knh_methodn_t mn, knh
 	else if(IS_ubxboolean(type)) {
 		f = knh_Fmethod_bgetter;
 	}
-	knh_Method_t *mtd = new_Method(ctx, 0, cid, mn, f);
-	DP(mtd)->delta = idx;
-	KNH_SETv(ctx, DP(mtd)->mf, knh_findMethodField0(ctx, type));
-	return mtd;
+	{
+		knh_Method_t *mtd = new_Method(ctx, 0, cid, mn, f);
+		DP(mtd)->delta = idx;
+		KNH_SETv(ctx, DP(mtd)->mf, knh_findMethodField0(ctx, type));
+		return mtd;
+	}
 }
-
-/* ------------------------------------------------------------------------ */
 
 static
 knh_Method_t *new_Method_setter(Ctx *ctx, knh_class_t cid, knh_methodn_t mn, knh_type_t type, int idx)
@@ -651,10 +625,12 @@ knh_Method_t *new_Method_setter(Ctx *ctx, knh_class_t cid, knh_methodn_t mn, knh
 	else if(IS_ubxboolean(type)) {
 		f = knh_Fmethod_bsetter;
 	}
-	knh_Method_t *mtd = new_Method(ctx, 0, cid, mn, f);
-	DP(mtd)->delta = idx;
-	KNH_SETv(ctx, DP(mtd)->mf, knh_findMethodField1(ctx, TYPE_void, type, FIELDN_v));
-	return mtd;
+	{
+		knh_Method_t *mtd = new_Method(ctx, 0, cid, mn, f);
+		DP(mtd)->delta = idx;
+		KNH_SETv(ctx, DP(mtd)->mf, knh_findMethodField1(ctx, type, type, FIELDN_v));
+		return mtd;
+	}
 }
 
 /* ------------------------------------------------------------------------ */

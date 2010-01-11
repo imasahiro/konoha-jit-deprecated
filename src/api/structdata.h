@@ -31,7 +31,7 @@ static METHOD Object_isModified(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 static METHOD Object_setModified(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_Object_setModified((knh_Object_t*)sfp[0].o, p_bool(sfp[1]));
-	KNH_RETURN_void(ctx, sfp);
+	KNH_RETURN_Boolean(ctx, sfp, sfp[1].bvalue);
 }
 
 static METHOD Object_isShared(Ctx *ctx, knh_sfp_t *sfp METHODARG)
@@ -42,7 +42,7 @@ static METHOD Object_isShared(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 static METHOD Object_setShared(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_Object_setShared((knh_Object_t*)sfp[0].o, p_bool(sfp[1]));
-	KNH_RETURN_void(ctx, sfp);
+	KNH_RETURN_Boolean(ctx, sfp, sfp[1].bvalue);
 }
 
 static METHOD String_isAscii(Ctx *ctx, knh_sfp_t *sfp METHODARG)
@@ -213,7 +213,7 @@ static METHOD OutputStream_isAutoFlush(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 static METHOD OutputStream_setAutoFlush(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_OutputStream_setAutoFlush((knh_OutputStream_t*)sfp[0].o, p_bool(sfp[1]));
-	KNH_RETURN_void(ctx, sfp);
+	KNH_RETURN_Boolean(ctx, sfp, sfp[1].bvalue);
 }
 
 static METHOD OutputStream_isStoringBuffer(Ctx *ctx, knh_sfp_t *sfp METHODARG)
@@ -224,7 +224,7 @@ static METHOD OutputStream_isStoringBuffer(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 static METHOD OutputStream_setStoringBuffer(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_OutputStream_setStoringBuffer((knh_OutputStream_t*)sfp[0].o, p_bool(sfp[1]));
-	KNH_RETURN_void(ctx, sfp);
+	KNH_RETURN_Boolean(ctx, sfp, sfp[1].bvalue);
 }
 
 static METHOD Exception_isLogging(Ctx *ctx, knh_sfp_t *sfp METHODARG)
@@ -240,7 +240,7 @@ static METHOD Context_isStrict(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 static METHOD Context_setStrict(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_Context_setStrict((knh_Context_t*)sfp[0].o, p_bool(sfp[1]));
-	KNH_RETURN_void(ctx, sfp);
+	KNH_RETURN_Boolean(ctx, sfp, sfp[1].bvalue);
 }
 
 static METHOD Context_isDebug(Ctx *ctx, knh_sfp_t *sfp METHODARG)
@@ -251,7 +251,7 @@ static METHOD Context_isDebug(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 static METHOD Context_setDebug(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_Context_setDebug((knh_Context_t*)sfp[0].o, p_bool(sfp[1]));
-	KNH_RETURN_void(ctx, sfp);
+	KNH_RETURN_Boolean(ctx, sfp, sfp[1].bvalue);
 }
 
 static METHOD Context_isVerbose(Ctx *ctx, knh_sfp_t *sfp METHODARG)
@@ -262,7 +262,7 @@ static METHOD Context_isVerbose(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 static METHOD Context_setVerbose(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_Context_setVerbose((knh_Context_t*)sfp[0].o, p_bool(sfp[1]));
-	KNH_RETURN_void(ctx, sfp);
+	KNH_RETURN_Boolean(ctx, sfp, sfp[1].bvalue);
 }
 
 static METHOD Context_isInteractive(Ctx *ctx, knh_sfp_t *sfp METHODARG)
@@ -971,7 +971,7 @@ static knh_MethodFieldData0_t MethodFieldData0[] = {
 	{132, 1, NNTYPE_Boolean, NNTYPE_Regex, FIELDN_re},
 	{133, 1, TYPE_String_Ary, TYPE_Regex, FIELDN_pattern},
 	{134, 1, NATYPE_Any, NNTYPE_String, FIELDN_key},
-	{135, 2, TYPE_void, NNTYPE_String, FIELDN_key, NATYPE_Any, FIELDN_value},
+	{135, 2, NATYPE_Any, NNTYPE_String, FIELDN_key, NATYPE_Any, FIELDN_value},
 	{136, 2, TYPE_void, TYPE_Boolean, FIELDN_result, NATYPE_String, FIELDN_msg},
 	{137, 1, TYPE_Int, TYPE_String, FIELDN_cmd},
 	{138, 2, NNTYPE_Boolean, NNTYPE_String, FIELDN_lib, NATYPE_String, FIELDN_func},
@@ -979,16 +979,15 @@ static knh_MethodFieldData0_t MethodFieldData0[] = {
 	{140, 1, TYPE_String_Ary, NATYPE_String, FIELDN_path},
 	{141, 1, NNTYPE_Boolean, NNTYPE_String, FIELDN_path},
 	{142, 2, NNTYPE_Boolean, TYPE_String, FIELDN_path, TYPE_String, FIELDN_newpath},
-	{143, 1, TYPE_Any, NNTYPE_String, FIELDN_key},
-	{144, 1, TYPE_String_Ary, TYPE_String, FIELDN_key},
-	{145, 1, TYPE_void, NATYPE_InputStream, FIELDN_in},
-	{146, 1, TYPE_void, NATYPE_OutputStream, FIELDN_out},
-	{147, 1, NNTYPE_Boolean, TYPE_Any, FIELDN_msg},
-	{148, 2, TYPE_void, NNTYPE_String, FIELDN_name, TYPE_Any, FIELDN_value},
-	{149, 1, TYPE_void, NNTYPE_Boolean, FIELDN_flag},
+	{143, 1, TYPE_String_Ary, TYPE_String, FIELDN_key},
+	{144, 1, TYPE_InputStream, NATYPE_InputStream, FIELDN_in},
+	{145, 1, TYPE_OutputStream, NATYPE_OutputStream, FIELDN_out},
+	{146, 1, NNTYPE_Boolean, TYPE_Any, FIELDN_msg},
+	{147, 2, TYPE_Object, NNTYPE_String, FIELDN_name, TYPE_Object, FIELDN_value},
+	{148, 1, NNTYPE_Boolean, NNTYPE_Boolean, FIELDN_flag},
 	{-1}
 };
-#define KNH_TMETHODFIELD_SIZE           150
+#define KNH_TMETHODFIELD_SIZE           149
 
 static knh_MethodData0_t MethodData0[] = {
 	{Bytes_putc, 0, CLASS_Bytes, METHODN_putc, 0, 1, NULL},
@@ -1394,16 +1393,16 @@ static knh_MethodData0_t MethodData0[] = {
 	{System_mkdir, 0, CLASS_System, METHODN_mkdir, 0, 141, NULL},
 	{System_unlink, 0, CLASS_System, METHODN_unlink, 0, 141, NULL},
 	{System_rename, 0, CLASS_System, METHODN_rename, 0, 142, NULL},
-	{Context_getProperty, FLAG_Method_Static, CLASS_Context, METHODN_getProperty, 0, 143, NULL},
+	{Context_getProperty, FLAG_Method_Static, CLASS_Context, METHODN_getProperty, 0, 134, NULL},
 	{Context_setProperty, FLAG_Method_Static, CLASS_Context, METHODN_setProperty, 0, 135, NULL},
 	{Context_setEncoding, FLAG_Method_Static, CLASS_Context, METHODN_setEncoding, 0, 116, NULL},
-	{Context_listProperties, FLAG_Method_Hidden, CLASS_Context, METHODN_listProperties, 0, 144, NULL},
-	{Context_setIn, FLAG_Method_Static, CLASS_Context, METHODN_setIn, 0, 145, NULL},
-	{Context_setOut, FLAG_Method_Static, CLASS_Context, METHODN_setOut, 0, 146, NULL},
-	{Context_setErr, FLAG_Method_Static, CLASS_Context, METHODN_setErr, 0, 146, NULL},
+	{Context_listProperties, FLAG_Method_Hidden, CLASS_Context, METHODN_listProperties, 0, 143, NULL},
+	{Context_setIn, FLAG_Method_Static, CLASS_Context, METHODN_setIn, 0, 144, NULL},
+	{Context_setOut, FLAG_Method_Static, CLASS_Context, METHODN_setOut, 0, 145, NULL},
+	{Context_setErr, FLAG_Method_Static, CLASS_Context, METHODN_setErr, 0, 145, NULL},
 	{knh_fmethod_formatter, 0, CLASS_Context, METHODN__dump, 0, 23, (void*)knh_Context__dump},
-	{Exception_opInstanceof, 0, CLASS_Exception, METHODN_opInstanceof, 0, 147, NULL},
-	{NameSpace_setConst, FLAG_Method_Const|FLAG_Method_Hidden, CLASS_NameSpace, METHODN_setConst, 0, 148, NULL},
+	{Exception_opInstanceof, 0, CLASS_Exception, METHODN_opInstanceof, 0, 146, NULL},
+	{NameSpace_setConst, FLAG_Method_Const|FLAG_Method_Hidden, CLASS_NameSpace, METHODN_setConst, 0, 147, NULL},
 	{Script_eval, FLAG_Method_Static|FLAG_Method_Hidden, CLASS_Script, METHODN_eval, 0, 52, NULL},
 	{Script_load, FLAG_Method_Static|FLAG_Method_Hidden, CLASS_Script, METHODN_load, 0, 141, NULL},
 	{Object_isRelease, 0, CLASS_Object, METHODN_isRelease, 0, 28, NULL},
@@ -1411,9 +1410,9 @@ static knh_MethodData0_t MethodData0[] = {
 	{Object_isImmutable, 0, CLASS_Object, METHODN_isImmutable, 0, 28, NULL},
 	{Object_isUndefined, 0, CLASS_Object, METHODN_isUndefined, 0, 28, NULL},
 	{Object_isModified, 0, CLASS_Object, METHODN_isModified, 0, 28, NULL},
-	{Object_setModified, 0, CLASS_Object, METHODN_setModified, 0, 149, NULL},
+	{Object_setModified, 0, CLASS_Object, METHODN_setModified, 0, 148, NULL},
 	{Object_isShared, 0, CLASS_Object, METHODN_isShared, 0, 28, NULL},
-	{Object_setShared, 0, CLASS_Object, METHODN_setShared, 0, 149, NULL},
+	{Object_setShared, 0, CLASS_Object, METHODN_setShared, 0, 148, NULL},
 	{String_isAscii, 0, CLASS_String, METHODN_isAscii, 0, 28, NULL},
 	{DictMap_isIgnoreCase, 0, CLASS_DictMap, METHODN_isIgnoreCase, 0, 28, NULL},
 	{DictSet_isIgnoreCase, 0, CLASS_DictSet, METHODN_isIgnoreCase, 0, 28, NULL},
@@ -1447,16 +1446,16 @@ static knh_MethodData0_t MethodData0[] = {
 	{Mapper_isLocal, 0, CLASS_Mapper, METHODN_isLocal, 0, 28, NULL},
 	{Mapper_isDerived, 0, CLASS_Mapper, METHODN_isDerived, 0, 28, NULL},
 	{OutputStream_isAutoFlush, 0, CLASS_OutputStream, METHODN_isAutoFlush, 0, 28, NULL},
-	{OutputStream_setAutoFlush, 0, CLASS_OutputStream, METHODN_setAutoFlush, 0, 149, NULL},
+	{OutputStream_setAutoFlush, 0, CLASS_OutputStream, METHODN_setAutoFlush, 0, 148, NULL},
 	{OutputStream_isStoringBuffer, 0, CLASS_OutputStream, METHODN_isStoringBuffer, 0, 28, NULL},
-	{OutputStream_setStoringBuffer, 0, CLASS_OutputStream, METHODN_setStoringBuffer, 0, 149, NULL},
+	{OutputStream_setStoringBuffer, 0, CLASS_OutputStream, METHODN_setStoringBuffer, 0, 148, NULL},
 	{Exception_isLogging, 0, CLASS_Exception, METHODN_isLogging, 0, 28, NULL},
 	{Context_isStrict, 0, CLASS_Context, METHODN_isStrict, 0, 28, NULL},
-	{Context_setStrict, 0, CLASS_Context, METHODN_setStrict, 0, 149, NULL},
+	{Context_setStrict, 0, CLASS_Context, METHODN_setStrict, 0, 148, NULL},
 	{Context_isDebug, 0, CLASS_Context, METHODN_isDebug, 0, 28, NULL},
-	{Context_setDebug, 0, CLASS_Context, METHODN_setDebug, 0, 149, NULL},
+	{Context_setDebug, 0, CLASS_Context, METHODN_setDebug, 0, 148, NULL},
 	{Context_isVerbose, 0, CLASS_Context, METHODN_isVerbose, 0, 28, NULL},
-	{Context_setVerbose, 0, CLASS_Context, METHODN_setVerbose, 0, 149, NULL},
+	{Context_setVerbose, 0, CLASS_Context, METHODN_setVerbose, 0, 148, NULL},
 	{Context_isInteractive, 0, CLASS_Context, METHODN_isInteractive, 0, 28, NULL},
 	{NULL}
 };

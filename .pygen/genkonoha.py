@@ -295,24 +295,24 @@ static METHOD %s_%s(Ctx *ctx, knh_sfp_t *sfp METHODARG)
         ffn = ff + fg.poname
         functype = 'METHOD %s_%s(Ctx *ctx, knh_sfp_t *sfp METHODARG)' % (methodbase, ffn)
         parse_Method({'@Func' : '%s_%s' % (methodbase, ffn)}, 
-                     ['void', '%s.%s' % (fg.cname, ffn), 'Boolean!', 'flag'], data)
+                     ['Boolean!', '%s.%s' % (fg.cname, ffn), 'Boolean!', 'flag'], data)
         f.write('''
 static METHOD %s_%s(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 \t%s_%s(%s, p_bool(sfp[1]));
-\tKNH_RETURN_void(ctx, sfp);
+\tKNH_RETURN_Boolean(ctx, sfp, sfp[1].bvalue);
 }
 ''' % (methodbase, ffn, funcbase, ffn, a1))
         if fg.ngname != None:
             ffn = ff + fg.ngname
             functype = 'METHOD %s_%s(Ctx *ctx, knh_sfp_t *sfp METHODARG)' % (methodbase, ffn)
             parse_Method({'@Func' : '%s_%s' % (methodbase, ffn)}, 
-                     ['void', '%s.%s' % (fg.cname, ffn), 'Boolean!', 'flag'], data)
+                     ['Boolean!', '%s.%s' % (fg.cname, ffn), 'Boolean!', 'flag'], data)
             f.write('''
 static METHOD %s_%s(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 \t%s_%s(%s, p_bool(sfp[1]));
-\tKNH_RETURN_void(ctx, sfp);
+\tKNH_RETURN_Boolean(ctx, sfp, sfp[1].bvalue);
 }
 ''' % (methodbase, ffn, funcbase, ffn, a1))
 

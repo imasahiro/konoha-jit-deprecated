@@ -662,6 +662,7 @@ METHOD Script_hook(Ctx *ctx, knh_sfp_t *sfp METHODARG);
 int package_init(Ctx *ctx);
 METHOD knh_KLRCode_toCttCode(Ctx *ctx, knh_sfp_t *sfp METHODARG);
 void knh_SSAGraph_new(Ctx *ctx, knh_Array_t *insts);
+char **knh_tcstoeucs(int argc, char **argv);
 int knh_fcallback_cmpr(Object *obj, Object *obj2);
 void *knh_generateCallBackFunc(Ctx *ctx, void *func, knh_Closure_t *c);
 void *knh_copyCallbackfunc(Ctx* ctx, void *func, void *target,knh_Closure_t *cc);

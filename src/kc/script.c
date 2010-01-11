@@ -864,6 +864,8 @@ static int knh_StmtUMAPMAP_decl(Ctx *ctx, knh_Stmt_t *stmt)
 }
 
 /* ------------------------------------------------------------------------ */
+/* [Evaluator] */
+/* ------------------------------------------------------------------------ */
 
 static int knh_Stmt_eval(Ctx *ctx, knh_Stmt_t *stmt, int isEval)
 {
