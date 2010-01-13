@@ -35,6 +35,11 @@ typedef long                      intptr_t;
 #define PRIdPTR "d"
 #define PRIuPTR "u"
 
+/* syslog */
+#define LOG_INFO    1
+#define LOG_NOTICE  2
+#define LOG_WARNING 3
+#define LOG_ERR     6
 
 typedef intptr_t FILE;
 

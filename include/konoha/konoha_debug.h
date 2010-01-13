@@ -1,7 +1,9 @@
 #ifndef KONOHA_DEBUG_H_
 #define KONOHA_DEBUG_H_
 
+#ifndef KONOHA_ON_LKM
 #include<syslog.h>
+#endif
 
 /* ======================================================================== */
 /* [FASTMODE] */

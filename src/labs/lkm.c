@@ -117,7 +117,7 @@ static ssize_t knh_dev_write(struct file *filp,const char __user *user_buf,
     memset(dev->buffer,0,sizeof(char)*MAXCOPYBUF);
     buf[count] = '\0';
     printk("[%s][user_buf=%s]\n", __FUNCTION__,buf);
-    konoha_evalScript(dev->konoha,buf);
+    konoha_eval(dev->konoha,buf);
     knh_ret = konoha_getStdOutBufferText(dev->konoha);
     snprintf(dev->buffer,MAXCOPYBUF,"%s",knh_ret);
     printk(KERN_DEBUG "[%s][out=%s]\n",__FUNCTION__ ,konoha_getStdOutBufferText(dev->konoha));

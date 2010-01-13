@@ -1,6 +1,7 @@
 
 /* ************************************************************************ */
 
+#ifdef KNH_KLR_CONVERT
 #include "../kc/commons.h"
 #include <ijt/konoha_ctt.h>
 
@@ -12,7 +13,6 @@ extern "C" {
 
 
 /* ======================================================================== */
-#ifdef KNH_KLR_CONVERT
 
 /* copy from ../kc/konoha_code_.c */
 #define OPJUMP NULL
@@ -899,8 +899,8 @@ static void knh_ctt_patch(imem_t* mem)
 
 /* ------------------------------------------------------------------------ */
 
-#endif
-
 #ifdef __cplusplus
 }
+#endif
+
 #endif

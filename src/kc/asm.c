@@ -1237,17 +1237,10 @@ int knh_StmtOP_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 					KNH_ASM(fSUBn, sfi_(sfpidx), sfi_(a), b);
 					return 1;
 				case METHODN_opDiv:
-#ifndef KONOHA_ON_LKM
-					if(b == 0.0) {
-						b = 1.0;
+					if(b == KNH_FLOAT_ZERO) {
+						b = KNH_FLOAT_ONE;
 						knh_Gamma_perror(ctx, KERR_ERRATA, _("divided by zero: 0.0 ==> 1.0"));
 					}
-#else
-					if(b == 0) {
-						b = 1;
-						knh_Gamma_perror(ctx, KERR_ERRATA, _("divided by zero: 0.0 ==> 1.0"));
-					}
-#endif
 					KNH_ASM(fDIVn, sfi_(sfpidx), sfi_(a), b);
 					return 1;
 				}

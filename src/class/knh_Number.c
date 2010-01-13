@@ -243,7 +243,7 @@ KNHAPI(void) knh_addAffineMapper(Ctx *ctx, knh_class_t scid, char *text, knh_flo
 	if(tcid != CLASS_unknown && ClassTable(tcid).bcid != tcid) {
 		KNH_TAFFINE(ctx, scid, tcid, scale, shift);
 		if(scale != KNH_FLOAT_ZERO) {
-			KNH_TAFFINE(ctx, tcid, scid, 1.0 / scale, -(shift/scale));
+			KNH_TAFFINE(ctx, tcid, scid, KNH_FLOAT_ONE / scale, -(shift/scale));
 		}
 	}
 }
