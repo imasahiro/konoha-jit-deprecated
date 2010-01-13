@@ -500,7 +500,7 @@ static METHOD Array_sort(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 	}
 	else {
 		knh_env_t env = {ctx, sfp};
-		knh_qsort_r(o->list, o->size, sizeof(Object*), &env,
+		knh_qsort_r(o->list, o->size, sizeof(Object*), (void*)&env,
 				(int (*)(void *, const void* , const void*))knh_env_comp);
 	}
 	KNH_RETURN_void(ctx, sfp);

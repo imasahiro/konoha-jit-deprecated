@@ -125,10 +125,11 @@ KNHAPI(void) knh_stack_w(Ctx *ctx, knh_sfp_t *sfp, knh_sfp_t *one, knh_methodn_t
 
 void knh_stack_typecheck(Ctx *ctx, knh_sfp_t *sfp, knh_Method_t *mtd, knh_code_t *pc)
 {
-	DBG2_ASSERT(IS_Method(sfp[-1].mtd));
 	char *emsg;
 	knh_class_t this_cid = knh_Object_cid(sfp[0].o);
-	int i, argc = knh_Method_isVarArgs(mtd) ? (ctx->esp - sfp) : knh_Method_psize(mtd);
+	int i, argc;
+	DBG2_ASSERT(IS_Method(sfp[-1].mtd));
+	argc = knh_Method_isVarArgs(mtd) ? (ctx->esp - sfp) : knh_Method_psize(mtd);
 	for(i = 1; i < argc; i++) {
 		knh_type_t type = knh_Method_ptype(ctx, mtd, this_cid, i - 1);
 		if(IS_NULL(sfp[i].o)) {
@@ -286,8 +287,8 @@ knh_sfp_t *knh_stack_addStackTrace(Ctx *ctx, knh_sfp_t *sfp, knh_Exception_t *e)
 
 KNHAPI(void) knh_stack_throw(Ctx *ctx, knh_sfp_t *sfp, knh_Exception_t *e, char *file, int line)
 {
-	DBG2_ASSERT(IS_Exception(e));
 	knh_sfp_t *sp = (sfp == NULL) ? ctx->esp : sfp;
+	DBG2_ASSERT(IS_Exception(e));
 	DBG2_P("throwing %s at %d esp=%d", __tochar(DP(e)->msg), sp - ctx->stack, ctx->esp - ctx->stack);
 	KNH_SETv(ctx, ctx->stack[ctx->stacksize-1].o, e);  // TO AVOID GC
 	if(DP(e)->line != 0) {

@@ -201,11 +201,11 @@ static knh_io_t knh_iodrv_open__SOCKET(Ctx *ctx, knh_bytes_t file, char *mode, i
 	knh_bytes_t urn = knh_bytes_skipscheme(file);
 	knh_index_t loc = knh_bytes_rindex(urn, ':');
 	int port = 80; /* default */
+	char host_or_ip[128];
 	if(loc != -1) {
 		port = (int)knh_bytes_toint(knh_bytes_last(urn, loc+1));
 		urn = knh_bytes_first(urn, loc);
 	}
-	char host_or_ip[128];
 	knh_format_bytes(host_or_ip, sizeof(host_or_ip), urn);
 	DBG_P("opening socket host='%s', port=%d", host_or_ip, port);
 	return (knh_io_t)knh_socket_open(ctx, host_or_ip, port, isThrowable);
@@ -269,13 +269,14 @@ static knh_io_t knh_iodrv_open__HTTP(Ctx *ctx, knh_bytes_t url, char *mode, int 
 	char bfuname[20];
 	int port = 80;
 	knh_bytes_t path;
+	knh_intptr_t sd;
 	knh_bytes_parseURLscheme(url, bfscheme, sizeof(bfscheme));
 	knh_bytes_parseURLhost(url, bfhost, sizeof(bfhost));
 	knh_bytes_parseURLuname(url, bfuname, sizeof(bfuname));
 	knh_bytes_parseURLport(url, &port);
 	path = knh_bytes_substringURLpath(url);
 	DBG2_P("socket host='%s', port=%d, path='%s'", bfhost, port, path.buf);
-	knh_intptr_t sd = knh_socket_open(ctx, bfhost, port, isThrowable);
+	sd = knh_socket_open(ctx, bfhost, port, isThrowable);
 	if(sd != -1) {
 		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 		knh_bytes_t msg;
@@ -302,9 +303,9 @@ static void knh_iodrv_init__HTTP(Ctx *ctx, Object *stream, char *mode)
 		knh_sfp_t *esp = ctx->esp + 1;
 		do {
 			knh_String_t *s = knh_InputStream_readLine(ctx, in);
-			KNH_SETv(ctx, esp[0].o, s);  // TO AVOID GC
 			knh_bytes_t t = __tobytes(s);
 			int loc = knh_bytes_indexOf(t, STEXT("charset="));
+			KNH_SETv(ctx, esp[0].o, s);  // TO AVOID GC
 			if(loc > 0) {
 				DBG_P("charset='%s'", t.buf + 8);
 				TODO();

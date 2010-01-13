@@ -664,8 +664,9 @@ void knh_traverseAll(Ctx* ctx, knh_Ftraverse ftr)
 
 KNHAPI(void) konoha_close(konoha_t konoha)
 {
+	knh_Context_t *ctx;
 	KONOHA_CHECK_(konoha);
-	knh_Context_t *ctx = (knh_Context_t*)konoha.ctx;
+	ctx = (knh_Context_t*)konoha.ctx;
 	if(ctx->share->threadCounter > 1) {
 		fprintf(stderr, "Many threads are still running... Found %d threads", (int)ctx->share->threadCounter);
 		return;

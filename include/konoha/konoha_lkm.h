@@ -68,9 +68,12 @@ typedef intptr_t FILE;
 void knh_qsort (void *const pbase, size_t total_elems, size_t size,
         int (*cmp)(const void*,const void*));
 
-void knh_qsort_r (void *const pbase, size_t total_elems, size_t size,
-        int (*cmp)(void* ,const void*,const void*),void* thunk);
+void knh_qsort_r (void *const pbase, size_t total_elems, size_t size, 
+        void* thunk,int (*cmp)(void* ,const void*,const void*));
 
+//#ifdef KONOHA_ON_MACOSX
+//#define  knh_qsort_r(b,s,w,thunk,f)   qsort_r(b,s,w,thunk,f)
+//#elif defined(KONOHA_ON_LINUX)
 /* ../../src/ext/setjmp.c */
 #if defined(__i386__)
 /* return_addr, ebx, esp, ebp, esi, edi */

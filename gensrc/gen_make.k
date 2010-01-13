@@ -67,7 +67,7 @@ install-lkm:
 install:install-lkm
 	rm -f /dev/konoha
 	mknod /dev/konoha c $(shell awk "\$$2==\\"konohadev\\" {print \$$1}" /proc/devices) 0
-	chgrp wheel /dev/konoha
+	chgrp $(shell whoami) /dev/konoha
 	chmod 666   /dev/konoha
 
 uninstall:
