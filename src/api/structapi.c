@@ -403,18 +403,18 @@ static FASTAPI(void) knh_String_traverse(Ctx *ctx, knh_Object_t *o, knh_Ftravers
 
 static int knh_String_compareTo(Ctx *ctx, knh_Object_t *o, knh_Object_t *o2)
 {
-	knh_String_t *s = (knh_String_t*)o;
+	knh_String_t *s1 = (knh_String_t*)o;
 	knh_String_t *s2 = (knh_String_t*)o2;
-	if(s->h.cid == CLASS_String || s2->h.cid == CLASS_String) {
-		size_t max = (s->size< s2->size) ? s->size : s2->size;
-		return knh_strncmp((char*)s->str ,(char*)s2->str, max);
+	if(s1->h.cid == CLASS_String || s2->h.cid == CLASS_String) {
+		size_t max = KNH_MAX(s1->size, s2->size);
+		return knh_strncmp((char*)s1->str ,(char*)s2->str, max);
 	}
 	else {
-		if(s->h.cid == s2->h.cid) {
-			knh_Semantics_t *u = knh_getSemantics(ctx, s->h.cid);
-			return DP(u)->fscmp(u, __tobytes(s), __tobytes(s2));
+		if(s1->h.cid == s2->h.cid) {
+			knh_Semantics_t *u = knh_getSemantics(ctx, s1->h.cid);
+			return DP(u)->fscmp(u, __tobytes(s1), __tobytes(s2));
 		}
-		return (int)(s - s2);
+		return (int)(s1 - s2);
 	}
 }
 
