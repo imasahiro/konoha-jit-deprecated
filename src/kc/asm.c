@@ -1523,6 +1523,9 @@ void knh_StmtMAPCAST_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx
 				KNH_ASM(CHKTYPE, local, DP(tkC)->cid);
 			}
 			else {
+				if(IS_NATYPE(srct)) {
+					KNH_ASM(CHKNUL, local);
+				}
 				KNH_ASM(AMAP, local, DP(tkC)->cid);
 				srct = NATYPE_cid(srct);
 			}
