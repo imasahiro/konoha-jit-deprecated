@@ -276,7 +276,7 @@ KNHAPI(knh_InputStream_t*) new_BytesInputStream(Ctx *ctx, knh_Bytes_t *ba, size_
 }
 
 /* ------------------------------------------------------------------------ */
-/* @map Bytes InputStream! */
+//## mapper Bytes InputStream!;
 
 MAPPER knh_Bytes_InputStream(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {

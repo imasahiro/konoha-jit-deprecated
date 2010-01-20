@@ -318,6 +318,22 @@ static METHOD Iterator__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 }
 
 /* ------------------------------------------------------------------------ */
+//## method void Pair.%data(OutputStream w, String? fmt);
+
+static METHOD Pair__data(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+{
+	knh_Pair_t *o = sfp[0].pair;
+	knh_OutputStream_t *w = sfp[1].w;
+	knh_write_begin(ctx, w, '(');
+	knh_write_BOL(ctx, w);
+	knh_format(ctx, w, METHODN__data, o->first , KNH_NULL);
+	knh_putc(ctx, w, ',');
+	knh_write_BOL(ctx, w);
+	knh_format(ctx, w, METHODN__data, o->second, KNH_NULL);
+	knh_write_end(ctx, w, ')');
+}
+
+/* ------------------------------------------------------------------------ */
 //## method void Pair.%k(OutputStream w, String? fmt);
 
 static METHOD Pair__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
