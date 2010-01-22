@@ -311,8 +311,7 @@ fi
 
 #############################################################################
 
-AC_CONFIG_FILES([Makefile
-		 build/Makefile])
+AC_CONFIG_FILES([Makefile build/Makefile konoha.pc])
 
 # define macros for each operating system.
 # available for linux, cygwin, mingw, darwin.(present)
@@ -349,3 +348,21 @@ fi
 AC_DEFINE_UNQUOTED([KONOHA_CONFIG_OS], ["${host_os}"], Konoha os type)
 
 AC_OUTPUT
+AC_MSG_RESULT([
+Konoha ${PACKAGE_VERSION} is now configured for ${host_os}.
+
+  Installation prefix:  ${prefix}
+  C compiler:           $CC $CFLAGS $CPPFLAGS
+  Linker:               $CC $LIBS $LDFLAGS
+  Debug Mode            $enable_debug
+  iconv    support      $use_iconv
+  readline support      $use_readline
+  sqlite3  support      $use_sqlite3
+  thread   support      $use_thread
+  socket   support      $use_socket
+
+Now run 'make' to build everything, and 'make test' to 
+test builded software. 'make install' install this 
+software on your system. To remove the installed software
+at a later time use the 'make uninstall' command.
+])

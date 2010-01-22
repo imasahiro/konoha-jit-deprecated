@@ -4735,7 +4735,7 @@ void knh_Gamma_declareClassField(Ctx *ctx, knh_NameSpace_t* ns, knh_class_t cid)
 	int i, fsize = knh_Gamma_top(ctx);
 	DBG2_ASSERT(t->fields == NULL);
 	DBG2_ASSERT(t->fsize == 0);
-	DBG2_P("fsize=%d, t->fsize=%d", fsize, t->fsize);
+	DBG2_P("fsize=%d, t->fsize=%zd", fsize, t->fsize);
 	if(fsize > 0) {
 		knh_fields_t *cf = (knh_fields_t*)KNH_MALLOC(ctx, sizeof(knh_fields_t) * fsize);
 		for(i = 0; i < fsize; i++) {
@@ -4750,7 +4750,7 @@ void knh_Gamma_declareClassField(Ctx *ctx, knh_NameSpace_t* ns, knh_class_t cid)
 		}
 		t->fields = cf;
 		t->fsize = fsize;
-		DBG2_P("** cid=%d, t->fsize=%d, t->fields=%p\n", cid, t->fsize, t->fields);
+		DBG2_P("** cid=%d, t->fsize=%zd, t->fields=%p\n", cid, t->fsize, t->fields);
 	}
 	t->cspi = ClassTable(CLASS_Object).cspi;
 	if(t->supcid != CLASS_Object) {

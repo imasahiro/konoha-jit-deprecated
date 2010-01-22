@@ -509,8 +509,7 @@ static METHOD DictMap__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void DictSet.%k(OutputStream w, String? fmt);
 
-static
-METHOD DictSet__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD DictSet__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_DictSet_t *o = sfp[0].dset;
 	knh_OutputStream_t *w = sfp[1].w;
@@ -757,8 +756,7 @@ static METHOD Bytes__dump(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void Class.%dump(OutputStream w, String? fmt);
 
-static
-METHOD Class__dump(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Class__dump(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	TODO();
 }
@@ -869,7 +867,7 @@ static METHOD Object__data(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 			knh_fields_t *cf = knh_Class_fieldAt(ctx, cid, i);
 			if(cf->fn == FIELDN_/*register*/) continue;
 			if(cf->fn == FIELDN_NONAME
-				|| KNH_FLAG_IS(cf->flag, FLAG_Field_Volatile)) continue;
+					|| KNH_FLAG_IS(cf->flag, FLAG_Field_Volatile)) continue;
 			knh_write_BOL(ctx, w);
 			knh_printf(ctx, w, "\"%s\": ", FIELDN(cf->fn));
 			knh_write_ObjectField(ctx, w, v, i, cf->type, METHODN__data);
@@ -978,6 +976,21 @@ static METHOD DictMap__data(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 }
 
 /* ------------------------------------------------------------------------ */
+//## method void Pair.%data(OutputStream w, String? fmt);
+
+static METHOD Pair__data(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+{
+	knh_Pair_t *o = sfp[0].pair;
+	knh_OutputStream_t *w = sfp[1].w;
+	knh_write_begin(ctx, w, '(');
+	knh_write_BOL(ctx, w);
+	knh_format(ctx, w, METHODN__data, o->first, KNH_NULL);
+	knh_putc(ctx, w, ',');
+	knh_format(ctx, w, METHODN__data, o->second, KNH_NULL);
+	knh_write_end(ctx, w, ')');
+}
+
+/* ------------------------------------------------------------------------ */
 //## method void Exception.%data(OutputStream w, String? fmt);
 
 static METHOD Exception__data(Ctx *ctx, knh_sfp_t *sfp METHODARG)
@@ -1057,8 +1070,7 @@ static char *knh_methodop__tochar(knh_methodn_t mn)
 	return NULL;
 }
 
-static
-void knh_ClassNAME__man(Ctx *ctx, knh_class_t cid, knh_OutputStream_t *w)
+static void knh_ClassNAME__man(Ctx *ctx, knh_class_t cid, knh_OutputStream_t *w)
 {
 	knh_write(ctx, w, STEXT("Class"));
 	knh_write_EOL(ctx, w);
@@ -1076,8 +1088,7 @@ void knh_ClassNAME__man(Ctx *ctx, knh_class_t cid, knh_OutputStream_t *w)
 	}
 }
 
-static
-void knh_ClassCONST__man(Ctx *ctx, knh_class_t cid, knh_OutputStream_t *w)
+static void knh_ClassCONST__man(Ctx *ctx, knh_class_t cid, knh_OutputStream_t *w)
 {
 	DBG2_ASSERT_cid(cid);
 	if(ClassTable(cid).constDictMap == NULL) return ;
@@ -1099,8 +1110,7 @@ void knh_ClassCONST__man(Ctx *ctx, knh_class_t cid, knh_OutputStream_t *w)
 }
 
 
-static
-void knh_Method__man(Ctx *ctx, knh_Method_t *o, knh_OutputStream_t *w, knh_class_t cid)
+static void knh_Method__man(Ctx *ctx, knh_Method_t *o, knh_OutputStream_t *w, knh_class_t cid)
 {
 	if(!knh_Context_isVerbose(ctx)) {
 		if(knh_Method_isPrivate(o)) return;
@@ -1139,8 +1149,7 @@ void knh_Method__man(Ctx *ctx, knh_Method_t *o, knh_OutputStream_t *w, knh_class
 }
 
 
-static
-void knh_ClassMap__man(Ctx *ctx, knh_ClassMap_t *cmap, knh_OutputStream_t *w, knh_class_t cid)
+static void knh_ClassMap__man(Ctx *ctx, knh_ClassMap_t *cmap, knh_OutputStream_t *w, knh_class_t cid)
 {
 	int i;
 	int hasCaption = 0, from = 0;
@@ -1277,10 +1286,11 @@ static METHOD Class__man(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 				hasCaption = 1;
 			}
 #if defined(KNH_DBGMODE2)
-			if(1) {
+			if(1)
 #else
-			if(!knh_Method_isPrivate(mtd) || !knh_Method_isHidden(mtd)) {
+			if(!knh_Method_isPrivate(mtd) || !knh_Method_isHidden(mtd))
 #endif
+			{
 				knh_write_TAB(ctx, w);
 				knh_Method__man(ctx, mtd, w, this_cid);
 				knh_write_EOL(ctx, w);
@@ -1401,20 +1411,19 @@ static METHOD Int__f(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Int__x(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-    if(IS_String(sfp[2].s)) {
-        char fmt[40];
-        knh_format_newFMT(fmt, sizeof(fmt), __tobytes(sfp[2].s), 1, KNH_INT_XFMT);
-        knh_write_ifmt(ctx, sfp[1].w, fmt, sfp[0].ivalue);
-    }
-    else {
-        knh_write_ifmt(ctx, sfp[1].w, KNH_INT_XFMT, sfp[0].ivalue);
-    }
+	if(IS_String(sfp[2].s)) {
+		char fmt[40];
+		knh_format_newFMT(fmt, sizeof(fmt), __tobytes(sfp[2].s), 1, KNH_INT_XFMT);
+		knh_write_ifmt(ctx, sfp[1].w, fmt, sfp[0].ivalue);
+	}
+	else {
+		knh_write_ifmt(ctx, sfp[1].w, KNH_INT_XFMT, sfp[0].ivalue);
+	}
 }
 
 /* ------------------------------------------------------------------------ */
 
-static
-void knh_write_bits(Ctx *ctx, knh_OutputStream_t *w, knh_uint64_t n, size_t bits)
+static void knh_write_bits(Ctx *ctx, knh_OutputStream_t *w, knh_uint64_t n, size_t bits)
 {
 	size_t i;
 	knh_uint64_t flag = 1ULL << (bits - 1);

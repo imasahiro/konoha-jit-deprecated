@@ -262,6 +262,7 @@ static option_t *knh_get_opt(char *name)
 KNHAPI(int) konoha_parseopt(konoha_t konoha, int argc, char **argv)
 {
 	KONOHA_CHECK(konoha, 1);
+	Ctx *ctx = konoha.ctx;
 	int n;
 	for(n = 1; n < argc; n++) {
 		char *t = argv[n];
@@ -275,10 +276,10 @@ KNHAPI(int) konoha_parseopt(konoha_t konoha, int argc, char **argv)
 				arg = (arg == 0) ? 1 : arg;
 			}
 		}
-		opt->fopt(konoha.ctx, arg);
+		opt->fopt(ctx, arg);
 	}
 #if defined(KNH_DBGMODE2)
-	knh_Context_setVerbose(konoha.ctx, 1);
+	knh_Context_setVerbose(ctx, 1);
 #endif
 	return n;
 }
