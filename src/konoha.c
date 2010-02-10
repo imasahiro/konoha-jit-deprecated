@@ -45,6 +45,7 @@ int main(int argc, char **argv)
 	}
 	else {
 		if(konoha_load(konoha, args[n]) != -1) {
+			knh_setArgv(konoha.ctx, argc-n, args+n);
 			if(!knh_Context_isCompiling(konoha.ctx)) {
 				konoha_runMain(konoha, argc - n, args + n);
 				if(knh_isToInteractiveMode()) {

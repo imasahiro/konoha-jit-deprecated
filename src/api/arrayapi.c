@@ -83,7 +83,7 @@ static METHOD Bytes_memcpy(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 	knh_Bytes_t *s = (knh_Bytes_t*)sfp[2].o;
 	size_t soff = IS_NULL(sfp[3].o) ? 0 : p_int(sfp[3]);
 	size_t slen = IS_NULL(sfp[4].o) ? 0 : ((s)->size - soff);
-	if(doff + slen < (d)->size) {
+	if(doff + slen < (d)->capacity) {
 		knh_memcpy(d->buf + doff, s->buf + soff, slen);
 	}
 	else {
