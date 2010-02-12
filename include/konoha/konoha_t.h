@@ -889,16 +889,17 @@ typedef struct {
 	char *name;
 } knh_DriverSPI_t ;
 
-#define KNH_BCONV_DSPI            1
-#define KNH_SCONV_DSPI            2
-#define KNH_PARSER_DSPI           3
+#define KNH_BCONV_DSPI            0
+#define KNH_SCONV_DSPI            1
+#define KNH_PARSER_DSPI           2
+#define KNH_PATH_DSPI             3
 #define KNH_STREAM_DSPI           4
 #define KNH_REGEX_DSPI            5
 #define KNH_SQL_DSPI              6
 #define KNH_QUERY_DSPI            6
 #define KNH_JIT_DSPI              7
 
-#define IS_DRVAPI(c)   (0 < c && c < 8)
+#define IS_DRVAPI(c)   (0 <= c && c < 8)
 
 /* ------------------------------------------------------------------------ */
 /* KNH_DRVAPI_TYPE__BYTECONV */
@@ -925,6 +926,17 @@ typedef struct {
 	knh_type_t  rtype;
 	knh_Fparser parser;
 } knh_ParserDSPI_t;
+
+/* ------------------------------------------------------------------------ */
+/* KNH_PATH_DSPI */
+
+typedef knh_String_t* (*knh_Fstatic)(Ctx *, knh_bytes_t *path, Object *aux);
+
+typedef struct {
+	int   type;
+	char *name;
+	knh_Fstatic static;
+} knh_PathDSPI_t;
 
 /* ------------------------------------------------------------------------ */
 /* KNH_STREAM_DSPI */
