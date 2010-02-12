@@ -178,7 +178,7 @@ knh_Object_t *knh_fdefault__NEWVALUE(Ctx *ctx, knh_class_t cid)
 
 /* ------------------------------------------------------------------------ */
 
-void knh_setClassDefaultValue(Ctx *ctx, knh_class_t cid, Object *value, knh_Fdefault fdefault)
+void knh_setClassDefaultValue_(Ctx *ctx, knh_class_t cid, Object *value, knh_Fdefault fdefault)
 {
 	DBG2_ASSERT_cid(cid);
 	knh_ClassTable_t *t = pClassTable(ctx, cid);
@@ -461,7 +461,7 @@ static knh_Array_t* knh_Class_domain(Ctx *ctx)
 	size_t cid = 0;
 	for(cid = 0; cid < ctx->share->ClassTableSize; cid++) {
 		if(knh_class_isPrivate(cid) || knh_class_isTypeVariable(cid)) continue;
-		knh_Array_add(ctx, a, UP(new_Type(ctx, cid)));
+		knh_Array_add_(ctx, a, UP(new_Type(ctx, cid)));
 	}
 	return a;
 }
@@ -478,7 +478,7 @@ static knh_Array_t* knh_Method_domain(Ctx *ctx)
 		for(i = 0; i < knh_Array_size(ma); i++) {
 			knh_Method_t *mtd = (knh_Method_t*)knh_Array_n(ma, i);
 			if(DP(mtd)->cid == cid) {
-				knh_Array_add(ctx, a, UP(mtd));
+				knh_Array_add_(ctx, a, UP(mtd));
 			}
 		}
 	}

@@ -165,7 +165,7 @@ typedef struct knh_threadcc_t {
 //	knh_beginContext(ctx);
 //	knh_sfp_t *lsfp = ctx->stack;
 //
-//	KNH_MOV(ctx, lsfp[0].o, new_ExceptionHandler(ctx));
+//	klr_mov(ctx, lsfp[0].o, new_ExceptionHandler(ctx));
 //	KNH_TRY(ctx, L_CATCH, lsfp, 0);
 //	{
 //		knh_Method_t *mtd = ta.sfp[0].mtd;

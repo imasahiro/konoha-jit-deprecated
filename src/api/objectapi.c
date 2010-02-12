@@ -45,6 +45,7 @@ extern "C" {
 
 static METHOD Object_getClass(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	KNH_RETURN(ctx, sfp, new_Type(ctx, (sfp[0].o)->h.cid));
 }
 
@@ -53,9 +54,10 @@ static METHOD Object_getClass(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Object_hashCode(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_hashcode_t h =
 		(knh_hashcode_t)ClassTable(knh_Object_bcid(sfp[0].o)).cspi->hashkey(ctx, sfp, KNH_FOBJECT_HASH);
-	KNH_RETURN_Int(ctx, sfp, h);
+	KNH_RETURNi(ctx, sfp, h);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -63,7 +65,7 @@ static METHOD Object_hashCode(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Object_isNull(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Boolean(ctx, sfp, IS_NULL(sfp[0].o));
+	KNH_RETURNb_(ctx, sfp, IS_NULL(sfp[0].o));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -71,7 +73,7 @@ static METHOD Object_isNull(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Object_isNotNull(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Boolean(ctx, sfp, IS_NOTNULL(sfp[0].o));
+	KNH_RETURNb_(ctx, sfp, IS_NOTNULL(sfp[0].o));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -79,11 +81,40 @@ static METHOD Object_isNotNull(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Object_getKey(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_String_t *s =
 		(knh_String_t*)ClassTable(knh_Object_bcid(sfp[0].o)).cspi->hashkey(ctx, sfp, KNH_FOBJECT_KEY);
 	KNH_ASSERT(IS_String(s));
 	KNH_RETURN(ctx, sfp, s);
 }
+
+/* ------------------------------------------------------------------------ */
+//## @NullBase method String! Object.format(String fmt);
+
+static METHOD Object_format(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+{
+	KNH_CHKESP(ctx, sfp);
+	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
+	knh_Method_t *mtd = sfp[-1].mtd;
+	if((mtd)->fcall_1 == Object_format) {
+		knh_methodn_t mn = METHODN__s;
+		TODO();
+		mtd = knh_lookupFormatter(ctx, knh_Object_cid(sfp[0].o), mn);
+		klr_mov(ctx, sfp[-1].o, mtd);
+	}
+	else if(!knh_Method_isVirtual(mtd)){
+		mtd = knh_lookupFormatter(ctx, knh_Object_cid(sfp[0].o), DP(mtd)->mn);
+		klr_mov(ctx, sfp[-1].o, mtd);
+	}
+	klr_mov(ctx, sfp[2].o, sfp[1].o);  // fmt
+	klr_mov(ctx, sfp[1].o, cwb->w);
+	KNH_SCALL(ctx, sfp, 0, 2);
+	{
+		knh_String_t *s = knh_cwb_newString(ctx, cwb);
+		KNH_RETURN(ctx, sfp, s);
+	}
+}
+
 
 /* ======================================================================== */
 /* [Class] */
@@ -93,6 +124,7 @@ static METHOD Object_getKey(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Class_domain(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	KNH_RETURN(ctx, sfp, knh_getClassDomain(ctx, (sfp[0].c)->cid));
 }
 
@@ -104,7 +136,8 @@ static METHOD Class_domain(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Method_isAbstract(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Boolean(ctx, sfp, knh_Method_isAbstract(sfp[0].mtd));
+	KNH_CHKESP(ctx, sfp);
+	KNH_RETURNb(ctx, sfp, knh_Method_isAbstract(sfp[0].mtd));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -112,6 +145,7 @@ static METHOD Method_isAbstract(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Method_getName(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_String_t *s = knh_Method_getName(ctx, sfp[0].mtd);
 	KNH_RETURN(ctx, sfp, s);
 }
@@ -121,6 +155,7 @@ static METHOD Method_getName(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Method_setTrace(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_Method_trace(ctx, sfp[0].mtd, (int)sfp[1].ivalue);
 	KNH_RETURN_void(ctx, sfp);
 }
@@ -130,47 +165,50 @@ static METHOD Method_setTrace(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Closure_invoke(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	DBG2_ASSERT(IS_bClosure(sfp[0].cc));
-	KNH_INVOKE(ctx, sfp);
+	knh_Closure_t* cc = sfp[0].cc;
+	DBG2_ASSERT(IS_bClosure(cc));
+	KNH_TEST("0.7a");
+	klr_mov(ctx, sfp[0].o, (cc)->base);
+	klr_mov(ctx, sfp[-1].o, (cc)->mtd);
+	KNH_SCALL0(ctx, sfp, -2);
 }
 
-/* ------------------------------------------------------------------------ */
-//## method T1 Thunk.eval();
+///* ------------------------------------------------------------------------ */
+////## method T1 Thunk.eval();
+//
+//static METHOD Thunk_eval(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+//{
+//	KNH_CHKESP(ctx, sfp);
+//	knh_Thunk_t *thk = (knh_Thunk_t*)sfp[0].o;
+//	size_t i;
+//	if((thk)->envsize > 0) {
+//		for(i = 2; i < (thk)->envsize; i++) {
+//			KNH_SETv(ctx, sfp[i].o, (thk)->envsfp[i].o);
+//			sfp[i].data = (thk)->envsfp[i].data;
+//		}
+//		KNH_SCALL(ctx, sfp, 1, (thk)->envsfp[1].mtd, ((thk)->envsize-3));
+//		KNH_SETv(ctx, (thk)->envsfp[0].o, sfp[1].o);
+//		(thk)->envsfp[0].data = sfp[1].data;
+//		knh_Thunk_setEvaluated(thk, 1);
+//	}
+//	KNH_SETv(ctx, sfp[-1].o, (thk)->envsfp[0].o);
+//	sfp[-1].data = (thk)->envsfp[0].data;
+//}
 
-static METHOD Thunk_eval(Ctx *ctx, knh_sfp_t *sfp METHODARG)
-{
-	knh_Thunk_t *thk = (knh_Thunk_t*)sfp[0].o;
-	size_t i;
-	if((thk)->envsize > 0) {
-		for(i = 2; i < (thk)->envsize; i++) {
-			KNH_SETv(ctx, sfp[i].o, (thk)->envsfp[i].o);
-			sfp[i].data = (thk)->envsfp[i].data;
-		}
-		KNH_SCALL(ctx, sfp, 1, (thk)->envsfp[1].mtd, ((thk)->envsize-3));
-		KNH_SETv(ctx, (thk)->envsfp[0].o, sfp[1].o);
-		(thk)->envsfp[0].data = sfp[1].data;
-		knh_Thunk_setEvaluated(thk, 1);
-	}
-	KNH_SETv(ctx, sfp[-1].o, (thk)->envsfp[0].o);
-	sfp[-1].data = (thk)->envsfp[0].data;
-}
-
-/* ------------------------------------------------------------------------ */
-//## method T1 Thunk.value();
-
-static METHOD Thunk_value(Ctx *ctx, knh_sfp_t *sfp METHODARG)
-{
-	knh_Thunk_t *thk = (knh_Thunk_t*)sfp[0].o;
-	if(knh_Thunk_isEvaluated(thk)) {
-		KNH_SETv(ctx, sfp[-1].o, (thk)->envsfp[0].o);
-		sfp[-1].data = (thk)->envsfp[0].data;
-	}
-	else {
-		Thunk_eval(ctx, sfp);
-	}
-}
-
-/* ------------------------------------------------------------------------ */
+///* ------------------------------------------------------------------------ */
+////## method T1 Thunk.value();
+//
+//static METHOD Thunk_value(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+//{
+//	knh_Thunk_t *thk = (knh_Thunk_t*)sfp[0].o;
+//	if(knh_Thunk_isEvaluated(thk)) {
+//		KNH_SETv(ctx, sfp[-1].o, (thk)->envsfp[0].o);
+//		sfp[-1].data = (thk)->envsfp[0].data;
+//	}
+//	else {
+//		Thunk_eval(ctx, sfp);
+//	}
+//}
 
 #endif/* KNH_CC_METHODAPI*/
 

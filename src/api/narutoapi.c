@@ -45,7 +45,8 @@ extern "C" {
 
 static METHOD Script_isStmt(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Boolean(ctx, sfp, !(knh_bytes_checkStmtLine(__tobytes(sfp[1].s))));
+	KNH_CHKESP(ctx, sfp);
+	KNH_RETURNb(ctx, sfp, !(knh_bytes_checkStmtLine(__tobytes(sfp[1].s))));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -53,6 +54,7 @@ static METHOD Script_isStmt(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Script_readLine(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	char *line;
 	if(IS_NULL(sfp[1].o)) {
 		line = knh_readline("");
@@ -73,6 +75,7 @@ static METHOD Script_readLine(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Script_addHistory(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_add_history(__tochar(sfp[1].s));
 	KNH_RETURN_void(ctx, sfp);
 }
@@ -136,8 +139,9 @@ static METHOD Script_addHistory(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Method_getProfTime(Ctx *ctx, knh_sfp_t *sfp)
 {
-  knh_Method_t *mtd = sfp[0].mtd;
-  KNH_RETURN_Int(ctx, sfp, DP(mtd)->prof_time);
+	KNH_CHKESP(ctx, sfp);
+	knh_Method_t *mtd = sfp[0].mtd;
+	KNH_RETURNi(ctx, sfp, DP(mtd)->prof_time);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -145,16 +149,18 @@ static METHOD Method_getProfTime(Ctx *ctx, knh_sfp_t *sfp)
 
 static METHOD Method_getProfCount(Ctx *ctx, knh_sfp_t *sfp)
 {
-  knh_Method_t *mtd = sfp[0].mtd;
-  KNH_RETURN_Int(ctx, sfp, DP(mtd)->prof_count);
+	KNH_CHKESP(ctx, sfp);
+	knh_Method_t *mtd = sfp[0].mtd;
+	KNH_RETURNi(ctx, sfp, DP(mtd)->prof_count);
 }
 
 /* ------------------------------------------------------------------------ */
-//## method Int System.getTickCount();
+//## method Int System.getTime();
 
-static METHOD System_getTimeMilliSecond(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD System_getTime(Ctx *ctx, knh_sfp_t *sfp)
 {
-  KNH_RETURN_Int(ctx, sfp, knh_getTimeMilliSecond());
+	KNH_CHKESP(ctx, sfp);
+	KNH_RETURNi(ctx, sfp, knh_getTimeMilliSecond());
 }
 
 /* ------------------------------------------------------------------------ */

@@ -42,6 +42,7 @@ extern "C" {
 
 static METHOD System_setRandomSeed(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_uint_t seed = IS_NULL(sfp[1].o) ? 0 : p_uinteger(sfp[1]);
 	knh_srand(seed);
 	KNH_RETURN_void(ctx, sfp);
@@ -52,6 +53,7 @@ static METHOD System_setRandomSeed(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Int_random(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_int_t n = knh_rand();
 	if(IS_NOTNULL(sfp[1].o)) {
 		knh_int_t max = p_integer(sfp[1]);
@@ -59,7 +61,7 @@ static METHOD Int_random(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 			n = n % max;
 		}
 	}
-	KNH_RETURN_Int(ctx, sfp, n);
+	KNH_RETURNi(ctx, sfp, n);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -67,7 +69,8 @@ static METHOD Int_random(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Float_random(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Float(ctx, sfp, knh_float_rand());
+	KNH_CHKESP(ctx, sfp);
+	KNH_RETURNf(ctx, sfp, knh_float_rand());
 }
 
 /* ------------------------------------------------------------------------ */
@@ -75,7 +78,8 @@ static METHOD Float_random(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Float_floatToIntBits(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Int(ctx, sfp, sfp[1].fvalue);
+	KNH_CHKESP(ctx, sfp);
+	KNH_RETURNi(ctx, sfp, sfp[1].fvalue);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -83,7 +87,8 @@ static METHOD Float_floatToIntBits(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Float_intToFloatBits(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Float(ctx, sfp, sfp[1].ivalue);
+	KNH_CHKESP(ctx, sfp);
+	KNH_RETURNf(ctx, sfp, sfp[1].ivalue);
 }
 
 /* ------------------------------------------------------------------------ */

@@ -6,88 +6,86 @@ from pygenlib import *
 #------------------------------------------------------------------------------
 
 INSTRUCTIONS = """
-HALT
+HALT  @0
+ENTER @0
+EXEC  @0
+YEILD sfpidx  @0
+EXIT  @0
 
-MOVa sfpidx sfpidx
-MOVn sfpidx sfpidx
-MOVo sfpidx Object
-MOVi sfpidx int
-MOVx sfpidx sfx
-MOVDEF sfpidx cid
-MOVSYS sfpidx ushort 
-
-MOVxi sfpidx sfx
-MOVxf  sfpidx sfx
-MOVxb  sfpidx sfx
-MOVe sfpidx ushort
-
-XMOVs sfx sfpidx
-XMOVo sfx Object
-XMOVx sfx sfx
-XMOVDEF sfx cid
-XMOVSYS sfx ushort
-XMOVsi sfx sfpidx
-XMOVsf sfx sfpidx
-XMOVsb sfx sfpidx
-
-SWAP  sfpidx sfpidx
-
-PARAMDEF sfpidx cid
-PARAMo sfpidx Object
-PARAMPROP sfpidx sfpidx
-PARAMS sfpidx cid
-
-CHKESP sfpidx
-
-RET
-YEILDBREAK
-
-BOX sfpidx cid
-BOXnc sfpidx cid
-NNBOX sfpidx cid
-NNBOXnc sfpidx cid
+TR   f_tr sfpidx cid
+OTR  f_tr sfpidx cid
+NULTR f_tr sfpidx cid
 UNBOX sfpidx
+iCAST sfpidx
+fCAST sfpidx
+
+OSET  sfpidx Object
+NSET  sfpidx int
+
+MOV  sfpidx sfpidx
+OMOV sfpidx sfpidx
+NMOV sfpidx sfpidx
+
+#MOVx  sfpidx sfx
+OMOVx sfpidx sfx
+iMOVx sfpidx sfx
+fMOVx  sfpidx sfx
+bMOVx  sfpidx sfx
+
+XMOV  sfx sfpidx
+XMOVx sfx sfx
+XOSET sfx Object
+XIMOV sfx sfpidx
+XFMOV sfx sfpidx
+XBMOV sfx sfpidx
+MOVe  sfpidx ushort
+SWAP   sfpidx sfpidx
 
 CHKNUL sfpidx
-CHKNULx sfx
 CHKTYPE sfpidx cid
+CHKNULx sfx
+CHKTYPEx sfx cid
 
-FCALL sfpidx ushort sfpidx Method
-SCALL sfpidx ushort Method
-AINVOKE sfpidx ushort
-CALL  sfpidx ushort mn 
-ACALL sfpidx ushort mn
-NEW   sfpidx flag cid ushort Method
+LDMETHOD f_method sfpidx mn
+CALL  sfpidx  ushort
+SCALL  sfpidx ushort Method    @2
+VCALL  sfpidx ushort Method    @2
 
-COPYSFP sfpidx
+#CHKESP sfpidx
+RET
+FUNCCALL  @0
 
-STR     sfpidx sfpidx mn String
-SSTR    sfpidx sfpidx Method String
+#COPYSFP sfpidx
+#STR     sfpidx sfpidx mn String
+#SSTR    sfpidx sfpidx Method String
 
 SMAP   sfpidx Mapper
 SMAPnc   sfpidx Mapper
 MAP    sfpidx cid
 MAPnc   sfpidx cid
 AMAP   sfpidx cid
-NNMAP   sfpidx cid
 
-JMP     addr
-SKIP    addr
-bJIFT    addr sfpidx
-bJIFF    addr sfpidx
-bJIFF_LOOP addr sfpidx
-JIFNUL  addr sfpidx
-JIFNN   addr sfpidx
+JMP       addr
+NOPJMP    addr
+JMPT      addr sfpidx
+JMPF      addr sfpidx
+JMPF_LOOP addr sfpidx @2
+JMPNUL    addr sfpidx
+JMPNN     addr sfpidx
+JMPchk    addr f_chk sfpidx
+JMPcmp    addr f_cmp sfpidx sfpidx    @2
+JMPcmpi   addr f_cmpi sfpidx int      @2
+JMPcmpf   addr f_cmpf sfpidx float    @2
 
-NEXT addr sfpidx sfpidx
-INEXT addr cid sfpidx sfpidx 
+NEXT  addr sfpidx sfpidx
+NEXTf addr f_next cid sfpidx sfpidx 
 
 TRY     addr sfpidx
 TRYEND  sfpidx
 CATCH   addr sfpidx sfpidx String
 
-PUSH   sfpidx
-POP    sfpidx
+#PUSH   sfpidx
+#POP    sfpidx
 
 THROW   sfpidx sfpidx 
 THROWs  sfpidx sfpidx String
@@ -96,79 +94,66 @@ THROW_AGAIN sfpidx
 P  flag mn sfpidx
 PMSG flag String
 
-iCAST sfpidx
-inCAST sfpidx
-fCAST sfpidx
-fnCAST sfpidx
-
 bNOT sfpidx sfpidx
-
 iNEG sfpidx sfpidx
+
 iADD sfpidx sfpidx sfpidx
-iADDn sfpidx sfpidx int
 iSUB sfpidx sfpidx sfpidx
-iSUBn sfpidx sfpidx int
 iMUL sfpidx sfpidx sfpidx
-iMULn sfpidx sfpidx int
 iDIV  sfpidx sfpidx sfpidx
-iDIVn  sfpidx sfpidx int
 iMOD  sfpidx sfpidx sfpidx
+iDIVn  sfpidx sfpidx int
+iADDn sfpidx sfpidx int
+iSUBn sfpidx sfpidx int
+iMULn sfpidx sfpidx int
 iMODn  sfpidx sfpidx int
 
 iEQ   sfpidx sfpidx sfpidx
-iEQn  sfpidx sfpidx int
 iNEQ   sfpidx sfpidx sfpidx
-iNEQn  sfpidx sfpidx int
-
 iLT   sfpidx sfpidx sfpidx
-iLTn   sfpidx sfpidx int
 iLTE  sfpidx sfpidx sfpidx
-iLTEn  sfpidx sfpidx int
 iGT   sfpidx sfpidx sfpidx
-iGTn  sfpidx sfpidx int
 iGTE  sfpidx sfpidx sfpidx
+iEQn  sfpidx sfpidx int
+iNEQn  sfpidx sfpidx int
+iLTn   sfpidx sfpidx int
+iLTEn  sfpidx sfpidx int
+iGTn  sfpidx sfpidx int
 iGTEn  sfpidx sfpidx int
 
 fNEG sfpidx sfpidx
 fADD sfpidx sfpidx sfpidx
-fADDn sfpidx sfpidx float
 fSUB sfpidx sfpidx sfpidx
-fSUBn sfpidx sfpidx float
 fMUL sfpidx sfpidx sfpidx
-fMULn sfpidx sfpidx float
 fDIV  sfpidx sfpidx sfpidx
+fADDn sfpidx sfpidx float
+fSUBn sfpidx sfpidx float
+fMULn sfpidx sfpidx float
 fDIVn  sfpidx sfpidx float
 
 fEQ   sfpidx sfpidx sfpidx
-fEQn  sfpidx sfpidx float
 fNEQ   sfpidx sfpidx sfpidx
+fEQn  sfpidx sfpidx float
 fNEQn  sfpidx sfpidx float
 
 fLT   sfpidx sfpidx sfpidx
-fLTn   sfpidx sfpidx float
 fLTE  sfpidx sfpidx sfpidx
-fLTEn  sfpidx sfpidx float
 fGT   sfpidx sfpidx sfpidx
-fGTn  sfpidx sfpidx float
 fGTE  sfpidx sfpidx sfpidx
+fLTn   sfpidx sfpidx float
+fLTEn  sfpidx sfpidx float
+fGTn  sfpidx sfpidx  float
 fGTEn  sfpidx sfpidx float
 
-SIZE      sfpidx sfpidx
-ARYGET    sfpidx sfpidx sfpidx
-ARYGETn   sfpidx sfpidx intptr
-iARYGET   sfpidx sfpidx sfpidx
-iARYGETn  sfpidx sfpidx intptr
-fARYGET   sfpidx sfpidx sfpidx
-fARYGETn  sfpidx sfpidx intptr
+OEVAL     f_oeval    sfpidx sfpidx
+GETIDX    f_getidx sfpidx sfpidx sfpidx
+SETIDX    f_setidx sfpidx sfpidx sfpidx sfpidx
+GETIDXn   f_getidx sfpidx sfpidx intptr
+SETIDXn   f_setidx sfpidx sfpidx sfpidx intptr
 
-ARYSET    sfpidx sfpidx sfpidx
-ARYSETn   sfpidx sfpidx intptr
-iARYSET   sfpidx sfpidx sfpidx
-iARYSETn  sfpidx sfpidx intptr
-fARYSET   sfpidx sfpidx sfpidx
-fARYSETn  sfpidx sfpidx intptr
-
-THCODE  sfpidx
+THCODE  @0
+LABEL   intptr String
+PROBE   f_probe ushort  @0
 
 NOP
 """
@@ -192,12 +177,13 @@ CTYPE = {
 
 def getctype(a):
 	if CTYPE.has_key(a): return CTYPE[a]
+	if a.startswith("f_"): return 'klr_F%s' % (a.replace('f_', ''))
 	return 'knh_%s_t*' % a
 
 def getfmt(a):
 	if CTYPE.has_key(a): return "knh_write__%s(ctx, w, %%s);" % a
+	if a.startswith("f_"): return "knh_write__func(ctx, w, %s);"
 	return "knh_write__OBJ(ctx, w, UP(%s));"
-
 
 class KCODE:
 	def __init__(self, opcode, line):
@@ -209,15 +195,23 @@ class KCODE:
 		self.SIZE = 'OPSIZE_%s' % self.name
 		self.OPLABEL = 'L_%s' % self.name
 		self.ctype = 'klr_%s_t' % self.name
-
+		
+		self.level=''
+		if '@2' in self.tokens:
+			self.level='2'
+			self.tokens.remove('@2')
+		if '@0' in self.tokens:
+			self.level='0'
+			self.tokens.remove('@0')
+		
 		self.args = '('
 		self.targs = ''
 		self.hasLabel = False
 		self.label = '0'
 		self.hasObject = False
-		self.ftr = 'HALT_traverse'
+		self.ftr = 'EXIT_traverse'
 		self.struct = ''
-		self.shift = 'HALT_shift'
+		self.shift = 'EXIT_shift'
 		c = 1
 		for a in self.tokens[1:]:
 			ctype = getctype(a)
@@ -350,10 +344,6 @@ static void knh_write__sfpidx(Ctx *ctx, knh_OutputStream_t* w, knh_sfpidx_t a)
 {
 	knh_printf(ctx, w, " sfp[%d]", (knh_intptr_t)a);
 }
-//static void knh_write__sfe(Ctx *ctx, knh_OutputStream_t* w, knh_sfe_t a)
-//{
-//	knh_printf(ctx, w, " sfe[%d]", (knh_intptr_t)a);
-//}
 static void knh_write__sfx(Ctx *ctx, knh_OutputStream_t* w, knh_sfx_t a)
 {
 	knh_printf(ctx, w, " sfx[%d]+%d", (knh_intptr_t)a.i, (knh_intptr_t)a.n);
@@ -371,10 +361,10 @@ static void knh_write__mn(Ctx *ctx, knh_OutputStream_t* w, knh_methodn_t a)
 //{
 //	knh_putc(ctx, w, ' '); knh_write_type(ctx, w, (knh_type_t)a);
 //}
-static void HALT_traverse(Ctx *ctx, knh_inst_t *c, knh_Ftraverse ftr)
+static void EXIT_traverse(Ctx *ctx, knh_inst_t *c, knh_Ftraverse ftr)
 {
 }
-static void HALT_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+static void EXIT_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
 {
 }
 ''')
@@ -522,7 +512,7 @@ def write_inst_c(f):
 #############################################################################
 
 def getmacro(kc, label):
-	m = 'KLR_%s(ctx' % kc.name
+	m = 'KLR%s_%s(ctx' % (kc.level, kc.name)
 	c = 1
 	for a in kc.tokens[1:]:
 		if a == 'addr':
@@ -556,7 +546,7 @@ def write_exec(f):
 	goto L_HEAD;
 #endif/*KNH_USING_THREADEDCODE*/
 
-METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+knh_code_t* knh_VirtualMachine_run(Ctx *ctx, knh_sfp_t *sfp, knh_code_t *pc)
 {
 #ifdef KNH_USING_THREADEDCODE
 	static void *OPJUMP[] = {''')
@@ -568,7 +558,12 @@ METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 	f.write('''
 	};
 #endif
-	register knh_code_t *pc = (sfp[-1].mtd)->pc_start;
+#if defined(OPCODE_VCALL)
+	L_KONOHACALL:;
+#endif
+	int sfpidx = sfp - ctx->stack;
+	//register knh_code_t *pc = (sfp[-1].mtd)->pc_start;
+	DBG2_ASSERT(IS_Method(sfp[-1].mtd));
 	DISPATCH_START(pc);
 ''')
 	for kc in KCODE_LIST:
@@ -587,7 +582,9 @@ METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 	f.write('''
 	DISPATCH_END(pc);
+	return NULL;
 }
+
 ''')
 
 #------------------------------------------------------------------------------

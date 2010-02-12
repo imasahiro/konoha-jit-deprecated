@@ -55,7 +55,7 @@ static METHOD Object_opAddr(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 	else if(IS_NOTNULL(sfp[0].o)) {
 		p = (void*)sfp[0].o;
 	}
-	KNH_RETURN_Int(ctx, sfp, (knh_intptr_t)p);
+	KNH_RETURNi_(ctx, sfp, (knh_intptr_t)p);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -63,7 +63,7 @@ static METHOD Object_opAddr(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 METHOD Object_opInstanceof(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Boolean(ctx, sfp, knh_class_instanceof(ctx, ARG_Object_cid(sfp[0]), p_cid(sfp[1])));
+	KNH_RETURNb_(ctx, sfp, knh_class_instanceof(ctx, ARG_Object_cid(sfp[0]), p_cid(sfp[1])));
 }
 
 /* ======================================================================== */
@@ -74,7 +74,7 @@ METHOD Object_opInstanceof(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Object_opEq(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Boolean(ctx, sfp, knh_Object_compareTo(ctx, sfp[0].o, sfp[1].o) == 0);
+	KNH_RETURNb_(ctx, sfp, knh_Object_compareTo(ctx, sfp[0].o, sfp[1].o) == 0);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -82,7 +82,7 @@ static METHOD Object_opEq(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Object_opNeq(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Boolean(ctx, sfp, knh_Object_compareTo(ctx, sfp[0].o, sfp[1].o) != 0);
+	KNH_RETURNb_(ctx, sfp, knh_Object_compareTo(ctx, sfp[0].o, sfp[1].o) != 0);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -90,7 +90,7 @@ static METHOD Object_opNeq(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Object_opLt(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Boolean(ctx, sfp, knh_Object_compareTo(ctx, sfp[0].o, sfp[1].o) < 0);
+	KNH_RETURNb_(ctx, sfp, knh_Object_compareTo(ctx, sfp[0].o, sfp[1].o) < 0);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -98,7 +98,7 @@ static METHOD Object_opLt(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Object_opLte(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Boolean(ctx, sfp, knh_Object_compareTo(ctx, sfp[0].o, sfp[1].o) <= 0);
+	KNH_RETURNb_(ctx, sfp, knh_Object_compareTo(ctx, sfp[0].o, sfp[1].o) <= 0);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -106,7 +106,7 @@ static METHOD Object_opLte(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Object_opGt(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Boolean(ctx, sfp, knh_Object_compareTo(ctx, sfp[0].o, sfp[1].o) > 0);
+	KNH_RETURNb_(ctx, sfp, knh_Object_compareTo(ctx, sfp[0].o, sfp[1].o) > 0);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -114,7 +114,7 @@ static METHOD Object_opGt(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Object_opGte(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Boolean(ctx, sfp, knh_Object_compareTo(ctx, sfp[0].o, sfp[1].o) >= 0);
+	KNH_RETURNb_(ctx, sfp, knh_Object_compareTo(ctx, sfp[0].o, sfp[1].o) >= 0);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -122,7 +122,7 @@ static METHOD Object_opGte(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Int_opEq(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Boolean(ctx, sfp, p_integer(sfp[0]) == p_integer(sfp[1]));
+	KNH_RETURNb_(ctx, sfp, p_integer(sfp[0]) == p_integer(sfp[1]));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -130,7 +130,7 @@ static METHOD Int_opEq(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Int_opNeq(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Boolean(ctx, sfp, p_integer(sfp[0]) != p_integer(sfp[1]));
+	KNH_RETURNb_(ctx, sfp, p_integer(sfp[0]) != p_integer(sfp[1]));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -138,7 +138,7 @@ static METHOD Int_opNeq(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Int_opLt(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Boolean(ctx, sfp, p_integer(sfp[0]) < p_integer(sfp[1]));
+	KNH_RETURNb_(ctx, sfp, p_integer(sfp[0]) < p_integer(sfp[1]));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -146,7 +146,7 @@ static METHOD Int_opLt(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Int_opLte(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Boolean(ctx, sfp, p_integer(sfp[0]) <= p_integer(sfp[1]));
+	KNH_RETURNb_(ctx, sfp, p_integer(sfp[0]) <= p_integer(sfp[1]));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -154,7 +154,7 @@ static METHOD Int_opLte(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Int_opGt(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Boolean(ctx, sfp, p_integer(sfp[0]) > p_integer(sfp[1]));
+	KNH_RETURNb_(ctx, sfp, p_integer(sfp[0]) > p_integer(sfp[1]));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -162,7 +162,7 @@ static METHOD Int_opGt(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Int_opGte(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Boolean(ctx, sfp, p_integer(sfp[0]) >= p_integer(sfp[1]));
+	KNH_RETURNb_(ctx, sfp, p_integer(sfp[0]) >= p_integer(sfp[1]));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -170,7 +170,7 @@ static METHOD Int_opGte(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Float_opEq(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Boolean(ctx, sfp, p_float(sfp[0]) == p_float(sfp[1]));
+	KNH_RETURNb_(ctx, sfp, p_float(sfp[0]) == p_float(sfp[1]));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -178,7 +178,7 @@ static METHOD Float_opEq(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Float_opNeq(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Boolean(ctx, sfp, p_float(sfp[0]) != p_float(sfp[1]));
+	KNH_RETURNb_(ctx, sfp, p_float(sfp[0]) != p_float(sfp[1]));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -186,7 +186,7 @@ static METHOD Float_opNeq(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Float_opLt(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Boolean(ctx, sfp, p_float(sfp[0]) < p_float(sfp[1]));
+	KNH_RETURNb_(ctx, sfp, p_float(sfp[0]) < p_float(sfp[1]));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -194,7 +194,7 @@ static METHOD Float_opLt(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Float_opLte(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Boolean(ctx, sfp, p_float(sfp[0]) <= p_float(sfp[1]));
+	KNH_RETURNb_(ctx, sfp, p_float(sfp[0]) <= p_float(sfp[1]));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -202,7 +202,7 @@ static METHOD Float_opLte(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Float_opGt(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Boolean(ctx, sfp, p_float(sfp[0]) > p_float(sfp[1]));
+	KNH_RETURNb_(ctx, sfp, p_float(sfp[0]) > p_float(sfp[1]));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -210,7 +210,7 @@ static METHOD Float_opGt(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Float_opGte(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Boolean(ctx, sfp, p_float(sfp[0]) >= p_float(sfp[1]));
+	KNH_RETURNb_(ctx, sfp, p_float(sfp[0]) >= p_float(sfp[1]));
 }
 
 /* ======================================================================== */
@@ -221,7 +221,7 @@ static METHOD Float_opGte(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD String_opHas(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Boolean(ctx, sfp,
+	KNH_RETURNb_(ctx, sfp,
 		knh_bytes_indexOf(__tobytes(sfp[0].s), __tobytes(sfp[1].s)) != -1);
 }
 
@@ -231,12 +231,13 @@ static METHOD String_opHas(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Pair_opHas(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_Pair_t *t = sfp[0].pair;
 	int res;
 	knh_stack_boxing(ctx, sfp + 1);
 	res = ((knh_Object_compareTo(ctx, t->first, sfp[1].o) == 0)
 			|| (knh_Object_compareTo(ctx, t->second, sfp[1].o) == 0));
-	KNH_RETURN_Boolean(ctx, sfp, res);
+	KNH_RETURNb(ctx, sfp, res);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -245,6 +246,7 @@ static METHOD Pair_opHas(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Range_opHas(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	int res = 0/*NotFound*/;
 	knh_Range_t *o = sfp[0].range;
 	if(IS_Int((o)->start) && IS_Float(sfp[1].o)) {
@@ -268,7 +270,7 @@ static METHOD Range_opHas(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 			}
 		}
 	}
-	KNH_RETURN_Boolean(ctx, sfp, res);
+	KNH_RETURNb(ctx, sfp, res);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -277,6 +279,7 @@ static METHOD Range_opHas(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Array_opHas(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_Array_t *o = (knh_Array_t*)sfp[0].o;
 	knh_stack_boxing(ctx, sfp + 1);
 	size_t i, res = 0/*NotFound*/;
@@ -285,7 +288,7 @@ static METHOD Array_opHas(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 			res = 1; break;
 		}
 	}
-	KNH_RETURN_Boolean(ctx, sfp, res);
+	KNH_RETURNb(ctx, sfp, res);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -294,6 +297,7 @@ static METHOD Array_opHas(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Tuple_opHas(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	if(knh_Tuple_isTriple(sfp[0].tuple)) {
 		knh_Tuple_t *t = sfp[0].tuple;
 		int res;
@@ -301,7 +305,7 @@ static METHOD Tuple_opHas(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 		res = ((knh_Object_compareTo(ctx, t->first, sfp[1].o) == 0)
 				|| (knh_Object_compareTo(ctx, t->second, sfp[1].o) == 0)
 				|| (knh_Object_compareTo(ctx, t->third, sfp[1].o) == 0));
-		KNH_RETURN_Boolean(ctx, sfp, res);
+		KNH_RETURNb(ctx, sfp, res);
 	}
 	else {
 		Array_opHas(ctx, sfp); // reuse
@@ -314,6 +318,7 @@ static METHOD Tuple_opHas(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD IArray_opHas(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	int res = 0/*NotFound*/;
 	if(IS_bInt(sfp[1].o)) {
 		knh_IArray_t *o = (knh_IArray_t*)sfp[0].o;
@@ -325,7 +330,7 @@ static METHOD IArray_opHas(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 			}
 		}
 	}
-	KNH_RETURN_Boolean(ctx, sfp, res);
+	KNH_RETURNb(ctx, sfp, res);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -334,6 +339,7 @@ static METHOD IArray_opHas(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD FArray_opHas(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	int res = 0/*NotFound*/;
 	if(IS_bFloat(sfp[1].o)) {
 		knh_FArray_t *o = (knh_FArray_t*)sfp[0].o;
@@ -345,7 +351,7 @@ static METHOD FArray_opHas(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 			}
 		}
 	}
-	KNH_RETURN_Boolean(ctx, sfp, res);
+	KNH_RETURNb(ctx, sfp, res);
 }
 
 /* ======================================================================== */
@@ -356,7 +362,8 @@ static METHOD FArray_opHas(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Object_opCase(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Boolean(ctx, sfp, knh_Object_compareTo(ctx, sfp[0].o, sfp[1].o) == 0);
+	KNH_CHKESP(ctx, sfp);
+	KNH_RETURNb(ctx, sfp, knh_Object_compareTo(ctx, sfp[0].o, sfp[1].o) == 0);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -364,6 +371,7 @@ static METHOD Object_opCase(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Int_opCase(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	int res = 0;
 	if(IS_bInt(sfp[1].o)) {
 		knh_int_t n = Int_to(knh_int_t, sfp[1]);
@@ -372,7 +380,7 @@ static METHOD Int_opCase(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 			res = (n == Int_to(knh_int_t, sfp[0]));
 		}
 	}
-	KNH_RETURN_Boolean(ctx, sfp, res);
+	KNH_RETURNb(ctx, sfp, res);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -380,6 +388,7 @@ static METHOD Int_opCase(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Float_opCase(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	int res = 0;
 	if(IS_bFloat(sfp[1].o)) {
 		knh_float_t n = Float_to(knh_float_t, sfp[1]);
@@ -388,7 +397,7 @@ static METHOD Float_opCase(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 			res = (n == Float_to(knh_float_t, sfp[0]));
 		}
 	}
-	KNH_RETURN_Boolean(ctx, sfp, res);
+	KNH_RETURNb(ctx, sfp, res);
 }
 
 /* ======================================================================== */
@@ -399,6 +408,7 @@ static METHOD Float_opCase(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Object_opIs(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_class_t scid = knh_Object_cid(sfp[0].o);
 	knh_class_t tcid = knh_Object_cid(sfp[1].o);
 	DBG2_P("Semantic Matching %s === %s", CLASSN(scid), CLASSN(tcid));
@@ -406,18 +416,18 @@ static METHOD Object_opIs(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 		Object_opEq(ctx, sfp);
 	}
 	else if(IS_NULL(sfp[1].o)) {
-		KNH_RETURN_Boolean(ctx, sfp, IS_NULL(sfp[0].o));
+		KNH_RETURNb(ctx, sfp, IS_NULL(sfp[0].o));
 	}
 	else {
 		TODO();
-		KNH_RETURN_Boolean(ctx, sfp, 0);
-//		knh_sfp_t *lsfp = KNH_LOCAL(ctx);
+		KNH_RETURNb(ctx, sfp, 0);
+//		knh_sfp_t *lsfp = BEGIN_LOCAL(ctx);
 //		KNH_LPUSH(ctx, sfp[1].o);
 //		VM_MAP(ctx, scid);
 //		KNH_SETv(ctx, sfp[1].o, ctx->esp[0].o);
-//		KNH_LOCALBACK(ctx, lsfp);
+//		END_LOCAL(ctx, lsfp);
 //		if(IS_NULL(sfp[1].o)) {
-//			KNH_RETURN_Boolean(ctx, sfp, 0);
+//			KNH_RETURNb(ctx, sfp, 0);
 //		}
 //		else {
 //			Object_opEq(ctx, sfp);
@@ -430,16 +440,8 @@ static METHOD Object_opIs(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Object_opAs(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Boolean(ctx, sfp, 0);
-//	knh_class_t scid = knh_Object_cid(sfp[0].o);
-//	knh_class_t tcid = (sfp[1].c)->cid;
-//	if(scid == tcid) {
-//		KNH_RETURN_Boolean(ctx, sfp, 1);
-//	}
-//	else {
-//		TODO_THROW(ctx);
-//		KNH_RETURN_Boolean(ctx, sfp, 0);
-//	}
+	TODO("Not Implemented");
+	KNH_RETURNb_(ctx, sfp, 0);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -447,7 +449,8 @@ static METHOD Object_opAs(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Object_opInTo(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Boolean(ctx, sfp, 0);
+	TODO("Not Implemented");
+	KNH_RETURNb_(ctx, sfp, 0);
 }
 
 /* ======================================================================== */
@@ -459,8 +462,7 @@ static METHOD Object_opInTo(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Int_opAdd(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	//DBG2_P("<<%d + %d>>", (int)p_int(sfp[0]), (int)p_int(sfp[1]));
-	KNH_RETURN_Int(ctx, sfp, p_integer(sfp[0]) + p_integer(sfp[1]));
+	KNH_RETURNi_(ctx, sfp, p_integer(sfp[0]) + p_integer(sfp[1]));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -468,7 +470,7 @@ static METHOD Int_opAdd(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Int_opNeg(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Int(ctx, sfp, -(p_integer(sfp[0])));
+	KNH_RETURNi_(ctx, sfp, -(p_integer(sfp[0])));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -476,7 +478,7 @@ static METHOD Int_opNeg(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Int_opSub(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Int(ctx, sfp, p_integer(sfp[0]) - p_integer(sfp[1]));
+	KNH_RETURNi_(ctx, sfp, p_integer(sfp[0]) - p_integer(sfp[1]));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -484,7 +486,7 @@ static METHOD Int_opSub(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Int_opMul(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Int(ctx, sfp, p_integer(sfp[0]) * p_integer(sfp[1]));
+	KNH_RETURNi_(ctx, sfp, p_integer(sfp[0]) * p_integer(sfp[1]));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -493,7 +495,7 @@ static METHOD Int_opMul(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 static METHOD Int_opDiv(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	KNH_THROW_iZERODIV(p_integer(sfp[1]));
-	KNH_RETURN_Int(ctx, sfp, p_integer(sfp[0]) / p_integer(sfp[1]));
+	KNH_RETURNi_(ctx, sfp, p_integer(sfp[0]) / p_integer(sfp[1]));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -502,7 +504,7 @@ static METHOD Int_opDiv(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 static METHOD Int_opMod(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	KNH_THROW_iZERODIV(p_integer(sfp[1]));
-	KNH_RETURN_Int(ctx, sfp, p_integer(sfp[0]) % p_integer(sfp[1]));
+	KNH_RETURNi_(ctx, sfp, p_integer(sfp[0]) % p_integer(sfp[1]));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -511,7 +513,7 @@ static METHOD Int_opMod(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Float_opAdd(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Float(ctx, sfp, p_float(sfp[0]) + p_float(sfp[1]));
+	KNH_RETURNf_(ctx, sfp, p_float(sfp[0]) + p_float(sfp[1]));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -519,7 +521,7 @@ static METHOD Float_opAdd(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Float_opNeg(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Float(ctx, sfp, -(p_float(sfp[0])));
+	KNH_RETURNf_(ctx, sfp, -(p_float(sfp[0])));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -527,7 +529,7 @@ static METHOD Float_opNeg(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Float_opSub(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Float(ctx, sfp, p_float(sfp[0]) - p_float(sfp[1]));
+	KNH_RETURNf_(ctx, sfp, p_float(sfp[0]) - p_float(sfp[1]));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -535,7 +537,7 @@ static METHOD Float_opSub(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Float_opMul(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Float(ctx, sfp, p_float(sfp[0]) * p_float(sfp[1]));
+	KNH_RETURNf_(ctx, sfp, p_float(sfp[0]) * p_float(sfp[1]));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -544,7 +546,7 @@ static METHOD Float_opMul(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 static METHOD Float_opDiv(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	KNH_THROW_fZERODIV(p_float(sfp[1]));
-	KNH_RETURN_Float(ctx, sfp, p_float(sfp[0]) / p_float(sfp[1]));
+	KNH_RETURNf_(ctx, sfp, p_float(sfp[0]) / p_float(sfp[1]));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -552,6 +554,7 @@ static METHOD Float_opDiv(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD String_opAdd(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 	if(IS_bString(sfp[0].o)) {
 		knh_Bytes_write(ctx, cwb->ba, __tobytes(sfp[0].s));
@@ -573,6 +576,7 @@ static METHOD String_opAdd(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD String_opSub(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_bytes_t base = __tobytes(sfp[0].s);
 	knh_bytes_t t = __tobytes(sfp[1].s);
 	knh_uchar_t c = t.buf[0];
@@ -637,7 +641,7 @@ METHOD Any_opNeg(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Boolean_opNot(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Boolean(ctx, sfp, !(p_bool(sfp[0])));
+	KNH_RETURNb_(ctx, sfp, !(p_bool(sfp[0])));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -650,7 +654,7 @@ static METHOD Int_opLand(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 	for(i = 1; i < ac; i++) {
 		n = n & p_integer(sfp[i]);
 	}
-	KNH_RETURN_Int(ctx, sfp, n);
+	KNH_RETURNi_(ctx, sfp, n);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -663,7 +667,7 @@ static METHOD Int_opLor(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 	for(i = 1; i < ac; i++) {
 		n = n | p_integer(sfp[i]);
 	}
-	KNH_RETURN_Int(ctx, sfp, n);
+	KNH_RETURNi_(ctx, sfp, n);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -671,7 +675,7 @@ static METHOD Int_opLor(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Int_opXor(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Int(ctx, sfp, p_integer(sfp[0]) ^ p_integer(sfp[1]));
+	KNH_RETURNi_(ctx, sfp, p_integer(sfp[0]) ^ p_integer(sfp[1]));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -679,7 +683,7 @@ static METHOD Int_opXor(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Int_opLnot(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Int(ctx, sfp, ~(p_integer(sfp[0])));
+	KNH_RETURNi_(ctx, sfp, ~(p_integer(sfp[0])));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -687,7 +691,7 @@ static METHOD Int_opLnot(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Int_opLshift(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Int(ctx, sfp, p_integer(sfp[0]) << p_integer(sfp[1]));
+	KNH_RETURNi_(ctx, sfp, p_integer(sfp[0]) << p_integer(sfp[1]));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -695,7 +699,7 @@ static METHOD Int_opLshift(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Int_opRshift(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Int(ctx, sfp, p_integer(sfp[0]) >> p_integer(sfp[1]));
+	KNH_RETURNi_(ctx, sfp, p_integer(sfp[0]) >> p_integer(sfp[1]));
 }
 
 /* ======================================================================== */
@@ -706,7 +710,7 @@ static METHOD Int_opRshift(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Int_opNext(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Int(ctx, sfp, p_integer(sfp[0])+1);
+	KNH_RETURNi_(ctx, sfp, p_integer(sfp[0])+1);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -714,7 +718,7 @@ static METHOD Int_opNext(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Int_opPrev(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Int(ctx, sfp, p_integer(sfp[0])-1);
+	KNH_RETURNi_(ctx, sfp, p_integer(sfp[0])-1);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -722,7 +726,7 @@ static METHOD Int_opPrev(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Float_opNext(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Float(ctx, sfp, (p_float(sfp[0]))+KNH_FLOAT_ONE);
+	KNH_RETURNf_(ctx, sfp, (p_float(sfp[0]))+KNH_FLOAT_ONE);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -730,7 +734,7 @@ static METHOD Float_opNext(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Float_opPrev(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Float(ctx, sfp, (p_float(sfp[0]))-KNH_FLOAT_ONE);
+	KNH_RETURNf_(ctx, sfp, (p_float(sfp[0]))-KNH_FLOAT_ONE);
 }
 
 /* ======================================================================== */
@@ -746,7 +750,7 @@ static METHOD Int_getSize(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 		knh_int_t res = sfp[0].ivalue;
 		if(res < 0) res = -(res);
 	}
-	KNH_RETURN_Int(ctx, sfp, res);
+	KNH_RETURNi_(ctx, sfp, res);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -758,7 +762,7 @@ static METHOD Float_getSize(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 	if(IS_NOTNULL(sfp[0].o)) {
 		res = (knh_uint_t)p_float(sfp[0]);
 	}
-	KNH_RETURN_Int(ctx, sfp, res);
+	KNH_RETURNi_(ctx, sfp, res);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -767,7 +771,7 @@ static METHOD Float_getSize(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 static METHOD Bytes_getSize(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	size_t size = IS_bBytes(sfp[0].ba) ? (sfp[0].ba)->size : 0;
-	KNH_RETURN_Int(ctx, sfp, size);
+	KNH_RETURNi_(ctx, sfp, size);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -779,7 +783,7 @@ static METHOD String_getSize(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 	if(!knh_String_isAscii(sfp[0].s)) {
 		size = knh_bytes_mlen(__tobytes(sfp[0].s));
 	}
-	KNH_RETURN_Int(ctx, sfp, size);
+	KNH_RETURNi_(ctx, sfp, size);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -788,7 +792,7 @@ static METHOD String_getSize(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 static METHOD Pair_getSize(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	size_t size = (IS_NULL(sfp[0].o)) ? 0 : 2;
-	KNH_RETURN_Int(ctx, sfp, size);
+	KNH_RETURNi_(ctx, sfp, size);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -798,7 +802,7 @@ static METHOD Tuple_getSize(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	size_t size = (IS_NULL(sfp[0].o)) ? 0 : 2;
 	if(!knh_Tuple_isTriple(sfp[0].tuple)) size = (sfp[0].tuple)->size;
-	KNH_RETURN_Int(ctx, sfp, size);
+	KNH_RETURNi_(ctx, sfp, size);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -807,8 +811,8 @@ static METHOD Tuple_getSize(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 static METHOD Range_getSize(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	size_t size = (IS_NULL(sfp[0].o)) ? 0 : 2;
-	knh_printf(ctx, KNH_STDOUT, "Do you really want to count Range.size ?\n");
-	KNH_RETURN_Int(ctx, sfp, size);
+	TODO("Do you really want to count Range.size ?");
+	KNH_RETURNi_(ctx, sfp, size);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -819,7 +823,7 @@ static METHOD Range_getSize(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 static METHOD Array_getSize(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	size_t size = IS_NULL(sfp[0].o) ? 0 : (sfp[0].a)->size ;
-	KNH_RETURN_Int(ctx, sfp, size);
+	KNH_RETURNi_(ctx, sfp, size);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -828,7 +832,7 @@ static METHOD Array_getSize(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 static METHOD DictMap_getSize(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	size_t size = IS_NULL(sfp[0].o) ? 0 : knh_DictMap_size(sfp[0].dmap) ;
-	KNH_RETURN_Int(ctx, sfp, size);
+	KNH_RETURNi_(ctx, sfp, size);
 }
 
 /* ======================================================================== */
@@ -841,20 +845,20 @@ static METHOD Bytes_get(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_Bytes_t *o = (knh_Bytes_t*)sfp[0].o;
 	size_t n2 = knh_array_index(ctx, p_int(sfp[1]), o->size);
-	KNH_RETURN_Int(ctx, sfp, o->buf[n2]);
+	KNH_RETURNi_(ctx, sfp, o->buf[n2]);
 }
 
 /* ------------------------------------------------------------------------ */
-//## method void Bytes.set(Int! n, Int! c);
+//## method Int! Bytes.set(Int! n, Int! c);
 
 static METHOD Bytes_set(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_Bytes_t *o = (knh_Bytes_t*)sfp[0].o;
+	size_t n2 = knh_array_index(ctx, p_int(sfp[1]), o->size);
 	if(!knh_Object_isImmutable(o)) {
-		size_t n2 = knh_array_index(ctx, p_int(sfp[1]), o->size);
 		o->buf[n2] = (knh_uchar_t)p_int(sfp[2]);
 	}
-	KNH_RETURN_void(ctx, sfp);
+	KNH_RETURNi_(ctx, sfp, o->buf[n2]);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -869,7 +873,7 @@ static METHOD Bytes_setAll(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 			o->buf[i] = n;
 		}
 	}
-	KNH_RETURN(ctx, sfp, o);
+	KNH_RETURN_(ctx, sfp, o);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -890,7 +894,7 @@ static METHOD String_get(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 		knh_bytes_t sub = knh_bytes_mofflen(base, off, 1);
 		s = new_String(ctx, sub, sfp[0].s);
 	}
-	KNH_RETURN(ctx, sfp, s);
+	KNH_RETURN_(ctx, sfp, s);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -900,7 +904,7 @@ static METHOD Array_get(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_Array_t *o = (knh_Array_t*)sfp[0].o;
 	size_t n2 = knh_array_index(ctx, p_int(sfp[1]), o->size);
-	KNH_RETURN(ctx, sfp, o->list[n2]);
+	KNH_RETURN_(ctx, sfp, o->list[n2]);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -916,7 +920,7 @@ static METHOD Tuple_get(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 		case 2: v = (sfp[2].tuple)->first; break;
 		default: knh_array_index(ctx, p_int(sfp[1]), 3);
 		}
-		KNH_RETURN(ctx, sfp, v);
+		KNH_RETURN_(ctx, sfp, v);
 	}
 	else {
 		Array_get(ctx, sfp); /* reuse */
@@ -930,7 +934,7 @@ static METHOD IArray_get(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_IArray_t *o = (knh_IArray_t*)sfp[0].o;
 	size_t n2 = knh_array_index(ctx, p_int(sfp[1]), o->size);
-	KNH_RETURN_Int(ctx, sfp, o->ilist[n2]);
+	KNH_RETURNi_(ctx, sfp, o->ilist[n2]);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -940,11 +944,11 @@ static METHOD FArray_get(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_FArray_t *o = (knh_FArray_t*)sfp[0].o;
 	size_t n2 = knh_array_index(ctx, p_int(sfp[1]), o->size);
-	KNH_RETURN_Float(ctx, sfp, o->flist[n2]);
+	KNH_RETURNf_(ctx, sfp, o->flist[n2]);
 }
 
 /* ------------------------------------------------------------------------ */
-//## method void Array.set(Int! n, T1! v);
+//## method T1! Array.set(Int! n, T1! v);
 
 static METHOD Array_set(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
@@ -952,33 +956,33 @@ static METHOD Array_set(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 	size_t n2 = knh_array_index(ctx, p_int(sfp[1]), o->size);
 	knh_stack_boxing(ctx, sfp + 2);
 	KNH_SETv(ctx, o->list[n2], sfp[2].o);
-	KNH_RETURN_void(ctx, sfp);
+	KNH_RETURN_(ctx, sfp, sfp[2].o);
 }
 
 /* ------------------------------------------------------------------------ */
-//## method void IArray.set(Int! n, Int! v);
+//## method Int! IArray.set(Int! n, Int! v);
 
 static METHOD IArray_set(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_IArray_t *o = (knh_IArray_t*)sfp[0].o;
 	size_t n2 = knh_array_index(ctx, p_int(sfp[1]), o->size);
 	o->ilist[n2] = sfp[2].ivalue;
-	KNH_RETURN_void(ctx, sfp);
+	KNH_RETURNi_(ctx, sfp, sfp[2].ivalue);
 }
 
 /* ------------------------------------------------------------------------ */
-//## method void FArray.set(Int! n, Float! v);
+//## method Float! FArray.set(Int! n, Float! v);
 
 static METHOD FArray_set(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_FArray_t *o = (knh_FArray_t*)sfp[0].o;
 	size_t n2 = knh_array_index(ctx, p_int(sfp[1]), o->size);
 	o->flist[n2] = sfp[2].fvalue;
-	KNH_RETURN_void(ctx, sfp);
+	KNH_RETURNf_(ctx, sfp, sfp[2].fvalue);
 }
 
 /* ------------------------------------------------------------------------ */
-//## method void Array.setAll(T1 v);
+//## method T1 Array.setAll(T1 v);
 
 static METHOD Array_setAll(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
@@ -988,11 +992,11 @@ static METHOD Array_setAll(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 	for(i = 0; i < o->size; i++) {
 		KNH_SETv(ctx, o->list[i], sfp[1].o);
 	}
-	KNH_RETURN_void(ctx, sfp);
+	KNH_RETURN_(ctx, sfp, sfp[1].o);
 }
 
 /* ------------------------------------------------------------------------ */
-//## method void IArray.setAll(Int! v);
+//## method Int! IArray.setAll(Int! v);
 
 static METHOD IArray_setAll(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
@@ -1001,11 +1005,11 @@ static METHOD IArray_setAll(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 	for(i = 0; i < o->size; i++) {
 		o->ilist[i] = sfp[1].ivalue;
 	}
-	KNH_RETURN_void(ctx, sfp);
+	KNH_RETURNi_(ctx, sfp, sfp[1].ivalue);
 }
 
 /* ------------------------------------------------------------------------ */
-//## method void FArray.setAll(Float! v);
+//## method Float! FArray.setAll(Float! v);
 
 static METHOD FArray_setAll(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
@@ -1014,7 +1018,7 @@ static METHOD FArray_setAll(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 	for(i = 0; i < o->size; i++) {
 		o->flist[i] = sfp[1].fvalue;
 	}
-	KNH_RETURN_void(ctx, sfp);
+	KNH_RETURNf_(ctx, sfp, sfp[1].fvalue);
 }
 
 /* ======================================================================== */
@@ -1069,6 +1073,7 @@ knh_Bytes_t *new_Bytes__range(Ctx *ctx, knh_Bytes_t *ba, size_t s, size_t e)
 
 static METHOD Bytes_opRangeUntil(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	size_t s, e;
 	knh_stack_rangeUntil(ctx, sfp, (sfp[0].ba)->size, &s, &e);
 	KNH_RETURN(ctx, sfp, new_Bytes__range(ctx, sfp[0].ba, s, e));
@@ -1079,6 +1084,7 @@ static METHOD Bytes_opRangeUntil(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Bytes_opRangeTo(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	size_t s, e;
 	knh_stack_rangeTo(ctx, sfp, (sfp[0].ba)->size, &s, &e);
 	KNH_RETURN(ctx, sfp, new_Bytes__range(ctx, sfp[0].ba, s, e));
@@ -1089,6 +1095,7 @@ static METHOD Bytes_opRangeTo(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD String_substring(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_bytes_t base = __tobytes(sfp[0].s);
 	knh_bytes_t sub;
 	if(knh_String_isAscii(sfp[0].s)) {
@@ -1181,7 +1188,7 @@ static METHOD Array_opRangeUntil(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	size_t s, e;
 	knh_stack_rangeUntil(ctx, sfp, (sfp[0].a)->size, &s, &e);
-	KNH_RETURN(ctx, sfp, new_Array__range(ctx, sfp[0].a, s, e, sizeof(Object*)));
+	KNH_RETURN_(ctx, sfp, new_Array__range(ctx, sfp[0].a, s, e, sizeof(Object*)));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1191,7 +1198,7 @@ static METHOD Array_opRangeTo(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	size_t s, e;
 	knh_stack_rangeTo(ctx, sfp, (sfp[0].a)->size, &s, &e);
-	KNH_RETURN(ctx, sfp, new_Array__range(ctx, sfp[0].a, s, e, sizeof(Object*)));
+	KNH_RETURN_(ctx, sfp, new_Array__range(ctx, sfp[0].a, s, e, sizeof(Object*)));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1201,7 +1208,7 @@ static METHOD IArray_opRangeUntil(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	size_t s, e;
 	knh_stack_rangeUntil(ctx, sfp, (sfp[0].a)->size, &s, &e);
-	KNH_RETURN(ctx, sfp, new_Array__range(ctx, sfp[0].a, s, e, sizeof(knh_int_t)));
+	KNH_RETURN_(ctx, sfp, new_Array__range(ctx, sfp[0].a, s, e, sizeof(knh_int_t)));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1211,7 +1218,7 @@ static METHOD IArray_opRangeTo(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	size_t s, e;
 	knh_stack_rangeTo(ctx, sfp, (sfp[0].a)->size, &s, &e);
-	KNH_RETURN(ctx, sfp, new_Array__range(ctx, sfp[0].a, s, e, sizeof(knh_int_t)));
+	KNH_RETURN_(ctx, sfp, new_Array__range(ctx, sfp[0].a, s, e, sizeof(knh_int_t)));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1221,7 +1228,7 @@ static METHOD FArray_opRangeUntil(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	size_t s, e;
 	knh_stack_rangeUntil(ctx, sfp, (sfp[0].a)->size, &s, &e);
-	KNH_RETURN(ctx, sfp, new_Array__range(ctx, sfp[0].a, s, e, sizeof(knh_float_t)));
+	KNH_RETURN_(ctx, sfp, new_Array__range(ctx, sfp[0].a, s, e, sizeof(knh_float_t)));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1231,7 +1238,7 @@ static METHOD FArray_opRangeTo(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	size_t s, e;
 	knh_stack_rangeTo(ctx, sfp, (sfp[0].a)->size, &s, &e);
-	KNH_RETURN(ctx, sfp, new_Array__range(ctx, sfp[0].a, s, e, sizeof(knh_float_t)));
+	KNH_RETURN_(ctx, sfp, new_Array__range(ctx, sfp[0].a, s, e, sizeof(knh_float_t)));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1267,7 +1274,7 @@ knh_DictMap_t *knh_DictMap_subset(Ctx *ctx, knh_DictMap_t *d, knh_String_t* ss, 
 
 static METHOD DictMap_opRangeTo(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN(ctx, sfp, knh_DictMap_subset(ctx, sfp[0].dmap, sfp[1].s, sfp[2].s, 1));
+	KNH_RETURN_(ctx, sfp, knh_DictMap_subset(ctx, sfp[0].dmap, sfp[1].s, sfp[2].s, 1));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1275,7 +1282,7 @@ static METHOD DictMap_opRangeTo(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD DictMap_opRangeUntil(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN(ctx, sfp, knh_DictMap_subset(ctx, sfp[0].dmap, sfp[1].s, sfp[2].s, 1));
+	KNH_RETURN_(ctx, sfp, knh_DictMap_subset(ctx, sfp[0].dmap, sfp[1].s, sfp[2].s, 1));
 }
 
 /* ======================================================================== */
@@ -1287,7 +1294,7 @@ static METHOD DictMap_opRangeUntil(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 static METHOD Pair_op0(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	DBG2_ASSERT(IS_bPair(sfp[0].pair));
-	KNH_RETURN(ctx, sfp, (sfp[0].pair)->first);
+	KNH_RETURN_(ctx, sfp, (sfp[0].pair)->first);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1296,7 +1303,7 @@ static METHOD Pair_op0(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 static METHOD Pair_op1(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	DBG2_ASSERT(IS_bPair(sfp[0].pair));
-	KNH_RETURN(ctx, sfp, (sfp[0].pair)->second);
+	KNH_RETURN_(ctx, sfp, (sfp[0].pair)->second);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1312,7 +1319,7 @@ static METHOD Tuple_op0(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 		knh_array_index(ctx, 0, (sfp[0].tuple)->size);
 		res = (sfp[0].tuple)->list[0];
 	}
-	KNH_RETURN(ctx, sfp, res);
+	KNH_RETURN_(ctx, sfp, res);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1328,7 +1335,7 @@ static METHOD Tuple_op1(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 		knh_array_index(ctx, 1, (sfp[0].tuple)->size);
 		res = (sfp[0].tuple)->list[1];
 	}
-	KNH_RETURN(ctx, sfp, res);
+	KNH_RETURN_(ctx, sfp, res);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1344,7 +1351,7 @@ static METHOD Tuple_opN(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 	else {
 		res = (sfp[0].tuple)->list[size];
 	}
-	KNH_RETURN(ctx, sfp, res);
+	KNH_RETURN_(ctx, sfp, res);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1353,7 +1360,7 @@ static METHOD Tuple_opN(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 static METHOD Array_op0(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_Array_t *a = sfp[0].a;
-	KNH_RETURN(ctx, sfp, knh_Array_n(a, knh_array_index(ctx, 0, a->size)));
+	KNH_RETURN_(ctx, sfp, knh_Array_n(a, knh_array_index(ctx, 0, a->size)));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1362,7 +1369,7 @@ static METHOD Array_op0(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 static METHOD Array_op1(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_Array_t *a = sfp[0].a;
-	KNH_RETURN(ctx, sfp, knh_Array_n(a, knh_array_index(ctx, 1, a->size)));
+	KNH_RETURN_(ctx, sfp, knh_Array_n(a, knh_array_index(ctx, 1, a->size)));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1371,7 +1378,7 @@ static METHOD Array_op1(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 static METHOD Array_opN(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_Array_t *a = sfp[0].a;
-	KNH_RETURN(ctx, sfp, knh_Array_n(a, knh_array_index(ctx, p_int(sfp[1]), a->size)));
+	KNH_RETURN_(ctx, sfp, knh_Array_n(a, knh_array_index(ctx, p_int(sfp[1]), a->size)));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1380,7 +1387,7 @@ static METHOD Array_opN(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 static METHOD IArray_op0(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_IArray_t *a = sfp[0].ia;
-	KNH_RETURN_Int(ctx, sfp, a->ilist[knh_array_index(ctx, 0, a->size)]);
+	KNH_RETURNi_(ctx, sfp, a->ilist[knh_array_index(ctx, 0, a->size)]);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1389,7 +1396,7 @@ static METHOD IArray_op0(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 static METHOD IArray_op1(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_IArray_t *a = sfp[0].ia;
-	KNH_RETURN_Int(ctx, sfp, a->ilist[knh_array_index(ctx, 1, a->size)]);
+	KNH_RETURNi_(ctx, sfp, a->ilist[knh_array_index(ctx, 1, a->size)]);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1398,7 +1405,7 @@ static METHOD IArray_op1(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 static METHOD IArray_opN(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_IArray_t *a = sfp[0].ia;
-	KNH_RETURN_Int(ctx, sfp, a->ilist[knh_array_index(ctx, p_int(sfp[1]), a->size)]);
+	KNH_RETURNi_(ctx, sfp, a->ilist[knh_array_index(ctx, p_int(sfp[1]), a->size)]);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1407,7 +1414,7 @@ static METHOD IArray_opN(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 static METHOD FArray_op0(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_FArray_t *a = sfp[0].fa;
-	KNH_RETURN_Float(ctx, sfp, a->flist[knh_array_index(ctx, 0, a->size)]);
+	KNH_RETURNf_(ctx, sfp, a->flist[knh_array_index(ctx, 0, a->size)]);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1416,7 +1423,7 @@ static METHOD FArray_op0(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 static METHOD FArray_op1(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_FArray_t *a = sfp[0].fa;
-	KNH_RETURN_Float(ctx, sfp, a->flist[knh_array_index(ctx, 1, a->size)]);
+	KNH_RETURNf_(ctx, sfp, a->flist[knh_array_index(ctx, 1, a->size)]);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1425,7 +1432,7 @@ static METHOD FArray_op1(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 static METHOD FArray_opN(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_FArray_t *a = sfp[0].fa;
-	KNH_RETURN_Float(ctx, sfp, a->flist[knh_array_index(ctx, p_int(sfp[1]), a->size)]);
+	KNH_RETURNf_(ctx, sfp, a->flist[knh_array_index(ctx, p_int(sfp[1]), a->size)]);
 }
 
 /* ------------------------------------------------------------------------ */

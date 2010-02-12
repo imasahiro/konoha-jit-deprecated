@@ -39,9 +39,18 @@ extern "C" {
 /* ======================================================================== */
 /* [argc] */
 
-int knh_stack_argc(Ctx *ctx, knh_sfp_t *v)
+knh_sfp_t* knh_stack_local(Ctx *ctx, size_t n)
 {
-	return (((knh_Context_t*)ctx)->esp - v);
+	knh_sfp_t *esp = ctx->esp;
+	((knh_Context_t*)ctx)->esp = esp + n;
+	return esp;
+}
+
+/* ------------------------------------------------------------------------ */
+
+int knh_stack_argc(Ctx *ctx, knh_sfp_t *sfp)
+{
+	return ctx->esp - sfp;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -53,7 +62,7 @@ knh_Array_t* knh_stack_toArray(Ctx *ctx, knh_sfp_t *sfp, knh_class_t cid)
 		knh_Array_t *a = new_Array0(ctx, ctx->esp - sfp);
 		while(sfp < ctx->esp) {
 			knh_stack_boxing(ctx, sfp);
-			knh_Array_add(ctx, a, sfp->o);
+			knh_Array_add_(ctx, a, sfp->o);
 			sfp++;
 		}
 		return a;
@@ -83,7 +92,7 @@ knh_Array_t* knh_stack_toArray(Ctx *ctx, knh_sfp_t *sfp, knh_class_t cid)
 		while(sfp < ctx->esp) {
 			if(IS_NOTNULL(sfp->o)) {
 				knh_stack_boxing(ctx, sfp);
-				knh_Array_add(ctx, a, sfp->o);
+				knh_Array_add_(ctx, a, sfp->o);
 			}
 			sfp++;
 		}
@@ -97,7 +106,7 @@ KNHAPI(void) knh_stack_boxing(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_class_t bcid = (sfp[0].o)->h.bcid;
 	if(CLASS_Boolean <= bcid && bcid <= CLASS_Float && sfp[0].data != knh_Object_data(sfp[0].o)) {
-		KNH_MOV(ctx, sfp[0].o, new_Object_boxing(ctx, knh_Object_cid(sfp[0].o), sfp));
+		klr_mov(ctx, sfp[0].o, new_Object_boxing(ctx, knh_Object_cid(sfp[0].o), sfp));
 	}
 }
 
@@ -113,11 +122,12 @@ KNHAPI(void) knh_stack_unboxing(Ctx *ctx, knh_sfp_t *sfp)
 KNHAPI(void) knh_stack_w(Ctx *ctx, knh_sfp_t *sfp, knh_sfp_t *one, knh_methodn_t mn, knh_OutputStream_t *w, Any *m)
 {
 	knh_Method_t *mtd = knh_lookupFormatter(ctx, knh_Object_cid(one[0].o), mn);
-	KNH_SETv(ctx, sfp[1].o, one[0].o);
+	KNH_SETv(ctx, sfp[1].o, mtd);
+	KNH_SETv(ctx, sfp[2].o, one[0].o);
 	sfp[1].data = one[0].data;
-	KNH_SETv(ctx, sfp[2].o, w);
-	KNH_SETv(ctx, sfp[3].o, m);
-	KNH_SCALL(ctx, sfp, 0, mtd, /*args*/2);
+	KNH_SETv(ctx, sfp[3].o, w);
+	KNH_SETv(ctx, sfp[4].o, m);
+	KNH_SCALL(ctx, sfp, 0, 2);
 }
 
 /* ======================================================================== */
@@ -278,7 +288,7 @@ knh_sfp_t *knh_stack_addStackTrace(Ctx *ctx, knh_sfp_t *sfp, knh_Exception_t *e)
 		if(IS_NULL(DP(e)->traces)) {
 			KNH_SETv(ctx, DP(e)->traces, new_Array(ctx, CLASS_String, 16));
 		}
-		knh_Array_add(ctx, DP(e)->traces, UP(msg));
+		knh_Array_add_(ctx, DP(e)->traces, UP(msg));
 	}
 	return callee;
 }

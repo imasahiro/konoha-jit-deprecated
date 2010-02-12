@@ -2,8 +2,8 @@
 
 /* ======================================================================== */
 /* MACROS */
-#define KONOHA_REVISION                 1114
-#define KONOHA_BUILDID                  784
+#define KONOHA_REVISION                 1126
+#define KONOHA_BUILDID                  799
 
 /* ======================================================================== */
 /* STRUCT */
@@ -691,14 +691,14 @@
 #define FLAG_String_Ary         FLAG_oflag(CFLAG_String_Ary)
 
 /* ------------------------------------------------------------------------ */
-/* Any_Ary */
-#define CLASS_Any_Ary           ((knh_class_t)63)
-#define IS_Any_Ary(o)           ((o)->h.cid == CLASS_Any_Ary)
-#define TYPE_Any_Ary            CLASS_Any_Ary
-#define NNTYPE_Any_Ary          NNTYPE_cid(CLASS_Any_Ary)
-#define NATYPE_Any_Ary          NATYPE_cid(CLASS_Any_Ary)
-#define CFLAG_Any_Ary           ((knh_flag_t)0)
-#define FLAG_Any_Ary            FLAG_oflag(CFLAG_Any_Ary)
+/* T1_Ary */
+#define CLASS_T1_Ary            ((knh_class_t)63)
+#define IS_T1_Ary(o)            ((o)->h.cid == CLASS_T1_Ary)
+#define TYPE_T1_Ary             CLASS_T1_Ary
+#define NNTYPE_T1_Ary           NNTYPE_cid(CLASS_T1_Ary)
+#define NATYPE_T1_Ary           NATYPE_cid(CLASS_T1_Ary)
+#define CFLAG_T1_Ary            ((knh_flag_t)0)
+#define FLAG_T1_Ary             FLAG_oflag(CFLAG_T1_Ary)
 
 /* ------------------------------------------------------------------------ */
 /* String_Itr */
@@ -1521,8 +1521,7 @@
 #define FIELDN_temporal 218
 #define FIELDN_test     219
 #define FIELDN_this     220
-#define FIELDN_tickCount 221
-#define FIELDN_tickcount 221
+#define FIELDN_time     221
 #define FIELDN_times    222
 #define FIELDN_toLower  223
 #define FIELDN_tolower  223
@@ -1564,7 +1563,6 @@
 #define METHODN_unlikely FIELDN_unlikely
 #define METHODN_format  FIELDN_format
 #define METHODN_shuffle FIELDN_shuffle
-#define METHODN_value   FIELDN_value
 #define METHODN_opLte   FIELDN_oplte
 #define METHODN_indexOf__IgnoreCase FIELDN_indexof__ignorecase
 #define METHODN_isIgnoreCase METHODN_TO_GETTER(FIELDN_ignorecase)
@@ -1602,6 +1600,7 @@
 #define METHODN_add     FIELDN_add
 #define METHODN_get3D   METHODN_TO_GETTER(FIELDN_3d)
 #define METHODN_hasDir  FIELDN_hasdir
+#define METHODN_rename  FIELDN_rename
 #define METHODN_new__array2D FIELDN_new__array2d
 #define METHODN_isInteractive METHODN_TO_GETTER(FIELDN_interactive)
 #define METHODN_equals__IgnoreCase FIELDN_equals__ignorecase
@@ -1660,7 +1659,6 @@
 #define METHODN_toLower FIELDN_tolower
 #define METHODN_op0     FIELDN_op0
 #define METHODN_op1     FIELDN_op1
-#define METHODN_getTickCount METHODN_TO_GETTER(FIELDN_tickcount)
 #define METHODN_isPublic METHODN_TO_GETTER(FIELDN_public)
 #define METHODN__c      METHODN_TO_MOVTEXT(FIELDN_c)
 #define METHODN__d      METHODN_TO_MOVTEXT(FIELDN_d)
@@ -1749,7 +1747,7 @@
 #define METHODN_endsWith__IgnoreCase FIELDN_endswith__ignorecase
 #define METHODN_pop     FIELDN_pop
 #define METHODN_twofold FIELDN_twofold
-#define METHODN_rename  FIELDN_rename
+#define METHODN_getTime METHODN_TO_GETTER(FIELDN_time)
 #define METHODN_setTrace METHODN_TO_SETTER(FIELDN_trace)
 #define METHODN_close   FIELDN_close
 #define METHODN_isNull  METHODN_TO_GETTER(FIELDN_null)

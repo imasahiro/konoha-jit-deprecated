@@ -70,7 +70,7 @@ METHOD Script_hook(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 //{
 //    Ctx *ctx = konoha.ctx;
 //    knh_setCurrentContext(ctx);
-//    knh_sfp_t *lsfp = KNH_LOCAL(ctx);
+//    knh_sfp_t *lsfp = BEGIN_LOCAL(ctx);
 //
 //    knh_cwb_t *cwb = new_cwb(ctx);
 //    knh_Bytes_write(ctx, cwb->ba, B(method));
@@ -87,7 +87,7 @@ METHOD Script_hook(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 //
 //    knh_methodn_t mn = knh_Method_fromName(ctx, method);
 //    knh_Method_syncfunc(mtd, func);
-//    KNH_LOCALBACK(ctx, lsfp);
+//    END_LOCAL(ctx, lsfp);
 //    return;
 //}
 

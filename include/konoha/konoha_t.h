@@ -488,6 +488,11 @@ typedef struct knh_LockTable_t {
 
 typedef unsigned char           knh_code_t;          /* knh_vmc_t */
 
+typedef struct knh_callinfo_t {
+	knh_ushort_t shift;
+	knh_class_t   reqc;
+} knh_callinfo_t;
+
 typedef struct knh_sfp_t {
 	union {
 		void   *ref;
@@ -509,6 +514,7 @@ typedef struct knh_sfp_t {
 		struct knh_HashMap_t  *hmap;
 		struct knh_HashSet_t *hset;
 		struct knh_Closure_t *cc;
+		struct knh_InputStream_t  *in;
 		struct knh_OutputStream_t *w;
 		struct knh_Method_t *mtd;
 		struct knh_Mapper_t *mpr;
@@ -525,6 +531,7 @@ typedef struct knh_sfp_t {
 		knh_float_t   fvalue;
 		knh_uint64_t  data;
 		knh_code_t    *pc;
+		knh_callinfo_t ci;
 	};
 } knh_sfp_t;
 
@@ -745,6 +752,10 @@ typedef struct {
 	struct knh_Context_t     *ctx0;
 	struct knh_NameSpace_t   *mainns;
 	struct knh_Script_t      *script;
+	knh_code_t *PC_LAUNCH;
+	knh_code_t *PC_FUNCCALL;
+	knh_code_t *PC_RUN;
+	knh_code_t *PC_ABSTRACT;
 
 	/* thread */
 	size_t              contextCounter;
@@ -763,6 +774,8 @@ typedef struct {
 #define ExptTable(eid)    ctx->share->ExptTable[eid]
 #define pExptTable(eid)   (knh_ExptTable_t*)(ctx->share->ExptTable + (eid))
 
+#define knh_setClassDefaultValue(ctx, cid, v, f) knh_setClassDefaultValue_(ctx, cid, UP(v), f)
+
 /* ------------------------------------------------------------------------ */
 
 typedef struct knh_Context_t {
@@ -774,6 +787,7 @@ typedef struct knh_Context_t {
 	knh_sfp_t*                   stack;
 	knh_sfp_t*                   esp;
 	size_t                       stacksize;
+	knh_sfp_t*                   stacktop;
 	knh_Ftraverse                fsweep;
 
 	/* cache (stacksize * 2 + 1) */

@@ -77,10 +77,6 @@ extern "C" {
 
 /* ------------------------------------------------------------------------ */
 
-#define OPCODE_LABEL  (OPCODE_NOP+1)
-
-/* ------------------------------------------------------------------------ */
-
 #define METHOD_getSize  METHODN_TO_GETTER(FIELDN_size)
 
 #if defined(KNH_USING_THREADEDCODE)
@@ -92,6 +88,11 @@ extern "C" {
 #define KNH_ASM(T, ...) { \
 		klr_##T##_t op_ = {TADDR OPCODE_##T, ## __VA_ARGS__, NULL}; \
 		knh_asmop(ctx, (knh_inst_t*)(&op_)); \
+	}\
+
+#define knh_Array_addInst(ctx, ilist, T, ...) { \
+		klr_##T##_t op_ = {TADDR OPCODE_##T, ## __VA_ARGS__, NULL};\
+		knh_Array_add(ctx, ilist, new_KLRInst(ctx, (knh_inst_t*)(&op_)));\
 	}\
 
 /* ------------------------------------------------------------------------ */

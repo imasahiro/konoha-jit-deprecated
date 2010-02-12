@@ -300,8 +300,8 @@ static METHOD Iterator__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 	knh_Iterator_t *it = sfp[0].it;
 	knh_OutputStream_t *w = sfp[1].w;
 	int isInline = IS_NULL(sfp[2].o) ? 1 : 0;
-	KNH_MOV(ctx, sfp[4].o, sfp[1].w);
-	KNH_MOV(ctx, sfp[5].o, KNH_NULL);
+	klr_mov(ctx, sfp[4].o, sfp[1].w);
+	klr_mov(ctx, sfp[5].o, KNH_NULL);
 	while(it->fnext_1(ctx, sfp, 3)) {
 		if(c > 0) {
 			if(isInline && c > 7) {
@@ -311,7 +311,7 @@ static METHOD Iterator__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 			knh_write_EOL(ctx, sfp[1].w);
 		}
 		KNH_SETESP(ctx, sfp+6);
-		KNH_MOV(ctx, sfp[2].o, knh_lookupFormatter(ctx, knh_Object_cid(sfp[3].o), METHODN__k));
+		klr_mov(ctx, sfp[2].o, knh_lookupFormatter(ctx, knh_Object_cid(sfp[3].o), METHODN__k));
 		(sfp[2].mtd)->fcall_1(ctx, sfp+3);
 		c++;
 	}

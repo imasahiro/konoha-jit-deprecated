@@ -263,6 +263,7 @@ typedef struct knh_Array_t {
 
 #define knh_Array_n(a,n)      (a)->list[(n)]
 #define knh_Array_size(a)     (a)->size
+#define knh_Array_add(ctx, a, o)    knh_Array_add_(ctx, a, UP(o))
 
 /* ------------------------------------------------------------------------ */
 //## @Cyclic @Param1(Int) class Int[] IArray Object knh_IArray_t;
@@ -591,12 +592,6 @@ typedef struct knh_Closure_t {
 } knh_Closure_t ;
 
 
-#define KNH_INVOKE(ctx, lsfp) {\
-		knh_Closure_t* cc_ = sfp[0].cc;\
-		int argc_ = (ctx->esp - sfp) - 1; \
-		KNH_MOV(ctx, sfp[0].o, (cc_)->base);\
-		KNH_SCALL(ctx, sfp, -1, (cc_)->mtd, argc_);\
-	}\
 
 /* ------------------------------------------------------------------------ */
 //## @Param1(Any) class Thunk Object;

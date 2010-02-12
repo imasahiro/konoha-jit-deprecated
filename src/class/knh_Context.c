@@ -105,11 +105,11 @@ void knh_Context_setEncoding(Ctx *ctx, knh_Context_t *o, knh_String_t *enc)
 
 /* ------------------------------------------------------------------------ */
 
-void knh_Context_clearstack(Ctx *ctx)
+void knh_stack_clear(Ctx *ctx, knh_sfp_t *sfp)
 {
-	size_t i;
-	for(i = ctx->esp - ctx->stack + 1; i < ctx->stacksize - 1; i++) {
-		KNH_SETv(ctx, ctx->stack[i].o, KNH_NULL);
+	while(sfp < ctx->stack + ctx->stacksize) {
+		KNH_SETv(ctx, sfp[0].o, KNH_NULL);
+		sfp++;
 	}
 }
 

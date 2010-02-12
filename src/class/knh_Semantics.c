@@ -462,7 +462,7 @@ KNHAPI(knh_Semantics_t*) new_Vocab(Ctx *ctx, char *tag, knh_bytes_t urn, int bas
 		knh_Array_t *a = new_Array0(ctx, 0);
 		while(*terms != NULL) {
 			knh_String_t *s = T__(*terms);
-			knh_Array_add(ctx, a, UP(s));
+			knh_Array_add_(ctx, a, UP(s));
 			s->h.cid = cid;
 			terms++;
 		}

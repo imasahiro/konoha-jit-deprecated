@@ -100,15 +100,18 @@ static MAPPER Object_String(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	Object *o = sfp[0].o;
 	knh_Method_t *mtd = knh_lookupFormatter(ctx, knh_Object_cid(o), METHODN__s);
-	if(IS_NULL(mtd)) {
+	if(IS_NOTNULL(mtd)) {
+		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
+		klr_mov(ctx, sfp[1].o, mtd);
+		klr_mov(ctx, sfp[2].o, o);
+		klr_mov(ctx, sfp[3].o, cwb->w);
+		klr_mov(ctx, sfp[4].o, KNH_NULL);
+		KNH_SCALL(ctx, sfp, 1, 2);
+		KNH_MAPPED(ctx, sfp, knh_cwb_newString(ctx, cwb));
+	}
+	else {
 		KNH_MAPPED(ctx, sfp, TS_EMPTY);
 	}
-	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-	KNH_MOV(ctx, sfp[2].o, o);
-	KNH_MOV(ctx, sfp[3].o, cwb->w);
-	KNH_MOV(ctx, sfp[4].o, KNH_NULL);
-	KNH_SCALL(ctx, sfp, 1, mtd, 2);
-	KNH_MAPPED(ctx, sfp, knh_cwb_newString(ctx, cwb));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -183,6 +186,7 @@ static MAPPER Object_Iterator(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Object_opItr(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	KNH_RETURN(ctx, sfp, new_Iterator(ctx, knh_Object_cid(sfp[0].o), sfp[0].o, NULL));
 }
 
@@ -198,7 +202,7 @@ static MAPPER Iterator_Array(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 	knh_Array_t *a = new_Array(ctx, ctx->share->ClassTable[it->h.cid].p1, 0);
 	while(it->fnext_1(ctx, sfp, 1)) {
 		knh_stack_boxing(ctx, sfp + 1);
-		knh_Array_add(ctx, a, sfp[1].o);
+		knh_Array_add_(ctx, a, sfp[1].o);
 	}
 	KNH_MAPPED(ctx, sfp, a);
 }

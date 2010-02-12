@@ -45,7 +45,8 @@ extern "C" {
 
 static METHOD DictMap_opHas(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Boolean(ctx, sfp, knh_DictMap_index((knh_DictMap_t*)sfp[0].o, __tobytes(sfp[1].s)) != -1);
+	KNH_CHKESP(ctx, sfp);
+	KNH_RETURNb(ctx, sfp, knh_DictMap_index((knh_DictMap_t*)sfp[0].o, __tobytes(sfp[1].s)) != -1);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -53,6 +54,7 @@ static METHOD DictMap_opHas(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD DictMap_get(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	KNH_RETURN(ctx, sfp, knh_DictMap_get(ctx, (knh_DictMap_t*)sfp[0].o, sfp[1].s));
 }
 
@@ -61,6 +63,7 @@ static METHOD DictMap_get(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD DictMap_set(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_DictMap_t *o = (knh_DictMap_t*)sfp[0].o;
 	knh_stack_boxing(ctx, sfp + 2);
 	knh_DictMap_set(ctx, o, sfp[1].s, sfp[2].o);
@@ -72,6 +75,7 @@ static METHOD DictMap_set(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD DictMap_remove(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_DictMap_t *o = (knh_DictMap_t*)sfp[0].o;
 	knh_DictMap_remove(ctx, o, sfp[1].s);
 	KNH_RETURN_void(ctx, sfp);
@@ -82,6 +86,7 @@ static METHOD DictMap_remove(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD DictMap_clear(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_DictMap_t *o = (knh_DictMap_t*)sfp[0].o;
 	knh_DictMap_clear(ctx, o);
 	KNH_RETURN_void(ctx, sfp);
@@ -92,31 +97,27 @@ static METHOD DictMap_clear(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD DictMap_keys(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	// TODO
-	// we must test this method.
+	KNH_CHKESP(ctx, sfp);
 	knh_DictMap_t *o = (knh_DictMap_t*)sfp[0].o;
 	knh_Array_t *a = new_Array(ctx, CLASS_String, o->size);
 	int i;
-	for(i=0; i<o->size; i++) {
-		knh_Array_add(ctx, a, UP(o->list[i].key));
-		//fprintf(stderr, "%d:%s\n",i,o->list[i].key->str);
+	for(i=0; i < o->size; i++) {
+		knh_Array_add_(ctx, a, UP(o->list[i].key));
 	}
 	KNH_RETURN(ctx, sfp, UP(a));
 }
 
 /* ------------------------------------------------------------------------ */
-//## method Any[] DictMap.values();
+//## method T1[] DictMap.values();
 
 static METHOD DictMap_values(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	// TODO
-	// we must test this method.
+	KNH_CHKESP(ctx, sfp);
 	knh_DictMap_t *o = (knh_DictMap_t*)sfp[0].o;
 	knh_Array_t *a = new_Array0(ctx, o->size);
 	int i;
 	for(i=0; i<o->size; i++) {
-		knh_Array_add(ctx, a, UP(o->list[i].value));
-		//fprintf(stderr, "%d:%p\n",i,o->list[i].value);
+		knh_Array_add_(ctx, a, UP(o->list[i].value));
 	}
 	KNH_RETURN(ctx, sfp, UP(a));
 }
@@ -158,7 +159,7 @@ static METHOD DictMap_values(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 //
 //static METHOD DictSet_get(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 //{
-//	KNH_RETURN_Int(ctx, sfp, knh_DictSet_get(ctx, (DictSet*)sfp[0].o, sfp[1].s));
+//	KNH_RETURNi(ctx, sfp, knh_DictSet_get(ctx, (DictSet*)sfp[0].o, sfp[1].s));
 //}
 //
 ///* ------------------------------------------------------------------------ */
@@ -166,7 +167,7 @@ static METHOD DictMap_values(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 //
 //static METHOD DictSet_opHas(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 //{
-//	KNH_RETURN_Boolean(ctx, sfp, knh_DictSet_get__b((DictSet*)sfp[0].o, __tobytes(sfp[1].s)) != 0);
+//	KNH_RETURNb(ctx, sfp, knh_DictSet_get__b((DictSet*)sfp[0].o, __tobytes(sfp[1].s)) != 0);
 //}
 //
 ///* ------------------------------------------------------------------------ */
@@ -210,7 +211,7 @@ static METHOD DictMap_values(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 //
 //static METHOD DictSet_getSize(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 //{
-//	KNH_RETURN_Int(ctx, sfp, knh_DictSet_size((DictSet*)sfp[0].o));
+//	KNH_RETURNi(ctx, sfp, knh_DictSet_size((DictSet*)sfp[0].o));
 //}
 //
 ///* ------------------------------------------------------------------------ */

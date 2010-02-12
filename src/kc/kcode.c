@@ -51,6 +51,7 @@ knh_KLRInst_t* new_KLRInst(Ctx *ctx, knh_inst_t *op)
 		= (knh_KLRInst_t*)new_Object_init(ctx, FLAG_KLRInst, CLASS_KLRInst, op->opcode);
 	knh_memcpy(inst->op, op, knh_opcode_size(inst->opcode));
 	knh_opcode_traverse(ctx, inst->op, knh_ftraverse_inc);
+	inst->line = 0;
 	return inst;
 }
 
@@ -84,7 +85,7 @@ size_t knh_Method_inlineSize(Ctx *ctx, knh_Method_t *mtd)
 		while(1) {
 			knh_inst_t* inst = (knh_inst_t*)pc;
 			size_t lsize = knh_opcode_size(inst->opcode);
-			if(inst->opcode == OPCODE_CHKESP) {
+			if(inst->opcode == OPCODE_THCODE) {
 				pc += lsize;
 				continue;
 			}
@@ -103,7 +104,7 @@ static
 void knh_Method_inline(Ctx *ctx, knh_Method_t *mtd, knh_code_t *pc_new, size_t size, int shift)
 {
 	knh_code_t *pc_orig = DP(DP(mtd)->kcode)->code;
-	pc_orig += knh_opcode_size(OPCODE_CHKESP);
+	pc_orig += knh_opcode_size(OPCODE_THCODE);
 	knh_memcpy(pc_new, pc_orig, size);
 	int shift_pc = pc_new - pc_orig;
 	//DBG2_P("shifting shift(sfpidx)=%d, shift_pc=%d %p => %p", shift, shift_pc, pc_orig, pc_new);
@@ -118,7 +119,7 @@ void knh_Method_inline(Ctx *ctx, knh_Method_t *mtd, knh_code_t *pc_new, size_t s
 
 /* ------------------------------------------------------------------------ */
 
-knh_KLRCode_t* knh_InstList_newKLRCode(Ctx *ctx, knh_Array_t *insts)
+knh_KLRCode_t* new_KLRCode(Ctx *ctx, knh_Array_t *insts)
 {
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 	size_t i, inst_size = knh_Array_size(insts), elf_size = 0, dwarf_size, dwarf2_size = 0;
@@ -132,7 +133,10 @@ knh_KLRCode_t* knh_InstList_newKLRCode(Ctx *ctx, knh_Array_t *insts)
 	// count opcode size
 	for(i = 0; i < inst_size; i++) {
 		inst = (knh_KLRInst_t*)knh_Array_n(insts, i);
-		if(inst->opcode == OPCODE_LABEL) continue;
+		if(inst->opcode == OPCODE_LABEL) {
+			klr_LABEL_t *iLABEL = (klr_LABEL_t*)inst->op;
+			if(iLABEL->a1 == 0) continue;
+		}
 		if(inst->opcode == OPCODE_RET) {
 			inst->line = last_line + 1;
 		}
@@ -149,6 +153,7 @@ knh_KLRCode_t* knh_InstList_newKLRCode(Ctx *ctx, knh_Array_t *insts)
 				continue;
 			}
 		}
+#if defined(OPCODE_FCALL)
 		if(inst->opcode == OPCODE_FCALL) {
 			klr_FCALL_t *iFCALL = (klr_FCALL_t*)inst->op;
 			size_t inline_size = knh_Method_inlineSize(ctx, iFCALL->a4);
@@ -157,6 +162,7 @@ knh_KLRCode_t* knh_InstList_newKLRCode(Ctx *ctx, knh_Array_t *insts)
 				continue;
 			}
 		}
+#endif/*OPCODE_FCALL*/
 		elf_size += knh_opcode_size(inst->opcode);
 	}
 
@@ -172,7 +178,10 @@ knh_KLRCode_t* knh_InstList_newKLRCode(Ctx *ctx, knh_Array_t *insts)
 	for(i = 0; i < inst_size; i++) {
 		inst = (knh_KLRInst_t*)knh_Array_n(insts, i);
 		inst->code_pos = pc;
-		if(inst->opcode == OPCODE_LABEL) continue;
+		if(inst->opcode == OPCODE_LABEL) {
+			klr_LABEL_t *iLABEL = (klr_LABEL_t*)inst->op;
+			if(iLABEL->a1 == 0) continue;
+		}
 		if(inst->opcode == OPCODE_SCALL) {
 			klr_SCALL_t *iSCALL = (klr_SCALL_t*)inst->op;
 			size_t inline_size = knh_Method_inlineSize(ctx, iSCALL->a3);
@@ -181,6 +190,7 @@ knh_KLRCode_t* knh_InstList_newKLRCode(Ctx *ctx, knh_Array_t *insts)
 				continue;
 			}
 		}
+#if defined(OPCODE_FCALL)
 		if(inst->opcode == OPCODE_FCALL) {
 			klr_FCALL_t *iFCALL = (klr_FCALL_t*)inst->op;
 			size_t inline_size = knh_Method_inlineSize(ctx, iFCALL->a4);
@@ -189,6 +199,7 @@ knh_KLRCode_t* knh_InstList_newKLRCode(Ctx *ctx, knh_Array_t *insts)
 				continue;
 			}
 		}
+#endif/*OPCODE_FCALL*/
 		pc += knh_opcode_size(inst->opcode);
 	}
 
@@ -206,7 +217,10 @@ knh_KLRCode_t* knh_InstList_newKLRCode(Ctx *ctx, knh_Array_t *insts)
 	// write inst code to "pc" (skip LABEL)
 	for(i = 0; i < inst_size; i++) {
 		inst = (knh_KLRInst_t*)knh_Array_n(insts, i);
-		if(inst->opcode == OPCODE_LABEL) continue;
+		if(inst->opcode == OPCODE_LABEL) {
+			klr_LABEL_t *iLABEL = (klr_LABEL_t*)inst->op;
+			if(iLABEL->a1 == 0) continue;
+		}
 		if(inst->opcode == OPCODE_SCALL) {
 			klr_SCALL_t *iSCALL = (klr_SCALL_t*)inst->op;
 			size_t inline_size = knh_Method_inlineSize(ctx, iSCALL->a3);
@@ -216,6 +230,7 @@ knh_KLRCode_t* knh_InstList_newKLRCode(Ctx *ctx, knh_Array_t *insts)
 				continue;
 			}
 		}
+#if defined(OPCODE_FCALL)
 		if(inst->opcode == OPCODE_FCALL) {
 			klr_FCALL_t *iFCALL = (klr_FCALL_t*)inst->op;
 			size_t inline_size = knh_Method_inlineSize(ctx, iFCALL->a4);
@@ -225,6 +240,7 @@ knh_KLRCode_t* knh_InstList_newKLRCode(Ctx *ctx, knh_Array_t *insts)
 				continue;
 			}
 		}
+#endif/*OPCODE_FCALL*/
 		size_t size = knh_opcode_size(inst->opcode);
 		knh_memcpy(pc, inst->op, size);
 		knh_opcode_traverse(ctx, (knh_inst_t*)pc, knh_ftraverse_inc);
@@ -261,22 +277,6 @@ void knh_code_thread(Ctx *ctx, knh_code_t *pc, void **codeaddr)
 /* ======================================================================== */
 /* [methods] */
 
-void knh_Method_setKLRCode(Ctx *ctx, knh_Method_t *mtd, knh_KLRCode_t *code)
-{
-	KNH_ASSERT(IS_KLRCode(code));
-	if(knh_Method_isObjectCode(mtd)) {
-		KNH_SETv(ctx, DP(mtd)->kcode, code);
-	}else {
-		KNH_INITv(DP(mtd)->kcode, code);
-		knh_Method_setObjectCode(mtd, 1);
-	}
-	knh_Method_syncFunc(mtd, knh_KLRCode_exec);
-	mtd->pc_start = DP(code)->code;
-}
-
-
-
-/* ------------------------------------------------------------------------ */
 
 knh_bytes_t knh_KLRCode_tobytes(knh_KLRCode_t *o)
 {
@@ -318,36 +318,21 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc)
 	return 0;
 }
 
-/* ------------------------------------------------------------------------ */
-
-knh_fieldn_t knh_Method_sfpfn(knh_Method_t *mtd, size_t sfpidx)
-{
-	if(knh_Method_isObjectCode(mtd) && IS_KLRCode(DP(mtd)->kcode)) {
-		knh_KLRCode_t *kcode = DP(mtd)->kcode;
-		size_t d2size = (DP(kcode)->dwarf2_size / sizeof(knh_dwarf2_t));
-		if(sfpidx < d2size) {
-			size_t csize = DP(kcode)->size - DP(kcode)->dwarf2_size;
-			knh_dwarf2_t *dwarf2 = (knh_dwarf2_t*)(DP(kcode)->code + csize);
-			return dwarf2[sfpidx].fn;
-		}
-	}
-	return FIELDN_NONAME;
-}
-
-/* ------------------------------------------------------------------------ */
-
-void knh_Gamma_loadCompiledMethod(Ctx *ctx)
-{
-
-}
-
-/* ------------------------------------------------------------------------ */
-
-knh_Fmethod knh_Gamma_getCompiledMethod(Ctx *ctx, knh_bytes_t cname, knh_bytes_t mname)
-{
-	return NULL;
-}
-
+///* ------------------------------------------------------------------------ */
+//
+//knh_fieldn_t knh_Method_sfpfn(knh_Method_t *mtd, size_t sfpidx)
+//{
+//	if(knh_Method_isObjectCode(mtd) && IS_KLRCode(DP(mtd)->kcode)) {
+//		knh_KLRCode_t *kcode = DP(mtd)->kcode;
+//		size_t d2size = (DP(kcode)->dwarf2_size / sizeof(knh_dwarf2_t));
+//		if(sfpidx < d2size) {
+//			size_t csize = DP(kcode)->size - DP(kcode)->dwarf2_size;
+//			knh_dwarf2_t *dwarf2 = (knh_dwarf2_t*)(DP(kcode)->code + csize);
+//			return dwarf2[sfpidx].fn;
+//		}
+//	}
+//	return FIELDN_NONAME;
+//}
 
 /* ------------------------------------------------------------------------ */
 

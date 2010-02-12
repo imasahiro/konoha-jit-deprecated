@@ -1035,8 +1035,8 @@ Term *knh_TokenESTR_toTerm(Ctx *ctx, knh_Token_t *tk)
 		return TM(tk);
 	}
 	else {
-		knh_sfp_t *lsfp = KNH_LOCAL(ctx);
-		KNH_LPUSH(ctx, KNH_NULL);   // lsfp[0]
+		knh_sfp_t *lsfp = BEGIN_LOCAL(ctx, 1);
+		KNH_SETv(ctx, lsfp[0].o, KNH_NULL);
 		knh_Stmt_t *stmt = new_Stmt(ctx, 0, STT_OP);
 		knh_Token_t *tkOP = new_Token(ctx, 0, SP(tk)->uri, SP(tk)->line, TT_ADD);
 		knh_Stmt_add(ctx, stmt, TM(tkOP));
@@ -1067,7 +1067,7 @@ Term *knh_TokenESTR_toTerm(Ctx *ctx, knh_Token_t *tk)
 		if(text.len > 0) {
 			knh_Stmt_add(ctx, stmt, new_TermCONST(ctx, FL(tk), UP(new_String(ctx, text, NULL))));
 		}
-		KNH_LOCALBACK(ctx, lsfp);
+		END_LOCAL(ctx, lsfp);
 		knh_style(ctx, 1);
 		knh_Stmt_setAutoReturn(stmt, 0);
 		return TM(stmt);
@@ -1576,7 +1576,7 @@ Term * knh_StmtDECL_typing(Ctx *ctx, knh_Stmt_t *stmt)
 		if(cid != CLASS_Any) knh_Token_toDEFVAL(tk, cid);
 		knh_Stmt_add(ctx, stmtLET, TM(tkN));
 		knh_Stmt_add(ctx, stmtLET, TM(tk));
-		knh_Array_add(ctx, DP(kc)->decls, UP(stmtLET));
+		knh_Array_add_(ctx, DP(kc)->decls, UP(stmtLET));
 	}
 	STT_(stmt) = STT_LET;
 	KNH_SETv(ctx, DP(stmt)->terms[0], tkN);
@@ -1906,24 +1906,28 @@ static Term *knh_StmtCALL_toCONST(Ctx *ctx, knh_Stmt_t *stmt, knh_Method_t *mtd)
 		return TM(new_TokenCONST(ctx, DP(stmt)->terms[0], KNH_TRUE));
 	}
 
-	knh_sfp_t *lsfp = KNH_LOCAL(ctx);
-	int i;
-	for(i = 1; i < DP(stmt)->size; i++) {
-		knh_Token_t *tk = DP(stmt)->tokens[i];
-		if(!IS_Token(tk) || TT_(tk) != TT_CONST) {
-			return TM(stmt);
+	{
+		int i;
+		knh_sfp_t *lsfp = BEGIN_LOCAL(ctx, DP(stmt)->size);
+		for(i = 1; i < DP(stmt)->size; i++) {
+			knh_Token_t *tk = DP(stmt)->tokens[i];
+			if(!IS_Token(tk) || TT_(tk) != TT_CONST) {
+				return TM(stmt);
+			}
+			klr_mov(ctx, lsfp[i+1].o, DP(tk)->data);
+			KNH_UNBOX(ctx, &lsfp[i+1]);
 		}
-		KNH_MOV(ctx, lsfp[i].o, DP(tk)->data);
-		KNH_UNBOX(ctx, &lsfp[i]);
+		//DBG2_P("STMT TO CONST %s psize=%d", METHODN(DP(mtd)->mn), DP(stmt)->size-2);
+		klr_mov(ctx, lsfp[1].o, mtd);
+		KNH_SCALL(ctx, lsfp, 0, (DP(stmt)->size - 2));
+		KNH_BOX(ctx, &lsfp[0], knh_Method_rztype(mtd));
+		knh_Token_setCONST(ctx, DP(stmt)->tokens[1], lsfp[0].o);
+		if(knh_Method_rztype(mtd) == TYPE_void) {
+			return knh_Stmt_done(ctx, stmt); /* static execution */
+		}
+		END_LOCAL(ctx, lsfp);
+		return DP(stmt)->terms[1];
 	}
-	DBG2_P("STMT TO CONST %s psize=%d", METHODN(DP(mtd)->mn), DP(stmt)->size-2);
-	KNH_SCALL(ctx, lsfp, 0, mtd, (DP(stmt)->size - 2));
-	KNH_BOX(ctx, &lsfp[0], knh_Method_rztype(mtd));
-	knh_Token_setCONST(ctx, DP(stmt)->tokens[1], lsfp[0].o);
-	if(knh_Method_rztype(mtd) == TYPE_void) {
-		return knh_Stmt_done(ctx, stmt);
-	}
-	return DP(stmt)->terms[1];
 }
 
 /* ------------------------------------------------------------------------ */
@@ -3162,14 +3166,15 @@ Term *knh_StmtMAPCAST_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
 			return NULL;
 		}
 		if(knh_Mapper_isConst(mpr) && TERMs_isCONST(stmt, 1)) {
-			DBG2_P("MAPCAST TO CONST .. %s ==> %s", CLASSN(DP(mpr)->scid), CLASSN(DP(mpr)->tcid));
+			knh_sfp_t *lsfp = BEGIN_LOCAL(ctx, 1);
 			knh_Token_t *tk1 = DP(stmt)->tokens[1];
-			knh_sfp_t *lsfp = KNH_LOCAL(ctx);
-			KNH_MOV(ctx, lsfp[0].o, DP(tk1)->data);
+			DBG2_P("MAPCAST TO CONST .. %s ==> %s", CLASSN(DP(mpr)->scid), CLASSN(DP(mpr)->tcid));
+			klr_mov(ctx, lsfp[0].o, DP(tk1)->data);
 			KNH_UNBOX(ctx, &lsfp[0]);
 			KNH_SMAP(ctx, lsfp, 0, mpr);
 			KNH_BOX(ctx, &lsfp[0], DP(mpr)->tcid);
 			knh_Token_setCONST(ctx, tk1, lsfp[0].o);
+			END_LOCAL(ctx, lsfp);
 			return TM(tk1);
 		}
 		else {
@@ -3397,13 +3402,14 @@ Term *new_TermINCAST(Ctx *ctx, knh_class_t reqc, knh_Stmt_t *stmt, size_t n)
 		return NULL;
 	}
 	if(knh_Mapper_isConst(mpr) && TERMs_isCONST(stmt, n)) {
+		knh_sfp_t *lsfp = BEGIN_LOCAL(ctx, 1);
 		knh_Token_t *tk2 = DP(stmt)->tokens[n];
-		knh_sfp_t *lsfp = KNH_LOCAL(ctx);
-		KNH_MOV(ctx, lsfp[0].o, DP(tk2)->data);
+		klr_mov(ctx, lsfp[0].o, DP(tk2)->data);
 		KNH_UNBOX(ctx, &lsfp[0]);
 		KNH_SMAP(ctx, lsfp, 0, mpr);
 		KNH_BOX(ctx, &lsfp[0], DP(mpr)->tcid);
 		knh_Token_setCONST(ctx, tk2, lsfp[0].o);
+		END_LOCAL(ctx, lsfp);
 		return TM(tk2);
 	}
 	else {
@@ -4559,9 +4565,9 @@ static knh_Gamma_t *new_Gamma(Ctx *ctx)
 
 Term * knh_StmtFUNCTION_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
 {
+	knh_sfp_t *lsfp = BEGIN_LOCAL(ctx, 1);
 	Term *tm = NULL;
-	knh_sfp_t *lsfp = KNH_LOCAL(ctx);
-	KNH_LPUSH(ctx, ctx->kc);
+	KNH_SETv(ctx, lsfp[0].o, ctx->kc);
 	KNH_SETv(ctx, ((knh_Context_t*)ctx)->kc, new_Gamma(ctx));
 	{
 //		knh_Gamma_t *kc = ctx->kc;
@@ -4677,10 +4683,10 @@ Term * knh_StmtFUNCTION_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
 
 	}
 	//	L_RETURN:
-	DBG2_ASSERT(IS_Gamma(lsfp[0].o));
 	KNH_SETv(ctx, ((knh_Context_t*)ctx)->kc, lsfp[0].o);
+	DBG2_ASSERT(IS_Gamma(lsfp[0].o));
 	KNH_SETv(ctx, lsfp[0].o, KNH_NULL);
-	KNH_LOCALBACK(ctx, lsfp);
+	END_LOCAL(ctx, lsfp);
 	return tm;
 }
 

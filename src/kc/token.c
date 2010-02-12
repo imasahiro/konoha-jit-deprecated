@@ -195,11 +195,11 @@ void knh_Token_tokens_add(Ctx *ctx, knh_Token_t *o, knh_Token_t *tk)
 	}
 	if(IS_Token(DP(o)->data)) {
 		knh_Array_t *a = new_Array(ctx, CLASS_Any, 2);
-		knh_Array_add(ctx, a, DP(o)->data);
+		knh_Array_add_(ctx, a, DP(o)->data);
 		KNH_SETv(ctx, DP(o)->data, a);
 	}
 	KNH_ASSERT(IS_Array(DP(o)->data));
-	knh_Array_add(ctx, (knh_Array_t*)DP(o)->data, UP(tk));
+	knh_Array_add_(ctx, (knh_Array_t*)DP(o)->data, UP(tk));
 }
 
 /* ------------------------------------------------------------------------ */

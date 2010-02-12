@@ -48,7 +48,7 @@ extern "C" {
 
 static METHOD System_getIn(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN(ctx, sfp, DP(ctx->sys)->in);
+	KNH_RETURN_(ctx, sfp, DP(ctx->sys)->in);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -56,7 +56,7 @@ static METHOD System_getIn(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD System_getOut(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN(ctx, sfp, DP(ctx->sys)->out);
+	KNH_RETURN_(ctx, sfp, DP(ctx->sys)->out);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -64,7 +64,7 @@ static METHOD System_getOut(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD System_getErr(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN(ctx, sfp, DP(ctx->sys)->err);
+	KNH_RETURN_(ctx, sfp, DP(ctx->sys)->err);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -72,7 +72,7 @@ static METHOD System_getErr(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD System_getProperty(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN(ctx, sfp,
+	KNH_RETURN_(ctx, sfp,
 			knh_System_getProperty(ctx,(knh_System_t*)sfp[0].o, __tobytes(sfp[1].s)));
 }
 
@@ -82,7 +82,7 @@ static METHOD System_getProperty(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 static METHOD System_setProperty(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 	knh_System_setProperty(ctx, (knh_System_t*)sfp[0].o, sfp[1].s, sfp[2].o);
-	KNH_RETURN(ctx, sfp, sfp[2].o);
+	KNH_RETURN_(ctx, sfp, sfp[2].o);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -106,7 +106,6 @@ static METHOD System_test(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 		knh_print(ctx, KNH_STDERR, __tobytes(sfp[2].s));
 	}
 	knh_write_EOL(ctx, KNH_STDERR);
-	KNH_RETURN_void(ctx, sfp);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -122,7 +121,7 @@ static METHOD Script_system(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 		KNH_PERRNO(ctx, NULL, "OS!!", "system", knh_Context_isStrict(ctx));
 	}
 #endif
-	KNH_RETURN_Int(ctx, sfp,ret);
+	KNH_RETURNi_(ctx, sfp,ret);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -130,6 +129,7 @@ static METHOD Script_system(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD System_hasLib(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 	knh_bytes_t libname = __tobytes(sfp[1].s);
 	knh_cwb_write(ctx, cwb, libname);
@@ -150,7 +150,7 @@ static METHOD System_hasLib(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 		}
 	}
 	knh_cwb_close(cwb);
-	KNH_RETURN_Boolean(ctx, sfp, res);
+	KNH_RETURNb(ctx, sfp, res);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -158,6 +158,7 @@ static METHOD System_hasLib(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD System_exit(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 #if defined(KNH_USING_STDC)
 	int status = IS_NULL(sfp[1].o) ? 0 : p_int(sfp[1]);
 	KNH_SECURE(ctx, sfp);
@@ -173,6 +174,7 @@ static METHOD System_exit(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 static METHOD System_listDir(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 #if defined(KNH_USING_POSIX)
+	KNH_CHKESP(ctx, sfp);
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 	knh_Array_t *a = new_Array(ctx, CLASS_String, 0);
 	knh_bytes_t t = (IS_NULL(sfp[1].s)) ? STEXT(".") : __tobytes(sfp[1].s);
@@ -188,7 +190,7 @@ static METHOD System_listDir(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 		while ((direntp = readdir(dirptr)) != NULL) {
 			char *p = direntp->d_name;
 			if(p[0] == '.' && (p[1] == 0 || p[1] == '.')) continue;
-			knh_Array_add(ctx, a, UP(new_String(ctx, B(p), NULL)));
+			knh_Array_add_(ctx, a, UP(new_String(ctx, B(p), NULL)));
 		}
 		closedir(dirptr);
 	}
@@ -202,11 +204,12 @@ static METHOD System_listDir(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD System_hasDir(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_openinit(ctx, &cwbbuf, __tobytes(sfp[1].s));
 	knh_cwb_ospath(ctx, cwb);
 	knh_bool_t res = knh_cwb_isdir(ctx, cwb);
 	knh_cwb_close(cwb);
-	KNH_RETURN_Boolean(ctx,sfp, res);
+	KNH_RETURNb(ctx,sfp, res);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -214,11 +217,12 @@ static METHOD System_hasDir(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD System_hasFile(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_openinit(ctx, &cwbbuf, __tobytes(sfp[1].s));
 	knh_cwb_ospath(ctx, cwb);
 	knh_bool_t res = knh_cwb_isfile(ctx, cwb);
 	knh_cwb_close(cwb);
-	KNH_RETURN_Boolean(ctx,sfp, res);
+	KNH_RETURNb(ctx,sfp, res);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -226,10 +230,9 @@ static METHOD System_hasFile(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD System_mkdir(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	KNH_SECURE(ctx, sfp);
-	KNH_RETURN_Boolean(ctx, sfp,
-			knh_mkdir(ctx, __tobytes(sfp[1].s), knh_Context_isStrict(ctx))
-			);
+	KNH_RETURNb(ctx, sfp,knh_mkdir(ctx, __tobytes(sfp[1].s), knh_Context_isStrict(ctx)));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -237,10 +240,9 @@ static METHOD System_mkdir(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD System_unlink(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	KNH_SECURE(ctx, sfp);
-	KNH_RETURN_Boolean(ctx, sfp,
-			knh_unlink(ctx, __tobytes(sfp[1].s), knh_Context_isStrict(ctx))
-			);
+	KNH_RETURNb(ctx, sfp, knh_unlink(ctx, __tobytes(sfp[1].s), knh_Context_isStrict(ctx)));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -248,21 +250,17 @@ static METHOD System_unlink(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD System_rename(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	KNH_SECURE(ctx, sfp);
-	KNH_RETURN_Boolean(ctx, sfp,
-			knh_rename(ctx, __tobytes(sfp[1].s),
-				__tobytes(sfp[2].s), knh_Context_isStrict(ctx))
-			);
+	KNH_RETURNb(ctx, sfp, knh_rename(ctx, __tobytes(sfp[1].s), __tobytes(sfp[2].s), knh_Context_isStrict(ctx)));
 }
-
-/* ======================================================================== */
-/* [Context] */
 
 /* ------------------------------------------------------------------------ */
 //## @Static method Any? Context.getProperty(String! key);
 
 static METHOD Context_getProperty(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	KNH_RETURN(ctx, sfp, knh_getProperty(ctx, __tobytes(sfp[1].s)));
 }
 
@@ -271,17 +269,19 @@ static METHOD Context_getProperty(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Context_setProperty(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_setProperty(ctx, sfp[1].s, sfp[2].o);
 	KNH_RETURN(ctx, sfp, sfp[2].o);
 }
 
 /* ------------------------------------------------------------------------ */
-//## @Static method void Context.setEncoding(String? enc);
+//## @Static method String Context.setEncoding(String? enc);
 
 static METHOD Context_setEncoding(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_Context_setEncoding(ctx, (knh_Context_t*)sfp[0].o, sfp[1].s);
-	KNH_RETURN_void(ctx, sfp);
+	KNH_RETURN(ctx, sfp, ((knh_Context_t*)sfp[0].o)->enc);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -289,10 +289,11 @@ static METHOD Context_setEncoding(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Context_listProperties(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_DictSet_t *ds = new_DictSet(ctx, 64);
-	KNH_MOV(ctx, sfp[0].o, ds); // TO RCGC
+	klr_mov(ctx, sfp[0].o, ds); // TO RCGC
 	if(IS_NULL(sfp[1].s)) {
-		KNH_MOV(ctx, sfp[1].o, TS_EMPTY);
+		klr_mov(ctx, sfp[1].o, TS_EMPTY);
 	}
 	knh_bytes_t prefix = __tobytes(sfp[1].s);
 	knh_DictMap_t *map = DP(ctx->sys)->props;
@@ -316,7 +317,7 @@ static METHOD Context_listProperties(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 	}
 	knh_Array_t *a = new_Array(ctx, CLASS_String, ds->size);
 	for(i = 0; i < ds->size; i++) {
-		knh_Array_add(ctx, a, UP(knh_DictSet_keyAt(ds, i)));
+		knh_Array_add_(ctx, a, UP(knh_DictSet_keyAt(ds, i)));
 	}
 	KNH_RETURN(ctx, sfp, a);
 }
@@ -326,6 +327,7 @@ static METHOD Context_listProperties(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Context_setIn(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	if(IS_NULL(sfp[1].o)) {
 		KNH_SETv(ctx, sfp[1].o, DP(ctx->sys)->in);
 	}
@@ -338,6 +340,7 @@ static METHOD Context_setIn(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Context_setOut(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	if(IS_NULL(sfp[1].o)) {
 		KNH_SETv(ctx, sfp[1].o, DP(ctx->sys)->out);
 	}
@@ -350,6 +353,7 @@ static METHOD Context_setOut(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Context_setErr(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	if(IS_NULL(sfp[1].o)) {
 		KNH_SETv(ctx, sfp[1].o, DP(ctx->sys)->err);
 	}
@@ -375,6 +379,7 @@ static void knh_Context__dump(Ctx *ctx, knh_Context_t *b, knh_OutputStream_t *w,
 
 static METHOD Exception_opInstanceof(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	int isa = 0;
 	if(IS_Class(sfp[1].o)) {
 		isa = knh_Object_cid(sfp[0].o) == CLASS_Exception ? 1 : 0;
@@ -385,7 +390,7 @@ static METHOD Exception_opInstanceof(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 	else if(IS_Exception(sfp[1].o)) {
 		isa = knh_expt_isa(ctx, DP(sfp[0].e)->eid, DP(sfp[1].e)->eid);
 	}
-	KNH_RETURN_Boolean(ctx, sfp, isa);
+	KNH_RETURNb(ctx, sfp, isa);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -393,6 +398,7 @@ static METHOD Exception_opInstanceof(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD NameSpace_setConst(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_NameSpace_addConst(ctx, sfp[0].ns, sfp[1].s, sfp[2].o);
 	KNH_RETURN(ctx, sfp, sfp[2].o);
 }

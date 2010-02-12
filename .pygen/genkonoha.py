@@ -275,7 +275,7 @@ def write_flag_c(f, fg, data):
         f.write('''
 static METHOD %s_%s(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-\tKNH_RETURN_Boolean(ctx, sfp, %s_%s(%s));
+\tKNH_RETURNb_(ctx, sfp, %s_%s(%s));
 }
 ''' % (methodbase, ffn, funcbase, ffn, a1))
         if fg.ngname != None:
@@ -286,7 +286,7 @@ static METHOD %s_%s(Ctx *ctx, knh_sfp_t *sfp METHODARG)
             f.write('''
 static METHOD %s_%s(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-\tKNH_RETURN_Boolean(ctx, sfp, !(%s_%s(%s)));
+\tKNH_RETURNb_(ctx, sfp, !(%s_%s(%s)));
 }
 ''' % (methodbase, ffn, funcbase, ff + fg.poname, a1))
     #
@@ -300,7 +300,7 @@ static METHOD %s_%s(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 static METHOD %s_%s(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 \t%s_%s(%s, p_bool(sfp[1]));
-\tKNH_RETURN_Boolean(ctx, sfp, sfp[1].bvalue);
+\tKNH_RETURNb_(ctx, sfp, sfp[1].bvalue);
 }
 ''' % (methodbase, ffn, funcbase, ffn, a1))
         if fg.ngname != None:
@@ -312,7 +312,7 @@ static METHOD %s_%s(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 static METHOD %s_%s(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
 \t%s_%s(%s, p_bool(sfp[1]));
-\tKNH_RETURN_Boolean(ctx, sfp, sfp[1].bvalue);
+\tKNH_RETURNb_(ctx, sfp, sfp[1].bvalue);
 }
 ''' % (methodbase, ffn, funcbase, ffn, a1))
 
@@ -618,8 +618,10 @@ def readdoc(doc, funcname, data):
 
 def readfunc(funcdata, data):
     funcdata = funcdata.replace('FASTAPI(', 'FASTAPI_')
+    funcdata = funcdata.replace('KLRAPI(', 'KLRAPI_')
     t = funcdata.split('(')
     funcdata = funcdata.replace('FASTAPI_', 'FASTAPI(')
+    funcdata = funcdata.replace('KLRAPI_', 'KLRAPI(')
     if funcdata.find('KNHAPI') >= 0:
         data.KNHAPI_LIST.append(funcdata)
         return ""

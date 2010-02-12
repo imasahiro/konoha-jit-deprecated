@@ -1882,11 +1882,11 @@ void knh_StmtMETA_addMeta(Ctx *ctx, knh_Stmt_t *stmt, knh_String_t *k, knh_Token
 				for(c = 0; c < tc->e; c++) {
 					if(TT_(ts[c]) == TT_COMMA) continue;
 					if(IS_String(DP(tc->ts[0])->data)) {
-						knh_Array_add(ctx, a, DP(ts[0])->data);
+						knh_Array_add_(ctx, a, DP(ts[0])->data);
 					}
 					else {
 						knh_bytes_t t = knh_Token_tobytes(ctx, tc->ts[0]);
-						knh_Array_add(ctx, a, UP(new_String(ctx, t, NULL)));
+						knh_Array_add_(ctx, a, UP(new_String(ctx, t, NULL)));
 					}
 				}
 				knh_DictMap_set(ctx, DP(stmt)->metaDictMap, k, UP(a));

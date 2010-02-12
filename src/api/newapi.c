@@ -44,6 +44,7 @@ extern "C" {
 
 static METHOD Object_new(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	DBG_P("DEFAULT CONSTRUCTOR? %s", CLASSNo(sfp[0].o));
 	KNH_RETURN(ctx, sfp, sfp[0].o);
 }
@@ -67,11 +68,11 @@ void knh_ObjectField_setValue(Ctx *ctx, knh_ObjectField_t *of, knh_index_t idx, 
 		}
 		DBG2_P("COERCION %s -> %s", CLASSN(scid), CLASSN(tcid));
 		TODO();
-//		knh_sfp_t *lsfp = KNH_LOCAL(ctx);
+//		knh_sfp_t *lsfp = BEGIN_LOCAL(ctx);
 //		KNH_LPUSH(ctx, o);
 //		VM_MAP(ctx, tcid);
 //		o = ctx->esp[0].o;
-//		KNH_LOCALBACK(ctx, lsfp);
+//		END_LOCAL(ctx, lsfp);
 		return ;
 	}
 
@@ -99,6 +100,7 @@ void knh_ObjectField_setValue(Ctx *ctx, knh_ObjectField_t *of, knh_index_t idx, 
 
 static METHOD Object_new__dictmap(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_ObjectField_t *of = (knh_ObjectField_t*)sfp[0].o;
 	knh_class_t cid = knh_Object_cid(of);
 	knh_sfp_t *v = sfp + 1;
@@ -125,6 +127,7 @@ static METHOD Object_new__dictmap(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Bytes_new(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_Bytes_t *o = (knh_Bytes_t*)sfp[0].o;
 	size_t init = IS_NULL(sfp[1].o) ? 0 : knh_bytes_newsize(p_size(sfp[1]));
 	DBG2_ASSERT(o->capacity == 0);
@@ -145,6 +148,7 @@ static METHOD Bytes_new(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Bytes_new__array(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_Bytes_t *o = (knh_Bytes_t*)sfp[0].o;
 	size_t init = 0, size = IS_NULL(sfp[1].o) ? 0 : knh_bytes_newsize(p_size(sfp[1]));
 	DBG2_ASSERT(o->capacity == 0);
@@ -169,6 +173,7 @@ static METHOD Bytes_new__array(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD String_new(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_String_t *s;
 	if(IS_NULL(sfp[2].o)) {
 		s = new_String(ctx, knh_Bytes_tobytes(sfp[1].ba), NULL);
@@ -187,6 +192,7 @@ static METHOD String_new(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 static
 METHOD Regex_new(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_Regex_t *o = (knh_Regex_t*)sfp[0].o;
 	knh_bytes_t p = __tobytes(sfp[1].s);
 	knh_index_t loc = knh_bytes_index(p, ':');
@@ -212,6 +218,7 @@ METHOD Regex_new(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Pair_new__init(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_Pair_t *o = (knh_Pair_t*)sfp[0].o;
 	knh_stack_boxing(ctx, sfp + 1);
 	KNH_SETv(ctx, o->first, sfp[1].o);
@@ -225,6 +232,7 @@ static METHOD Pair_new__init(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Tuple_new__init(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_Tuple_t *t = (knh_Tuple_t*)sfp[0].o;
 	knh_sfp_t *v = sfp + 1;
 	size_t i, ac = knh_stack_argc(ctx, v);
@@ -256,6 +264,7 @@ static METHOD Tuple_new__init(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Range_new__init(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_Range_t *r = (knh_Range_t*)sfp[0].o;
 	knh_stack_boxing(ctx, sfp + 1);
 	KNH_SETv(ctx, r->start, sfp[1].o);
@@ -279,6 +288,7 @@ static METHOD Range_new(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Array_new(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_Array_t *o = (knh_Array_t*)sfp[0].o;
 	int init = IS_NULL(sfp[1].o) ? KNH_ARRAY_INITSIZE: p_int(sfp[1]);
 	if(init > 0) {
@@ -293,6 +303,7 @@ static METHOD Array_new(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Array_new__array(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_Array_t *o = (knh_Array_t*)sfp[0].o;
 	knh_int_t init = sfp[1].ivalue;
 	if(0 < init && init < LONG_MAX) {
@@ -312,6 +323,7 @@ static METHOD Array_new__array(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Array_new__init(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_Array_t *o = (knh_Array_t*)sfp[0].o;
 	knh_sfp_t *v = sfp + 1;
 	int i, ac = knh_stack_argc(ctx, v);
@@ -320,7 +332,7 @@ static METHOD Array_new__init(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 	}
 	for(i = 0; i < ac; i++) {
 		knh_stack_boxing(ctx, v + i);
-		knh_Array_add(ctx, o, v[i].o);
+		knh_Array_add_(ctx, o, v[i].o);
 	}
 	KNH_RETURN(ctx, sfp, o);
 }
@@ -330,6 +342,7 @@ static METHOD Array_new__init(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD IArray_new(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_IArray_t *o = (knh_IArray_t*)sfp[0].o;
 	int init = IS_NULL(sfp[1].o) ? KNH_IARRAY_INITSIZE: p_int(sfp[1]);
 	if(init > 0) {
@@ -344,6 +357,7 @@ static METHOD IArray_new(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD IArray_new__array(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_IArray_t *o = (knh_IArray_t*)sfp[0].o;
 	knh_int_t init = sfp[1].ivalue;
 	if(0 < init && init < LONG_MAX) {
@@ -361,6 +375,7 @@ static METHOD IArray_new__array(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD IArray_new__init(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_IArray_t *o = (knh_IArray_t*)sfp[0].o;
 	knh_sfp_t *v = sfp + 1;
 	int i, ac = knh_stack_argc(ctx, v);
@@ -378,6 +393,7 @@ static METHOD IArray_new__init(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD IArray_new__range(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_IArray_t *o = (knh_IArray_t*)sfp[0].o;
 	knh_int_t s = sfp[1].ivalue;
 	knh_int_t e = sfp[2].ivalue;
@@ -401,6 +417,7 @@ static METHOD IArray_new__range(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD FArray_new(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_FArray_t *o = (knh_FArray_t*)sfp[0].o;
 	long init = IS_NULL(sfp[1].o) ? KNH_FARRAY_INITSIZE: p_int(sfp[1]);
 	if(init > 0) {
@@ -415,6 +432,7 @@ static METHOD FArray_new(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD FArray_new__array(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_FArray_t *o = (knh_FArray_t*)sfp[0].o;
 	knh_int_t init = sfp[1].ivalue;
 	if(0 < init && init < LONG_MAX) {
@@ -432,6 +450,7 @@ static METHOD FArray_new__array(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD FArray_new__init(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_FArray_t *o = (knh_FArray_t*)sfp[0].o;
 	knh_sfp_t *v = sfp + 1;
 	int i, ac = knh_stack_argc(ctx, v);
@@ -449,6 +468,7 @@ static METHOD FArray_new__init(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD DictMap_new(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_DictMap_t *o = (knh_DictMap_t*)sfp[0].o;
 	size_t init = IS_NULL(sfp[1].o) ? 0: p_int(sfp[1]);
 	if(init > knh_dict_capacity(o->_list)) {
@@ -463,6 +483,7 @@ static METHOD DictMap_new(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD DictMap_new__dictmap(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_DictMap_t *o = (knh_DictMap_t*)sfp[0].o;
 	knh_sfp_t *v = sfp + 1;
 	size_t i, ac = knh_stack_argc(ctx, v);
@@ -481,6 +502,7 @@ static METHOD DictMap_new__dictmap(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Exception_new(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_Exception_t *o = sfp[0].e;
 	DP(o)->eid  = EXPT_Exception;
 	DP(o)->flag = ctx->share->ExptTable[EXPT_Exception].flag;
@@ -501,6 +523,7 @@ static METHOD Exception_new(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Exception_new__init(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	KNH_RETURN(ctx, sfp,
 		knh_Exception_new__init(ctx, sfp[0].e, sfp[1].s, sfp[2].s, sfp[3].o));
 }
@@ -511,6 +534,7 @@ static METHOD Exception_new__init(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Closure_new(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	DBG2_ASSERT(IS_bClosure(sfp[0].cc));
 	DBG2_ASSERT(IS_bMethod(sfp[2].mtd));
 	KNH_INITv((sfp[0].cc)->base, sfp[1].o);

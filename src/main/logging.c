@@ -124,9 +124,10 @@ void knh_stack_p(Ctx *ctx, knh_sfp_t *sfp, knh_flag_t flag, knh_methodn_t mn)
 	knh_OutputStream_t *w = knh_stack_pstream(ctx, flag);
 	knh_stack_beginPRINT(ctx, flag, w);
 	knh_Method_t *mtd = knh_lookupFormatter(ctx, knh_Object_cid(sfp[1].o), mn);
-	KNH_SETv(ctx, sfp[2].o, w);
-	KNH_SETv(ctx, sfp[3].o, KNH_NULL);
-	KNH_SCALL(ctx, sfp, 0, mtd, /*args*/2);
+	KNH_SETv(ctx, sfp[2].o, mtd)
+	KNH_SETv(ctx, sfp[3].o, w);
+	KNH_SETv(ctx, sfp[4].o, KNH_NULL);
+	KNH_SCALL(ctx, sfp, 0, 2);
 	knh_stack_endPRINT(ctx, flag, w);
 }
 

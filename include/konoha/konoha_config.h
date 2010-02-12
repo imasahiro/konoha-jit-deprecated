@@ -51,10 +51,10 @@
 #define KONOHA_MAJOR_VERSION  0
 #define KONOHA_MINER_VERSION  7
 #define KONOHA_PATCH_VERSION  0
-#define KONOHA_VERSION  "0.7-beta4"
+#define KONOHA_VERSION  "0.7.0-alpha"
 #endif
 
-#define LIBKONOHA_VERSION "0.7"
+#define LIBKONOHA_VERSION "0.7.0-alpha"
 
 #define KONOHA_XCODE    "BAKUMAN"
 #define KONOHA_URL		"http://konoha.sourceforge.jp/"

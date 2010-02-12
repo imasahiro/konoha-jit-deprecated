@@ -45,6 +45,11 @@
 	fprintf(stderr, fmt, ## __VA_ARGS__); \
 	fprintf(stderr, "\n"); \
 
+#define KNH_TEST(msg) {\
+		fprintf(stderr, "@TestIt(%s/%s, %s:%d\n", __FUNCTION__, msg, knh_safefile(__FILE__), __LINE__); \
+	}\
+
+
 /* ======================================================================== */
 /* [DBGMODE2] */
 
@@ -135,8 +140,8 @@
 	knh_flush(ctx, KNH_STDOUT);\
 	fprintf(stdout, "\n"); \
 
-#define TODO() \
-	fprintf(stderr, "TODO[%s:%d/%s]:\n", knh_safefile(__FILE__) , __LINE__, __FUNCTION__); \
+#define TODO(msg) \
+	fprintf(stderr, "TODO[%s:%d]: %s\n", knh_safefile(__FILE__) , __LINE__, msg); \
 
 
 #else/*KNH_DBGMODE*/
@@ -158,7 +163,7 @@
 		fprintf(stdout, "\n"); \
 	}\
 
-#define TODO()
+#define TODO(msg)
 #define DBG_ASSERT(c, fmt, ...)   KNH_ASSERT(c)
 
 #define KNH_CTXASSERT(ctx, c, fmt, ...) \

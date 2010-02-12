@@ -62,6 +62,7 @@ static int knh_stack_equals(Ctx *ctx, knh_sfp_t *sfp, Object *o)
 
 static METHOD HashMap_new(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_HashMap_t *o = (knh_HashMap_t*)sfp[0].o;
 	int init = IS_NULL(sfp[1].o) ? KNH_HASH_INITSIZE: p_int(sfp[1]);
 	if(init > 0) {
@@ -75,11 +76,11 @@ static METHOD HashMap_new(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD HashMap_get(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_HashMap_t *o = (knh_HashMap_t*)sfp[0].o;
 	knh_hashcode_t hcode = knh_stack_hashCode(ctx, sfp + 1);
 	knh_uintptr_t h =  hcode % DP(o)->hmax;
 	knh_hashentry_t *e = DP(o)->array[h];
-
 	while(e != NULL) {
 		if(e->hcode == hcode
 				&& knh_Object_cid(sfp[1].o) == knh_Object_cid(e->key)
@@ -96,6 +97,7 @@ static METHOD HashMap_get(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD HashMap_opHas(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_HashMap_t *o = (knh_HashMap_t*)sfp[0].o;
 	knh_hashcode_t hcode = knh_stack_hashCode(ctx, sfp + 1);
 	knh_uintptr_t h =  hcode % DP(o)->hmax;
@@ -105,11 +107,11 @@ static METHOD HashMap_opHas(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 		if(e->hcode == hcode
 				&& knh_Object_cid(sfp[1].o) == knh_Object_cid(e->key)
 				&& knh_stack_equals(ctx, sfp + 1, e->key)) {
-			KNH_RETURN_Boolean(ctx, sfp, 1);
+			KNH_RETURNb(ctx, sfp, 1);
 		}
 		e = e->next;
 	}
-	KNH_RETURN_Boolean(ctx, sfp, 0);
+	KNH_RETURNb(ctx, sfp, 0);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -117,6 +119,7 @@ static METHOD HashMap_opHas(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD HashMap_remove(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_Hash_t *o = (knh_Hash_t*)sfp[0].o;
 	knh_hashcode_t hcode = knh_stack_hashCode(ctx, sfp + 1);
 	knh_uintptr_t h =  hcode % DP(o)->hmax;
@@ -142,6 +145,7 @@ static METHOD HashMap_remove(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD HashMap_set(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	if(IS_NULL(sfp[2].o)) {
 		HashMap_remove(ctx, sfp);
 	}

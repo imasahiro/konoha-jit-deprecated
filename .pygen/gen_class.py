@@ -346,7 +346,7 @@ def write_flag_c(f, c, fb, data):
 static 
 METHOD %s_%s(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
-\tKNH_RETURN_Boolean(ctx, sfp, %s_%s(%s));
+\tKNH_RETURNb(ctx, sfp, %s_%s(%s));
 }
 ''' % (methodbase, ffn, funcbase, ffn, a1))
 		if fb.nname != None:
@@ -357,7 +357,7 @@ METHOD %s_%s(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 static
 METHOD %s_%s(Ctx *ctx, knh_sfp_t *sfp METHODOPT)
 {
-\tKNH_RETURN_Boolean(ctx, sfp, !(%s_%s(%s)));
+\tKNH_RETURNb(ctx, sfp, !(%s_%s(%s)));
 }
 ''' % (methodbase, ffn, funcbase, ff + fb.pname, a1))
 	#

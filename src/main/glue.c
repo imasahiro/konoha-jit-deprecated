@@ -47,10 +47,11 @@ extern "C" {
 int knh_fcallback_cmpr(Object *obj, Object *obj2)
 {
 	Ctx *ctx = knh_getCurrentContext();
-	knh_sfp_t *lsfp = KNH_LOCAL(ctx);
+	knh_sfp_t *lsfp = BEGIN_LOCAL(ctx, 4);
 	knh_putsfp(ctx, lsfp, 2, obj);
 	knh_putsfp(ctx, lsfp, 3, obj2);
 	knh_Closure_invokesfp(ctx, (knh_Closure_t*)(-1), lsfp, /* argc*/ 2);
+	END_LOCAL(ctx, lsfp);
 	return (int)lsfp[0].ivalue;
 }
 
@@ -101,7 +102,7 @@ static inline int knh_pow2(int n)
 //static int knh_qsort(void *d1, void *d2 ,knh_Closure_t* cc)
 //{
 //	Ctx *ctx = knh_getCurrentContext();
-//	knh_sfp_t *lsfp = KNH_LOCAL(ctx);
+//	knh_sfp_t *lsfp = BEGIN_LOCAL(ctx);
 //	Object *arg1 = (Object *)new_Int(ctx,(int)d1);
 //	Object *arg2 = (Object *)new_Int(ctx,(int)d2);
 //	knh_putsfp(ctx, lsfp, 2, arg1);

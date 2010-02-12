@@ -42,6 +42,7 @@ extern "C" {
 
 static METHOD Connection_new(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_Connection_t *o = (knh_Connection_t*)sfp[0].o;
 	knh_Connection_open(ctx, o, (knh_String_t*)sfp[1].s);
 	KNH_RETURN(ctx, sfp, sfp[0].o);
@@ -52,6 +53,7 @@ static METHOD Connection_new(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Connection_query(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_Connection_t *c = (knh_Connection_t*)sfp[0].o;
 	knh_String_t *query = (knh_String_t*)sfp[1].o;
 	knh_ResultSet_t *rs = new_ResultSet(ctx);
@@ -74,6 +76,7 @@ static METHOD Connection_query(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Connection_exec(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_Connection_t *c = (knh_Connection_t*)sfp[0].o;
 	knh_String_t *query = (knh_String_t*)sfp[1].o;
 	(c)->df->dbquery(ctx, (c)->conn, __tobytes(query), NULL);
@@ -85,6 +88,7 @@ static METHOD Connection_exec(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD Connection_close(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_Connection_close(ctx, (knh_Connection_t*)sfp[0].o);
 	KNH_RETURN_void(ctx, sfp);
 }
@@ -94,8 +98,9 @@ static METHOD Connection_close(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD ResultSet_getSize(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_ResultSet_t *o = (knh_ResultSet_t*)sfp[0].o;
-	KNH_RETURN_Int(ctx, sfp, DP(o)->column_size);
+	KNH_RETURNi(ctx, sfp, DP(o)->column_size);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -103,7 +108,8 @@ static METHOD ResultSet_getSize(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD ResultSet_next(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
-	KNH_RETURN_Boolean(ctx, sfp, knh_ResultSet_next(ctx, (knh_ResultSet_t*)sfp[0].o))
+	KNH_CHKESP(ctx, sfp);
+	KNH_RETURNb(ctx, sfp, knh_ResultSet_next(ctx, (knh_ResultSet_t*)sfp[0].o))
 }
 
 /* ------------------------------------------------------------------------ */
@@ -111,6 +117,7 @@ static METHOD ResultSet_next(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD ResultSet_getName(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_ResultSet_t *o = (knh_ResultSet_t*)sfp[0].o;
 	size_t n = p_size(sfp[1]);
 	knh_String_t *v = TS_EMPTY;
@@ -154,8 +161,10 @@ int knh_ResultSet_indexof_(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD ResultSet_getInt(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	int n = knh_ResultSet_indexof_(ctx, sfp);
 	knh_int_t res = 0;
+	Object *v = (Object*)KNH_INT0;
 	if(n >= 0) {
 		knh_ResultSet_t *o = (knh_ResultSet_t*)sfp[0].o;
 		char *p = knh_Bytes_tochar(DP(o)->databuf) + DP(o)->column[n].start;
@@ -166,13 +175,10 @@ static METHOD ResultSet_getInt(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 			res = (knh_int_t)(*((knh_float_t*)p));
 		case knh_ResultSet_CTYPE__null :
 		default:
-			goto L_RETURN_NULL;
+			v = KNH_NULL;
 		}
 	}
-	KNH_RETURN_NNInt(ctx, sfp, res);
-
-	L_RETURN_NULL:;
-	KNH_RETURN(ctx, sfp, KNH_NULL);
+	KNH_RETURN_Int(ctx, sfp, res, v);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -180,8 +186,10 @@ static METHOD ResultSet_getInt(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD ResultSet_getFloat(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	int n = knh_ResultSet_indexof_(ctx, sfp);
 	knh_float_t res = 0;
+	Object *v = (Object*)KNH_FLOAT0;
 	if(n >= 0) {
 		knh_ResultSet_t *o = (knh_ResultSet_t*)sfp[0].o;
 		char *p = knh_Bytes_tochar(DP(o)->databuf) + DP(o)->column[n].start;
@@ -192,13 +200,10 @@ static METHOD ResultSet_getFloat(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 			res = (*((knh_float_t*)p));
 		case knh_ResultSet_CTYPE__null :
 		default:
-			goto L_RETURN_NULL;
+			v = KNH_NULL;
 		}
 	}
-	KNH_RETURN_NNFloat(ctx, sfp, res);
-
-	L_RETURN_NULL:;
-	KNH_RETURN(ctx, sfp, KNH_NULL);
+	KNH_RETURN_Float(ctx, sfp, res, v);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -206,6 +211,7 @@ static METHOD ResultSet_getFloat(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD ResultSet_getString(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	int n = knh_ResultSet_indexof_(ctx, sfp);
 	Object *v = KNH_NULL;
 	if(n >= 0) {
@@ -219,6 +225,7 @@ static METHOD ResultSet_getString(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 static METHOD ResultSet_get(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	int n = knh_ResultSet_indexof_(ctx, sfp);
 	Object *v = KNH_NULL;
 	if(n >= 0) {
@@ -226,9 +233,9 @@ static METHOD ResultSet_get(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 		char *p = knh_Bytes_tochar(DP(o)->databuf) + DP(o)->column[n].start;
 		switch(DP(o)->column[n].ctype) {
 		case knh_ResultSet_CTYPE__integer :
-			KNH_RETURN_NNInt(ctx, sfp, (*((knh_int_t*)p)));
+			KNH_RETURN_Int(ctx, sfp, (*((knh_int_t*)p)), KNH_INT0);
 		case knh_ResultSet_CTYPE__float :
-			KNH_RETURN_NNFloat(ctx, sfp, (*((knh_float_t*)p)));
+			KNH_RETURN_Float(ctx, sfp, (*((knh_float_t*)p)), KNH_FLOAT0);
 		case knh_ResultSet_CTYPE__text :
 			v = UP(new_String(ctx, B2(knh_Bytes_tochar(DP(o)->databuf) + DP(o)->column[n].start, DP(o)->column[n].len), NULL));
 			break;
@@ -286,6 +293,7 @@ static void knh_ResultSet__dump(Ctx *ctx, knh_ResultSet_t *o, knh_OutputStream_t
 
 static METHOD ResultSet_close(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 {
+	KNH_CHKESP(ctx, sfp);
 	knh_ResultSet_close(ctx, (knh_ResultSet_t*)sfp[0].o);
 	KNH_RETURN_void(ctx, sfp);
 }

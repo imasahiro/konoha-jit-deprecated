@@ -6,12 +6,12 @@
 
 #undef KLR_HALT
 #define KLR_HALT JIT_ASM_HALT
-#undef KLR_MOVa
-#define KLR_MOVa JIT_ASM_MOVa
-#undef KLR_MOVn
-#define KLR_MOVn JIT_ASM_MOVn
-#undef KLR_MOVo
-#define KLR_MOVo JIT_ASM_MOVo
+#undef KLR_MOV
+#define KLR_MOV JIT_ASM_MOV
+#undef KLR_NMOV
+#define KLR_NMOV JIT_ASM_NMOV
+#undef KLR_SET
+#define KLR_SET JIT_ASM_SET
 #undef KLR_MOVi
 #define KLR_MOVi JIT_ASM_MOVi
 #undef KLR_MOVx
@@ -22,54 +22,54 @@
 #define KLR_MOVSYS JIT_ASM_MOVSYS
 #undef KLR_XMOVs
 #define KLR_XMOVs JIT_ASM_XMOVs
-#undef KLR_XMOVo
-#define KLR_XMOVo JIT_ASM_XMOVo
+#undef KLR_XSET
+#define KLR_XSET JIT_ASM_XSET
 #undef KLR_XMOVx
 #define KLR_XMOVx JIT_ASM_XMOVx
 #undef KLR_XMOVDEF
 #define KLR_XMOVDEF JIT_ASM_XMOVDEF
 #undef KLR_XMOVSYS
 #define KLR_XMOVSYS JIT_ASM_XMOVSYS
-#undef KLR_MOVxi
-#define KLR_MOVxi JIT_ASM_MOVxi
-#undef KLR_XMOVsi
-#define KLR_XMOVsi JIT_ASM_XMOVsi
-#undef KLR_XMOVoi
-#define KLR_XMOVoi JIT_ASM_XMOVoi
-#undef KLR_XMOVxi
-#define KLR_XMOVxi JIT_ASM_XMOVxi
-#undef KLR_XMOVxio
-#define KLR_XMOVxio JIT_ASM_XMOVxio
-#undef KLR_XMOVxBXi
-#define KLR_XMOVxBXi JIT_ASM_XMOVxBXi
-#undef KLR_MOVxf
-#define KLR_MOVxf JIT_ASM_MOVxf
-#undef KLR_XMOVsf
-#define KLR_XMOVsf JIT_ASM_XMOVsf
-#undef KLR_XMOVof
-#define KLR_XMOVof JIT_ASM_XMOVof
-#undef KLR_XMOVxf
-#define KLR_XMOVxf JIT_ASM_XMOVxf
-#undef KLR_XMOVxfo
-#define KLR_XMOVxfo JIT_ASM_XMOVxfo
-#undef KLR_XMOVxBXf
-#define KLR_XMOVxBXf JIT_ASM_XMOVxBXf
-#undef KLR_MOVxb
-#define KLR_MOVxb JIT_ASM_MOVxb
-#undef KLR_XMOVsb
-#define KLR_XMOVsb JIT_ASM_XMOVsb
-#undef KLR_XMOVob
-#define KLR_XMOVob JIT_ASM_XMOVob
-#undef KLR_XMOVxb
-#define KLR_XMOVxb JIT_ASM_XMOVxb
+#undef KLR_IMOVx
+#define KLR_IMOVx JIT_ASM_IMOVx
+#undef KLR_XIMOV
+#define KLR_XIMOV JIT_ASM_XIMOV
+#undef KLR_XSETi
+#define KLR_XSETi JIT_ASM_XSETi
+#undef KLR_XIMOVx
+#define KLR_XIMOVx JIT_ASM_XIMOVx
+#undef KLR_XIMOVxo
+#define KLR_XIMOVxo JIT_ASM_XIMOVxo
+#undef KLR_XbMOVxXi
+#define KLR_XbMOVxXi JIT_ASM_XbMOVxXi
+#undef KLR_fMOVx
+#define KLR_fMOVx JIT_ASM_fMOVx
+#undef KLR_XFMOV
+#define KLR_XFMOV JIT_ASM_XFMOV
+#undef KLR_XSETf
+#define KLR_XSETf JIT_ASM_XSETf
+#undef KLR_XfMOVx
+#define KLR_XfMOVx JIT_ASM_XfMOVx
+#undef KLR_XfMOVxo
+#define KLR_XfMOVxo JIT_ASM_XfMOVxo
+#undef KLR_XbMOVxXf
+#define KLR_XbMOVxXf JIT_ASM_XbMOVxXf
+#undef KLR_bMOVx
+#define KLR_bMOVx JIT_ASM_bMOVx
+#undef KLR_XBMOV
+#define KLR_XBMOV JIT_ASM_XBMOV
+#undef KLR_XSETb
+#define KLR_XSETb JIT_ASM_XSETb
+#undef KLR_XbMOVx
+#define KLR_XbMOVx JIT_ASM_XbMOVx
 #undef KLR_SWAP
 #define KLR_SWAP JIT_ASM_SWAP
-#undef KLR_PARAMDEF
-#define KLR_PARAMDEF JIT_ASM_PARAMDEF
+#undef KLR_PARAMcid
+#define KLR_PARAMcid JIT_ASM_PARAMcid
 #undef KLR_PARAMo
 #define KLR_PARAMo JIT_ASM_PARAMo
-#undef KLR_PARAMPROP
-#define KLR_PARAMPROP JIT_ASM_PARAMPROP
+#undef KLR_PARAMprop
+#define KLR_PARAMprop JIT_ASM_PARAMprop
 #undef KLR_PARAMS
 #define KLR_PARAMS JIT_ASM_PARAMS
 #undef KLR_CHKESP
@@ -128,16 +128,16 @@
 #define KLR_JMP JIT_ASM_JMP
 #undef KLR_SKIP
 #define KLR_SKIP JIT_ASM_SKIP
-#undef KLR_bJIFT
-#define KLR_bJIFT JIT_ASM_bJIFT
+#undef KLR_bJMPT
+#define KLR_bJMPT JIT_ASM_bJMPT
 #undef KLR_bJIFF
 #define KLR_bJIFF JIT_ASM_bJIFF
 #undef KLR_bJIFF_LOOP
 #define KLR_bJIFF_LOOP JIT_ASM_bJIFF_LOOP
-#undef KLR_JIFNUL
-#define KLR_JIFNUL JIT_ASM_JIFNUL
-#undef KLR_JIFNN
-#define KLR_JIFNN JIT_ASM_JIFNN
+#undef KLR_JMPNUL
+#define KLR_JMPNUL JIT_ASM_JMPNUL
+#undef KLR_JMPNN
+#define KLR_JMPNN JIT_ASM_JMPNN
 #undef KLR_NEXT
 #define KLR_NEXT JIT_ASM_NEXT
 #undef KLR_INEXT

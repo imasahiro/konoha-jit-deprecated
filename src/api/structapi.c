@@ -2471,17 +2471,17 @@ static Object *knh_System_fdefault(Ctx *ctx, knh_class_t cid)
 
 static void knh_setDefaultValues(Ctx *ctx)
 {
-	knh_setClassDefaultValue(ctx, CLASS_Boolean, UP(KNH_FALSE), NULL);
-	knh_setClassDefaultValue(ctx, CLASS_Class, UP(new_Type(ctx, CLASS_Object)), NULL);
+	knh_setClassDefaultValue(ctx, CLASS_Boolean, KNH_FALSE, NULL);
+	knh_setClassDefaultValue(ctx, CLASS_Class, new_Type(ctx, CLASS_Object), NULL);
 	{
 		knh_Semantics_t *u = (knh_Semantics_t*)new_Object_bcid(ctx, CLASS_Semantics, 0);
 		KNH_INITv(DP(u)->ivalue, KNH_INT0);
 		KNH_INITv(DP(u)->fvalue, KNH_FLOAT0);
 		KNH_INITv(DP(u)->svalue, TS_EMPTY);
-		knh_setClassDefaultValue(ctx, CLASS_Semantics, UP(u), NULL);
-		knh_setClassDefaultValue(ctx, CLASS_Int,    UP(u), knh_Int_fdefault);
-		knh_setClassDefaultValue(ctx, CLASS_Float,  UP(u), knh_Float_fdefault);
-		knh_setClassDefaultValue(ctx, CLASS_String, UP(u), knh_String_fdefault);
+		knh_setClassDefaultValue(ctx, CLASS_Semantics, u, NULL);
+		knh_setClassDefaultValue(ctx, CLASS_Int,    u, knh_Int_fdefault);
+		knh_setClassDefaultValue(ctx, CLASS_Float,  u, knh_Float_fdefault);
+		knh_setClassDefaultValue(ctx, CLASS_String, u, knh_String_fdefault);
 	}
 
 	// load file/socket/regex/db drivers
@@ -2572,7 +2572,7 @@ void knh_loadMethodData0(Ctx *ctx, knh_MethodData0_t *data, knh_MethodField_t **
 		if(knh_class_isSingleton(data->cid)) {
 			DP(mtd)->flag = DP(mtd)->flag | FLAG_Method_Static;
 		}
-		knh_Array_add(ctx, ClassTable(data->cid).methods, UP(mtd));
+		knh_Array_add_(ctx, ClassTable(data->cid).methods, UP(mtd));
 		data++;
 	}
 }

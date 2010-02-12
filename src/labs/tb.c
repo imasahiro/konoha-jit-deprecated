@@ -5,7 +5,7 @@
 #include "commons.h"
 #ifdef KONOHA_ON_TB
 #include <tk/syslib.h>
-#include <btron/tkcall.h>
+#include <btron/tVCALL.h>
 #include <tstring.h>
 #define DN_LECHIP -200
 #define DN_LEMode  -200

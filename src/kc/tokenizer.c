@@ -465,10 +465,10 @@ void knh_Token_join(Ctx *ctx, knh_Token_t *o)
 				i++;
 			}
 		}
-		knh_Array_add(ctx, newa, UP(tk0));
+		knh_Array_add_(ctx, newa, UP(tk0));
 	}
 	if(i < knh_Array_size(a)) {
-		knh_Array_add(ctx, newa, knh_Array_n(a, i));
+		knh_Array_add_(ctx, newa, knh_Array_n(a, i));
 	}
 
 	size = knh_Array_size(newa) - 1;

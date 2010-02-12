@@ -70,10 +70,11 @@ static MAPPER knh_Fmapper_null(Ctx *ctx, knh_sfp_t *sfp MAPPERARG)
 
 static MAPPER knh_Fmapper_method(Ctx *ctx, knh_sfp_t *sfp MAPPERARG)
 {
-	knh_Method_t *mtd = (knh_Method_t*)DP(sfp[1].mpr)->mapdata;
-	KNH_ASSERT(IS_Method(mtd));
-	KNH_SWAP(ctx, sfp, 1, 0);
-	KNH_SCALL(ctx, sfp, 0, mtd, /*args */0);
+	TODO();
+//	knh_Method_t *mtd = (knh_Method_t*)DP(sfp[1].mpr)->mapdata;
+//	KNH_ASSERT(IS_Method(mtd));
+//	KNH_SWAP(ctx, sfp, 1, 0);
+//	KNH_SCALL(ctx, sfp, 0, mtd, /*args */0);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -129,11 +130,11 @@ static MAPPER knh_Fmapper_mapmap(Ctx *ctx, knh_sfp_t *sfp MAPPERARG)
 	DBG2_ASSERT(IS_Mapper(mpr));
 	knh_Mapper_t *m1 = DP(mpr)->m1, *m2 = DP(mpr)->m2;
 	DBG2_ASSERT(IS_Mapper(m1));
-	KNH_MOV(ctx, sfp[1].o, m1);
+	klr_mov(ctx, sfp[1].o, m1);
 	(m1)->fmap_1(ctx, sfp);
 	if(IS_NOTNULL(sfp[0].o)) {
 		DBG2_ASSERT(IS_Mapper(m2));
-		KNH_MOV(ctx, sfp[1].o, m2);
+		klr_mov(ctx, sfp[1].o, m2);
 		(m2)->fmap_1(ctx, sfp);
 	}
 }

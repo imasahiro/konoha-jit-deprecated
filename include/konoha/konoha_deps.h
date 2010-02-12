@@ -171,33 +171,6 @@
 #define     KONOHA_FOLDER "Konoha"
 #endif
 
-//#ifdef KONOHA_ON_MINGW
-//#define 	KNH_USING_WIN32    1
-//#define 	KNH_USING_WINDOWS  1
-//#define 	KONOHA_OS_LINEFEED "\r\n"
-//#define     KNH_CC_EXPORT __declspec(dllexport)
-//#ifdef KNHAPI_IMPORTS
-//#define 	KNHAPI(T__) KNH_CC_EXPORT T__ __cdecl
-//#else
-//#define 	KNHAPI(T__) KNH_CC_EXPORT T__ __cdecl
-//#endif
-//#define 	KNH_EXPORTS(T__)  KNH_CC_EXPORT T__ __cdecl
-//#define 	KONOHA_OS_DLLEXT ".dll"
-//#define		KONOHA_OS_FILE_SEPARATOR '\\'
-//#ifndef HAVE_CONFIG_H
-//#define 	KNH_USING_ICONV       1
-//#define 	HAVE_LOCALCHARSET_H   1
-//#endif
-//#endif
-
-//#ifdef KONOHA_ON_CYGWIN
-//#define 	KNH_USING_POSIX    1
-//#define 	KNH_USING_UNIX     1
-//#define 	KNH_USING_REGEX    1
-//#define 	KONOHA_OS_LINEFEED "\r\n"
-//#define 	KONOHA_OS_DLLEXT ".dll.a"
-//#endif
-
 /* ======================================================================== */
 /* [TEABOARD] */
 
