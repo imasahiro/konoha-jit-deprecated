@@ -311,7 +311,7 @@ void JIT_OP_%s_(Ctx *ctx, knh_sfp_t* sfp%s)
 def write_common_c(f):
 	write_chapter(f, '[common]')
 	f.write('''
-	
+#define knh_write__flag(ctx, w, f)  knh_write_flag(ctx, w, f)	
 static void knh_write_opcode(Ctx *ctx, knh_OutputStream_t* w, int opcode)
 {
 	knh_printf(ctx, w, "%s(%d)", knh_opcode_tochar(opcode), (knh_intptr_t)opcode);
@@ -444,7 +444,7 @@ def write_kcftr(f, kc):
 static void %s_traverse(Ctx *ctx, knh_inst_t *c, knh_Ftraverse ftr)
 {
 	%s *op = (%s*)c; 
-	DBG2_ASSERT(op->opcode == %s);''' % (kc.name, kc.ctype, kc.ctype, kc.opcode))
+	DBG_ASSERT(op->opcode == %s);''' % (kc.name, kc.ctype, kc.ctype, kc.opcode))
 	c = 1;
 	for a in kc.tokens[1:]:
 		if a[0].isupper(): 
@@ -542,7 +542,7 @@ def write_exec(f):
 #define DISPATCH_START(pc) L_HEAD:;switch(KNH_OPCODE(pc)) {
 #define DISPATCH_END(pc) \
 	}\
-	KNH_WARNING(ctx, "unknown opcode=%d", KNH_OPCODE(pc)); \
+	KNH_SYSLOG(ctx, LOG_ERR, "unknown opcode=%d", KNH_OPCODE(pc)); \
 	goto L_HEAD;
 #endif/*KNH_USING_THREADEDCODE*/
 
@@ -563,7 +563,7 @@ knh_code_t* knh_VirtualMachine_run(Ctx *ctx, knh_sfp_t *sfp, knh_code_t *pc)
 #endif
 	int sfpidx = sfp - ctx->stack;
 	//register knh_code_t *pc = (sfp[-1].mtd)->pc_start;
-	//DBG2_ASSERT(IS_Method(sfp[-1].mtd));
+	//DBG_ASSERT(IS_Method(sfp[-1].mtd));
 	DISPATCH_START(pc);
 ''')
 	for kc in KCODE_LIST:

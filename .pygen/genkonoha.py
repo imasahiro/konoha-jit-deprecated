@@ -1,5 +1,5 @@
 #!/usr/bin/python 
-# This is a final python version of gen_konoha.py 
+# This is a final python version of genkonoha.py 
 
 import os, os.path, sys
 import time

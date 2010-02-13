@@ -446,7 +446,7 @@ static %s knh_%s_array_%s[] = {''' % (ctype, ttype, fn))
     f.write('''
 %s
 {
-    DBG2_ASSERT(t < KNH_%s_MAXSIZ);
+    DBG_ASSERT(t < KNH_%s_MAXSIZ);
     return knh_%s_array_%s[t];
 }
 ''' % (func, ttype.upper(), ttype, fn))
