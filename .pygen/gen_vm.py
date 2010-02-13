@@ -563,7 +563,7 @@ knh_code_t* knh_VirtualMachine_run(Ctx *ctx, knh_sfp_t *sfp, knh_code_t *pc)
 #endif
 	int sfpidx = sfp - ctx->stack;
 	//register knh_code_t *pc = (sfp[-1].mtd)->pc_start;
-	DBG2_ASSERT(IS_Method(sfp[-1].mtd));
+	//DBG2_ASSERT(IS_Method(sfp[-1].mtd));
 	DISPATCH_START(pc);
 ''')
 	for kc in KCODE_LIST:
@@ -603,15 +603,6 @@ def gen_vm_c(bdir):
 ''')
 	write_define_h(f)
 	f.write('#endif /* %s */\n' % 'konoha_code_h_'.upper());
-	f.close()
-
-	f = open('include/ijt/vm.h', 'w')
-	f.write('#ifndef %s\n' % 'ijt_vm_h_'.upper());
-	f.write('#define %s\n' % 'ijt_vm_h_'.upper());
-	f.write('''// THIS FILE WAS AUTOMATICALLY GENERATED
-''')
-	write_jit_def_h(f)
-	f.write('#endif /* %s */\n' % 'ijt_vm_h_'.upper());
 	f.close()
 
 
