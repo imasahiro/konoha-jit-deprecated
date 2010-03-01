@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -71,22 +71,29 @@ void *knh_cwb_dlopen(Ctx *ctx, knh_cwb_t *cwb)
 	DBG_P("knh_dlopen .. '%s'\n", file);
 	return dlopen(file, RTLD_LAZY);
 #elif defined(KNH_USING_BTRON)
-	// TODO
-        TC buff_tc[FILEPATH_BUFSIZ];
-        LINK lnk;
-        W err;
-	DBG_P("btron knh_dlopen .. '%s'\n", file);
-        eucstotcs(buff_tc, file);
-        err = b_get_lnk(buff_tc, &lnk, F_NORM);
-        if (err < 0) {
-            return NULL;
-        }
-        err = b_dlopen(&lnk, DL_LAZY);
-        if (err <= 0) {
-            return NULL;
-        }
-        // Be careful that BTRON dlopen handles are of type W, not void*!
-        return (void*)err;
+//	// YASHORO KUN ZENZEN WAKARIMASEN
+//        char buff[FILEPATH_BUFSIZ];
+//        TC buff_tc[FILEPATH_BUFSIZ];
+//        LINK lnk;
+//        W err;
+//	if(knh_bytes_endsWith(libname, STEXT(KONOHA_OS_DLLEXT))) {
+//		knh_format_ospath(ctx, buff, sizeof(buff), libname);
+//	}
+//	else {
+//		knh_format_ospath2(ctx, buff, sizeof(buff), libname, KONOHA_OS_DLLEXT);
+//	}
+//	DBG_P("knh_dlopen .. '%s'\n", buff);
+//        eucstotcs(buff_tc, buff);
+//        err = b_get_lnk(buff_tc, &lnk, F_NORM);
+//        if (err < 0) {
+//            return NULL;
+//        }
+//        err = b_dlopen(&lnk, DL_LAZY);
+//        if (err <= 0) {
+//            return NULL;
+//        }
+//        // Be careful that BTRON dlopen handles are of type W, not void*!
+//        return (void*)err;
 #else
 	return NULL;
 #endif
@@ -97,21 +104,18 @@ void *knh_cwb_dlopen(Ctx *ctx, knh_cwb_t *cwb)
 void *knh_dlsym(Ctx *ctx, void* hdr, const char* symbol)
 {
 #if defined(KNH_USING_WINDOWS)
-	return GetProcAddress((HMODULE)hdr, (LPCSTR)symbol);
+    return GetProcAddress((HMODULE)hdr, (LPCSTR)symbol);
 #elif defined(KNH_USING_POSIX)
-	return dlsym(hdr, symbol);
+    return dlsym(hdr, symbol);
 #elif defined(KNH_USING_BTRON)
-	UW val = NULL;
-	// FIXME
-	// If you call b_dlsym, it makes bad.
-	//W err = b_dlsym((W)hdr, symbol, &val);
-	W err = -1;
-	if (err < 0) {
-		return NULL;
-	}
-	return (void*)val;
+    UW val = NULL;
+    W err = b_dlsym((W)hdr, symbol, &val);
+    if (err < 0) {
+        return NULL;
+    }
+    return val;
 #else
-	return NULL;
+    return NULL;
 #endif
 }
 

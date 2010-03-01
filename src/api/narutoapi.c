@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -43,18 +43,37 @@ extern "C" {
 /* ------------------------------------------------------------------------ */
 //## @Hidden @Static method Boolean! Script.isStmt(String! script);
 
-static METHOD Script_isStmt(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Script_isStmt(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
-	KNH_RETURNb(ctx, sfp, !(knh_bytes_checkStmtLine(__tobytes(sfp[1].s))));
+	KNH_RETURN_Boolean(ctx, sfp, !(knh_bytes_checkStmtLine(__tobytes(sfp[1].s))));
+}
+
+/* ------------------------------------------------------------------------ */
+//## @Hidden @Static method void Script.eval(String script);
+
+static METHOD Script_eval(Ctx *ctx, knh_sfp_t *sfp)
+{
+	if(IS_NOTNULL(sfp[1].s)) {
+		knh_sfp_t *lsfp = KNH_LOCAL(ctx);
+		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
+		knh_cwb_write(ctx, cwb, __tobytes(sfp[1].s));
+		knh_cwb_putc(ctx, cwb, '\n');
+		knh_InputStream_t *in = new_BytesInputStream(ctx, cwb->ba, cwb->pos, knh_Bytes_size(cwb->ba));
+		KNH_LPUSH(ctx, in);
+		DP(in)->uri = URI_EVAL;
+		DP(in)->line = 0;
+		knh_NameSpace_load(ctx, ctx->share->mainns, in, 1/*isEval*/,0/*isThrowable*/);
+		knh_cwb_close(cwb);
+		KNH_LOCALBACK(ctx, lsfp);
+	}
+	KNH_RETURN_void(ctx, sfp);
 }
 
 /* ------------------------------------------------------------------------ */
 //## @Static method String Script.readLine(String prompt);
 
-static METHOD Script_readLine(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Script_readLine(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	char *line;
 	if(IS_NULL(sfp[1].o)) {
 		line = knh_readline("");
@@ -73,97 +92,68 @@ static METHOD Script_readLine(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## @Static method void Script.addHistory(String! line);
 
-static METHOD Script_addHistory(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Script_addHistory(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	knh_add_history(__tochar(sfp[1].s));
 	KNH_RETURN_void(ctx, sfp);
 }
 
-///* ------------------------------------------------------------------------ */
-////## @Static method void System.setMethodTypingListener(Closure c, String anno);
-//
-//static METHOD System_setMethodTypingListener(Ctx *ctx, knh_sfp_t *sfp METHODARG)
-//{
-//	knh_String_t *key;
-//	if(IS_NULL(sfp[2].s)) {
-//		key = T__("MethodT");
-//	}
-//	else {
-//		knh_cwb_t cwbbuf, *cwb = knh_cwb_openinit(ctx, &cwbbuf, STEXT("MethodT"));
-//		knh_bytes_t anno = __tobytes(sfp[2].s);
-//		if(anno.buf[0] != '@') {
-//			knh_cwb_putc(ctx, cwb, '@');
-//		}
-//		knh_cwb_write(ctx, cwb, anno);
-//		key = knh_cwb_newString(ctx, cwb);
-//	}
-//	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
-//	{
-//		knh_DictMap_t *dm = DP(ctx->sys)->listenerDictMap;
-//		knh_DictMap_set(ctx, dm, key, sfp[1].o);
-//	}
-//	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
-//	KNH_RETURN_void(ctx, sfp);
-//}
-//
-///* ------------------------------------------------------------------------ */
-////## @Static method void System.setMethodCompilationListener(Closure c, String anno);
-//
-//static METHOD System_setMethodCompilationListener(Ctx *ctx, knh_sfp_t *sfp METHODARG)
-//{
-//	knh_String_t *key;
-//	if(IS_NULL(sfp[2].s)) {
-//		key = T__("MethodC");
-//	}
-//	else {
-//		knh_cwb_t cwbbuf, *cwb = knh_cwb_openinit(ctx, &cwbbuf, STEXT("MethodC"));
-//		knh_bytes_t anno = __tobytes(sfp[2].s);
-//		if(anno.buf[0] != '@') {
-//			knh_cwb_putc(ctx, cwb, '@');
-//		}
-//		knh_cwb_write(ctx, cwb, anno);
-//		key = knh_cwb_newString(ctx, cwb);
-//	}
-//	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
-//	{
-//		knh_DictMap_t *dm = DP(ctx->sys)->listenerDictMap;
-//		knh_DictMap_set(ctx, dm, key, sfp[1].o);
-//	}
-//	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
-//	KNH_RETURN_void(ctx, sfp);
-//}
-
 /* ------------------------------------------------------------------------ */
-//## method Int Method.getProfTime();
+//## @Static method void System.setMethodTypingListener(Closure c, String anno);
 
-static METHOD Method_getProfTime(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD System_setMethodTypingListener(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
-	knh_Method_t *mtd = sfp[0].mtd;
-	KNH_RETURNi(ctx, sfp, DP(mtd)->prof_time);
+	knh_String_t *key;
+	if(IS_NULL(sfp[2].s)) {
+		key = T__("MethodT");
+	}
+	else {
+		knh_cwb_t cwbbuf, *cwb = knh_cwb_openinit(ctx, &cwbbuf, STEXT("MethodT"));
+		knh_bytes_t anno = __tobytes(sfp[2].s);
+		if(anno.buf[0] != '@') {
+			knh_cwb_putc(ctx, cwb, '@');
+		}
+		knh_cwb_write(ctx, cwb, anno);
+		key = knh_cwb_newString(ctx, cwb);
+	}
+	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
+	{
+		knh_DictMap_t *dm = DP(ctx->sys)->listenerDictMap;
+		knh_DictMap_set(ctx, dm, key, sfp[1].o);
+	}
+	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
+	KNH_RETURN_void(ctx, sfp);
 }
 
 /* ------------------------------------------------------------------------ */
-//## method Int Method.getProfCount();
+//## @Static method void System.setMethodCompilationListener(Closure c, String anno);
 
-static METHOD Method_getProfCount(Ctx *ctx, knh_sfp_t *sfp)
+static METHOD System_setMethodCompilationListener(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
-	knh_Method_t *mtd = sfp[0].mtd;
-	KNH_RETURNi(ctx, sfp, DP(mtd)->prof_count);
+	knh_String_t *key;
+	if(IS_NULL(sfp[2].s)) {
+		key = T__("MethodC");
+	}
+	else {
+		knh_cwb_t cwbbuf, *cwb = knh_cwb_openinit(ctx, &cwbbuf, STEXT("MethodC"));
+		knh_bytes_t anno = __tobytes(sfp[2].s);
+		if(anno.buf[0] != '@') {
+			knh_cwb_putc(ctx, cwb, '@');
+		}
+		knh_cwb_write(ctx, cwb, anno);
+		key = knh_cwb_newString(ctx, cwb);
+	}
+	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
+	{
+		knh_DictMap_t *dm = DP(ctx->sys)->listenerDictMap;
+		knh_DictMap_set(ctx, dm, key, sfp[1].o);
+	}
+	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
+	KNH_RETURN_void(ctx, sfp);
 }
 
 /* ------------------------------------------------------------------------ */
-//## method Int System.getTime();
 
-static METHOD System_getTime(Ctx *ctx, knh_sfp_t *sfp)
-{
-	KNH_CHKESP(ctx, sfp);
-	KNH_RETURNi(ctx, sfp, knh_getTimeMilliSecond());
-}
-
-/* ------------------------------------------------------------------------ */
 #endif/* KNH_CC_METHODAPI*/
 
 #ifdef __cplusplus

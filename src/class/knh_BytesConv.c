@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -229,7 +229,7 @@ knh_String_t *new_String__cwbconv(Ctx *ctx, knh_cwb_t *cwb, knh_BytesConv_t *bc)
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(knh_String_t*) new_String__fbcnv(Ctx *ctx, knh_String_t *s, knh_Fbyteconv fbcnv, knh_BytesConv_t *bc)
+KNHAPI(knh_String_t*) new_String__fbcnv(Ctx *ctx, knh_String_t *s, knh_fbyteconv fbcnv, knh_BytesConv_t *bc)
 {
 	knh_bytes_t base = __tobytes(s);
 	knh_Bytes_t *ba = knh_Context_openBConvBuf(ctx);

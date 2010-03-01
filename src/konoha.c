@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -31,10 +31,26 @@
 extern "C" {
 #endif
 
-int main(int argc, char **argv)
+int
+main(int argc, char **argv)
 {
 #if defined(KNH_USING_BTRON)
-	char **args = knh_tcstoeucs(argc, argv);
+	char buf[4096];
+	char* args[256];
+	int i, pos = 0, len;
+
+	for (i = 0; i < argc; i++) {
+		args[i] = buf + pos;
+		len = tcstoeucs(args[i], (TC*)argv[i]);
+		if (len >= 0) {
+			pos += (len + 1);
+		}
+		else {
+			buf[pos] = '\0';
+			pos++;
+		}
+	}
+	args[argc] = NULL;
 #else
 	char** args = (char**) argv;
 #endif
@@ -44,19 +60,12 @@ int main(int argc, char **argv)
 		konoha_shell(konoha);
 	}
 	else {
-		if(konoha_load(konoha, args[n]) != -1) {
-			knh_setArgv(konoha.ctx, argc-n, args+n);
+		if(konoha_loadScript(konoha, args[n]) != -1) {
 			if(!knh_Context_isCompiling(konoha.ctx)) {
 				konoha_runMain(konoha, argc - n, args + n);
 				if(knh_isToInteractiveMode()) {
 					konoha_shell(konoha);
 				}
-			}
-			else {
-//				knh_Gamma_t *kc = (konoha.ctx)->kc;
-//				int score = DP(kc)->statKonohaStyle - DP(kc)->statBadManner;
-//				score = score * 1000 / (DP(kc)->statStmt);
-//				fprintf(stdout, "source score: %d\n", score);
 			}
 		}
 		else {
@@ -66,6 +75,7 @@ int main(int argc, char **argv)
 	konoha_close(konoha);
 	return 0;
 }
+
 
 #ifdef __cplusplus
 }

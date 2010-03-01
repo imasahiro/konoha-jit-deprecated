@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -248,7 +248,7 @@ KNHAPI(void) knh_ResultSet_setNULL(Ctx *ctx, knh_ResultSet_t *o, size_t n)
 knh_int_t knh_ResultSet_getInt(Ctx *ctx, knh_ResultSet_t *o, size_t n)
 {
 	KNH_ASSERT(n < DP(o)->column_size);
-	char *p = knh_Bytes_tochar(DP(o)->databuf) + DP(o)->column[n].start;
+	char *p = knh_Bytes__tochar(DP(o)->databuf) + DP(o)->column[n].start;
 	switch(DP(o)->column[n].ctype) {
 	case knh_ResultSet_CTYPE__null :
 		return 0;
@@ -268,7 +268,7 @@ knh_int_t knh_ResultSet_getInt(Ctx *ctx, knh_ResultSet_t *o, size_t n)
 knh_float_t knh_ResultSet_getFloat(Ctx *ctx, knh_ResultSet_t *o, size_t n)
 {
 	KNH_ASSERT(n < DP(o)->column_size);
-	char *p = knh_Bytes_tochar(DP(o)->databuf) + DP(o)->column[n].start;
+	char *p = knh_Bytes__tochar(DP(o)->databuf) + DP(o)->column[n].start;
 	switch(DP(o)->column[n].ctype) {
 	case knh_ResultSet_CTYPE__null :
 		return 0.0;
@@ -288,7 +288,7 @@ knh_float_t knh_ResultSet_getFloat(Ctx *ctx, knh_ResultSet_t *o, size_t n)
 knh_String_t* knh_ResultSet_getString(Ctx *ctx, knh_ResultSet_t *o, size_t n)
 {
 	KNH_ASSERT(n < DP(o)->column_size);
-	char *p = knh_Bytes_tochar(DP(o)->databuf) + DP(o)->column[n].start;
+	char *p = knh_Bytes__tochar(DP(o)->databuf) + DP(o)->column[n].start;
 	switch(DP(o)->column[n].ctype) {
 	case knh_ResultSet_CTYPE__null :
 		return (knh_String_t*)KNH_NULL;
@@ -310,7 +310,7 @@ knh_String_t* knh_ResultSet_getString(Ctx *ctx, knh_ResultSet_t *o, size_t n)
 //	int i;
 //	knh_class_t cid = knh_Object_cid(t);
 //	for(i = 0; i <knh_tclass_bsize(cid); i++) {
-//		knh_fields_t *cf = knh_Class_fieldAt(ctx, cid, i);
+//		knh_cfield_t *cf = knh_Class_fieldAt(ctx, cid, i);
 //		knh_struct_t topsid = knh_tclass_topsid(CLASS_type(cf->type));
 //		if(0 < topsid && topsid < CLASS_Prototype ) {
 //			KNH_SETv(ctx, t->v[i], (Tuple*)new_Object__cid(ctx, 0, CLASS_type(cf->type)));
@@ -337,7 +337,7 @@ knh_String_t* knh_ResultSet_getString(Ctx *ctx, knh_ResultSet_t *o, size_t n)
 //	knh_resultset_index(ctx, t, index, 0, sizeof(index)/sizeof(Object**));
 //
 //	for(i = 0; i < knh_tclass_bsize(tcid); i++) {
-//		knh_fields_t *cf = knh_Class_fieldAt(ctx, tcid, i);
+//		knh_cfield_t *cf = knh_Class_fieldAt(ctx, tcid, i);
 //		Object *o = knh_ResultSet_get(ctx, rs, i);
 //		if(knh_Object_opInstanceof(ctx, o, cf->type)) {
 //			KNH_SETv(ctx, index[i], o);

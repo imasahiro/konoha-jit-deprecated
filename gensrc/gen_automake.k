@@ -1,5 +1,5 @@
 #!/usr/local/bin/konoha
-include "walk.k"
+import "walk.k"
 /*
  * gen_automake.k
  * masahiro@ynu 2009
@@ -36,7 +36,7 @@ AM_CPPFLAGS = -I../include
 libkonoha_la_SOURCES = 
 """);
 
-	foreach (String p in System.walk("./src")) {
+	foreach (String p in System.walk("./src")..) {
 		if(p.indexOf(".svn") >= 0) continue;
 		if(p.endsWith(".c") == false ) continue;
 		if(p.endsWith("konoha.c")) continue;
@@ -54,7 +54,7 @@ libkonoha_la_SOURCES =
 	o.println("libkonoha_la_includekonohadir = $(includedir)/../include/konoha");
 	o.println("libkonoha_la_includekonoha_HEADERS =");
 
-	foreach (String p in System.walk("./include/konoha")) {
+	foreach (String p in System.walk("./include/konoha")..) {
 		if(p.indexOf(".svn") >= 0) continue;
 		if(p.endsWith(".h") == false ) continue;
 		if(p.endsWith("konoha.h")) continue;
@@ -77,7 +77,7 @@ libkonoha_la_SOURCES =
 	o.println("sampledir = $(prefix)/konoha/sample");
 	o.println("dist_sample_SCRIPTS =");
 
-	foreach (String p in System.walk("./dist/sample")) {
+	foreach (String p in System.walk("./dist/sample")..) {
 		if(p.indexOf(".svn") >= 0) continue;
 		if(p.endsWith(".k") == false ) continue;
 		if(p.endsWith("konoha.h")) continue;

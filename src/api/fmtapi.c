@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -41,7 +41,7 @@ extern "C" {
 /* [utils] */
 
 static
-int knh_stack_isRecuriveFormatting(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+int knh_stack_isRecuriveFormatting(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_sfp_t *sp = sfp - 3;
 	while(ctx->stack < sp) {
@@ -62,8 +62,20 @@ void knh_stack_reformat(Ctx *ctx, knh_sfp_t *sfp, knh_methodn_t fmt)
 }
 
 static
+void knh_write_bool(Ctx *ctx, knh_OutputStream_t *w, int b)
+{
+	if(b) {
+		knh_write(ctx, w, __tobytes(TS_true));
+	}
+	else {
+		knh_write(ctx, w, __tobytes(TS_false));
+	}
+}
+
+static
 void knh_write_ObjectField(Ctx *ctx, knh_OutputStream_t *w, Object **v, size_t i, knh_type_t type, knh_methodn_t mn)
 {
+#ifdef KNH_USING_UNBOXFIELD
 	if(IS_ubxint(type)) {
 		knh_int_t *data = (knh_int_t*)(v + i);
 		knh_write_ifmt(ctx, w, KNH_INT_FMT, data[0]);
@@ -76,7 +88,9 @@ void knh_write_ObjectField(Ctx *ctx, knh_OutputStream_t *w, Object **v, size_t i
 		knh_bool_t *data = (knh_bool_t*)(v + i);
 		knh_write_bool(ctx, w, data[0]);
 	}
-	else{
+	else
+#endif
+	{
 		knh_format(ctx, w, mn, v[i], KNH_NULL);
 	}
 }
@@ -87,7 +101,7 @@ void knh_write_ObjectField(Ctx *ctx, knh_OutputStream_t *w, Object **v, size_t i
 /* ------------------------------------------------------------------------ */
 //## method void Object.%empty(OutputStream w, String? fmt);
 
-static METHOD Object__empty(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Object__empty(Ctx *ctx, knh_sfp_t *sfp)
 {
 	if(knh_Context_isDebug(ctx)) {
 		knh_printf(ctx, sfp[1].w, "@Debug %%empty(%s)", CLASSNo(sfp[0].o));
@@ -100,7 +114,7 @@ static METHOD Object__empty(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void Object.%s(OutputStream w, String? fmt);
 
-static METHOD Object__s(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Object__s(Ctx *ctx, knh_sfp_t *sfp)
 {
 //	if(IS_NULL(b)) {
 //		knh_write(ctx, w, STEXT("null"));
@@ -118,7 +132,7 @@ static METHOD Object__s(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 //## method void Boolean.%data(OutputStream w, String? fmt);
 //## method void Boolean.%dump(OutputStream w, String? fmt);
 
-static METHOD Boolean__s(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Boolean__s(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_write_bool(ctx, sfp[1].w, p_bool(sfp[0]));
 }
@@ -126,7 +140,7 @@ static METHOD Boolean__s(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void Int.%s(OutputStream w, String? fmt);
 
-static METHOD Int__s(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Int__s(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_write_ifmt(ctx, sfp[1].w, KNH_INT_FMT, sfp[0].ivalue);
 }
@@ -171,7 +185,7 @@ void knh_write_quote(Ctx *ctx, knh_OutputStream_t *w, knh_bytes_t t, int quote)
 /* ------------------------------------------------------------------------ */
 //## method void String.%s(OutputStream w, String? fmt);
 
-static METHOD String__s(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD String__s(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_print(ctx, sfp[1].w, __tobytes(sfp[0].s));
 }
@@ -179,7 +193,7 @@ static METHOD String__s(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void Bytes.%s(OutputStream w, String? fmt);
 
-static METHOD Bytes__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Bytes__k(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_printf(ctx, sfp[1].w, "byte[%d]", (sfp[0].ba)->size);
 }
@@ -187,7 +201,7 @@ static METHOD Bytes__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void Regex.%s(OutputStream w, String? fmt);
 
-static METHOD Regex__s(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Regex__s(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_write_quote(ctx, sfp[1].w, __tobytes(((knh_Regex_t*)sfp[0].o)->pattern), '/');
 }
@@ -195,7 +209,7 @@ static METHOD Regex__s(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void Class.%s(OutputStream w, String? fmt);
 
-static METHOD Class__s(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Class__s(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_write_ltype(ctx, sfp[1].w, knh_Object_cid(sfp[0].o));
 }
@@ -203,7 +217,7 @@ static METHOD Class__s(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void Method.%s(OutputStream w, String? fmt);
 
-static METHOD Method__s(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Method__s(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_write_cid(ctx, sfp[1].w, DP(sfp[0].mtd)->cid);
 	knh_putc(ctx, sfp[1].w, '.');
@@ -213,7 +227,7 @@ static METHOD Method__s(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void Exception.%s(OutputStream w, String? fmt);
 
-static METHOD Exception__s(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Exception__s(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_write_char(ctx, sfp[1].w, EXPTN(DP(sfp[0].e)->eid));
 	knh_write_char(ctx, sfp[1].w, "!!");
@@ -225,7 +239,7 @@ static METHOD Exception__s(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void Object.%k(OutputStream w, String? fmt);
 
-static METHOD Object__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Object__k(Ctx *ctx, knh_sfp_t *sfp)
 {
 	Object *o = sfp[0].o;
 	knh_OutputStream_t *w = sfp[1].w;
@@ -246,7 +260,7 @@ static METHOD Object__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 			Object **v = (Object**)o->ref;
 			knh_putc(ctx, w, '{');
 			for(i = 0; i < bsize; i++) {
-				knh_fields_t *cf = knh_Class_fieldAt(ctx, knh_Object_cid(o), i);
+				knh_cfield_t *cf = knh_Class_fieldAt(ctx, knh_Object_cid(o), i);
 				if(cf->fn == FIELDN_NONAME) break;
 				if(cf->fn == FIELDN_/*register*/) continue;
 				if(i > 0) {
@@ -266,9 +280,9 @@ static METHOD Object__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 //## method void Int.%data(OutputStream w, String? fmt);
 //## method void Int.%dump(OutputStream w, String? fmt);
 
-static METHOD Int__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Int__k(Ctx *ctx, knh_sfp_t *sfp)
 {
-	knh_Semantics_t *u = knh_getSemantics(ctx, knh_Object_cid(sfp[0].o));
+	knh_ClassSpec_t *u = knh_getClassSpec(ctx, knh_Object_cid(sfp[0].o));
 	knh_write_intx(ctx, sfp[1].w, u, sfp[0].ivalue);
 }
 
@@ -277,16 +291,16 @@ static METHOD Int__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 //## method void Float.%data(OutputStream w, String? fmt);
 //## method void Float.%dump(OutputStream w, String? fmt);
 
-static METHOD Float__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Float__k(Ctx *ctx, knh_sfp_t *sfp)
 {
-	knh_Semantics_t *u = knh_getSemantics(ctx, knh_Object_cid(sfp[0].o));
+	knh_ClassSpec_t *u = knh_getClassSpec(ctx, knh_Object_cid(sfp[0].o));
 	knh_write_floatx(ctx, sfp[1].w, u, p_float(sfp[0]));
 }
 
 /* ------------------------------------------------------------------------ */
 //## method void String.%k(OutputStream w, String? fmt);
 
-static METHOD String__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD String__k(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_write_quote(ctx, sfp[1].w, __tobytes(sfp[0].s), '"');
 }
@@ -294,14 +308,14 @@ static METHOD String__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void Iterator.%k(OutputStream w, String? fmt);
 
-static METHOD Iterator__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Iterator__k(Ctx *ctx, knh_sfp_t *sfp)
 {
 	size_t c = 0;
 	knh_Iterator_t *it = sfp[0].it;
 	knh_OutputStream_t *w = sfp[1].w;
 	int isInline = IS_NULL(sfp[2].o) ? 1 : 0;
-	klr_mov(ctx, sfp[4].o, sfp[1].w);
-	klr_mov(ctx, sfp[5].o, KNH_NULL);
+	KNH_MOV(ctx, sfp[4].o, sfp[1].w);
+	KNH_MOV(ctx, sfp[5].o, KNH_NULL);
 	while(it->fnext_1(ctx, sfp, 3)) {
 		if(c > 0) {
 			if(isInline && c > 7) {
@@ -311,7 +325,7 @@ static METHOD Iterator__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 			knh_write_EOL(ctx, sfp[1].w);
 		}
 		KNH_SETESP(ctx, sfp+6);
-		klr_mov(ctx, sfp[2].o, knh_lookupFormatter(ctx, knh_Object_cid(sfp[3].o), METHODN__k));
+		KNH_MOV(ctx, sfp[2].o, knh_lookupFormatter(ctx, knh_Object_cid(sfp[3].o), METHODN__k));
 		(sfp[2].mtd)->fcall_1(ctx, sfp+3);
 		c++;
 	}
@@ -320,7 +334,7 @@ static METHOD Iterator__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void Pair.%k(OutputStream w, String? fmt);
 
-static METHOD Pair__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Pair__k(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_OutputStream_t *w = sfp[1].w;
 	knh_putc(ctx, w, '(');
@@ -336,10 +350,26 @@ static METHOD Pair__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 	knh_putc(ctx, w, ')');
 }
 
+ /* ------------------------------------------------------------------------ */
+//## method void Pair.%data(OutputStream w, String? fmt);
+
+static METHOD Pair__data(Ctx *ctx, knh_sfp_t *sfp)
+{
+	knh_Pair_t *o = sfp[0].pair;
+	knh_OutputStream_t *w = sfp[1].w;
+	knh_write_begin(ctx, w, '(');
+	knh_write_BOL(ctx, w);
+	knh_format(ctx, w, METHODN__data, o->first, KNH_NULL);
+	knh_putc(ctx, w, ',');
+	knh_format(ctx, w, METHODN__data, o->second, KNH_NULL);
+	knh_write_end(ctx, w, ')');
+}
+
+
 /* ------------------------------------------------------------------------ */
 //## method void Tuple.%k(OutputStream w, String? fmt);
 
-static METHOD Tuple__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Tuple__k(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_Tuple_t *o = sfp[0].tuple;
 	knh_OutputStream_t *w = sfp[1].w;
@@ -355,12 +385,13 @@ static METHOD Tuple__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 		knh_format(ctx, w, METHODN__k, o->third, KNH_NULL);
 	}
 	else {
-		size_t i;
-		for(i = 0; i < o->size; i++) {
-			if(i > 0) {
+		size_t i, c = 0;
+		for(i = 0; o->size; i++) {
+			if(c > 0) {
 				knh_write_delim(ctx,w);
 			}
-			knh_format(ctx, w, METHODN__k, o->list[i], KNH_NULL);
+			knh_format(ctx, w, METHODN__k, o->list[c], KNH_NULL);
+			c++;
 		}
 	}
 	knh_putc(ctx, w, ')');
@@ -369,7 +400,7 @@ static METHOD Tuple__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void Range.%k(OutputStream w, String? fmt);
 
-static METHOD Range__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Range__k(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_Range_t *o = sfp[0].range;
 	knh_OutputStream_t *w = sfp[1].w;
@@ -388,7 +419,7 @@ static METHOD Range__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void Array.%k(OutputStream w, String? fmt);
 
-static METHOD Array__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Array__k(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_OutputStream_t *w = sfp[1].w;
 	knh_putc(ctx, w, '[');
@@ -416,7 +447,7 @@ static METHOD Array__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void IArray.%k(OutputStream w, String? fmt);
 
-static METHOD IArray__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD IArray__k(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_IArray_t *o = sfp[0].ia;
 	knh_OutputStream_t *w = sfp[1].w;
@@ -439,7 +470,7 @@ static METHOD IArray__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void FArray.%k(OutputStream w, String? fmt);
 
-static METHOD FArray__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD FArray__k(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_FArray_t *o = sfp[0].fa;
 	knh_OutputStream_t *w = sfp[1].w;
@@ -462,7 +493,7 @@ static METHOD FArray__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void DictMap.%k(OutputStream w, String? fmt);
 
-static METHOD DictMap__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD DictMap__k(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_OutputStream_t *w = sfp[1].w;
 	knh_putc(ctx, w, '{');
@@ -493,7 +524,8 @@ static METHOD DictMap__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void DictSet.%k(OutputStream w, String? fmt);
 
-static METHOD DictSet__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static
+METHOD DictSet__k(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_DictSet_t *o = sfp[0].dset;
 	knh_OutputStream_t *w = sfp[1].w;
@@ -517,7 +549,7 @@ static METHOD DictSet__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void DictIdx.%k(OutputStream w, String? fmt);
 
-static METHOD DictIdx__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD DictIdx__k(Ctx *ctx, knh_sfp_t *sfp)
 {
 	KNH_SETv(ctx, sfp[0].o, ((knh_DictIdx_t*)sfp[0].o)->terms);
 	Array__k(ctx, sfp);
@@ -526,7 +558,7 @@ static METHOD DictIdx__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void HashMap.%k(OutputStream w, String? fmt);
 
-static METHOD HashMap__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD HashMap__k(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_Hash_t *o = (knh_Hash_t*)sfp[0].o;
 	knh_OutputStream_t *w = sfp[1].w;
@@ -558,7 +590,7 @@ static METHOD HashMap__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void Class.%k(OutputStream w, String? fmt);
 
-static METHOD Class__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Class__k(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_write_type(ctx, sfp[1].w, ((knh_Class_t*)sfp[0].o)->type);
 }
@@ -566,7 +598,7 @@ static METHOD Class__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void Method.%k(OutputStream w, String? fmt);
 
-static METHOD Method__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Method__k(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_Method_t *o = sfp[0].mtd;
 	knh_OutputStream_t *w = sfp[1].w;
@@ -605,7 +637,7 @@ static METHOD Method__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void Mapper.%k(OutputStream w, String? fmt);
 
-static METHOD Mapper__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Mapper__k(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_Mapper_t *o = sfp[0].mpr;
 	knh_OutputStream_t *w = sfp[1].w;
@@ -622,7 +654,7 @@ static METHOD Mapper__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void Exception.%k(OutputStream w, String? fmt);
 
-static METHOD Exception__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Exception__k(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_Exception_t *o = sfp[0].e;
 	knh_OutputStream_t *w = sfp[1].w;
@@ -632,7 +664,7 @@ static METHOD Exception__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void InputStream.%k(OutputStream w, String? fmt);
 
-static METHOD InputStream__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD InputStream__k(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_write_quote(ctx, sfp[1].w, __tobytes(DP((knh_InputStream_t*)sfp[0].o)->urn), '\'');
 }
@@ -640,7 +672,7 @@ static METHOD InputStream__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void OutputStream.%k(OutputStream w, String? fmt);
 
-static METHOD OutputStream__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD OutputStream__k(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_write_quote(ctx, sfp[1].w, __tobytes(DP(sfp[0].w)->urn), '\'');
 }
@@ -648,7 +680,7 @@ static METHOD OutputStream__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void Script.%k(OutputStream w, String? fmt);
 
-METHOD Script__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+METHOD Script__k(Ctx *ctx, knh_sfp_t *sfp)
 {
 	int isInline = IS_NULL(sfp[2].o) ? 1 : 0;
 	if(isInline) {
@@ -659,7 +691,7 @@ METHOD Script__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 		knh_Script_t *o = (knh_Script_t*)sfp[0].o;
 		knh_OutputStream_t *w = sfp[1].w;
 		for(i = 0; i < KNH_SCRIPT_FIELDSIZE; i++) {
-			knh_fields_t *cf = knh_Class_fieldAt(ctx, knh_Object_cid(o), i);
+			knh_cfield_t *cf = knh_Class_fieldAt(ctx, knh_Object_cid(o), i);
 			if(cf == NULL) break;
 			if(cf->fn == FIELDN_NONAME) break;
 			{
@@ -676,7 +708,7 @@ METHOD Script__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 //## method void Any.%s(OutputStream w, String? fmt);
 //## method void Any.%k(OutputStream w, String? fmt);
 
-static METHOD Any__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Any__k(Ctx *ctx, knh_sfp_t *sfp)
 {
 	if(IS_NULL(sfp[0].o)) {
 		knh_write(ctx, sfp[1].w, __tobytes(TS_null));
@@ -694,7 +726,7 @@ static METHOD Any__k(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void Object.%dump(OutputStream w, String? fmt);
 
-static METHOD Object__dump(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Object__dump(Ctx *ctx, knh_sfp_t *sfp)
 {
 	KNH_SETv(ctx, sfp[2].o, TS_EMPTY);
 	knh_stack_reformat(ctx, sfp, METHODN__k);
@@ -703,7 +735,7 @@ static METHOD Object__dump(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void Bytes.%dump(OutputStream w, String? fmt);
 
-static METHOD Bytes__dump(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Bytes__dump(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_Bytes_t *o = sfp[0].ba;
 	knh_OutputStream_t *w = sfp[1].w;
@@ -740,7 +772,8 @@ static METHOD Bytes__dump(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void Class.%dump(OutputStream w, String? fmt);
 
-static METHOD Class__dump(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static
+METHOD Class__dump(Ctx *ctx, knh_sfp_t *sfp)
 {
 	TODO();
 }
@@ -748,7 +781,7 @@ static METHOD Class__dump(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void ClassMap.%dump(OutputStream w, String? fmt);
 
-static METHOD ClassMap__dump(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD ClassMap__dump(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_ClassMap_t *cmap = (knh_ClassMap_t*)sfp[0].o;
 	knh_OutputStream_t *w = sfp[1].w;
@@ -764,7 +797,7 @@ static METHOD ClassMap__dump(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void Method.%dump(OutputStream w, String? fmt);
 
-static METHOD Method__dump(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Method__dump(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_Method_t *mtd = sfp[0].mtd;
 	knh_OutputStream_t *w = sfp[1].w;
@@ -774,15 +807,12 @@ static METHOD Method__dump(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 	if(knh_Method_isObjectCode(mtd)) {
 		if(IS_KLRCode(DP(mtd)->kcode)) {
 			knh_code_t *pc = SP(mtd)->pc_start;
-			while(KNH_OPCODE(pc) != OPCODE_RET) {
+			while(KNH_OPCODE(pc) != OPCODE_HALT) {
 				knh_printf(ctx, w, "[%p:%d] ", pc, knh_Method_pcline(mtd, pc));
 				knh_opcode_dump(ctx, (knh_inst_t*)pc, w);
 				knh_write_EOL(ctx, w);
 				pc += knh_opcode_size(KNH_OPCODE(pc));
 			}
-			knh_printf(ctx, w, "[%p:%d] ", pc, knh_Method_pcline(mtd, pc));
-			knh_opcode_dump(ctx, (knh_inst_t*)pc, w);
-			knh_write_EOL(ctx, w);
 		}
 	}
 }
@@ -790,7 +820,7 @@ static METHOD Method__dump(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void Exception.%dump(OutputStream w, String? fmt);
 
-static METHOD Exception__dump(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Exception__dump(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_Exception_t *o = sfp[0].e;
 	knh_OutputStream_t *w = sfp[1].w;
@@ -824,23 +854,17 @@ static METHOD Exception__dump(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ======================================================================== */
 /* [data] */
 
-static int knh_Object_isFieldObject(Ctx *ctx, Object *o)
-{
-	return knh_Object_bcid(o) == CLASS_Script
-		|| ClassTable(knh_Object_cid(o)).cspi == ClassTable(CLASS_Object).cspi;
-}
-
 /* ------------------------------------------------------------------------ */
 //## method void Object.%data(OutputStream w, String? fmt);
 
-static METHOD Object__data(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Object__data(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_Object_t *o = sfp[0].o;
 	knh_OutputStream_t *w = sfp[1].w;
 	if(knh_Object_isUndefined(o)) {
 		knh_write(ctx, w, STEXT("null/*undefined*/"));
 	}
-	else if(knh_Object_isFieldObject(ctx, o)) {
+	else if(knh_Object_bcid(o) == CLASS_Object && knh_Object_cid(o) > KNH_TSTRUCT_SIZE) {
 		knh_intptr_t i;
 		knh_class_t cid = knh_Object_cid(o);
 		Object **v = (Object**)o->ref;
@@ -848,10 +872,10 @@ static METHOD Object__data(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 		knh_putc(ctx, w, ' ');
 		knh_write_begin(ctx, w, '{');
 		for(i = 0; i < ClassTable(cid).bsize; i++) {
-			knh_fields_t *cf = knh_Class_fieldAt(ctx, cid, i);
+			knh_cfield_t *cf = knh_Class_fieldAt(ctx, cid, i);
 			if(cf->fn == FIELDN_/*register*/) continue;
 			if(cf->fn == FIELDN_NONAME
-					|| KNH_FLAG_IS(cf->flag, FLAG_Field_Volatile)) continue;
+				|| KNH_FLAG_IS(cf->flag, FLAG_ClassField_Volatile)) continue;
 			knh_write_BOL(ctx, w);
 			knh_printf(ctx, w, "\"%s\": ", FIELDN(cf->fn));
 			knh_write_ObjectField(ctx, w, v, i, cf->type, METHODN__data);
@@ -867,7 +891,7 @@ static METHOD Object__data(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void String.%data(OutputStream w, String? fmt);
 
-static METHOD String__data(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD String__data(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_write_quote(ctx, sfp[1].w, __tobytes(sfp[0].s), '"');
 }
@@ -875,7 +899,7 @@ static METHOD String__data(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void Bytes.%data(OutputStream w, String? fmt);
 
-static METHOD Bytes__data(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Bytes__data(Ctx *ctx, knh_sfp_t *sfp)
 {
 	TODO();
 	// 'base64:.....'
@@ -884,7 +908,7 @@ static METHOD Bytes__data(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void Array.%data(OutputStream w, String? fmt);
 
-static METHOD Array__data(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Array__data(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_Array_t *a = sfp[0].a;
 	knh_OutputStream_t *w = sfp[1].w;
@@ -902,7 +926,7 @@ static METHOD Array__data(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void IArray.%data(OutputStream w, String? fmt);
 
-static METHOD IArray__data(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD IArray__data(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_intptr_t i, size = knh_Array_size(sfp[0].ia);
 	knh_OutputStream_t *w = sfp[1].w;
@@ -921,7 +945,7 @@ static METHOD IArray__data(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void FArray.%data(OutputStream w, String? fmt);
 
-static METHOD FArray__data(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD FArray__data(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_intptr_t i, size = knh_Array_size(sfp[0].ia);
 	knh_OutputStream_t *w = sfp[1].w;
@@ -939,7 +963,7 @@ static METHOD FArray__data(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void DictMap.%data(OutputStream w, String? fmt);
 
-static METHOD DictMap__data(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD DictMap__data(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_DictMap_t *o = sfp[0].dmap;
 	knh_OutputStream_t *w = sfp[1].w;
@@ -960,45 +984,11 @@ static METHOD DictMap__data(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 }
 
 /* ------------------------------------------------------------------------ */
-//## method void Pair.%data(OutputStream w, String? fmt);
-
-static METHOD Pair__data(Ctx *ctx, knh_sfp_t *sfp METHODARG)
-{
-	knh_Pair_t *o = sfp[0].pair;
-	knh_OutputStream_t *w = sfp[1].w;
-	knh_write_begin(ctx, w, '(');
-	knh_write_BOL(ctx, w);
-	knh_format(ctx, w, METHODN__data, o->first, KNH_NULL);
-	knh_putc(ctx, w, ',');
-	knh_format(ctx, w, METHODN__data, o->second, KNH_NULL);
-	knh_write_end(ctx, w, ')');
-}
-
-/* ------------------------------------------------------------------------ */
 //## method void Exception.%data(OutputStream w, String? fmt);
 
-static METHOD Exception__data(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Exception__data(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_write_quote(ctx, sfp[1].w, __tobytes(DP(sfp[0].e)->msg), '\'');
-}
-
-/* ------------------------------------------------------------------------ */
-//## method void Closure.%data(OutputStream w, String? fmt);
-
-static METHOD Closure__data(Ctx *ctx, knh_sfp_t *sfp METHODARG)
-{
-	// TODO
-	// We have to implement Method__data, Script__data
-	// to implement Closure__data.
-	knh_Closure_t *o = sfp[0].cc;
-	knh_OutputStream_t *w = sfp[1].w;
-	if(IS_NOTNULL(o->base)) {
-		knh_write_BOL(ctx, w);
-		knh_format(ctx, w, METHODN__data, o->base, KNH_NULL);
-		knh_putc(ctx, w, ':');
-		knh_format(ctx, w, METHODN__data, UP(o->mtd), KNH_NULL);
-		knh_putc(ctx, w, ';');
-	}
 }
 
 /* ======================================================================== */
@@ -1054,7 +1044,8 @@ static char *knh_methodop__tochar(knh_methodn_t mn)
 	return NULL;
 }
 
-static void knh_ClassNAME__man(Ctx *ctx, knh_class_t cid, knh_OutputStream_t *w)
+static
+void knh_ClassNAME__man(Ctx *ctx, knh_class_t cid, knh_OutputStream_t *w)
 {
 	knh_write(ctx, w, STEXT("Class"));
 	knh_write_EOL(ctx, w);
@@ -1072,11 +1063,12 @@ static void knh_ClassNAME__man(Ctx *ctx, knh_class_t cid, knh_OutputStream_t *w)
 	}
 }
 
-static void knh_ClassCONST__man(Ctx *ctx, knh_class_t cid, knh_OutputStream_t *w)
+static
+void knh_ClassCONST__man(Ctx *ctx, knh_class_t cid, knh_OutputStream_t *w)
 {
 	DBG2_ASSERT_cid(cid);
-	if(ClassTable(cid).constDictMap == NULL) return ;
-	knh_DictMap_t *tcmap = ClassTable(cid).constDictMap;
+	if(ClassTable(cid).constPool == NULL) return ;
+	knh_DictMap_t *tcmap = ClassTable(cid).constPool;
 	size_t i, size = knh_DictMap_size(tcmap);
 	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
 	int hasCaption = 0;
@@ -1094,7 +1086,8 @@ static void knh_ClassCONST__man(Ctx *ctx, knh_class_t cid, knh_OutputStream_t *w
 }
 
 
-static void knh_Method__man(Ctx *ctx, knh_Method_t *o, knh_OutputStream_t *w, knh_class_t cid)
+static
+void knh_Method__man(Ctx *ctx, knh_Method_t *o, knh_OutputStream_t *w, knh_class_t cid)
 {
 	if(!knh_Context_isVerbose(ctx)) {
 		if(knh_Method_isPrivate(o)) return;
@@ -1133,7 +1126,8 @@ static void knh_Method__man(Ctx *ctx, knh_Method_t *o, knh_OutputStream_t *w, kn
 }
 
 
-static void knh_ClassMap__man(Ctx *ctx, knh_ClassMap_t *cmap, knh_OutputStream_t *w, knh_class_t cid)
+static
+void knh_ClassMap__man(Ctx *ctx, knh_ClassMap_t *cmap, knh_OutputStream_t *w, knh_class_t cid)
 {
 	int i;
 	int hasCaption = 0, from = 0;
@@ -1177,7 +1171,7 @@ static void knh_ClassMap__man(Ctx *ctx, knh_ClassMap_t *cmap, knh_OutputStream_t
 //## method void Class.%man(OutputStream w, String? fmt);
 //## method void Object.%man(OutputStream w, String? fmt);
 
-static METHOD Class__man(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Class__man(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_class_t cid, this_cid;
 	knh_OutputStream_t *w = sfp[1].w;
@@ -1194,7 +1188,7 @@ static METHOD Class__man(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 	cid = this_cid;
 	while(1) {
 		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-		knh_Array_t *a = ClassTable(cid).methods;
+		knh_Array_t *a = ClassTable(cid).cstruct->methods;
 		for(i = 0; i < knh_Array_size(a); i++) {
 			knh_Method_t *mtd = (knh_Method_t*)knh_Array_n(a, i);
 			char *op = knh_methodop__tochar(DP(mtd)->mn);
@@ -1270,11 +1264,10 @@ static METHOD Class__man(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 				hasCaption = 1;
 			}
 #if defined(KNH_DBGMODE2)
-			if(1)
+			if(1) {
 #else
-			if(!knh_Method_isPrivate(mtd) || !knh_Method_isHidden(mtd))
+			if(!knh_Method_isPrivate(mtd) || !knh_Method_isHidden(mtd)) {
 #endif
-			{
 				knh_write_TAB(ctx, w);
 				knh_Method__man(ctx, mtd, w, this_cid);
 				knh_write_EOL(ctx, w);
@@ -1317,7 +1310,7 @@ static METHOD Class__man(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void Object.%p(OutputStream w, String? fmt);
 
-static METHOD Object__p(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Object__p(Ctx *ctx, knh_sfp_t *sfp)
 {
 	void *p = NULL;
 	if(IS_bInt(sfp[0].o) || IS_bFloat(sfp[0].o)) {
@@ -1335,7 +1328,7 @@ static METHOD Object__p(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void Int.%c(OutputStream w, String? fmt);
 
-static METHOD Int__c(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Int__c(Ctx *ctx, knh_sfp_t *sfp)
 {
 	char buf[16];
 	knh_format_utf8(buf, sizeof(buf), sfp[0].ivalue);
@@ -1348,7 +1341,7 @@ static METHOD Int__c(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void Int.%d(OutputStream w, String? fmt);
 
-static METHOD Int__d(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Int__d(Ctx *ctx, knh_sfp_t *sfp)
 {
 	if(IS_String(sfp[2].s)) {
 		char fmt[40];
@@ -1363,7 +1356,7 @@ static METHOD Int__d(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void Int.%u(OutputStream w, String? fmt);
 
-static METHOD Int__u(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Int__u(Ctx *ctx, knh_sfp_t *sfp)
 {
 	if(IS_String(sfp[2].s)) {
 		char fmt[40];
@@ -1378,7 +1371,7 @@ static METHOD Int__u(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void Int.%f(OutputStream w, String? fmt);
 
-static METHOD Int__f(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Int__f(Ctx *ctx, knh_sfp_t *sfp)
 {
 	if(IS_String(sfp[2].s)) {
 		char fmt[40];
@@ -1393,21 +1386,22 @@ static METHOD Int__f(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void Int.%x(OutputStream w, String? fmt);
 
-static METHOD Int__x(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Int__x(Ctx *ctx, knh_sfp_t *sfp)
 {
-	if(IS_String(sfp[2].s)) {
-		char fmt[40];
-		knh_format_newFMT(fmt, sizeof(fmt), __tobytes(sfp[2].s), 1, KNH_INT_XFMT);
-		knh_write_ifmt(ctx, sfp[1].w, fmt, sfp[0].ivalue);
-	}
-	else {
-		knh_write_ifmt(ctx, sfp[1].w, KNH_INT_XFMT, sfp[0].ivalue);
-	}
+    if(IS_String(sfp[2].s)) {
+        char fmt[40];
+        knh_format_newFMT(fmt, sizeof(fmt), __tobytes(sfp[2].s), 1, KNH_INT_XFMT);
+        knh_write_ifmt(ctx, sfp[1].w, fmt, sfp[0].ivalue);
+    }
+    else {
+        knh_write_ifmt(ctx, sfp[1].w, KNH_INT_XFMT, sfp[0].ivalue);
+    }
 }
 
 /* ------------------------------------------------------------------------ */
 
-static void knh_write_bits(Ctx *ctx, knh_OutputStream_t *w, knh_uint64_t n, size_t bits)
+static
+void knh_write_bits(Ctx *ctx, knh_OutputStream_t *w, knh_uint64_t n, size_t bits)
 {
 	size_t i;
 	knh_uint64_t flag = 1ULL << (bits - 1);
@@ -1427,7 +1421,7 @@ static void knh_write_bits(Ctx *ctx, knh_OutputStream_t *w, knh_uint64_t n, size
 /* ------------------------------------------------------------------------ */
 //## method void Int.%bits(OutputStream w, String? fmt);
 
-static METHOD Int__bits(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Int__bits(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_write_bits(ctx, sfp[1].w, sfp[0].ivalue, sizeof(knh_int_t) * 8);
 }
@@ -1435,7 +1429,7 @@ static METHOD Int__bits(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void Float.%s(OutputStream w, String? fmt);
 
-static METHOD Float__s(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Float__s(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_write_ffmt(ctx, sfp[1].w, KNH_FLOAT_FMT, p_float(sfp[0]));
 }
@@ -1443,7 +1437,7 @@ static METHOD Float__s(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void Float.%d(OutputStream w, String? fmt);
 
-static METHOD Float__d(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Float__d(Ctx *ctx, knh_sfp_t *sfp)
 {
 	if(IS_String(sfp[2].s)) {
 		char fmt[40];
@@ -1459,7 +1453,7 @@ static METHOD Float__d(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void Float.%f(OutputStream w, String? fmt);
 
-static METHOD Float__f(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Float__f(Ctx *ctx, knh_sfp_t *sfp)
 {
 	if(IS_String(sfp[2].s)) {
 		char fmt[40];
@@ -1475,7 +1469,7 @@ static METHOD Float__f(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void Float.%bits(OutputStream w, String? fmt);
 
-static METHOD Float__bits(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Float__bits(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_write_bits(ctx, sfp[1].w, sfp[0].data, sizeof(knh_float_t) * 8);
 }

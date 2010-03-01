@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -95,7 +95,7 @@ KNHAPI(knh_Int_t*) new_IntX__fast(Ctx *ctx, knh_class_t cid, knh_int_t value)
 
 KNHAPI(knh_Int_t*) new_IntX(Ctx *ctx, knh_class_t cid, knh_int_t value)
 {
-	knh_Semantics_t *u = knh_getSemantics(ctx, cid);
+	knh_ClassSpec_t *u = knh_getClassSpec(ctx, cid);
 	if(DP(u)->fichk(u, value)) {
 		knh_Int_t *n = (knh_Int_t*)new_hObject(ctx, FLAG_Int, CLASS_Int, cid);
 		n->n.ivalue = value;
@@ -136,7 +136,7 @@ KNHAPI(knh_Float_t*) new_FloatX__fast(Ctx *ctx, knh_class_t cid, knh_float_t val
 KNHAPI(knh_Float_t*) new_FloatX(Ctx *ctx, knh_class_t cid, knh_float_t value)
 {
 	DBG2_ASSERT_cid(cid);
-	knh_Semantics_t *u = knh_getSemantics(ctx, cid);
+	knh_ClassSpec_t *u = knh_getClassSpec(ctx, cid);
 	if(DP(u)->ffchk(u, value)) {
 		knh_Float_t *f = (knh_Float_t*)new_hObject(ctx, FLAG_Float, CLASS_Float, cid);
 		f->n.fvalue = value;
@@ -164,7 +164,7 @@ knh_AffineConv_t *new_AffineConv(Ctx *ctx, knh_float_t fa, knh_float_t fb)
 /* [mapper] */
 
 static
-MAPPER knh_AffineConv_fmap__i2i(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+MAPPER knh_AffineConv_fmap__i2i(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_AffineConv_t *af = (knh_AffineConv_t*)DP(sfp[1].mpr)->mapdata;
 	KNH_ASSERT(IS_AffineConv(af));
@@ -175,7 +175,7 @@ MAPPER knh_AffineConv_fmap__i2i(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 
 static
-MAPPER knh_AffineConv_fmap__i2f(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+MAPPER knh_AffineConv_fmap__i2f(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_AffineConv_t *af = (knh_AffineConv_t*)DP(sfp[1].mpr)->mapdata;
 	KNH_ASSERT(IS_AffineConv(af));
@@ -186,7 +186,7 @@ MAPPER knh_AffineConv_fmap__i2f(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 
 static
-MAPPER knh_AffineConv_fmap__f2i(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+MAPPER knh_AffineConv_fmap__f2i(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_AffineConv_t *af = (knh_AffineConv_t*)DP(sfp[1].mpr)->mapdata;
 	KNH_ASSERT(IS_AffineConv(af));
@@ -197,7 +197,7 @@ MAPPER knh_AffineConv_fmap__f2i(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 
 static
-MAPPER knh_AffineConv_fmap__f2f(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+MAPPER knh_AffineConv_fmap__f2f(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_AffineConv_t *af = (knh_AffineConv_t*)DP(sfp[1].mpr)->mapdata;
 	KNH_ASSERT(IS_AffineConv(af));
@@ -208,7 +208,7 @@ MAPPER knh_AffineConv_fmap__f2f(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 
 static
-knh_Fmapper knh_Fmapper_affine(knh_class_t scid, knh_class_t tcid)
+knh_fmapper knh_fmapper_affine(knh_class_t scid, knh_class_t tcid)
 {
 	if(scid == CLASS_Int) {
 		if(tcid == CLASS_Int) return knh_AffineConv_fmap__i2i;
@@ -230,7 +230,7 @@ static
 void KNH_TAFFINE(Ctx *ctx, knh_class_t scid, knh_class_t tcid, knh_float_t scale, knh_float_t shift)
 {
 	knh_Mapper_t *mpr = new_Mapper(ctx, FLAG_Mapper_Affine, scid, tcid,
-			knh_Fmapper_affine(ctx->share->ClassTable[scid].bcid, ctx->share->ClassTable[tcid].bcid),
+			knh_fmapper_affine(ctx->share->ClassTable[scid].bcid, ctx->share->ClassTable[tcid].bcid),
 			(Object*)new_AffineConv(ctx, scale, shift));
 	knh_ClassMap_add(ctx, ctx->share->ClassTable[scid].cmap, mpr);
 }
@@ -239,12 +239,21 @@ void KNH_TAFFINE(Ctx *ctx, knh_class_t scid, knh_class_t tcid, knh_float_t scale
 
 KNHAPI(void) knh_addAffineMapper(Ctx *ctx, knh_class_t scid, char *text, knh_float_t scale, knh_float_t shift)
 {
-	knh_class_t tcid = knh_getcid(ctx, B(text));
-	if(tcid != CLASS_unknown && ClassTable(tcid).bcid != tcid) {
+	//DBG2_ASSERT_cid(scid);
+	knh_class_t tcid = knh_findcid(ctx, B(text));
+	if(tcid != CLASS_unknown && ctx->share->ClassTable[tcid].bcid != tcid) {
 		KNH_TAFFINE(ctx, scid, tcid, scale, shift);
-		if(scale != KNH_FLOAT_ZERO) {
-			KNH_TAFFINE(ctx, tcid, scid, KNH_FLOAT_ONE / scale, -(shift/scale));
+#ifndef KONOHA_ON_LKM
+		if(scale != 0.0) {
+			KNH_TAFFINE(ctx, tcid, scid, 1.0 / scale, -(shift/scale));
 		}
+#else
+		if(scale != 0) {
+			KNH_TAFFINE(ctx, tcid, scid, 1 / scale, -(shift/scale));
+		}
+#endif
+
+
 	}
 }
 

@@ -253,8 +253,8 @@ jump_over:;
     }
 }
 
-void knh_qsort_r (void *const pbase, size_t total_elems, size_t size, 
-        void* thunk,int (*cmp)(void* ,const void*,const void*))
+void knh_qsort_r (void *const pbase, size_t total_elems, size_t size,
+        int (*cmp)(void* ,const void*,const void*),void* thunk)
 {
     register char *base_ptr = (char *) pbase;
 

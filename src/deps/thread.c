@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -39,9 +39,6 @@
 #include<btron/taskcomm.h>
 #endif
 
-#ifdef KONOHA_ON_LKM
-#include <linux/mutex.h>
-#endif
 
 /* ************************************************************************ */
 
@@ -70,7 +67,7 @@ knh_thread_t knh_thread_self(void)
 #if defined(KNH_USING_PTHREAD)
 	return (knh_thread_t)pthread_self();
 #elif defined(KNH_USING_BTRON)
-	return b_get_tid();
+        return b_get_tid();
 #else
 	return 0;
 #endif
@@ -80,48 +77,48 @@ knh_thread_t knh_thread_self(void)
 
 #ifdef KNH_USING_BTRON
 typedef struct {
-	void* (*func)(void*);
-	void* arg;
+    void* (*func)(void*);
+    void* arg;
 } knh_thread_target_btron;
 
 static void knh_thread_btronEntryPoint(knh_thread_target_btron* arg)
 {
-	knh_thread_target_btron target = *arg;
-	free(arg);
+    knh_thread_target_btron target = *arg;
+    free(arg);
 
-	// FIXME: return value is ignored
-	target.func(target.arg);
+    // FIXME: return value is ignored
+    target.func(target.arg);
 
-	// BTRON threads must terminate with b_ext_tsk;
-	//       that's why we need this stub function
-	b_ext_tsk();
+    // BTRON threads must terminate with b_ext_tsk;
+    //       that's why we need this stub function
+    b_ext_tsk();
 }
 #endif /* KNH_USING_BTRON */
 
 
 /* ------------------------------------------------------------------------ */
 
-int knh_thread_create(Ctx *ctx, knh_thread_t *thread, void *attr, knh_fgo fgo, void * arg)
+int knh_thread_create(Ctx *ctx, knh_thread_t *thread, void *attr, void *(*frun)(void *), void * arg)
 {
 #if defined(KNH_USING_PTHREAD)
-	return pthread_create((pthread_t*)thread, attr, fgo, arg);
+	return pthread_create((pthread_t*)thread, attr, frun, arg);
 #elif defined(KNH_USING_BTRON)
-	// FIXME: attr is ignored
-	W err;
-	knh_thread_target_btron* target =
-		(knh_thread_target_btron*)malloc(sizeof(knh_thread_target_btron));
-	if (target == NULL) {
-		return -1;
-	}
-	target->func = fgo;
-	target->arg = arg;
-	err = b_cre_tsk((FP)knh_thread_btronEntryPoint, -1, (W)target);
-	if (err < 0) {
-		free(target);
-		return -1;
-	}
-	*thread = err;
-	return 0;
+        // FIXME: attr is ignored
+        W err;
+        knh_thread_target_btron* target =
+            (knh_thread_target_btron*)malloc(sizeof(knh_thread_target_btron));
+        if (target == NULL) {
+            return -1;
+        }
+        target->func = frun;
+        target->arg = arg;
+        err = b_cre_tsk((FP)knh_thread_btronEntryPoint, -1, (W)target);
+        if (err < 0) {
+            free(target);
+            return -1;
+        }
+        *thread = err;
+        return 0;
 #else
 	return -1;
 #endif
@@ -143,9 +140,9 @@ int knh_thread_detach(Ctx *ctx, knh_thread_t th)
 int knh_thread_join(Ctx *ctx, knh_thread_t thread, void **ret)
 {
 #if defined(KNH_USING_PTHREAD)
-	return pthread_join((pthread_t)thread, ret);
+    return pthread_join((pthread_t)thread, ret);
 #else
-	return -1;
+    return -1;
 #endif
 }
 
@@ -157,54 +154,52 @@ typedef struct knh_threadcc_t {
 	knh_sfp_t *sfp;
 } knh_threadcc_t ;
 
-//static void *threading(void *p)
-//{
-//	knh_threadcc_t ta = *((knh_threadcc_t*)p);
-//	Ctx *ctx = new_ThreadContext(ta.ctx);
-//
-//	knh_beginContext(ctx);
-//	knh_sfp_t *lsfp = ctx->stack;
-//
-//	klr_mov(ctx, lsfp[0].o, new_ExceptionHandler(ctx));
-//	KNH_TRY(ctx, L_CATCH, lsfp, 0);
-//	{
-//		knh_Method_t *mtd = ta.sfp[0].mtd;
-//		DBG2_ASSERT(IS_Method(mtd));
-//		KNH_SETv(ctx, lsfp[1].o, mtd);
-//		KNH_SETv(ctx, lsfp[2].o, ta.sfp[1].o);
-//		lsfp[2].data = knh_Object_data(ta.sfp[1].o);
-//		{
-//			int i, args = knh_Method_psize(mtd);
-//			for(i = 0; i < args; i++) {
-//				KNH_SETv(ctx, lsfp[3+i].o, ta.sfp[2+i].o);
-//				lsfp[3+i].data = knh_Object_data(ta.sfp[2+i].o);
-//			}
-//			KNH_SCALL(ctx, lsfp, 1, mtd, args);
-//		}
-//		goto L_FINALLY;
-//	}
-//	/* catch */
-//L_CATCH:;
-//		KNH_PRINT_STACKTRACE(ctx, lsfp, 0);
-//
-//L_FINALLY:
-//		knh_Context_clearstack(ctx);
-//		knh_endContext(ctx);
-//		knh_ThreadContext_dispose(ctx);
-//		return NULL;
-//}
+static void *threading(void *p)
+{
+	knh_threadcc_t ta = *((knh_threadcc_t*)p);
+	Ctx *ctx = new_ThreadContext(ta.ctx);
+
+	knh_beginContext(ctx);
+	knh_sfp_t *lsfp = ctx->stack;
+
+	KNH_MOV(ctx, lsfp[0].o, new_ExceptionHandler(ctx));
+	KNH_TRY(ctx, L_CATCH, lsfp, 0);
+	{
+		knh_Method_t *mtd = ta.sfp[0].mtd;
+		DBG2_ASSERT(IS_Method(mtd));
+		KNH_SETv(ctx, lsfp[1].o, mtd);
+		KNH_SETv(ctx, lsfp[2].o, ta.sfp[1].o);
+		lsfp[2].data = knh_Object_data(ta.sfp[1].o);
+		{
+			int i, args = knh_Method_psize(mtd);
+			for(i = 0; i < args; i++) {
+				KNH_SETv(ctx, lsfp[3+i].o, ta.sfp[2+i].o);
+				lsfp[3+i].data = knh_Object_data(ta.sfp[2+i].o);
+			}
+			KNH_SCALL(ctx, lsfp, 1, mtd, args);
+		}
+		goto L_FINALLY;
+	}
+	/* catch */
+	L_CATCH:;
+	KNH_PRINT_STACKTRACE(ctx, lsfp, 0);
+
+	L_FINALLY:
+	knh_Context_clearstack(ctx);
+	knh_endContext(ctx);
+	knh_ThreadContext_dispose(ctx);
+	return NULL;
+}
 
 /* ------------------------------------------------------------------------ */
-// sfp |   0   |   1   |   2   |   3  |
-//     |  self |  mtd  | arg1  | ...  |
 
-//void knh_stack_threadRun(Ctx *ctx, knh_sfp_t *sfp METHODARG)
-//{
-//	knh_thread_t th;
-//	knh_threadcc_t ta = {ctx, sfp + 1};
-//	knh_thread_create(ctx, &th, NULL, threading, (void*)&ta);
-//	//knh_thread_detach(ctx, th);
-//}
+void knh_stack_threadRun(Ctx *ctx, knh_sfp_t *sfp)
+{
+	knh_thread_t th;
+	knh_threadcc_t ta = {ctx, sfp};
+	knh_thread_create(ctx, &th, NULL, threading, (void*)&ta);
+	knh_thread_detach(ctx, th);
+}
 
 /* ======================================================================== */
 /* [mutex] */
@@ -227,9 +222,6 @@ int knh_mutex_init(knh_mutex_t *m)
 	}
 	*m = sem;
 	return 0;
-#elif defined(KONOHA_ON_LKM)
-	mutex_init((struct mutex *)m);
-	return 0;
 #else
 	return -1;
 #endif
@@ -239,55 +231,34 @@ int knh_mutex_init(knh_mutex_t *m)
 
 int knh_mutex_lock(knh_mutex_t *m)
 {
-	//DBG2_P("locking %p", m);
+	DBG2_P("locking %p", m);
 #if defined(KNH_USING_PTHREAD)
-	int ret = pthread_mutex_lock((pthread_mutex_t*)m);
-	return ret;
+	//return pthread_mutex_lock((pthread_mutex_t*)m);
+	return 0;
 #elif defined(KNH_USING_BTRON)
 	W err = b_wai_sem(*m, T_FOREVER);
 	if (err < 0) {
 		return -1;
 	}
 	return 0;
-#elif defined(KONOHA_ON_LKM)
-	mutex_lock((struct mutex *) m);
-	return 0;
 #else
 	return -1;
 #endif
 }
-
-/* ------------------------------------------------------------------------ */
-
-int knh_mutex_trylock(knh_mutex_t *m)
-{
-	//DBG2_P("trylock %p", m);
-#if defined(KNH_USING_PTHREAD)
-	return pthread_mutex_trylock((pthread_mutex_t*)m);
-#elif defined(KONOHA_ON_LKM)
-	return mutex_trylock((struct mutex *) m);
-#else
-	return -1;
-#endif
-}
-
 
 /* ------------------------------------------------------------------------ */
 
 int knh_mutex_unlock(knh_mutex_t *m)
 {
-	//DBG2_P("unlocking %p", m);
+	DBG2_P("unlocking %p", m);
 #if defined(KNH_USING_PTHREAD)
-	int ret = pthread_mutex_unlock((pthread_mutex_t*)m);
-	return ret;
+	//return pthread_mutex_unlock((pthread_mutex_t*)m);
+	return 0;
 #elif defined(KNH_USING_BTRON)
 	W err = b_sig_sem(*m);
 	if (err < 0) {
 		return -1;
 	}
-	return 0;
-#elif defined(KONOHA_ON_LKM)
-	mutex_unlock((struct mutex *) m);
 	return 0;
 #else
 	return -1;
@@ -298,7 +269,7 @@ int knh_mutex_unlock(knh_mutex_t *m)
 
 int knh_mutex_destroy(knh_mutex_t *m)
 {
-	//DBG2_P("destroying %p", m);
+	DBG2_P("destroying %p", m);
 #if defined(KNH_USING_PTHREAD)
 	return pthread_mutex_destroy((pthread_mutex_t*)m);
 #elif defined(KNH_USING_BTRON)
@@ -306,8 +277,6 @@ int knh_mutex_destroy(knh_mutex_t *m)
 	if (err < 0) {
 		return -1;
 	}
-	return 0;
-#elif defined(KONOHA_ON_LKM)
 	return 0;
 #else
 	return -1;

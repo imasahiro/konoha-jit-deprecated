@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -105,11 +105,11 @@ void knh_Context_setEncoding(Ctx *ctx, knh_Context_t *o, knh_String_t *enc)
 
 /* ------------------------------------------------------------------------ */
 
-void knh_stack_clear(Ctx *ctx, knh_sfp_t *sfp)
+void knh_Context_clearstack(Ctx *ctx)
 {
-	while(sfp < ctx->stack + ctx->stacksize) {
-		KNH_SETv(ctx, sfp[0].o, KNH_NULL);
-		sfp++;
+	size_t i;
+	for(i = ctx->esp - ctx->stack + 1; i < ctx->stacksize - 1; i++) {
+		KNH_SETv(ctx, ctx->stack[i].o, KNH_NULL);
 	}
 }
 

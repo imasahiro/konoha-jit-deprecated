@@ -43,8 +43,6 @@ extern "C" {
 #define FL(o)            ((Object*)o)
 #define TM(o)            ((Term*)o)
 
-#define knh_style(ctx, score)    knh_foundKonohaStyle(ctx, score)
-
 /* error */
 #define KERR_ERROR     0
 #define KERR_TERROR    1
@@ -62,11 +60,11 @@ extern "C" {
 
 /* ------------------------------------------------------------------------ */
 
-#define TNOP_   0
-#define TWARN_  1
-#define TCHECK_ 2
-#define TCONV_  3
-#define TITERCONV_ 4
+#define TWARN_  0
+#define TCHECK_ 1
+#define TCONV_  2
+#define TITERCONV_ 3
+
 
 #define SWITCH_IT       2
 #define SEPARATOR_IT    2
@@ -77,7 +75,9 @@ extern "C" {
 
 /* ------------------------------------------------------------------------ */
 
-#define METHOD_getSize  METHODN_TO_GETTER(FIELDN_size)
+#define OPCODE_LABEL  (OPCODE_NOP+1)
+
+/* ------------------------------------------------------------------------ */
 
 #if defined(KNH_USING_THREADEDCODE)
 #define TADDR   NULL,
@@ -88,11 +88,6 @@ extern "C" {
 #define KNH_ASM(T, ...) { \
 		klr_##T##_t op_ = {TADDR OPCODE_##T, ## __VA_ARGS__, NULL}; \
 		knh_asmop(ctx, (knh_inst_t*)(&op_)); \
-	}\
-
-#define knh_Array_addInst(ctx, ilist, T, ...) { \
-		klr_##T##_t op_ = {TADDR OPCODE_##T, ## __VA_ARGS__, NULL};\
-		knh_Array_add(ctx, ilist, new_KLRInst(ctx, (knh_inst_t*)(&op_)));\
 	}\
 
 /* ------------------------------------------------------------------------ */

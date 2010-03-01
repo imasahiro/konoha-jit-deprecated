@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -64,7 +64,7 @@ KNHAPI(void) knh_Iterator_close(Ctx *ctx, knh_Iterator_t *it)
 /* ======================================================================== */
 /* [constructors] */
 
-KNHAPI(knh_Iterator_t*) new_Iterator(Ctx *ctx, knh_class_t p1, Any *source, knh_Fitrnext fnext)
+KNHAPI(knh_Iterator_t*) new_Iterator(Ctx *ctx, knh_class_t p1, Any *source, knh_fitrnext fnext)
 {
 	knh_class_t cid = knh_class_Iterator(ctx, p1);
 	knh_Iterator_t *it = (knh_Iterator_t*)new_Object_init(ctx, FLAG_Iterator, cid, 0);
@@ -78,7 +78,7 @@ KNHAPI(knh_Iterator_t*) new_Iterator(Ctx *ctx, knh_class_t p1, Any *source, knh_
 /* ------------------------------------------------------------------------ */
 /* [constructors] */
 
-KNHAPI(knh_Iterator_t*) new_GlueIterator(Ctx *ctx, knh_class_t p1, void *ref, knh_Fitrnext fnext, knh_Ffree ffree)
+KNHAPI(knh_Iterator_t*) new_GlueIterator(Ctx *ctx, knh_class_t p1, void *ref, knh_fitrnext fnext, knh_ffree ffree)
 {
 	knh_class_t cid = knh_class_Iterator(ctx, p1);
 	knh_Iterator_t *it = (knh_Iterator_t*)new_Object_init(ctx, FLAG_Iterator, cid, 0);
@@ -145,7 +145,7 @@ ITRNEXT knh_FArray_var_next(Ctx *ctx, knh_sfp_t *sfp, int n)
 KNHAPI(knh_Iterator_t*) new_ArrayIterator(Ctx *ctx, knh_Array_t *a)
 {
 	knh_class_t cid = knh_Object_p1(a);
-	knh_Fitrnext fnext = knh_Array_var_next;
+	knh_fitrnext fnext = knh_Array_var_next;
 	if(knh_Object_bcid(a) == CLASS_IArray) fnext = knh_IArray_var_next;
 	else if(knh_Object_bcid(a) == CLASS_FArray) fnext = knh_FArray_var_next;
 	else {

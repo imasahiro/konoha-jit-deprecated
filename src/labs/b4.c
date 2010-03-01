@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -41,7 +41,7 @@ extern "C" {
 /* ------------------------------------------------------------------------ */
 /* @ method void Script.changeChannel(Int! ch) */
 
-METHOD Script_changeChannel(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+METHOD Script_changeChannel(Ctx *ctx, knh_sfp_t *sfp)
 {
 	fprintf(stdout, "switching channel to %d..\n", (int)sfp[1].ivalue);
 	//konoha_throwSecurityException();
@@ -50,7 +50,7 @@ METHOD Script_changeChannel(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 /* @ method void Script.hook(String! funcname) */
 
-METHOD Script_hook(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+METHOD Script_hook(Ctx *ctx, knh_sfp_t *sfp)
 {
 	char *funcname = __tochar(sfp[1].s);
 	fprintf(stdout, "hooking security point at %s\n", funcname);
@@ -66,11 +66,11 @@ METHOD Script_hook(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 //                 METHOD funcname (Ctx *ctx, knh_sfp_t* ){}
 //  @return true/false
 // */
-//KNHAPI(int) knh_registLocalFunction(konoha_t konoha, char* method, knh_Fmethod func)
+//KNHAPI(int) knh_registLocalFunction(konoha_t konoha, char* method, knh_fmethod func)
 //{
 //    Ctx *ctx = konoha.ctx;
 //    knh_setCurrentContext(ctx);
-//    knh_sfp_t *lsfp = BEGIN_LOCAL(ctx);
+//    knh_sfp_t *lsfp = KNH_LOCAL(ctx);
 //
 //    knh_cwb_t *cwb = new_cwb(ctx);
 //    knh_Bytes_write(ctx, cwb->ba, B(method));
@@ -87,7 +87,7 @@ METHOD Script_hook(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 //
 //    knh_methodn_t mn = knh_Method_fromName(ctx, method);
 //    knh_Method_syncfunc(mtd, func);
-//    END_LOCAL(ctx, lsfp);
+//    KNH_LOCALBACK(ctx, lsfp);
 //    return;
 //}
 

@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -84,12 +84,14 @@ void knh_srand(knh_uint_t seed)
 
 knh_uint_t knh_rand(void)
 {
-#if defined(KONOHA_ON_LKM)
+#ifdef KONOHA_ON_LKM
 	return (knh_uint_t)random32();
-#elif defined(KNH_USING_INT32)
+#else
+#ifdef KNH_USING_INT32
 	return (knh_uint_t)genrand_int31();
 #else
 	return (knh_uint_t)genrand64_int63();
+#endif
 #endif
 }
 
@@ -97,13 +99,16 @@ knh_uint_t knh_rand(void)
 
 knh_float_t knh_float_rand(void)
 {
-#if defined(KNH_USING_NOFLOAT)
+#ifdef KNH_USING_NOFLOAT
 	return (knh_float_t)knh_rand();
-#elif defined(KNH_USING_INT32)
+#else
+
+#ifdef KNH_USING_INT32
 	return (knh_float_t)genrand_real1();
 #else
 	return (knh_float_t)genrand64_real1();
-#endif 
+#endif
+#endif /* KNH_USING_NOFLOAT */
 }
 
 /* ------------------------------------------------------------------------ */

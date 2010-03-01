@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -210,7 +210,7 @@ KNHAPI(knh_index_t) knh_bytes_rindex(knh_bytes_t v, knh_intptr_t ch)
 
 KNHAPI(knh_bytes_t) knh_bytes_mod(knh_bytes_t t, int ch)
 {
-	size_t i;
+	int i;
 	for(i = 0; i < t.len; i++) {
 		if(t.buf[i] == ch) {
 			t.buf = t.buf + i + 1;
@@ -589,7 +589,7 @@ KNHAPI(knh_bytes_t) knh_bytes_parsecid(Ctx *ctx, knh_bytes_t t, int delim, knh_c
 {
 	knh_index_t loc = knh_bytes_index(t, delim);
 	if(loc > 0) {
-		*cid = knh_NameSpace_findcid(ctx, ctx->share->mainns, knh_bytes_first(t, loc));
+		*cid = knh_NameSpace_getcid(ctx, ctx->share->mainns, knh_bytes_first(t, loc));
 		return knh_bytes_last(t, delim + 1);
 	}
 	else {

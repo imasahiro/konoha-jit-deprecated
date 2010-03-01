@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -38,7 +38,7 @@ extern "C" {
 /* ======================================================================== */
 /* [Bytes] */
 
-KNHAPI(knh_InputStream_t*) new_InputStream__io(Ctx *ctx, knh_String_t *urn, knh_io_t fd, knh_StreamDSPI_t *drv)
+KNHAPI(knh_InputStream_t*) new_InputStream__io(Ctx *ctx, knh_String_t *urn, knh_io_t fd, knh_iodrv_t *drv)
 {
 	knh_InputStream_t* o = (knh_InputStream_t*)new_Object_bcid(ctx, CLASS_InputStream, 0);
 	KNH_SETv(ctx, DP(o)->urn, urn);
@@ -62,7 +62,7 @@ KNHAPI(knh_InputStream_t*) new_InputStream__io(Ctx *ctx, knh_String_t *urn, knh_
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(knh_InputStream_t*) new_InputStream__FILE(Ctx *ctx, knh_String_t *urn, FILE *fp, knh_StreamDSPI_t *drv)
+KNHAPI(knh_InputStream_t*) new_InputStream__FILE(Ctx *ctx, knh_String_t *urn, FILE *fp, knh_iodrv_t *drv)
 {
 	knh_InputStream_t* o = (knh_InputStream_t*)new_Object_bcid(ctx, CLASS_InputStream, 0);
 	KNH_SETv(ctx, DP(o)->urn, urn);
@@ -137,12 +137,8 @@ int knh_InputStream_getc(Ctx *ctx, knh_InputStream_t *o)
 			if(DP(o)->prev != '\r') {
 				DP(o)->line++;
 			}
-		}
-		else if(ch == '\r') {
+		}else if(ch == '\r') {
 			DP(o)->line++;
-		}
-		else if(ch == EOF) {
-			knh_InputStream_close(ctx, o);
 		}
 	}
 	return ch;
@@ -208,11 +204,11 @@ knh_String_t* knh_InputStream_readLine(Ctx *ctx, knh_InputStream_t *in)
 
 void knh_InputStream_close(Ctx *ctx, knh_InputStream_t *o)
 {
-	DP(o)->driver->fclose(ctx, DP(o)->fd);
+	f_io_close f = DP(o)->driver->fclose;
 	DP(o)->driver = knh_getDefaultIODriver();
+	f(ctx, DP(o)->fd);
 	DP(o)->fd = -1;
 	KNH_SETv(ctx, DP(o)->ba, KNH_NULL);
-	knh_InputStream_setFILE(o, 0);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -252,7 +248,7 @@ void knh_InputStream_setEncoding(Ctx *ctx, knh_InputStream_t *o, knh_String_t *e
 
 KNHAPI(knh_InputStream_t*) new_FileInputStream(Ctx *ctx, knh_bytes_t file, int isThrowable)
 {
-	knh_StreamDSPI_t *drv = knh_getIODriver(ctx, STEXT("file"));
+	knh_iodrv_t *drv = knh_getIODriver(ctx, STEXT("file"));
 	knh_io_t fd = drv->fopen(ctx, file, "r", isThrowable);
 	return new_InputStream__io(ctx, new_String(ctx, file, NULL), fd, drv);
 }
@@ -276,9 +272,9 @@ KNHAPI(knh_InputStream_t*) new_BytesInputStream(Ctx *ctx, knh_Bytes_t *ba, size_
 }
 
 /* ------------------------------------------------------------------------ */
-//## mapper Bytes InputStream!;
+/* @map Bytes InputStream! */
 
-MAPPER knh_Bytes_InputStream(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+MAPPER knh_Bytes_InputStream(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_Bytes_t *ba = (knh_Bytes_t*)sfp[0].o;
 	KNH_MAPPED(ctx, sfp, new_BytesInputStream(ctx, ba, 0, knh_Bytes_size(ba)));
@@ -291,7 +287,7 @@ KNHAPI(knh_InputStream_t*) new_StringInputStream(Ctx *ctx, knh_String_t *str, si
 {
 	knh_InputStream_t* o = (knh_InputStream_t*)new_Object_bcid(ctx, CLASS_InputStream, 0);
 	DP(o)->fd = -1;
-	DBG2_ASSERT(IS_String(str));
+	DBG2_ASSERT(IS_Bytes(str));
 	KNH_SETv(ctx, DP(o)->str, str);
 	DP(o)->buf = (char*)(str)->str;
 	DP(o)->bufsiz = (str)->size;

@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -40,9 +40,8 @@ extern "C" {
 /* ------------------------------------------------------------------------ */
 //## method This! Connection.new(String! urn);
 
-static METHOD Connection_new(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Connection_new(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	knh_Connection_t *o = (knh_Connection_t*)sfp[0].o;
 	knh_Connection_open(ctx, o, (knh_String_t*)sfp[1].s);
 	KNH_RETURN(ctx, sfp, sfp[0].o);
@@ -51,9 +50,8 @@ static METHOD Connection_new(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method ResultSet! Connection.query(String! query);
 
-static METHOD Connection_query(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Connection_query(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	knh_Connection_t *c = (knh_Connection_t*)sfp[0].o;
 	knh_String_t *query = (knh_String_t*)sfp[1].o;
 	knh_ResultSet_t *rs = new_ResultSet(ctx);
@@ -74,9 +72,8 @@ static METHOD Connection_query(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void Connection.exec(String! query);
 
-static METHOD Connection_exec(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Connection_exec(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	knh_Connection_t *c = (knh_Connection_t*)sfp[0].o;
 	knh_String_t *query = (knh_String_t*)sfp[1].o;
 	(c)->df->dbquery(ctx, (c)->conn, __tobytes(query), NULL);
@@ -86,9 +83,8 @@ static METHOD Connection_exec(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void Connection.close();
 
-static METHOD Connection_close(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Connection_close(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	knh_Connection_close(ctx, (knh_Connection_t*)sfp[0].o);
 	KNH_RETURN_void(ctx, sfp);
 }
@@ -96,28 +92,25 @@ static METHOD Connection_close(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method Int! ResultSet.getSize();
 
-static METHOD ResultSet_getSize(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD ResultSet_getSize(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	knh_ResultSet_t *o = (knh_ResultSet_t*)sfp[0].o;
-	KNH_RETURNi(ctx, sfp, DP(o)->column_size);
+	KNH_RETURN_Int(ctx, sfp, DP(o)->column_size);
 }
 
 /* ------------------------------------------------------------------------ */
 //## method Boolean! ResultSet.next();
 
-static METHOD ResultSet_next(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD ResultSet_next(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
-	KNH_RETURNb(ctx, sfp, knh_ResultSet_next(ctx, (knh_ResultSet_t*)sfp[0].o))
+	KNH_RETURN_Boolean(ctx, sfp, knh_ResultSet_next(ctx, (knh_ResultSet_t*)sfp[0].o))
 }
 
 /* ------------------------------------------------------------------------ */
 //## method String! ResultSet.getName(Int! n);
 
-static METHOD ResultSet_getName(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD ResultSet_getName(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	knh_ResultSet_t *o = (knh_ResultSet_t*)sfp[0].o;
 	size_t n = p_size(sfp[1]);
 	knh_String_t *v = TS_EMPTY;
@@ -132,7 +125,7 @@ static METHOD ResultSet_getName(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 /* ------------------------------------------------------------------------ */
 
-int knh_ResultSet_indexof_(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+int knh_ResultSet_indexof_(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_ResultSet_t *o = (knh_ResultSet_t*)sfp[0].o;
 	if(IS_bInt(sfp[1].o)) {
@@ -159,15 +152,13 @@ int knh_ResultSet_indexof_(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method Int ResultSet.getInt(Any n);
 
-static METHOD ResultSet_getInt(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD ResultSet_getInt(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	int n = knh_ResultSet_indexof_(ctx, sfp);
 	knh_int_t res = 0;
-	Object *v = (Object*)KNH_INT0;
 	if(n >= 0) {
 		knh_ResultSet_t *o = (knh_ResultSet_t*)sfp[0].o;
-		char *p = knh_Bytes_tochar(DP(o)->databuf) + DP(o)->column[n].start;
+		char *p = knh_Bytes__tochar(DP(o)->databuf) + DP(o)->column[n].start;
 		switch(DP(o)->column[n].ctype) {
 		case knh_ResultSet_CTYPE__integer :
 			res = *((knh_int_t*)p);
@@ -175,24 +166,25 @@ static METHOD ResultSet_getInt(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 			res = (knh_int_t)(*((knh_float_t*)p));
 		case knh_ResultSet_CTYPE__null :
 		default:
-			v = KNH_NULL;
+			goto L_RETURN_NULL;
 		}
 	}
-	KNH_RETURN_Int(ctx, sfp, res, v);
+	KNH_RETURN_NNInt(ctx, sfp, res);
+
+	L_RETURN_NULL:;
+	KNH_RETURN(ctx, sfp, KNH_NULL);
 }
 
 /* ------------------------------------------------------------------------ */
 //## method Float ResultSet.getFloat(Any n);
 
-static METHOD ResultSet_getFloat(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD ResultSet_getFloat(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	int n = knh_ResultSet_indexof_(ctx, sfp);
 	knh_float_t res = 0;
-	Object *v = (Object*)KNH_FLOAT0;
 	if(n >= 0) {
 		knh_ResultSet_t *o = (knh_ResultSet_t*)sfp[0].o;
-		char *p = knh_Bytes_tochar(DP(o)->databuf) + DP(o)->column[n].start;
+		char *p = knh_Bytes__tochar(DP(o)->databuf) + DP(o)->column[n].start;
 		switch(DP(o)->column[n].ctype) {
 		case knh_ResultSet_CTYPE__integer :
 			res = (knh_float_t)(*((knh_int_t*)p));
@@ -200,18 +192,20 @@ static METHOD ResultSet_getFloat(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 			res = (*((knh_float_t*)p));
 		case knh_ResultSet_CTYPE__null :
 		default:
-			v = KNH_NULL;
+			goto L_RETURN_NULL;
 		}
 	}
-	KNH_RETURN_Float(ctx, sfp, res, v);
+	KNH_RETURN_NNFloat(ctx, sfp, res);
+
+	L_RETURN_NULL:;
+	KNH_RETURN(ctx, sfp, KNH_NULL);
 }
 
 /* ------------------------------------------------------------------------ */
 //## method String ResultSet.getString(Any n);
 
-static METHOD ResultSet_getString(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD ResultSet_getString(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	int n = knh_ResultSet_indexof_(ctx, sfp);
 	Object *v = KNH_NULL;
 	if(n >= 0) {
@@ -223,26 +217,25 @@ static METHOD ResultSet_getString(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method Any ResultSet.get(Any n);
 
-static METHOD ResultSet_get(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD ResultSet_get(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	int n = knh_ResultSet_indexof_(ctx, sfp);
 	Object *v = KNH_NULL;
 	if(n >= 0) {
 		knh_ResultSet_t *o = (knh_ResultSet_t*)sfp[0].o;
-		char *p = knh_Bytes_tochar(DP(o)->databuf) + DP(o)->column[n].start;
+		char *p = knh_Bytes__tochar(DP(o)->databuf) + DP(o)->column[n].start;
 		switch(DP(o)->column[n].ctype) {
 		case knh_ResultSet_CTYPE__integer :
-			KNH_RETURN_Int(ctx, sfp, (*((knh_int_t*)p)), KNH_INT0);
+			KNH_RETURN_NNInt(ctx, sfp, (*((knh_int_t*)p)));
 		case knh_ResultSet_CTYPE__float :
-			KNH_RETURN_Float(ctx, sfp, (*((knh_float_t*)p)), KNH_FLOAT0);
+			KNH_RETURN_NNFloat(ctx, sfp, (*((knh_float_t*)p)));
 		case knh_ResultSet_CTYPE__text :
-			v = UP(new_String(ctx, B2(knh_Bytes_tochar(DP(o)->databuf) + DP(o)->column[n].start, DP(o)->column[n].len), NULL));
+			v = UP(new_String(ctx, B2(knh_Bytes__tochar(DP(o)->databuf) + DP(o)->column[n].start, DP(o)->column[n].len), NULL));
 			break;
 		case knh_ResultSet_CTYPE__bytes :
 			{
 				knh_Bytes_t *ba = new_Bytes(ctx, DP(o)->column[n].len);
-				knh_Bytes_write(ctx, ba, B2(knh_Bytes_tochar(DP(o)->databuf) + DP(o)->column[n].start, DP(o)->column[n].len));
+				knh_Bytes_write(ctx, ba, B2(knh_Bytes__tochar(DP(o)->databuf) + DP(o)->column[n].start, DP(o)->column[n].len));
 				v = UP(ba);
 			}
 			break;
@@ -266,7 +259,7 @@ static void knh_ResultSet__dump(Ctx *ctx, knh_ResultSet_t *o, knh_OutputStream_t
 		}
 		knh_write(ctx, w, __tobytes(DP(o)->column[n].name));
 		knh_printf(ctx, w, "(%d): ", n);
-		char *p = knh_Bytes_tochar(DP(o)->databuf) + DP(o)->column[n].start;
+		char *p = knh_Bytes__tochar(DP(o)->databuf) + DP(o)->column[n].start;
 		switch(DP(o)->column[n].ctype) {
 			case knh_ResultSet_CTYPE__null :
 				knh_write(ctx, w, STEXT("null"));
@@ -291,9 +284,8 @@ static void knh_ResultSet__dump(Ctx *ctx, knh_ResultSet_t *o, knh_OutputStream_t
 /* ------------------------------------------------------------------------ */
 //## method void ResultSet.close();
 
-static METHOD ResultSet_close(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD ResultSet_close(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	knh_ResultSet_close(ctx, (knh_ResultSet_t*)sfp[0].o);
 	KNH_RETURN_void(ctx, sfp);
 }

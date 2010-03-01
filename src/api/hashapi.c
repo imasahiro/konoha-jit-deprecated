@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -40,19 +40,24 @@ extern "C" {
 /* ======================================================================== */
 /* [common] */
 
-static knh_hashcode_t knh_stack_hashCode(Ctx *ctx, knh_sfp_t *sfp)
+static
+knh_hashcode_t knh_stack_hashCode(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_class_t bcid = (sfp[0].o)->h.bcid;
-	return (knh_hashcode_t)ClassTable(bcid).cspi->hashkey(ctx, sfp, KNH_FOBJECT_HASH);
+	if(CLASS_Boolean <= bcid && bcid <= CLASS_Float) {
+		return (knh_hashcode_t)(sfp[0].i)->n.data;
+	}
+	return ctx->share->StructTable[bcid].fhashCode(ctx, sfp[0].o);
 }
 
 /* ------------------------------------------------------------------------ */
 
-static int knh_stack_equals(Ctx *ctx, knh_sfp_t *sfp, Object *o)
+static
+int knh_stack_equals(Ctx *ctx, knh_sfp_t *sfp, Object *o)
 {
 	knh_class_t bcid = (sfp[0].o)->h.bcid;
 	if(CLASS_Boolean <= bcid && bcid <= CLASS_Float) {
-		return (sfp[0].data == knh_Object_data(o));
+		return ((sfp[0].i)->n.data == ((knh_Int_t*)o)->n.data);
 	}
 	return (knh_Object_compareTo(ctx, sfp[0].o, o) == 0);
 }
@@ -60,13 +65,12 @@ static int knh_stack_equals(Ctx *ctx, knh_sfp_t *sfp, Object *o)
 /* ------------------------------------------------------------------------ */
 //## method This! HashMap.new(Int? initCapacity);
 
-static METHOD HashMap_new(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD HashMap_new(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	knh_HashMap_t *o = (knh_HashMap_t*)sfp[0].o;
 	int init = IS_NULL(sfp[1].o) ? KNH_HASH_INITSIZE: p_int(sfp[1]);
 	if(init > 0) {
-		ClassTable(CLASS_HashMap).cspi->init(ctx, sfp[0].o, init);
+		ctx->share->StructTable[STRUCT_HashMap].finit(ctx, sfp[0].o, init);
 	}
 	KNH_RETURN(ctx, sfp, o);
 }
@@ -74,13 +78,13 @@ static METHOD HashMap_new(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method T2 HashMap.get(T1 key);
 
-static METHOD HashMap_get(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD HashMap_get(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	knh_HashMap_t *o = (knh_HashMap_t*)sfp[0].o;
 	knh_hashcode_t hcode = knh_stack_hashCode(ctx, sfp + 1);
 	knh_uintptr_t h =  hcode % DP(o)->hmax;
 	knh_hashentry_t *e = DP(o)->array[h];
+
 	while(e != NULL) {
 		if(e->hcode == hcode
 				&& knh_Object_cid(sfp[1].o) == knh_Object_cid(e->key)
@@ -95,9 +99,8 @@ static METHOD HashMap_get(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method Boolean! HashMap.opHas(T1 key);
 
-static METHOD HashMap_opHas(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD HashMap_opHas(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	knh_HashMap_t *o = (knh_HashMap_t*)sfp[0].o;
 	knh_hashcode_t hcode = knh_stack_hashCode(ctx, sfp + 1);
 	knh_uintptr_t h =  hcode % DP(o)->hmax;
@@ -107,19 +110,18 @@ static METHOD HashMap_opHas(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 		if(e->hcode == hcode
 				&& knh_Object_cid(sfp[1].o) == knh_Object_cid(e->key)
 				&& knh_stack_equals(ctx, sfp + 1, e->key)) {
-			KNH_RETURNb(ctx, sfp, 1);
+			KNH_RETURN_Boolean(ctx, sfp, 1);
 		}
 		e = e->next;
 	}
-	KNH_RETURNb(ctx, sfp, 0);
+	KNH_RETURN_Boolean(ctx, sfp, 0);
 }
 
 /* ------------------------------------------------------------------------ */
 //## method void HashMap.remove(T1 key);
 
-static METHOD HashMap_remove(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD HashMap_remove(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	knh_Hash_t *o = (knh_Hash_t*)sfp[0].o;
 	knh_hashcode_t hcode = knh_stack_hashCode(ctx, sfp + 1);
 	knh_uintptr_t h =  hcode % DP(o)->hmax;
@@ -143,9 +145,8 @@ static METHOD HashMap_remove(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void HashMap.set(T1! key, T2 value);
 
-static METHOD HashMap_set(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD HashMap_set(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	if(IS_NULL(sfp[2].o)) {
 		HashMap_remove(ctx, sfp);
 	}

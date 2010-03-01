@@ -3,277 +3,277 @@
 /* ======================================================================== */
 /* flag */
 
-static METHOD Object_isRelease(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Object_isRelease(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_Object_isRelease((knh_Object_t*)sfp[0].o));
+	KNH_RETURN_Boolean(ctx, sfp, knh_Object_isRelease((knh_Object_t*)sfp[0].o));
 }
 
-static METHOD Object_isDebug(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Object_isDebug(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, !(knh_Object_isRelease((knh_Object_t*)sfp[0].o)));
+	KNH_RETURN_Boolean(ctx, sfp, !(knh_Object_isRelease((knh_Object_t*)sfp[0].o)));
 }
 
-static METHOD Object_isImmutable(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Object_isImmutable(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_Object_isImmutable((knh_Object_t*)sfp[0].o));
+	KNH_RETURN_Boolean(ctx, sfp, knh_Object_isImmutable((knh_Object_t*)sfp[0].o));
 }
 
-static METHOD Object_isUndefined(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Object_isUndefined(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_Object_isUndefined((knh_Object_t*)sfp[0].o));
+	KNH_RETURN_Boolean(ctx, sfp, knh_Object_isUndefined((knh_Object_t*)sfp[0].o));
 }
 
-static METHOD Object_isModified(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Object_isModified(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_Object_isModified((knh_Object_t*)sfp[0].o));
+	KNH_RETURN_Boolean(ctx, sfp, knh_Object_isModified((knh_Object_t*)sfp[0].o));
 }
 
-static METHOD Object_setModified(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Object_setModified(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_Object_setModified((knh_Object_t*)sfp[0].o, p_bool(sfp[1]));
-	KNH_RETURNb_(ctx, sfp, sfp[1].bvalue);
+	KNH_RETURN_void(ctx, sfp);
 }
 
-static METHOD Object_isShared(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Object_isShared(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_Object_isShared((knh_Object_t*)sfp[0].o));
+	KNH_RETURN_Boolean(ctx, sfp, knh_Object_isShared((knh_Object_t*)sfp[0].o));
 }
 
-static METHOD Object_setShared(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Object_setShared(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_Object_setShared((knh_Object_t*)sfp[0].o, p_bool(sfp[1]));
-	KNH_RETURNb_(ctx, sfp, sfp[1].bvalue);
+	KNH_RETURN_void(ctx, sfp);
 }
 
-static METHOD String_isAscii(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD String_isAscii(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_String_isAscii((knh_String_t*)sfp[0].o));
+	KNH_RETURN_Boolean(ctx, sfp, knh_String_isAscii((knh_String_t*)sfp[0].o));
 }
 
-static METHOD DictMap_isIgnoreCase(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD DictMap_isIgnoreCase(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_DictMap_isIgnoreCase((knh_DictMap_t*)sfp[0].o));
+	KNH_RETURN_Boolean(ctx, sfp, knh_DictMap_isIgnoreCase((knh_DictMap_t*)sfp[0].o));
 }
 
-static METHOD DictSet_isIgnoreCase(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD DictSet_isIgnoreCase(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_DictSet_isIgnoreCase((knh_DictSet_t*)sfp[0].o));
+	KNH_RETURN_Boolean(ctx, sfp, knh_DictSet_isIgnoreCase((knh_DictSet_t*)sfp[0].o));
 }
 
-static METHOD Class_isRelease(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Class_isRelease(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_class_isRelease(knh_Class_cid(sfp[0].c)));
+	KNH_RETURN_Boolean(ctx, sfp, knh_class_isRelease(knh_Class_cid(sfp[0].c)));
 }
 
-static METHOD Class_isDebug(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Class_isDebug(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, !(knh_class_isRelease(knh_Class_cid(sfp[0].c))));
+	KNH_RETURN_Boolean(ctx, sfp, !(knh_class_isRelease(knh_Class_cid(sfp[0].c))));
 }
 
-static METHOD Class_isImmutable(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Class_isImmutable(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_class_isImmutable(knh_Class_cid(sfp[0].c)));
+	KNH_RETURN_Boolean(ctx, sfp, knh_class_isImmutable(knh_Class_cid(sfp[0].c)));
 }
 
-static METHOD Class_isMetaClass(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Class_isMetaClass(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_class_isMetaClass(knh_Class_cid(sfp[0].c)));
+	KNH_RETURN_Boolean(ctx, sfp, knh_class_isMetaClass(knh_Class_cid(sfp[0].c)));
 }
 
-static METHOD Class_isPrivate(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Class_isPrivate(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_class_isPrivate(knh_Class_cid(sfp[0].c)));
+	KNH_RETURN_Boolean(ctx, sfp, knh_class_isPrivate(knh_Class_cid(sfp[0].c)));
 }
 
-static METHOD Class_isPublic(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Class_isPublic(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, !(knh_class_isPrivate(knh_Class_cid(sfp[0].c))));
+	KNH_RETURN_Boolean(ctx, sfp, !(knh_class_isPrivate(knh_Class_cid(sfp[0].c))));
 }
 
-static METHOD Class_isFinal(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Class_isFinal(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_class_isFinal(knh_Class_cid(sfp[0].c)));
+	KNH_RETURN_Boolean(ctx, sfp, knh_class_isFinal(knh_Class_cid(sfp[0].c)));
 }
 
-static METHOD Class_isSingleton(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Class_isSingleton(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_class_isSingleton(knh_Class_cid(sfp[0].c)));
+	KNH_RETURN_Boolean(ctx, sfp, knh_class_isSingleton(knh_Class_cid(sfp[0].c)));
 }
 
-static METHOD Class_isUnique(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Class_isUnique(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_class_isUnique(knh_Class_cid(sfp[0].c)));
+	KNH_RETURN_Boolean(ctx, sfp, knh_class_isUnique(knh_Class_cid(sfp[0].c)));
 }
 
-static METHOD Class_isInterface(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Class_isInterface(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_class_isInterface(knh_Class_cid(sfp[0].c)));
+	KNH_RETURN_Boolean(ctx, sfp, knh_class_isInterface(knh_Class_cid(sfp[0].c)));
 }
 
-static METHOD Method_isPrivate(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Method_isPrivate(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_Method_isPrivate((knh_Method_t*)sfp[0].o));
+	KNH_RETURN_Boolean(ctx, sfp, knh_Method_isPrivate((knh_Method_t*)sfp[0].o));
 }
 
-static METHOD Method_isPublic(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Method_isPublic(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, !(knh_Method_isPrivate((knh_Method_t*)sfp[0].o)));
+	KNH_RETURN_Boolean(ctx, sfp, !(knh_Method_isPrivate((knh_Method_t*)sfp[0].o)));
 }
 
-static METHOD Method_isVirtual(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Method_isVirtual(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_Method_isVirtual((knh_Method_t*)sfp[0].o));
+	KNH_RETURN_Boolean(ctx, sfp, knh_Method_isVirtual((knh_Method_t*)sfp[0].o));
 }
 
-static METHOD Method_isFinal(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Method_isFinal(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, !(knh_Method_isVirtual((knh_Method_t*)sfp[0].o)));
+	KNH_RETURN_Boolean(ctx, sfp, !(knh_Method_isVirtual((knh_Method_t*)sfp[0].o)));
 }
 
-static METHOD Method_isConst(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Method_isConst(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_Method_isConst((knh_Method_t*)sfp[0].o));
+	KNH_RETURN_Boolean(ctx, sfp, knh_Method_isConst((knh_Method_t*)sfp[0].o));
 }
 
-static METHOD Method_isStatic(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Method_isStatic(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_Method_isStatic((knh_Method_t*)sfp[0].o));
+	KNH_RETURN_Boolean(ctx, sfp, knh_Method_isStatic((knh_Method_t*)sfp[0].o));
 }
 
-static METHOD Method_isVarArgs(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Method_isVarArgs(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_Method_isVarArgs((knh_Method_t*)sfp[0].o));
+	KNH_RETURN_Boolean(ctx, sfp, knh_Method_isVarArgs((knh_Method_t*)sfp[0].o));
 }
 
-static METHOD Mapper_isInterface(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Mapper_isInterface(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_Mapper_isInterface((knh_Mapper_t*)sfp[0].o));
+	KNH_RETURN_Boolean(ctx, sfp, knh_Mapper_isInterface((knh_Mapper_t*)sfp[0].o));
 }
 
-static METHOD Mapper_isICast(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Mapper_isICast(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_Mapper_isICast((knh_Mapper_t*)sfp[0].o));
+	KNH_RETURN_Boolean(ctx, sfp, knh_Mapper_isICast((knh_Mapper_t*)sfp[0].o));
 }
 
-static METHOD Mapper_isSignificant(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Mapper_isSignificant(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_Mapper_isSignificant((knh_Mapper_t*)sfp[0].o));
+	KNH_RETURN_Boolean(ctx, sfp, knh_Mapper_isSignificant((knh_Mapper_t*)sfp[0].o));
 }
 
-static METHOD Mapper_isFinal(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Mapper_isFinal(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_Mapper_isFinal((knh_Mapper_t*)sfp[0].o));
+	KNH_RETURN_Boolean(ctx, sfp, knh_Mapper_isFinal((knh_Mapper_t*)sfp[0].o));
 }
 
-static METHOD Mapper_isSynonym(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Mapper_isSynonym(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_Mapper_isSynonym((knh_Mapper_t*)sfp[0].o));
+	KNH_RETURN_Boolean(ctx, sfp, knh_Mapper_isSynonym((knh_Mapper_t*)sfp[0].o));
 }
 
-static METHOD Mapper_isLossLess(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Mapper_isLossLess(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_Mapper_isLossLess((knh_Mapper_t*)sfp[0].o));
+	KNH_RETURN_Boolean(ctx, sfp, knh_Mapper_isLossLess((knh_Mapper_t*)sfp[0].o));
 }
 
-static METHOD Mapper_isTotal(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Mapper_isTotal(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_Mapper_isTotal((knh_Mapper_t*)sfp[0].o));
+	KNH_RETURN_Boolean(ctx, sfp, knh_Mapper_isTotal((knh_Mapper_t*)sfp[0].o));
 }
 
-static METHOD Mapper_isPartial(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Mapper_isPartial(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, !(knh_Mapper_isTotal((knh_Mapper_t*)sfp[0].o)));
+	KNH_RETURN_Boolean(ctx, sfp, !(knh_Mapper_isTotal((knh_Mapper_t*)sfp[0].o)));
 }
 
-static METHOD Mapper_isConst(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Mapper_isConst(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_Mapper_isConst((knh_Mapper_t*)sfp[0].o));
+	KNH_RETURN_Boolean(ctx, sfp, knh_Mapper_isConst((knh_Mapper_t*)sfp[0].o));
 }
 
-static METHOD Mapper_isTemporal(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Mapper_isTemporal(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, !(knh_Mapper_isConst((knh_Mapper_t*)sfp[0].o)));
+	KNH_RETURN_Boolean(ctx, sfp, !(knh_Mapper_isConst((knh_Mapper_t*)sfp[0].o)));
 }
 
-static METHOD Mapper_isLocal(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Mapper_isLocal(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_Mapper_isLocal((knh_Mapper_t*)sfp[0].o));
+	KNH_RETURN_Boolean(ctx, sfp, knh_Mapper_isLocal((knh_Mapper_t*)sfp[0].o));
 }
 
-static METHOD Mapper_isDerived(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Mapper_isDerived(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_Mapper_isDerived((knh_Mapper_t*)sfp[0].o));
+	KNH_RETURN_Boolean(ctx, sfp, knh_Mapper_isDerived((knh_Mapper_t*)sfp[0].o));
 }
 
-static METHOD OutputStream_isAutoFlush(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD OutputStream_isAutoFlush(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_OutputStream_isAutoFlush((knh_OutputStream_t*)sfp[0].o));
+	KNH_RETURN_Boolean(ctx, sfp, knh_OutputStream_isAutoFlush((knh_OutputStream_t*)sfp[0].o));
 }
 
-static METHOD OutputStream_setAutoFlush(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD OutputStream_setAutoFlush(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_OutputStream_setAutoFlush((knh_OutputStream_t*)sfp[0].o, p_bool(sfp[1]));
-	KNH_RETURNb_(ctx, sfp, sfp[1].bvalue);
+	KNH_RETURN_void(ctx, sfp);
 }
 
-static METHOD OutputStream_isStoringBuffer(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD OutputStream_isStoringBuffer(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_OutputStream_isStoringBuffer((knh_OutputStream_t*)sfp[0].o));
+	KNH_RETURN_Boolean(ctx, sfp, knh_OutputStream_isStoringBuffer((knh_OutputStream_t*)sfp[0].o));
 }
 
-static METHOD OutputStream_setStoringBuffer(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD OutputStream_setStoringBuffer(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_OutputStream_setStoringBuffer((knh_OutputStream_t*)sfp[0].o, p_bool(sfp[1]));
-	KNH_RETURNb_(ctx, sfp, sfp[1].bvalue);
+	KNH_RETURN_void(ctx, sfp);
 }
 
-static METHOD Exception_isLogging(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Exception_isLogging(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_Exception_isLogging((knh_Exception_t*)sfp[0].o));
+	KNH_RETURN_Boolean(ctx, sfp, knh_Exception_isLogging((knh_Exception_t*)sfp[0].o));
 }
 
-static METHOD Context_isStrict(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Context_isStrict(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_Context_isStrict((knh_Context_t*)sfp[0].o));
+	KNH_RETURN_Boolean(ctx, sfp, knh_Context_isStrict((knh_Context_t*)sfp[0].o));
 }
 
-static METHOD Context_setStrict(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Context_setStrict(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_Context_setStrict((knh_Context_t*)sfp[0].o, p_bool(sfp[1]));
-	KNH_RETURNb_(ctx, sfp, sfp[1].bvalue);
+	KNH_RETURN_void(ctx, sfp);
 }
 
-static METHOD Context_isDebug(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Context_isDebug(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_Context_isDebug((knh_Context_t*)sfp[0].o));
+	KNH_RETURN_Boolean(ctx, sfp, knh_Context_isDebug((knh_Context_t*)sfp[0].o));
 }
 
-static METHOD Context_setDebug(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Context_setDebug(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_Context_setDebug((knh_Context_t*)sfp[0].o, p_bool(sfp[1]));
-	KNH_RETURNb_(ctx, sfp, sfp[1].bvalue);
+	KNH_RETURN_void(ctx, sfp);
 }
 
-static METHOD Context_isVerbose(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Context_isVerbose(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_Context_isVerbose((knh_Context_t*)sfp[0].o));
+	KNH_RETURN_Boolean(ctx, sfp, knh_Context_isVerbose((knh_Context_t*)sfp[0].o));
 }
 
-static METHOD Context_setVerbose(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Context_setVerbose(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_Context_setVerbose((knh_Context_t*)sfp[0].o, p_bool(sfp[1]));
-	KNH_RETURNb_(ctx, sfp, sfp[1].bvalue);
+	KNH_RETURN_void(ctx, sfp);
 }
 
-static METHOD Context_isInteractive(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Context_isInteractive(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_Context_isInteractive((knh_Context_t*)sfp[0].o));
+	KNH_RETURN_Boolean(ctx, sfp, knh_Context_isInteractive((knh_Context_t*)sfp[0].o));
 }
 
 /* ======================================================================== */
 /* data */
 
-static char * StringData0[] = {
+static char * StringData[] = {
 	"", /* TS_EMPTY */
 	"\t", /* TS_TAB */
 	""KONOHA_OS_LINEFEED"", /* TS_EOL */
@@ -301,63 +301,545 @@ static char * StringData0[] = {
 	NULL
 };
 
-static knh_StructData0_t StructData0[] = {
-	{(knh_ObjectCSPI_t*)&(ObjectSPI), CLASS_Object, FLAG_Object},
-	{(knh_ObjectCSPI_t*)&(BooleanSPI), CLASS_Boolean, FLAG_Boolean},
-	{(knh_ObjectCSPI_t*)&(NumberSPI), CLASS_Number, FLAG_Number},
-	{(knh_ObjectCSPI_t*)&(IntSPI), CLASS_Int, FLAG_Int},
-	{(knh_ObjectCSPI_t*)&(FloatSPI), CLASS_Float, FLAG_Float},
-	{(knh_ObjectCSPI_t*)&(StringSPI), CLASS_String, FLAG_String},
-	{(knh_ObjectCSPI_t*)&(BytesSPI), CLASS_Bytes, FLAG_Bytes},
-	{(knh_ObjectCSPI_t*)&(AnySPI), CLASS_Any, FLAG_Any},
-	{(knh_ObjectCSPI_t*)&(IteratorSPI), CLASS_Iterator, FLAG_Iterator},
-	{(knh_ObjectCSPI_t*)&(PairSPI), CLASS_Pair, FLAG_Pair},
-	{(knh_ObjectCSPI_t*)&(TupleSPI), CLASS_Tuple, FLAG_Tuple},
-	{(knh_ObjectCSPI_t*)&(RangeSPI), CLASS_Range, FLAG_Range},
-	{(knh_ObjectCSPI_t*)&(ArraySPI), CLASS_Array, FLAG_Array},
-	{(knh_ObjectCSPI_t*)&(IArraySPI), CLASS_IArray, FLAG_IArray},
-	{(knh_ObjectCSPI_t*)&(FArraySPI), CLASS_FArray, FLAG_FArray},
-	{(knh_ObjectCSPI_t*)&(DictMapSPI), CLASS_DictMap, FLAG_DictMap},
-	{(knh_ObjectCSPI_t*)&(DictSetSPI), CLASS_DictSet, FLAG_DictSet},
-	{(knh_ObjectCSPI_t*)&(HashMapSPI), CLASS_HashMap, FLAG_HashMap},
-	{(knh_ObjectCSPI_t*)&(HashSetSPI), CLASS_HashSet, FLAG_HashSet},
-	{(knh_ObjectCSPI_t*)&(DictIdxSPI), CLASS_DictIdx, FLAG_DictIdx},
-	{(knh_ObjectCSPI_t*)&(ClassSPI), CLASS_Class, FLAG_Class},
-	{(knh_ObjectCSPI_t*)&(MethodFieldSPI), CLASS_MethodField, FLAG_MethodField},
-	{(knh_ObjectCSPI_t*)&(MethodSPI), CLASS_Method, FLAG_Method},
-	{(knh_ObjectCSPI_t*)&(MapperSPI), CLASS_Mapper, FLAG_Mapper},
-	{(knh_ObjectCSPI_t*)&(ClassMapSPI), CLASS_ClassMap, FLAG_ClassMap},
-	{(knh_ObjectCSPI_t*)&(ClosureSPI), CLASS_Closure, FLAG_Closure},
-	{(knh_ObjectCSPI_t*)&(ThunkSPI), CLASS_Thunk, FLAG_Thunk},
-	{(knh_ObjectCSPI_t*)&(AffineConvSPI), CLASS_AffineConv, FLAG_AffineConv},
-	{(knh_ObjectCSPI_t*)&(RegexSPI), CLASS_Regex, FLAG_Regex},
-	{(knh_ObjectCSPI_t*)&(BytesConvSPI), CLASS_BytesConv, FLAG_BytesConv},
-	{(knh_ObjectCSPI_t*)&(SemanticsSPI), CLASS_Semantics, FLAG_Semantics},
-	{(knh_ObjectCSPI_t*)&(InputStreamSPI), CLASS_InputStream, FLAG_InputStream},
-	{(knh_ObjectCSPI_t*)&(OutputStreamSPI), CLASS_OutputStream, FLAG_OutputStream},
-	{(knh_ObjectCSPI_t*)&(SocketSPI), CLASS_Socket, FLAG_Socket},
-	{(knh_ObjectCSPI_t*)&(ConnectionSPI), CLASS_Connection, FLAG_Connection},
-	{(knh_ObjectCSPI_t*)&(ResultSetSPI), CLASS_ResultSet, FLAG_ResultSet},
-	{(knh_ObjectCSPI_t*)&(ExceptionSPI), CLASS_Exception, FLAG_Exception},
-	{(knh_ObjectCSPI_t*)&(ExceptionHandlerSPI), CLASS_ExceptionHandler, FLAG_ExceptionHandler},
-	{(knh_ObjectCSPI_t*)&(ScriptSPI), CLASS_Script, FLAG_Script},
-	{(knh_ObjectCSPI_t*)&(NameSpaceSPI), CLASS_NameSpace, FLAG_NameSpace},
-	{(knh_ObjectCSPI_t*)&(PackageSPI), CLASS_Package, FLAG_Package},
-	{(knh_ObjectCSPI_t*)&(SystemSPI), CLASS_System, FLAG_System},
-	{(knh_ObjectCSPI_t*)&(ContextSPI), CLASS_Context, FLAG_Context},
-	{(knh_ObjectCSPI_t*)&(ThreadSPI), CLASS_Thread, FLAG_Thread},
-	{(knh_ObjectCSPI_t*)&(ScriptEngineSPI), CLASS_ScriptEngine, FLAG_ScriptEngine},
-	{(knh_ObjectCSPI_t*)&(TokenSPI), CLASS_Token, FLAG_Token},
-	{(knh_ObjectCSPI_t*)&(StmtSPI), CLASS_Stmt, FLAG_Stmt},
-	{(knh_ObjectCSPI_t*)&(GammaSPI), CLASS_Gamma, FLAG_Gamma},
-	{(knh_ObjectCSPI_t*)&(KLRInstSPI), CLASS_KLRInst, FLAG_KLRInst},
-	{(knh_ObjectCSPI_t*)&(KLRCodeSPI), CLASS_KLRCode, FLAG_KLRCode},
+static char * StructNameData[] = {
+	"Object",
+	"Boolean",
+	"Number",
+	"Int",
+	"Float",
+	"String",
+	"Bytes",
+	"Any",
+	"Iterator",
+	"Pair",
+	"Tuple",
+	"Range",
+	"Array",
+	"IArray",
+	"FArray",
+	"DictMap",
+	"DictSet",
+	"HashMap",
+	"HashSet",
+	"DictIdx",
+	"Class",
+	"ClassField",
+	"MethodField",
+	"Method",
+	"Mapper",
+	"ClassMap",
+	"Closure",
+	"Thunk",
+	"AffineConv",
+	"Regex",
+	"BytesConv",
+	"ClassSpec",
+	"InputStream",
+	"OutputStream",
+	"Socket",
+	"Connection",
+	"ResultSet",
+	"Exception",
+	"ExceptionHandler",
+	"Script",
+	"NameSpace",
+	"System",
+	"Context",
+	"Token",
+	"Stmt",
+	"Gamma",
+	"KLRInst",
+	"KLRCode",
+	NULL
+};
+
+static knh_StructData_t StructData[] = {
+	{
+		"Object", STRUCT_Object, FLAG_Object, 0,
+		(knh_fstruct_init)knh_ObjectField_init,
+		(knh_fstruct_copy)knh_ObjectField_copy, 
+		(knh_fstruct_traverse)knh_ObjectField_traverse,
+		(knh_fstruct_compareTo)knh_ObjectField_compareTo,
+		(knh_fstruct_hashCode)knh_ObjectField_hashCode,
+		(knh_fstruct_newClass)knh_ObjectField_newClass,
+		knh_ObjectField_getkey
+	},
+	{
+		"Boolean", STRUCT_Boolean, FLAG_Boolean, 0,
+		(knh_fstruct_init)knh_Boolean_init,
+		(knh_fstruct_copy)knh_Boolean_copy, 
+		(knh_fstruct_traverse)knh_Boolean_traverse,
+		(knh_fstruct_compareTo)knh_Boolean_compareTo,
+		(knh_fstruct_hashCode)knh_Boolean_hashCode,
+		(knh_fstruct_newClass)knh_Boolean_newClass,
+		knh_Boolean_getkey
+	},
+	{
+		"Number", STRUCT_Number, FLAG_Number, 0,
+		(knh_fstruct_init)knh_Number_init,
+		(knh_fstruct_copy)knh_Number_copy, 
+		(knh_fstruct_traverse)knh_Number_traverse,
+		(knh_fstruct_compareTo)knh_Number_compareTo,
+		(knh_fstruct_hashCode)knh_Number_hashCode,
+		(knh_fstruct_newClass)knh_Number_newClass,
+		knh_Number_getkey
+	},
+	{
+		"Int", STRUCT_Int, FLAG_Int, 0,
+		(knh_fstruct_init)knh_Int_init,
+		(knh_fstruct_copy)knh_Int_copy, 
+		(knh_fstruct_traverse)knh_Int_traverse,
+		(knh_fstruct_compareTo)knh_Int_compareTo,
+		(knh_fstruct_hashCode)knh_Int_hashCode,
+		(knh_fstruct_newClass)knh_Int_newClass,
+		knh_Int_getkey
+	},
+	{
+		"Float", STRUCT_Float, FLAG_Float, 0,
+		(knh_fstruct_init)knh_Float_init,
+		(knh_fstruct_copy)knh_Float_copy, 
+		(knh_fstruct_traverse)knh_Float_traverse,
+		(knh_fstruct_compareTo)knh_Float_compareTo,
+		(knh_fstruct_hashCode)knh_Float_hashCode,
+		(knh_fstruct_newClass)knh_Float_newClass,
+		knh_Float_getkey
+	},
+	{
+		"String", STRUCT_String, FLAG_String, 0,
+		(knh_fstruct_init)knh_String_init,
+		(knh_fstruct_copy)knh_String_copy, 
+		(knh_fstruct_traverse)knh_String_traverse,
+		(knh_fstruct_compareTo)knh_String_compareTo,
+		(knh_fstruct_hashCode)knh_String_hashCode,
+		(knh_fstruct_newClass)knh_String_newClass,
+		knh_String_getkey
+	},
+	{
+		"Bytes", STRUCT_Bytes, FLAG_Bytes, 0,
+		(knh_fstruct_init)knh_Bytes_init,
+		(knh_fstruct_copy)knh_Bytes_copy, 
+		(knh_fstruct_traverse)knh_Bytes_traverse,
+		(knh_fstruct_compareTo)knh_Bytes_compareTo,
+		(knh_fstruct_hashCode)knh_Bytes_hashCode,
+		(knh_fstruct_newClass)knh_Bytes_newClass,
+		knh_Bytes_getkey
+	},
+	{
+		"Any", STRUCT_Any, FLAG_Any, 0,
+		(knh_fstruct_init)knh_Any_init,
+		(knh_fstruct_copy)knh_Any_copy, 
+		(knh_fstruct_traverse)knh_Any_traverse,
+		(knh_fstruct_compareTo)knh_Any_compareTo,
+		(knh_fstruct_hashCode)knh_Any_hashCode,
+		(knh_fstruct_newClass)knh_Any_newClass,
+		knh_Any_getkey
+	},
+	{
+		"Iterator", STRUCT_Iterator, FLAG_Iterator, sizeof(knh_Iterator_struct),
+		(knh_fstruct_init)knh_Iterator_init,
+		(knh_fstruct_copy)knh_Iterator_copy, 
+		(knh_fstruct_traverse)knh_Iterator_traverse,
+		(knh_fstruct_compareTo)knh_Iterator_compareTo,
+		(knh_fstruct_hashCode)knh_Iterator_hashCode,
+		(knh_fstruct_newClass)knh_Iterator_newClass,
+		knh_Iterator_getkey
+	},
+	{
+		"Pair", STRUCT_Pair, FLAG_Pair, 0,
+		(knh_fstruct_init)knh_Pair_init,
+		(knh_fstruct_copy)knh_Pair_copy, 
+		(knh_fstruct_traverse)knh_Pair_traverse,
+		(knh_fstruct_compareTo)knh_Pair_compareTo,
+		(knh_fstruct_hashCode)knh_Pair_hashCode,
+		(knh_fstruct_newClass)knh_Pair_newClass,
+		knh_Pair_getkey
+	},
+	{
+		"Tuple", STRUCT_Tuple, FLAG_Tuple, 0,
+		(knh_fstruct_init)knh_Tuple_init,
+		(knh_fstruct_copy)knh_Tuple_copy, 
+		(knh_fstruct_traverse)knh_Tuple_traverse,
+		(knh_fstruct_compareTo)knh_Tuple_compareTo,
+		(knh_fstruct_hashCode)knh_Tuple_hashCode,
+		(knh_fstruct_newClass)knh_Tuple_newClass,
+		knh_Tuple_getkey
+	},
+	{
+		"Range", STRUCT_Range, FLAG_Range, 0,
+		(knh_fstruct_init)knh_Range_init,
+		(knh_fstruct_copy)knh_Range_copy, 
+		(knh_fstruct_traverse)knh_Range_traverse,
+		(knh_fstruct_compareTo)knh_Range_compareTo,
+		(knh_fstruct_hashCode)knh_Range_hashCode,
+		(knh_fstruct_newClass)knh_Range_newClass,
+		knh_Range_getkey
+	},
+	{
+		"Array", STRUCT_Array, FLAG_Array, 0,
+		(knh_fstruct_init)knh_Array_init,
+		(knh_fstruct_copy)knh_Array_copy, 
+		(knh_fstruct_traverse)knh_Array_traverse,
+		(knh_fstruct_compareTo)knh_Array_compareTo,
+		(knh_fstruct_hashCode)knh_Array_hashCode,
+		(knh_fstruct_newClass)knh_Array_newClass,
+		knh_Array_getkey
+	},
+	{
+		"IArray", STRUCT_IArray, FLAG_IArray, 0,
+		(knh_fstruct_init)knh_IArray_init,
+		(knh_fstruct_copy)knh_IArray_copy, 
+		(knh_fstruct_traverse)knh_IArray_traverse,
+		(knh_fstruct_compareTo)knh_IArray_compareTo,
+		(knh_fstruct_hashCode)knh_IArray_hashCode,
+		(knh_fstruct_newClass)knh_IArray_newClass,
+		knh_IArray_getkey
+	},
+	{
+		"FArray", STRUCT_FArray, FLAG_FArray, 0,
+		(knh_fstruct_init)knh_FArray_init,
+		(knh_fstruct_copy)knh_FArray_copy, 
+		(knh_fstruct_traverse)knh_FArray_traverse,
+		(knh_fstruct_compareTo)knh_FArray_compareTo,
+		(knh_fstruct_hashCode)knh_FArray_hashCode,
+		(knh_fstruct_newClass)knh_FArray_newClass,
+		knh_FArray_getkey
+	},
+	{
+		"DictMap", STRUCT_DictMap, FLAG_DictMap, 0,
+		(knh_fstruct_init)knh_DictMap_init,
+		(knh_fstruct_copy)knh_DictMap_copy, 
+		(knh_fstruct_traverse)knh_DictMap_traverse,
+		(knh_fstruct_compareTo)knh_DictMap_compareTo,
+		(knh_fstruct_hashCode)knh_DictMap_hashCode,
+		(knh_fstruct_newClass)knh_DictMap_newClass,
+		knh_DictMap_getkey
+	},
+	{
+		"DictSet", STRUCT_DictSet, FLAG_DictSet, 0,
+		(knh_fstruct_init)knh_DictSet_init,
+		(knh_fstruct_copy)knh_DictSet_copy, 
+		(knh_fstruct_traverse)knh_DictSet_traverse,
+		(knh_fstruct_compareTo)knh_DictSet_compareTo,
+		(knh_fstruct_hashCode)knh_DictSet_hashCode,
+		(knh_fstruct_newClass)knh_DictSet_newClass,
+		knh_DictSet_getkey
+	},
+	{
+		"HashMap", STRUCT_HashMap, FLAG_HashMap, sizeof(knh_HashMap_struct),
+		(knh_fstruct_init)knh_HashMap_init,
+		(knh_fstruct_copy)knh_HashMap_copy, 
+		(knh_fstruct_traverse)knh_HashMap_traverse,
+		(knh_fstruct_compareTo)knh_HashMap_compareTo,
+		(knh_fstruct_hashCode)knh_HashMap_hashCode,
+		(knh_fstruct_newClass)knh_HashMap_newClass,
+		knh_HashMap_getkey
+	},
+	{
+		"HashSet", STRUCT_HashSet, FLAG_HashSet, sizeof(knh_HashSet_struct),
+		(knh_fstruct_init)knh_HashSet_init,
+		(knh_fstruct_copy)knh_HashSet_copy, 
+		(knh_fstruct_traverse)knh_HashSet_traverse,
+		(knh_fstruct_compareTo)knh_HashSet_compareTo,
+		(knh_fstruct_hashCode)knh_HashSet_hashCode,
+		(knh_fstruct_newClass)knh_HashSet_newClass,
+		knh_HashSet_getkey
+	},
+	{
+		"DictIdx", STRUCT_DictIdx, FLAG_DictIdx, 0,
+		(knh_fstruct_init)knh_DictIdx_init,
+		(knh_fstruct_copy)knh_DictIdx_copy, 
+		(knh_fstruct_traverse)knh_DictIdx_traverse,
+		(knh_fstruct_compareTo)knh_DictIdx_compareTo,
+		(knh_fstruct_hashCode)knh_DictIdx_hashCode,
+		(knh_fstruct_newClass)knh_DictIdx_newClass,
+		knh_DictIdx_getkey
+	},
+	{
+		"Class", STRUCT_Class, FLAG_Class, 0,
+		(knh_fstruct_init)knh_Class_init,
+		(knh_fstruct_copy)knh_Class_copy, 
+		(knh_fstruct_traverse)knh_Class_traverse,
+		(knh_fstruct_compareTo)knh_Class_compareTo,
+		(knh_fstruct_hashCode)knh_Class_hashCode,
+		(knh_fstruct_newClass)knh_Class_newClass,
+		knh_Class_getkey
+	},
+	{
+		"ClassField", STRUCT_ClassField, FLAG_ClassField, 0,
+		(knh_fstruct_init)knh_ClassField_init,
+		(knh_fstruct_copy)knh_ClassField_copy, 
+		(knh_fstruct_traverse)knh_ClassField_traverse,
+		(knh_fstruct_compareTo)knh_ClassField_compareTo,
+		(knh_fstruct_hashCode)knh_ClassField_hashCode,
+		(knh_fstruct_newClass)knh_ClassField_newClass,
+		knh_ClassField_getkey
+	},
+	{
+		"MethodField", STRUCT_MethodField, FLAG_MethodField, 0,
+		(knh_fstruct_init)knh_MethodField_init,
+		(knh_fstruct_copy)knh_MethodField_copy, 
+		(knh_fstruct_traverse)knh_MethodField_traverse,
+		(knh_fstruct_compareTo)knh_MethodField_compareTo,
+		(knh_fstruct_hashCode)knh_MethodField_hashCode,
+		(knh_fstruct_newClass)knh_MethodField_newClass,
+		knh_MethodField_getkey
+	},
+	{
+		"Method", STRUCT_Method, FLAG_Method, sizeof(knh_Method_struct),
+		(knh_fstruct_init)knh_Method_init,
+		(knh_fstruct_copy)knh_Method_copy, 
+		(knh_fstruct_traverse)knh_Method_traverse,
+		(knh_fstruct_compareTo)knh_Method_compareTo,
+		(knh_fstruct_hashCode)knh_Method_hashCode,
+		(knh_fstruct_newClass)knh_Method_newClass,
+		knh_Method_getkey
+	},
+	{
+		"Mapper", STRUCT_Mapper, FLAG_Mapper, sizeof(knh_Mapper_struct),
+		(knh_fstruct_init)knh_Mapper_init,
+		(knh_fstruct_copy)knh_Mapper_copy, 
+		(knh_fstruct_traverse)knh_Mapper_traverse,
+		(knh_fstruct_compareTo)knh_Mapper_compareTo,
+		(knh_fstruct_hashCode)knh_Mapper_hashCode,
+		(knh_fstruct_newClass)knh_Mapper_newClass,
+		knh_Mapper_getkey
+	},
+	{
+		"ClassMap", STRUCT_ClassMap, FLAG_ClassMap, 0,
+		(knh_fstruct_init)knh_ClassMap_init,
+		(knh_fstruct_copy)knh_ClassMap_copy, 
+		(knh_fstruct_traverse)knh_ClassMap_traverse,
+		(knh_fstruct_compareTo)knh_ClassMap_compareTo,
+		(knh_fstruct_hashCode)knh_ClassMap_hashCode,
+		(knh_fstruct_newClass)knh_ClassMap_newClass,
+		knh_ClassMap_getkey
+	},
+	{
+		"Closure", STRUCT_Closure, FLAG_Closure, 0,
+		(knh_fstruct_init)knh_Closure_init,
+		(knh_fstruct_copy)knh_Closure_copy, 
+		(knh_fstruct_traverse)knh_Closure_traverse,
+		(knh_fstruct_compareTo)knh_Closure_compareTo,
+		(knh_fstruct_hashCode)knh_Closure_hashCode,
+		(knh_fstruct_newClass)knh_Closure_newClass,
+		knh_Closure_getkey
+	},
+	{
+		"Thunk", STRUCT_Thunk, FLAG_Thunk, 0,
+		(knh_fstruct_init)knh_Thunk_init,
+		(knh_fstruct_copy)knh_Thunk_copy, 
+		(knh_fstruct_traverse)knh_Thunk_traverse,
+		(knh_fstruct_compareTo)knh_Thunk_compareTo,
+		(knh_fstruct_hashCode)knh_Thunk_hashCode,
+		(knh_fstruct_newClass)knh_Thunk_newClass,
+		knh_Thunk_getkey
+	},
+	{
+		"AffineConv", STRUCT_AffineConv, FLAG_AffineConv, 0,
+		(knh_fstruct_init)knh_AffineConv_init,
+		(knh_fstruct_copy)knh_AffineConv_copy, 
+		(knh_fstruct_traverse)knh_AffineConv_traverse,
+		(knh_fstruct_compareTo)knh_AffineConv_compareTo,
+		(knh_fstruct_hashCode)knh_AffineConv_hashCode,
+		(knh_fstruct_newClass)knh_AffineConv_newClass,
+		knh_AffineConv_getkey
+	},
+	{
+		"Regex", STRUCT_Regex, FLAG_Regex, 0,
+		(knh_fstruct_init)knh_Regex_init,
+		(knh_fstruct_copy)knh_Regex_copy, 
+		(knh_fstruct_traverse)knh_Regex_traverse,
+		(knh_fstruct_compareTo)knh_Regex_compareTo,
+		(knh_fstruct_hashCode)knh_Regex_hashCode,
+		(knh_fstruct_newClass)knh_Regex_newClass,
+		knh_Regex_getkey
+	},
+	{
+		"BytesConv", STRUCT_BytesConv, FLAG_BytesConv, 0,
+		(knh_fstruct_init)knh_BytesConv_init,
+		(knh_fstruct_copy)knh_BytesConv_copy, 
+		(knh_fstruct_traverse)knh_BytesConv_traverse,
+		(knh_fstruct_compareTo)knh_BytesConv_compareTo,
+		(knh_fstruct_hashCode)knh_BytesConv_hashCode,
+		(knh_fstruct_newClass)knh_BytesConv_newClass,
+		knh_BytesConv_getkey
+	},
+	{
+		"ClassSpec", STRUCT_ClassSpec, FLAG_ClassSpec, sizeof(knh_ClassSpec_struct),
+		(knh_fstruct_init)knh_ClassSpec_init,
+		(knh_fstruct_copy)knh_ClassSpec_copy, 
+		(knh_fstruct_traverse)knh_ClassSpec_traverse,
+		(knh_fstruct_compareTo)knh_ClassSpec_compareTo,
+		(knh_fstruct_hashCode)knh_ClassSpec_hashCode,
+		(knh_fstruct_newClass)knh_ClassSpec_newClass,
+		knh_ClassSpec_getkey
+	},
+	{
+		"InputStream", STRUCT_InputStream, FLAG_InputStream, sizeof(knh_InputStream_struct),
+		(knh_fstruct_init)knh_InputStream_init,
+		(knh_fstruct_copy)knh_InputStream_copy, 
+		(knh_fstruct_traverse)knh_InputStream_traverse,
+		(knh_fstruct_compareTo)knh_InputStream_compareTo,
+		(knh_fstruct_hashCode)knh_InputStream_hashCode,
+		(knh_fstruct_newClass)knh_InputStream_newClass,
+		knh_InputStream_getkey
+	},
+	{
+		"OutputStream", STRUCT_OutputStream, FLAG_OutputStream, sizeof(knh_OutputStream_struct),
+		(knh_fstruct_init)knh_OutputStream_init,
+		(knh_fstruct_copy)knh_OutputStream_copy, 
+		(knh_fstruct_traverse)knh_OutputStream_traverse,
+		(knh_fstruct_compareTo)knh_OutputStream_compareTo,
+		(knh_fstruct_hashCode)knh_OutputStream_hashCode,
+		(knh_fstruct_newClass)knh_OutputStream_newClass,
+		knh_OutputStream_getkey
+	},
+	{
+		"Socket", STRUCT_Socket, FLAG_Socket, sizeof(knh_Socket_struct),
+		(knh_fstruct_init)knh_Socket_init,
+		(knh_fstruct_copy)knh_Socket_copy, 
+		(knh_fstruct_traverse)knh_Socket_traverse,
+		(knh_fstruct_compareTo)knh_Socket_compareTo,
+		(knh_fstruct_hashCode)knh_Socket_hashCode,
+		(knh_fstruct_newClass)knh_Socket_newClass,
+		knh_Socket_getkey
+	},
+	{
+		"Connection", STRUCT_Connection, FLAG_Connection, 0,
+		(knh_fstruct_init)knh_Connection_init,
+		(knh_fstruct_copy)knh_Connection_copy, 
+		(knh_fstruct_traverse)knh_Connection_traverse,
+		(knh_fstruct_compareTo)knh_Connection_compareTo,
+		(knh_fstruct_hashCode)knh_Connection_hashCode,
+		(knh_fstruct_newClass)knh_Connection_newClass,
+		knh_Connection_getkey
+	},
+	{
+		"ResultSet", STRUCT_ResultSet, FLAG_ResultSet, sizeof(knh_ResultSet_struct),
+		(knh_fstruct_init)knh_ResultSet_init,
+		(knh_fstruct_copy)knh_ResultSet_copy, 
+		(knh_fstruct_traverse)knh_ResultSet_traverse,
+		(knh_fstruct_compareTo)knh_ResultSet_compareTo,
+		(knh_fstruct_hashCode)knh_ResultSet_hashCode,
+		(knh_fstruct_newClass)knh_ResultSet_newClass,
+		knh_ResultSet_getkey
+	},
+	{
+		"Exception", STRUCT_Exception, FLAG_Exception, sizeof(knh_Exception_struct),
+		(knh_fstruct_init)knh_Exception_init,
+		(knh_fstruct_copy)knh_Exception_copy, 
+		(knh_fstruct_traverse)knh_Exception_traverse,
+		(knh_fstruct_compareTo)knh_Exception_compareTo,
+		(knh_fstruct_hashCode)knh_Exception_hashCode,
+		(knh_fstruct_newClass)knh_Exception_newClass,
+		knh_Exception_getkey
+	},
+	{
+		"ExceptionHandler", STRUCT_ExceptionHandler, FLAG_ExceptionHandler, sizeof(knh_ExceptionHandler_struct),
+		(knh_fstruct_init)knh_ExceptionHandler_init,
+		(knh_fstruct_copy)knh_ExceptionHandler_copy, 
+		(knh_fstruct_traverse)knh_ExceptionHandler_traverse,
+		(knh_fstruct_compareTo)knh_ExceptionHandler_compareTo,
+		(knh_fstruct_hashCode)knh_ExceptionHandler_hashCode,
+		(knh_fstruct_newClass)knh_ExceptionHandler_newClass,
+		knh_ExceptionHandler_getkey
+	},
+	{
+		"Script", STRUCT_Script, FLAG_Script, 0,
+		(knh_fstruct_init)knh_Script_init,
+		(knh_fstruct_copy)knh_Script_copy, 
+		(knh_fstruct_traverse)knh_Script_traverse,
+		(knh_fstruct_compareTo)knh_Script_compareTo,
+		(knh_fstruct_hashCode)knh_Script_hashCode,
+		(knh_fstruct_newClass)knh_Script_newClass,
+		knh_Script_getkey
+	},
+	{
+		"NameSpace", STRUCT_NameSpace, FLAG_NameSpace, sizeof(knh_NameSpace_struct),
+		(knh_fstruct_init)knh_NameSpace_init,
+		(knh_fstruct_copy)knh_NameSpace_copy, 
+		(knh_fstruct_traverse)knh_NameSpace_traverse,
+		(knh_fstruct_compareTo)knh_NameSpace_compareTo,
+		(knh_fstruct_hashCode)knh_NameSpace_hashCode,
+		(knh_fstruct_newClass)knh_NameSpace_newClass,
+		knh_NameSpace_getkey
+	},
+	{
+		"System", STRUCT_System, FLAG_System, sizeof(knh_System_struct),
+		(knh_fstruct_init)knh_System_init,
+		(knh_fstruct_copy)knh_System_copy, 
+		(knh_fstruct_traverse)knh_System_traverse,
+		(knh_fstruct_compareTo)knh_System_compareTo,
+		(knh_fstruct_hashCode)knh_System_hashCode,
+		(knh_fstruct_newClass)knh_System_newClass,
+		knh_System_getkey
+	},
+	{
+		"Context", STRUCT_Context, FLAG_Context, 0,
+		(knh_fstruct_init)knh_Context_init,
+		(knh_fstruct_copy)knh_Context_copy, 
+		(knh_fstruct_traverse)knh_Context_traverse,
+		(knh_fstruct_compareTo)knh_Context_compareTo,
+		(knh_fstruct_hashCode)knh_Context_hashCode,
+		(knh_fstruct_newClass)knh_Context_newClass,
+		knh_Context_getkey
+	},
+	{
+		"Token", STRUCT_Token, FLAG_Token, sizeof(knh_Token_struct),
+		(knh_fstruct_init)knh_Token_init,
+		(knh_fstruct_copy)knh_Token_copy, 
+		(knh_fstruct_traverse)knh_Token_traverse,
+		(knh_fstruct_compareTo)knh_Token_compareTo,
+		(knh_fstruct_hashCode)knh_Token_hashCode,
+		(knh_fstruct_newClass)knh_Token_newClass,
+		knh_Token_getkey
+	},
+	{
+		"Stmt", STRUCT_Stmt, FLAG_Stmt, sizeof(knh_Stmt_struct),
+		(knh_fstruct_init)knh_Stmt_init,
+		(knh_fstruct_copy)knh_Stmt_copy, 
+		(knh_fstruct_traverse)knh_Stmt_traverse,
+		(knh_fstruct_compareTo)knh_Stmt_compareTo,
+		(knh_fstruct_hashCode)knh_Stmt_hashCode,
+		(knh_fstruct_newClass)knh_Stmt_newClass,
+		knh_Stmt_getkey
+	},
+	{
+		"Gamma", STRUCT_Gamma, FLAG_Gamma, sizeof(knh_Gamma_struct),
+		(knh_fstruct_init)knh_Gamma_init,
+		(knh_fstruct_copy)knh_Gamma_copy, 
+		(knh_fstruct_traverse)knh_Gamma_traverse,
+		(knh_fstruct_compareTo)knh_Gamma_compareTo,
+		(knh_fstruct_hashCode)knh_Gamma_hashCode,
+		(knh_fstruct_newClass)knh_Gamma_newClass,
+		knh_Gamma_getkey
+	},
+	{
+		"KLRInst", STRUCT_KLRInst, FLAG_KLRInst, 0,
+		(knh_fstruct_init)knh_KLRInst_init,
+		(knh_fstruct_copy)knh_KLRInst_copy, 
+		(knh_fstruct_traverse)knh_KLRInst_traverse,
+		(knh_fstruct_compareTo)knh_KLRInst_compareTo,
+		(knh_fstruct_hashCode)knh_KLRInst_hashCode,
+		(knh_fstruct_newClass)knh_KLRInst_newClass,
+		knh_KLRInst_getkey
+	},
+	{
+		"KLRCode", STRUCT_KLRCode, FLAG_KLRCode, sizeof(knh_KLRCode_struct),
+		(knh_fstruct_init)knh_KLRCode_init,
+		(knh_fstruct_copy)knh_KLRCode_copy, 
+		(knh_fstruct_traverse)knh_KLRCode_traverse,
+		(knh_fstruct_compareTo)knh_KLRCode_compareTo,
+		(knh_fstruct_hashCode)knh_KLRCode_hashCode,
+		(knh_fstruct_newClass)knh_KLRCode_newClass,
+		knh_KLRCode_getkey
+	},
 	{NULL}
 };
 
-static knh_ClassData0_t ClassData0[] = {
+static knh_ClassData_t ClassData[] = {
 	{"Object", CLASS_Object, FLAG_Object, 
-	   CLASS_ObjectField, CLASS_Object, 29, 7, 2,
+	   CLASS_ObjectField, CLASS_Object, 28, 7, 2,
 	   TYPE_void, TYPE_void, TYPE_void, TYPE_void},
 	{"Boolean", CLASS_Boolean, FLAG_Boolean, 
 	   CLASS_Boolean, CLASS_Object, 1, 4, 1,
@@ -375,7 +857,7 @@ static knh_ClassData0_t ClassData0[] = {
 	   CLASS_String, CLASS_Object, 34, 3, 5,
 	   TYPE_void, TYPE_void, TYPE_void, TYPE_void},
 	{"Bytes", CLASS_Bytes, FLAG_Bytes, 
-	   CLASS_Bytes, CLASS_Object, 12, 3, 2,
+	   CLASS_Bytes, CLASS_Object, 11, 3, 1,
 	   TYPE_void, TYPE_void, TYPE_void, TYPE_void},
 	{"Any", CLASS_Any, FLAG_Any, 
 	   CLASS_Any, CLASS_Object, 6, 2, 0,
@@ -390,7 +872,7 @@ static knh_ClassData0_t ClassData0[] = {
 	   CLASS_Tuple, CLASS_Object, 8, 1, 0,
 	   TYPE_void, TYPE_void, TYPE_void, TYPE_void},
 	{"Range", CLASS_Range, FLAG_Range, 
-	   CLASS_Range, CLASS_Object, 6, 1, 1,
+	   CLASS_Range, CLASS_Object, 6, 1, 0,
 	   TYPE_void, TYPE_Any, TYPE_void, TYPE_void},
 	{"Array", CLASS_Array, FLAG_Array, 
 	   CLASS_Array, CLASS_Object, 33, 2, 1,
@@ -419,11 +901,14 @@ static knh_ClassData0_t ClassData0[] = {
 	{"Class", CLASS_Class, FLAG_Class, 
 	   CLASS_Class, CLASS_Object, 11, 4, 0,
 	   TYPE_void, TYPE_void, TYPE_void, TYPE_void},
+	{"ClassField", CLASS_ClassField, FLAG_ClassField, 
+	   CLASS_ClassField, CLASS_Object, 0, 0, 0,
+	   TYPE_void, TYPE_void, TYPE_void, TYPE_void},
 	{"MethodField", CLASS_MethodField, FLAG_MethodField, 
 	   CLASS_MethodField, CLASS_Object, 0, 0, 0,
 	   TYPE_void, TYPE_void, TYPE_void, TYPE_void},
 	{"Method", CLASS_Method, FLAG_Method, 
-	   CLASS_Method, CLASS_Object, 12, 3, 0,
+	   CLASS_Method, CLASS_Object, 9, 3, 0,
 	   TYPE_void, TYPE_void, TYPE_void, TYPE_void},
 	{"Mapper", CLASS_Mapper, FLAG_Mapper, 
 	   CLASS_Mapper, CLASS_Object, 12, 1, 0,
@@ -432,10 +917,10 @@ static knh_ClassData0_t ClassData0[] = {
 	   CLASS_ClassMap, CLASS_Object, 0, 1, 0,
 	   TYPE_void, TYPE_void, TYPE_void, TYPE_void},
 	{"Closure", CLASS_Closure, FLAG_Closure, 
-	   CLASS_Closure, CLASS_Object, 2, 1, 0,
+	   CLASS_Closure, CLASS_Object, 2, 0, 0,
 	   TYPE_Any, TYPE_Any, TYPE_Any, TYPE_Any},
 	{"Thunk", CLASS_Thunk, FLAG_Thunk, 
-	   CLASS_Thunk, CLASS_Object, 0, 0, 0,
+	   CLASS_Thunk, CLASS_Object, 2, 0, 0,
 	   TYPE_void, TYPE_Any, TYPE_void, TYPE_void},
 	{"AffineConv", CLASS_AffineConv, FLAG_AffineConv, 
 	   CLASS_AffineConv, CLASS_Object, 0, 0, 0,
@@ -446,8 +931,8 @@ static knh_ClassData0_t ClassData0[] = {
 	{"BytesConv", CLASS_BytesConv, FLAG_BytesConv, 
 	   CLASS_BytesConv, CLASS_Object, 0, 0, 0,
 	   TYPE_void, TYPE_void, TYPE_void, TYPE_void},
-	{"Semantics", CLASS_Semantics, FLAG_Semantics, 
-	   CLASS_Semantics, CLASS_Object, 0, 0, 0,
+	{"ClassSpec", CLASS_ClassSpec, FLAG_ClassSpec, 
+	   CLASS_ClassSpec, CLASS_Object, 0, 0, 0,
 	   TYPE_void, TYPE_void, TYPE_void, TYPE_void},
 	{"InputStream", CLASS_InputStream, FLAG_InputStream, 
 	   CLASS_InputStream, CLASS_Object, 9, 1, 1,
@@ -471,25 +956,16 @@ static knh_ClassData0_t ClassData0[] = {
 	   CLASS_ExceptionHandler, CLASS_Object, 0, 0, 0,
 	   TYPE_void, TYPE_void, TYPE_void, TYPE_void},
 	{"Script", CLASS_Script, FLAG_Script, 
-	   CLASS_Script, CLASS_Object, 6, 1, 0,
+	   CLASS_Script, CLASS_Object, 5, 1, 0,
 	   TYPE_void, TYPE_void, TYPE_void, TYPE_void},
 	{"NameSpace", CLASS_NameSpace, FLAG_NameSpace, 
 	   CLASS_NameSpace, CLASS_Object, 1, 0, 0,
 	   TYPE_void, TYPE_void, TYPE_void, TYPE_void},
-	{"Package", CLASS_Package, FLAG_Package, 
-	   CLASS_Package, CLASS_Object, 0, 0, 0,
-	   TYPE_void, TYPE_void, TYPE_void, TYPE_void},
 	{"System", CLASS_System, FLAG_System, 
-	   CLASS_System, CLASS_Object, 17, 0, 0,
+	   CLASS_System, CLASS_Object, 18, 0, 0,
 	   TYPE_void, TYPE_void, TYPE_void, TYPE_void},
 	{"Context", CLASS_Context, FLAG_Context, 
 	   CLASS_Context, CLASS_Object, 14, 1, 0,
-	   TYPE_void, TYPE_void, TYPE_void, TYPE_void},
-	{"Thread", CLASS_Thread, FLAG_Thread, 
-	   CLASS_Thread, CLASS_Object, 0, 0, 0,
-	   TYPE_void, TYPE_void, TYPE_void, TYPE_void},
-	{"ScriptEngine", CLASS_ScriptEngine, FLAG_ScriptEngine, 
-	   CLASS_ScriptEngine, CLASS_Object, 0, 0, 0,
 	   TYPE_void, TYPE_void, TYPE_void, TYPE_void},
 	{"Token", CLASS_Token, FLAG_Token, 
 	   CLASS_Token, CLASS_Object, 0, 3, 0,
@@ -542,12 +1018,6 @@ static knh_ClassData0_t ClassData0[] = {
 	{"int(T1,T1)", CLASS_Cmpr, FLAG_Cmpr, 
 	   CLASS_Closure, CLASS_Closure, 0, 0, 0,
 	   NNTYPE_Int, NNTYPE_T1, NNTYPE_T1, TYPE_void},
-	{"String[]", CLASS_String_Ary, FLAG_String_Ary, 
-	   CLASS_Array, CLASS_Object, 0, 0, 0,
-	   TYPE_void, TYPE_String, TYPE_void, TYPE_void},
-	{"T1[]", CLASS_T1_Ary, FLAG_T1_Ary, 
-	   CLASS_Array, CLASS_Object, 0, 0, 0,
-	   TYPE_void, TYPE_T1, TYPE_void, TYPE_void},
 	{"String..", CLASS_String_Itr, FLAG_String_Itr, 
 	   CLASS_Iterator, CLASS_Iterator, 0, 0, 0,
 	   TYPE_void, TYPE_String, TYPE_void, TYPE_void},
@@ -563,10 +1033,16 @@ static knh_ClassData0_t ClassData0[] = {
 	{"This..", CLASS_This_Itr, FLAG_This_Itr, 
 	   CLASS_Iterator, CLASS_Iterator, 0, 0, 0,
 	   TYPE_void, TYPE_This, TYPE_void, TYPE_void},
+	{"String[]", CLASS_String_Ary, FLAG_String_Ary, 
+	   CLASS_Array, CLASS_Object, 0, 0, 0,
+	   TYPE_void, TYPE_String, TYPE_void, TYPE_void},
+	{"Any[]", CLASS_Any_Ary, FLAG_Any_Ary, 
+	   CLASS_Array, CLASS_Object, 0, 0, 0,
+	   TYPE_void, TYPE_Any, TYPE_void, TYPE_void},
 	{NULL}
 };
 
-static knh_ExptData0_t ExptData0[] = {
+static knh_ExptData_t ExptData[] = {
 	{"Exception", 0, EXPT_Exception, EXPT_Exception},
 	{"Fatal", 0, EXPT_Fatal, EXPT_Exception},
 	{"OutOfMemory", 0, EXPT_OutOfMemory, EXPT_Fatal},
@@ -581,7 +1057,7 @@ static knh_ExptData0_t ExptData0[] = {
 	{NULL}
 };
 
-static knh_FieldNameData0_t FieldNameData0[] = {
+static knh_FieldNameData_t FieldNameData[] = {
 	{"", FIELDN_},
 	{"2D", FIELDN_2D},
 	{"3D", FIELDN_3D},
@@ -589,6 +1065,7 @@ static knh_FieldNameData0_t FieldNameData0[] = {
 	{"add", FIELDN_add},
 	{"addHistory", FIELDN_addHistory},
 	{"all", FIELDN_all},
+	{"anno", FIELDN_anno},
 	{"ascii", FIELDN_ascii},
 	{"autoFlush", FIELDN_autoFlush},
 	{"bag", FIELDN_bag},
@@ -597,7 +1074,6 @@ static knh_FieldNameData0_t FieldNameData0[] = {
 	{"buf", FIELDN_buf},
 	{"bytes", FIELDN_bytes},
 	{"c", FIELDN_c},
-	{"cc", FIELDN_cc},
 	{"ch", FIELDN_ch},
 	{"char", FIELDN_char},
 	{"class", FIELDN_class},
@@ -675,7 +1151,6 @@ static knh_FieldNameData0_t FieldNameData0[] = {
 	{"line", FIELDN_line},
 	{"listDir", FIELDN_listDir},
 	{"listProperties", FIELDN_listProperties},
-	{"load", FIELDN_load},
 	{"local", FIELDN_local},
 	{"logging", FIELDN_logging},
 	{"lossLess", FIELDN_lossLess},
@@ -686,6 +1161,8 @@ static knh_FieldNameData0_t FieldNameData0[] = {
 	{"memcpy", FIELDN_memcpy},
 	{"metaClass", FIELDN_metaClass},
 	{"method", FIELDN_method},
+	{"methodCompilationListener", FIELDN_methodCompilationListener},
+	{"methodTypingListener", FIELDN_methodTypingListener},
 	{"mkdir", FIELDN_mkdir},
 	{"mode", FIELDN_mode},
 	{"modified", FIELDN_modified},
@@ -755,8 +1232,6 @@ static knh_FieldNameData0_t FieldNameData0[] = {
 	{"print", FIELDN_print},
 	{"println", FIELDN_println},
 	{"private", FIELDN_private},
-	{"profCount", FIELDN_profCount},
-	{"profTime", FIELDN_profTime},
 	{"prompt", FIELDN_prompt},
 	{"property", FIELDN_property},
 	{"public", FIELDN_public},
@@ -803,12 +1278,10 @@ static knh_FieldNameData0_t FieldNameData0[] = {
 	{"temporal", FIELDN_temporal},
 	{"test", FIELDN_test},
 	{"this", FIELDN_this},
-	{"time", FIELDN_time},
 	{"times", FIELDN_times},
 	{"toLower", FIELDN_toLower},
 	{"total", FIELDN_total},
 	{"toUpper", FIELDN_toUpper},
-	{"trace", FIELDN_trace},
 	{"trim", FIELDN_trim},
 	{"twofold", FIELDN_twofold},
 	{"typeof", FIELDN_typeof},
@@ -835,7 +1308,7 @@ static knh_FieldNameData0_t FieldNameData0[] = {
 	{NULL}
 };
 
-static knh_MethodFieldData0_t MethodFieldData0[] = {
+static knh_MethodFieldData_t MethodFieldData[] = {
 	{0, 0, TYPE_void},
 	{1, 1, TYPE_void, NNTYPE_Int, FIELDN_char},
 	{2, 3, TYPE_void, NNTYPE_Bytes, FIELDN_buf, NATYPE_Int, FIELDN_offset, NATYPE_Int, FIELDN_length},
@@ -851,7 +1324,7 @@ static knh_MethodFieldData0_t MethodFieldData0[] = {
 	{12, 1, NNTYPE_Int, TYPE_T1, FIELDN_value},
 	{13, 1, NNTYPE_Int, NNTYPE_Int, FIELDN_value},
 	{14, 1, NNTYPE_Int, NNTYPE_Float, FIELDN_value},
-	{15, 1, TYPE_void, NATYPE_Cmpr, FIELDN_cc},
+	{15, 1, TYPE_void, NATYPE_Cmpr, FIELDN_c},
 	{16, 2, TYPE_void, NNTYPE_Int, FIELDN_m, NNTYPE_Int, FIELDN_n},
 	{17, 2, NNTYPE_This, NNTYPE_Int, FIELDN_x, NNTYPE_Int, FIELDN_y},
 	{18, 3, NNTYPE_This, NNTYPE_Int, FIELDN_x, NNTYPE_Int, FIELDN_y, NNTYPE_Int, FIELDN_z},
@@ -875,121 +1348,122 @@ static knh_MethodFieldData0_t MethodFieldData0[] = {
 	{36, 1, NATYPE_T1, NNTYPE_String, FIELDN_key},
 	{37, 2, TYPE_void, NNTYPE_String, FIELDN_key, NATYPE_T1, FIELDN_value},
 	{38, 1, TYPE_void, NNTYPE_String, FIELDN_key},
-	{39, 0, TYPE_String_Ary},
-	{40, 0, TYPE_T1_Ary},
-	{41, 2, TYPE_void, TYPE_OutputStream, FIELDN_w, NATYPE_String, FIELDN_fmt},
-	{42, 1, NNTYPE_This, NATYPE_Int, FIELDN_initCapacity},
-	{43, 1, TYPE_T2, TYPE_T1, FIELDN_key},
-	{44, 1, NNTYPE_Boolean, TYPE_T1, FIELDN_key},
-	{45, 1, TYPE_void, TYPE_T1, FIELDN_key},
-	{46, 2, TYPE_void, NNTYPE_T1, FIELDN_key, TYPE_T2, FIELDN_value},
-	{47, 0, TYPE_String_Itr},
-	{48, 0, TYPE_T1_Itr},
-	{49, 0, TYPE_PairST1_Itr},
-	{50, 0, TYPE_PairT1T2_Itr},
-	{51, 0, TYPE_This_Itr},
-	{52, 1, NNTYPE_Boolean, NNTYPE_String, FIELDN_script},
-	{53, 1, TYPE_String, TYPE_String, FIELDN_prompt},
-	{54, 1, TYPE_void, NNTYPE_String, FIELDN_line},
+	{39, 2, TYPE_void, TYPE_OutputStream, FIELDN_w, NATYPE_String, FIELDN_fmt},
+	{40, 1, NNTYPE_This, NATYPE_Int, FIELDN_initCapacity},
+	{41, 1, TYPE_T2, TYPE_T1, FIELDN_key},
+	{42, 1, NNTYPE_Boolean, TYPE_T1, FIELDN_key},
+	{43, 1, TYPE_void, TYPE_T1, FIELDN_key},
+	{44, 2, TYPE_void, NNTYPE_T1, FIELDN_key, TYPE_T2, FIELDN_value},
+	{45, 0, TYPE_String_Itr},
+	{46, 0, TYPE_T1_Itr},
+	{47, 0, TYPE_PairST1_Itr},
+	{48, 0, TYPE_PairT1T2_Itr},
+	{49, 0, TYPE_This_Itr},
+	{50, 1, NNTYPE_Boolean, NNTYPE_String, FIELDN_script},
+	{51, 1, TYPE_void, TYPE_String, FIELDN_script},
+	{52, 1, TYPE_String, TYPE_String, FIELDN_prompt},
+	{53, 1, TYPE_void, NNTYPE_String, FIELDN_line},
+	{54, 2, TYPE_void, TYPE_Closure, FIELDN_c, TYPE_String, FIELDN_anno},
 	{55, 0, NNTYPE_This},
 	{56, 1, NNTYPE_This, TYPE_Any, FIELDN_value},
 	{57, 1, NNTYPE_This, NATYPE_Int, FIELDN_init},
-	{58, 1, NNTYPE_Bytes, TYPE_Int, FIELDN_init},
-	{59, 2, NNTYPE_String, NNTYPE_Bytes, FIELDN_buf, NATYPE_String, FIELDN_enc},
-	{60, 2, TYPE_Regex, NNTYPE_String, FIELDN_pattern, NATYPE_String, FIELDN_option},
-	{61, 2, NNTYPE_This, TYPE_T1, FIELDN_first, TYPE_T2, FIELDN_second},
-	{62, 1, NNTYPE_This, NATYPE_Any, FIELDN_value},
-	{63, 2, NNTYPE_This, NNTYPE_T1, FIELDN_start, NNTYPE_T1, FIELDN_end},
-	{64, 1, NNTYPE_This, TYPE_Int, FIELDN_size},
-	{65, 1, NNTYPE_This, NATYPE_T1, FIELDN_value},
-	{66, 1, NNTYPE_This, NATYPE_Int, FIELDN_value},
-	{67, 3, NNTYPE_This, NNTYPE_Int, FIELDN_start, NNTYPE_Int, FIELDN_end, NATYPE_Int, FIELDN_isInclusive},
-	{68, 1, NNTYPE_This, NATYPE_Float, FIELDN_value},
-	{69, 1, NNTYPE_This, TYPE_T1, FIELDN_value},
-	{70, 2, NNTYPE_Exception, NATYPE_String, FIELDN_msg, NATYPE_Any, FIELDN_bag},
-	{71, 3, NNTYPE_This, NATYPE_String, FIELDN_e, NATYPE_String, FIELDN_msg, NATYPE_Object, FIELDN_bag},
-	{72, 2, NNTYPE_This, NNTYPE_Any, FIELDN_base, NNTYPE_Method, FIELDN_method},
-	{73, 1, TYPE_void, TYPE_Int, FIELDN_seed},
-	{74, 1, NNTYPE_Int, NATYPE_Int, FIELDN_n},
-	{75, 0, NNTYPE_Float},
-	{76, 1, NNTYPE_Int, NNTYPE_Float, FIELDN_n},
-	{77, 1, NNTYPE_Float, NNTYPE_Int, FIELDN_n},
-	{78, 0, NNTYPE_Class},
-	{79, 0, NNTYPE_String},
-	{80, 1, NNTYPE_String, TYPE_String, FIELDN_fmt},
-	{81, 0, NNTYPE_Array},
-	{82, 1, TYPE_void, TYPE_Int, FIELDN_trace},
-	{83, 3, TYPE_T0, TYPE_T1, FIELDN_x, TYPE_T2, FIELDN_y, TYPE_T3, FIELDN_z},
-	{84, 1, TYPE_Boolean, TYPE_Class, FIELDN_c},
-	{85, 1, NNTYPE_Boolean, TYPE_Any, FIELDN_value},
-	{86, 1, NNTYPE_Boolean, NNTYPE_Int, FIELDN_value},
-	{87, 1, NNTYPE_Boolean, TYPE_Float, FIELDN_value},
-	{88, 1, NNTYPE_Boolean, NNTYPE_String, FIELDN_s},
-	{89, 1, NNTYPE_Boolean, TYPE_Any, FIELDN_v},
-	{90, 1, NNTYPE_Boolean, TYPE_Any, FIELDN_o},
-	{91, 1, NNTYPE_Int, NNTYPE_Int, FIELDN_v},
-	{92, 1, NNTYPE_Int, NNTYPE_Int, FIELDN_n},
-	{93, 1, NNTYPE_Float, NNTYPE_Float, FIELDN_v},
-	{94, 1, NNTYPE_Float, NNTYPE_Float, FIELDN_n},
-	{95, 1, NNTYPE_String, TYPE_Any, FIELDN_value},
-	{96, 1, NNTYPE_String, NNTYPE_String, FIELDN_s},
-	{97, 1, TYPE_Any, TYPE_Any, FIELDN_value},
-	{98, 0, TYPE_Any},
-	{99, 2, NNTYPE_Int, NNTYPE_Int, FIELDN_n, NNTYPE_Int, FIELDN_c},
-	{100, 1, TYPE_void, NNTYPE_Int, FIELDN_c},
-	{101, 1, NNTYPE_T1, NNTYPE_Int, FIELDN_n},
-	{102, 1, TYPE_Any, NNTYPE_Int, FIELDN_n},
-	{103, 2, NNTYPE_T1, NNTYPE_Int, FIELDN_n, NNTYPE_T1, FIELDN_v},
-	{104, 2, NNTYPE_Int, NNTYPE_Int, FIELDN_n, NNTYPE_Int, FIELDN_v},
-	{105, 2, NNTYPE_Float, NNTYPE_Int, FIELDN_n, NNTYPE_Float, FIELDN_v},
-	{106, 1, TYPE_T1, TYPE_T1, FIELDN_v},
-	{107, 2, NNTYPE_Bytes, NATYPE_Int, FIELDN_s, NATYPE_Int, FIELDN_e},
-	{108, 2, NNTYPE_String, NATYPE_Int, FIELDN_offset, NATYPE_Int, FIELDN_length},
-	{109, 2, NNTYPE_String, NATYPE_Int, FIELDN_s, NATYPE_Int, FIELDN_e},
-	{110, 2, NNTYPE_This, NATYPE_Int, FIELDN_s, NATYPE_Int, FIELDN_e},
-	{111, 2, NNTYPE_This, NATYPE_String, FIELDN_s, NATYPE_String, FIELDN_e},
-	{112, 0, NNTYPE_T2},
-	{113, 2, TYPE_InputStream, NNTYPE_String, FIELDN_urn, NATYPE_String, FIELDN_mode},
-	{114, 3, NNTYPE_Int, NNTYPE_Bytes, FIELDN_buf, NATYPE_Int, FIELDN_offset, NATYPE_Int, FIELDN_length},
-	{115, 1, TYPE_void, NATYPE_String, FIELDN_enc},
-	{116, 0, NATYPE_String},
-	{117, 0, NATYPE_Any},
-	{118, 2, TYPE_OutputStream, NNTYPE_String, FIELDN_urn, NATYPE_String, FIELDN_mode},
-	{119, 1, TYPE_void, NNTYPE_Int, FIELDN_ch},
-	{120, 1, TYPE_void, NATYPE_Any, FIELDN_value},
-	{121, 1, TYPE_void, NATYPE_Any, FIELDN_data},
-	{122, 2, NNTYPE_Socket, NNTYPE_String, FIELDN_host, NNTYPE_Int, FIELDN_port},
-	{123, 0, NNTYPE_InputStream},
-	{124, 0, NNTYPE_OutputStream},
-	{125, 1, NNTYPE_Bytes, NATYPE_String, FIELDN_enc},
-	{126, 1, NNTYPE_Int, NNTYPE_String, FIELDN_s},
-	{127, 1, NNTYPE_String, NATYPE_Any, FIELDN_value},
-	{128, 1, TYPE_PairSS, NNTYPE_String, FIELDN_s},
-	{129, 2, NNTYPE_String, NNTYPE_String, FIELDN_s, NNTYPE_String, FIELDN_newone},
-	{130, 2, TYPE_String_Ary, TYPE_String, FIELDN_delim, NATYPE_Int, FIELDN_isTrim},
-	{131, 1, NNTYPE_Boolean, NNTYPE_Regex, FIELDN_re},
-	{132, 1, TYPE_String_Ary, TYPE_Regex, FIELDN_pattern},
-	{133, 1, NATYPE_Any, NNTYPE_String, FIELDN_key},
-	{134, 2, NATYPE_Any, NNTYPE_String, FIELDN_key, NATYPE_Any, FIELDN_value},
-	{135, 2, TYPE_void, TYPE_Boolean, FIELDN_result, NATYPE_String, FIELDN_msg},
-	{136, 1, TYPE_Int, TYPE_String, FIELDN_cmd},
-	{137, 2, NNTYPE_Boolean, NNTYPE_String, FIELDN_lib, NATYPE_String, FIELDN_func},
-	{138, 1, TYPE_void, TYPE_Int, FIELDN_status},
-	{139, 1, TYPE_String_Ary, NATYPE_String, FIELDN_path},
-	{140, 1, NNTYPE_Boolean, NNTYPE_String, FIELDN_path},
-	{141, 2, NNTYPE_Boolean, TYPE_String, FIELDN_path, TYPE_String, FIELDN_newpath},
-	{142, 1, TYPE_String, NATYPE_String, FIELDN_enc},
-	{143, 1, TYPE_String_Ary, TYPE_String, FIELDN_key},
-	{144, 1, TYPE_InputStream, NATYPE_InputStream, FIELDN_in},
-	{145, 1, TYPE_OutputStream, NATYPE_OutputStream, FIELDN_out},
-	{146, 1, NNTYPE_Boolean, TYPE_Any, FIELDN_msg},
-	{147, 2, TYPE_Object, NNTYPE_String, FIELDN_name, TYPE_Object, FIELDN_value},
-	{148, 1, NNTYPE_Boolean, NNTYPE_Boolean, FIELDN_flag},
+	{58, 2, NNTYPE_String, NNTYPE_Bytes, FIELDN_buf, NATYPE_String, FIELDN_enc},
+	{59, 2, TYPE_Regex, NNTYPE_String, FIELDN_pattern, NATYPE_String, FIELDN_option},
+	{60, 2, NNTYPE_This, TYPE_T1, FIELDN_first, TYPE_T2, FIELDN_second},
+	{61, 1, NNTYPE_This, NATYPE_Any, FIELDN_value},
+	{62, 2, NNTYPE_This, NNTYPE_T1, FIELDN_start, NNTYPE_T1, FIELDN_end},
+	{63, 1, NNTYPE_This, TYPE_Int, FIELDN_size},
+	{64, 1, NNTYPE_This, NATYPE_T1, FIELDN_value},
+	{65, 1, NNTYPE_This, NATYPE_Int, FIELDN_value},
+	{66, 3, NNTYPE_This, NNTYPE_Int, FIELDN_start, NNTYPE_Int, FIELDN_end, NATYPE_Int, FIELDN_isInclusive},
+	{67, 1, NNTYPE_This, NATYPE_Float, FIELDN_value},
+	{68, 1, NNTYPE_This, TYPE_T1, FIELDN_value},
+	{69, 2, NNTYPE_Exception, NATYPE_String, FIELDN_msg, NATYPE_Any, FIELDN_bag},
+	{70, 3, NNTYPE_This, NATYPE_String, FIELDN_e, NATYPE_String, FIELDN_msg, NATYPE_Object, FIELDN_bag},
+	{71, 2, NNTYPE_This, NNTYPE_Any, FIELDN_base, NNTYPE_Method, FIELDN_method},
+	{72, 1, TYPE_void, TYPE_Int, FIELDN_seed},
+	{73, 1, NNTYPE_Int, NATYPE_Int, FIELDN_n},
+	{74, 0, NNTYPE_Float},
+	{75, 1, NNTYPE_Int, NNTYPE_Float, FIELDN_n},
+	{76, 1, NNTYPE_Float, NNTYPE_Int, FIELDN_n},
+	{77, 0, NNTYPE_Class},
+	{78, 0, NNTYPE_String},
+	{79, 0, NNTYPE_Array},
+	{80, 3, TYPE_T0, TYPE_T1, FIELDN_x, TYPE_T2, FIELDN_y, TYPE_T3, FIELDN_z},
+	{81, 1, TYPE_Boolean, TYPE_Class, FIELDN_c},
+	{82, 1, NNTYPE_Boolean, TYPE_Any, FIELDN_value},
+	{83, 1, NNTYPE_Boolean, NNTYPE_Int, FIELDN_value},
+	{84, 1, NNTYPE_Boolean, TYPE_Float, FIELDN_value},
+	{85, 1, NNTYPE_Boolean, NNTYPE_String, FIELDN_s},
+	{86, 1, NNTYPE_Boolean, TYPE_Any, FIELDN_v},
+	{87, 1, NNTYPE_Boolean, TYPE_Any, FIELDN_o},
+	{88, 1, NNTYPE_Int, NNTYPE_Int, FIELDN_v},
+	{89, 1, NNTYPE_Int, NNTYPE_Int, FIELDN_n},
+	{90, 1, NNTYPE_Float, NNTYPE_Float, FIELDN_v},
+	{91, 1, NNTYPE_Float, NNTYPE_Float, FIELDN_n},
+	{92, 1, NNTYPE_String, TYPE_Any, FIELDN_value},
+	{93, 1, NNTYPE_String, NNTYPE_String, FIELDN_s},
+	{94, 1, TYPE_Any, TYPE_Any, FIELDN_value},
+	{95, 0, TYPE_Any},
+	{96, 2, TYPE_void, NNTYPE_Int, FIELDN_n, NNTYPE_Int, FIELDN_c},
+	{97, 1, TYPE_void, NNTYPE_Int, FIELDN_c},
+	{98, 1, NNTYPE_T1, NNTYPE_Int, FIELDN_n},
+	{99, 1, TYPE_Any, NNTYPE_Int, FIELDN_n},
+	{100, 2, TYPE_void, NNTYPE_Int, FIELDN_n, NNTYPE_T1, FIELDN_v},
+	{101, 2, TYPE_void, NNTYPE_Int, FIELDN_n, NNTYPE_Int, FIELDN_v},
+	{102, 2, TYPE_void, NNTYPE_Int, FIELDN_n, NNTYPE_Float, FIELDN_v},
+	{103, 1, TYPE_void, TYPE_T1, FIELDN_v},
+	{104, 1, TYPE_void, NNTYPE_Int, FIELDN_v},
+	{105, 1, TYPE_void, NNTYPE_Float, FIELDN_v},
+	{106, 2, NNTYPE_Bytes, NATYPE_Int, FIELDN_s, NATYPE_Int, FIELDN_e},
+	{107, 2, NNTYPE_String, NATYPE_Int, FIELDN_offset, NATYPE_Int, FIELDN_length},
+	{108, 2, NNTYPE_String, NATYPE_Int, FIELDN_s, NATYPE_Int, FIELDN_e},
+	{109, 2, NNTYPE_This, NATYPE_Int, FIELDN_s, NATYPE_Int, FIELDN_e},
+	{110, 2, NNTYPE_This, NATYPE_String, FIELDN_s, NATYPE_String, FIELDN_e},
+	{111, 0, NNTYPE_T2},
+	{112, 2, TYPE_InputStream, NNTYPE_String, FIELDN_urn, NATYPE_String, FIELDN_mode},
+	{113, 3, NNTYPE_Int, NNTYPE_Bytes, FIELDN_buf, NATYPE_Int, FIELDN_offset, NATYPE_Int, FIELDN_length},
+	{114, 1, TYPE_void, NATYPE_String, FIELDN_enc},
+	{115, 0, NATYPE_String},
+	{116, 0, NATYPE_Any},
+	{117, 2, TYPE_OutputStream, NNTYPE_String, FIELDN_urn, NATYPE_String, FIELDN_mode},
+	{118, 1, TYPE_void, NNTYPE_Int, FIELDN_ch},
+	{119, 1, TYPE_void, NATYPE_Any, FIELDN_value},
+	{120, 1, TYPE_void, NATYPE_Any, FIELDN_data},
+	{121, 2, NNTYPE_Socket, NNTYPE_String, FIELDN_host, NNTYPE_Int, FIELDN_port},
+	{122, 0, NNTYPE_InputStream},
+	{123, 0, NNTYPE_OutputStream},
+	{124, 1, NNTYPE_Bytes, NATYPE_String, FIELDN_enc},
+	{125, 1, NNTYPE_Int, NNTYPE_String, FIELDN_s},
+	{126, 1, NNTYPE_String, NATYPE_Any, FIELDN_value},
+	{127, 1, TYPE_PairSS, NNTYPE_String, FIELDN_s},
+	{128, 2, NNTYPE_String, NNTYPE_String, FIELDN_s, NNTYPE_String, FIELDN_newone},
+	{129, 2, TYPE_String_Ary, TYPE_String, FIELDN_delim, NATYPE_Int, FIELDN_isTrim},
+	{130, 1, NNTYPE_Boolean, NNTYPE_Regex, FIELDN_re},
+	{131, 1, TYPE_String_Ary, TYPE_Regex, FIELDN_pattern},
+	{132, 1, NATYPE_Any, NNTYPE_String, FIELDN_key},
+	{133, 2, TYPE_void, NNTYPE_String, FIELDN_key, NATYPE_Any, FIELDN_value},
+	{134, 2, TYPE_void, TYPE_Boolean, FIELDN_result, NATYPE_String, FIELDN_msg},
+	{135, 1, TYPE_Int, TYPE_String, FIELDN_cmd},
+	{136, 2, NNTYPE_Boolean, NNTYPE_String, FIELDN_lib, NATYPE_String, FIELDN_func},
+	{137, 1, TYPE_void, TYPE_Int, FIELDN_status},
+	{138, 1, TYPE_String_Ary, NATYPE_String, FIELDN_path},
+	{139, 1, NNTYPE_Boolean, NNTYPE_String, FIELDN_path},
+	{140, 2, NNTYPE_Boolean, TYPE_String, FIELDN_path, TYPE_String, FIELDN_newpath},
+	{141, 1, TYPE_Any, NNTYPE_String, FIELDN_key},
+	{142, 1, TYPE_String_Ary, TYPE_String, FIELDN_key},
+	{143, 1, TYPE_void, NATYPE_InputStream, FIELDN_in},
+	{144, 1, TYPE_void, NATYPE_OutputStream, FIELDN_out},
+	{145, 1, NNTYPE_Boolean, TYPE_Any, FIELDN_msg},
+	{146, 2, TYPE_void, NNTYPE_String, FIELDN_name, TYPE_Any, FIELDN_value},
+	{147, 0, TYPE_String_Ary},
+	{148, 0, TYPE_Any_Ary},
+	{149, 1, TYPE_void, NNTYPE_Boolean, FIELDN_flag},
 	{-1}
 };
-#define KNH_TMETHODFIELD_SIZE           149
+#define KNH_TMETHODFIELD_SIZE           150
 
-static knh_MethodData0_t MethodData0[] = {
+static knh_MethodData_t MethodData[] = {
 	{Bytes_putc, 0, CLASS_Bytes, METHODN_putc, 0, 1, NULL},
 	{Bytes_write, 0, CLASS_Bytes, METHODN_write, 0, 2, NULL},
 	{Bytes_write, 0, CLASS_Bytes, METHODN_add, 0, 2, NULL},
@@ -1071,209 +1545,205 @@ static knh_MethodData0_t MethodData0[] = {
 	{DictMap_set, 0, CLASS_DictMap, METHODN_set, 0, 37, NULL},
 	{DictMap_remove, 0, CLASS_DictMap, METHODN_remove, 0, 38, NULL},
 	{DictMap_clear, 0, CLASS_DictMap, METHODN_clear, 0, 0, NULL},
-	{DictMap_keys, 0, CLASS_DictMap, METHODN_keys, 0, 39, NULL},
-	{DictMap_values, 0, CLASS_DictMap, METHODN_values, 0, 40, NULL},
-	{Object__empty, 0, CLASS_Object, METHODN__empty, 0, 41, NULL},
-	{Object__s, 0, CLASS_Object, METHODN__s, 0, 41, NULL},
-	{Boolean__s, 0, CLASS_Boolean, METHODN__s, 0, 41, NULL},
-	{Boolean__s, 0, CLASS_Boolean, METHODN__k, 0, 41, NULL},
-	{Boolean__s, 0, CLASS_Boolean, METHODN__data, 0, 41, NULL},
-	{Boolean__s, 0, CLASS_Boolean, METHODN__dump, 0, 41, NULL},
-	{Int__s, 0, CLASS_Int, METHODN__s, 0, 41, NULL},
-	{String__s, 0, CLASS_String, METHODN__s, 0, 41, NULL},
-	{Bytes__k, 0, CLASS_Bytes, METHODN__s, 0, 41, NULL},
-	{Regex__s, 0, CLASS_Regex, METHODN__s, 0, 41, NULL},
-	{Class__s, 0, CLASS_Class, METHODN__s, 0, 41, NULL},
-	{Method__s, 0, CLASS_Method, METHODN__s, 0, 41, NULL},
-	{Exception__s, 0, CLASS_Exception, METHODN__s, 0, 41, NULL},
-	{Object__k, 0, CLASS_Object, METHODN__k, 0, 41, NULL},
-	{Int__k, 0, CLASS_Int, METHODN__k, 0, 41, NULL},
-	{Int__k, 0, CLASS_Int, METHODN__data, 0, 41, NULL},
-	{Int__k, 0, CLASS_Int, METHODN__dump, 0, 41, NULL},
-	{Float__k, 0, CLASS_Float, METHODN__k, 0, 41, NULL},
-	{Float__k, 0, CLASS_Float, METHODN__data, 0, 41, NULL},
-	{Float__k, 0, CLASS_Float, METHODN__dump, 0, 41, NULL},
-	{String__k, 0, CLASS_String, METHODN__k, 0, 41, NULL},
-	{Iterator__k, 0, CLASS_Iterator, METHODN__k, 0, 41, NULL},
-	{Pair__k, 0, CLASS_Pair, METHODN__k, 0, 41, NULL},
-	{Tuple__k, 0, CLASS_Tuple, METHODN__k, 0, 41, NULL},
-	{Range__k, 0, CLASS_Range, METHODN__k, 0, 41, NULL},
-	{Array__k, 0, CLASS_Array, METHODN__k, 0, 41, NULL},
-	{IArray__k, 0, CLASS_IArray, METHODN__k, 0, 41, NULL},
-	{FArray__k, 0, CLASS_FArray, METHODN__k, 0, 41, NULL},
-	{DictMap__k, 0, CLASS_DictMap, METHODN__k, 0, 41, NULL},
-	{DictSet__k, 0, CLASS_DictSet, METHODN__k, 0, 41, NULL},
-	{DictIdx__k, 0, CLASS_DictIdx, METHODN__k, 0, 41, NULL},
-	{HashMap__k, 0, CLASS_HashMap, METHODN__k, 0, 41, NULL},
-	{Class__k, 0, CLASS_Class, METHODN__k, 0, 41, NULL},
-	{Method__k, 0, CLASS_Method, METHODN__k, 0, 41, NULL},
-	{Mapper__k, 0, CLASS_Mapper, METHODN__k, 0, 41, NULL},
-	{Exception__k, 0, CLASS_Exception, METHODN__k, 0, 41, NULL},
-	{InputStream__k, 0, CLASS_InputStream, METHODN__k, 0, 41, NULL},
-	{OutputStream__k, 0, CLASS_OutputStream, METHODN__k, 0, 41, NULL},
-	{Script__k, 0, CLASS_Script, METHODN__k, 0, 41, NULL},
-	{Any__k, 0, CLASS_Any, METHODN__s, 0, 41, NULL},
-	{Any__k, 0, CLASS_Any, METHODN__k, 0, 41, NULL},
-	{Object__dump, 0, CLASS_Object, METHODN__dump, 0, 41, NULL},
-	{Bytes__dump, 0, CLASS_Bytes, METHODN__dump, 0, 41, NULL},
-	{Class__dump, 0, CLASS_Class, METHODN__dump, 0, 41, NULL},
-	{ClassMap__dump, 0, CLASS_ClassMap, METHODN__dump, 0, 41, NULL},
-	{Method__dump, 0, CLASS_Method, METHODN__dump, 0, 41, NULL},
-	{Exception__dump, 0, CLASS_Exception, METHODN__dump, 0, 41, NULL},
-	{Object__data, 0, CLASS_Object, METHODN__data, 0, 41, NULL},
-	{String__data, 0, CLASS_String, METHODN__data, 0, 41, NULL},
-	{Bytes__data, 0, CLASS_Bytes, METHODN__data, 0, 41, NULL},
-	{Array__data, 0, CLASS_Array, METHODN__data, 0, 41, NULL},
-	{IArray__data, 0, CLASS_IArray, METHODN__data, 0, 41, NULL},
-	{FArray__data, 0, CLASS_FArray, METHODN__data, 0, 41, NULL},
-	{DictMap__data, 0, CLASS_DictMap, METHODN__data, 0, 41, NULL},
-	{Pair__data, 0, CLASS_Pair, METHODN__data, 0, 41, NULL},
-	{Exception__data, 0, CLASS_Exception, METHODN__data, 0, 41, NULL},
-	{Closure__data, 0, CLASS_Closure, METHODN__data, 0, 41, NULL},
-	{Class__man, 0, CLASS_Class, METHODN__man, 0, 41, NULL},
-	{Class__man, 0, CLASS_Object, METHODN__man, 0, 41, NULL},
-	{Object__p, 0, CLASS_Object, METHODN__p, 0, 41, NULL},
-	{Int__c, 0, CLASS_Int, METHODN__c, 0, 41, NULL},
-	{Int__d, 0, CLASS_Int, METHODN__d, 0, 41, NULL},
-	{Int__u, 0, CLASS_Int, METHODN__u, 0, 41, NULL},
-	{Int__f, 0, CLASS_Int, METHODN__f, 0, 41, NULL},
-	{Int__x, 0, CLASS_Int, METHODN__x, 0, 41, NULL},
-	{Int__bits, 0, CLASS_Int, METHODN__bits, 0, 41, NULL},
-	{Float__s, 0, CLASS_Float, METHODN__s, 0, 41, NULL},
-	{Float__d, 0, CLASS_Float, METHODN__d, 0, 41, NULL},
-	{Float__f, 0, CLASS_Float, METHODN__f, 0, 41, NULL},
-	{Float__bits, 0, CLASS_Float, METHODN__bits, 0, 41, NULL},
-	{HashMap_new, 0, CLASS_HashMap, METHODN_new, 0, 42, NULL},
-	{HashMap_get, 0, CLASS_HashMap, METHODN_get, 0, 43, NULL},
-	{HashMap_opHas, 0, CLASS_HashMap, METHODN_opHas, 0, 44, NULL},
-	{HashMap_remove, 0, CLASS_HashMap, METHODN_remove, 0, 45, NULL},
-	{HashMap_set, 0, CLASS_HashMap, METHODN_set, 0, 46, NULL},
-	{String_opItr, 0, CLASS_String, METHODN_opItr, 0, 47, NULL},
-	{Range_opItr, 0, CLASS_Range, METHODN_opItr, 0, 48, NULL},
-	{Array_opItr, 0, CLASS_Array, METHODN_opItr, 0, 48, NULL},
-	{IArray_opItr, 0, CLASS_IArray, METHODN_opItr, 0, 48, NULL},
-	{FArray_opItr, 0, CLASS_FArray, METHODN_opItr, 0, 48, NULL},
-	{DictMap_opItr, 0, CLASS_DictMap, METHODN_opItr, 0, 47, NULL},
-	{DictMap_opItr__2, 0, CLASS_DictMap, METHODN_opItr__2, 0, 49, NULL},
-	{HashMap_opItr, 0, CLASS_HashMap, METHODN_opItr, 0, 48, NULL},
-	{HashMap_opItr__2, 0, CLASS_HashMap, METHODN_opItr__2, 0, 50, NULL},
-	{Object_opItr, 0, CLASS_Object, METHODN_opItr, 0, 51, NULL},
-	{Script_isStmt, FLAG_Method_Static|FLAG_Method_Hidden, CLASS_Script, METHODN_isStmt, 0, 52, NULL},
-	{Script_readLine, FLAG_Method_Static, CLASS_Script, METHODN_readLine, 0, 53, NULL},
-	{Script_addHistory, FLAG_Method_Static, CLASS_Script, METHODN_addHistory, 0, 54, NULL},
-	{Method_getProfTime, 0, CLASS_Method, METHODN_getProfTime, 0, 27, NULL},
-	{Method_getProfCount, 0, CLASS_Method, METHODN_getProfCount, 0, 27, NULL},
-	{System_getTime, 0, CLASS_System, METHODN_getTime, 0, 27, NULL},
+	{Object__empty, 0, CLASS_Object, METHODN__empty, 0, 39, NULL},
+	{Object__s, 0, CLASS_Object, METHODN__s, 0, 39, NULL},
+	{Boolean__s, 0, CLASS_Boolean, METHODN__s, 0, 39, NULL},
+	{Boolean__s, 0, CLASS_Boolean, METHODN__k, 0, 39, NULL},
+	{Boolean__s, 0, CLASS_Boolean, METHODN__data, 0, 39, NULL},
+	{Boolean__s, 0, CLASS_Boolean, METHODN__dump, 0, 39, NULL},
+	{Int__s, 0, CLASS_Int, METHODN__s, 0, 39, NULL},
+	{String__s, 0, CLASS_String, METHODN__s, 0, 39, NULL},
+	{Bytes__k, 0, CLASS_Bytes, METHODN__s, 0, 39, NULL},
+	{Regex__s, 0, CLASS_Regex, METHODN__s, 0, 39, NULL},
+	{Class__s, 0, CLASS_Class, METHODN__s, 0, 39, NULL},
+	{Method__s, 0, CLASS_Method, METHODN__s, 0, 39, NULL},
+	{Exception__s, 0, CLASS_Exception, METHODN__s, 0, 39, NULL},
+	{Object__k, 0, CLASS_Object, METHODN__k, 0, 39, NULL},
+	{Int__k, 0, CLASS_Int, METHODN__k, 0, 39, NULL},
+	{Int__k, 0, CLASS_Int, METHODN__data, 0, 39, NULL},
+	{Int__k, 0, CLASS_Int, METHODN__dump, 0, 39, NULL},
+	{Float__k, 0, CLASS_Float, METHODN__k, 0, 39, NULL},
+	{Float__k, 0, CLASS_Float, METHODN__data, 0, 39, NULL},
+	{Float__k, 0, CLASS_Float, METHODN__dump, 0, 39, NULL},
+	{String__k, 0, CLASS_String, METHODN__k, 0, 39, NULL},
+	{Iterator__k, 0, CLASS_Iterator, METHODN__k, 0, 39, NULL},
+	{Pair__data, 0, CLASS_Pair, METHODN__k, 0, 39, NULL},
+	{Pair__data, 0, CLASS_Pair, METHODN__data, 0, 39, NULL},
+	{Tuple__k, 0, CLASS_Tuple, METHODN__k, 0, 39, NULL},
+	{Range__k, 0, CLASS_Range, METHODN__k, 0, 39, NULL},
+	{Array__k, 0, CLASS_Array, METHODN__k, 0, 39, NULL},
+	{IArray__k, 0, CLASS_IArray, METHODN__k, 0, 39, NULL},
+	{FArray__k, 0, CLASS_FArray, METHODN__k, 0, 39, NULL},
+	{DictMap__k, 0, CLASS_DictMap, METHODN__k, 0, 39, NULL},
+	{DictSet__k, 0, CLASS_DictSet, METHODN__k, 0, 39, NULL},
+	{DictIdx__k, 0, CLASS_DictIdx, METHODN__k, 0, 39, NULL},
+	{HashMap__k, 0, CLASS_HashMap, METHODN__k, 0, 39, NULL},
+	{Class__k, 0, CLASS_Class, METHODN__k, 0, 39, NULL},
+	{Method__k, 0, CLASS_Method, METHODN__k, 0, 39, NULL},
+	{Mapper__k, 0, CLASS_Mapper, METHODN__k, 0, 39, NULL},
+	{Exception__k, 0, CLASS_Exception, METHODN__k, 0, 39, NULL},
+	{InputStream__k, 0, CLASS_InputStream, METHODN__k, 0, 39, NULL},
+	{OutputStream__k, 0, CLASS_OutputStream, METHODN__k, 0, 39, NULL},
+	{Script__k, 0, CLASS_Script, METHODN__k, 0, 39, NULL},
+	{Any__k, 0, CLASS_Any, METHODN__s, 0, 39, NULL},
+	{Any__k, 0, CLASS_Any, METHODN__k, 0, 39, NULL},
+	{Object__dump, 0, CLASS_Object, METHODN__dump, 0, 39, NULL},
+	{Bytes__dump, 0, CLASS_Bytes, METHODN__dump, 0, 39, NULL},
+	{Class__dump, 0, CLASS_Class, METHODN__dump, 0, 39, NULL},
+	{ClassMap__dump, 0, CLASS_ClassMap, METHODN__dump, 0, 39, NULL},
+	{Method__dump, 0, CLASS_Method, METHODN__dump, 0, 39, NULL},
+	{Exception__dump, 0, CLASS_Exception, METHODN__dump, 0, 39, NULL},
+	{Object__data, 0, CLASS_Object, METHODN__data, 0, 39, NULL},
+	{String__data, 0, CLASS_String, METHODN__data, 0, 39, NULL},
+	{Bytes__data, 0, CLASS_Bytes, METHODN__data, 0, 39, NULL},
+	{Array__data, 0, CLASS_Array, METHODN__data, 0, 39, NULL},
+	{IArray__data, 0, CLASS_IArray, METHODN__data, 0, 39, NULL},
+	{FArray__data, 0, CLASS_FArray, METHODN__data, 0, 39, NULL},
+	{DictMap__data, 0, CLASS_DictMap, METHODN__data, 0, 39, NULL},
+	{Exception__data, 0, CLASS_Exception, METHODN__data, 0, 39, NULL},
+	{Class__man, 0, CLASS_Class, METHODN__man, 0, 39, NULL},
+	{Class__man, 0, CLASS_Object, METHODN__man, 0, 39, NULL},
+	{Object__p, 0, CLASS_Object, METHODN__p, 0, 39, NULL},
+	{Int__c, 0, CLASS_Int, METHODN__c, 0, 39, NULL},
+	{Int__d, 0, CLASS_Int, METHODN__d, 0, 39, NULL},
+	{Int__u, 0, CLASS_Int, METHODN__u, 0, 39, NULL},
+	{Int__f, 0, CLASS_Int, METHODN__f, 0, 39, NULL},
+	{Int__x, 0, CLASS_Int, METHODN__x, 0, 39, NULL},
+	{Int__bits, 0, CLASS_Int, METHODN__bits, 0, 39, NULL},
+	{Float__s, 0, CLASS_Float, METHODN__s, 0, 39, NULL},
+	{Float__d, 0, CLASS_Float, METHODN__d, 0, 39, NULL},
+	{Float__f, 0, CLASS_Float, METHODN__f, 0, 39, NULL},
+	{Float__bits, 0, CLASS_Float, METHODN__bits, 0, 39, NULL},
+	{HashMap_new, 0, CLASS_HashMap, METHODN_new, 0, 40, NULL},
+	{HashMap_get, 0, CLASS_HashMap, METHODN_get, 0, 41, NULL},
+	{HashMap_opHas, 0, CLASS_HashMap, METHODN_opHas, 0, 42, NULL},
+	{HashMap_remove, 0, CLASS_HashMap, METHODN_remove, 0, 43, NULL},
+	{HashMap_set, 0, CLASS_HashMap, METHODN_set, 0, 44, NULL},
+	{String_opItr, 0, CLASS_String, METHODN_opItr, 0, 45, NULL},
+	{Range_opItr, 0, CLASS_Range, METHODN_opItr, 0, 46, NULL},
+	{Array_opItr, 0, CLASS_Array, METHODN_opItr, 0, 46, NULL},
+	{IArray_opItr, 0, CLASS_IArray, METHODN_opItr, 0, 46, NULL},
+	{FArray_opItr, 0, CLASS_FArray, METHODN_opItr, 0, 46, NULL},
+	{DictMap_opItr, 0, CLASS_DictMap, METHODN_opItr, 0, 45, NULL},
+	{DictMap_opItr__2, 0, CLASS_DictMap, METHODN_opItr__2, 0, 47, NULL},
+	{HashMap_opItr, 0, CLASS_HashMap, METHODN_opItr, 0, 46, NULL},
+	{HashMap_opItr__2, 0, CLASS_HashMap, METHODN_opItr__2, 0, 48, NULL},
+	{Object_opItr, 0, CLASS_Object, METHODN_opItr, 0, 49, NULL},
+	{Script_isStmt, FLAG_Method_Static|FLAG_Method_Hidden, CLASS_Script, METHODN_isStmt, 0, 50, NULL},
+	{Script_eval, FLAG_Method_Static|FLAG_Method_Hidden, CLASS_Script, METHODN_eval, 0, 51, NULL},
+	{Script_readLine, FLAG_Method_Static, CLASS_Script, METHODN_readLine, 0, 52, NULL},
+	{Script_addHistory, FLAG_Method_Static, CLASS_Script, METHODN_addHistory, 0, 53, NULL},
+	{System_setMethodTypingListener, FLAG_Method_Static, CLASS_System, METHODN_setMethodTypingListener, 0, 54, NULL},
+	{System_setMethodCompilationListener, FLAG_Method_Static, CLASS_System, METHODN_setMethodCompilationListener, 0, 54, NULL},
 	{Object_new, FLAG_Method_Virtual, CLASS_Object, METHODN_new, 0, 55, NULL},
 	{Object_new__dictmap, FLAG_Method_VarArgs|FLAG_Method_Hidden, CLASS_Object, METHODN_new__dictmap, 0, 56, NULL},
 	{Bytes_new, 0, CLASS_Bytes, METHODN_new, 0, 57, NULL},
-	{Bytes_new__array, 0, CLASS_Bytes, METHODN_new__array, 0, 58, NULL},
-	{String_new, 0, CLASS_String, METHODN_new, 0, 59, NULL},
-	{Regex_new, FLAG_Method_Const, CLASS_Regex, METHODN_new, 0, 60, NULL},
-	{Pair_new__init, FLAG_Method_Const|FLAG_Method_Hidden, CLASS_Pair, METHODN_new__init, 0, 61, NULL},
-	{Tuple_new__init, FLAG_Method_Const|FLAG_Method_VarArgs|FLAG_Method_Hidden, CLASS_Tuple, METHODN_new__init, 0, 62, NULL},
-	{Range_new__init, FLAG_Method_Const|FLAG_Method_Hidden, CLASS_Range, METHODN_new__init, 0, 63, NULL},
-	{Range_new, FLAG_Method_Const|FLAG_Method_Hidden, CLASS_Range, METHODN_new, 0, 63, NULL},
-	{Array_new, 0, CLASS_Array, METHODN_new, 0, 42, NULL},
-	{Array_new__array, FLAG_Method_Hidden, CLASS_Array, METHODN_new__array, 0, 64, NULL},
-	{Array_new__init, FLAG_Method_VarArgs|FLAG_Method_Hidden, CLASS_Array, METHODN_new__init, 0, 65, NULL},
-	{IArray_new, FLAG_Method_Hidden, CLASS_IArray, METHODN_new, 0, 42, NULL},
-	{IArray_new__array, FLAG_Method_Hidden, CLASS_IArray, METHODN_new__array, 0, 64, NULL},
-	{IArray_new__init, FLAG_Method_VarArgs|FLAG_Method_Hidden, CLASS_IArray, METHODN_new__init, 0, 66, NULL},
-	{IArray_new__range, FLAG_Method_Const|FLAG_Method_Hidden, CLASS_IArray, METHODN_new__range, 0, 67, NULL},
-	{FArray_new, FLAG_Method_Hidden, CLASS_FArray, METHODN_new, 0, 42, NULL},
-	{FArray_new__array, FLAG_Method_Hidden, CLASS_FArray, METHODN_new__array, 0, 64, NULL},
-	{FArray_new__init, FLAG_Method_VarArgs|FLAG_Method_Hidden, CLASS_FArray, METHODN_new__init, 0, 68, NULL},
-	{DictMap_new, 0, CLASS_DictMap, METHODN_new, 0, 42, NULL},
-	{DictMap_new__dictmap, FLAG_Method_VarArgs|FLAG_Method_Hidden, CLASS_DictMap, METHODN_new__dictmap, 0, 69, NULL},
-	{Exception_new, 0, CLASS_Exception, METHODN_new, 0, 70, NULL},
-	{Exception_new__init, FLAG_Method_Hidden, CLASS_Exception, METHODN_new__init, 0, 71, NULL},
-	{Closure_new, 0, CLASS_Closure, METHODN_new, 0, 72, NULL},
-	{System_setRandomSeed, FLAG_Method_Static, CLASS_System, METHODN_setRandomSeed, 0, 73, NULL},
-	{Int_random, FLAG_Method_Static, CLASS_Int, METHODN_random, 0, 74, NULL},
-	{Float_random, FLAG_Method_Static, CLASS_Float, METHODN_random, 0, 75, NULL},
-	{Float_floatToIntBits, FLAG_Method_Static, CLASS_Float, METHODN_floatToIntBits, 0, 76, NULL},
-	{Float_intToFloatBits, FLAG_Method_Static, CLASS_Float, METHODN_intToFloatBits, 0, 77, NULL},
-	{Object_getClass, FLAG_Method_Const|FLAG_Method_NullBase, CLASS_Object, METHODN_getClass, 0, 78, NULL},
+	{String_new, 0, CLASS_String, METHODN_new, 0, 58, NULL},
+	{Regex_new, FLAG_Method_Const, CLASS_Regex, METHODN_new, 0, 59, NULL},
+	{Pair_new__init, FLAG_Method_Const|FLAG_Method_Hidden, CLASS_Pair, METHODN_new__init, 0, 60, NULL},
+	{Tuple_new__init, FLAG_Method_Const|FLAG_Method_VarArgs|FLAG_Method_Hidden, CLASS_Tuple, METHODN_new__init, 0, 61, NULL},
+	{Range_new__init, FLAG_Method_Const|FLAG_Method_Hidden, CLASS_Range, METHODN_new__init, 0, 62, NULL},
+	{Range_new, FLAG_Method_Const|FLAG_Method_Hidden, CLASS_Range, METHODN_new, 0, 62, NULL},
+	{Array_new, 0, CLASS_Array, METHODN_new, 0, 40, NULL},
+	{Array_new__array, FLAG_Method_Hidden, CLASS_Array, METHODN_new__array, 0, 63, NULL},
+	{Array_new__init, FLAG_Method_VarArgs|FLAG_Method_Hidden, CLASS_Array, METHODN_new__init, 0, 64, NULL},
+	{IArray_new, FLAG_Method_Hidden, CLASS_IArray, METHODN_new, 0, 40, NULL},
+	{IArray_new__array, FLAG_Method_Hidden, CLASS_IArray, METHODN_new__array, 0, 63, NULL},
+	{IArray_new__init, FLAG_Method_VarArgs|FLAG_Method_Hidden, CLASS_IArray, METHODN_new__init, 0, 65, NULL},
+	{IArray_new__range, FLAG_Method_Const|FLAG_Method_Hidden, CLASS_IArray, METHODN_new__range, 0, 66, NULL},
+	{FArray_new, FLAG_Method_Hidden, CLASS_FArray, METHODN_new, 0, 40, NULL},
+	{FArray_new__array, FLAG_Method_Hidden, CLASS_FArray, METHODN_new__array, 0, 63, NULL},
+	{FArray_new__init, FLAG_Method_VarArgs|FLAG_Method_Hidden, CLASS_FArray, METHODN_new__init, 0, 67, NULL},
+	{DictMap_new, 0, CLASS_DictMap, METHODN_new, 0, 40, NULL},
+	{DictMap_new__dictmap, FLAG_Method_VarArgs|FLAG_Method_Hidden, CLASS_DictMap, METHODN_new__dictmap, 0, 68, NULL},
+	{Exception_new, 0, CLASS_Exception, METHODN_new, 0, 69, NULL},
+	{Exception_new__init, FLAG_Method_Hidden, CLASS_Exception, METHODN_new__init, 0, 70, NULL},
+	{Closure_new, 0, CLASS_Closure, METHODN_new, 0, 71, NULL},
+	{System_setRandomSeed, FLAG_Method_Static, CLASS_System, METHODN_setRandomSeed, 0, 72, NULL},
+	{Int_random, FLAG_Method_Static, CLASS_Int, METHODN_random, 0, 73, NULL},
+	{Float_random, FLAG_Method_Static, CLASS_Float, METHODN_random, 0, 74, NULL},
+	{Float_floatToIntBits, FLAG_Method_Static, CLASS_Float, METHODN_floatToIntBits, 0, 75, NULL},
+	{Float_intToFloatBits, FLAG_Method_Static, CLASS_Float, METHODN_intToFloatBits, 0, 76, NULL},
+	{Object_getClass, FLAG_Method_Const|FLAG_Method_NullBase, CLASS_Object, METHODN_getClass, 0, 77, NULL},
 	{Object_hashCode, FLAG_Method_NullBase, CLASS_Object, METHODN_hashCode, 0, 27, NULL},
 	{Object_isNull, FLAG_Method_Const|FLAG_Method_Hidden|FLAG_Method_NullBase, CLASS_Object, METHODN_isNull, 0, 28, NULL},
 	{Object_isNotNull, FLAG_Method_Const|FLAG_Method_Hidden|FLAG_Method_NullBase, CLASS_Object, METHODN_isNotNull, 0, 28, NULL},
-	{Object_getKey, FLAG_Method_Const|FLAG_Method_Virtual, CLASS_Object, METHODN_getKey, 0, 79, NULL},
-	{Object_format, FLAG_Method_NullBase, CLASS_Object, METHODN_format, 0, 80, NULL},
-	{Class_domain, FLAG_Method_Hidden, CLASS_Class, METHODN_domain, 0, 81, NULL},
+	{Object_getKey, FLAG_Method_Const|FLAG_Method_Virtual, CLASS_Object, METHODN_getKey, 0, 78, NULL},
+	{Class_domain, FLAG_Method_Hidden, CLASS_Class, METHODN_domain, 0, 79, NULL},
 	{Method_isAbstract, FLAG_Method_Const, CLASS_Method, METHODN_isAbstract, 0, 28, NULL},
-	{Method_getName, FLAG_Method_Const, CLASS_Method, METHODN_getName, 0, 79, NULL},
-	{Method_setTrace, FLAG_Method_Const, CLASS_Method, METHODN_setTrace, 0, 82, NULL},
-	{Closure_invoke, FLAG_Method_VarArgs, CLASS_Closure, METHODN_invoke, 0, 83, NULL},
+	{Method_getName, FLAG_Method_Const, CLASS_Method, METHODN_getName, 0, 78, NULL},
+	{Closure_invoke, FLAG_Method_VarArgs, CLASS_Closure, METHODN_invoke, 0, 80, NULL},
+	{Thunk_eval, 0, CLASS_Thunk, METHODN_eval, 0, 11, NULL},
+	{Thunk_value, 0, CLASS_Thunk, METHODN_value, 0, 11, NULL},
 	{Object_opAddr, FLAG_Method_NullBase, CLASS_Object, METHODN_opAddr, 0, 27, NULL},
-	{Object_opInstanceof, FLAG_Method_NullBase, CLASS_Object, METHODN_opInstanceof, 0, 84, NULL},
-	{Object_opEq, FLAG_Method_Const|FLAG_Method_NullBase, CLASS_Object, METHODN_opEq, 0, 85, NULL},
-	{Object_opNeq, FLAG_Method_Const|FLAG_Method_NullBase, CLASS_Object, METHODN_opNeq, 0, 85, NULL},
-	{Object_opLt, FLAG_Method_Const|FLAG_Method_NullBase, CLASS_Object, METHODN_opLt, 0, 85, NULL},
-	{Object_opLte, FLAG_Method_Const|FLAG_Method_NullBase, CLASS_Object, METHODN_opLte, 0, 85, NULL},
-	{Object_opGt, FLAG_Method_Const|FLAG_Method_NullBase, CLASS_Object, METHODN_opGt, 0, 85, NULL},
-	{Object_opGte, FLAG_Method_Const|FLAG_Method_NullBase, CLASS_Object, METHODN_opGte, 0, 85, NULL},
-	{Int_opEq, FLAG_Method_Const, CLASS_Int, METHODN_opEq, 0, 86, NULL},
-	{Int_opNeq, FLAG_Method_Const, CLASS_Int, METHODN_opNeq, 0, 86, NULL},
-	{Int_opLt, FLAG_Method_Const, CLASS_Int, METHODN_opLt, 0, 86, NULL},
-	{Int_opLte, FLAG_Method_Const, CLASS_Int, METHODN_opLte, 0, 86, NULL},
-	{Int_opGt, FLAG_Method_Const, CLASS_Int, METHODN_opGt, 0, 86, NULL},
-	{Int_opGte, FLAG_Method_Const, CLASS_Int, METHODN_opGte, 0, 86, NULL},
-	{Float_opEq, FLAG_Method_Const|FLAG_Method_NullBase, CLASS_Float, METHODN_opEq, 0, 87, NULL},
-	{Float_opNeq, FLAG_Method_Const|FLAG_Method_NullBase, CLASS_Float, METHODN_opNeq, 0, 87, NULL},
-	{Float_opLt, FLAG_Method_Const, CLASS_Float, METHODN_opLt, 0, 87, NULL},
-	{Float_opLte, FLAG_Method_Const, CLASS_Float, METHODN_opLte, 0, 87, NULL},
-	{Float_opGt, FLAG_Method_Const, CLASS_Float, METHODN_opGt, 0, 87, NULL},
-	{Float_opGte, FLAG_Method_Const, CLASS_Float, METHODN_opGte, 0, 87, NULL},
-	{String_opHas, FLAG_Method_Const, CLASS_String, METHODN_opHas, 0, 88, NULL},
-	{Pair_opHas, 0, CLASS_Pair, METHODN_opHas, 0, 89, NULL},
-	{Pair_opHas, 0, CLASS_Pair, METHODN_opCase, 0, 89, NULL},
-	{Range_opHas, 0, CLASS_Range, METHODN_opHas, 0, 89, NULL},
-	{Range_opHas, 0, CLASS_Range, METHODN_opCase, 0, 89, NULL},
-	{Array_opHas, 0, CLASS_Array, METHODN_opHas, 0, 89, NULL},
-	{Array_opHas, 0, CLASS_Array, METHODN_opCase, 0, 89, NULL},
-	{Tuple_opHas, 0, CLASS_Tuple, METHODN_opHas, 0, 89, NULL},
-	{Tuple_opHas, 0, CLASS_Tuple, METHODN_opCase, 0, 89, NULL},
-	{IArray_opHas, 0, CLASS_IArray, METHODN_opHas, 0, 89, NULL},
-	{IArray_opHas, 0, CLASS_IArray, METHODN_opCase, 0, 89, NULL},
-	{FArray_opHas, 0, CLASS_FArray, METHODN_opHas, 0, 89, NULL},
-	{FArray_opHas, 0, CLASS_FArray, METHODN_opCase, 0, 89, NULL},
-	{Object_opCase, FLAG_Method_Const|FLAG_Method_NullBase, CLASS_Object, METHODN_opCase, 0, 89, NULL},
-	{Int_opCase, FLAG_Method_Const|FLAG_Method_NullBase, CLASS_Int, METHODN_opCase, 0, 89, NULL},
-	{Float_opCase, FLAG_Method_Const|FLAG_Method_NullBase, CLASS_Float, METHODN_opCase, 0, 89, NULL},
-	{Object_opIs, FLAG_Method_Const, CLASS_Object, METHODN_opIs, 0, 89, NULL},
-	{Object_opAs, FLAG_Method_Const, CLASS_Object, METHODN_opAs, 0, 90, NULL},
-	{Object_opInTo, FLAG_Method_Const, CLASS_Object, METHODN_opInTo, 0, 84, NULL},
-	{Int_opAdd, FLAG_Method_Const, CLASS_Int, METHODN_opAdd, 0, 91, NULL},
+	{Object_opInstanceof, FLAG_Method_NullBase, CLASS_Object, METHODN_opInstanceof, 0, 81, NULL},
+	{Object_opEq, FLAG_Method_Const|FLAG_Method_NullBase, CLASS_Object, METHODN_opEq, 0, 82, NULL},
+	{Object_opNeq, FLAG_Method_Const|FLAG_Method_NullBase, CLASS_Object, METHODN_opNeq, 0, 82, NULL},
+	{Object_opLt, FLAG_Method_Const|FLAG_Method_NullBase, CLASS_Object, METHODN_opLt, 0, 82, NULL},
+	{Object_opLte, FLAG_Method_Const|FLAG_Method_NullBase, CLASS_Object, METHODN_opLte, 0, 82, NULL},
+	{Object_opGt, FLAG_Method_Const|FLAG_Method_NullBase, CLASS_Object, METHODN_opGt, 0, 82, NULL},
+	{Object_opGte, FLAG_Method_Const|FLAG_Method_NullBase, CLASS_Object, METHODN_opGte, 0, 82, NULL},
+	{Int_opEq, FLAG_Method_Const, CLASS_Int, METHODN_opEq, 0, 83, NULL},
+	{Int_opNeq, FLAG_Method_Const, CLASS_Int, METHODN_opNeq, 0, 83, NULL},
+	{Int_opLt, FLAG_Method_Const, CLASS_Int, METHODN_opLt, 0, 83, NULL},
+	{Int_opLte, FLAG_Method_Const, CLASS_Int, METHODN_opLte, 0, 83, NULL},
+	{Int_opGt, FLAG_Method_Const, CLASS_Int, METHODN_opGt, 0, 83, NULL},
+	{Int_opGte, FLAG_Method_Const, CLASS_Int, METHODN_opGte, 0, 83, NULL},
+	{Float_opEq, FLAG_Method_Const|FLAG_Method_NullBase, CLASS_Float, METHODN_opEq, 0, 84, NULL},
+	{Float_opNeq, FLAG_Method_Const|FLAG_Method_NullBase, CLASS_Float, METHODN_opNeq, 0, 84, NULL},
+	{Float_opLt, FLAG_Method_Const, CLASS_Float, METHODN_opLt, 0, 84, NULL},
+	{Float_opLte, FLAG_Method_Const, CLASS_Float, METHODN_opLte, 0, 84, NULL},
+	{Float_opGt, FLAG_Method_Const, CLASS_Float, METHODN_opGt, 0, 84, NULL},
+	{Float_opGte, FLAG_Method_Const, CLASS_Float, METHODN_opGte, 0, 84, NULL},
+	{String_opHas, FLAG_Method_Const, CLASS_String, METHODN_opHas, 0, 85, NULL},
+	{Pair_opHas, 0, CLASS_Pair, METHODN_opHas, 0, 86, NULL},
+	{Pair_opHas, 0, CLASS_Pair, METHODN_opCase, 0, 86, NULL},
+	{Range_opHas, 0, CLASS_Range, METHODN_opHas, 0, 86, NULL},
+	{Range_opHas, 0, CLASS_Range, METHODN_opCase, 0, 86, NULL},
+	{Array_opHas, 0, CLASS_Array, METHODN_opHas, 0, 86, NULL},
+	{Array_opHas, 0, CLASS_Array, METHODN_opCase, 0, 86, NULL},
+	{Tuple_opHas, 0, CLASS_Tuple, METHODN_opHas, 0, 86, NULL},
+	{Tuple_opHas, 0, CLASS_Tuple, METHODN_opCase, 0, 86, NULL},
+	{IArray_opHas, 0, CLASS_IArray, METHODN_opHas, 0, 86, NULL},
+	{IArray_opHas, 0, CLASS_IArray, METHODN_opCase, 0, 86, NULL},
+	{FArray_opHas, 0, CLASS_FArray, METHODN_opHas, 0, 86, NULL},
+	{FArray_opHas, 0, CLASS_FArray, METHODN_opCase, 0, 86, NULL},
+	{Object_opCase, FLAG_Method_Const|FLAG_Method_NullBase, CLASS_Object, METHODN_opCase, 0, 86, NULL},
+	{Int_opCase, FLAG_Method_Const|FLAG_Method_NullBase, CLASS_Int, METHODN_opCase, 0, 86, NULL},
+	{Float_opCase, FLAG_Method_Const|FLAG_Method_NullBase, CLASS_Float, METHODN_opCase, 0, 86, NULL},
+	{Object_opIs, FLAG_Method_Const, CLASS_Object, METHODN_opIs, 0, 86, NULL},
+	{Object_opAs, FLAG_Method_Const, CLASS_Object, METHODN_opAs, 0, 87, NULL},
+	{Object_opInTo, FLAG_Method_Const, CLASS_Object, METHODN_opInTo, 0, 81, NULL},
+	{Int_opAdd, FLAG_Method_Const, CLASS_Int, METHODN_opAdd, 0, 88, NULL},
 	{Int_opNeg, FLAG_Method_Const, CLASS_Int, METHODN_opNeg, 0, 27, NULL},
-	{Int_opSub, FLAG_Method_Const, CLASS_Int, METHODN_opSub, 0, 92, NULL},
-	{Int_opMul, FLAG_Method_Const, CLASS_Int, METHODN_opMul, 0, 92, NULL},
-	{Int_opDiv, FLAG_Method_Const, CLASS_Int, METHODN_opDiv, 0, 92, NULL},
-	{Int_opMod, FLAG_Method_Const, CLASS_Int, METHODN_opMod, 0, 92, NULL},
-	{Float_opAdd, FLAG_Method_Const, CLASS_Float, METHODN_opAdd, 0, 93, NULL},
-	{Float_opNeg, FLAG_Method_Const, CLASS_Float, METHODN_opNeg, 0, 75, NULL},
-	{Float_opSub, FLAG_Method_Const, CLASS_Float, METHODN_opSub, 0, 94, NULL},
-	{Float_opMul, FLAG_Method_Const, CLASS_Float, METHODN_opMul, 0, 94, NULL},
-	{Float_opDiv, FLAG_Method_Const, CLASS_Float, METHODN_opDiv, 0, 94, NULL},
-	{String_opAdd, FLAG_Method_Const|FLAG_Method_NullBase, CLASS_String, METHODN_opAdd, 0, 95, NULL},
-	{String_opSub, FLAG_Method_Const, CLASS_String, METHODN_opSub, 0, 96, NULL},
-	{Any_opAdd, 0, CLASS_Any, METHODN_opAdd, 0, 97, NULL},
-	{Any_opAdd, 0, CLASS_Any, METHODN_opSub, 0, 97, NULL},
-	{Any_opAdd, 0, CLASS_Any, METHODN_opMul, 0, 97, NULL},
-	{Any_opAdd, 0, CLASS_Any, METHODN_opDiv, 0, 97, NULL},
-	{Any_opAdd, 0, CLASS_Any, METHODN_opMod, 0, 97, NULL},
-	{Any_opNeg, 0, CLASS_Any, METHODN_opNeg, 0, 98, NULL},
+	{Int_opSub, FLAG_Method_Const, CLASS_Int, METHODN_opSub, 0, 89, NULL},
+	{Int_opMul, FLAG_Method_Const, CLASS_Int, METHODN_opMul, 0, 89, NULL},
+	{Int_opDiv, FLAG_Method_Const, CLASS_Int, METHODN_opDiv, 0, 89, NULL},
+	{Int_opMod, FLAG_Method_Const, CLASS_Int, METHODN_opMod, 0, 89, NULL},
+	{Float_opAdd, FLAG_Method_Const, CLASS_Float, METHODN_opAdd, 0, 90, NULL},
+	{Float_opNeg, FLAG_Method_Const, CLASS_Float, METHODN_opNeg, 0, 74, NULL},
+	{Float_opSub, FLAG_Method_Const, CLASS_Float, METHODN_opSub, 0, 91, NULL},
+	{Float_opMul, FLAG_Method_Const, CLASS_Float, METHODN_opMul, 0, 91, NULL},
+	{Float_opDiv, FLAG_Method_Const, CLASS_Float, METHODN_opDiv, 0, 91, NULL},
+	{String_opAdd, FLAG_Method_Const|FLAG_Method_NullBase, CLASS_String, METHODN_opAdd, 0, 92, NULL},
+	{String_opSub, FLAG_Method_Const, CLASS_String, METHODN_opSub, 0, 93, NULL},
+	{Any_opAdd, 0, CLASS_Any, METHODN_opAdd, 0, 94, NULL},
+	{Any_opAdd, 0, CLASS_Any, METHODN_opSub, 0, 94, NULL},
+	{Any_opAdd, 0, CLASS_Any, METHODN_opMul, 0, 94, NULL},
+	{Any_opAdd, 0, CLASS_Any, METHODN_opDiv, 0, 94, NULL},
+	{Any_opAdd, 0, CLASS_Any, METHODN_opMod, 0, 94, NULL},
+	{Any_opNeg, 0, CLASS_Any, METHODN_opNeg, 0, 95, NULL},
 	{Boolean_opNot, FLAG_Method_Const, CLASS_Boolean, METHODN_opNot, 0, 28, NULL},
-	{Int_opLand, FLAG_Method_Const|FLAG_Method_VarArgs, CLASS_Int, METHODN_opLand, 0, 92, NULL},
-	{Int_opLor, FLAG_Method_Const|FLAG_Method_VarArgs, CLASS_Int, METHODN_opLor, 0, 92, NULL},
-	{Int_opXor, FLAG_Method_Const, CLASS_Int, METHODN_opXor, 0, 92, NULL},
+	{Int_opLand, FLAG_Method_Const|FLAG_Method_VarArgs, CLASS_Int, METHODN_opLand, 0, 89, NULL},
+	{Int_opLor, FLAG_Method_Const|FLAG_Method_VarArgs, CLASS_Int, METHODN_opLor, 0, 89, NULL},
+	{Int_opXor, FLAG_Method_Const, CLASS_Int, METHODN_opXor, 0, 89, NULL},
 	{Int_opLnot, FLAG_Method_Const, CLASS_Int, METHODN_opLnot, 0, 27, NULL},
-	{Int_opLshift, FLAG_Method_Const, CLASS_Int, METHODN_opLshift, 0, 92, NULL},
-	{Int_opRshift, FLAG_Method_Const, CLASS_Int, METHODN_opRshift, 0, 92, NULL},
+	{Int_opLshift, FLAG_Method_Const, CLASS_Int, METHODN_opLshift, 0, 89, NULL},
+	{Int_opRshift, FLAG_Method_Const, CLASS_Int, METHODN_opRshift, 0, 89, NULL},
 	{Int_opNext, FLAG_Method_Const, CLASS_Int, METHODN_opNext, 0, 27, NULL},
 	{Int_opPrev, FLAG_Method_Const, CLASS_Int, METHODN_opPrev, 0, 27, NULL},
-	{Float_opNext, FLAG_Method_Const, CLASS_Float, METHODN_opNext, 0, 75, NULL},
-	{Float_opPrev, FLAG_Method_Const, CLASS_Float, METHODN_opPrev, 0, 75, NULL},
+	{Float_opNext, FLAG_Method_Const, CLASS_Float, METHODN_opNext, 0, 74, NULL},
+	{Float_opPrev, FLAG_Method_Const, CLASS_Float, METHODN_opPrev, 0, 74, NULL},
 	{Int_getSize, FLAG_Method_Const|FLAG_Method_NullBase, CLASS_Int, METHODN_getSize, 0, 27, NULL},
 	{Float_getSize, FLAG_Method_Const|FLAG_Method_NullBase, CLASS_Float, METHODN_getSize, 0, 27, NULL},
 	{Bytes_getSize, FLAG_Method_NullBase, CLASS_Bytes, METHODN_getSize, 0, 27, NULL},
@@ -1285,134 +1755,134 @@ static knh_MethodData0_t MethodData0[] = {
 	{Array_getSize, FLAG_Method_NullBase, CLASS_IArray, METHODN_getSize, 0, 27, NULL},
 	{Array_getSize, FLAG_Method_NullBase, CLASS_FArray, METHODN_getSize, 0, 27, NULL},
 	{DictMap_getSize, FLAG_Method_NullBase, CLASS_DictMap, METHODN_getSize, 0, 27, NULL},
-	{Bytes_get, 0, CLASS_Bytes, METHODN_get, 0, 92, NULL},
-	{Bytes_set, 0, CLASS_Bytes, METHODN_set, 0, 99, NULL},
-	{Bytes_setAll, 0, CLASS_Bytes, METHODN_setAll, 0, 100, NULL},
+	{Bytes_get, 0, CLASS_Bytes, METHODN_get, 0, 89, NULL},
+	{Bytes_set, 0, CLASS_Bytes, METHODN_set, 0, 96, NULL},
+	{Bytes_setAll, 0, CLASS_Bytes, METHODN_setAll, 0, 97, NULL},
 	{String_get, FLAG_Method_Const, CLASS_String, METHODN_get, 0, 29, NULL},
-	{Array_get, 0, CLASS_Array, METHODN_get, 0, 101, NULL},
-	{Tuple_get, 0, CLASS_Tuple, METHODN_get, 0, 102, NULL},
-	{IArray_get, 0, CLASS_IArray, METHODN_get, 0, 92, NULL},
-	{FArray_get, 0, CLASS_FArray, METHODN_get, 0, 77, NULL},
-	{Array_set, 0, CLASS_Array, METHODN_set, 0, 103, NULL},
-	{IArray_set, 0, CLASS_IArray, METHODN_set, 0, 104, NULL},
-	{FArray_set, 0, CLASS_FArray, METHODN_set, 0, 105, NULL},
-	{Array_setAll, 0, CLASS_Array, METHODN_setAll, 0, 106, NULL},
-	{IArray_setAll, 0, CLASS_IArray, METHODN_setAll, 0, 91, NULL},
-	{FArray_setAll, 0, CLASS_FArray, METHODN_setAll, 0, 93, NULL},
-	{Bytes_opRangeUntil, 0, CLASS_Bytes, METHODN_opRangeUntil, 0, 107, NULL},
-	{Bytes_opRangeTo, 0, CLASS_Bytes, METHODN_opRangeTo, 0, 107, NULL},
-	{String_substring, FLAG_Method_Const, CLASS_String, METHODN_substring, 0, 108, NULL},
-	{String_opRangeUntil, FLAG_Method_Const, CLASS_String, METHODN_opRangeUntil, 0, 109, NULL},
-	{String_opRangeTo, FLAG_Method_Const, CLASS_String, METHODN_opRangeTo, 0, 109, NULL},
-	{Array_opRangeUntil, 0, CLASS_Array, METHODN_opRangeUntil, 0, 110, NULL},
-	{Array_opRangeTo, 0, CLASS_Array, METHODN_opRangeTo, 0, 110, NULL},
-	{IArray_opRangeUntil, 0, CLASS_IArray, METHODN_opRangeUntil, 0, 110, NULL},
-	{IArray_opRangeTo, 0, CLASS_IArray, METHODN_opRangeTo, 0, 110, NULL},
-	{FArray_opRangeUntil, 0, CLASS_FArray, METHODN_opRangeUntil, 0, 110, NULL},
-	{FArray_opRangeTo, 0, CLASS_FArray, METHODN_opRangeTo, 0, 110, NULL},
-	{DictMap_opRangeTo, 0, CLASS_DictMap, METHODN_opRangeTo, 0, 111, NULL},
-	{DictMap_opRangeUntil, 0, CLASS_DictMap, METHODN_opRangeUntil, 0, 111, NULL},
+	{Array_get, 0, CLASS_Array, METHODN_get, 0, 98, NULL},
+	{Tuple_get, 0, CLASS_Tuple, METHODN_get, 0, 99, NULL},
+	{IArray_get, 0, CLASS_IArray, METHODN_get, 0, 89, NULL},
+	{FArray_get, 0, CLASS_FArray, METHODN_get, 0, 76, NULL},
+	{Array_set, 0, CLASS_Array, METHODN_set, 0, 100, NULL},
+	{IArray_set, 0, CLASS_IArray, METHODN_set, 0, 101, NULL},
+	{FArray_set, 0, CLASS_FArray, METHODN_set, 0, 102, NULL},
+	{Array_setAll, 0, CLASS_Array, METHODN_setAll, 0, 103, NULL},
+	{IArray_setAll, 0, CLASS_IArray, METHODN_setAll, 0, 104, NULL},
+	{FArray_setAll, 0, CLASS_FArray, METHODN_setAll, 0, 105, NULL},
+	{Bytes_opRangeUntil, 0, CLASS_Bytes, METHODN_opRangeUntil, 0, 106, NULL},
+	{Bytes_opRangeTo, 0, CLASS_Bytes, METHODN_opRangeTo, 0, 106, NULL},
+	{String_substring, FLAG_Method_Const, CLASS_String, METHODN_substring, 0, 107, NULL},
+	{String_opRangeUntil, FLAG_Method_Const, CLASS_String, METHODN_opRangeUntil, 0, 108, NULL},
+	{String_opRangeTo, FLAG_Method_Const, CLASS_String, METHODN_opRangeTo, 0, 108, NULL},
+	{Array_opRangeUntil, 0, CLASS_Array, METHODN_opRangeUntil, 0, 109, NULL},
+	{Array_opRangeTo, 0, CLASS_Array, METHODN_opRangeTo, 0, 109, NULL},
+	{IArray_opRangeUntil, 0, CLASS_IArray, METHODN_opRangeUntil, 0, 109, NULL},
+	{IArray_opRangeTo, 0, CLASS_IArray, METHODN_opRangeTo, 0, 109, NULL},
+	{FArray_opRangeUntil, 0, CLASS_FArray, METHODN_opRangeUntil, 0, 109, NULL},
+	{FArray_opRangeTo, 0, CLASS_FArray, METHODN_opRangeTo, 0, 109, NULL},
+	{DictMap_opRangeTo, 0, CLASS_DictMap, METHODN_opRangeTo, 0, 110, NULL},
+	{DictMap_opRangeUntil, 0, CLASS_DictMap, METHODN_opRangeUntil, 0, 110, NULL},
 	{Pair_op0, 0, CLASS_Pair, METHODN_op0, 0, 11, NULL},
-	{Pair_op1, 0, CLASS_Pair, METHODN_op1, 0, 112, NULL},
-	{Tuple_op0, 0, CLASS_Tuple, METHODN_op0, 0, 98, NULL},
-	{Tuple_op1, 0, CLASS_Tuple, METHODN_op1, 0, 98, NULL},
-	{Tuple_opN, 0, CLASS_Tuple, METHODN_opN, 0, 102, NULL},
+	{Pair_op1, 0, CLASS_Pair, METHODN_op1, 0, 111, NULL},
+	{Tuple_op0, 0, CLASS_Tuple, METHODN_op0, 0, 95, NULL},
+	{Tuple_op1, 0, CLASS_Tuple, METHODN_op1, 0, 95, NULL},
+	{Tuple_opN, 0, CLASS_Tuple, METHODN_opN, 0, 99, NULL},
 	{Array_op0, 0, CLASS_Array, METHODN_op0, 0, 11, NULL},
 	{Array_op1, 0, CLASS_Array, METHODN_op1, 0, 11, NULL},
-	{Array_opN, 0, CLASS_Array, METHODN_opN, 0, 101, NULL},
+	{Array_opN, 0, CLASS_Array, METHODN_opN, 0, 98, NULL},
 	{IArray_op0, 0, CLASS_IArray, METHODN_op0, 0, 27, NULL},
 	{IArray_op1, 0, CLASS_IArray, METHODN_op1, 0, 27, NULL},
-	{IArray_opN, 0, CLASS_IArray, METHODN_opN, 0, 92, NULL},
-	{FArray_op0, 0, CLASS_FArray, METHODN_op0, 0, 75, NULL},
-	{FArray_op1, 0, CLASS_FArray, METHODN_op1, 0, 75, NULL},
-	{FArray_opN, 0, CLASS_FArray, METHODN_opN, 0, 77, NULL},
-	{InputStream_new, 0, CLASS_InputStream, METHODN_new, 0, 113, NULL},
+	{IArray_opN, 0, CLASS_IArray, METHODN_opN, 0, 89, NULL},
+	{FArray_op0, 0, CLASS_FArray, METHODN_op0, 0, 74, NULL},
+	{FArray_op1, 0, CLASS_FArray, METHODN_op1, 0, 74, NULL},
+	{FArray_opN, 0, CLASS_FArray, METHODN_opN, 0, 76, NULL},
+	{InputStream_new, 0, CLASS_InputStream, METHODN_new, 0, 112, NULL},
 	{InputStream_getChar, 0, CLASS_InputStream, METHODN_getChar, 0, 27, NULL},
-	{InputStream_read, 0, CLASS_InputStream, METHODN_read, 0, 114, NULL},
-	{InputStream_getEncoding, 0, CLASS_InputStream, METHODN_getEncoding, 0, 79, NULL},
-	{InputStream_setEncoding, 0, CLASS_InputStream, METHODN_setEncoding, 0, 115, NULL},
+	{InputStream_read, 0, CLASS_InputStream, METHODN_read, 0, 113, NULL},
+	{InputStream_getEncoding, 0, CLASS_InputStream, METHODN_getEncoding, 0, 78, NULL},
+	{InputStream_setEncoding, 0, CLASS_InputStream, METHODN_setEncoding, 0, 114, NULL},
 	{InputStream_isClosed, 0, CLASS_InputStream, METHODN_isClosed, 0, 28, NULL},
 	{InputStream_close, 0, CLASS_InputStream, METHODN_close, 0, 0, NULL},
-	{InputStream_readLine, 0, CLASS_InputStream, METHODN_readLine, 0, 116, NULL},
-	{InputStream_readData, 0, CLASS_InputStream, METHODN_readData, 0, 117, NULL},
-	{OutputStream_new, 0, CLASS_OutputStream, METHODN_new, 0, 118, NULL},
-	{OutputStream_writeChar, 0, CLASS_OutputStream, METHODN_putChar, 0, 119, NULL},
+	{InputStream_readLine, 0, CLASS_InputStream, METHODN_readLine, 0, 115, NULL},
+	{InputStream_readData, 0, CLASS_InputStream, METHODN_readData, 0, 116, NULL},
+	{OutputStream_new, 0, CLASS_OutputStream, METHODN_new, 0, 117, NULL},
+	{OutputStream_putChar, 0, CLASS_OutputStream, METHODN_putChar, 0, 118, NULL},
 	{OutputStream_write, 0, CLASS_OutputStream, METHODN_write, 0, 2, NULL},
 	{OutputStream_isClosed, 0, CLASS_OutputStream, METHODN_isClosed, 0, 28, NULL},
-	{OutputStream_print, FLAG_Method_VarArgs, CLASS_OutputStream, METHODN_print, 0, 120, NULL},
-	{OutputStream_print, FLAG_Method_VarArgs, CLASS_OutputStream, METHODN_opAppend, 0, 120, NULL},
-	{OutputStream_println, FLAG_Method_VarArgs, CLASS_OutputStream, METHODN_println, 0, 120, NULL},
-	{OutputStream_writeData, FLAG_Method_VarArgs, CLASS_OutputStream, METHODN_writeData, 0, 121, NULL},
+	{OutputStream_print, FLAG_Method_VarArgs, CLASS_OutputStream, METHODN_print, 0, 119, NULL},
+	{OutputStream_print, FLAG_Method_VarArgs, CLASS_OutputStream, METHODN_opAppend, 0, 119, NULL},
+	{OutputStream_println, FLAG_Method_VarArgs, CLASS_OutputStream, METHODN_println, 0, 119, NULL},
+	{OutputStream_writeData, FLAG_Method_VarArgs, CLASS_OutputStream, METHODN_writeData, 0, 120, NULL},
 	{OutputStream_flush, 0, CLASS_OutputStream, METHODN_flush, 0, 0, NULL},
 	{OutputStream_clearBuffer, 0, CLASS_OutputStream, METHODN_clearBuffer, 0, 0, NULL},
 	{OutputStream_close, 0, CLASS_OutputStream, METHODN_close, 0, 0, NULL},
-	{OutputStream_getEncoding, 0, CLASS_OutputStream, METHODN_getEncoding, 0, 79, NULL},
-	{OutputStream_setEncoding, 0, CLASS_OutputStream, METHODN_setEncoding, 0, 115, NULL},
-	{Socket_new, 0, CLASS_Socket, METHODN_new, 0, 122, NULL},
-	{Socket_getInputStream, 0, CLASS_Socket, METHODN_getInputStream, 0, 123, NULL},
-	{Socket_getOutputStream, 0, CLASS_Socket, METHODN_getOutputStream, 0, 124, NULL},
+	{OutputStream_getEncoding, 0, CLASS_OutputStream, METHODN_getEncoding, 0, 78, NULL},
+	{OutputStream_setEncoding, 0, CLASS_OutputStream, METHODN_setEncoding, 0, 114, NULL},
+	{Socket_new, 0, CLASS_Socket, METHODN_new, 0, 121, NULL},
+	{Socket_getInputStream, 0, CLASS_Socket, METHODN_getInputStream, 0, 122, NULL},
+	{Socket_getOutputStream, 0, CLASS_Socket, METHODN_getOutputStream, 0, 123, NULL},
 	{Socket_close, 0, CLASS_Socket, METHODN_close, 0, 0, NULL},
 	{Socket_isClosed, 0, CLASS_Socket, METHODN_isClosed, 0, 28, NULL},
-	{String_getBytes, FLAG_Method_Const, CLASS_String, METHODN_getBytes, 0, 125, NULL},
-	{String_equals, FLAG_Method_Const, CLASS_String, METHODN_equals, 0, 88, NULL},
-	{String_equals__IgnoreCase, FLAG_Method_Const, CLASS_String, METHODN_equals__IgnoreCase, 0, 88, NULL},
-	{String_startsWith, FLAG_Method_Const, CLASS_String, METHODN_startsWith, 0, 88, NULL},
-	{String_startsWith__IgnoreCase, FLAG_Method_Const, CLASS_String, METHODN_startsWith__IgnoreCase, 0, 88, NULL},
-	{String_endsWith, FLAG_Method_Const, CLASS_String, METHODN_endsWith, 0, 88, NULL},
-	{String_endsWith__IgnoreCase, FLAG_Method_Const, CLASS_String, METHODN_endsWith__IgnoreCase, 0, 88, NULL},
-	{String_indexOf, FLAG_Method_Const, CLASS_String, METHODN_indexOf, 0, 126, NULL},
-	{String_indexOf__IgnoreCase, FLAG_Method_Const, CLASS_String, METHODN_indexOf__IgnoreCase, 0, 126, NULL},
-	{String_lastIndexOf, FLAG_Method_Const, CLASS_String, METHODN_lastIndexOf, 0, 126, NULL},
-	{String_lastIndexOf__IgnoreCase, FLAG_Method_Const, CLASS_String, METHODN_lastIndexOf__IgnoreCase, 0, 126, NULL},
-	{String_concat, FLAG_Method_Const|FLAG_Method_VarArgs|FLAG_Method_NullBase, CLASS_String, METHODN_concat, 0, 127, NULL},
+	{String_getBytes, FLAG_Method_Const, CLASS_String, METHODN_getBytes, 0, 124, NULL},
+	{String_equals, FLAG_Method_Const, CLASS_String, METHODN_equals, 0, 85, NULL},
+	{String_equals__IgnoreCase, FLAG_Method_Const, CLASS_String, METHODN_equals__IgnoreCase, 0, 85, NULL},
+	{String_startsWith, FLAG_Method_Const, CLASS_String, METHODN_startsWith, 0, 85, NULL},
+	{String_startsWith__IgnoreCase, FLAG_Method_Const, CLASS_String, METHODN_startsWith__IgnoreCase, 0, 85, NULL},
+	{String_endsWith, FLAG_Method_Const, CLASS_String, METHODN_endsWith, 0, 85, NULL},
+	{String_endsWith__IgnoreCase, FLAG_Method_Const, CLASS_String, METHODN_endsWith__IgnoreCase, 0, 85, NULL},
+	{String_indexOf, FLAG_Method_Const, CLASS_String, METHODN_indexOf, 0, 125, NULL},
+	{String_indexOf__IgnoreCase, FLAG_Method_Const, CLASS_String, METHODN_indexOf__IgnoreCase, 0, 125, NULL},
+	{String_lastIndexOf, FLAG_Method_Const, CLASS_String, METHODN_lastIndexOf, 0, 125, NULL},
+	{String_lastIndexOf__IgnoreCase, FLAG_Method_Const, CLASS_String, METHODN_lastIndexOf__IgnoreCase, 0, 125, NULL},
+	{String_concat, FLAG_Method_Const|FLAG_Method_VarArgs|FLAG_Method_NullBase, CLASS_String, METHODN_concat, 0, 126, NULL},
 	{String_times, FLAG_Method_Const, CLASS_String, METHODN_times, 0, 29, NULL},
-	{String_twofold, FLAG_Method_Const, CLASS_String, METHODN_twofold, 0, 128, NULL},
-	{String_format, FLAG_Method_VarArgs, CLASS_String, METHODN_format, 0, 127, NULL},
-	{String_replace, FLAG_Method_Const, CLASS_String, METHODN_replace, 0, 129, NULL},
-	{String_getUCS4, FLAG_Method_Const, CLASS_String, METHODN_getUCS4, 0, 74, NULL},
-	{String_toLower, FLAG_Method_Const, CLASS_String, METHODN_toLower, 0, 79, NULL},
-	{String_toUpper, FLAG_Method_Const, CLASS_String, METHODN_toUpper, 0, 79, NULL},
-	{String_trim, FLAG_Method_Const, CLASS_String, METHODN_trim, 0, 79, NULL},
-	{String_split, FLAG_Method_Const, CLASS_String, METHODN_split, 0, 130, NULL},
-	{String_opMatch, 0, CLASS_String, METHODN_opMatch, 0, 131, NULL},
-	{Regex_opMatch, 0, CLASS_Regex, METHODN_opMatch, 0, 88, NULL},
-	{String_match, FLAG_Method_Const, CLASS_String, METHODN_match, 0, 132, NULL},
-	{System_getIn, FLAG_Method_Static, CLASS_System, METHODN_getIn, 0, 123, NULL},
-	{System_getOut, FLAG_Method_Static, CLASS_System, METHODN_getOut, 0, 124, NULL},
-	{System_getErr, FLAG_Method_Static, CLASS_System, METHODN_getErr, 0, 124, NULL},
-	{System_getProperty, FLAG_Method_Static, CLASS_System, METHODN_getProperty, 0, 133, NULL},
-	{System_setProperty, FLAG_Method_Static, CLASS_System, METHODN_setProperty, 0, 134, NULL},
+	{String_twofold, FLAG_Method_Const, CLASS_String, METHODN_twofold, 0, 127, NULL},
+	{String_format, FLAG_Method_VarArgs, CLASS_String, METHODN_format, 0, 126, NULL},
+	{String_replace, FLAG_Method_Const, CLASS_String, METHODN_replace, 0, 128, NULL},
+	{String_getUCS4, FLAG_Method_Const, CLASS_String, METHODN_getUCS4, 0, 73, NULL},
+	{String_toLower, FLAG_Method_Const, CLASS_String, METHODN_toLower, 0, 78, NULL},
+	{String_toUpper, FLAG_Method_Const, CLASS_String, METHODN_toUpper, 0, 78, NULL},
+	{String_trim, FLAG_Method_Const, CLASS_String, METHODN_trim, 0, 78, NULL},
+	{String_split, FLAG_Method_Const, CLASS_String, METHODN_split, 0, 129, NULL},
+	{String_opMatch, 0, CLASS_String, METHODN_opMatch, 0, 130, NULL},
+	{Regex_opMatch, 0, CLASS_Regex, METHODN_opMatch, 0, 85, NULL},
+	{String_match, FLAG_Method_Const, CLASS_String, METHODN_match, 0, 131, NULL},
+	{System_getIn, FLAG_Method_Static, CLASS_System, METHODN_getIn, 0, 122, NULL},
+	{System_getOut, FLAG_Method_Static, CLASS_System, METHODN_getOut, 0, 123, NULL},
+	{System_getErr, FLAG_Method_Static, CLASS_System, METHODN_getErr, 0, 123, NULL},
+	{System_getProperty, FLAG_Method_Static, CLASS_System, METHODN_getProperty, 0, 132, NULL},
+	{System_setProperty, FLAG_Method_Static, CLASS_System, METHODN_setProperty, 0, 133, NULL},
 	{System_gc, FLAG_Method_Static, CLASS_System, METHODN_gc, 0, 0, NULL},
-	{System_test, FLAG_Method_Hidden, CLASS_System, METHODN_test, 0, 135, NULL},
-	{Script_system, 0, CLASS_Script, METHODN_system, 0, 136, NULL},
-	{System_hasLib, FLAG_Method_Static, CLASS_System, METHODN_hasLib, 0, 137, NULL},
-	{System_exit, FLAG_Method_Static, CLASS_System, METHODN_exit, 0, 138, NULL},
-	{System_listDir, 0, CLASS_System, METHODN_listDir, 0, 139, NULL},
-	{System_hasDir, 0, CLASS_System, METHODN_hasDir, 0, 140, NULL},
-	{System_hasFile, 0, CLASS_System, METHODN_hasFile, 0, 140, NULL},
-	{System_mkdir, 0, CLASS_System, METHODN_mkdir, 0, 140, NULL},
-	{System_unlink, 0, CLASS_System, METHODN_unlink, 0, 140, NULL},
-	{System_rename, 0, CLASS_System, METHODN_rename, 0, 141, NULL},
-	{Context_getProperty, FLAG_Method_Static, CLASS_Context, METHODN_getProperty, 0, 133, NULL},
-	{Context_setProperty, FLAG_Method_Static, CLASS_Context, METHODN_setProperty, 0, 134, NULL},
-	{Context_setEncoding, FLAG_Method_Static, CLASS_Context, METHODN_setEncoding, 0, 142, NULL},
-	{Context_listProperties, FLAG_Method_Hidden, CLASS_Context, METHODN_listProperties, 0, 143, NULL},
-	{Context_setIn, FLAG_Method_Static, CLASS_Context, METHODN_setIn, 0, 144, NULL},
-	{Context_setOut, FLAG_Method_Static, CLASS_Context, METHODN_setOut, 0, 145, NULL},
-	{Context_setErr, FLAG_Method_Static, CLASS_Context, METHODN_setErr, 0, 145, NULL},
+	{System_test, FLAG_Method_Hidden, CLASS_System, METHODN_test, 0, 134, NULL},
+	{Script_system, 0, CLASS_Script, METHODN_system, 0, 135, NULL},
+	{System_hasLib, FLAG_Method_Static, CLASS_System, METHODN_hasLib, 0, 136, NULL},
+	{System_exit, FLAG_Method_Static, CLASS_System, METHODN_exit, 0, 137, NULL},
+	{System_listDir, 0, CLASS_System, METHODN_listDir, 0, 138, NULL},
+	{System_hasDir, 0, CLASS_System, METHODN_hasDir, 0, 139, NULL},
+	{System_hasFile, 0, CLASS_System, METHODN_hasFile, 0, 139, NULL},
+	{System_mkdir, 0, CLASS_System, METHODN_mkdir, 0, 139, NULL},
+	{System_unlink, 0, CLASS_System, METHODN_unlink, 0, 139, NULL},
+	{System_rename, 0, CLASS_System, METHODN_rename, 0, 140, NULL},
+	{Context_getProperty, FLAG_Method_Static, CLASS_Context, METHODN_getProperty, 0, 141, NULL},
+	{Context_setProperty, FLAG_Method_Static, CLASS_Context, METHODN_setProperty, 0, 133, NULL},
+	{Context_setEncoding, FLAG_Method_Static, CLASS_Context, METHODN_setEncoding, 0, 114, NULL},
+	{Context_listProperties, FLAG_Method_Hidden, CLASS_Context, METHODN_listProperties, 0, 142, NULL},
+	{Context_setIn, FLAG_Method_Static, CLASS_Context, METHODN_setIn, 0, 143, NULL},
+	{Context_setOut, FLAG_Method_Static, CLASS_Context, METHODN_setOut, 0, 144, NULL},
+	{Context_setErr, FLAG_Method_Static, CLASS_Context, METHODN_setErr, 0, 144, NULL},
 	{knh_fmethod_formatter, 0, CLASS_Context, METHODN__dump, 0, 23, (void*)knh_Context__dump},
-	{Exception_opInstanceof, 0, CLASS_Exception, METHODN_opInstanceof, 0, 146, NULL},
-	{NameSpace_setConst, FLAG_Method_Const|FLAG_Method_Hidden, CLASS_NameSpace, METHODN_setConst, 0, 147, NULL},
-	{Script_eval, FLAG_Method_Static|FLAG_Method_Hidden, CLASS_Script, METHODN_eval, 0, 52, NULL},
-	{Script_load, FLAG_Method_Static|FLAG_Method_Hidden, CLASS_Script, METHODN_load, 0, 140, NULL},
+	{Exception_opInstanceof, 0, CLASS_Exception, METHODN_opInstanceof, 0, 145, NULL},
+	{NameSpace_setConst, FLAG_Method_Const|FLAG_Method_Hidden, CLASS_NameSpace, METHODN_setConst, 0, 146, NULL},
+	{DictMap_keys, 0, CLASS_DictMap, METHODN_keys, 0, 147, NULL},
+	{DictMap_values, 0, CLASS_DictMap, METHODN_values, 0, 148, NULL},
 	{Object_isRelease, 0, CLASS_Object, METHODN_isRelease, 0, 28, NULL},
 	{Object_isDebug, 0, CLASS_Object, METHODN_isDebug, 0, 28, NULL},
 	{Object_isImmutable, 0, CLASS_Object, METHODN_isImmutable, 0, 28, NULL},
 	{Object_isUndefined, 0, CLASS_Object, METHODN_isUndefined, 0, 28, NULL},
 	{Object_isModified, 0, CLASS_Object, METHODN_isModified, 0, 28, NULL},
-	{Object_setModified, 0, CLASS_Object, METHODN_setModified, 0, 148, NULL},
+	{Object_setModified, 0, CLASS_Object, METHODN_setModified, 0, 149, NULL},
 	{Object_isShared, 0, CLASS_Object, METHODN_isShared, 0, 28, NULL},
-	{Object_setShared, 0, CLASS_Object, METHODN_setShared, 0, 148, NULL},
+	{Object_setShared, 0, CLASS_Object, METHODN_setShared, 0, 149, NULL},
 	{String_isAscii, 0, CLASS_String, METHODN_isAscii, 0, 28, NULL},
 	{DictMap_isIgnoreCase, 0, CLASS_DictMap, METHODN_isIgnoreCase, 0, 28, NULL},
 	{DictSet_isIgnoreCase, 0, CLASS_DictSet, METHODN_isIgnoreCase, 0, 28, NULL},
@@ -1446,24 +1916,23 @@ static knh_MethodData0_t MethodData0[] = {
 	{Mapper_isLocal, 0, CLASS_Mapper, METHODN_isLocal, 0, 28, NULL},
 	{Mapper_isDerived, 0, CLASS_Mapper, METHODN_isDerived, 0, 28, NULL},
 	{OutputStream_isAutoFlush, 0, CLASS_OutputStream, METHODN_isAutoFlush, 0, 28, NULL},
-	{OutputStream_setAutoFlush, 0, CLASS_OutputStream, METHODN_setAutoFlush, 0, 148, NULL},
+	{OutputStream_setAutoFlush, 0, CLASS_OutputStream, METHODN_setAutoFlush, 0, 149, NULL},
 	{OutputStream_isStoringBuffer, 0, CLASS_OutputStream, METHODN_isStoringBuffer, 0, 28, NULL},
-	{OutputStream_setStoringBuffer, 0, CLASS_OutputStream, METHODN_setStoringBuffer, 0, 148, NULL},
+	{OutputStream_setStoringBuffer, 0, CLASS_OutputStream, METHODN_setStoringBuffer, 0, 149, NULL},
 	{Exception_isLogging, 0, CLASS_Exception, METHODN_isLogging, 0, 28, NULL},
 	{Context_isStrict, 0, CLASS_Context, METHODN_isStrict, 0, 28, NULL},
-	{Context_setStrict, 0, CLASS_Context, METHODN_setStrict, 0, 148, NULL},
+	{Context_setStrict, 0, CLASS_Context, METHODN_setStrict, 0, 149, NULL},
 	{Context_isDebug, 0, CLASS_Context, METHODN_isDebug, 0, 28, NULL},
-	{Context_setDebug, 0, CLASS_Context, METHODN_setDebug, 0, 148, NULL},
+	{Context_setDebug, 0, CLASS_Context, METHODN_setDebug, 0, 149, NULL},
 	{Context_isVerbose, 0, CLASS_Context, METHODN_isVerbose, 0, 28, NULL},
-	{Context_setVerbose, 0, CLASS_Context, METHODN_setVerbose, 0, 148, NULL},
+	{Context_setVerbose, 0, CLASS_Context, METHODN_setVerbose, 0, 149, NULL},
 	{Context_isInteractive, 0, CLASS_Context, METHODN_isInteractive, 0, 28, NULL},
 	{NULL}
 };
 
-static knh_MapperData0_t MapperData0[] = {
+static knh_MapperData_t MapperData[] = {
 	{String_Iterator, FLAG_Mapper_Total, CLASS_String, CLASS_Iterator},
 	{String_Iterator, FLAG_Mapper_Total, CLASS_String, CLASS_String_Itr},
-	{Range_Iterator, FLAG_Mapper_Total, CLASS_Range, CLASS_Iterator},
 	{Array_Iterator, FLAG_Mapper_Total, CLASS_Array, CLASS_Iterator},
 	{knh_IArray_Iterator, FLAG_Mapper_Total, CLASS_IArray, CLASS_Iterator},
 	{knh_FArray_Iterator, FLAG_Mapper_Total, CLASS_FArray, CLASS_Iterator},
@@ -1483,6 +1952,5 @@ static knh_MapperData0_t MapperData0[] = {
 	{Object_Iterator, FLAG_Mapper_Const|FLAG_Mapper_Total, CLASS_Object, CLASS_Iterator},
 	{Iterator_Array, FLAG_Mapper_Total, CLASS_Iterator, CLASS_Array},
 	{knh_InputStream_String__, FLAG_Mapper_Total|FLAG_Mapper_Final, CLASS_InputStream, CLASS_String_Itr},
-	{knh_Bytes_InputStream, FLAG_Mapper_Total, CLASS_Bytes, CLASS_InputStream},
 	{NULL}
 };

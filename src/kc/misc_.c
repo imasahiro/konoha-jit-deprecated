@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER  
  * 
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation  
  * All rights reserved.
  * 
@@ -38,10 +38,9 @@ extern "C" {
 /* [token] */
 
 static char* knh_token_array_tochar[] = {
-    "pragma",  /* pragma */ 
     "namespace",  /* namespace */ 
-    "script",  /* script */ 
-    "include",  /* include */ 
+    "import",  /* import */ 
+    "pragma",  /* pragma */ 
     "using",  /* using */ 
     "with",  /* with */ 
     "class",  /* class */ 
@@ -155,6 +154,7 @@ static char* knh_token_array_tochar[] = {
     "LOCAL",  /* LOCAL */ 
     "STACK",  /* STACK */ 
     "FIELD",  /* FIELD */ 
+    "SCRIPT",  /* SCRIPT */ 
     "MEMBER",  /* MEMBER */ 
     "CLASSID",  /* CLASSID */ 
     "CLOSURE",  /* CLOSURE */ 
@@ -172,10 +172,9 @@ char* knh_token_tochar(knh_token_t t)
 /* ------------------------------------------------------------------------ */
 
 static knh_methodn_t knh_token_array_tomethodn[] = {
-    METHODN_NONAME,  /* pragma */ 
     METHODN_NONAME,  /* namespace */ 
-    METHODN_NONAME,  /* script */ 
-    METHODN_NONAME,  /* include */ 
+    METHODN_NONAME,  /* import */ 
+    METHODN_NONAME,  /* pragma */ 
     METHODN_NONAME,  /* using */ 
     METHODN_NONAME,  /* with */ 
     METHODN_NONAME,  /* class */ 
@@ -289,6 +288,7 @@ static knh_methodn_t knh_token_array_tomethodn[] = {
     METHODN_NONAME,  /* LOCAL */ 
     METHODN_NONAME,  /* STACK */ 
     METHODN_NONAME,  /* FIELD */ 
+    METHODN_NONAME,  /* SCRIPT */ 
     METHODN_NONAME,  /* MEMBER */ 
     METHODN_NONAME,  /* CLASSID */ 
     METHODN_NONAME,  /* CLOSURE */ 
@@ -306,10 +306,9 @@ knh_methodn_t knh_token_tomethodn(knh_token_t t)
 /* ------------------------------------------------------------------------ */
 
 static int knh_token_array_getOpPriority[] = {
-    0,  /* pragma */ 
     0,  /* namespace */ 
-    0,  /* script */ 
-    0,  /* include */ 
+    0,  /* import */ 
+    0,  /* pragma */ 
     0,  /* using */ 
     99,  /* with */ 
     0,  /* class */ 
@@ -423,6 +422,7 @@ static int knh_token_array_getOpPriority[] = {
     99,  /* LOCAL */ 
     99,  /* STACK */ 
     99,  /* FIELD */ 
+    99,  /* SCRIPT */ 
     99,  /* MEMBER */ 
     99,  /* CLASSID */ 
     99,  /* CLOSURE */ 
@@ -440,10 +440,9 @@ int knh_token_getOpPriority(knh_token_t t)
 /* ------------------------------------------------------------------------ */
 
 static int knh_token_array_getOpSize[] = {
-    0,  /* pragma */ 
     0,  /* namespace */ 
-    0,  /* script */ 
-    0,  /* include */ 
+    0,  /* import */ 
+    0,  /* pragma */ 
     0,  /* using */ 
     0,  /* with */ 
     0,  /* class */ 
@@ -557,6 +556,7 @@ static int knh_token_array_getOpSize[] = {
     0,  /* LOCAL */ 
     0,  /* STACK */ 
     0,  /* FIELD */ 
+    0,  /* SCRIPT */ 
     0,  /* MEMBER */ 
     0,  /* CLASSID */ 
     0,  /* CLOSURE */ 
@@ -574,10 +574,9 @@ int knh_token_getOpSize(knh_token_t t)
 /* ------------------------------------------------------------------------ */
 
 static knh_bool_t knh_token_array_isBeginOfStmt[] = {
-    1,  /* pragma */ 
     1,  /* namespace */ 
-    1,  /* script */ 
-    1,  /* include */ 
+    1,  /* import */ 
+    1,  /* pragma */ 
     1,  /* using */ 
     0,  /* with */ 
     1,  /* class */ 
@@ -691,6 +690,7 @@ static knh_bool_t knh_token_array_isBeginOfStmt[] = {
     0,  /* LOCAL */ 
     0,  /* STACK */ 
     0,  /* FIELD */ 
+    0,  /* SCRIPT */ 
     0,  /* MEMBER */ 
     0,  /* CLASSID */ 
     0,  /* CLOSURE */ 
@@ -872,7 +872,7 @@ knh_cwb_parseToken(Ctx *ctx, knh_cwb_t *cwb, knh_flag_t flag, knh_InputStream_t 
         if(ISB(t, "float")) { t = STEXT("Float"); goto L_TAIL; }
     break;
     case 'i':
-        if(ISB(t, "include")) { tt = TT_INCLUDE; break; }
+        if(ISB(t, "import")) { tt = TT_IMPORT; break; }
         if(ISB(t, "implements")) { tt = TT_IMPLEMENTS; break; }
         if(ISB(t, "if")) { tt = TT_IF; break; }
         if(ISB(t, "it")) { tt = TT_IT; break; }
@@ -907,7 +907,6 @@ knh_cwb_parseToken(Ctx *ctx, knh_cwb_t *cwb, knh_flag_t flag, knh_InputStream_t 
         if(ISB(t, "register")) { tt = TT_REGISTER; break; }
     break;
     case 's':
-        if(ISB(t, "script")) { tt = TT_SCRIPT; break; }
         if(ISB(t, "switch")) { tt = TT_SWITCH; break; }
         if(ISB(t, "static")) { tt = TT_METAN; break; }
         if(ISB(t, "short")) { t = STEXT("Int"); goto L_TAIL; }
@@ -1025,10 +1024,9 @@ int knh_bytes_istoken(knh_bytes_t t, int ch)
 
 static char* knh_stmt_array_tochar[] = {
     "done",  /* done */ 
-    "pragma",  /* pragma */ 
     "namespace",  /* namespace */ 
-    "script",  /* script */ 
-    "include",  /* include */ 
+    "import",  /* import */ 
+    "pragma",  /* pragma */ 
     "using",  /* using */ 
     "using class",  /* using class */ 
     "using alias",  /* using alias */ 
@@ -1098,10 +1096,9 @@ char* knh_stmt_tochar(knh_stmt_t t)
 
 static int knh_stmt_array_isExpr[] = {
     0,  /* done */ 
-    0,  /* pragma */ 
     0,  /* namespace */ 
-    0,  /* script */ 
-    0,  /* include */ 
+    0,  /* import */ 
+    0,  /* pragma */ 
     0,  /* using */ 
     0,  /* using class */ 
     0,  /* using alias */ 

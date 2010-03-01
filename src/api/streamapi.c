@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -42,95 +42,92 @@ extern "C" {
 /* ------------------------------------------------------------------------ */
 //## method InputStream InputStream.new(String! urn, String? mode);
 
-static METHOD InputStream_new(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD InputStream_new(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
-	knh_InputStream_t *o = sfp[0].in;
+	knh_InputStream_t *o = (knh_InputStream_t*)sfp[0].o;
 	KNH_RETURN(ctx, sfp, knh_InputStream_open(ctx, o, sfp[1].s, sfp[2].s));
 }
 
 /* ------------------------------------------------------------------------ */
 //## method Int! InputStream.getChar();
 
-static METHOD InputStream_getChar(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD InputStream_getChar(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
-	KNH_RETURNi(ctx, sfp, knh_InputStream_getc(ctx, sfp[0].in));
+	KNH_RETURN_Int(ctx, sfp, knh_InputStream_getc(ctx, (knh_InputStream_t*)sfp[0].o));
 }
 
 /* ------------------------------------------------------------------------ */
 //## method Int! InputStream.read(Bytes! buf, Int? offset, Int? length);
 
-static METHOD InputStream_read(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD InputStream_read(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
-	knh_Bytes_t *ba = (knh_Bytes_t*)sfp[1].o;
-	knh_bytes_t buf = knh_Bytes_tobytes(ba);
-	size_t offset = 0;
-	if(IS_Int(sfp[2].o)) {
-		offset = (size_t)sfp[2].ivalue;
-		if(offset > buf.len) {
-			KNH_THROW_OUTOFINDEX(ctx, offset, buf.len);
-		}
-		buf = knh_bytes_last(buf, offset);
-	}
-	if(IS_Int(sfp[3].o)) {
-		size_t len = (size_t)sfp[3].ivalue;
-		knh_Bytes_ensureSize(ctx, ba, offset + len);
-		buf.len = len;
-	}
-	KNH_RETURNi(ctx, sfp, knh_InputStream_read(ctx, sfp[0].in, (char*)buf.buf, buf.len));
+    knh_Bytes_t *ba = (knh_Bytes_t*)sfp[1].o;
+    knh_bytes_t buf = knh_Bytes_tobytes(ba);
+    size_t offset = 0;
+    if(IS_Int(sfp[2].o)) {
+        offset = (size_t)sfp[2].ivalue;
+        if(offset > buf.len) {
+            KNH_THROW_OUTOFINDEX(ctx, offset, buf.len);
+        }
+        buf = knh_bytes_last(buf, offset);
+    }
+    if(IS_Int(sfp[3].o)) {
+        size_t len = (size_t)sfp[3].ivalue;
+        knh_Bytes_ensureSize(ctx, ba, offset + len);
+        buf.len = len;
+    }
+    KNH_RETURN_Int(ctx, sfp, knh_InputStream_read(ctx, (knh_InputStream_t*)sfp[0].o, (char*)buf.buf, buf.len));
 }
 
 /* ------------------------------------------------------------------------ */
 //## method String! InputStream.getEncoding();
 
-static METHOD InputStream_getEncoding(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD InputStream_getEncoding(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURN_(ctx, sfp, DP(sfp[0].in)->enc);
+	KNH_RETURN(ctx, sfp, DP((knh_InputStream_t*)sfp[0].o)->enc);
 }
 
 /* ------------------------------------------------------------------------ */
 //## method void InputStream.setEncoding(String? enc);
 
-static METHOD InputStream_setEncoding(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD InputStream_setEncoding(Ctx *ctx, knh_sfp_t *sfp)
 {
-	knh_InputStream_setEncoding(ctx, sfp[0].in, sfp[1].s);
+	knh_InputStream_setEncoding(ctx, (knh_InputStream_t*)sfp[0].o, sfp[1].s);
+	KNH_RETURN_void(ctx, sfp);
 }
 
 /* ------------------------------------------------------------------------ */
 //## method Boolean! InputStream.isClosed();
 
-static METHOD InputStream_isClosed(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD InputStream_isClosed(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_InputStream_isClosed(ctx, sfp[0].in));
+	KNH_RETURN_Boolean(ctx, sfp, knh_InputStream_isClosed(ctx, (knh_InputStream_t*)sfp[0].o));
 }
 
 /* ------------------------------------------------------------------------ */
 //## method void InputStream.close();
 
-static METHOD InputStream_close(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD InputStream_close(Ctx *ctx, knh_sfp_t *sfp)
 {
-	knh_InputStream_close(ctx, sfp[0].in);
+	knh_InputStream_close(ctx, (knh_InputStream_t*)sfp[0].o);
+	KNH_RETURN_void(ctx, sfp);
 }
 
 /* ------------------------------------------------------------------------ */
 //## method String? InputStream.readLine();
 
-static METHOD InputStream_readLine(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD InputStream_readLine(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
-	knh_String_t *s = knh_InputStream_readLine(ctx, sfp[0].in);
+	knh_String_t *s = knh_InputStream_readLine(ctx, (knh_InputStream_t*)sfp[0].o);
 	KNH_RETURN(ctx, sfp, s);
 }
 
 /* ------------------------------------------------------------------------ */
 //## method Any? InputStream.readData();
 
-static METHOD InputStream_readData(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD InputStream_readData(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
-	Object *v = knh_InputStream_readData(ctx, sfp[0].in);
+	Object *v = knh_InputStream_readData(ctx, (knh_InputStream_t*)sfp[0].o);
 	KNH_RETURN(ctx, sfp, v);
 }
 
@@ -162,7 +159,7 @@ ITRNEXT knh_InputStream_line_next(Ctx *ctx, knh_sfp_t *sfp, int n)
 /* ------------------------------------------------------------------------ */
 //## @Final mapper InputStream String..;
 
-static MAPPER knh_InputStream_String__(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static MAPPER knh_InputStream_String__(Ctx *ctx, knh_sfp_t *sfp)
 {
 	KNH_MAPPED(ctx, sfp, new_Iterator(ctx, CLASS_String, sfp[0].o, knh_InputStream_line_next));
 }
@@ -172,9 +169,8 @@ static MAPPER knh_InputStream_String__(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 
 //## method OutputStream OutputStream.new(String! urn, String? mode);
 
-static METHOD OutputStream_new(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD OutputStream_new(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	knh_OutputStream_t *o = (knh_OutputStream_t*)sfp[0].o;
 	KNH_RETURN(ctx, sfp, knh_OutputStream_open(ctx, o, sfp[1].s, sfp[2].s));
 }
@@ -182,9 +178,8 @@ static METHOD OutputStream_new(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void OutputStream.putChar(Int! ch);
 
-static METHOD OutputStream_writeChar(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD OutputStream_putChar(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	knh_Bytes_t *ba = DP(sfp[0].w)->ba;
 	KNH_ASSERT(IS_Bytes(ba));
 	knh_Bytes_putc(ctx, ba, sfp[1].ivalue);
@@ -193,15 +188,13 @@ static METHOD OutputStream_writeChar(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 		knh_Bytes_clear(ba, 0);
 	}
 	DP(sfp[0].w)->size++;
-	KNH_RETURN_void(ctx, sfp);
 }
 
 /* ------------------------------------------------------------------------ */
 //## method void OutputStream.write(Bytes! buf, Int? offset, Int? length);
 
-static METHOD OutputStream_write(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD OutputStream_write(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	knh_OutputStream_t *o = (knh_OutputStream_t*)sfp[0].o;
 	knh_bytes_t buf = knh_Bytes_tobytes((knh_Bytes_t*)sfp[1].o);
 	size_t offset = IS_NULL(sfp[2].o) ? 0 : knh_array_index(ctx, p_int(sfp[2]), buf.len);
@@ -210,27 +203,26 @@ static METHOD OutputStream_write(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 	buf.buf = &(buf.buf[offset]);
 	buf.len = len;
 	knh_OutputStream_write(ctx, o, buf);
-	KNH_RETURN_void(ctx, sfp);
 }
 
 /* ------------------------------------------------------------------------ */
 //## method Boolean! OutputStream.isClosed();
 
-static METHOD OutputStream_isClosed(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD OutputStream_isClosed(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_OutputStream_isClosed((knh_OutputStream_t*)sfp[0].o));
+	KNH_RETURN_Boolean(ctx, sfp, knh_OutputStream_isClosed((knh_OutputStream_t*)sfp[0].o));
 }
 
 /* ------------------------------------------------------------------------ */
 //## method void OutputStream.print(Any? value, ...);
 //## method void OutputStream.opAppend(Any? value, ...);
 
-static METHOD OutputStream_print(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD OutputStream_print(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	knh_OutputStream_t *out = (knh_OutputStream_t*)sfp[0].o;
 	knh_sfp_t *v = sfp + 1;
-	size_t i, ac = knh_stack_argc(ctx, v);
+	int ac = knh_stack_argc(ctx, v);
+	size_t i;
 	for(i = 0; i < ac; i++) {
 		if(IS_bString(v[i].o)) {
 			if(v[i].s == TS_EOL) {
@@ -256,7 +248,7 @@ static METHOD OutputStream_print(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void OutputStream.println(Any? value, ...);
 
-static METHOD OutputStream_println(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD OutputStream_println(Ctx *ctx, knh_sfp_t *sfp)
 {
 	KNH_SETv(ctx, ctx->esp[0].o, TS_EOL);
 	KNH_SETESP(ctx, (ctx->esp+1));
@@ -266,9 +258,8 @@ static METHOD OutputStream_println(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void OutputStream.writeData(Any? data, ...);
 
-static METHOD OutputStream_writeData(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD OutputStream_writeData(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	knh_OutputStream_t *out = (knh_OutputStream_t*)sfp[0].o;
 	knh_sfp_t *v = sfp + 1;
 	int i, ac = knh_stack_argc(ctx, v);
@@ -286,9 +277,8 @@ static METHOD OutputStream_writeData(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void OutputStream.flush();
 
-static METHOD OutputStream_flush(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD OutputStream_flush(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	knh_OutputStream_flush(ctx, sfp[0].w);
 	KNH_RETURN_void(ctx, sfp);
 }
@@ -296,9 +286,8 @@ static METHOD OutputStream_flush(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void OutputStream.clearBuffer();
 
-static METHOD OutputStream_clearBuffer(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD OutputStream_clearBuffer(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	knh_OutputStream_clear(ctx, sfp[0].w);
 	KNH_RETURN_void(ctx, sfp);
 }
@@ -306,9 +295,8 @@ static METHOD OutputStream_clearBuffer(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void OutputStream.close();
 
-static METHOD OutputStream_close(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD OutputStream_close(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	knh_OutputStream_close(ctx, sfp[0].w);
 	KNH_RETURN_void(ctx, sfp);
 }
@@ -316,17 +304,16 @@ static METHOD OutputStream_close(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method String! OutputStream.getEncoding();
 
-static METHOD OutputStream_getEncoding(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD OutputStream_getEncoding(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURN_(ctx, sfp, DP((knh_OutputStream_t*)sfp[0].o)->enc);
+	KNH_RETURN(ctx, sfp, DP((knh_OutputStream_t*)sfp[0].o)->enc);
 }
 
 /* ------------------------------------------------------------------------ */
 //## method void OutputStream.setEncoding(String? enc);
 
-static METHOD OutputStream_setEncoding(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD OutputStream_setEncoding(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	knh_OutputStream_setEncoding(ctx, sfp[0].w, sfp[1].s);
 	KNH_RETURN_void(ctx, sfp);
 }
@@ -337,9 +324,8 @@ static METHOD OutputStream_setEncoding(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method Socket! Socket.new(String! host, Int! port);
 
-METHOD Socket_new(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+METHOD Socket_new(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	knh_Socket_t *so = (knh_Socket_t*)sfp[0].o;
 	knh_bytes_t urn = __tobytes(sfp[1].s);
 	char *ip_or_host = NULL;
@@ -365,9 +351,8 @@ METHOD Socket_new(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method InputStream! Socket.getInputStream();
 
-METHOD Socket_getInputStream(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+METHOD Socket_getInputStream(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	knh_Socket_t *so = (knh_Socket_t*)sfp[0].o;
 	KNH_RETURN(ctx, sfp, DP(so)->in);
 }
@@ -375,9 +360,8 @@ METHOD Socket_getInputStream(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method OutputStream! Socket.getOutputStream();
 
-METHOD Socket_getOutputStream(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+METHOD Socket_getOutputStream(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	knh_Socket_t *so = (knh_Socket_t*)sfp[0].o;
 	KNH_RETURN(ctx, sfp, DP(so)->out);
 }
@@ -385,7 +369,7 @@ METHOD Socket_getOutputStream(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method void Socket.close();
 
-METHOD Socket_close(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+METHOD Socket_close(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_Socket_t *so = (knh_Socket_t*)sfp[0].o;
 	if(DP(so)->sd != -1) {
@@ -399,10 +383,10 @@ METHOD Socket_close(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method Boolean! Socket.isClosed();
 
-METHOD Socket_isClosed(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+METHOD Socket_isClosed(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_Socket_t *so = (knh_Socket_t*)sfp[0].o;
-	KNH_RETURNb_(ctx, sfp, (DP(so)->sd == -1));
+	KNH_RETURN_Boolean(ctx, sfp, (DP(so)->sd == -1));
 }
 
 /* ------------------------------------------------------------------------ */

@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -44,7 +44,7 @@ typedef struct {
 	size_t capacity;
 	size_t sorted;
 	void (*fdict_init)(Ctx *ctx, knh_dict_t *);
-	void (*fdict_traverse)(Ctx *ctx, knh_dict_t *, knh_Ftraverse ftr);
+	void (*fdict_traverse)(Ctx *ctx, knh_dict_t *, knh_ftraverse ftr);
 	int  (*fdict_compar)(const void *, const void *);
 	void *dummy;
 } knh_hdict_t ;
@@ -91,7 +91,7 @@ void knh_dict_setsorted(knh_dict_t *a, size_t size)
 
 static
 knh_dict_t *knh_dict_malloc(Ctx *ctx, size_t capacity,
-		void (*fdict_init)(Ctx *, knh_dict_t*), void (*fdict_traverse)(Ctx*, knh_dict_t*, knh_Ftraverse),
+		void (*fdict_init)(Ctx *, knh_dict_t*), void (*fdict_traverse)(Ctx*, knh_dict_t*, knh_ftraverse),
 		int (*fdict_compar)(const void*, const void*))
 {
 	knh_hdict_t *h;
@@ -167,7 +167,7 @@ knh_dict_t* knh_dict_resize(Ctx *ctx, knh_dict_t *a, size_t newsize)
 
 /* ------------------------------------------------------------------------ */
 
-void knh_dict_traverse(Ctx *ctx, knh_dict_t *a, knh_Ftraverse ftr)
+void knh_dict_traverse(Ctx *ctx, knh_dict_t *a, knh_ftraverse ftr)
 {
 	if(a != NULL) {
 		knh_hdict_t *h = ((knh_hdict_t*)a) - 1;
@@ -205,7 +205,7 @@ void knh_dict_sort(knh_dict_t *a, size_t size)
 #define UNSORTED_MAXSIZ 8
 
 static
-knh_index_t knh_dict_findb_between(knh_dict_t *a, knh_Fbytescmp fcmp, knh_bytes_t key, size_t sp, size_t ep)
+knh_index_t knh_dict_findb_between(knh_dict_t *a, knh_fbytescmp fcmp, knh_bytes_t key, size_t sp, size_t ep)
 {
 	L_TAIL:;
 	if(ep - sp < UNSORTED_MAXSIZ) {
@@ -233,7 +233,7 @@ knh_index_t knh_dict_findb_between(knh_dict_t *a, knh_Fbytescmp fcmp, knh_bytes_
 /* ------------------------------------------------------------------------ */
 
 static
-knh_index_t knh_dict_index_b(knh_dict_t *a, size_t size, knh_Fbytescmp fcmp, knh_bytes_t key)
+knh_index_t knh_dict_index_b(knh_dict_t *a, size_t size, knh_fbytescmp fcmp, knh_bytes_t key)
 {
 	if(a == NULL) {
 		return -1;
@@ -282,7 +282,8 @@ void knh_dictmap_finit(Ctx *ctx, knh_dict_t *p)
 
 /* ------------------------------------------------------------------------ */
 
-static void knh_dictmap_ftraverse(Ctx *ctx, knh_dict_t *p, knh_Ftraverse ftr)
+static
+void knh_dictmap_ftraverse(Ctx *ctx, knh_dict_t *p, knh_ftraverse ftr)
 {
 	knh_dictmape_t *e = (knh_dictmape_t*)p;
 	ftr(ctx, UP(e->key));
@@ -301,7 +302,8 @@ void knh_dictset_finit(Ctx *ctx, knh_dict_t *p)
 
 /* ------------------------------------------------------------------------ */
 
-static void knh_dictset_ftraverse(Ctx *ctx, knh_dict_t *p, knh_Ftraverse ftr)
+static
+void knh_dictset_ftraverse(Ctx *ctx, knh_dict_t *p, knh_ftraverse ftr)
 {
 	knh_dictsete_t *e = (knh_dictsete_t*)p;
 	ftr(ctx, UP(e->key));
@@ -433,7 +435,7 @@ knh_index_t knh_DictMap_index(knh_DictMap_t *o, knh_bytes_t key)
 /* ------------------------------------------------------------------------ */
 
 static
-knh_index_t knh_dict_first(knh_dict_t *a, knh_Fbytescmp fcmp, knh_bytes_t key, size_t sp, size_t ep)
+knh_index_t knh_dict_first(knh_dict_t *a, knh_fbytescmp fcmp, knh_bytes_t key, size_t sp, size_t ep)
 {
 	L_TAIL:;
 	if(ep - sp < UNSORTED_MAXSIZ) {
@@ -522,22 +524,6 @@ void knh_DictMap_append(Ctx *ctx, knh_DictMap_t *o, knh_String_t *key, Any *valu
 
 /* ------------------------------------------------------------------------ */
 
-void knh_DictMap_set__b(Ctx *ctx, knh_DictMap_t *o, knh_bytes_t key, Any *v)
-{
-	knh_Object_t *value = v;
-	int loc = knh_dict_index_b(o->_list, o->size, o->fcmp,key);
-	knh_String_t *k = new_String(ctx, key, NULL);
-	if(loc != -1) {
-		KNH_SETv(ctx, o->list[loc].key, k);  /* To avoid losing key */
-		KNH_SETv(ctx, o->list[loc].value, value);
-	}
-	else {
-		knh_DictMap_append(ctx, o, k, value);
-	}
-}
-
-/* ------------------------------------------------------------------------ */
-
 void knh_DictMap_set(Ctx *ctx, knh_DictMap_t *o, knh_String_t *key, Any *v)
 {
 	knh_Object_t *value = v;
@@ -556,7 +542,7 @@ void knh_DictMap_set(Ctx *ctx, knh_DictMap_t *o, knh_String_t *key, Any *v)
 void knh_DictMap_remove(Ctx *ctx, knh_DictMap_t *o, knh_String_t *key)
 {
 	int loc = knh_dict_index_b(o->_list, o->size, o->fcmp, __tobytes(key));
-	if(loc != -1) {
+	if(loc != 1) {
 		KNH_SETv(ctx, o->list[loc].key, key);  /* To avoid losing key */
 		KNH_SETv(ctx, o->list[loc].value, KNH_NULL);
 	}
@@ -707,7 +693,7 @@ void knh_DictSet_add(Ctx *ctx, knh_DictSet_t *o, knh_String_t *key)
 void knh_DictSet_remove(Ctx *ctx, knh_DictSet_t *o, knh_String_t *key)
 {
 	int loc = knh_dict_index_b(o->_list, o->size, o->fcmp, __tobytes(key));
-	if(loc != -1) {
+	if(loc != 1) {
 		KNH_SETv(ctx, o->list[loc].key, key);  /* To avoid losing key */
 		o->list[loc].value = 0;
 	}
@@ -725,7 +711,39 @@ void knh_DictSet_clear(Ctx *ctx, knh_DictSet_t *o)
 	o->size = 0;
 	knh_dict_setsorted(o->_list, 0);
 }
+/* ------------------------------------------------------------------------ */
+//## method String[] DictMap.keys();
 
+METHOD DictMap_keys(Ctx *ctx, knh_sfp_t *sfp)
+{
+	// TODO
+	// we must test this method.
+	knh_DictMap_t *o = (knh_DictMap_t*)sfp[0].o;
+	knh_Array_t *a = new_Array(ctx, CLASS_String, o->size);
+	int i;
+	for(i=0; i<o->size; i++) {
+		knh_Array_add(ctx, a, UP(o->list[i].key));
+		//fprintf(stderr, "%d:%s\n",i,o->list[i].key->str);
+	}
+	KNH_RETURN(ctx, sfp, UP(a));
+}
+
+/* ------------------------------------------------------------------------ */
+//## method Any[] DictMap.values();
+
+METHOD DictMap_values(Ctx *ctx, knh_sfp_t *sfp)
+{
+	// TODO
+	// we must test this method.
+	knh_DictMap_t *o = (knh_DictMap_t*)sfp[0].o;
+	knh_Array_t *a = new_Array0(ctx, o->size);
+	int i;
+	for(i=0; i<o->size; i++) {
+		knh_Array_add(ctx, a, UP(o->list[i].value));
+		//fprintf(stderr, "%d:%p\n",i,o->list[i].value);
+	}
+	KNH_RETURN(ctx, sfp, UP(a));
+}
 /* ------------------------------------------------------------------------ */
 
 #ifdef __cplusplus

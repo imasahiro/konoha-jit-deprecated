@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -33,43 +33,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#ifdef KONOHA_ON_WINDOWS
-#define _USE_MATH_DEFINES
-#undef METHOD
-#define METHOD void __declspec(dllexport)
-#undef KNHAPI
-#define KNHAPI(T) T __declspec(dllexport)
-#endif
-
-/* ------------------------------------------------------------------------ */
-/* package setup */
-
-typedef int (*knh_Fsetup)(Ctx *);
-typedef int (*knh_Fcleanup)(Ctx *);
-
-typedef struct {
-	char         *version;
-	char         *libver;
-	char         *license;
-	knh_Fsetup    init;
-	knh_Fsetup    setup;
-	knh_Fcleanup  cleanup;
-	int           revision;
-} knh_PackageData_t;
-
-typedef knh_PackageData_t* (*knh_Fpkginit)(void);
-
-#define KONOHA_PACKAGE(V, LV, LL, I, S, C) \
-	static int I (Ctx *ctx); \
-	static int S (Ctx *ctx); \
-	static int C (Ctx *ctx); \
-	knh_PackageData_t* knh_pkginit(void) { \
-		static knh_PackageData_t knh_PackageData = { \
-			V, LV, LL, I, S, C, KONOHA_REVISION\
-		};\
-		return &knh_PackageData;\
-	}\
 
 /* ------------------------------------------------------------------------ */
 /* new version */
@@ -134,82 +97,42 @@ typedef knh_PackageData_t* (*knh_Fpkginit)(void);
 
 /* ------------------------------------------------------------------------ */
 
-/*
-#define KNH_CHKESP(ctx, sfp, n) \
-	if(unlikely((sfp - ctx->stack) > ctx->stacksize - K_GAMMASIZE)) { \
-		klr_throw__T(ctx, "StackOverflow!!"); \
-	}\ */
-
-#define K_RTNIDX   (-2)
-
-#define KNH_CHKESP(ctx, sfp) \
-	int sfpidx_ = (sfp - ctx->stack);
-
-#define KNH_RETURN_void(ctx, sfp) {\
-		sfp = ctx->stack + sfpidx_;\
-		return;\
-	}\
-
-#define KNH_RETURN_(ctx, sfp, v) {\
-		Object *v_ = (Object*)v;\
-		KNH_SETv(ctx, sfp[K_RTNIDX].o, v_);\
-		sfp[K_RTNIDX].data = knh_Object_data(v_);\
-		return; \
-	}\
-
 #define KNH_RETURN(ctx, sfp, v) {\
-		Object *v_ = (Object*)v;\
-		sfp = ctx->stack + sfpidx_;\
-		KNH_SETv(ctx, sfp[K_RTNIDX].o, v_);\
-		sfp[K_RTNIDX].data = knh_Object_data(v_);\
+		knh_Int_t *n_ = (knh_Int_t*)v;\
+		KNH_NGCMOV(ctx, sfp[-1].o, n_);\
+		sfp[-1].data = (n_)->n.data;\
 		return; \
 	}\
 
-#define KNH_RETURNb_(ctx, sfp, c) {\
-		sfp[K_RTNIDX].bvalue = c; \
+#define KNH_RETURN_void(ctx, sfp)      {\
+		KNH_NGCMOV(ctx, sfp[-1].o, KNH_VOID); \
 		return; \
 	}\
 
-#define KNH_RETURNb(ctx, sfp, c) {\
-		sfp = ctx->stack + sfpidx_;\
-		sfp[K_RTNIDX].bvalue = c; \
+#define KNH_RETURN_Boolean(ctx, sfp, c) {\
+		sfp[-1].bvalue = c; \
 		return; \
 	}\
 
-
-#define KNH_RETURNi_(ctx, sfp, n) {\
-		sfp[K_RTNIDX].ivalue = (knh_int_t)n;\
+#define KNH_RETURN_Int(ctx, sfp, n)      {\
+		sfp[-1].ivalue = (knh_int_t)n;\
 		return; \
 	}\
 
-#define KNH_RETURNi(ctx, sfp, n) {\
-		sfp = ctx->stack + sfpidx_;\
-		sfp[K_RTNIDX].ivalue = (knh_int_t)n;\
+#define KNH_RETURN_NNInt(ctx, sfp, n)      {\
+		KNH_NGCMOV(ctx, sfp[-1].o, KNH_INT0);\
+		sfp[-1].ivalue = (knh_int_t)n;\
 		return; \
 	}\
 
-#define KNH_RETURN_Int(ctx, sfp, n, v) {\
-		sfp = ctx->stack + sfpidx_;\
-		KNH_SETv(ctx, sfp[K_RTNIDX].o, v);\
-		sfp[K_RTNIDX].ivalue = (knh_int_t)n;\
+#define KNH_RETURN_Float(ctx, sfp, n)      {\
+		sfp[-1].fvalue = (knh_float_t)n;\
 		return; \
 	}\
 
-#define KNH_RETURNf_(ctx, sfp, n) {\
-		sfp[K_RTNIDX].fvalue = (knh_float_t)n;\
-		return; \
-	}\
-
-#define KNH_RETURNf(ctx, sfp, n)      {\
-		sfp = ctx->stack + sfpidx_;\
-		sfp[K_RTNIDX].fvalue = (knh_float_t)n;\
-		return; \
-	}\
-
-#define KNH_RETURN_Float(ctx, sfp, n, v) {\
-		sfp = ctx->stack + sfpidx_;\
-		KNH_SETv(ctx, sfp[K_RTNIDX].o, v);\
-		sfp[K_RTNIDX].fvalue = (knh_float_t)n;\
+#define KNH_RETURN_NNFloat(ctx, sfp, n)      {\
+		KNH_NGCMOV(ctx, sfp[-1].o, KNH_FLOAT0);\
+		sfp[-1].fvalue = (knh_float_t)n;\
 		return; \
 	}\
 
@@ -218,42 +141,42 @@ typedef knh_PackageData_t* (*knh_Fpkginit)(void);
 
 #define KNH_ITREND(ctx, sfp, n) {\
 		knh_Iterator_close(ctx, sfp[0].it);\
-		/*klr_mov(ctx, sfp[n].o, KNH_VOID); */\
+		/*KNH_MOV(ctx, sfp[n].o, KNH_VOID); */\
 		return 0; \
 	}\
 
 #define KNH_ITRNEXT(ctx, sfp, i, v) {\
-		klr_mov(ctx, sfp[i].o, v);\
+		KNH_MOV(ctx, sfp[i].o, v);\
 		sfp[i].data = ((knh_Int_t*)v)->n.data;\
 		return 1; \
 	}\
 
 #define KNH_ITRNEXT_Int(ctx, sfp, i, n) {\
-		klr_mov(ctx, sfp[i].o, KNH_INT0);\
+		KNH_MOV(ctx, sfp[i].o, KNH_INT0);\
 		sfp[i].ivalue = n;\
 		return 1; \
 	}\
 
 #define KNH_ITRNEXT_IntX(ctx, sfp, i, n, def) {\
-		klr_mov(ctx, sfp[i].o, def);\
+		KNH_MOV(ctx, sfp[i].o, def);\
 		sfp[i].ivalue = n;\
 		return 1; \
 	}\
 
 #define KNH_ITRNEXT_Float(ctx, sfp, i, n) {\
-		klr_mov(ctx, sfp[i].o, KNH_FLOAT0);\
+		KNH_MOV(ctx, sfp[i].o, KNH_FLOAT0);\
 		sfp[i].fvalue = n;\
 		return 1; \
 	}\
 
 #define KNH_ITRNEXT_FloatX(ctx, sfp, i, n, def) {\
-		klr_mov(ctx, sfp[i].o, def);\
+		KNH_MOV(ctx, sfp[i].o, def);\
 		sfp[i].fvalue = n;\
 		return 1; \
 	}\
 
 #define KNH_ITRNEXT_envsfp(ctx, sfp, i, envsfp) {\
-		klr_mov(ctx, sfp[i].o, envsfp[0].o);\
+		KNH_MOV(ctx, sfp[i].o, envsfp[0].o);\
 		sfp[i].data = envsfp[0].data;\
 		return 1; \
 	}\
@@ -266,29 +189,28 @@ typedef knh_PackageData_t* (*knh_Fpkginit)(void);
 
 
 #define KNH_GETMAPPER(ctx, sfp) sfp[1].mpr
-#define knh_CurrentMapper_tcid(ctx, sfp)  DP(sfp[1].mpr)->tcid
 
 #define KNH_MAPPED(ctx, sfp, v) {\
 		knh_Int_t *vn_ = (knh_Int_t*)(v);\
-		klr_mov(ctx, sfp[0].o, vn_);\
+		KNH_MOV(ctx, sfp[0].o, vn_);\
 		sfp[0].data = (vn_)->n.data;\
 		return; \
 	}\
 
 #define KNH_MAPPED_Boolean(ctx, sfp, value) {\
-		klr_mov(ctx, sfp[0].o, KNH_FALSE);\
+		KNH_MOV(ctx, sfp[0].o, KNH_FALSE);\
 		sfp[0].bvalue = value;\
 		return; \
 	}\
 
 #define KNH_MAPPED_Int(ctx, sfp, value) {\
-		klr_mov(ctx, sfp[0].o, KNH_INT0); \
+		KNH_MOV(ctx, sfp[0].o, KNH_INT0); \
 		sfp[0].ivalue = value;\
 		return; \
 	}\
 
 #define KNH_MAPPED_Float(ctx, sfp, value) {\
-		klr_mov(ctx, sfp[0].o, KNH_FLOAT0);\
+		KNH_MOV(ctx, sfp[0].o, KNH_FLOAT0);\
 		sfp[0].fvalue = value;\
 		return;\
 	}\

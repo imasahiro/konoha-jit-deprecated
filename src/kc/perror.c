@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -38,9 +38,47 @@ extern "C" {
 /* ======================================================================== */
 /* [perror] */
 
-void knh_foundKonohaStyle(Ctx *ctx, size_t score)
+static volatile size_t countErrorWarning = 0;
+static volatile size_t countBadManner    = 0;
+static volatile size_t countKonohaStyle  = 0;
+static volatile size_t countLine         = 1;
+
+/* ------------------------------------------------------------------------ */
+
+void knh_resetSourceMoniter(void)
 {
-	DP(ctx->kc)->statKonohaStyle += score;
+	countErrorWarning = 0;
+	countBadManner = 0;
+	countKonohaStyle = 0;
+	countLine = 1;
+}
+
+/* ------------------------------------------------------------------------ */
+
+void knh_addSourceLine(size_t line)
+{
+	countLine += line;
+}
+
+/* ------------------------------------------------------------------------ */
+
+void knh_foundKonohaStyle(size_t score)
+{
+	countKonohaStyle += score;
+}
+
+/* ------------------------------------------------------------------------ */
+
+size_t knh_getSourceScore(void)
+{
+	return (countErrorWarning + countBadManner) * 1000 / countLine;
+}
+
+/* ------------------------------------------------------------------------ */
+
+size_t knh_getKonohaScore(void)
+{
+	return (countKonohaStyle) * 1000 / countLine;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -56,16 +94,12 @@ static const char *KERR_MSG[] = {
 
 void knh_vperror(Ctx *ctx, knh_uri_t uri, int line, int pe, char *fmt, va_list ap)
 {
-	DBG2_ASSERT(pe <= KERR_INFO);
-	knh_Gamma_t *kc = ctx->kc;
-	if(knh_Gamma_isQuiet(kc)) {
-		return;
-	}
+	KNH_ASSERT(pe <= KERR_INFO);
 	if(pe < KERR_DWARN) {
-		DP(kc)->statError += 1;
+		countErrorWarning += 1;
 	}
 	else if(pe < KERR_TINFO) {
-		DP(kc)->statBadManner += 1;
+		countBadManner += 1;
 	}
 	if(knh_Context_isInteractive(ctx)) {
 		goto L_PRINT;

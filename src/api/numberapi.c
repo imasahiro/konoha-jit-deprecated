@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -40,9 +40,8 @@ extern "C" {
 /* ------------------------------------------------------------------------ */
 //## @Static method void System.setRandomSeed(Int seed);
 
-static METHOD System_setRandomSeed(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD System_setRandomSeed(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	knh_uint_t seed = IS_NULL(sfp[1].o) ? 0 : p_uinteger(sfp[1]);
 	knh_srand(seed);
 	KNH_RETURN_void(ctx, sfp);
@@ -51,9 +50,8 @@ static METHOD System_setRandomSeed(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## @Static method Int! Int.random(Int? n);
 
-static METHOD Int_random(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Int_random(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	knh_int_t n = knh_rand();
 	if(IS_NOTNULL(sfp[1].o)) {
 		knh_int_t max = p_integer(sfp[1]);
@@ -61,34 +59,31 @@ static METHOD Int_random(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 			n = n % max;
 		}
 	}
-	KNH_RETURNi(ctx, sfp, n);
+	KNH_RETURN_Int(ctx, sfp, n);
 }
 
 /* ------------------------------------------------------------------------ */
 //## @Static method Float! Float.random();
 
-static METHOD Float_random(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Float_random(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
-	KNH_RETURNf(ctx, sfp, knh_float_rand());
+	KNH_RETURN_Float(ctx, sfp, knh_float_rand());
 }
 
 /* ------------------------------------------------------------------------ */
 //## @Static method Int! Float.floatToIntBits(Float! n);
 
-static METHOD Float_floatToIntBits(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Float_floatToIntBits(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
-	KNH_RETURNi(ctx, sfp, sfp[1].fvalue);
+	KNH_RETURN_Int(ctx, sfp, sfp[1].fvalue);
 }
 
 /* ------------------------------------------------------------------------ */
 //## @Static method Float! Float.intToFloatBits(Int! n);
 
-static METHOD Float_intToFloatBits(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Float_intToFloatBits(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
-	KNH_RETURNf(ctx, sfp, sfp[1].ivalue);
+	KNH_RETURN_Float(ctx, sfp, sfp[1].ivalue);
 }
 
 /* ------------------------------------------------------------------------ */

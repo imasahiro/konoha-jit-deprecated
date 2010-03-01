@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -181,7 +181,7 @@ void knh_Array_subclear(Ctx *ctx, knh_Array_t *o, size_t n)
 /* ======================================================================== */
 /* [utils] */
 
-KNHAPI(void) knh_Array_add_(Ctx *ctx, knh_Array_t *o, Any *value)
+KNHAPI(void) knh_Array_add(Ctx *ctx, knh_Array_t *o, Any *value)
 {
 	if(o->size == o->capacity) {
 		knh_Array_grow(ctx, o, knh_array_newsize(o->capacity * 2, sizeof(Object*)), KNH_NULL);

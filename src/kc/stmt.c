@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -243,10 +243,6 @@ knh_flag_t knh_StmtMETHOD_flag(Ctx *ctx, knh_Stmt_t *o)
 		v = knh_DictMap_get__b(ctx, DP(o)->metaDictMap, STEXT("Debug"));
 		if(IS_NOTNULL(v)) {
 			flag |= FLAG_Method_Debug;
-		}
-		v = knh_DictMap_get__b(ctx, DP(o)->metaDictMap, STEXT("Inline"));
-		if(IS_NOTNULL(v)) {
-			flag |= FLAG_Method_Inline;
 		}
 	}
 	return flag;

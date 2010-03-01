@@ -35,12 +35,8 @@ typedef long                      intptr_t;
 #define PRIdPTR "d"
 #define PRIuPTR "u"
 
-/* syslog */
-#define LOG_INFO    1
-#define LOG_NOTICE  2
-#define LOG_WARNING 3
-#define LOG_ERR     6
 
+typedef long jmp_buf ;
 typedef intptr_t FILE;
 
 #define TODO_LKM
@@ -53,12 +49,13 @@ typedef intptr_t FILE;
 #define free(x)   kfree(x)
 
 #define fprintf(out,fmt, arg...) printk(out fmt , ##arg)
-#define printf(fmt, arg...) printk(fmt , ##arg)
 #define fputs(prompt, fp) 
 #define fgetc(fp) (-1)
 #define EOF -1
 #define fflush(x)
 #define exit(i)  printk(KERN_EMERG "KONOHA_exit!!!")
+#define setjmp(j) 0
+#define longjmp(a,b)
 #define assert(x) BUG_ON(!(x))
 #define abort() BUG_ON(1)
 
@@ -68,33 +65,9 @@ typedef intptr_t FILE;
 void knh_qsort (void *const pbase, size_t total_elems, size_t size,
         int (*cmp)(const void*,const void*));
 
-void knh_qsort_r (void *const pbase, size_t total_elems, size_t size, 
-        void* thunk,int (*cmp)(void* ,const void*,const void*));
+void knh_qsort_r (void *const pbase, size_t total_elems, size_t size,
+        int (*cmp)(void* ,const void*,const void*),void* thunk);
 
-//#ifdef KONOHA_ON_MACOSX
-//#define  knh_qsort_r(b,s,w,thunk,f)   qsort_r(b,s,w,thunk,f)
-//#elif defined(KONOHA_ON_LINUX)
-/* ../../src/ext/setjmp.c */
-#if defined(__i386__)
-/* return_addr, ebx, esp, ebp, esi, edi */
-#define JMP_BUFFSIZE 6
-
-#elif defined(__x86_64__)
-/* return_addr, rbx, rsp, rbp, r12, r13, r14, r15 */
-#define JMP_BUFFSIZE 8
-#endif
-
-typedef struct {
-	unsigned long __jmp_buf[JMP_BUFFSIZE];
-} jmp_buf[1];
-
-#if 1
-noinline int knh_setjmp(jmp_buf env);
-noinline int knh_longjmp(jmp_buf env, int val);
-#else
-#define knh_setjmp(a) (0)
-#define knh_longjmp(a,b) 
-#endif
 /* ../../src/ext/strerror.c */
 char* strerror(int errno);
 #endif

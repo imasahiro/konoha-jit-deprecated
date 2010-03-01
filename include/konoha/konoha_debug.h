@@ -1,10 +1,6 @@
 #ifndef KONOHA_DEBUG_H_
 #define KONOHA_DEBUG_H_
 
-#ifndef KONOHA_ON_LKM
-#include<syslog.h>
-#endif
-
 /* ======================================================================== */
 /* [FASTMODE] */
 
@@ -17,38 +13,9 @@
 #define SAFE_(stmt)      stmt
 #endif/*KNH_FASTMODE*/
 
+/* ======================================================================== */
+
 #define KNH_ABORT()      abort()
-
-#define LOGARG          ,char *_file, int _line, char *_func
-#define LOGDATA         ,(char*)__FILE__, (int)__LINE__, (char*)__FUNCTION__
-
-#define KNH_SYSLOG0(ctx, priority, fmt, ...) \
-	if(knh_Context_isVerbose(ctx)) { \
-		fflush(stdout); \
-		fprintf(stderr, "konoha (log:%d): ", priority); \
-		fprintf(stderr, fmt, ## __VA_ARGS__); \
-		fprintf(stderr, "\n"); \
-	}
-
-#define KNH_SYSLOG(ctx, priority, fmt, ...) \
-	if(knh_Context_isVerbose(ctx)) { \
-		fflush(stdout); \
-		fprintf(stderr, "SYSLOG(%d)[%s:%d/%s]\n\t", priority, \
-				knh_safefile(__FILE__), __LINE__, __FUNCTION__); \
-		fprintf(stderr, fmt, ## __VA_ARGS__); \
-		fprintf(stderr, "\n"); \
-	}
-
-#define KNH_SYSLOG2(ctx, priority, fmt, ...) \
-	fflush(stdout); \
-	fprintf(stderr, "SYSLOG(%d)[%s:%d/%s]\n\t", priority, knh_safefile(_file), _line, _func); \
-	fprintf(stderr, fmt, ## __VA_ARGS__); \
-	fprintf(stderr, "\n"); \
-
-#define KNH_TEST(msg) {\
-		fprintf(stderr, "@TestIt(%s/%s, %s:%d\n", __FUNCTION__, msg, knh_safefile(__FILE__), __LINE__); \
-	}\
-
 
 /* ======================================================================== */
 /* [DBGMODE2] */
@@ -73,15 +40,12 @@
 	knh_flush(ctx, KNH_STDOUT);\
 	fprintf(stdout, "\n"); \
 
-#ifdef KNH_USING_FASTMALLOC
-#define KNH_MALLOC(ctx, size)    knh_fastmalloc(ctx, size)
-#define KNH_FREE(ctx, p, size)   knh_fastfree(ctx, p, size)
-#else
-#define KNH_MALLOC(ctx, size)    DBG2_malloc(ctx, size, LOGDATA)
-#define KNH_FREE(ctx, p, size)   DBG2_free(ctx, p, size, LOGDATA)
-#endif
 
-#else /*KNH_DBGMODE2*/
+#define KNH_MALLOC(ctx, size)    DBG2_malloc(ctx, size, (char*)__FUNCTION__)
+#define KNH_FREE(ctx, p, size)   DBG2_free(ctx, p, size, (char*)__FUNCTION__)
+
+
+#else /*KNH_DBGMODE2*/ 
 
 #define DBG2_(stmt)
 #define DBG2_ASSERT(c) KNH_ASSERT(c)
@@ -140,8 +104,8 @@
 	knh_flush(ctx, KNH_STDOUT);\
 	fprintf(stdout, "\n"); \
 
-#define TODO(msg) \
-	fprintf(stderr, "TODO[%s:%d]: %s\n", knh_safefile(__FILE__) , __LINE__, msg); \
+#define TODO() \
+	fprintf(stderr, "TODO[%s:%d/%s]:\n", knh_safefile(__FILE__) , __LINE__, __FUNCTION__); \
 
 
 #else/*KNH_DBGMODE*/
@@ -163,7 +127,7 @@
 		fprintf(stdout, "\n"); \
 	}\
 
-#define TODO(msg)
+#define TODO()
 #define DBG_ASSERT(c, fmt, ...)   KNH_ASSERT(c)
 
 #define KNH_CTXASSERT(ctx, c, fmt, ...) \

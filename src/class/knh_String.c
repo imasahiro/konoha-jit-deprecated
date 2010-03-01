@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -146,8 +146,8 @@ knh_String_t *new_StringX(Ctx *ctx, knh_class_t cid, knh_bytes_t t, knh_String_t
 		TODO();
 		return new_String(ctx, t, orign);
 	}
-//	Semantics *u = knh_getSemantics(ctx, cid].cspec;
-//	KNH_ASSERT(IS_Semantics(u));
+//	ClassSpec *u = knh_getClassSpec(ctx, cid].cspec;
+//	KNH_ASSERT(IS_ClassSpec(u));
 //		if(DP(u)->fbconv != NULL) {
 //		return new_String__fcnv(ctx, DP(u)->)
 //		Bytes *ba = knh_Context_openBConvBuf(ctx);
@@ -248,35 +248,35 @@ Object* new_String_parseOf(Ctx *ctx, knh_String_t *p)
 
 /* ------------------------------------------------------------------------ */
 
-static knh_ParserDSPI_t PARSER__String = {
-	KNH_PARSER_DSPI, "_",
+static knh_parser_drvapi_t PARSER__String = {
+	KNH_DRVAPI_TYPE__PARSER, "_",
 	TYPE_String,
 	new_String_parseOf
 };
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(void) knh_addParserDriver(Ctx *ctx, char *alias, knh_ParserDSPI_t *d)
+KNHAPI(void) knh_addParserDriver(Ctx *ctx, char *alias, knh_parser_drvapi_t *d)
 {
 	if(alias != NULL) {
-		knh_addDriverAPI(ctx, alias, (knh_DriverSPI_t*)d);
+		knh_addDriverAPI(ctx, alias, (knh_drvapi_t*)d);
 	}
 	else {
-		knh_addDriverAPI(ctx, d->name, (knh_DriverSPI_t*)d);
+		knh_addDriverAPI(ctx, d->name, (knh_drvapi_t*)d);
 	}
 }
 
 /* ------------------------------------------------------------------------ */
 
 static
-knh_ParserDSPI_t *knh_System_getParserDriver(Ctx *ctx, knh_bytes_t name)
+knh_parser_drvapi_t *knh_System_getParserDriver(Ctx *ctx, knh_bytes_t name)
 {
-	knh_DriverSPI_t *d = knh_getDriverAPI(ctx, KNH_PARSER_DSPI, name);
+	knh_drvapi_t *d = knh_getDriverAPI(ctx, KNH_DRVAPI_TYPE__PARSER, name);
 	if(d == NULL) {
 		return &(PARSER__String);
 	}
-	KNH_ASSERT(d->type == KNH_PARSER_DSPI);
-	return (knh_ParserDSPI_t*)d;
+	KNH_ASSERT(d->type == KNH_DRVAPI_TYPE__PARSER);
+	return (knh_parser_drvapi_t*)d;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -320,7 +320,7 @@ Object *new_Object_parseOf(Ctx *ctx, knh_String_t *s)
 		DBG2_P("cid=%s", CLASSN(tagcid));
 
 	}
-	knh_ParserDSPI_t *d = knh_System_getParserDriver(ctx, knh_bytes_first(t, loc));
+	knh_parser_drvapi_t *d = knh_System_getParserDriver(ctx, knh_bytes_first(t, loc));
 	return d->parser(ctx, s);
 }
 

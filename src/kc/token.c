@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -69,43 +69,6 @@ void knh_Token_setFL(knh_Token_t *o, Any *fln)
 		SP(o)->uri =  SP(stmt)->uri;
 		SP(o)->line =  SP(stmt)->line;
 	}
-}
-
-/* ------------------------------------------------------------------------ */
-
-knh_Token_t* new_TokenCONST(Ctx *ctx, Any *fln, Any *data)
-{
-	knh_Token_t *o = (knh_Token_t*)new_Object_bcid(ctx, CLASS_Token, 0);
-	knh_Token_setFL(o, fln);
-	knh_Token_setCONST(ctx, o, data);
-	return o;
-}
-
-/* ------------------------------------------------------------------------ */
-
-void knh_Token_setCONST(Ctx *ctx, knh_Token_t *o, Any *data)
-{
-	KNH_SETv(ctx, DP(o)->data, data);
-	knh_Token_toCONST(ctx, o);
-}
-
-/* ------------------------------------------------------------------------ */
-
-knh_Token_t* knh_Token_toCONST(Ctx *ctx, knh_Token_t *o)
-{
-	TT_(o) = TT_CONST;
-	DP(o)->type = knh_Object_cid(DP(o)->data);
-	if(IS_NULL(DP(o)->data)) DP(o)->type = TYPE_Any;
-	return o;
-}
-
-/* ------------------------------------------------------------------------ */
-
-knh_Token_t* new_TokenNULL(Ctx *ctx, Any *fln, knh_type_t type)
-{
-	knh_Token_t *tk = new_TokenCONST(ctx, fln, KNH_NULL);
-	DP(tk)->type = CLASS_type(type);
-	return tk;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -195,11 +158,11 @@ void knh_Token_tokens_add(Ctx *ctx, knh_Token_t *o, knh_Token_t *tk)
 	}
 	if(IS_Token(DP(o)->data)) {
 		knh_Array_t *a = new_Array(ctx, CLASS_Any, 2);
-		knh_Array_add_(ctx, a, DP(o)->data);
+		knh_Array_add(ctx, a, DP(o)->data);
 		KNH_SETv(ctx, DP(o)->data, a);
 	}
 	KNH_ASSERT(IS_Array(DP(o)->data));
-	knh_Array_add_(ctx, (knh_Array_t*)DP(o)->data, UP(tk));
+	knh_Array_add(ctx, (knh_Array_t*)DP(o)->data, UP(tk));
 }
 
 /* ------------------------------------------------------------------------ */

@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -39,6 +39,7 @@
 
 #define KNH_USING_RCGC         1
 #define KNH_USING_FASTMALLOC   1
+#define KNH_USING_UNBOXFIELD   1
 
 /* ======================================================================== */
 /* Manifesto */
@@ -49,14 +50,14 @@
 #else
 #define KONOHA_NAME     "konoha"
 #define KONOHA_MAJOR_VERSION  0
-#define KONOHA_MINER_VERSION  7
+#define KONOHA_MINER_VERSION  5
 #define KONOHA_PATCH_VERSION  0
-#define KONOHA_VERSION  "0.7.0-alpha"
+#define KONOHA_VERSION  "0.5"
 #endif
 
-#define LIBKONOHA_VERSION "0.7.0-alpha"
+#define LIBKONOHA_VERSION "0.5"
 
-#define KONOHA_XCODE    "BAKUMAN"
+#define KONOHA_XCODE    "TOGURO"
 #define KONOHA_URL		"http://konoha.sourceforge.jp/"
 #define KONOHA_URLBASE  "kttp://konoha.sourceforge.jp/wiki/"
 
@@ -67,14 +68,14 @@
 #define KONOHA_TSTRUCT_SIZE                 512
 #define KONOHA_TCLASS_SIZE                 4096
 #define KONOHA_TEXP_SIZE                    128
-#define KNH_PAGESIZE                    8192
+#define KONOHA_PAGESIZE                    8192
 #define KONOHA_FIELDSIZE                     64
 #define KONOHA_STACKSIZE                   4096
 #else
 #define KONOHA_TSTRUCT_SIZE                  64
 #define KONOHA_TCLASS_SIZE                  256
 #define KONOHA_TEXP_SIZE                    128
-#define KNH_PAGESIZE                    4096
+#define KONOHA_PAGESIZE                    4096
 #define KONOHA_FIELDSIZE                     64
 #define KONOHA_STACKSIZE                   1024
 #endif
@@ -121,9 +122,6 @@
 	#define KONOHA_OS "LKM"
 #endif
 
-#ifdef KONOHA_ON_FREEBSD
-#define KONOHA_OS  "FreeBSD"
-#endif
 
 /* ======================================================================== */
 /* [CC] */
@@ -164,44 +162,6 @@
 		#endif
 	#endif/*KONOHA_OS*/
 #endif/*__GNUC__*/
-
-#if defined(HAVE_SYS_PARAM_H)
-	#include <sys/param.h>
-	#ifdef BSD
-		#if defined(__FreeBSD__)
-			#define KONOHA_OS  "freebsd"
-			#define KONOHA_ON_BSD 1
-		#elif defined(__APPLE__)
-			#ifndef KONOHA_OS
-				#error "This must not be happen"
-			#endif
-		#else
-			#warn "This OS is not surpported."
-			#define KONOHA_OS  "unknown-bsd"
-			#define KONOHA_ON_BSD 1
-		#endif
-	#endif /* BSD */
-#endif /* HAVE_SYS_PARAM_H */
-
-#if !defined(KONOHA_OS)
-	/* Other POSIX system check must done before this */
-	#if defined(HAVE_UNISTD_H)
-		#include <unistd.h>
-		#if defined(_POSIX_VERSION)
-			#define KONOHA_OS  "unknown-posix"
-			#define KONOHA_ON_UNKNOWN_POSIX 1
-		#endif /* _POSIX_VERSION */
-	#endif /* HAVE_UNISTD_H */
-#endif /* KONOHA_OS */
-
-#if !defined(KONOHA_OS)
-	/* Other Unix-like system check must done before this */
-	#if defined(__unix__) || defined(__unix) || defined(unix)
-		#define KONOHA_OS  "unknown-unix"
-		#define KONOHA_ON_UNKNOWN_UNIX 1
-	#endif /* unix */
-#endif /* KONOHA_OS */
-
 
 #ifdef _MSC_VER
 //#define KNH_DBGMODE2

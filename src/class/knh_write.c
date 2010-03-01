@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -134,18 +134,6 @@ void knh_write_end(Ctx *ctx, knh_OutputStream_t *w, int ch)
 
 /* ======================================================================== */
 /* [datatype] */
-
-void knh_write_bool(Ctx *ctx, knh_OutputStream_t *w, int b)
-{
-	if(b) {
-		knh_write(ctx, w, __tobytes(TS_true));
-	}
-	else {
-		knh_write(ctx, w, __tobytes(TS_false));
-	}
-}
-
-/* ------------------------------------------------------------------------ */
 
 void knh_write_char(Ctx *ctx, knh_OutputStream_t *w, char *s)
 {
@@ -711,14 +699,15 @@ typedef void (*f_mt)(Ctx *, Object *, knh_OutputStream_t *, Any *);
 
 /* ------------------------------------------------------------------------ */
 
-METHOD knh_fmethod_formatter(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+METHOD knh_fmethod_formatter(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	f_mt f = (f_mt)DP(sfp[-1].mtd)->code;
 	f(ctx, sfp[0].o, (knh_OutputStream_t*)sfp[1].o, sfp[2].o);
 	KNH_RETURN_void(ctx, sfp);
 }
 
+
+/* ------------------------------------------------------------------------ */
 
 #ifdef __cplusplus
 }

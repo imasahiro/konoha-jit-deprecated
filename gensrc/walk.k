@@ -4,12 +4,12 @@
    emulate python's os.walk;
 */
  
-include "array.k"
+import "array.k"
  
 String[] System.walk(String path){
     String[] p = new String[]();
     if(System.hasDir(path)){
-        foreach(String t in System.listDir(path)){
+        foreach(String t in System.listDir(path)..){
             String newpath = path + "/" + t;
             if(System.hasDir(newpath)){
                 p.addAll(System.walk(newpath));

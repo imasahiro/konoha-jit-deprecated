@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -94,7 +94,7 @@ knh_index_t knh_DictIdx_index(Ctx *ctx, knh_DictIdx_t *o, knh_bytes_t v)
 knh_index_t knh_DictIdx_add__fast(Ctx *ctx, knh_DictIdx_t *o, knh_String_t *term)
 {
 	knh_index_t dictid = (knh_index_t)knh_Array_size(o->terms) + 1;
-	knh_Array_add_(ctx, o->terms, UP(term));
+	knh_Array_add(ctx, o->terms, UP(term));
 	knh_DictSet_set(ctx, o->termsDictSet, term, dictid);
 	return dictid_totermid(dictid);
 }

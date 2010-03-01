@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -65,18 +65,16 @@ typedef struct knh_ObjectField_t {
 #define CLASS_ObjectField           CLASS_Object
 #define knh_Object_cid(o)           (o)->h.cid
 #define knh_Object_bcid(o)          (o)->h.bcid
-#define knh_Object_r0(o)            (ClassTable((o)->h.cid).r0)
 #define knh_Object_p1(o)            (ClassTable((o)->h.cid).p1)
 #define knh_Object_p2(o)            (ClassTable((o)->h.cid).p2)
-#define knh_Object_p3(o)            (ClassTable((o)->h.cid).p3)
 
 /* ------------------------------------------------------------------------ */
 //## @Immutable class Boolean Object;
 
 typedef struct {
 	union {
-		knh_bool_t    bvalue;
-		knh_int_t     ivalue;
+		knh_bool_t bvalue;
+		knh_int_t ivalue;
 		knh_float_t   fvalue;
 		knh_uint64_t  data;
 	};
@@ -111,6 +109,8 @@ typedef struct knh_Int_t {
 	knh_nObject_t n;
 } knh_Int_t;
 
+//typedef knh_Int_t knh_IntX_t;
+
 /* ------------------------------------------------------------------------ */
 //## @Immutable class Float Number;
 
@@ -118,6 +118,8 @@ typedef struct knh_Float_t {
 	knh_hObject_t h;
 	knh_nObject_t n;
 } knh_Float_t;
+
+//typedef knh_Float_t knh_FloatX_t;
 
 /* ------------------------------------------------------------------------ */
 //## @Immutable class String Object;
@@ -150,7 +152,7 @@ typedef struct knh_Bytes_t {
 #define knh_Bytes_size(o)      (o)->size
 #define knh_Bytes_value(o)     (o)->buf
 #define knh_Bytes_last(o)      ((o)->buf + (o)->size)
-#define knh_Bytes_tochar(b)  (char*)knh_Bytes_value(b)
+#define knh_Bytes__tochar(b)  (char*)knh_Bytes_value(b)
 #define KNH_SIZE(v)         knh_size(v)
 
 /* ------------------------------------------------------------------------ */
@@ -165,12 +167,12 @@ typedef struct knh_Bytes_t {
 //## @Cyclic @TypeVariable class Tvar  Any Any;
 
 struct knh_Glue_t;
-typedef void (*knh_Fgluefree)(Ctx *, struct knh_Glue_t *o);
+typedef void (*knh_fgfree)(Ctx *, struct knh_Glue_t *o);
 
 typedef struct knh_Glue_t {
 	knh_hObject_t h;
 	void *ptr;
-	knh_Fgluefree gfree;
+	knh_fgfree gfree;
 } knh_Glue_t ;
 
 #define CLASS_Glue    CLASS_Any
@@ -188,24 +190,29 @@ typedef knh_Glue_t knh_T3_t;
 /* ------------------------------------------------------------------------ */
 //## @Immutable @Struct @Param1(Any) class Iterator Object;
 
+#ifdef _MSC_VER
+typedef int   (KNH_CC_FASTCALL *knh_fitrnext)(Ctx *, knh_sfp_t *, int n);
+#else
+typedef ITRNEXT (*knh_fitrnext)(Ctx *, knh_sfp_t *, int n);
+#endif
 
-typedef void (*knh_Ffree)(void *ptr);
+typedef void (*knh_ffree)(void *ptr);
 
 typedef struct knh_Iterator {
-	knh_Fitrnext fnext;
+	knh_fitrnext fnext;
 	Object* source;
 	knh_int_t  pos;
 	union {
 		void*   ref;
 		knh_code_t *pc; /* @see(Generator) */
 	};
-	knh_Ffree freffree;
+	knh_ffree freffree;
 } knh_Iterator_struct;
 
 typedef struct knh_Iterator_t {
 	knh_hObject_t h;
 	knh_Iterator_struct *b;
-	knh_Fitrnext fnext_1;
+	knh_fitrnext fnext_1;
 } knh_Iterator_t;
 
 /* ------------------------------------------------------------------------ */
@@ -263,7 +270,6 @@ typedef struct knh_Array_t {
 
 #define knh_Array_n(a,n)      (a)->list[(n)]
 #define knh_Array_size(a)     (a)->size
-#define knh_Array_add(ctx, a, o)    knh_Array_add_(ctx, a, UP(o))
 
 /* ------------------------------------------------------------------------ */
 //## @Cyclic @Param1(Int) class Int[] IArray Object knh_IArray_t;
@@ -301,7 +307,7 @@ typedef struct knh_FArray_t {
 
 #define KNH_DICT_INITSIZE (KNH_FASTMALLOC_SIZE/(sizeof(void*)*2))
 
-typedef int (*knh_Fbytescmp)(knh_bytes_t, knh_bytes_t);
+typedef int (*knh_fbytescmp)(knh_bytes_t, knh_bytes_t);
 
 typedef struct knh_dict_t {
 	struct knh_String_t *key;
@@ -323,7 +329,7 @@ typedef struct knh_DictMap_t {
 		knh_dict_t *_list;  // To avoid stupid casting
 	};
 	size_t size;
-	knh_Fbytescmp fcmp;
+	knh_fbytescmp fcmp;
 } knh_DictMap_t;
 
 /* ------------------------------------------------------------------------ */
@@ -340,7 +346,7 @@ typedef struct knh_DictSet_t {
 		knh_dict_t *_list;  // To avoid stupid casting
 	};
 	size_t size;
-	knh_Fbytescmp fcmp;
+	knh_fbytescmp fcmp;
 } knh_DictSet_t;
 
 /* ------------------------------------------------------------------------ */
@@ -357,19 +363,19 @@ typedef struct knh_hashentry_t {
 	};
 } knh_hashentry_t;
 
-typedef knh_hashentry_t* (*knh_Fhashentry_init)(Ctx *);
-typedef FASTAPI(void) (*knh_Fhashentry_traverse)(Ctx *, knh_hashentry_t*, knh_Ftraverse);
+typedef knh_hashentry_t* (*knh_fhashentry_init)(Ctx *);
+typedef void (*knh_fhashentry_traverse)(Ctx *, knh_hashentry_t*, knh_ftraverse);
 
 typedef struct {
 	size_t size;
-	knh_Fhashentry_init finit;
-	knh_Fhashentry_traverse ftraverse;
+	knh_fhashentry_init finit;
+	knh_fhashentry_traverse ftraverse;
 } knh_hash_op ;
 
 /* ------------------------------------------------------------------------ */
 
 #define KNH_HASH_INITSIZE 83
-#define KNH_HASH_TABLESIZE  KNH_PAGESIZE
+#define KNH_HASH_TABLESIZE  KONOHA_PAGESIZE
 #define KNH_HASHENTRY(T,ESIZE,i)  (knh_hashentry_t*)&((T)[(ESIZE) * (i)])
 
 typedef struct {
@@ -388,7 +394,7 @@ typedef struct {
 typedef struct {
 	knh_hObject_t h;
 	knh_Hash_struct *b;
-	knh_Fobject_compareTo fcmp;
+	knh_fstruct_compareTo fcmp;
 	knh_hash_op *hashop;
 } knh_Hash_t ;
 
@@ -417,29 +423,16 @@ typedef struct knh_DictIdx_t {
 
 /* ------------------------------------------------------------------------ */
 //## @Immutable class Class Object;
-//## flag Class Release!Debug  0 (pClassTable(ctx,%s))->cflag is * is *;
-//## flag Class Immutable      1 (pClassTable(ctx,%s))->cflag is * is *;
-//## flag Class Cyclic         2 (pClassTable(ctx,%s))->cflag is set * *;
-//## flag Class MetaClass      3 (pClassTable(ctx,%s))->cflag is * is *;
-//## flag Class Private!Public 4 (pClassTable(ctx,%s))->cflag is * is *;
-//## flag Class Final          5 (pClassTable(ctx,%s))->cflag  is * is *;
-//## flag Class Singleton      6 (pClassTable(ctx,%s))->cflag  is * is *;
-//## flag Class Unique         7 (pClassTable(ctx,%s))->cflag  is * is *;
-//## flag Class Interface      8 (pClassTable(ctx,%s))->cflag  is * is *;
-//## flag Class TypeVariable   9 (pClassTable(ctx,%s))->cflag  is set * *;
-
-#define FLAG_Field_Hidden          (knh_flag_t)(1<<0)
-#define FLAG_Field_Protected       (knh_flag_t)(1<<1)
-#define FLAG_Field_Getter          (knh_flag_t)(1<<2)
-#define FLAG_Field_Setter          (knh_flag_t)(1<<3)
-#define FLAG_Field_Key             (knh_flag_t)(1<<4)
-#define FLAG_Field_Volatile        (knh_flag_t)(1<<5)
-#define FLAG_Field_ReadOnly        (knh_flag_t)(1<<6)
-#define FLAG_Field_Property        (knh_flag_t)(1<<7)
-#define FLAG_Field_Principle       (knh_flag_t)(1<<8)
-
-#define FLAG_GAMMA_Register    FLAG_Field_Getter
-#define FLAG_GAMMA_FuncScope   FLAG_Field_Setter
+//## flag Class Release!Debug  0 (pClassTable(%s))->cflag is * is *;
+//## flag Class Immutable      1 (pClassTable(%s))->cflag is * is *;
+//## flag Class Cyclic         2 (pClassTable(%s))->cflag is set * *;
+//## flag Class MetaClass      3 (pClassTable(%s))->cflag is * is *;
+//## flag Class Private!Public 4 (pClassTable(%s))->cflag is * is *;
+//## flag Class Final          5 (pClassTable(%s))->cflag  is * is *;
+//## flag Class Singleton      6 (pClassTable(%s))->cflag  is * is *;
+//## flag Class Unique         7 (pClassTable(%s))->cflag  is * is *;
+//## flag Class Interface      8 (pClassTable(%s))->cflag  is * is *;
+//## flag Class TypeVariable   9 (pClassTable(%s))->cflag  is set * *;
 
 typedef struct knh_Class_t {
 	knh_hObject_t h;
@@ -452,8 +445,37 @@ typedef struct knh_Class_t {
 #define KNH_DEF(ctx, cid)  knh_getClassDefaultValue(ctx, cid)
 
 #define knh_Class_cid(c)     (knh_class_t)(c)->cid
-#define FLAG_oflag(f)        (f)
+#define knh_flag_oflag(f)        (f)
 #define knh_class_isGenerics(cid)    (ClassTable(cid).p1 != TYPE_Tvoid)
+
+/* ------------------------------------------------------------------------ */
+//## @Private class ClassField Object;
+//## flag ClassField Hidden     0 (%s)->fields[n].flag is set * *;
+//## flag ClassField Protected  1 (%s)->fields[n].flag is set * *;
+//## flag ClassField Getter     2 (%s)->fields[n].flag is set * *;
+//## flag ClassField Setter     3 (%s)->fields[n].flag is set * *;
+//## flag ClassField Key        4 (%s)->fields[n].flag is set * *;
+//## flag ClassField Volatile   5 (%s)->fields[n].flag is set * *;
+//## flag ClassField ReadOnly   6 (%s)->fields[n].flag is set * *;
+//## flag ClassField Property   7 (%s)->fields[n].flag is set * *;
+//## flag ClassField Principle  8 (%s)->fields[n].flag is set * *;
+
+#define FLAG_GAMMA_Register    FLAG_ClassField_Getter
+#define FLAG_GAMMA_FuncScope   FLAG_ClassField_Setter
+
+typedef struct knh_cfield_t {
+	knh_flag_t    flag  ;
+	knh_type_t    type  ;
+	knh_fieldn_t  fn    ;
+	Object        *value;
+} knh_cfield_t ;
+
+typedef struct knh_ClassField_t {
+	knh_hObject_t h;
+	knh_cfield_t* fields;
+	size_t fsize;
+	knh_Array_t*  methods;
+} knh_ClassField_t;
 
 /* ------------------------------------------------------------------------ */
 //## @Private class MethodField Object;
@@ -495,19 +517,19 @@ typedef struct {
 	knh_class_t    cid;   knh_methodn_t  mn;
 	knh_uri_t     uri;    knh_uri_t    domain;
 	struct knh_MethodField_t* mf;
-	knh_Fmethod       fproceed;
+	knh_fmethod       fproceed;
 	union {
 		void*             code;
 		struct knh_KLRCode_t *kcode;
 	};
-	knh_uintptr_t    prof_count;  /*recode how many times called */
-	knh_uintptr_t    prof_time;   /*recode how long spending */
+//	knh_uintptr_t    prof_count;  /*recode how many times called */
+//	knh_uintptr_t    prof_time;   /*recode how long spending */
 } knh_Method_struct;
 
 typedef struct knh_Method_t {
 	knh_hObject_t h;
 	knh_Method_struct *b;
-	knh_Fmethod fcall_1;
+	knh_fmethod fcall_1;
 	knh_code_t *pc_start;
 } knh_Method_t;
 
@@ -521,13 +543,6 @@ typedef struct knh_Method_t {
 
 #define knh_Class_getMethod(ctx, c, mn)    knh_Class_getMethod__(ctx, c, mn, 0)
 #define knh_Class_findMethod(ctx, c, mn)   knh_Class_getMethod__(ctx, c, mn, 1)
-
-#define KNH_NOTRACE         0
-#define KNH_SECURITYTRACE   1
-#define KNH_AUDITTRACE      2
-#define KNH_PROFILER        3
-#define KNH_STACKTRACE      4
-#define KNH_FUNCTIONTRACE   5
 
 /* ------------------------------------------------------------------------ */
 //## @Struct class Mapper Object;
@@ -546,7 +561,7 @@ typedef struct knh_Method_t {
 typedef struct knh_Mapper {
 	knh_flag_t   flag; knh_ushort_t size;
 	knh_class_t  scid; knh_class_t  tcid;
-	//knh_Fmapper     fmap;
+	//knh_fmapper     fmap;
 	union {
 		Object*      mapdata;
 		struct knh_Mapper_t *m1;
@@ -557,11 +572,11 @@ typedef struct knh_Mapper {
 typedef struct knh_Mapper_t {
 	knh_hObject_t h;
 	knh_Mapper_struct *b;
-	knh_Fmapper fmap_1;
+	knh_fmapper fmap_1;
 } knh_Mapper_t;
 
-#define knh_findMapper(ctx, scid, tcid) knh_findMapperCommon(ctx, scid, tcid, 1)
-#define knh_Class_getMapper(ctx, scid, tcid)  knh_findMapperCommon(ctx, scid, tcid, 0)
+#define knh_findMapper(ctx, scid, tcid) knh_findMapper_(ctx, scid, tcid, 1)
+#define knh_Class_getMapper(ctx, scid, tcid)  knh_findMapper_(ctx, scid, tcid, 0)
 
 /* ------------------------------------------------------------------------ */
 //## @Private class ClassMap Object;
@@ -592,6 +607,12 @@ typedef struct knh_Closure_t {
 } knh_Closure_t ;
 
 
+#define KNH_INVOKE(ctx, lsfp) {\
+		knh_Closure_t* cc_ = sfp[0].cc;\
+		int argc_ = (ctx->esp - sfp) - 1; \
+		KNH_MOV(ctx, sfp[0].o, (cc_)->base);\
+		KNH_SCALL(ctx, sfp, -1, (cc_)->mtd, argc_);\
+	}\
 
 /* ------------------------------------------------------------------------ */
 //## @Param1(Any) class Thunk Object;
@@ -626,7 +647,7 @@ typedef struct knh_AffineConv_t {
 typedef struct {
 	knh_hObject_t h;
 	knh_regex_t *reg;
-	knh_RegexDSPI_t *df;
+	knh_regex_drvapi_t *df;
 	struct knh_String_t *pattern;
 } knh_Regex_t;
 
@@ -641,8 +662,8 @@ typedef knh_intptr_t iconv_t;
 
 typedef struct knh_BytesConv_t {
 	knh_hObject_t h;
-	knh_Fbyteconv      fbconv;
-	knh_Fbyteconvfree  fbconvfree;
+	knh_fbyteconv      fbconv;
+	knh_fbyteconvfree  fbconvfree;
 	union {
 		iconv_t iconv_d;
 		void *convp;
@@ -650,19 +671,19 @@ typedef struct knh_BytesConv_t {
 } knh_BytesConv_t;
 
 /* ------------------------------------------------------------------------ */
-//## @Struct @Private class Semantics Object;
+//## @Struct @Private class ClassSpec Object;
 
-#define KNH_SEMANTICS_FMT    "%s{%s}"
-struct  knh_Semantics_t;
+#define KNH_CLASSSPEC_FMT    "%s{%s}"
+struct  knh_ClassSpec_t;
 
-typedef int (*knh_Fichk)(struct knh_Semantics_t *, knh_int_t v);
-typedef int (*knh_Ficmp)(struct knh_Semantics_t *, knh_int_t v1, knh_int_t v2);
+typedef int (*knh_fichk)(struct knh_ClassSpec_t *, knh_int_t v);
+typedef int (*knh_ficmp)(struct knh_ClassSpec_t *, knh_int_t v1, knh_int_t v2);
 
-typedef int (*knh_Ffchk)(struct knh_Semantics_t *, knh_float_t v);
-typedef int (*knh_Ffcmp)(struct knh_Semantics_t *, knh_float_t v1, knh_float_t v2);
+typedef int (*knh_ffchk)(struct knh_ClassSpec_t *, knh_float_t v);
+typedef int (*knh_ffcmp)(struct knh_ClassSpec_t *, knh_float_t v1, knh_float_t v2);
 
-typedef knh_String_t *(*knh_Fsnew)(Ctx *, knh_class_t cid, knh_bytes_t, struct knh_String_t *, int *);
-typedef int (*knh_Fscmp)(struct knh_Semantics_t *, knh_bytes_t, knh_bytes_t);
+typedef knh_String_t *(*knh_fsnew)(Ctx *, knh_class_t cid, knh_bytes_t, struct knh_String_t *, int *);
+typedef int (*knh_fscmp)(struct knh_ClassSpec_t *, knh_bytes_t, knh_bytes_t);
 
 typedef struct {
 	knh_flag_t  flag;
@@ -683,15 +704,15 @@ typedef struct {
 		knh_int_t imax;
 		knh_uint_t umax;
 	};
-	knh_Fichk fichk;
-	knh_Ficmp ficmp;
+	knh_fichk fichk;
+	knh_ficmp ficmp;
 
 	// float
 	knh_float_t fmin;
 	knh_float_t fmax;
 	knh_float_t fstep;
-	knh_Ffchk   ffchk;
-	knh_Ffcmp   ffcmp;
+	knh_ffchk   ffchk;
+	knh_ffcmp   ffcmp;
 
 	// String
 	size_t bytelen;
@@ -699,16 +720,16 @@ typedef struct {
 	Object* pattern;
 	struct knh_DictIdx_t* vocabDictIdx;
 	struct knh_BytesConv_t *bconv;
-	knh_Fsnew    fsnew;
-	knh_Fscmp    fscmp;
-} knh_Semantics_struct;
+	knh_fsnew    fsnew;
+	knh_fscmp    fscmp;
+} knh_ClassSpec_struct;
 
-typedef struct knh_Semantics_t* (*knh_fspec)(Ctx *ctx, knh_bytes_t urn);
+typedef struct knh_ClassSpec_t* (*knh_fspec)(Ctx *ctx, knh_bytes_t urn);
 
-typedef struct knh_Semantics_t {
+typedef struct knh_ClassSpec_t {
 	knh_hObject_t h;
-	knh_Semantics_struct *b;
-} knh_Semantics_t;
+	knh_ClassSpec_struct *b;
+} knh_ClassSpec_t;
 
 /* ------------------------------------------------------------------------ */
 /* InputStream, OutputStream */
@@ -726,7 +747,7 @@ typedef struct knh_InputStream {
 		knh_io_t fd;
 		FILE *fp;
 	};
-	knh_StreamDSPI_t *driver;
+	knh_iodrv_t *driver;
 	union {
 		struct knh_Bytes_t *ba;
 		struct knh_String_t *str;
@@ -757,12 +778,8 @@ typedef struct knh_InputStream_t {
 
 typedef struct {
 	knh_io_t fd;
-	knh_StreamDSPI_t *driver;
-	union {
-		struct knh_Bytes_t *ba;
-		struct knh_String_t *str;
-	};
-
+	knh_iodrv_t *driver;
+	knh_Bytes_t* ba;
 	knh_String_t *enc;
 	struct knh_BytesConv_t* bconv;
 	knh_String_t*  urn;
@@ -808,8 +825,8 @@ typedef struct knh_Socket_t {
 
 typedef struct knh_Connection_t {
 	knh_hObject_t h;
-	knh_dbconn_t       *conn;
-	knh_QueryDSPI_t    *df;
+	knh_db_t           *conn;
+	knh_db_drvapi_t    *df;
 	knh_String_t       *urn;
 } knh_Connection_t;
 
@@ -834,7 +851,7 @@ typedef struct {
 typedef struct knh_ResultSet_struct {
 	struct knh_Connection_t *conn;
 	knh_dbcur_t             *dbcur;
-	knh_Fcurfree             dbcur_free;  /* necessary if conn is closed before */
+	knh_fdbcurfree           dbcur_free;  /* necessary if conn is closed before */
 	knh_String_t            *tableName;
 	knh_class_t              tcid;
 	knh_ushort_t             column_size;
@@ -893,8 +910,6 @@ typedef struct knh_Exception_t {
 typedef sigjmp_buf knh_jmpbuf_t;
 #define knh_setjmp(buf)         sigsetjmp(buf, 1)
 #define knh_longjmp(buf, val)   siglongjmp(buf, val)
-#elif defined(KONOHA_ON_LKM)
-typedef jmp_buf knh_jmpbuf_t;
 #else
 typedef jmp_buf knh_jmpbuf_t;
 #define knh_setjmp(buf)         setjmp(buf)
@@ -944,34 +959,19 @@ typedef struct knh_Script_t {
 
 typedef struct knh_NameSpace {
 	knh_String_t*           nsname;
-	struct knh_NameSpace_t  *parent;
+	struct knh_Script_t*    script;
+	knh_Array_t*            importedNameSpaces;
 	struct knh_DictSet_t*   name2cidDictSet;
 	struct knh_DictSet_t*   func2cidDictSet;
-/*	struct knh_DictSet_t*   pathTrustDictSet; */
+	struct knh_DictSet_t*   pathTrustDictSet;
 	struct knh_DictMap_t*   lconstDictMap;
-/*	struct knh_DictMap_t*   tag2urnDictMap; */
+	struct knh_DictMap_t*   tag2urnDictMap;
 } knh_NameSpace_struct;
 
 typedef struct knh_NameSpace_t {
 	knh_hObject_t h;
 	knh_NameSpace_struct *b;
 } knh_NameSpace_t;
-
-/* ------------------------------------------------------------------------ */
-//## @Struct class Package Object;
-
-typedef struct knh_Package {
-	knh_String_t*           name;
-	struct knh_Script_t    *script;
-	void *hdlr;
-	struct knh_PackageData_t* pdata;
-} knh_Package_struct;
-
-
-typedef struct knh_Package_t {
-	knh_hObject_t h;
-	knh_Package_struct *b;
-} knh_Package_t;
 
 /* ------------------------------------------------------------------------ */
 //## @Singleton @Struct class System Object;
@@ -985,6 +985,7 @@ typedef struct {
 	struct knh_OutputStream_t* out;
 	struct knh_OutputStream_t* err;
 	struct knh_String_t*       enc;
+//	knh_String_t              *homeDir;
 
 	struct knh_DictIdx_t *ResourceDictIdx;
 	struct knh_DictIdx_t *FieldNameDictIdx;
@@ -993,7 +994,7 @@ typedef struct {
 	struct knh_DictSet_t *ClassNameDictSet;
 	struct knh_DictSet_t *ExptNameDictSet;
 
-	struct knh_DictMap_t* PackageDictMap;
+	struct knh_DictMap_t* NameSpaceTableDictMap;
 	struct knh_DictMap_t* URNAliasDictMap;
 	struct knh_DictSet_t *DriversTableDictSet;
 	struct knh_DictSet_t *SpecFuncDictSet;
@@ -1018,23 +1019,6 @@ typedef struct knh_System_t {
 //## flag Context Compiling    4 ((knh_Context_t*)%s)->flag is set * *;
 
 /* ------------------------------------------------------------------------ */
-//## class Thread Object;
-
-typedef struct knh_Thread_t {
-	knh_hObject_t h;
-	knh_Context_t *ctx;
-	knh_thread_t  threadid;
-} knh_Thread_t;
-
-/* ------------------------------------------------------------------------ */
-//## class ScriptEngine Object;
-
-typedef struct knh_ScriptEngine_t {
-	knh_hObject_t h;
-	konoha_t konoha;
-} knh_ScriptEngine_t;
-
-/* ------------------------------------------------------------------------ */
 /* konohac.h */
 
 typedef knh_ushort_t   knh_token_t;
@@ -1043,14 +1027,11 @@ typedef knh_ushort_t   knh_stmt_t;
 
 #define KNH_SYS(ctx, n)    knh_getSystemConst(ctx, n)
 #define KNH_SYS_CTX    0
-#define KNH_SYS_CTXIN  1
-#define KNH_SYS_CTXOUT 2
-#define KNH_SYS_CTXERR 3
-#define KNH_SYS_STDIN  4
-#define KNH_SYS_STDOUT 5
-#define KNH_SYS_STDERR 6
-#define KNH_SYS_OS     7
-#define KNH_SYS_SCRIPT 8
+#define KNH_SYS_STDIN  1
+#define KNH_SYS_STDOUT 2
+#define KNH_SYS_STDERR 3
+#define KNH_SYS_OS     4
+#define KNH_SYS_SCRIPT 5
 
 #define KNH_FLAG_PF_STDERR      KNH_FLAG_T0
 #define KNH_FLAG_PF_EOL         KNH_FLAG_T1
@@ -1204,19 +1185,21 @@ typedef struct knh_Stmt_t {
 #define TERMs_getbcid(stmt, n)   ctx->share->ClassTable[TERMs_getcid(stmt,n)].bcid
 
 /* ------------------------------------------------------------------------ */
-/* Gamma */
+/* KLRCode */
 /* ------------------------------------------------------------------------ */
 
+
+/* ------------------------------------------------------------------------ */
 //## @Struct @Private class Gamma Object;
 //## flag Gamma Cancelled  0 DP(%s)->flag is  set   * *;
-//## flag Gamma Quiet      1 DP(%s)->flag is  set   * *;
-//## flag Gamma Throwable  2 DP(%s)->flag is  set   * *;
-//## flag Gamma PROCEED    3 DP(%s)->flag has found * *;
-//## flag Gamma RETURN     4 DP(%s)->flag has found * *;
-//## flag Gamma YEILD      5 DP(%s)->flag has found * *;
-//## flag Gamma FIELD      6 DP(%s)->flag has found * *;
-//## flag Gamma STACK      7 DP(%s)->flag has found * *;
-//## flag Gamma SCRIPT     7 DP(%s)->flag has found * *;
+//## flag Gamma PROCEED    1 DP(%s)->flag has found * *;
+//## flag Gamma RETURN     2 DP(%s)->flag has found * *;
+//## flag Gamma YEILD      3 DP(%s)->flag has found * *;
+//## flag Gamma FIELD      4 DP(%s)->flag has found * *;
+//## flag Gamma STACK      5 DP(%s)->flag has found * *;
+//## flag Gamma SCRIPT     6 DP(%s)->flag has found * *;
+
+//## flag Gamma Data       0 DP(%s)->pflag is set   * *;
 
 #ifndef K_GAMMASIZE
 #define K_GAMMASIZE 64
@@ -1234,7 +1217,6 @@ typedef struct {
 	knh_flag_t               flag;
 	knh_flag_t               pflag;
 	struct knh_NameSpace_t*  ns;
-	struct knh_Script_t*     script;
 	struct knh_Method_t*     mtd;
 	knh_class_t              this_cid;
 	knh_type_t               rtype;
@@ -1242,7 +1224,7 @@ typedef struct {
 	/*stack*/
 	knh_ushort_t           goffset;
 	knh_short_t            psize; /* param size */
-	knh_fields_t*          gamma; /* type environment */
+	knh_cfield_t*          gamma; /* type environment */
 
 	knh_ushort_t           scope;
 	knh_short_t            esp;
@@ -1259,12 +1241,6 @@ typedef struct {
 	void                  *dlhdr;
 	struct knh_DictMap_t  *symbolDictMap;
 
-	/*stat*/
-	size_t statError;
-	size_t statWarning;
-	size_t statBadManner;
-	size_t statKonohaStyle;
-	size_t statStmt;
 } knh_Gamma_struct;
 
 typedef struct knh_Gamma_t {
@@ -1347,6 +1323,7 @@ typedef struct knh_KLRCode_t {
 	knh_KLRCode_struct *b;
 	knh_uri_t uri; knh_ushort_t line;
 } knh_KLRCode_t;
+
 
 /* ======================================================================== */
 

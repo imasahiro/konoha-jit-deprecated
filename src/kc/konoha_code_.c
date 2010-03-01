@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER  
  * 
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation  
  * All rights reserved.
  * 
@@ -70,6 +70,10 @@ static void knh_write__sfpidx(Ctx *ctx, knh_OutputStream_t* w, knh_sfpidx_t a)
 {
 	knh_printf(ctx, w, " sfp[%d]", (knh_intptr_t)a);
 }
+static void knh_write__sfe(Ctx *ctx, knh_OutputStream_t* w, knh_sfe_t a)
+{
+	knh_printf(ctx, w, " sfe[%d]", (knh_intptr_t)a);
+}
 static void knh_write__sfx(Ctx *ctx, knh_OutputStream_t* w, knh_sfx_t a)
 {
 	knh_printf(ctx, w, " sfx[%d]+%d", (knh_intptr_t)a.i, (knh_intptr_t)a.n);
@@ -87,80 +91,123 @@ static void knh_write__mn(Ctx *ctx, knh_OutputStream_t* w, knh_methodn_t a)
 //{
 //	knh_putc(ctx, w, ' '); knh_write_type(ctx, w, (knh_type_t)a);
 //}
-static void EXIT_traverse(Ctx *ctx, knh_inst_t *c, knh_Ftraverse ftr)
+static void HALT_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 {
 }
-static void EXIT_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+static void HALT_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
 {
 }
 
-static void OSET_traverse(Ctx *ctx, knh_inst_t *c, knh_Ftraverse ftr)
+static void MOVo_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 {
-	klr_OSET_t *op = (klr_OSET_t*)c; 
-	DBG2_ASSERT(op->opcode == 11);
+	klr_MOVo_t *op = (klr_MOVo_t*)c; 
+	DBG2_ASSERT(op->opcode == 3);
 	ftr(ctx, UP(op->a2));
 }
 
-static void XOSET_traverse(Ctx *ctx, knh_inst_t *c, knh_Ftraverse ftr)
+static void XMOVo_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 {
-	klr_XOSET_t *op = (klr_XOSET_t*)c; 
-	DBG2_ASSERT(op->opcode == 22);
+	klr_XMOVo_t *op = (klr_XMOVo_t*)c; 
+	DBG2_ASSERT(op->opcode == 9);
 	ftr(ctx, UP(op->a2));
 }
 
-static void SCALL_traverse(Ctx *ctx, knh_inst_t *c, knh_Ftraverse ftr)
+static void XMOVoi_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 {
-	klr_SCALL_t *op = (klr_SCALL_t*)c; 
-	DBG2_ASSERT(op->opcode == 34);
-	ftr(ctx, UP(op->a3));
-}
-
-static void VCALL_traverse(Ctx *ctx, knh_inst_t *c, knh_Ftraverse ftr)
-{
-	klr_VCALL_t *op = (klr_VCALL_t*)c; 
-	DBG2_ASSERT(op->opcode == 35);
-	ftr(ctx, UP(op->a3));
-}
-
-static void SMAP_traverse(Ctx *ctx, knh_inst_t *c, knh_Ftraverse ftr)
-{
-	klr_SMAP_t *op = (klr_SMAP_t*)c; 
-	DBG2_ASSERT(op->opcode == 38);
+	klr_XMOVoi_t *op = (klr_XMOVoi_t*)c; 
+	DBG2_ASSERT(op->opcode == 15);
 	ftr(ctx, UP(op->a2));
 }
 
-static void SMAPnc_traverse(Ctx *ctx, knh_inst_t *c, knh_Ftraverse ftr)
+static void XMOVof_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 {
-	klr_SMAPnc_t *op = (klr_SMAPnc_t*)c; 
-	DBG2_ASSERT(op->opcode == 39);
+	klr_XMOVof_t *op = (klr_XMOVof_t*)c; 
+	DBG2_ASSERT(op->opcode == 21);
 	ftr(ctx, UP(op->a2));
 }
 
-static void CATCH_traverse(Ctx *ctx, knh_inst_t *c, knh_Ftraverse ftr)
+static void XMOVob_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 {
-	klr_CATCH_t *op = (klr_CATCH_t*)c; 
-	DBG2_ASSERT(op->opcode == 58);
+	klr_XMOVob_t *op = (klr_XMOVob_t*)c; 
+	DBG2_ASSERT(op->opcode == 27);
+	ftr(ctx, UP(op->a2));
+}
+
+static void PARAMo_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
+{
+	klr_PARAMo_t *op = (klr_PARAMo_t*)c; 
+	DBG2_ASSERT(op->opcode == 31);
+	ftr(ctx, UP(op->a2));
+}
+
+static void FCALL_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
+{
+	klr_FCALL_t *op = (klr_FCALL_t*)c; 
+	DBG2_ASSERT(op->opcode == 45);
 	ftr(ctx, UP(op->a4));
 }
 
-static void THROWs_traverse(Ctx *ctx, knh_inst_t *c, knh_Ftraverse ftr)
+static void SCALL_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 {
-	klr_THROWs_t *op = (klr_THROWs_t*)c; 
-	DBG2_ASSERT(op->opcode == 60);
+	klr_SCALL_t *op = (klr_SCALL_t*)c; 
+	DBG2_ASSERT(op->opcode == 47);
 	ftr(ctx, UP(op->a3));
 }
 
-static void PMSG_traverse(Ctx *ctx, knh_inst_t *c, knh_Ftraverse ftr)
+static void NEW_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 {
-	klr_PMSG_t *op = (klr_PMSG_t*)c; 
-	DBG2_ASSERT(op->opcode == 63);
+	klr_NEW_t *op = (klr_NEW_t*)c; 
+	DBG2_ASSERT(op->opcode == 51);
+	ftr(ctx, UP(op->a5));
+}
+
+static void STR_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
+{
+	klr_STR_t *op = (klr_STR_t*)c; 
+	DBG2_ASSERT(op->opcode == 53);
+	ftr(ctx, UP(op->a4));
+}
+
+static void SSTR_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
+{
+	klr_SSTR_t *op = (klr_SSTR_t*)c; 
+	DBG2_ASSERT(op->opcode == 54);
+	ftr(ctx, UP(op->a3));
+	ftr(ctx, UP(op->a4));
+}
+
+static void SMAP_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
+{
+	klr_SMAP_t *op = (klr_SMAP_t*)c; 
+	DBG2_ASSERT(op->opcode == 55);
 	ftr(ctx, UP(op->a2));
 }
 
-static void LABEL_traverse(Ctx *ctx, knh_inst_t *c, knh_Ftraverse ftr)
+static void SMAPnc_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 {
-	klr_LABEL_t *op = (klr_LABEL_t*)c; 
-	DBG2_ASSERT(op->opcode == 115);
+	klr_SMAPnc_t *op = (klr_SMAPnc_t*)c; 
+	DBG2_ASSERT(op->opcode == 56);
+	ftr(ctx, UP(op->a2));
+}
+
+static void CATCH_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
+{
+	klr_CATCH_t *op = (klr_CATCH_t*)c; 
+	DBG2_ASSERT(op->opcode == 72);
+	ftr(ctx, UP(op->a4));
+}
+
+static void THROWs_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
+{
+	klr_THROWs_t *op = (klr_THROWs_t*)c; 
+	DBG2_ASSERT(op->opcode == 76);
+	ftr(ctx, UP(op->a3));
+}
+
+static void PMSG_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
+{
+	klr_PMSG_t *op = (klr_PMSG_t*)c; 
+	DBG2_ASSERT(op->opcode == 79);
 	ftr(ctx, UP(op->a2));
 }
 
@@ -170,60 +217,68 @@ static void HALT_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
 	knh_write_opcode(ctx, w, op->opcode);
 }
 
-static void YEILD_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
+static void MOVa_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
 {
-	klr_YEILD_t *op = (klr_YEILD_t*)c; 
+	klr_MOVa_t *op = (klr_MOVa_t*)c; 
 	knh_write_opcode(ctx, w, op->opcode);
 	knh_write__sfpidx(ctx, w, (op->a1));
-}
-
-static void TR_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
-{
-	klr_TR_t *op = (klr_TR_t*)c; 
-	knh_write_opcode(ctx, w, op->opcode);
-	knh_write__func(ctx, w, (op->a1));
 	knh_write__sfpidx(ctx, w, (op->a2));
-	knh_write__cid(ctx, w, (op->a3));
 }
 
-static void OSET_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
+static void MOVo_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
 {
-	klr_OSET_t *op = (klr_OSET_t*)c; 
+	klr_MOVo_t *op = (klr_MOVo_t*)c; 
 	knh_write_opcode(ctx, w, op->opcode);
 	knh_write__sfpidx(ctx, w, (op->a1));
 	knh_write__OBJ(ctx, w, UP((op->a2)));
 }
 
-static void NSET_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
+static void MOVi_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
 {
-	klr_NSET_t *op = (klr_NSET_t*)c; 
+	klr_MOVi_t *op = (klr_MOVi_t*)c; 
 	knh_write_opcode(ctx, w, op->opcode);
 	knh_write__sfpidx(ctx, w, (op->a1));
 	knh_write__int(ctx, w, (op->a2));
 }
 
-static void MOV_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
+static void MOVx_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
 {
-	klr_MOV_t *op = (klr_MOV_t*)c; 
-	knh_write_opcode(ctx, w, op->opcode);
-	knh_write__sfpidx(ctx, w, (op->a1));
-	knh_write__sfpidx(ctx, w, (op->a2));
-}
-
-static void OMOVx_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
-{
-	klr_OMOVx_t *op = (klr_OMOVx_t*)c; 
+	klr_MOVx_t *op = (klr_MOVx_t*)c; 
 	knh_write_opcode(ctx, w, op->opcode);
 	knh_write__sfpidx(ctx, w, (op->a1));
 	knh_write__sfx(ctx, w, (op->a2));
 }
 
-static void XMOV_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
+static void MOVDEF_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
 {
-	klr_XMOV_t *op = (klr_XMOV_t*)c; 
+	klr_MOVDEF_t *op = (klr_MOVDEF_t*)c; 
+	knh_write_opcode(ctx, w, op->opcode);
+	knh_write__sfpidx(ctx, w, (op->a1));
+	knh_write__cid(ctx, w, (op->a2));
+}
+
+static void MOVSYS_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
+{
+	klr_MOVSYS_t *op = (klr_MOVSYS_t*)c; 
+	knh_write_opcode(ctx, w, op->opcode);
+	knh_write__sfpidx(ctx, w, (op->a1));
+	knh_write__ushort(ctx, w, (op->a2));
+}
+
+static void XMOVs_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
+{
+	klr_XMOVs_t *op = (klr_XMOVs_t*)c; 
 	knh_write_opcode(ctx, w, op->opcode);
 	knh_write__sfx(ctx, w, (op->a1));
 	knh_write__sfpidx(ctx, w, (op->a2));
+}
+
+static void XMOVo_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
+{
+	klr_XMOVo_t *op = (klr_XMOVo_t*)c; 
+	knh_write_opcode(ctx, w, op->opcode);
+	knh_write__sfx(ctx, w, (op->a1));
+	knh_write__OBJ(ctx, w, UP((op->a2)));
 }
 
 static void XMOVx_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
@@ -234,28 +289,36 @@ static void XMOVx_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
 	knh_write__sfx(ctx, w, (op->a2));
 }
 
-static void XOSET_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
+static void XMOVDEF_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
 {
-	klr_XOSET_t *op = (klr_XOSET_t*)c; 
+	klr_XMOVDEF_t *op = (klr_XMOVDEF_t*)c; 
 	knh_write_opcode(ctx, w, op->opcode);
 	knh_write__sfx(ctx, w, (op->a1));
-	knh_write__OBJ(ctx, w, UP((op->a2)));
+	knh_write__cid(ctx, w, (op->a2));
 }
 
-static void MOVe_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
+static void XMOVSYS_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
 {
-	klr_MOVe_t *op = (klr_MOVe_t*)c; 
+	klr_XMOVSYS_t *op = (klr_XMOVSYS_t*)c; 
 	knh_write_opcode(ctx, w, op->opcode);
-	knh_write__sfpidx(ctx, w, (op->a1));
+	knh_write__sfx(ctx, w, (op->a1));
 	knh_write__ushort(ctx, w, (op->a2));
 }
 
-static void CHKTYPE_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
+static void XMOVxBXi_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
 {
-	klr_CHKTYPE_t *op = (klr_CHKTYPE_t*)c; 
+	klr_XMOVxBXi_t *op = (klr_XMOVxBXi_t*)c; 
+	knh_write_opcode(ctx, w, op->opcode);
+	knh_write__sfx(ctx, w, (op->a1));
+	knh_write__sfx(ctx, w, (op->a2));
+	knh_write__cid(ctx, w, (op->a3));
+}
+
+static void CHKESP_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
+{
+	klr_CHKESP_t *op = (klr_CHKESP_t*)c; 
 	knh_write_opcode(ctx, w, op->opcode);
 	knh_write__sfpidx(ctx, w, (op->a1));
-	knh_write__cid(ctx, w, (op->a2));
 }
 
 static void CHKNULx_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
@@ -265,21 +328,14 @@ static void CHKNULx_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
 	knh_write__sfx(ctx, w, (op->a1));
 }
 
-static void CHKTYPEx_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
+static void FCALL_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
 {
-	klr_CHKTYPEx_t *op = (klr_CHKTYPEx_t*)c; 
+	klr_FCALL_t *op = (klr_FCALL_t*)c; 
 	knh_write_opcode(ctx, w, op->opcode);
-	knh_write__sfx(ctx, w, (op->a1));
-	knh_write__cid(ctx, w, (op->a2));
-}
-
-static void LDMETHOD_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
-{
-	klr_LDMETHOD_t *op = (klr_LDMETHOD_t*)c; 
-	knh_write_opcode(ctx, w, op->opcode);
-	knh_write__func(ctx, w, (op->a1));
-	knh_write__sfpidx(ctx, w, (op->a2));
-	knh_write__mn(ctx, w, (op->a3));
+	knh_write__sfpidx(ctx, w, (op->a1));
+	knh_write__ushort(ctx, w, (op->a2));
+	knh_write__sfpidx(ctx, w, (op->a3));
+	knh_write__OBJ(ctx, w, UP((op->a4)));
 }
 
 static void SCALL_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
@@ -289,6 +345,46 @@ static void SCALL_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
 	knh_write__sfpidx(ctx, w, (op->a1));
 	knh_write__ushort(ctx, w, (op->a2));
 	knh_write__OBJ(ctx, w, UP((op->a3)));
+}
+
+static void CALL_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
+{
+	klr_CALL_t *op = (klr_CALL_t*)c; 
+	knh_write_opcode(ctx, w, op->opcode);
+	knh_write__sfpidx(ctx, w, (op->a1));
+	knh_write__ushort(ctx, w, (op->a2));
+	knh_write__mn(ctx, w, (op->a3));
+}
+
+static void NEW_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
+{
+	klr_NEW_t *op = (klr_NEW_t*)c; 
+	knh_write_opcode(ctx, w, op->opcode);
+	knh_write__sfpidx(ctx, w, (op->a1));
+	knh_write__flag(ctx, w, (op->a2));
+	knh_write__cid(ctx, w, (op->a3));
+	knh_write__ushort(ctx, w, (op->a4));
+	knh_write__OBJ(ctx, w, UP((op->a5)));
+}
+
+static void STR_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
+{
+	klr_STR_t *op = (klr_STR_t*)c; 
+	knh_write_opcode(ctx, w, op->opcode);
+	knh_write__sfpidx(ctx, w, (op->a1));
+	knh_write__sfpidx(ctx, w, (op->a2));
+	knh_write__mn(ctx, w, (op->a3));
+	knh_write__OBJ(ctx, w, UP((op->a4)));
+}
+
+static void SSTR_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
+{
+	klr_SSTR_t *op = (klr_SSTR_t*)c; 
+	knh_write_opcode(ctx, w, op->opcode);
+	knh_write__sfpidx(ctx, w, (op->a1));
+	knh_write__sfpidx(ctx, w, (op->a2));
+	knh_write__OBJ(ctx, w, UP((op->a3)));
+	knh_write__OBJ(ctx, w, UP((op->a4)));
 }
 
 static void SMAP_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
@@ -306,51 +402,12 @@ static void JMP_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
 	knh_write__addr(ctx, w, (op->a1));
 }
 
-static void JMPT_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
+static void bJIFT_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
 {
-	klr_JMPT_t *op = (klr_JMPT_t*)c; 
+	klr_bJIFT_t *op = (klr_bJIFT_t*)c; 
 	knh_write_opcode(ctx, w, op->opcode);
 	knh_write__addr(ctx, w, (op->a1));
 	knh_write__sfpidx(ctx, w, (op->a2));
-}
-
-static void JMPchk_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
-{
-	klr_JMPchk_t *op = (klr_JMPchk_t*)c; 
-	knh_write_opcode(ctx, w, op->opcode);
-	knh_write__addr(ctx, w, (op->a1));
-	knh_write__func(ctx, w, (op->a2));
-	knh_write__sfpidx(ctx, w, (op->a3));
-}
-
-static void JMPcmp_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
-{
-	klr_JMPcmp_t *op = (klr_JMPcmp_t*)c; 
-	knh_write_opcode(ctx, w, op->opcode);
-	knh_write__addr(ctx, w, (op->a1));
-	knh_write__func(ctx, w, (op->a2));
-	knh_write__sfpidx(ctx, w, (op->a3));
-	knh_write__sfpidx(ctx, w, (op->a4));
-}
-
-static void JMPcmpi_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
-{
-	klr_JMPcmpi_t *op = (klr_JMPcmpi_t*)c; 
-	knh_write_opcode(ctx, w, op->opcode);
-	knh_write__addr(ctx, w, (op->a1));
-	knh_write__func(ctx, w, (op->a2));
-	knh_write__sfpidx(ctx, w, (op->a3));
-	knh_write__int(ctx, w, (op->a4));
-}
-
-static void JMPcmpf_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
-{
-	klr_JMPcmpf_t *op = (klr_JMPcmpf_t*)c; 
-	knh_write_opcode(ctx, w, op->opcode);
-	knh_write__addr(ctx, w, (op->a1));
-	knh_write__func(ctx, w, (op->a2));
-	knh_write__sfpidx(ctx, w, (op->a3));
-	knh_write__float(ctx, w, (op->a4));
 }
 
 static void NEXT_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
@@ -362,15 +419,14 @@ static void NEXT_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
 	knh_write__sfpidx(ctx, w, (op->a3));
 }
 
-static void NEXTf_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
+static void INEXT_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
 {
-	klr_NEXTf_t *op = (klr_NEXTf_t*)c; 
+	klr_INEXT_t *op = (klr_INEXT_t*)c; 
 	knh_write_opcode(ctx, w, op->opcode);
 	knh_write__addr(ctx, w, (op->a1));
-	knh_write__func(ctx, w, (op->a2));
-	knh_write__cid(ctx, w, (op->a3));
+	knh_write__cid(ctx, w, (op->a2));
+	knh_write__sfpidx(ctx, w, (op->a3));
 	knh_write__sfpidx(ctx, w, (op->a4));
-	knh_write__sfpidx(ctx, w, (op->a5));
 }
 
 static void CATCH_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
@@ -418,9 +474,9 @@ static void iADD_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
 	knh_write__sfpidx(ctx, w, (op->a3));
 }
 
-static void iDIVn_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
+static void iADDn_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
 {
-	klr_iDIVn_t *op = (klr_iDIVn_t*)c; 
+	klr_iADDn_t *op = (klr_iADDn_t*)c; 
 	knh_write_opcode(ctx, w, op->opcode);
 	knh_write__sfpidx(ctx, w, (op->a1));
 	knh_write__sfpidx(ctx, w, (op->a2));
@@ -436,116 +492,64 @@ static void fADDn_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
 	knh_write__float(ctx, w, (op->a3));
 }
 
-static void OEVAL_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
+static void ARYGETn_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
 {
-	klr_OEVAL_t *op = (klr_OEVAL_t*)c; 
+	klr_ARYGETn_t *op = (klr_ARYGETn_t*)c; 
 	knh_write_opcode(ctx, w, op->opcode);
-	knh_write__func(ctx, w, (op->a1));
+	knh_write__sfpidx(ctx, w, (op->a1));
 	knh_write__sfpidx(ctx, w, (op->a2));
-	knh_write__sfpidx(ctx, w, (op->a3));
+	knh_write__intptr(ctx, w, (op->a3));
 }
 
-static void GETIDX_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
+static void MOVa_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
 {
-	klr_GETIDX_t *op = (klr_GETIDX_t*)c; 
-	knh_write_opcode(ctx, w, op->opcode);
-	knh_write__func(ctx, w, (op->a1));
-	knh_write__sfpidx(ctx, w, (op->a2));
-	knh_write__sfpidx(ctx, w, (op->a3));
-	knh_write__sfpidx(ctx, w, (op->a4));
-}
-
-static void SETIDX_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
-{
-	klr_SETIDX_t *op = (klr_SETIDX_t*)c; 
-	knh_write_opcode(ctx, w, op->opcode);
-	knh_write__func(ctx, w, (op->a1));
-	knh_write__sfpidx(ctx, w, (op->a2));
-	knh_write__sfpidx(ctx, w, (op->a3));
-	knh_write__sfpidx(ctx, w, (op->a4));
-	knh_write__sfpidx(ctx, w, (op->a5));
-}
-
-static void GETIDXn_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
-{
-	klr_GETIDXn_t *op = (klr_GETIDXn_t*)c; 
-	knh_write_opcode(ctx, w, op->opcode);
-	knh_write__func(ctx, w, (op->a1));
-	knh_write__sfpidx(ctx, w, (op->a2));
-	knh_write__sfpidx(ctx, w, (op->a3));
-	knh_write__intptr(ctx, w, (op->a4));
-}
-
-static void SETIDXn_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
-{
-	klr_SETIDXn_t *op = (klr_SETIDXn_t*)c; 
-	knh_write_opcode(ctx, w, op->opcode);
-	knh_write__func(ctx, w, (op->a1));
-	knh_write__sfpidx(ctx, w, (op->a2));
-	knh_write__sfpidx(ctx, w, (op->a3));
-	knh_write__sfpidx(ctx, w, (op->a4));
-	knh_write__intptr(ctx, w, (op->a5));
-}
-
-static void LABEL_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
-{
-	klr_LABEL_t *op = (klr_LABEL_t*)c; 
-	knh_write_opcode(ctx, w, op->opcode);
-	knh_write__intptr(ctx, w, (op->a1));
-	knh_write__OBJ(ctx, w, UP((op->a2)));
-}
-
-static void PROBE_dump(Ctx *ctx, knh_inst_t *c, knh_OutputStream_t *w)
-{
-	klr_PROBE_t *op = (klr_PROBE_t*)c; 
-	knh_write_opcode(ctx, w, op->opcode);
-	knh_write__func(ctx, w, (op->a1));
-	knh_write__ushort(ctx, w, (op->a2));
-}
-
-static void YEILD_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
-{
-	klr_YEILD_t *op = (klr_YEILD_t*)c; 
-	op->a1 += shift;
-}
-
-static void TR_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
-{
-	klr_TR_t *op = (klr_TR_t*)c; 
-	op->a2 += shift;
-}
-
-static void OSET_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
-{
-	klr_OSET_t *op = (klr_OSET_t*)c; 
-	op->a1 += shift;
-}
-
-static void NSET_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
-{
-	klr_NSET_t *op = (klr_NSET_t*)c; 
-	op->a1 += shift;
-}
-
-static void MOV_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
-{
-	klr_MOV_t *op = (klr_MOV_t*)c; 
+	klr_MOVa_t *op = (klr_MOVa_t*)c; 
 	op->a1 += shift;
 	op->a2 += shift;
 }
 
-static void OMOVx_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+static void MOVo_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
 {
-	klr_OMOVx_t *op = (klr_OMOVx_t*)c; 
+	klr_MOVo_t *op = (klr_MOVo_t*)c; 
+	op->a1 += shift;
+}
+
+static void MOVi_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_MOVi_t *op = (klr_MOVi_t*)c; 
+	op->a1 += shift;
+}
+
+static void MOVx_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_MOVx_t *op = (klr_MOVx_t*)c; 
 	op->a1 += shift;
 	op->a2.i += shift;
 }
 
-static void XMOV_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+static void MOVDEF_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
 {
-	klr_XMOV_t *op = (klr_XMOV_t*)c; 
+	klr_MOVDEF_t *op = (klr_MOVDEF_t*)c; 
+	op->a1 += shift;
+}
+
+static void MOVSYS_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_MOVSYS_t *op = (klr_MOVSYS_t*)c; 
+	op->a1 += shift;
+}
+
+static void XMOVs_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_XMOVs_t *op = (klr_XMOVs_t*)c; 
 	op->a1.i += shift;
 	op->a2 += shift;
+}
+
+static void XMOVo_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_XMOVo_t *op = (klr_XMOVo_t*)c; 
+	op->a1.i += shift;
 }
 
 static void XMOVx_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
@@ -555,21 +559,28 @@ static void XMOVx_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
 	op->a2.i += shift;
 }
 
-static void XOSET_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+static void XMOVDEF_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
 {
-	klr_XOSET_t *op = (klr_XOSET_t*)c; 
+	klr_XMOVDEF_t *op = (klr_XMOVDEF_t*)c; 
 	op->a1.i += shift;
 }
 
-static void MOVe_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+static void XMOVSYS_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
 {
-	klr_MOVe_t *op = (klr_MOVe_t*)c; 
-	op->a1 += shift;
+	klr_XMOVSYS_t *op = (klr_XMOVSYS_t*)c; 
+	op->a1.i += shift;
 }
 
-static void CHKTYPE_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+static void XMOVxBXi_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
 {
-	klr_CHKTYPE_t *op = (klr_CHKTYPE_t*)c; 
+	klr_XMOVxBXi_t *op = (klr_XMOVxBXi_t*)c; 
+	op->a1.i += shift;
+	op->a2.i += shift;
+}
+
+static void CHKESP_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_CHKESP_t *op = (klr_CHKESP_t*)c; 
 	op->a1 += shift;
 }
 
@@ -579,22 +590,43 @@ static void CHKNULx_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
 	op->a1.i += shift;
 }
 
-static void CHKTYPEx_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+static void FCALL_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
 {
-	klr_CHKTYPEx_t *op = (klr_CHKTYPEx_t*)c; 
-	op->a1.i += shift;
-}
-
-static void LDMETHOD_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
-{
-	klr_LDMETHOD_t *op = (klr_LDMETHOD_t*)c; 
-	op->a2 += shift;
+	klr_FCALL_t *op = (klr_FCALL_t*)c; 
+	op->a1 += shift;
+	op->a3 += shift;
 }
 
 static void SCALL_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
 {
 	klr_SCALL_t *op = (klr_SCALL_t*)c; 
 	op->a1 += shift;
+}
+
+static void CALL_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_CALL_t *op = (klr_CALL_t*)c; 
+	op->a1 += shift;
+}
+
+static void NEW_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_NEW_t *op = (klr_NEW_t*)c; 
+	op->a1 += shift;
+}
+
+static void STR_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_STR_t *op = (klr_STR_t*)c; 
+	op->a1 += shift;
+	op->a2 += shift;
+}
+
+static void SSTR_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+{
+	klr_SSTR_t *op = (klr_SSTR_t*)c; 
+	op->a1 += shift;
+	op->a2 += shift;
 }
 
 static void SMAP_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
@@ -612,55 +644,14 @@ static void JMP_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
 	THREADEDCODE(op->jumpaddr = NULL;)
 }
 
-static void JMPT_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+static void bJIFT_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
 {
-	klr_JMPT_t *op = (klr_JMPT_t*)c; 
+	klr_bJIFT_t *op = (klr_bJIFT_t*)c; 
 	knh_code_t *newpc = ((knh_code_t*)op->a1) + pcshift;
 	op->a1 = (knh_KLRInst_t*)newpc;
 	THREADEDCODE(op->codeaddr = NULL;)
 	THREADEDCODE(op->jumpaddr = NULL;)
 	op->a2 += shift;
-}
-
-static void JMPchk_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
-{
-	klr_JMPchk_t *op = (klr_JMPchk_t*)c; 
-	knh_code_t *newpc = ((knh_code_t*)op->a1) + pcshift;
-	op->a1 = (knh_KLRInst_t*)newpc;
-	THREADEDCODE(op->codeaddr = NULL;)
-	THREADEDCODE(op->jumpaddr = NULL;)
-	op->a3 += shift;
-}
-
-static void JMPcmp_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
-{
-	klr_JMPcmp_t *op = (klr_JMPcmp_t*)c; 
-	knh_code_t *newpc = ((knh_code_t*)op->a1) + pcshift;
-	op->a1 = (knh_KLRInst_t*)newpc;
-	THREADEDCODE(op->codeaddr = NULL;)
-	THREADEDCODE(op->jumpaddr = NULL;)
-	op->a3 += shift;
-	op->a4 += shift;
-}
-
-static void JMPcmpi_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
-{
-	klr_JMPcmpi_t *op = (klr_JMPcmpi_t*)c; 
-	knh_code_t *newpc = ((knh_code_t*)op->a1) + pcshift;
-	op->a1 = (knh_KLRInst_t*)newpc;
-	THREADEDCODE(op->codeaddr = NULL;)
-	THREADEDCODE(op->jumpaddr = NULL;)
-	op->a3 += shift;
-}
-
-static void JMPcmpf_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
-{
-	klr_JMPcmpf_t *op = (klr_JMPcmpf_t*)c; 
-	knh_code_t *newpc = ((knh_code_t*)op->a1) + pcshift;
-	op->a1 = (knh_KLRInst_t*)newpc;
-	THREADEDCODE(op->codeaddr = NULL;)
-	THREADEDCODE(op->jumpaddr = NULL;)
-	op->a3 += shift;
 }
 
 static void NEXT_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
@@ -674,15 +665,15 @@ static void NEXT_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
 	op->a3 += shift;
 }
 
-static void NEXTf_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+static void INEXT_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
 {
-	klr_NEXTf_t *op = (klr_NEXTf_t*)c; 
+	klr_INEXT_t *op = (klr_INEXT_t*)c; 
 	knh_code_t *newpc = ((knh_code_t*)op->a1) + pcshift;
 	op->a1 = (knh_KLRInst_t*)newpc;
 	THREADEDCODE(op->codeaddr = NULL;)
 	THREADEDCODE(op->jumpaddr = NULL;)
+	op->a3 += shift;
 	op->a4 += shift;
-	op->a5 += shift;
 }
 
 static void CATCH_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
@@ -717,9 +708,9 @@ static void iADD_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
 	op->a3 += shift;
 }
 
-static void iDIVn_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+static void iADDn_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
 {
-	klr_iDIVn_t *op = (klr_iDIVn_t*)c; 
+	klr_iADDn_t *op = (klr_iADDn_t*)c; 
 	op->a1 += shift;
 	op->a2 += shift;
 }
@@ -731,49 +722,17 @@ static void fADDn_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
 	op->a2 += shift;
 }
 
-static void OEVAL_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
+static void ARYGETn_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
 {
-	klr_OEVAL_t *op = (klr_OEVAL_t*)c; 
+	klr_ARYGETn_t *op = (klr_ARYGETn_t*)c; 
+	op->a1 += shift;
 	op->a2 += shift;
-	op->a3 += shift;
-}
-
-static void GETIDX_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
-{
-	klr_GETIDX_t *op = (klr_GETIDX_t*)c; 
-	op->a2 += shift;
-	op->a3 += shift;
-	op->a4 += shift;
-}
-
-static void SETIDX_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
-{
-	klr_SETIDX_t *op = (klr_SETIDX_t*)c; 
-	op->a2 += shift;
-	op->a3 += shift;
-	op->a4 += shift;
-	op->a5 += shift;
-}
-
-static void GETIDXn_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
-{
-	klr_GETIDXn_t *op = (klr_GETIDXn_t*)c; 
-	op->a2 += shift;
-	op->a3 += shift;
-}
-
-static void SETIDXn_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
-{
-	klr_SETIDXn_t *op = (klr_SETIDXn_t*)c; 
-	op->a2 += shift;
-	op->a3 += shift;
-	op->a4 += shift;
 }
 
 /* ======================================================================== */
 /* [data] */
 
-typedef void (*codeftr)(Ctx *, knh_inst_t*, knh_Ftraverse);
+typedef void (*codeftr)(Ctx *, knh_inst_t*, knh_ftraverse);
 typedef void (*codedump)(Ctx *, knh_inst_t*, knh_OutputStream_t*);
 typedef void (*codeshift)(Ctx *, knh_inst_t*, int, int);
 
@@ -787,124 +746,149 @@ typedef struct knh_OPDATA_t {
 } knh_OPDATA_t;
 
 static knh_OPDATA_t OPDATA[] = {
-	{"HALT", OPSIZE_HALT, 0, EXIT_traverse, HALT_dump, EXIT_shift}, 
-	{"ENTER", OPSIZE_ENTER, 0, EXIT_traverse, HALT_dump, EXIT_shift}, 
-	{"EXEC", OPSIZE_EXEC, 0, EXIT_traverse, HALT_dump, EXIT_shift}, 
-	{"YEILD", OPSIZE_YEILD, 0, EXIT_traverse, YEILD_dump, YEILD_shift}, 
-	{"EXIT", OPSIZE_EXIT, 0, EXIT_traverse, HALT_dump, EXIT_shift}, 
-	{"TR", OPSIZE_TR, 0, EXIT_traverse, TR_dump, TR_shift}, 
-	{"OTR", OPSIZE_OTR, 0, EXIT_traverse, TR_dump, TR_shift}, 
-	{"NULTR", OPSIZE_NULTR, 0, EXIT_traverse, TR_dump, TR_shift}, 
-	{"UNBOX", OPSIZE_UNBOX, 0, EXIT_traverse, YEILD_dump, YEILD_shift}, 
-	{"iCAST", OPSIZE_iCAST, 0, EXIT_traverse, YEILD_dump, YEILD_shift}, 
-	{"fCAST", OPSIZE_fCAST, 0, EXIT_traverse, YEILD_dump, YEILD_shift}, 
-	{"OSET", OPSIZE_OSET, 0, OSET_traverse, OSET_dump, OSET_shift}, 
-	{"NSET", OPSIZE_NSET, 0, EXIT_traverse, NSET_dump, NSET_shift}, 
-	{"MOV", OPSIZE_MOV, 0, EXIT_traverse, MOV_dump, MOV_shift}, 
-	{"OMOV", OPSIZE_OMOV, 0, EXIT_traverse, MOV_dump, MOV_shift}, 
-	{"NMOV", OPSIZE_NMOV, 0, EXIT_traverse, MOV_dump, MOV_shift}, 
-	{"OMOVx", OPSIZE_OMOVx, 0, EXIT_traverse, OMOVx_dump, OMOVx_shift}, 
-	{"iMOVx", OPSIZE_iMOVx, 0, EXIT_traverse, OMOVx_dump, OMOVx_shift}, 
-	{"fMOVx", OPSIZE_fMOVx, 0, EXIT_traverse, OMOVx_dump, OMOVx_shift}, 
-	{"bMOVx", OPSIZE_bMOVx, 0, EXIT_traverse, OMOVx_dump, OMOVx_shift}, 
-	{"XMOV", OPSIZE_XMOV, 0, EXIT_traverse, XMOV_dump, XMOV_shift}, 
-	{"XMOVx", OPSIZE_XMOVx, 0, EXIT_traverse, XMOVx_dump, XMOVx_shift}, 
-	{"XOSET", OPSIZE_XOSET, 0, XOSET_traverse, XOSET_dump, XOSET_shift}, 
-	{"XIMOV", OPSIZE_XIMOV, 0, EXIT_traverse, XMOV_dump, XMOV_shift}, 
-	{"XFMOV", OPSIZE_XFMOV, 0, EXIT_traverse, XMOV_dump, XMOV_shift}, 
-	{"XBMOV", OPSIZE_XBMOV, 0, EXIT_traverse, XMOV_dump, XMOV_shift}, 
-	{"MOVe", OPSIZE_MOVe, 0, EXIT_traverse, MOVe_dump, MOVe_shift}, 
-	{"SWAP", OPSIZE_SWAP, 0, EXIT_traverse, MOV_dump, MOV_shift}, 
-	{"CHKNUL", OPSIZE_CHKNUL, 0, EXIT_traverse, YEILD_dump, YEILD_shift}, 
-	{"CHKTYPE", OPSIZE_CHKTYPE, 0, EXIT_traverse, CHKTYPE_dump, CHKTYPE_shift}, 
-	{"CHKNULx", OPSIZE_CHKNULx, 0, EXIT_traverse, CHKNULx_dump, CHKNULx_shift}, 
-	{"CHKTYPEx", OPSIZE_CHKTYPEx, 0, EXIT_traverse, CHKTYPEx_dump, CHKTYPEx_shift}, 
-	{"LDMETHOD", OPSIZE_LDMETHOD, 0, EXIT_traverse, LDMETHOD_dump, LDMETHOD_shift}, 
-	{"CALL", OPSIZE_CALL, 0, EXIT_traverse, MOVe_dump, MOVe_shift}, 
+	{"HALT", OPSIZE_HALT, 0, HALT_traverse, HALT_dump, HALT_shift}, 
+	{"MOVa", OPSIZE_MOVa, 0, HALT_traverse, MOVa_dump, MOVa_shift}, 
+	{"MOVn", OPSIZE_MOVn, 0, HALT_traverse, MOVa_dump, MOVa_shift}, 
+	{"MOVo", OPSIZE_MOVo, 0, MOVo_traverse, MOVo_dump, MOVo_shift}, 
+	{"MOVi", OPSIZE_MOVi, 0, HALT_traverse, MOVi_dump, MOVi_shift}, 
+	{"MOVx", OPSIZE_MOVx, 0, HALT_traverse, MOVx_dump, MOVx_shift}, 
+	{"MOVDEF", OPSIZE_MOVDEF, 0, HALT_traverse, MOVDEF_dump, MOVDEF_shift}, 
+	{"MOVSYS", OPSIZE_MOVSYS, 0, HALT_traverse, MOVSYS_dump, MOVSYS_shift}, 
+	{"XMOVs", OPSIZE_XMOVs, 0, HALT_traverse, XMOVs_dump, XMOVs_shift}, 
+	{"XMOVo", OPSIZE_XMOVo, 0, XMOVo_traverse, XMOVo_dump, XMOVo_shift}, 
+	{"XMOVx", OPSIZE_XMOVx, 0, HALT_traverse, XMOVx_dump, XMOVx_shift}, 
+	{"XMOVDEF", OPSIZE_XMOVDEF, 0, HALT_traverse, XMOVDEF_dump, XMOVDEF_shift}, 
+	{"XMOVSYS", OPSIZE_XMOVSYS, 0, HALT_traverse, XMOVSYS_dump, XMOVSYS_shift}, 
+	{"MOVxi", OPSIZE_MOVxi, 0, HALT_traverse, MOVx_dump, MOVx_shift}, 
+	{"XMOVsi", OPSIZE_XMOVsi, 0, HALT_traverse, XMOVs_dump, XMOVs_shift}, 
+	{"XMOVoi", OPSIZE_XMOVoi, 0, XMOVoi_traverse, XMOVo_dump, XMOVo_shift}, 
+	{"XMOVxi", OPSIZE_XMOVxi, 0, HALT_traverse, XMOVx_dump, XMOVx_shift}, 
+	{"XMOVxio", OPSIZE_XMOVxio, 0, HALT_traverse, XMOVx_dump, XMOVx_shift}, 
+	{"XMOVxBXi", OPSIZE_XMOVxBXi, 0, HALT_traverse, XMOVxBXi_dump, XMOVxBXi_shift}, 
+	{"MOVxf", OPSIZE_MOVxf, 0, HALT_traverse, MOVx_dump, MOVx_shift}, 
+	{"XMOVsf", OPSIZE_XMOVsf, 0, HALT_traverse, XMOVs_dump, XMOVs_shift}, 
+	{"XMOVof", OPSIZE_XMOVof, 0, XMOVof_traverse, XMOVo_dump, XMOVo_shift}, 
+	{"XMOVxf", OPSIZE_XMOVxf, 0, HALT_traverse, XMOVx_dump, XMOVx_shift}, 
+	{"XMOVxfo", OPSIZE_XMOVxfo, 0, HALT_traverse, XMOVx_dump, XMOVx_shift}, 
+	{"XMOVxBXf", OPSIZE_XMOVxBXf, 0, HALT_traverse, XMOVxBXi_dump, XMOVxBXi_shift}, 
+	{"MOVxb", OPSIZE_MOVxb, 0, HALT_traverse, MOVx_dump, MOVx_shift}, 
+	{"XMOVsb", OPSIZE_XMOVsb, 0, HALT_traverse, XMOVs_dump, XMOVs_shift}, 
+	{"XMOVob", OPSIZE_XMOVob, 0, XMOVob_traverse, XMOVo_dump, XMOVo_shift}, 
+	{"XMOVxb", OPSIZE_XMOVxb, 0, HALT_traverse, XMOVx_dump, XMOVx_shift}, 
+	{"SWAP", OPSIZE_SWAP, 0, HALT_traverse, MOVa_dump, MOVa_shift}, 
+	{"PARAMDEF", OPSIZE_PARAMDEF, 0, HALT_traverse, MOVDEF_dump, MOVDEF_shift}, 
+	{"PARAMo", OPSIZE_PARAMo, 0, PARAMo_traverse, MOVo_dump, MOVo_shift}, 
+	{"PARAMPROP", OPSIZE_PARAMPROP, 0, HALT_traverse, MOVa_dump, MOVa_shift}, 
+	{"PARAMS", OPSIZE_PARAMS, 0, HALT_traverse, MOVDEF_dump, MOVDEF_shift}, 
+	{"CHKESP", OPSIZE_CHKESP, 0, HALT_traverse, CHKESP_dump, CHKESP_shift}, 
+	{"RET", OPSIZE_RET, 0, HALT_traverse, HALT_dump, HALT_shift}, 
+	{"YEILDBREAK", OPSIZE_YEILDBREAK, 0, HALT_traverse, HALT_dump, HALT_shift}, 
+	{"BOX", OPSIZE_BOX, 0, HALT_traverse, MOVDEF_dump, MOVDEF_shift}, 
+	{"BOXnc", OPSIZE_BOXnc, 0, HALT_traverse, MOVDEF_dump, MOVDEF_shift}, 
+	{"NNBOX", OPSIZE_NNBOX, 0, HALT_traverse, MOVDEF_dump, MOVDEF_shift}, 
+	{"NNBOXnc", OPSIZE_NNBOXnc, 0, HALT_traverse, MOVDEF_dump, MOVDEF_shift}, 
+	{"UNBOX", OPSIZE_UNBOX, 0, HALT_traverse, CHKESP_dump, CHKESP_shift}, 
+	{"CHKNUL", OPSIZE_CHKNUL, 0, HALT_traverse, CHKESP_dump, CHKESP_shift}, 
+	{"CHKNULx", OPSIZE_CHKNULx, 0, HALT_traverse, CHKNULx_dump, CHKNULx_shift}, 
+	{"CHKTYPE", OPSIZE_CHKTYPE, 0, HALT_traverse, MOVDEF_dump, MOVDEF_shift}, 
+	{"FCALL", OPSIZE_FCALL, 0, FCALL_traverse, FCALL_dump, FCALL_shift}, 
+	{"RCALL", OPSIZE_RCALL, 0, HALT_traverse, MOVSYS_dump, MOVSYS_shift}, 
 	{"SCALL", OPSIZE_SCALL, 0, SCALL_traverse, SCALL_dump, SCALL_shift}, 
-	{"VCALL", OPSIZE_VCALL, 0, VCALL_traverse, SCALL_dump, SCALL_shift}, 
-	{"RET", OPSIZE_RET, 0, EXIT_traverse, HALT_dump, EXIT_shift}, 
-	{"FUNCCALL", OPSIZE_FUNCCALL, 0, EXIT_traverse, HALT_dump, EXIT_shift}, 
+	{"AINVOKE", OPSIZE_AINVOKE, 0, HALT_traverse, MOVSYS_dump, MOVSYS_shift}, 
+	{"CALL", OPSIZE_CALL, 0, HALT_traverse, CALL_dump, CALL_shift}, 
+	{"ACALL", OPSIZE_ACALL, 0, HALT_traverse, CALL_dump, CALL_shift}, 
+	{"NEW", OPSIZE_NEW, 0, NEW_traverse, NEW_dump, NEW_shift}, 
+	{"COPYSFP", OPSIZE_COPYSFP, 0, HALT_traverse, CHKESP_dump, CHKESP_shift}, 
+	{"STR", OPSIZE_STR, 0, STR_traverse, STR_dump, STR_shift}, 
+	{"SSTR", OPSIZE_SSTR, 0, SSTR_traverse, SSTR_dump, SSTR_shift}, 
 	{"SMAP", OPSIZE_SMAP, 0, SMAP_traverse, SMAP_dump, SMAP_shift}, 
 	{"SMAPnc", OPSIZE_SMAPnc, 0, SMAPnc_traverse, SMAP_dump, SMAP_shift}, 
-	{"MAP", OPSIZE_MAP, 0, EXIT_traverse, CHKTYPE_dump, CHKTYPE_shift}, 
-	{"MAPnc", OPSIZE_MAPnc, 0, EXIT_traverse, CHKTYPE_dump, CHKTYPE_shift}, 
-	{"AMAP", OPSIZE_AMAP, 0, EXIT_traverse, CHKTYPE_dump, CHKTYPE_shift}, 
-	{"JMP", OPSIZE_JMP, 1, EXIT_traverse, JMP_dump, JMP_shift}, 
-	{"NOPJMP", OPSIZE_NOPJMP, 1, EXIT_traverse, JMP_dump, JMP_shift}, 
-	{"JMPT", OPSIZE_JMPT, 1, EXIT_traverse, JMPT_dump, JMPT_shift}, 
-	{"JMPF", OPSIZE_JMPF, 1, EXIT_traverse, JMPT_dump, JMPT_shift}, 
-	{"JMPF_LOOP", OPSIZE_JMPF_LOOP, 1, EXIT_traverse, JMPT_dump, JMPT_shift}, 
-	{"JMPNUL", OPSIZE_JMPNUL, 1, EXIT_traverse, JMPT_dump, JMPT_shift}, 
-	{"JMPNN", OPSIZE_JMPNN, 1, EXIT_traverse, JMPT_dump, JMPT_shift}, 
-	{"JMPchk", OPSIZE_JMPchk, 1, EXIT_traverse, JMPchk_dump, JMPchk_shift}, 
-	{"JMPcmp", OPSIZE_JMPcmp, 1, EXIT_traverse, JMPcmp_dump, JMPcmp_shift}, 
-	{"JMPcmpi", OPSIZE_JMPcmpi, 1, EXIT_traverse, JMPcmpi_dump, JMPcmpi_shift}, 
-	{"JMPcmpf", OPSIZE_JMPcmpf, 1, EXIT_traverse, JMPcmpf_dump, JMPcmpf_shift}, 
-	{"NEXT", OPSIZE_NEXT, 1, EXIT_traverse, NEXT_dump, NEXT_shift}, 
-	{"NEXTf", OPSIZE_NEXTf, 1, EXIT_traverse, NEXTf_dump, NEXTf_shift}, 
-	{"TRY", OPSIZE_TRY, 1, EXIT_traverse, JMPT_dump, JMPT_shift}, 
-	{"TRYEND", OPSIZE_TRYEND, 0, EXIT_traverse, YEILD_dump, YEILD_shift}, 
+	{"MAP", OPSIZE_MAP, 0, HALT_traverse, MOVDEF_dump, MOVDEF_shift}, 
+	{"MAPnc", OPSIZE_MAPnc, 0, HALT_traverse, MOVDEF_dump, MOVDEF_shift}, 
+	{"AMAP", OPSIZE_AMAP, 0, HALT_traverse, MOVDEF_dump, MOVDEF_shift}, 
+	{"NNMAP", OPSIZE_NNMAP, 0, HALT_traverse, MOVDEF_dump, MOVDEF_shift}, 
+	{"JMP", OPSIZE_JMP, 1, HALT_traverse, JMP_dump, JMP_shift}, 
+	{"SKIP", OPSIZE_SKIP, 1, HALT_traverse, JMP_dump, JMP_shift}, 
+	{"bJIFT", OPSIZE_bJIFT, 1, HALT_traverse, bJIFT_dump, bJIFT_shift}, 
+	{"bJIFF", OPSIZE_bJIFF, 1, HALT_traverse, bJIFT_dump, bJIFT_shift}, 
+	{"bJIFF_LOOP", OPSIZE_bJIFF_LOOP, 1, HALT_traverse, bJIFT_dump, bJIFT_shift}, 
+	{"JIFNUL", OPSIZE_JIFNUL, 1, HALT_traverse, bJIFT_dump, bJIFT_shift}, 
+	{"JIFNN", OPSIZE_JIFNN, 1, HALT_traverse, bJIFT_dump, bJIFT_shift}, 
+	{"NEXT", OPSIZE_NEXT, 1, HALT_traverse, NEXT_dump, NEXT_shift}, 
+	{"INEXT", OPSIZE_INEXT, 1, HALT_traverse, INEXT_dump, INEXT_shift}, 
+	{"TRY", OPSIZE_TRY, 1, HALT_traverse, bJIFT_dump, bJIFT_shift}, 
+	{"TRYEND", OPSIZE_TRYEND, 0, HALT_traverse, CHKESP_dump, CHKESP_shift}, 
 	{"CATCH", OPSIZE_CATCH, 1, CATCH_traverse, CATCH_dump, CATCH_shift}, 
-	{"THROW", OPSIZE_THROW, 0, EXIT_traverse, MOV_dump, MOV_shift}, 
+	{"PUSH", OPSIZE_PUSH, 0, HALT_traverse, CHKESP_dump, CHKESP_shift}, 
+	{"POP", OPSIZE_POP, 0, HALT_traverse, CHKESP_dump, CHKESP_shift}, 
+	{"THROW", OPSIZE_THROW, 0, HALT_traverse, MOVa_dump, MOVa_shift}, 
 	{"THROWs", OPSIZE_THROWs, 0, THROWs_traverse, THROWs_dump, THROWs_shift}, 
-	{"THROW_AGAIN", OPSIZE_THROW_AGAIN, 0, EXIT_traverse, YEILD_dump, YEILD_shift}, 
-	{"P", OPSIZE_P, 0, EXIT_traverse, P_dump, P_shift}, 
-	{"PMSG", OPSIZE_PMSG, 0, PMSG_traverse, PMSG_dump, EXIT_shift}, 
-	{"bNOT", OPSIZE_bNOT, 0, EXIT_traverse, MOV_dump, MOV_shift}, 
-	{"iNEG", OPSIZE_iNEG, 0, EXIT_traverse, MOV_dump, MOV_shift}, 
-	{"iADD", OPSIZE_iADD, 0, EXIT_traverse, iADD_dump, iADD_shift}, 
-	{"iSUB", OPSIZE_iSUB, 0, EXIT_traverse, iADD_dump, iADD_shift}, 
-	{"iMUL", OPSIZE_iMUL, 0, EXIT_traverse, iADD_dump, iADD_shift}, 
-	{"iDIV", OPSIZE_iDIV, 0, EXIT_traverse, iADD_dump, iADD_shift}, 
-	{"iMOD", OPSIZE_iMOD, 0, EXIT_traverse, iADD_dump, iADD_shift}, 
-	{"iDIVn", OPSIZE_iDIVn, 0, EXIT_traverse, iDIVn_dump, iDIVn_shift}, 
-	{"iADDn", OPSIZE_iADDn, 0, EXIT_traverse, iDIVn_dump, iDIVn_shift}, 
-	{"iSUBn", OPSIZE_iSUBn, 0, EXIT_traverse, iDIVn_dump, iDIVn_shift}, 
-	{"iMULn", OPSIZE_iMULn, 0, EXIT_traverse, iDIVn_dump, iDIVn_shift}, 
-	{"iMODn", OPSIZE_iMODn, 0, EXIT_traverse, iDIVn_dump, iDIVn_shift}, 
-	{"iEQ", OPSIZE_iEQ, 0, EXIT_traverse, iADD_dump, iADD_shift}, 
-	{"iNEQ", OPSIZE_iNEQ, 0, EXIT_traverse, iADD_dump, iADD_shift}, 
-	{"iLT", OPSIZE_iLT, 0, EXIT_traverse, iADD_dump, iADD_shift}, 
-	{"iLTE", OPSIZE_iLTE, 0, EXIT_traverse, iADD_dump, iADD_shift}, 
-	{"iGT", OPSIZE_iGT, 0, EXIT_traverse, iADD_dump, iADD_shift}, 
-	{"iGTE", OPSIZE_iGTE, 0, EXIT_traverse, iADD_dump, iADD_shift}, 
-	{"iEQn", OPSIZE_iEQn, 0, EXIT_traverse, iDIVn_dump, iDIVn_shift}, 
-	{"iNEQn", OPSIZE_iNEQn, 0, EXIT_traverse, iDIVn_dump, iDIVn_shift}, 
-	{"iLTn", OPSIZE_iLTn, 0, EXIT_traverse, iDIVn_dump, iDIVn_shift}, 
-	{"iLTEn", OPSIZE_iLTEn, 0, EXIT_traverse, iDIVn_dump, iDIVn_shift}, 
-	{"iGTn", OPSIZE_iGTn, 0, EXIT_traverse, iDIVn_dump, iDIVn_shift}, 
-	{"iGTEn", OPSIZE_iGTEn, 0, EXIT_traverse, iDIVn_dump, iDIVn_shift}, 
-	{"fNEG", OPSIZE_fNEG, 0, EXIT_traverse, MOV_dump, MOV_shift}, 
-	{"fADD", OPSIZE_fADD, 0, EXIT_traverse, iADD_dump, iADD_shift}, 
-	{"fSUB", OPSIZE_fSUB, 0, EXIT_traverse, iADD_dump, iADD_shift}, 
-	{"fMUL", OPSIZE_fMUL, 0, EXIT_traverse, iADD_dump, iADD_shift}, 
-	{"fDIV", OPSIZE_fDIV, 0, EXIT_traverse, iADD_dump, iADD_shift}, 
-	{"fADDn", OPSIZE_fADDn, 0, EXIT_traverse, fADDn_dump, fADDn_shift}, 
-	{"fSUBn", OPSIZE_fSUBn, 0, EXIT_traverse, fADDn_dump, fADDn_shift}, 
-	{"fMULn", OPSIZE_fMULn, 0, EXIT_traverse, fADDn_dump, fADDn_shift}, 
-	{"fDIVn", OPSIZE_fDIVn, 0, EXIT_traverse, fADDn_dump, fADDn_shift}, 
-	{"fEQ", OPSIZE_fEQ, 0, EXIT_traverse, iADD_dump, iADD_shift}, 
-	{"fNEQ", OPSIZE_fNEQ, 0, EXIT_traverse, iADD_dump, iADD_shift}, 
-	{"fEQn", OPSIZE_fEQn, 0, EXIT_traverse, fADDn_dump, fADDn_shift}, 
-	{"fNEQn", OPSIZE_fNEQn, 0, EXIT_traverse, fADDn_dump, fADDn_shift}, 
-	{"fLT", OPSIZE_fLT, 0, EXIT_traverse, iADD_dump, iADD_shift}, 
-	{"fLTE", OPSIZE_fLTE, 0, EXIT_traverse, iADD_dump, iADD_shift}, 
-	{"fGT", OPSIZE_fGT, 0, EXIT_traverse, iADD_dump, iADD_shift}, 
-	{"fGTE", OPSIZE_fGTE, 0, EXIT_traverse, iADD_dump, iADD_shift}, 
-	{"fLTn", OPSIZE_fLTn, 0, EXIT_traverse, fADDn_dump, fADDn_shift}, 
-	{"fLTEn", OPSIZE_fLTEn, 0, EXIT_traverse, fADDn_dump, fADDn_shift}, 
-	{"fGTn", OPSIZE_fGTn, 0, EXIT_traverse, fADDn_dump, fADDn_shift}, 
-	{"fGTEn", OPSIZE_fGTEn, 0, EXIT_traverse, fADDn_dump, fADDn_shift}, 
-	{"OEVAL", OPSIZE_OEVAL, 0, EXIT_traverse, OEVAL_dump, OEVAL_shift}, 
-	{"GETIDX", OPSIZE_GETIDX, 0, EXIT_traverse, GETIDX_dump, GETIDX_shift}, 
-	{"SETIDX", OPSIZE_SETIDX, 0, EXIT_traverse, SETIDX_dump, SETIDX_shift}, 
-	{"GETIDXn", OPSIZE_GETIDXn, 0, EXIT_traverse, GETIDXn_dump, GETIDXn_shift}, 
-	{"SETIDXn", OPSIZE_SETIDXn, 0, EXIT_traverse, SETIDXn_dump, SETIDXn_shift}, 
-	{"THCODE", OPSIZE_THCODE, 0, EXIT_traverse, HALT_dump, EXIT_shift}, 
-	{"LABEL", OPSIZE_LABEL, 0, LABEL_traverse, LABEL_dump, EXIT_shift}, 
-	{"PROBE", OPSIZE_PROBE, 0, EXIT_traverse, PROBE_dump, EXIT_shift}, 
-	{"NOP", OPSIZE_NOP, 0, EXIT_traverse, HALT_dump, EXIT_shift}, 
+	{"THROW_AGAIN", OPSIZE_THROW_AGAIN, 0, HALT_traverse, CHKESP_dump, CHKESP_shift}, 
+	{"P", OPSIZE_P, 0, HALT_traverse, P_dump, P_shift}, 
+	{"PMSG", OPSIZE_PMSG, 0, PMSG_traverse, PMSG_dump, HALT_shift}, 
+	{"iCAST", OPSIZE_iCAST, 0, HALT_traverse, CHKESP_dump, CHKESP_shift}, 
+	{"inCAST", OPSIZE_inCAST, 0, HALT_traverse, CHKESP_dump, CHKESP_shift}, 
+	{"fCAST", OPSIZE_fCAST, 0, HALT_traverse, CHKESP_dump, CHKESP_shift}, 
+	{"fnCAST", OPSIZE_fnCAST, 0, HALT_traverse, CHKESP_dump, CHKESP_shift}, 
+	{"bNOT", OPSIZE_bNOT, 0, HALT_traverse, MOVa_dump, MOVa_shift}, 
+	{"iNEG", OPSIZE_iNEG, 0, HALT_traverse, MOVa_dump, MOVa_shift}, 
+	{"iADD", OPSIZE_iADD, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"iADDn", OPSIZE_iADDn, 0, HALT_traverse, iADDn_dump, iADDn_shift}, 
+	{"iSUB", OPSIZE_iSUB, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"iSUBn", OPSIZE_iSUBn, 0, HALT_traverse, iADDn_dump, iADDn_shift}, 
+	{"iMUL", OPSIZE_iMUL, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"iMULn", OPSIZE_iMULn, 0, HALT_traverse, iADDn_dump, iADDn_shift}, 
+	{"iDIV", OPSIZE_iDIV, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"iDIVn", OPSIZE_iDIVn, 0, HALT_traverse, iADDn_dump, iADDn_shift}, 
+	{"iMOD", OPSIZE_iMOD, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"iMODn", OPSIZE_iMODn, 0, HALT_traverse, iADDn_dump, iADDn_shift}, 
+	{"iEQ", OPSIZE_iEQ, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"iEQn", OPSIZE_iEQn, 0, HALT_traverse, iADDn_dump, iADDn_shift}, 
+	{"iNEQ", OPSIZE_iNEQ, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"iNEQn", OPSIZE_iNEQn, 0, HALT_traverse, iADDn_dump, iADDn_shift}, 
+	{"iLT", OPSIZE_iLT, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"iLTn", OPSIZE_iLTn, 0, HALT_traverse, iADDn_dump, iADDn_shift}, 
+	{"iLTE", OPSIZE_iLTE, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"iLTEn", OPSIZE_iLTEn, 0, HALT_traverse, iADDn_dump, iADDn_shift}, 
+	{"iGT", OPSIZE_iGT, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"iGTn", OPSIZE_iGTn, 0, HALT_traverse, iADDn_dump, iADDn_shift}, 
+	{"iGTE", OPSIZE_iGTE, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"iGTEn", OPSIZE_iGTEn, 0, HALT_traverse, iADDn_dump, iADDn_shift}, 
+	{"fNEG", OPSIZE_fNEG, 0, HALT_traverse, MOVa_dump, MOVa_shift}, 
+	{"fADD", OPSIZE_fADD, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"fADDn", OPSIZE_fADDn, 0, HALT_traverse, fADDn_dump, fADDn_shift}, 
+	{"fSUB", OPSIZE_fSUB, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"fSUBn", OPSIZE_fSUBn, 0, HALT_traverse, fADDn_dump, fADDn_shift}, 
+	{"fMUL", OPSIZE_fMUL, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"fMULn", OPSIZE_fMULn, 0, HALT_traverse, fADDn_dump, fADDn_shift}, 
+	{"fDIV", OPSIZE_fDIV, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"fDIVn", OPSIZE_fDIVn, 0, HALT_traverse, fADDn_dump, fADDn_shift}, 
+	{"fEQ", OPSIZE_fEQ, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"fEQn", OPSIZE_fEQn, 0, HALT_traverse, fADDn_dump, fADDn_shift}, 
+	{"fNEQ", OPSIZE_fNEQ, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"fNEQn", OPSIZE_fNEQn, 0, HALT_traverse, fADDn_dump, fADDn_shift}, 
+	{"fLT", OPSIZE_fLT, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"fLTn", OPSIZE_fLTn, 0, HALT_traverse, fADDn_dump, fADDn_shift}, 
+	{"fLTE", OPSIZE_fLTE, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"fLTEn", OPSIZE_fLTEn, 0, HALT_traverse, fADDn_dump, fADDn_shift}, 
+	{"fGT", OPSIZE_fGT, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"fGTn", OPSIZE_fGTn, 0, HALT_traverse, fADDn_dump, fADDn_shift}, 
+	{"fGTE", OPSIZE_fGTE, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"fGTEn", OPSIZE_fGTEn, 0, HALT_traverse, fADDn_dump, fADDn_shift}, 
+	{"ARYGET", OPSIZE_ARYGET, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"ARYGETn", OPSIZE_ARYGETn, 0, HALT_traverse, ARYGETn_dump, ARYGETn_shift}, 
+	{"iARYGET", OPSIZE_iARYGET, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"iARYGETn", OPSIZE_iARYGETn, 0, HALT_traverse, ARYGETn_dump, ARYGETn_shift}, 
+	{"fARYGET", OPSIZE_fARYGET, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"fARYGETn", OPSIZE_fARYGETn, 0, HALT_traverse, ARYGETn_dump, ARYGETn_shift}, 
+	{"ARYSET", OPSIZE_ARYSET, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"ARYSETn", OPSIZE_ARYSETn, 0, HALT_traverse, ARYGETn_dump, ARYGETn_shift}, 
+	{"iARYSET", OPSIZE_iARYSET, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"iARYSETn", OPSIZE_iARYSETn, 0, HALT_traverse, ARYGETn_dump, ARYGETn_shift}, 
+	{"fARYSET", OPSIZE_fARYSET, 0, HALT_traverse, iADD_dump, iADD_shift}, 
+	{"fARYSETn", OPSIZE_fARYSETn, 0, HALT_traverse, ARYGETn_dump, ARYGETn_shift}, 
+	{"THCODE", OPSIZE_THCODE, 0, HALT_traverse, CHKESP_dump, CHKESP_shift}, 
+	{"NOP", OPSIZE_NOP, 0, HALT_traverse, HALT_dump, HALT_shift}, 
 };
 
 /* ------------------------------------------------------------------------ */
@@ -930,7 +914,7 @@ knh_bool_t knh_opcode_hasjump(int opcode)
 
 /* ------------------------------------------------------------------------ */
 
-void knh_opcode_traverse(Ctx *ctx, knh_inst_t *c, knh_Ftraverse ftr)
+void knh_opcode_traverse(Ctx *ctx, knh_inst_t *c, knh_ftraverse ftr)
 {
 	int opcode = KNH_OPCODE(c);
 	OPDATA[opcode].cftr(ctx, c, ftr);
@@ -957,778 +941,931 @@ void knh_opcode_shift(Ctx *ctx, knh_inst_t *c, int shift, int pcshift)
 /* [exec] */
 
 #ifdef KNH_USING_THREADEDCODE
-#define CASE(x)   L_##x :
-#define NEXT_OP  *(op->nextaddr)
+#define CASE(L, OP)   L:
+#define NEXT  *(op->nextaddr)
 #define JUMP  *(op->jumpaddr)
 #define TC(c)   c
-#define DISPATCH_START(pc) goto *OPJUMP[KNH_OPCODE(pc)];
-#define DISPATCH_END(pc)
 #else
 #define OPJUMP NULL
-#define CASE(x)   case OPCODE_##x :
-#define NEXT_OP L_HEAD
+#define CASE(L, OP)   case OP :
+#define NEXT L_HEAD
 #define JUMP L_HEAD
 #define TC(c)    
-#define DISPATCH_START(pc) L_HEAD:;switch(KNH_OPCODE(pc)) {
-#define DISPATCH_END(pc) 	}	KNH_WARNING(ctx, "unknown opcode=%d", KNH_OPCODE(pc)); 	goto L_HEAD;
 #endif/*KNH_USING_THREADEDCODE*/
 
-knh_code_t* knh_VirtualMachine_run(Ctx *ctx, knh_sfp_t *sfp, knh_code_t *pc)
+METHOD knh_KLRCode_exec(Ctx *ctx, knh_sfp_t *sfp)
 {
 #ifdef KNH_USING_THREADEDCODE
 	static void *OPJUMP[] = {
-		&&L_HALT, &&L_ENTER, &&L_EXEC, &&L_YEILD, 
-		&&L_EXIT, &&L_TR, &&L_OTR, &&L_NULTR, 
-		&&L_UNBOX, &&L_iCAST, &&L_fCAST, &&L_OSET, 
-		&&L_NSET, &&L_MOV, &&L_OMOV, &&L_NMOV, 
-		&&L_OMOVx, &&L_iMOVx, &&L_fMOVx, &&L_bMOVx, 
-		&&L_XMOV, &&L_XMOVx, &&L_XOSET, &&L_XIMOV, 
-		&&L_XFMOV, &&L_XBMOV, &&L_MOVe, &&L_SWAP, 
-		&&L_CHKNUL, &&L_CHKTYPE, &&L_CHKNULx, &&L_CHKTYPEx, 
-		&&L_LDMETHOD, &&L_CALL, &&L_SCALL, &&L_VCALL, 
-		&&L_RET, &&L_FUNCCALL, &&L_SMAP, &&L_SMAPnc, 
-		&&L_MAP, &&L_MAPnc, &&L_AMAP, &&L_JMP, 
-		&&L_NOPJMP, &&L_JMPT, &&L_JMPF, &&L_JMPF_LOOP, 
-		&&L_JMPNUL, &&L_JMPNN, &&L_JMPchk, &&L_JMPcmp, 
-		&&L_JMPcmpi, &&L_JMPcmpf, &&L_NEXT, &&L_NEXTf, 
-		&&L_TRY, &&L_TRYEND, &&L_CATCH, &&L_THROW, 
+		&&L_HALT, &&L_MOVa, &&L_MOVn, &&L_MOVo, 
+		&&L_MOVi, &&L_MOVx, &&L_MOVDEF, &&L_MOVSYS, 
+		&&L_XMOVs, &&L_XMOVo, &&L_XMOVx, &&L_XMOVDEF, 
+		&&L_XMOVSYS, &&L_MOVxi, &&L_XMOVsi, &&L_XMOVoi, 
+		&&L_XMOVxi, &&L_XMOVxio, &&L_XMOVxBXi, &&L_MOVxf, 
+		&&L_XMOVsf, &&L_XMOVof, &&L_XMOVxf, &&L_XMOVxfo, 
+		&&L_XMOVxBXf, &&L_MOVxb, &&L_XMOVsb, &&L_XMOVob, 
+		&&L_XMOVxb, &&L_SWAP, &&L_PARAMDEF, &&L_PARAMo, 
+		&&L_PARAMPROP, &&L_PARAMS, &&L_CHKESP, &&L_RET, 
+		&&L_YEILDBREAK, &&L_BOX, &&L_BOXnc, &&L_NNBOX, 
+		&&L_NNBOXnc, &&L_UNBOX, &&L_CHKNUL, &&L_CHKNULx, 
+		&&L_CHKTYPE, &&L_FCALL, &&L_RCALL, &&L_SCALL, 
+		&&L_AINVOKE, &&L_CALL, &&L_ACALL, &&L_NEW, 
+		&&L_COPYSFP, &&L_STR, &&L_SSTR, &&L_SMAP, 
+		&&L_SMAPnc, &&L_MAP, &&L_MAPnc, &&L_AMAP, 
+		&&L_NNMAP, &&L_JMP, &&L_SKIP, &&L_bJIFT, 
+		&&L_bJIFF, &&L_bJIFF_LOOP, &&L_JIFNUL, &&L_JIFNN, 
+		&&L_NEXT, &&L_INEXT, &&L_TRY, &&L_TRYEND, 
+		&&L_CATCH, &&L_PUSH, &&L_POP, &&L_THROW, 
 		&&L_THROWs, &&L_THROW_AGAIN, &&L_P, &&L_PMSG, 
-		&&L_bNOT, &&L_iNEG, &&L_iADD, &&L_iSUB, 
-		&&L_iMUL, &&L_iDIV, &&L_iMOD, &&L_iDIVn, 
-		&&L_iADDn, &&L_iSUBn, &&L_iMULn, &&L_iMODn, 
-		&&L_iEQ, &&L_iNEQ, &&L_iLT, &&L_iLTE, 
-		&&L_iGT, &&L_iGTE, &&L_iEQn, &&L_iNEQn, 
-		&&L_iLTn, &&L_iLTEn, &&L_iGTn, &&L_iGTEn, 
-		&&L_fNEG, &&L_fADD, &&L_fSUB, &&L_fMUL, 
-		&&L_fDIV, &&L_fADDn, &&L_fSUBn, &&L_fMULn, 
-		&&L_fDIVn, &&L_fEQ, &&L_fNEQ, &&L_fEQn, 
-		&&L_fNEQn, &&L_fLT, &&L_fLTE, &&L_fGT, 
-		&&L_fGTE, &&L_fLTn, &&L_fLTEn, &&L_fGTn, 
-		&&L_fGTEn, &&L_OEVAL, &&L_GETIDX, &&L_SETIDX, 
-		&&L_GETIDXn, &&L_SETIDXn, &&L_THCODE, &&L_LABEL, 
-		&&L_PROBE, &&L_NOP, 
+		&&L_iCAST, &&L_inCAST, &&L_fCAST, &&L_fnCAST, 
+		&&L_bNOT, &&L_iNEG, &&L_iADD, &&L_iADDn, 
+		&&L_iSUB, &&L_iSUBn, &&L_iMUL, &&L_iMULn, 
+		&&L_iDIV, &&L_iDIVn, &&L_iMOD, &&L_iMODn, 
+		&&L_iEQ, &&L_iEQn, &&L_iNEQ, &&L_iNEQn, 
+		&&L_iLT, &&L_iLTn, &&L_iLTE, &&L_iLTEn, 
+		&&L_iGT, &&L_iGTn, &&L_iGTE, &&L_iGTEn, 
+		&&L_fNEG, &&L_fADD, &&L_fADDn, &&L_fSUB, 
+		&&L_fSUBn, &&L_fMUL, &&L_fMULn, &&L_fDIV, 
+		&&L_fDIVn, &&L_fEQ, &&L_fEQn, &&L_fNEQ, 
+		&&L_fNEQn, &&L_fLT, &&L_fLTn, &&L_fLTE, 
+		&&L_fLTEn, &&L_fGT, &&L_fGTn, &&L_fGTE, 
+		&&L_fGTEn, &&L_ARYGET, &&L_ARYGETn, &&L_iARYGET, 
+		&&L_iARYGETn, &&L_fARYGET, &&L_fARYGETn, &&L_ARYSET, 
+		&&L_ARYSETn, &&L_iARYSET, &&L_iARYSETn, &&L_fARYSET, 
+		&&L_fARYSETn, &&L_THCODE, &&L_NOP, 
 	};
+	register knh_code_t *pc = (sfp[-1].mtd)->pc_start;
+	goto *OPJUMP[KNH_OPCODE(pc)]; /* this is needed to init */
+#else
+	register knh_code_t *pc = (sfp[-1].mtd)->pc_start;
+	L_HEAD:;
+	switch(KNH_OPCODE(pc)) {
 #endif
-#if defined(OPCODE_VCALL)
-	L_KONOHACALL:;
-#endif
-	int sfpidx = sfp - ctx->stack;
-	//register knh_code_t *pc = (sfp[-1].mtd)->pc_start;
-	DBG2_ASSERT(IS_Method(sfp[-1].mtd));
-	DISPATCH_START(pc);
 
-	CASE(HALT) {
+	CASE(L_HALT, OPCODE_HALT) {
 		TC(const klr_HALT_t *op = (klr_HALT_t*)pc;)
-		KLR0_HALT(ctx);
+		KLR_HALT(ctx);
 		pc += OPSIZE_HALT;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(ENTER) {
-		TC(const klr_ENTER_t *op = (klr_ENTER_t*)pc;)
-		KLR0_ENTER(ctx);
-		pc += OPSIZE_ENTER;
-		goto NEXT_OP;
+	CASE(L_MOVa, OPCODE_MOVa) {
+		const klr_MOVa_t *op = (klr_MOVa_t*)pc;
+		KLR_MOVa(ctx, op->a1, op->a2);
+		pc += OPSIZE_MOVa;
+		goto NEXT;
 	} 
-	CASE(EXEC) {
-		TC(const klr_EXEC_t *op = (klr_EXEC_t*)pc;)
-		KLR0_EXEC(ctx);
-		pc += OPSIZE_EXEC;
-		goto NEXT_OP;
+	CASE(L_MOVn, OPCODE_MOVn) {
+		const klr_MOVn_t *op = (klr_MOVn_t*)pc;
+		KLR_MOVn(ctx, op->a1, op->a2);
+		pc += OPSIZE_MOVn;
+		goto NEXT;
 	} 
-	CASE(YEILD) {
-		const klr_YEILD_t *op = (klr_YEILD_t*)pc;
-		KLR0_YEILD(ctx, op->a1);
-		pc += OPSIZE_YEILD;
-		goto NEXT_OP;
+	CASE(L_MOVo, OPCODE_MOVo) {
+		const klr_MOVo_t *op = (klr_MOVo_t*)pc;
+		KLR_MOVo(ctx, op->a1, op->a2);
+		pc += OPSIZE_MOVo;
+		goto NEXT;
 	} 
-	CASE(EXIT) {
-		TC(const klr_EXIT_t *op = (klr_EXIT_t*)pc;)
-		KLR0_EXIT(ctx);
-		pc += OPSIZE_EXIT;
-		goto NEXT_OP;
+	CASE(L_MOVi, OPCODE_MOVi) {
+		const klr_MOVi_t *op = (klr_MOVi_t*)pc;
+		KLR_MOVi(ctx, op->a1, op->a2);
+		pc += OPSIZE_MOVi;
+		goto NEXT;
 	} 
-	CASE(TR) {
-		const klr_TR_t *op = (klr_TR_t*)pc;
-		KLR_TR(ctx, op->a1, op->a2, op->a3);
-		pc += OPSIZE_TR;
-		goto NEXT_OP;
+	CASE(L_MOVx, OPCODE_MOVx) {
+		const klr_MOVx_t *op = (klr_MOVx_t*)pc;
+		KLR_MOVx(ctx, op->a1, op->a2);
+		pc += OPSIZE_MOVx;
+		goto NEXT;
 	} 
-	CASE(OTR) {
-		const klr_OTR_t *op = (klr_OTR_t*)pc;
-		KLR_OTR(ctx, op->a1, op->a2, op->a3);
-		pc += OPSIZE_OTR;
-		goto NEXT_OP;
+	CASE(L_MOVDEF, OPCODE_MOVDEF) {
+		const klr_MOVDEF_t *op = (klr_MOVDEF_t*)pc;
+		KLR_MOVDEF(ctx, op->a1, op->a2);
+		pc += OPSIZE_MOVDEF;
+		goto NEXT;
 	} 
-	CASE(NULTR) {
-		const klr_NULTR_t *op = (klr_NULTR_t*)pc;
-		KLR_NULTR(ctx, op->a1, op->a2, op->a3);
-		pc += OPSIZE_NULTR;
-		goto NEXT_OP;
+	CASE(L_MOVSYS, OPCODE_MOVSYS) {
+		const klr_MOVSYS_t *op = (klr_MOVSYS_t*)pc;
+		KLR_MOVSYS(ctx, op->a1, op->a2);
+		pc += OPSIZE_MOVSYS;
+		goto NEXT;
 	} 
-	CASE(UNBOX) {
-		const klr_UNBOX_t *op = (klr_UNBOX_t*)pc;
-		KLR_UNBOX(ctx, op->a1);
-		pc += OPSIZE_UNBOX;
-		goto NEXT_OP;
+	CASE(L_XMOVs, OPCODE_XMOVs) {
+		const klr_XMOVs_t *op = (klr_XMOVs_t*)pc;
+		KLR_XMOVs(ctx, op->a1, op->a2);
+		pc += OPSIZE_XMOVs;
+		goto NEXT;
 	} 
-	CASE(iCAST) {
-		const klr_iCAST_t *op = (klr_iCAST_t*)pc;
-		KLR_iCAST(ctx, op->a1);
-		pc += OPSIZE_iCAST;
-		goto NEXT_OP;
+	CASE(L_XMOVo, OPCODE_XMOVo) {
+		const klr_XMOVo_t *op = (klr_XMOVo_t*)pc;
+		KLR_XMOVo(ctx, op->a1, op->a2);
+		pc += OPSIZE_XMOVo;
+		goto NEXT;
 	} 
-	CASE(fCAST) {
-		const klr_fCAST_t *op = (klr_fCAST_t*)pc;
-		KLR_fCAST(ctx, op->a1);
-		pc += OPSIZE_fCAST;
-		goto NEXT_OP;
-	} 
-	CASE(OSET) {
-		const klr_OSET_t *op = (klr_OSET_t*)pc;
-		KLR_OSET(ctx, op->a1, op->a2);
-		pc += OPSIZE_OSET;
-		goto NEXT_OP;
-	} 
-	CASE(NSET) {
-		const klr_NSET_t *op = (klr_NSET_t*)pc;
-		KLR_NSET(ctx, op->a1, op->a2);
-		pc += OPSIZE_NSET;
-		goto NEXT_OP;
-	} 
-	CASE(MOV) {
-		const klr_MOV_t *op = (klr_MOV_t*)pc;
-		KLR_MOV(ctx, op->a1, op->a2);
-		pc += OPSIZE_MOV;
-		goto NEXT_OP;
-	} 
-	CASE(OMOV) {
-		const klr_OMOV_t *op = (klr_OMOV_t*)pc;
-		KLR_OMOV(ctx, op->a1, op->a2);
-		pc += OPSIZE_OMOV;
-		goto NEXT_OP;
-	} 
-	CASE(NMOV) {
-		const klr_NMOV_t *op = (klr_NMOV_t*)pc;
-		KLR_NMOV(ctx, op->a1, op->a2);
-		pc += OPSIZE_NMOV;
-		goto NEXT_OP;
-	} 
-	CASE(OMOVx) {
-		const klr_OMOVx_t *op = (klr_OMOVx_t*)pc;
-		KLR_OMOVx(ctx, op->a1, op->a2);
-		pc += OPSIZE_OMOVx;
-		goto NEXT_OP;
-	} 
-	CASE(iMOVx) {
-		const klr_iMOVx_t *op = (klr_iMOVx_t*)pc;
-		KLR_iMOVx(ctx, op->a1, op->a2);
-		pc += OPSIZE_iMOVx;
-		goto NEXT_OP;
-	} 
-	CASE(fMOVx) {
-		const klr_fMOVx_t *op = (klr_fMOVx_t*)pc;
-		KLR_fMOVx(ctx, op->a1, op->a2);
-		pc += OPSIZE_fMOVx;
-		goto NEXT_OP;
-	} 
-	CASE(bMOVx) {
-		const klr_bMOVx_t *op = (klr_bMOVx_t*)pc;
-		KLR_bMOVx(ctx, op->a1, op->a2);
-		pc += OPSIZE_bMOVx;
-		goto NEXT_OP;
-	} 
-	CASE(XMOV) {
-		const klr_XMOV_t *op = (klr_XMOV_t*)pc;
-		KLR_XMOV(ctx, op->a1, op->a2);
-		pc += OPSIZE_XMOV;
-		goto NEXT_OP;
-	} 
-	CASE(XMOVx) {
+	CASE(L_XMOVx, OPCODE_XMOVx) {
 		const klr_XMOVx_t *op = (klr_XMOVx_t*)pc;
 		KLR_XMOVx(ctx, op->a1, op->a2);
 		pc += OPSIZE_XMOVx;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(XOSET) {
-		const klr_XOSET_t *op = (klr_XOSET_t*)pc;
-		KLR_XOSET(ctx, op->a1, op->a2);
-		pc += OPSIZE_XOSET;
-		goto NEXT_OP;
+	CASE(L_XMOVDEF, OPCODE_XMOVDEF) {
+		const klr_XMOVDEF_t *op = (klr_XMOVDEF_t*)pc;
+		KLR_XMOVDEF(ctx, op->a1, op->a2);
+		pc += OPSIZE_XMOVDEF;
+		goto NEXT;
 	} 
-	CASE(XIMOV) {
-		const klr_XIMOV_t *op = (klr_XIMOV_t*)pc;
-		KLR_XIMOV(ctx, op->a1, op->a2);
-		pc += OPSIZE_XIMOV;
-		goto NEXT_OP;
+	CASE(L_XMOVSYS, OPCODE_XMOVSYS) {
+		const klr_XMOVSYS_t *op = (klr_XMOVSYS_t*)pc;
+		KLR_XMOVSYS(ctx, op->a1, op->a2);
+		pc += OPSIZE_XMOVSYS;
+		goto NEXT;
 	} 
-	CASE(XFMOV) {
-		const klr_XFMOV_t *op = (klr_XFMOV_t*)pc;
-		KLR_XFMOV(ctx, op->a1, op->a2);
-		pc += OPSIZE_XFMOV;
-		goto NEXT_OP;
+	CASE(L_MOVxi, OPCODE_MOVxi) {
+		const klr_MOVxi_t *op = (klr_MOVxi_t*)pc;
+		KLR_MOVxi(ctx, op->a1, op->a2);
+		pc += OPSIZE_MOVxi;
+		goto NEXT;
 	} 
-	CASE(XBMOV) {
-		const klr_XBMOV_t *op = (klr_XBMOV_t*)pc;
-		KLR_XBMOV(ctx, op->a1, op->a2);
-		pc += OPSIZE_XBMOV;
-		goto NEXT_OP;
+	CASE(L_XMOVsi, OPCODE_XMOVsi) {
+		const klr_XMOVsi_t *op = (klr_XMOVsi_t*)pc;
+		KLR_XMOVsi(ctx, op->a1, op->a2);
+		pc += OPSIZE_XMOVsi;
+		goto NEXT;
 	} 
-	CASE(MOVe) {
-		const klr_MOVe_t *op = (klr_MOVe_t*)pc;
-		KLR_MOVe(ctx, op->a1, op->a2);
-		pc += OPSIZE_MOVe;
-		goto NEXT_OP;
+	CASE(L_XMOVoi, OPCODE_XMOVoi) {
+		const klr_XMOVoi_t *op = (klr_XMOVoi_t*)pc;
+		KLR_XMOVoi(ctx, op->a1, op->a2);
+		pc += OPSIZE_XMOVoi;
+		goto NEXT;
 	} 
-	CASE(SWAP) {
+	CASE(L_XMOVxi, OPCODE_XMOVxi) {
+		const klr_XMOVxi_t *op = (klr_XMOVxi_t*)pc;
+		KLR_XMOVxi(ctx, op->a1, op->a2);
+		pc += OPSIZE_XMOVxi;
+		goto NEXT;
+	} 
+	CASE(L_XMOVxio, OPCODE_XMOVxio) {
+		const klr_XMOVxio_t *op = (klr_XMOVxio_t*)pc;
+		KLR_XMOVxio(ctx, op->a1, op->a2);
+		pc += OPSIZE_XMOVxio;
+		goto NEXT;
+	} 
+	CASE(L_XMOVxBXi, OPCODE_XMOVxBXi) {
+		const klr_XMOVxBXi_t *op = (klr_XMOVxBXi_t*)pc;
+		KLR_XMOVxBXi(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_XMOVxBXi;
+		goto NEXT;
+	} 
+	CASE(L_MOVxf, OPCODE_MOVxf) {
+		const klr_MOVxf_t *op = (klr_MOVxf_t*)pc;
+		KLR_MOVxf(ctx, op->a1, op->a2);
+		pc += OPSIZE_MOVxf;
+		goto NEXT;
+	} 
+	CASE(L_XMOVsf, OPCODE_XMOVsf) {
+		const klr_XMOVsf_t *op = (klr_XMOVsf_t*)pc;
+		KLR_XMOVsf(ctx, op->a1, op->a2);
+		pc += OPSIZE_XMOVsf;
+		goto NEXT;
+	} 
+	CASE(L_XMOVof, OPCODE_XMOVof) {
+		const klr_XMOVof_t *op = (klr_XMOVof_t*)pc;
+		KLR_XMOVof(ctx, op->a1, op->a2);
+		pc += OPSIZE_XMOVof;
+		goto NEXT;
+	} 
+	CASE(L_XMOVxf, OPCODE_XMOVxf) {
+		const klr_XMOVxf_t *op = (klr_XMOVxf_t*)pc;
+		KLR_XMOVxf(ctx, op->a1, op->a2);
+		pc += OPSIZE_XMOVxf;
+		goto NEXT;
+	} 
+	CASE(L_XMOVxfo, OPCODE_XMOVxfo) {
+		const klr_XMOVxfo_t *op = (klr_XMOVxfo_t*)pc;
+		KLR_XMOVxfo(ctx, op->a1, op->a2);
+		pc += OPSIZE_XMOVxfo;
+		goto NEXT;
+	} 
+	CASE(L_XMOVxBXf, OPCODE_XMOVxBXf) {
+		const klr_XMOVxBXf_t *op = (klr_XMOVxBXf_t*)pc;
+		KLR_XMOVxBXf(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_XMOVxBXf;
+		goto NEXT;
+	} 
+	CASE(L_MOVxb, OPCODE_MOVxb) {
+		const klr_MOVxb_t *op = (klr_MOVxb_t*)pc;
+		KLR_MOVxb(ctx, op->a1, op->a2);
+		pc += OPSIZE_MOVxb;
+		goto NEXT;
+	} 
+	CASE(L_XMOVsb, OPCODE_XMOVsb) {
+		const klr_XMOVsb_t *op = (klr_XMOVsb_t*)pc;
+		KLR_XMOVsb(ctx, op->a1, op->a2);
+		pc += OPSIZE_XMOVsb;
+		goto NEXT;
+	} 
+	CASE(L_XMOVob, OPCODE_XMOVob) {
+		const klr_XMOVob_t *op = (klr_XMOVob_t*)pc;
+		KLR_XMOVob(ctx, op->a1, op->a2);
+		pc += OPSIZE_XMOVob;
+		goto NEXT;
+	} 
+	CASE(L_XMOVxb, OPCODE_XMOVxb) {
+		const klr_XMOVxb_t *op = (klr_XMOVxb_t*)pc;
+		KLR_XMOVxb(ctx, op->a1, op->a2);
+		pc += OPSIZE_XMOVxb;
+		goto NEXT;
+	} 
+	CASE(L_SWAP, OPCODE_SWAP) {
 		const klr_SWAP_t *op = (klr_SWAP_t*)pc;
 		KLR_SWAP(ctx, op->a1, op->a2);
 		pc += OPSIZE_SWAP;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(CHKNUL) {
-		const klr_CHKNUL_t *op = (klr_CHKNUL_t*)pc;
-		KLR_CHKNUL(ctx, op->a1);
-		pc += OPSIZE_CHKNUL;
-		goto NEXT_OP;
+	CASE(L_PARAMDEF, OPCODE_PARAMDEF) {
+		const klr_PARAMDEF_t *op = (klr_PARAMDEF_t*)pc;
+		KLR_PARAMDEF(ctx, op->a1, op->a2);
+		pc += OPSIZE_PARAMDEF;
+		goto NEXT;
 	} 
-	CASE(CHKTYPE) {
-		const klr_CHKTYPE_t *op = (klr_CHKTYPE_t*)pc;
-		KLR_CHKTYPE(ctx, op->a1, op->a2);
-		pc += OPSIZE_CHKTYPE;
-		goto NEXT_OP;
+	CASE(L_PARAMo, OPCODE_PARAMo) {
+		const klr_PARAMo_t *op = (klr_PARAMo_t*)pc;
+		KLR_PARAMo(ctx, op->a1, op->a2);
+		pc += OPSIZE_PARAMo;
+		goto NEXT;
 	} 
-	CASE(CHKNULx) {
-		const klr_CHKNULx_t *op = (klr_CHKNULx_t*)pc;
-		KLR_CHKNULx(ctx, op->a1);
-		pc += OPSIZE_CHKNULx;
-		goto NEXT_OP;
+	CASE(L_PARAMPROP, OPCODE_PARAMPROP) {
+		const klr_PARAMPROP_t *op = (klr_PARAMPROP_t*)pc;
+		KLR_PARAMPROP(ctx, op->a1, op->a2);
+		pc += OPSIZE_PARAMPROP;
+		goto NEXT;
 	} 
-	CASE(CHKTYPEx) {
-		const klr_CHKTYPEx_t *op = (klr_CHKTYPEx_t*)pc;
-		KLR_CHKTYPEx(ctx, op->a1, op->a2);
-		pc += OPSIZE_CHKTYPEx;
-		goto NEXT_OP;
+	CASE(L_PARAMS, OPCODE_PARAMS) {
+		const klr_PARAMS_t *op = (klr_PARAMS_t*)pc;
+		KLR_PARAMS(ctx, op->a1, op->a2);
+		pc += OPSIZE_PARAMS;
+		goto NEXT;
 	} 
-	CASE(LDMETHOD) {
-		const klr_LDMETHOD_t *op = (klr_LDMETHOD_t*)pc;
-		KLR_LDMETHOD(ctx, op->a1, op->a2, op->a3);
-		pc += OPSIZE_LDMETHOD;
-		goto NEXT_OP;
+	CASE(L_CHKESP, OPCODE_CHKESP) {
+		const klr_CHKESP_t *op = (klr_CHKESP_t*)pc;
+		KLR_CHKESP(ctx, op->a1);
+		pc += OPSIZE_CHKESP;
+		goto NEXT;
 	} 
-	CASE(CALL) {
-		const klr_CALL_t *op = (klr_CALL_t*)pc;
-		KLR_CALL(ctx, op->a1, op->a2);
-		pc += OPSIZE_CALL;
-		goto NEXT_OP;
-	} 
-	CASE(SCALL) {
-		const klr_SCALL_t *op = (klr_SCALL_t*)pc;
-		KLR2_SCALL(ctx, op->a1, op->a2, op->a3);
-		pc += OPSIZE_SCALL;
-		goto NEXT_OP;
-	} 
-	CASE(VCALL) {
-		const klr_VCALL_t *op = (klr_VCALL_t*)pc;
-		KLR2_VCALL(ctx, op->a1, op->a2, op->a3);
-		pc += OPSIZE_VCALL;
-		goto NEXT_OP;
-	} 
-	CASE(RET) {
+	CASE(L_RET, OPCODE_RET) {
 		TC(const klr_RET_t *op = (klr_RET_t*)pc;)
 		KLR_RET(ctx);
 		pc += OPSIZE_RET;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(FUNCCALL) {
-		TC(const klr_FUNCCALL_t *op = (klr_FUNCCALL_t*)pc;)
-		KLR0_FUNCCALL(ctx);
-		pc += OPSIZE_FUNCCALL;
-		goto NEXT_OP;
+	CASE(L_YEILDBREAK, OPCODE_YEILDBREAK) {
+		TC(const klr_YEILDBREAK_t *op = (klr_YEILDBREAK_t*)pc;)
+		KLR_YEILDBREAK(ctx);
+		pc += OPSIZE_YEILDBREAK;
+		goto NEXT;
 	} 
-	CASE(SMAP) {
+	CASE(L_BOX, OPCODE_BOX) {
+		const klr_BOX_t *op = (klr_BOX_t*)pc;
+		KLR_BOX(ctx, op->a1, op->a2);
+		pc += OPSIZE_BOX;
+		goto NEXT;
+	} 
+	CASE(L_BOXnc, OPCODE_BOXnc) {
+		const klr_BOXnc_t *op = (klr_BOXnc_t*)pc;
+		KLR_BOXnc(ctx, op->a1, op->a2);
+		pc += OPSIZE_BOXnc;
+		goto NEXT;
+	} 
+	CASE(L_NNBOX, OPCODE_NNBOX) {
+		const klr_NNBOX_t *op = (klr_NNBOX_t*)pc;
+		KLR_NNBOX(ctx, op->a1, op->a2);
+		pc += OPSIZE_NNBOX;
+		goto NEXT;
+	} 
+	CASE(L_NNBOXnc, OPCODE_NNBOXnc) {
+		const klr_NNBOXnc_t *op = (klr_NNBOXnc_t*)pc;
+		KLR_NNBOXnc(ctx, op->a1, op->a2);
+		pc += OPSIZE_NNBOXnc;
+		goto NEXT;
+	} 
+	CASE(L_UNBOX, OPCODE_UNBOX) {
+		const klr_UNBOX_t *op = (klr_UNBOX_t*)pc;
+		KLR_UNBOX(ctx, op->a1);
+		pc += OPSIZE_UNBOX;
+		goto NEXT;
+	} 
+	CASE(L_CHKNUL, OPCODE_CHKNUL) {
+		const klr_CHKNUL_t *op = (klr_CHKNUL_t*)pc;
+		KLR_CHKNUL(ctx, op->a1);
+		pc += OPSIZE_CHKNUL;
+		goto NEXT;
+	} 
+	CASE(L_CHKNULx, OPCODE_CHKNULx) {
+		const klr_CHKNULx_t *op = (klr_CHKNULx_t*)pc;
+		KLR_CHKNULx(ctx, op->a1);
+		pc += OPSIZE_CHKNULx;
+		goto NEXT;
+	} 
+	CASE(L_CHKTYPE, OPCODE_CHKTYPE) {
+		const klr_CHKTYPE_t *op = (klr_CHKTYPE_t*)pc;
+		KLR_CHKTYPE(ctx, op->a1, op->a2);
+		pc += OPSIZE_CHKTYPE;
+		goto NEXT;
+	} 
+	CASE(L_FCALL, OPCODE_FCALL) {
+		const klr_FCALL_t *op = (klr_FCALL_t*)pc;
+		KLR_FCALL(ctx, op->a1, op->a2, op->a3, op->a4);
+		pc += OPSIZE_FCALL;
+		goto NEXT;
+	} 
+	CASE(L_RCALL, OPCODE_RCALL) {
+		const klr_RCALL_t *op = (klr_RCALL_t*)pc;
+		KLR_RCALL(ctx, op->a1, op->a2);
+		pc += OPSIZE_RCALL;
+		goto NEXT;
+	} 
+	CASE(L_SCALL, OPCODE_SCALL) {
+		const klr_SCALL_t *op = (klr_SCALL_t*)pc;
+		KLR_SCALL(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_SCALL;
+		goto NEXT;
+	} 
+	CASE(L_AINVOKE, OPCODE_AINVOKE) {
+		const klr_AINVOKE_t *op = (klr_AINVOKE_t*)pc;
+		KLR_AINVOKE(ctx, op->a1, op->a2);
+		pc += OPSIZE_AINVOKE;
+		goto NEXT;
+	} 
+	CASE(L_CALL, OPCODE_CALL) {
+		const klr_CALL_t *op = (klr_CALL_t*)pc;
+		KLR_CALL(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_CALL;
+		goto NEXT;
+	} 
+	CASE(L_ACALL, OPCODE_ACALL) {
+		const klr_ACALL_t *op = (klr_ACALL_t*)pc;
+		KLR_ACALL(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_ACALL;
+		goto NEXT;
+	} 
+	CASE(L_NEW, OPCODE_NEW) {
+		const klr_NEW_t *op = (klr_NEW_t*)pc;
+		KLR_NEW(ctx, op->a1, op->a2, op->a3, op->a4, op->a5);
+		pc += OPSIZE_NEW;
+		goto NEXT;
+	} 
+	CASE(L_COPYSFP, OPCODE_COPYSFP) {
+		const klr_COPYSFP_t *op = (klr_COPYSFP_t*)pc;
+		KLR_COPYSFP(ctx, op->a1);
+		pc += OPSIZE_COPYSFP;
+		goto NEXT;
+	} 
+	CASE(L_STR, OPCODE_STR) {
+		const klr_STR_t *op = (klr_STR_t*)pc;
+		KLR_STR(ctx, op->a1, op->a2, op->a3, op->a4);
+		pc += OPSIZE_STR;
+		goto NEXT;
+	} 
+	CASE(L_SSTR, OPCODE_SSTR) {
+		const klr_SSTR_t *op = (klr_SSTR_t*)pc;
+		KLR_SSTR(ctx, op->a1, op->a2, op->a3, op->a4);
+		pc += OPSIZE_SSTR;
+		goto NEXT;
+	} 
+	CASE(L_SMAP, OPCODE_SMAP) {
 		const klr_SMAP_t *op = (klr_SMAP_t*)pc;
 		KLR_SMAP(ctx, op->a1, op->a2);
 		pc += OPSIZE_SMAP;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(SMAPnc) {
+	CASE(L_SMAPnc, OPCODE_SMAPnc) {
 		const klr_SMAPnc_t *op = (klr_SMAPnc_t*)pc;
 		KLR_SMAPnc(ctx, op->a1, op->a2);
 		pc += OPSIZE_SMAPnc;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(MAP) {
+	CASE(L_MAP, OPCODE_MAP) {
 		const klr_MAP_t *op = (klr_MAP_t*)pc;
 		KLR_MAP(ctx, op->a1, op->a2);
 		pc += OPSIZE_MAP;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(MAPnc) {
+	CASE(L_MAPnc, OPCODE_MAPnc) {
 		const klr_MAPnc_t *op = (klr_MAPnc_t*)pc;
 		KLR_MAPnc(ctx, op->a1, op->a2);
 		pc += OPSIZE_MAPnc;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(AMAP) {
+	CASE(L_AMAP, OPCODE_AMAP) {
 		const klr_AMAP_t *op = (klr_AMAP_t*)pc;
 		KLR_AMAP(ctx, op->a1, op->a2);
 		pc += OPSIZE_AMAP;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(JMP) {
+	CASE(L_NNMAP, OPCODE_NNMAP) {
+		const klr_NNMAP_t *op = (klr_NNMAP_t*)pc;
+		KLR_NNMAP(ctx, op->a1, op->a2);
+		pc += OPSIZE_NNMAP;
+		goto NEXT;
+	} 
+	CASE(L_JMP, OPCODE_JMP) {
 		const klr_JMP_t *op = (klr_JMP_t*)pc;
 		KLR_JMP(ctx, pc = ((knh_inst_t*)op)->jumppc, JUMP);
 		pc += OPSIZE_JMP;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(NOPJMP) {
-		const klr_NOPJMP_t *op = (klr_NOPJMP_t*)pc;
-		KLR_NOPJMP(ctx, pc = ((knh_inst_t*)op)->jumppc, JUMP);
-		pc += OPSIZE_NOPJMP;
-		goto NEXT_OP;
+	CASE(L_SKIP, OPCODE_SKIP) {
+		const klr_SKIP_t *op = (klr_SKIP_t*)pc;
+		KLR_SKIP(ctx, pc = ((knh_inst_t*)op)->jumppc, JUMP);
+		pc += OPSIZE_SKIP;
+		goto NEXT;
 	} 
-	CASE(JMPT) {
-		const klr_JMPT_t *op = (klr_JMPT_t*)pc;
-		KLR_JMPT(ctx, pc = ((knh_inst_t*)op)->jumppc, JUMP, op->a2);
-		pc += OPSIZE_JMPT;
-		goto NEXT_OP;
+	CASE(L_bJIFT, OPCODE_bJIFT) {
+		const klr_bJIFT_t *op = (klr_bJIFT_t*)pc;
+		KLR_bJIFT(ctx, pc = ((knh_inst_t*)op)->jumppc, JUMP, op->a2);
+		pc += OPSIZE_bJIFT;
+		goto NEXT;
 	} 
-	CASE(JMPF) {
-		const klr_JMPF_t *op = (klr_JMPF_t*)pc;
-		KLR_JMPF(ctx, pc = ((knh_inst_t*)op)->jumppc, JUMP, op->a2);
-		pc += OPSIZE_JMPF;
-		goto NEXT_OP;
+	CASE(L_bJIFF, OPCODE_bJIFF) {
+		const klr_bJIFF_t *op = (klr_bJIFF_t*)pc;
+		KLR_bJIFF(ctx, pc = ((knh_inst_t*)op)->jumppc, JUMP, op->a2);
+		pc += OPSIZE_bJIFF;
+		goto NEXT;
 	} 
-	CASE(JMPF_LOOP) {
-		const klr_JMPF_LOOP_t *op = (klr_JMPF_LOOP_t*)pc;
-		KLR2_JMPF_LOOP(ctx, pc = ((knh_inst_t*)op)->jumppc, JUMP, op->a2);
-		pc += OPSIZE_JMPF_LOOP;
-		goto NEXT_OP;
+	CASE(L_bJIFF_LOOP, OPCODE_bJIFF_LOOP) {
+		const klr_bJIFF_LOOP_t *op = (klr_bJIFF_LOOP_t*)pc;
+		KLR_bJIFF_LOOP(ctx, pc = ((knh_inst_t*)op)->jumppc, JUMP, op->a2);
+		pc += OPSIZE_bJIFF_LOOP;
+		goto NEXT;
 	} 
-	CASE(JMPNUL) {
-		const klr_JMPNUL_t *op = (klr_JMPNUL_t*)pc;
-		KLR_JMPNUL(ctx, pc = ((knh_inst_t*)op)->jumppc, JUMP, op->a2);
-		pc += OPSIZE_JMPNUL;
-		goto NEXT_OP;
+	CASE(L_JIFNUL, OPCODE_JIFNUL) {
+		const klr_JIFNUL_t *op = (klr_JIFNUL_t*)pc;
+		KLR_JIFNUL(ctx, pc = ((knh_inst_t*)op)->jumppc, JUMP, op->a2);
+		pc += OPSIZE_JIFNUL;
+		goto NEXT;
 	} 
-	CASE(JMPNN) {
-		const klr_JMPNN_t *op = (klr_JMPNN_t*)pc;
-		KLR_JMPNN(ctx, pc = ((knh_inst_t*)op)->jumppc, JUMP, op->a2);
-		pc += OPSIZE_JMPNN;
-		goto NEXT_OP;
+	CASE(L_JIFNN, OPCODE_JIFNN) {
+		const klr_JIFNN_t *op = (klr_JIFNN_t*)pc;
+		KLR_JIFNN(ctx, pc = ((knh_inst_t*)op)->jumppc, JUMP, op->a2);
+		pc += OPSIZE_JIFNN;
+		goto NEXT;
 	} 
-	CASE(JMPchk) {
-		const klr_JMPchk_t *op = (klr_JMPchk_t*)pc;
-		KLR_JMPchk(ctx, pc = ((knh_inst_t*)op)->jumppc, JUMP, op->a2, op->a3);
-		pc += OPSIZE_JMPchk;
-		goto NEXT_OP;
-	} 
-	CASE(JMPcmp) {
-		const klr_JMPcmp_t *op = (klr_JMPcmp_t*)pc;
-		KLR2_JMPcmp(ctx, pc = ((knh_inst_t*)op)->jumppc, JUMP, op->a2, op->a3, op->a4);
-		pc += OPSIZE_JMPcmp;
-		goto NEXT_OP;
-	} 
-	CASE(JMPcmpi) {
-		const klr_JMPcmpi_t *op = (klr_JMPcmpi_t*)pc;
-		KLR2_JMPcmpi(ctx, pc = ((knh_inst_t*)op)->jumppc, JUMP, op->a2, op->a3, op->a4);
-		pc += OPSIZE_JMPcmpi;
-		goto NEXT_OP;
-	} 
-	CASE(JMPcmpf) {
-		const klr_JMPcmpf_t *op = (klr_JMPcmpf_t*)pc;
-		KLR2_JMPcmpf(ctx, pc = ((knh_inst_t*)op)->jumppc, JUMP, op->a2, op->a3, op->a4);
-		pc += OPSIZE_JMPcmpf;
-		goto NEXT_OP;
-	} 
-	CASE(NEXT) {
+	CASE(L_NEXT, OPCODE_NEXT) {
 		const klr_NEXT_t *op = (klr_NEXT_t*)pc;
 		KLR_NEXT(ctx, pc = ((knh_inst_t*)op)->jumppc, JUMP, op->a2, op->a3);
 		pc += OPSIZE_NEXT;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(NEXTf) {
-		const klr_NEXTf_t *op = (klr_NEXTf_t*)pc;
-		KLR_NEXTf(ctx, pc = ((knh_inst_t*)op)->jumppc, JUMP, op->a2, op->a3, op->a4, op->a5);
-		pc += OPSIZE_NEXTf;
-		goto NEXT_OP;
+	CASE(L_INEXT, OPCODE_INEXT) {
+		const klr_INEXT_t *op = (klr_INEXT_t*)pc;
+		KLR_INEXT(ctx, pc = ((knh_inst_t*)op)->jumppc, JUMP, op->a2, op->a3, op->a4);
+		pc += OPSIZE_INEXT;
+		goto NEXT;
 	} 
-	CASE(TRY) {
+	CASE(L_TRY, OPCODE_TRY) {
 		const klr_TRY_t *op = (klr_TRY_t*)pc;
 		KLR_TRY(ctx, pc = ((knh_inst_t*)op)->jumppc, JUMP, op->a2);
 		pc += OPSIZE_TRY;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(TRYEND) {
+	CASE(L_TRYEND, OPCODE_TRYEND) {
 		const klr_TRYEND_t *op = (klr_TRYEND_t*)pc;
 		KLR_TRYEND(ctx, op->a1);
 		pc += OPSIZE_TRYEND;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(CATCH) {
+	CASE(L_CATCH, OPCODE_CATCH) {
 		const klr_CATCH_t *op = (klr_CATCH_t*)pc;
 		KLR_CATCH(ctx, pc = ((knh_inst_t*)op)->jumppc, JUMP, op->a2, op->a3, op->a4);
 		pc += OPSIZE_CATCH;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(THROW) {
+	CASE(L_PUSH, OPCODE_PUSH) {
+		const klr_PUSH_t *op = (klr_PUSH_t*)pc;
+		KLR_PUSH(ctx, op->a1);
+		pc += OPSIZE_PUSH;
+		goto NEXT;
+	} 
+	CASE(L_POP, OPCODE_POP) {
+		const klr_POP_t *op = (klr_POP_t*)pc;
+		KLR_POP(ctx, op->a1);
+		pc += OPSIZE_POP;
+		goto NEXT;
+	} 
+	CASE(L_THROW, OPCODE_THROW) {
 		const klr_THROW_t *op = (klr_THROW_t*)pc;
 		KLR_THROW(ctx, op->a1, op->a2);
 		pc += OPSIZE_THROW;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(THROWs) {
+	CASE(L_THROWs, OPCODE_THROWs) {
 		const klr_THROWs_t *op = (klr_THROWs_t*)pc;
 		KLR_THROWs(ctx, op->a1, op->a2, op->a3);
 		pc += OPSIZE_THROWs;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(THROW_AGAIN) {
+	CASE(L_THROW_AGAIN, OPCODE_THROW_AGAIN) {
 		const klr_THROW_AGAIN_t *op = (klr_THROW_AGAIN_t*)pc;
 		KLR_THROW_AGAIN(ctx, op->a1);
 		pc += OPSIZE_THROW_AGAIN;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(P) {
+	CASE(L_P, OPCODE_P) {
 		const klr_P_t *op = (klr_P_t*)pc;
 		KLR_P(ctx, op->a1, op->a2, op->a3);
 		pc += OPSIZE_P;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(PMSG) {
+	CASE(L_PMSG, OPCODE_PMSG) {
 		const klr_PMSG_t *op = (klr_PMSG_t*)pc;
 		KLR_PMSG(ctx, op->a1, op->a2);
 		pc += OPSIZE_PMSG;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(bNOT) {
+	CASE(L_iCAST, OPCODE_iCAST) {
+		const klr_iCAST_t *op = (klr_iCAST_t*)pc;
+		KLR_iCAST(ctx, op->a1);
+		pc += OPSIZE_iCAST;
+		goto NEXT;
+	} 
+	CASE(L_inCAST, OPCODE_inCAST) {
+		const klr_inCAST_t *op = (klr_inCAST_t*)pc;
+		KLR_inCAST(ctx, op->a1);
+		pc += OPSIZE_inCAST;
+		goto NEXT;
+	} 
+	CASE(L_fCAST, OPCODE_fCAST) {
+		const klr_fCAST_t *op = (klr_fCAST_t*)pc;
+		KLR_fCAST(ctx, op->a1);
+		pc += OPSIZE_fCAST;
+		goto NEXT;
+	} 
+	CASE(L_fnCAST, OPCODE_fnCAST) {
+		const klr_fnCAST_t *op = (klr_fnCAST_t*)pc;
+		KLR_fnCAST(ctx, op->a1);
+		pc += OPSIZE_fnCAST;
+		goto NEXT;
+	} 
+	CASE(L_bNOT, OPCODE_bNOT) {
 		const klr_bNOT_t *op = (klr_bNOT_t*)pc;
 		KLR_bNOT(ctx, op->a1, op->a2);
 		pc += OPSIZE_bNOT;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(iNEG) {
+	CASE(L_iNEG, OPCODE_iNEG) {
 		const klr_iNEG_t *op = (klr_iNEG_t*)pc;
 		KLR_iNEG(ctx, op->a1, op->a2);
 		pc += OPSIZE_iNEG;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(iADD) {
+	CASE(L_iADD, OPCODE_iADD) {
 		const klr_iADD_t *op = (klr_iADD_t*)pc;
 		KLR_iADD(ctx, op->a1, op->a2, op->a3);
 		pc += OPSIZE_iADD;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(iSUB) {
-		const klr_iSUB_t *op = (klr_iSUB_t*)pc;
-		KLR_iSUB(ctx, op->a1, op->a2, op->a3);
-		pc += OPSIZE_iSUB;
-		goto NEXT_OP;
-	} 
-	CASE(iMUL) {
-		const klr_iMUL_t *op = (klr_iMUL_t*)pc;
-		KLR_iMUL(ctx, op->a1, op->a2, op->a3);
-		pc += OPSIZE_iMUL;
-		goto NEXT_OP;
-	} 
-	CASE(iDIV) {
-		const klr_iDIV_t *op = (klr_iDIV_t*)pc;
-		KLR_iDIV(ctx, op->a1, op->a2, op->a3);
-		pc += OPSIZE_iDIV;
-		goto NEXT_OP;
-	} 
-	CASE(iMOD) {
-		const klr_iMOD_t *op = (klr_iMOD_t*)pc;
-		KLR_iMOD(ctx, op->a1, op->a2, op->a3);
-		pc += OPSIZE_iMOD;
-		goto NEXT_OP;
-	} 
-	CASE(iDIVn) {
-		const klr_iDIVn_t *op = (klr_iDIVn_t*)pc;
-		KLR_iDIVn(ctx, op->a1, op->a2, op->a3);
-		pc += OPSIZE_iDIVn;
-		goto NEXT_OP;
-	} 
-	CASE(iADDn) {
+	CASE(L_iADDn, OPCODE_iADDn) {
 		const klr_iADDn_t *op = (klr_iADDn_t*)pc;
 		KLR_iADDn(ctx, op->a1, op->a2, op->a3);
 		pc += OPSIZE_iADDn;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(iSUBn) {
+	CASE(L_iSUB, OPCODE_iSUB) {
+		const klr_iSUB_t *op = (klr_iSUB_t*)pc;
+		KLR_iSUB(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iSUB;
+		goto NEXT;
+	} 
+	CASE(L_iSUBn, OPCODE_iSUBn) {
 		const klr_iSUBn_t *op = (klr_iSUBn_t*)pc;
 		KLR_iSUBn(ctx, op->a1, op->a2, op->a3);
 		pc += OPSIZE_iSUBn;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(iMULn) {
+	CASE(L_iMUL, OPCODE_iMUL) {
+		const klr_iMUL_t *op = (klr_iMUL_t*)pc;
+		KLR_iMUL(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iMUL;
+		goto NEXT;
+	} 
+	CASE(L_iMULn, OPCODE_iMULn) {
 		const klr_iMULn_t *op = (klr_iMULn_t*)pc;
 		KLR_iMULn(ctx, op->a1, op->a2, op->a3);
 		pc += OPSIZE_iMULn;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(iMODn) {
+	CASE(L_iDIV, OPCODE_iDIV) {
+		const klr_iDIV_t *op = (klr_iDIV_t*)pc;
+		KLR_iDIV(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iDIV;
+		goto NEXT;
+	} 
+	CASE(L_iDIVn, OPCODE_iDIVn) {
+		const klr_iDIVn_t *op = (klr_iDIVn_t*)pc;
+		KLR_iDIVn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iDIVn;
+		goto NEXT;
+	} 
+	CASE(L_iMOD, OPCODE_iMOD) {
+		const klr_iMOD_t *op = (klr_iMOD_t*)pc;
+		KLR_iMOD(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iMOD;
+		goto NEXT;
+	} 
+	CASE(L_iMODn, OPCODE_iMODn) {
 		const klr_iMODn_t *op = (klr_iMODn_t*)pc;
 		KLR_iMODn(ctx, op->a1, op->a2, op->a3);
 		pc += OPSIZE_iMODn;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(iEQ) {
+	CASE(L_iEQ, OPCODE_iEQ) {
 		const klr_iEQ_t *op = (klr_iEQ_t*)pc;
 		KLR_iEQ(ctx, op->a1, op->a2, op->a3);
 		pc += OPSIZE_iEQ;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(iNEQ) {
-		const klr_iNEQ_t *op = (klr_iNEQ_t*)pc;
-		KLR_iNEQ(ctx, op->a1, op->a2, op->a3);
-		pc += OPSIZE_iNEQ;
-		goto NEXT_OP;
-	} 
-	CASE(iLT) {
-		const klr_iLT_t *op = (klr_iLT_t*)pc;
-		KLR_iLT(ctx, op->a1, op->a2, op->a3);
-		pc += OPSIZE_iLT;
-		goto NEXT_OP;
-	} 
-	CASE(iLTE) {
-		const klr_iLTE_t *op = (klr_iLTE_t*)pc;
-		KLR_iLTE(ctx, op->a1, op->a2, op->a3);
-		pc += OPSIZE_iLTE;
-		goto NEXT_OP;
-	} 
-	CASE(iGT) {
-		const klr_iGT_t *op = (klr_iGT_t*)pc;
-		KLR_iGT(ctx, op->a1, op->a2, op->a3);
-		pc += OPSIZE_iGT;
-		goto NEXT_OP;
-	} 
-	CASE(iGTE) {
-		const klr_iGTE_t *op = (klr_iGTE_t*)pc;
-		KLR_iGTE(ctx, op->a1, op->a2, op->a3);
-		pc += OPSIZE_iGTE;
-		goto NEXT_OP;
-	} 
-	CASE(iEQn) {
+	CASE(L_iEQn, OPCODE_iEQn) {
 		const klr_iEQn_t *op = (klr_iEQn_t*)pc;
 		KLR_iEQn(ctx, op->a1, op->a2, op->a3);
 		pc += OPSIZE_iEQn;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(iNEQn) {
+	CASE(L_iNEQ, OPCODE_iNEQ) {
+		const klr_iNEQ_t *op = (klr_iNEQ_t*)pc;
+		KLR_iNEQ(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iNEQ;
+		goto NEXT;
+	} 
+	CASE(L_iNEQn, OPCODE_iNEQn) {
 		const klr_iNEQn_t *op = (klr_iNEQn_t*)pc;
 		KLR_iNEQn(ctx, op->a1, op->a2, op->a3);
 		pc += OPSIZE_iNEQn;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(iLTn) {
+	CASE(L_iLT, OPCODE_iLT) {
+		const klr_iLT_t *op = (klr_iLT_t*)pc;
+		KLR_iLT(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iLT;
+		goto NEXT;
+	} 
+	CASE(L_iLTn, OPCODE_iLTn) {
 		const klr_iLTn_t *op = (klr_iLTn_t*)pc;
 		KLR_iLTn(ctx, op->a1, op->a2, op->a3);
 		pc += OPSIZE_iLTn;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(iLTEn) {
+	CASE(L_iLTE, OPCODE_iLTE) {
+		const klr_iLTE_t *op = (klr_iLTE_t*)pc;
+		KLR_iLTE(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iLTE;
+		goto NEXT;
+	} 
+	CASE(L_iLTEn, OPCODE_iLTEn) {
 		const klr_iLTEn_t *op = (klr_iLTEn_t*)pc;
 		KLR_iLTEn(ctx, op->a1, op->a2, op->a3);
 		pc += OPSIZE_iLTEn;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(iGTn) {
+	CASE(L_iGT, OPCODE_iGT) {
+		const klr_iGT_t *op = (klr_iGT_t*)pc;
+		KLR_iGT(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iGT;
+		goto NEXT;
+	} 
+	CASE(L_iGTn, OPCODE_iGTn) {
 		const klr_iGTn_t *op = (klr_iGTn_t*)pc;
 		KLR_iGTn(ctx, op->a1, op->a2, op->a3);
 		pc += OPSIZE_iGTn;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(iGTEn) {
+	CASE(L_iGTE, OPCODE_iGTE) {
+		const klr_iGTE_t *op = (klr_iGTE_t*)pc;
+		KLR_iGTE(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iGTE;
+		goto NEXT;
+	} 
+	CASE(L_iGTEn, OPCODE_iGTEn) {
 		const klr_iGTEn_t *op = (klr_iGTEn_t*)pc;
 		KLR_iGTEn(ctx, op->a1, op->a2, op->a3);
 		pc += OPSIZE_iGTEn;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(fNEG) {
+	CASE(L_fNEG, OPCODE_fNEG) {
 		const klr_fNEG_t *op = (klr_fNEG_t*)pc;
 		KLR_fNEG(ctx, op->a1, op->a2);
 		pc += OPSIZE_fNEG;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(fADD) {
+	CASE(L_fADD, OPCODE_fADD) {
 		const klr_fADD_t *op = (klr_fADD_t*)pc;
 		KLR_fADD(ctx, op->a1, op->a2, op->a3);
 		pc += OPSIZE_fADD;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(fSUB) {
-		const klr_fSUB_t *op = (klr_fSUB_t*)pc;
-		KLR_fSUB(ctx, op->a1, op->a2, op->a3);
-		pc += OPSIZE_fSUB;
-		goto NEXT_OP;
-	} 
-	CASE(fMUL) {
-		const klr_fMUL_t *op = (klr_fMUL_t*)pc;
-		KLR_fMUL(ctx, op->a1, op->a2, op->a3);
-		pc += OPSIZE_fMUL;
-		goto NEXT_OP;
-	} 
-	CASE(fDIV) {
-		const klr_fDIV_t *op = (klr_fDIV_t*)pc;
-		KLR_fDIV(ctx, op->a1, op->a2, op->a3);
-		pc += OPSIZE_fDIV;
-		goto NEXT_OP;
-	} 
-	CASE(fADDn) {
+	CASE(L_fADDn, OPCODE_fADDn) {
 		const klr_fADDn_t *op = (klr_fADDn_t*)pc;
 		KLR_fADDn(ctx, op->a1, op->a2, op->a3);
 		pc += OPSIZE_fADDn;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(fSUBn) {
+	CASE(L_fSUB, OPCODE_fSUB) {
+		const klr_fSUB_t *op = (klr_fSUB_t*)pc;
+		KLR_fSUB(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_fSUB;
+		goto NEXT;
+	} 
+	CASE(L_fSUBn, OPCODE_fSUBn) {
 		const klr_fSUBn_t *op = (klr_fSUBn_t*)pc;
 		KLR_fSUBn(ctx, op->a1, op->a2, op->a3);
 		pc += OPSIZE_fSUBn;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(fMULn) {
+	CASE(L_fMUL, OPCODE_fMUL) {
+		const klr_fMUL_t *op = (klr_fMUL_t*)pc;
+		KLR_fMUL(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_fMUL;
+		goto NEXT;
+	} 
+	CASE(L_fMULn, OPCODE_fMULn) {
 		const klr_fMULn_t *op = (klr_fMULn_t*)pc;
 		KLR_fMULn(ctx, op->a1, op->a2, op->a3);
 		pc += OPSIZE_fMULn;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(fDIVn) {
+	CASE(L_fDIV, OPCODE_fDIV) {
+		const klr_fDIV_t *op = (klr_fDIV_t*)pc;
+		KLR_fDIV(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_fDIV;
+		goto NEXT;
+	} 
+	CASE(L_fDIVn, OPCODE_fDIVn) {
 		const klr_fDIVn_t *op = (klr_fDIVn_t*)pc;
 		KLR_fDIVn(ctx, op->a1, op->a2, op->a3);
 		pc += OPSIZE_fDIVn;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(fEQ) {
+	CASE(L_fEQ, OPCODE_fEQ) {
 		const klr_fEQ_t *op = (klr_fEQ_t*)pc;
 		KLR_fEQ(ctx, op->a1, op->a2, op->a3);
 		pc += OPSIZE_fEQ;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(fNEQ) {
-		const klr_fNEQ_t *op = (klr_fNEQ_t*)pc;
-		KLR_fNEQ(ctx, op->a1, op->a2, op->a3);
-		pc += OPSIZE_fNEQ;
-		goto NEXT_OP;
-	} 
-	CASE(fEQn) {
+	CASE(L_fEQn, OPCODE_fEQn) {
 		const klr_fEQn_t *op = (klr_fEQn_t*)pc;
 		KLR_fEQn(ctx, op->a1, op->a2, op->a3);
 		pc += OPSIZE_fEQn;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(fNEQn) {
+	CASE(L_fNEQ, OPCODE_fNEQ) {
+		const klr_fNEQ_t *op = (klr_fNEQ_t*)pc;
+		KLR_fNEQ(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_fNEQ;
+		goto NEXT;
+	} 
+	CASE(L_fNEQn, OPCODE_fNEQn) {
 		const klr_fNEQn_t *op = (klr_fNEQn_t*)pc;
 		KLR_fNEQn(ctx, op->a1, op->a2, op->a3);
 		pc += OPSIZE_fNEQn;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(fLT) {
+	CASE(L_fLT, OPCODE_fLT) {
 		const klr_fLT_t *op = (klr_fLT_t*)pc;
 		KLR_fLT(ctx, op->a1, op->a2, op->a3);
 		pc += OPSIZE_fLT;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(fLTE) {
-		const klr_fLTE_t *op = (klr_fLTE_t*)pc;
-		KLR_fLTE(ctx, op->a1, op->a2, op->a3);
-		pc += OPSIZE_fLTE;
-		goto NEXT_OP;
-	} 
-	CASE(fGT) {
-		const klr_fGT_t *op = (klr_fGT_t*)pc;
-		KLR_fGT(ctx, op->a1, op->a2, op->a3);
-		pc += OPSIZE_fGT;
-		goto NEXT_OP;
-	} 
-	CASE(fGTE) {
-		const klr_fGTE_t *op = (klr_fGTE_t*)pc;
-		KLR_fGTE(ctx, op->a1, op->a2, op->a3);
-		pc += OPSIZE_fGTE;
-		goto NEXT_OP;
-	} 
-	CASE(fLTn) {
+	CASE(L_fLTn, OPCODE_fLTn) {
 		const klr_fLTn_t *op = (klr_fLTn_t*)pc;
 		KLR_fLTn(ctx, op->a1, op->a2, op->a3);
 		pc += OPSIZE_fLTn;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(fLTEn) {
+	CASE(L_fLTE, OPCODE_fLTE) {
+		const klr_fLTE_t *op = (klr_fLTE_t*)pc;
+		KLR_fLTE(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_fLTE;
+		goto NEXT;
+	} 
+	CASE(L_fLTEn, OPCODE_fLTEn) {
 		const klr_fLTEn_t *op = (klr_fLTEn_t*)pc;
 		KLR_fLTEn(ctx, op->a1, op->a2, op->a3);
 		pc += OPSIZE_fLTEn;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(fGTn) {
+	CASE(L_fGT, OPCODE_fGT) {
+		const klr_fGT_t *op = (klr_fGT_t*)pc;
+		KLR_fGT(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_fGT;
+		goto NEXT;
+	} 
+	CASE(L_fGTn, OPCODE_fGTn) {
 		const klr_fGTn_t *op = (klr_fGTn_t*)pc;
 		KLR_fGTn(ctx, op->a1, op->a2, op->a3);
 		pc += OPSIZE_fGTn;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(fGTEn) {
+	CASE(L_fGTE, OPCODE_fGTE) {
+		const klr_fGTE_t *op = (klr_fGTE_t*)pc;
+		KLR_fGTE(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_fGTE;
+		goto NEXT;
+	} 
+	CASE(L_fGTEn, OPCODE_fGTEn) {
 		const klr_fGTEn_t *op = (klr_fGTEn_t*)pc;
 		KLR_fGTEn(ctx, op->a1, op->a2, op->a3);
 		pc += OPSIZE_fGTEn;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(OEVAL) {
-		const klr_OEVAL_t *op = (klr_OEVAL_t*)pc;
-		KLR_OEVAL(ctx, op->a1, op->a2, op->a3);
-		pc += OPSIZE_OEVAL;
-		goto NEXT_OP;
+	CASE(L_ARYGET, OPCODE_ARYGET) {
+		const klr_ARYGET_t *op = (klr_ARYGET_t*)pc;
+		KLR_ARYGET(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_ARYGET;
+		goto NEXT;
 	} 
-	CASE(GETIDX) {
-		const klr_GETIDX_t *op = (klr_GETIDX_t*)pc;
-		KLR_GETIDX(ctx, op->a1, op->a2, op->a3, op->a4);
-		pc += OPSIZE_GETIDX;
-		goto NEXT_OP;
+	CASE(L_ARYGETn, OPCODE_ARYGETn) {
+		const klr_ARYGETn_t *op = (klr_ARYGETn_t*)pc;
+		KLR_ARYGETn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_ARYGETn;
+		goto NEXT;
 	} 
-	CASE(SETIDX) {
-		const klr_SETIDX_t *op = (klr_SETIDX_t*)pc;
-		KLR_SETIDX(ctx, op->a1, op->a2, op->a3, op->a4, op->a5);
-		pc += OPSIZE_SETIDX;
-		goto NEXT_OP;
+	CASE(L_iARYGET, OPCODE_iARYGET) {
+		const klr_iARYGET_t *op = (klr_iARYGET_t*)pc;
+		KLR_iARYGET(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iARYGET;
+		goto NEXT;
 	} 
-	CASE(GETIDXn) {
-		const klr_GETIDXn_t *op = (klr_GETIDXn_t*)pc;
-		KLR_GETIDXn(ctx, op->a1, op->a2, op->a3, op->a4);
-		pc += OPSIZE_GETIDXn;
-		goto NEXT_OP;
+	CASE(L_iARYGETn, OPCODE_iARYGETn) {
+		const klr_iARYGETn_t *op = (klr_iARYGETn_t*)pc;
+		KLR_iARYGETn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iARYGETn;
+		goto NEXT;
 	} 
-	CASE(SETIDXn) {
-		const klr_SETIDXn_t *op = (klr_SETIDXn_t*)pc;
-		KLR_SETIDXn(ctx, op->a1, op->a2, op->a3, op->a4, op->a5);
-		pc += OPSIZE_SETIDXn;
-		goto NEXT_OP;
+	CASE(L_fARYGET, OPCODE_fARYGET) {
+		const klr_fARYGET_t *op = (klr_fARYGET_t*)pc;
+		KLR_fARYGET(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_fARYGET;
+		goto NEXT;
 	} 
-	CASE(THCODE) {
-		TC(const klr_THCODE_t *op = (klr_THCODE_t*)pc;)
-		KLR0_THCODE(ctx);
+	CASE(L_fARYGETn, OPCODE_fARYGETn) {
+		const klr_fARYGETn_t *op = (klr_fARYGETn_t*)pc;
+		KLR_fARYGETn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_fARYGETn;
+		goto NEXT;
+	} 
+	CASE(L_ARYSET, OPCODE_ARYSET) {
+		const klr_ARYSET_t *op = (klr_ARYSET_t*)pc;
+		KLR_ARYSET(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_ARYSET;
+		goto NEXT;
+	} 
+	CASE(L_ARYSETn, OPCODE_ARYSETn) {
+		const klr_ARYSETn_t *op = (klr_ARYSETn_t*)pc;
+		KLR_ARYSETn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_ARYSETn;
+		goto NEXT;
+	} 
+	CASE(L_iARYSET, OPCODE_iARYSET) {
+		const klr_iARYSET_t *op = (klr_iARYSET_t*)pc;
+		KLR_iARYSET(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iARYSET;
+		goto NEXT;
+	} 
+	CASE(L_iARYSETn, OPCODE_iARYSETn) {
+		const klr_iARYSETn_t *op = (klr_iARYSETn_t*)pc;
+		KLR_iARYSETn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_iARYSETn;
+		goto NEXT;
+	} 
+	CASE(L_fARYSET, OPCODE_fARYSET) {
+		const klr_fARYSET_t *op = (klr_fARYSET_t*)pc;
+		KLR_fARYSET(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_fARYSET;
+		goto NEXT;
+	} 
+	CASE(L_fARYSETn, OPCODE_fARYSETn) {
+		const klr_fARYSETn_t *op = (klr_fARYSETn_t*)pc;
+		KLR_fARYSETn(ctx, op->a1, op->a2, op->a3);
+		pc += OPSIZE_fARYSETn;
+		goto NEXT;
+	} 
+	CASE(L_THCODE, OPCODE_THCODE) {
+		const klr_THCODE_t *op = (klr_THCODE_t*)pc;
+		KLR_THCODE(ctx, op->a1);
 		pc += OPSIZE_THCODE;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	CASE(LABEL) {
-		const klr_LABEL_t *op = (klr_LABEL_t*)pc;
-		KLR_LABEL(ctx, op->a1, op->a2);
-		pc += OPSIZE_LABEL;
-		goto NEXT_OP;
-	} 
-	CASE(PROBE) {
-		const klr_PROBE_t *op = (klr_PROBE_t*)pc;
-		KLR0_PROBE(ctx, op->a1, op->a2);
-		pc += OPSIZE_PROBE;
-		goto NEXT_OP;
-	} 
-	CASE(NOP) {
+	CASE(L_NOP, OPCODE_NOP) {
 		TC(const klr_NOP_t *op = (klr_NOP_t*)pc;)
 		KLR_NOP(ctx);
 		pc += OPSIZE_NOP;
-		goto NEXT_OP;
+		goto NEXT;
 	} 
-	DISPATCH_END(pc);
-	return NULL;
+#ifndef KNH_USING_THREADEDCODE
+	}
+	KNH_WARNING(ctx, "unknown opcode=%d", KNH_OPCODE(pc));
+	goto L_HEAD;
+#endif
 }
-
 
 #ifdef __cplusplus
 }

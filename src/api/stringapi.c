@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -40,9 +40,8 @@ extern "C" {
 /* ------------------------------------------------------------------------ */
 //## @Const method Bytes! String.getBytes(String? enc);
 
-static METHOD String_getBytes(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD String_getBytes(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	knh_Bytes_t *ba;
 	if(IS_NULL(sfp[1].o)) {
 		ba = new_Bytes(ctx, (sfp[0].s)->size + 1);
@@ -61,9 +60,9 @@ static METHOD String_getBytes(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## @Const method Boolean! String.equals(String! s);
 
-static METHOD String_equals(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD String_equals(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp,
+	KNH_RETURN_Boolean(ctx, sfp,
 		((sfp[0].s)->size == (sfp[1].s)->size &&
 		knh_bytes_strcmp(__tobytes(sfp[0].s), __tobytes(sfp[1].s)) == 0));
 }
@@ -71,9 +70,9 @@ static METHOD String_equals(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## @Const method Boolean! String.equals:IgnoreCase(String! s);
 
-static METHOD String_equals__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD String_equals__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp,
+	KNH_RETURN_Boolean(ctx, sfp,
 		((sfp[0].s)->size == (sfp[1].s)->size &&
 		knh_bytes_strcasecmp(__tobytes(sfp[0].s), __tobytes(sfp[1].s))== 0));
 }
@@ -81,15 +80,15 @@ static METHOD String_equals__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## @Const method Boolean! String.startsWith(String! s);
 
-static METHOD String_startsWith(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD String_startsWith(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_bytes_startsWith(__tobytes(sfp[0].s), __tobytes(sfp[1].s)));
+	KNH_RETURN_Boolean(ctx, sfp, knh_bytes_startsWith(__tobytes(sfp[0].s), __tobytes(sfp[1].s)));
 }
 
 /* ------------------------------------------------------------------------ */
 //## @Const method Boolean! String.startsWith:IgnoreCase(String! s);
 
-static METHOD String_startsWith__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD String_startsWith__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_bytes_t base = __tobytes(sfp[0].s);
 	knh_bytes_t expr = __tobytes(sfp[1].s);
@@ -98,21 +97,21 @@ static METHOD String_startsWith__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 		base = knh_bytes_first(base, expr.len);
 		res = (knh_bytes_strcasecmp(base, expr) == 0);
 	}
-	KNH_RETURNb_(ctx, sfp, res);
+	KNH_RETURN_Boolean(ctx, sfp, res);
 }
 
 /* ------------------------------------------------------------------------ */
 //## @Const method Boolean! String.endsWith(String! s);
 
-static METHOD String_endsWith(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD String_endsWith(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_RETURNb_(ctx, sfp, knh_bytes_endsWith(__tobytes(sfp[0].s), __tobytes(sfp[1].s)));
+	KNH_RETURN_Boolean(ctx, sfp, knh_bytes_endsWith(__tobytes(sfp[0].s), __tobytes(sfp[1].s)));
 }
 
 /* ------------------------------------------------------------------------ */
 //## @Const method Boolean! String.endsWith:IgnoreCase(String! s);
 
-static METHOD String_endsWith__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD String_endsWith__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_bytes_t base = __tobytes(sfp[0].s);
 	knh_bytes_t expr = __tobytes(sfp[1].s);
@@ -121,50 +120,50 @@ static METHOD String_endsWith__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 		base = knh_bytes_last(base, base.len - expr.len);
 		res = (knh_bytes_strcasecmp(base, expr) == 0);
 	}
-	KNH_RETURNb_(ctx, sfp, res);
+	KNH_RETURN_Boolean(ctx, sfp, res);
 }
 
 /* ------------------------------------------------------------------------ */
 //## @Const method Int! String.indexOf(String! s);
 
-static METHOD String_indexOf(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD String_indexOf(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_bytes_t base = __tobytes(sfp[0].s);
 	knh_bytes_t delim = __tobytes(sfp[1].s);
 	int loc = knh_bytes_indexOf(base, delim);
 	if (knh_String_isAscii(sfp[0].s) || loc == -1) {
-		KNH_RETURNi_(ctx, sfp, loc);
+		KNH_RETURN_Int(ctx, sfp, loc);
 	} else {
 		base.len = (size_t)loc;
-		KNH_RETURNi_(ctx, sfp, knh_bytes_mlen(base));
+		KNH_RETURN_Int(ctx, sfp, knh_bytes_mlen(base));
 	}
 }
 
 /* ------------------------------------------------------------------------ */
 //## @Const method Int! String.indexOf:IgnoreCase(String! s);
 
-static METHOD String_indexOf__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD String_indexOf__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_bytes_t base = __tobytes(sfp[0].s);
 	knh_bytes_t delim = __tobytes(sfp[1].s);
-	size_t loc;
+	knh_intptr_t loc = base.len - delim.len;
 	for(loc = 0; loc < base.len - delim.len; loc++) {
 		if(base.buf[loc] != delim.buf[loc]) continue;
 		knh_bytes_t sub = knh_bytes_offlen(base, loc, delim.len);
 		if(knh_bytes_strcasecmp(sub, delim) == 0) break;
 	}
-	if (loc == base.len - delim.len) loc = -1;
-	if (/*loc >= 0 &&*/ !knh_String_isAscii(sfp[0].s)) {
-		base.len = loc;
+	if(loc == base.len - delim.len) loc = -1;
+	if (loc >= 0 && !knh_String_isAscii(sfp[0].s)) {
+		base.len = (size_t)loc;
 		loc = knh_bytes_mlen(base);
 	}
-	KNH_RETURNi_(ctx, sfp, loc);
+	KNH_RETURN_Int(ctx, sfp, loc);
 }
 
 /* ------------------------------------------------------------------------ */
 //## @Const method Int! String.lastIndexOf(String! s);
 
-static METHOD String_lastIndexOf(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD String_lastIndexOf(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_bytes_t base = __tobytes(sfp[0].s);
 	knh_bytes_t delim = __tobytes(sfp[1].s);
@@ -178,13 +177,13 @@ static METHOD String_lastIndexOf(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 		base.len = (size_t)loc;
 		loc = knh_bytes_mlen(base);
 	}
-	KNH_RETURNi_(ctx, sfp, loc);
+	KNH_RETURN_Int(ctx, sfp, loc);
 }
 
 /* ------------------------------------------------------------------------ */
 //## @Const method Int! String.lastIndexOf:IgnoreCase(String! s);
 
-static METHOD String_lastIndexOf__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD String_lastIndexOf__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_bytes_t base = __tobytes(sfp[0].s);
 	knh_bytes_t delim = __tobytes(sfp[1].s);
@@ -198,15 +197,14 @@ static METHOD String_lastIndexOf__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 		base.len = (size_t)loc;
 		loc = knh_bytes_mlen(base);
 	}
-	KNH_RETURNi_(ctx, sfp, loc);
+	KNH_RETURN_Int(ctx, sfp, loc);
 }
 
 /* ------------------------------------------------------------------------ */
 //## @Const @NullBase method String! String.concat(Any? value, ...);
 
-static METHOD String_concat(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD String_concat(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	int i, ac = knh_stack_argc(ctx, sfp);
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 	for(i = 0; i < ac; i++) {
@@ -223,9 +221,8 @@ static METHOD String_concat(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## @Const method String! String.times(Int! n);
 
-static METHOD String_times(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD String_times(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	knh_String_t *res;
 	knh_intptr_t n = p_int(sfp[1]);
 	if(n <= 0) {
@@ -248,9 +245,8 @@ static METHOD String_times(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## @Const method PairSS String.twofold(String! s);
 
-static METHOD String_twofold(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD String_twofold(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	knh_bytes_t base = __tobytes(sfp[0].s);
 	knh_bytes_t delim = __tobytes(sfp[1].s);
 	knh_index_t index = knh_bytes_indexOf(base, delim);
@@ -278,9 +274,8 @@ static METHOD String_twofold(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method String! String.format(Any? value, ...);
 
-static METHOD String_format(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD String_format(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	knh_bytes_t fmt = __tobytes(sfp[0].s);
 	knh_sfp_t *param = sfp + 1;
 	int ac = knh_stack_argc(ctx, param);
@@ -343,19 +338,15 @@ int knh_bytes_equals_(knh_bytes_t base, size_t s, knh_bytes_t target)
 //## @Const method String! String.replace(String! s, String! newone)
 /* @author nakata */
 
-static METHOD String_replace(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD String_replace(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	knh_bytes_t base = __tobytes(sfp[0].s);
 	knh_bytes_t target = __tobytes(sfp[1].s);
 	knh_bytes_t alt = __tobytes(sfp[2].s);
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-	int search_flag= 0, ch = target.buf[0];
-	size_t i;
+	int search_flag= 0, ch = target.buf[0], i;
 
-	if (base.len == 0 || target.len == 0) {
-		KNH_RETURN(ctx, sfp, sfp[0].o);
-	}
+	if (base.len == 0 || target.len == 0) KNH_RETURN(ctx, sfp, sfp[0].o);
 	for(i = 0; i < base.len - target.len+1; i++) {
 		if(base.buf[i] == ch && knh_bytes_equals_(base, i, target)) {
 		    knh_Bytes_write(ctx, cwb->ba, alt);
@@ -378,24 +369,25 @@ static METHOD String_replace(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## @Const method Int! String.getUCS4(Int? n);
 
-static METHOD String_getUCS4(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD String_getUCS4(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_bytes_t base = __tobytes(sfp[0].s);
 	knh_intptr_t index = IS_NULL(sfp[1].o) ? 0 : (knh_intptr_t)sfp[1].ivalue;
 	if(knh_String_isAscii(sfp[0].s)) {
 		size_t n = knh_array_index(ctx, index, knh_String_strlen(sfp[0].s));
-		KNH_RETURNi_(ctx, sfp, knh_uchar_toucs4(&base.buf[n]));
+		KNH_RETURN_Int(ctx, sfp, knh_uchar_toucs4(&base.buf[n]));
 	}
 	else {
 		size_t off = knh_array_index(ctx, index, knh_bytes_mlen(base));
 		knh_bytes_t sub = knh_bytes_mofflen(base, off, 1);
-		KNH_RETURNi_(ctx, sfp, knh_uchar_toucs4(&sub.buf[0]));
+		KNH_RETURN_Int(ctx, sfp, knh_uchar_toucs4(&sub.buf[0]));
 	}
 }
 
 /* ======================================================================== */
 
-static size_t bconv__toLower(Ctx *ctx, knh_BytesConv_t *o, knh_bytes_t t, knh_Bytes_t *ba)
+static
+size_t bconv__toLower(Ctx *ctx, knh_BytesConv_t *o, knh_bytes_t t, knh_Bytes_t *ba)
 {
 	size_t i;
 	for(i = 0; i < t.len; i++) {
@@ -412,15 +404,15 @@ static size_t bconv__toLower(Ctx *ctx, knh_BytesConv_t *o, knh_bytes_t t, knh_By
 /* ------------------------------------------------------------------------ */
 //## @Const method String! String.toLower();
 
-static METHOD String_toLower(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD String_toLower(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	KNH_RETURN(ctx, sfp, new_String__fbcnv(ctx, sfp[0].s, bconv__toLower, (knh_BytesConv_t*)KNH_NULL));
 }
 
 /* ------------------------------------------------------------------------ */
 
-static size_t bconv__toUpper(Ctx *ctx, knh_BytesConv_t *o, knh_bytes_t t, knh_Bytes_t *ba)
+static
+size_t bconv__toUpper(Ctx *ctx, knh_BytesConv_t *o, knh_bytes_t t, knh_Bytes_t *ba)
 {
 	size_t i;
 	for(i = 0; i < t.len; i++) {
@@ -437,18 +429,16 @@ static size_t bconv__toUpper(Ctx *ctx, knh_BytesConv_t *o, knh_bytes_t t, knh_By
 /* ------------------------------------------------------------------------ */
 //## @Const method String! String.toUpper();
 
-static METHOD String_toUpper(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD String_toUpper(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	KNH_RETURN(ctx, sfp, new_String__fbcnv(ctx, sfp[0].s, bconv__toUpper, (knh_BytesConv_t*)KNH_NULL));
 }
 
 /* ------------------------------------------------------------------------ */
 //## @Const method String! String.trim();
 
-static METHOD String_trim(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD String_trim(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	knh_bytes_t t = __tobytes(sfp[0].s);
 	knh_bytes_t t2 = knh_bytes_trim(t);
 	knh_String_t *s = sfp[0].s;
@@ -469,7 +459,7 @@ static knh_Array_t *knh_String_toCharArray(Ctx *ctx, knh_String_t *bs, int istri
 		for(i = 0; i < n; i++) {
 			if(istrim && isspace(base.buf[i])) continue;
 			knh_bytes_t sub = { base.buf + i, 1};
-			knh_Array_add_(ctx, a, UP(new_String(ctx, sub, bs)));
+			knh_Array_add(ctx, a, UP(new_String(ctx, sub, bs)));
 		}
 		return a;
 	}
@@ -479,7 +469,7 @@ static knh_Array_t *knh_String_toCharArray(Ctx *ctx, knh_String_t *bs, int istri
 		for(i = 0; i < n; i++) {
 			if(istrim && isspace(base.buf[i])) continue;
 			knh_bytes_t sub = knh_bytes_mofflen(base, n, 1);
-			knh_Array_add_(ctx, a, UP(new_String(ctx, sub, bs)));
+			knh_Array_add(ctx, a, UP(new_String(ctx, sub, bs)));
 		}
 		return a;
 	}
@@ -488,9 +478,8 @@ static knh_Array_t *knh_String_toCharArray(Ctx *ctx, knh_String_t *bs, int istri
 /* ------------------------------------------------------------------------ */
 //## @Const method String[] String.split(String delim, Int? isTrim);
 
-static METHOD String_split(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD String_split(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	knh_Array_t *a = NULL;
 	int istrim = IS_NULL(sfp[2].o) ? 0 : (int)sfp[2].ivalue;
 	if(IS_NULL(sfp[1].o)) {
@@ -508,16 +497,16 @@ static METHOD String_split(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 				knh_index_t loc = knh_bytes_indexOf(base, delim);
 				if(loc == -1) {
 					if(istrim) base = knh_bytes_trim(base);
-					knh_Array_add_(ctx, a, UP(new_String(ctx, base, sfp[0].s)));
+					knh_Array_add(ctx, a, UP(new_String(ctx, base, sfp[0].s)));
 					break;
 				}
 				else if(loc == 0) {
-					knh_Array_add_(ctx, a, UP(TS_EMPTY));
+					knh_Array_add(ctx, a, UP(TS_EMPTY));
 				}
 				else {
 					knh_bytes_t t = knh_bytes_first(base, loc);
 					if(istrim) t = knh_bytes_trim(t);
-					knh_Array_add_(ctx, a, UP(new_String(ctx, t, sfp[0].s)));
+					knh_Array_add(ctx, a, UP(new_String(ctx, t, sfp[0].s)));
 				}
 				base.buf = base.buf + loc + delim.len;
 				base.len = base.len - loc - delim.len;
@@ -529,6 +518,8 @@ static METHOD String_split(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 }
 
 /* ======================================================================== */
+
+/* ------------------------------------------------------------------------ */
 
 static
 int knh_String_opMatch(Ctx *ctx, knh_String_t *o, knh_Regex_t *re)
@@ -543,20 +534,18 @@ int knh_String_opMatch(Ctx *ctx, knh_String_t *o, knh_Regex_t *re)
 //## method Boolean! String.opMatch(Regex! re);
 
 static
-METHOD String_opMatch(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+METHOD String_opMatch(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
-	KNH_RETURNb(ctx, sfp, knh_String_opMatch(ctx, sfp[0].s, (knh_Regex_t*)sfp[1].o));
+	KNH_RETURN_Boolean(ctx, sfp, knh_String_opMatch(ctx, sfp[0].s, (knh_Regex_t*)sfp[1].o));
 }
 
 /* ------------------------------------------------------------------------ */
 //## method Boolean! Regex.opMatch(String! s);
 
 static
-METHOD Regex_opMatch(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+METHOD Regex_opMatch(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
-	KNH_RETURNb(ctx, sfp, knh_String_opMatch(ctx, sfp[1].s, (knh_Regex_t*)sfp[0].o));
+	KNH_RETURN_Boolean(ctx, sfp, knh_String_opMatch(ctx, sfp[1].s, (knh_Regex_t*)sfp[0].o));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -575,7 +564,7 @@ knh_Array_t *knh_Regex_split(Ctx *ctx, knh_Regex_t *o, knh_String_t *s)
 			DBG2_P("[%d], rm_so=%d, rm_eo=%d", i, pmatch[i].rm_so, pmatch[i].rm_eo);
 			sub.buf = (knh_uchar_t*)str + pmatch[i].rm_so;
 			sub.len = pmatch[i].rm_eo - pmatch[i].rm_so;
-			knh_Array_add_(ctx, a, UP(new_String(ctx, sub, s)));
+			knh_Array_add(ctx, a, UP(new_String(ctx, sub, s)));
 		}
 		return a;
 	}
@@ -588,9 +577,8 @@ knh_Array_t *knh_Regex_split(Ctx *ctx, knh_Regex_t *o, knh_String_t *s)
 /* ------------------------------------------------------------------------ */
 //## @Const method String[] String.match(Regex pattern);
 
-static METHOD String_match(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD String_match(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	KNH_RETURN(ctx, sfp, knh_Regex_split(ctx, (knh_Regex_t*)sfp[1].o, sfp[0].s));
 }
 

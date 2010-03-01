@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -138,27 +138,18 @@ knh_uint64_t knh_getTimeMilliSecond(void)
 }
 
 /* ------------------------------------------------------------------------ */
+/* [Profiler] */
 
-METHOD knh_Fmethod_profiler(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+knh_uint64_t knh_getProfCount(void)
 {
-	knh_Method_t *mtd = sfp[-1].mtd;
-#if defined(KNH_USING_WINDOWS)
-	DWORD start, end;
-	start = GetTickCount();
-#elif defined(KNH_USING_POSIX)
-	struct timeval start, end;
-	gettimeofday(&start, NULL);
-#endif
-	DP(mtd)->prof_count += 1;
-	DP(mtd)->fproceed(ctx, sfp);
-#if defined(KNH_USING_WINDOWS)
-	end = GetTickCount();
-#elif defined(KNH_USING_POSIX)
-	gettimeofday(&end, NULL);
-	knh_uintptr_t diff = (end.tv_sec * 1000 + end.tv_usec/1000) -
-	  (start.tv_sec * 1000 + start.tv_usec / 1000);
-	DP(mtd)->prof_time += diff;
-#endif
+	return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+
+knh_uint64_t knh_getProfCountPerSecond(void)
+{
+	return 1;
 }
 
 /* ======================================================================== */

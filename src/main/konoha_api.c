@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -30,12 +30,8 @@
 #include"commons.h"
 
 #ifdef KNH_USING_READLINE
-	#define RL_NO_COMPAT
 	#include<readline/readline.h>  /* @using readline -lreadline */
 	#include<readline/history.h>
-	#ifdef RL_VERSION_MAJOR  /* 5, or later */
-	char **completion_matches(char *, rl_compentry_func_t *);
-	#endif
 #endif
 
 /* ************************************************************************ */
@@ -47,22 +43,22 @@ extern "C" {
 /* ======================================================================== */
 /* [ctxkey] */
 
+static int isInit = 0;
 
 #ifdef KNH_USING_THREAD
-static volatile knh_thread_key_t ctxkey;
-static volatile Ctx *curctx = NULL;
+static knh_thread_key_t ctxkey;
 #else
-static volatile Ctx *curctx = NULL;
+static Ctx *curctx = NULL;
 #endif
 
 /* ------------------------------------------------------------------------ */
 
 void konoha_init(void)
 {
-	static int isInit = 0;
 #ifdef KNH_USING_THREAD
 	if(isInit == 0) {
-		knh_thread_key_create((knh_thread_key_t*)&ctxkey);
+		isInit = 1;
+		knh_thread_key_create(&ctxkey);
 	}
 #endif
 	knh_srand(0);
@@ -75,9 +71,8 @@ void konoha_init(void)
 KNHAPI(Ctx*) knh_beginContext(Ctx *ctx)
 {
 #ifdef KNH_USING_THREAD
-	knh_mutex_init(ctx->ctxlock);
+	knh_mutex_lock(ctx->ctxlock);
 	knh_thread_setspecific(ctxkey, ctx);
-	curctx = ctx;
 #else
 	curctx = ctx;
 #endif
@@ -90,8 +85,7 @@ KNHAPI(void) knh_endContext(Ctx *ctx)
 {
 #ifdef KNH_USING_THREAD
 	knh_thread_setspecific(ctxkey, NULL);
-	knh_mutex_destroy(ctx->ctxlock);
-	curctx = NULL;
+	knh_mutex_unlock(ctx->ctxlock);
 #else
 	curctx = NULL;
 #endif
@@ -101,13 +95,11 @@ KNHAPI(void) knh_endContext(Ctx *ctx)
 
 KNHAPI(Ctx*) knh_getCurrentContext(void)
 {
+	Ctx *ctx;
 #ifdef KNH_USING_THREAD
-	Ctx *ctx = (Ctx*)knh_thread_getspecific(ctxkey);
-	if(ctx == NULL) {
-		ctx = (Ctx*)curctx;
-	}
+	ctx = (Ctx*)knh_thread_getspecific(ctxkey);
 #else
-	Ctx *ctx = (Ctx*)curctx;
+	ctx = curctx;
 #endif
 	if(ctx == NULL) {
 		fprintf(stderr, "NOT IN THE CONTEXT OF KONOHA\n");
@@ -140,7 +132,7 @@ KNHAPI(int) konoha_isSystemDump2(void)
 
 /* ----------------------------------------------------------------------- */
 
-int knh_isToInteractiveMode(void)
+KNHAPI(int) knh_isToInteractiveMode(void)
 {
 	return toInteractiveMode;
 }
@@ -168,123 +160,65 @@ void knh_startUserExperienceProgram(Ctx *ctx)
 
 static void knh_dumpInit(void)
 {
-	fprintf(stderr, "sizeof(knh_intptr_t)=%zd, sizeof(void*)=%zd\n", sizeof(knh_intptr_t), sizeof(void*));
+	fprintf(stderr, "sizeof(knh_intptr_t)=%d, sizeof(void*)=%d\n", (int)sizeof(knh_intptr_t), (int)sizeof(void*));
 	KNH_ASSERT(sizeof(knh_intptr_t) == sizeof(void*));
-	fprintf(stderr, "sizeof(knh_int_t)=%zd, sizeof(knh_float_t)=%zd\n", sizeof(knh_int_t), sizeof(knh_float_t));
+	fprintf(stderr, "sizeof(knh_int_t)=%d, sizeof(knh_float_t)=%d\n", (int)sizeof(knh_int_t), (int)sizeof(knh_float_t));
 	KNH_ASSERT(sizeof(knh_int_t) <= sizeof(knh_float_t));
-	fprintf(stderr, "sizeof(knh_sfp_t)=%zd, sizeof(Ctx)=%zd\n", sizeof(knh_sfp_t), sizeof(knh_Context_t));
-	fprintf(stderr, "sizeof(Object)=%zd FASTMALLOC=%zd\n", sizeof(knh_Object_t), KNH_FASTMALLOC_SIZE);
-	fprintf(stderr, "sizeof(Int)=%zd, sizeof(Method)=%zd\n", sizeof(knh_Int_t), sizeof(knh_Method_struct));
-	fprintf(stderr, "sizeof(knh_thread_t)=%zd, sizeof(knh_mutex_t)=%zd\n", sizeof(knh_thread_t), sizeof(knh_mutex_t));
+	fprintf(stderr, "sizeof(knh_sfp_t)=%d, sizeof(Ctx)=%d\n", (int)sizeof(knh_sfp_t), (int)sizeof(knh_Context_t));
+	fprintf(stderr, "sizeof(Object)=%d FASTMALLOC=%d\n", (int)sizeof(knh_Object_t), (int)KNH_FASTMALLOC_SIZE);
+	fprintf(stderr, "sizeof(Int)=%d, sizeof(Method)=%d\n", (int)sizeof(knh_Int_t), (int)sizeof(knh_Method_struct));
+	fprintf(stderr, "sizeof(knh_thread_t)=%d, sizeof(knh_mutex_t)=%d\n", (int)sizeof(knh_thread_t), (int)sizeof(knh_mutex_t));
 }
 
 /* ----------------------------------------------------------------------- */
-static void knh_Context_setCompilingMode(Ctx *ctx, int mode)
-{
-	knh_Context_setCompiling(ctx, 1);
-}
-
-static void knh_setInteractiveMode(Ctx *ctx, int mode)
-{
-	toInteractiveMode = 1;
-}
-
-static void knh_Context_setVerboseMode(Ctx *ctx, int mode)
-{
-	knh_Context_setVerbose(ctx, 1);
-	if(mode == 2) {
-		debugLevel = 2;
-		knh_Context_setDebug(ctx, 1);
-		dumpLevel2 = 2;
-		knh_dumpInit();
-	}
-}
-
-static void knh_Context_setDebugMode(Ctx *ctx, int mode)
-{
-	if(mode == 2) {
-		debugLevel = 2;
-	} else {
-		debugLevel = 1;
-	}
-	knh_Context_setDebug(ctx, 1);
-}
-
-static void knh_setUserExperienceProgram(Ctx *ctx, int mode)
-{
-	if(userExperienceProgram != 0) {
-		userExperienceProgram = 0;
-	}
-	else {
-		userExperienceProgram = 1;
-	}
-}
-
-typedef void (*foption)(Ctx *ctx, int n);
-
-struct option {
-	char *name;
-	knh_bool_t arg;
-	foption fopt;
-};
-
-typedef const struct option option_t;
-
-#define OPTION(_name, _handler) \
-	{ _name, 0, _handler}
-#define OPTION_ARG(_name, _handler) \
-	{ _name, 1, _handler}
-
-static option_t options[] = {
-	//OPTION("s", knh_setSecureMode),
-	OPTION_ARG("c", knh_Context_setCompilingMode),
-	OPTION("i", knh_setInteractiveMode),
-	OPTION_ARG("v", knh_Context_setVerboseMode),
-	OPTION_ARG("g",  knh_Context_setDebugMode),
-	OPTION("x",  knh_setUserExperienceProgram),
-	{NULL}
-};
-
-#define OPTIONS_SIZE ((sizeof(options) / sizeof((options)[0])) - 1)
-
-static option_t *knh_get_opt(char *name)
-{
-	int i;
-	for (i = 0; i < OPTIONS_SIZE; i++) {
-		option_t *opt = &options[i];
-		if (strncmp(opt->name, name, strlen(opt->name)) == 0) {
-			return opt;
-		}
-	}
-	return NULL;
-}
 
 KNHAPI(int) konoha_parseopt(konoha_t konoha, int argc, char **argv)
 {
 	KONOHA_CHECK(konoha, 1);
-	Ctx *ctx = konoha.ctx;
 	int n;
 	for(n = 1; n < argc; n++) {
 		char *t = argv[n];
 		if(t[0] != '-') return n;
-		option_t *opt = knh_get_opt(&t[1]);
-		if(!opt) continue;
-		int arg = 0;
-		if(opt->arg == 1) {
-			if(t[2] != '0') {
-				arg = knh_bytes_toint(B(&t[2]));
-				arg = (arg == 0) ? 1 : arg;
+		if(t[1] == 's' && t[2] == 0) {
+			knh_setSecureMode();
+		}
+		else if(t[1] == 'c' && t[2] == 0) {
+			knh_Context_setCompiling(konoha.ctx, 1);
+		}
+		else if(t[1] == 'i' && t[2] == 0) {
+			toInteractiveMode = 1;
+		}
+		else if(t[1] == 'v') {
+			knh_Context_setVerbose(konoha.ctx, 1);
+			if(t[2] == '2') {
+				debugLevel = 2;
+				knh_Context_setDebug(konoha.ctx, 1);
+				dumpLevel2 = 2;
+				knh_dumpInit();
 			}
 		}
-		opt->fopt(ctx, arg);
+		else if(t[1] == 'g' && t[2] == 0) {
+			debugLevel = 1;
+			knh_Context_setDebug(konoha.ctx, 1);
+		}
+		else if(t[1] == 'g' && t[2] == '2' && t[3] == 0) {
+			debugLevel = 2;
+			knh_Context_setDebug(konoha.ctx, 1);
+		}
+		else if(t[1] == 'x' && t[2] == 0) {
+			if(userExperienceProgram != 0) {
+				userExperienceProgram = 0;
+			}
+			else {
+				userExperienceProgram = 1;
+			}
+		}
 	}
 #if defined(KNH_DBGMODE2)
-	knh_Context_setVerbose(ctx, 1);
+	knh_Context_setVerbose(konoha.ctx, 1);
 #endif
 	return n;
 }
-
-
 
 /* ======================================================================== */
 /* [konoha] */
@@ -383,226 +317,248 @@ KNHAPI(char*) konoha_getStdErrBufferText(konoha_t konoha)
 
 /* ------------------------------------------------------------------------ */
 
-static knh_Array_t *new_Argument(Ctx* ctx, int argc, char** argv)
+KNHAPI(void) konoha_evalScript(konoha_t konoha, char *script)
 {
-	knh_Array_t *a = new_Array(ctx, CLASS_String, argc);
-	int i;
-	for(i = 1; i < argc; i++) {
-		knh_Array_add_(ctx, a, UP(T__(argv[i])));
+	KONOHA_CHECK_(konoha);
+	Ctx *ctx = knh_beginContext(konoha.ctx);
+	knh_sfp_t *lsfp = KNH_LOCAL(ctx);
+	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
+	knh_Bytes_write(ctx, cwb->ba, B(script));
+	knh_Bytes_putc(ctx, cwb->ba, '\n');
+	{
+		knh_InputStream_t *in = new_BytesInputStream(ctx, cwb->ba, cwb->pos, knh_Bytes_size(cwb->ba));
+		DP(in)->uri = URI_EVAL;
+		DP(in)->line = 0;
+		knh_NameSpace_load(ctx, ctx->share->mainns, in, 1/*isEval*/,0/*isThrowable*/);
 	}
-	knh_DictMap_set(ctx, DP(ctx->sys)->props,T__("script.argv"), UP(a));
-	if(argc > 0) {
-		knh_DictMap_set(ctx, DP(ctx->sys)->props,T__("script.name"), UP(argv[0]));
+	knh_cwb_close(cwb);
+	KNH_LOCALBACK(ctx, lsfp);
+	knh_endContext(ctx);
+}
+
+/* ------------------------------------------------------------------------ */
+
+KNHAPI(int) konoha_loadScript(konoha_t konoha, char *fpath)
+{
+	KONOHA_CHECK(konoha, 0);
+	int res = 0;
+	Ctx *ctx = knh_beginContext(konoha.ctx);
+	knh_sfp_t *lsfp = KNH_LOCAL(ctx);
+	knh_InputStream_t *in = new_ScriptInputStream(ctx, B(fpath), NULL, ctx->share->mainns, 0);
+	KNH_LPUSH(ctx, in);
+	if(!knh_InputStream_isClosed(ctx, in)) {
+		int isEval = (knh_Context_isCompiling(ctx)) ? 0 : 1;
+		knh_NameSpace_load(ctx, ctx->share->mainns, in, isEval, 0/*isThrowable*/);
 	}
-	return a;
+	else {
+		knh_setRuntimeError(ctx, T__("script file doesn't exists"));
+		res = -1;
+	}
+	KNH_LOCALBACK(ctx, lsfp);
+	knh_Context_clearstack(ctx);
+	knh_endContext(ctx);
+	return res;
+}
+
+/* ------------------------------------------------------------------------ */
+
+void knh_setArgv(Ctx* ctx, int argc, char** argv)
+{
+    knh_Array_t *a = new_Array(ctx, CLASS_String, argc);
+    int i;
+    for(i = 0; i < argc; i++) {
+        knh_Array_add(ctx, a, UP(T__(argv[i])));
+    }
+    knh_DictMap_set(ctx, DP(ctx->sys)->props,T__("argv"), UP(a));
 }
 
 /* ------------------------------------------------------------------------ */
 
 KNHAPI(int) konoha_runMain(konoha_t konoha, int argc, char **argv)
 {
+    KONOHA_CHECK(konoha, -1);
+    Ctx *ctx = knh_beginContext(konoha.ctx);
+    knh_sfp_t *lsfp = KNH_LOCAL(ctx);
+    KNH_MOV(ctx, lsfp[0].o, new_ExceptionHandler(ctx));
+    KNH_TRY(ctx, L_CATCH, lsfp, 0);
+    {
+        knh_NameSpace_t *ns = ctx->share->mainns;
+        knh_Script_t *scr = knh_NameSpace_getScript(ctx, ns);
+        knh_Method_t *mtd = knh_Class_getMethod(ctx, knh_Object_cid(scr), METHODN_main);
+
+        knh_setArgv(ctx, argc, argv);
+
+        if(IS_NULL(mtd)) {
+            goto L_END_TRY;
+        }
+        if(knh_Method_psize(mtd) == 1) {
+            knh_type_t ptype = knh_Method_pztype(mtd, 0);
+            if(CLASS_type(ptype) != CLASS_String_Ary) {
+                knh_setRuntimeError(ctx, T__("Type!!: main()"));
+                goto L_END_TRY;
+            }
+            else {
+                //KNH_MOV(ctx, lsfp[1].o, mtd);
+                knh_Array_t *a = (knh_Array_t*)knh_getProperty(ctx, B("argv"));
+                KNH_MOV(ctx, lsfp[2].o, scr);
+                KNH_MOV(ctx, lsfp[3].o, a);
+                KNH_SCALL(ctx, lsfp, 1, mtd, /* args*/ 1);
+            }
+        }
+        else {
+            knh_setRuntimeError(ctx, T__("Type!!: main()"));
+            goto L_END_TRY;
+        }
+    }
+L_END_TRY:
+    knh_Context_clearstack(ctx);
+    knh_endContext(ctx);
+    return (ctx->hasError == 0 ? 0 : 1);
+
+    /* catch */
+L_CATCH:;
+        KNH_PRINT_STACKTRACE(ctx, lsfp, 0);
+        knh_endContext(ctx);
+        return (ctx->hasError == 0 ? 0 : 1);
+}
+
+
+/* ------------------------------------------------------------------------ */
+
+KNHAPI(int) konoha_hasScriptFunc(konoha_t konoha, char *fmt)
+{
+	KONOHA_CHECK(konoha, 0);
+	Ctx *ctx = 	knh_beginContext(konoha.ctx);
+	int res = knh_hasScriptFunc(ctx, fmt);
+	knh_endContext(ctx);
+	return res;
+}
+
+/* ------------------------------------------------------------------------ */
+
+KNHAPI(void) konoha_invokeScriptFunc(konoha_t konoha, char *fmt, ...)
+{
+	KONOHA_CHECK_(konoha);
+	Ctx *ctx = 	knh_beginContext(konoha.ctx);
+	va_list args;
+	va_start(args , fmt);
+	knh_invokeScriptFunc(ctx, fmt, args);
+	va_end(args);
+	knh_endContext(ctx);
+}
+
+/* ------------------------------------------------------------------------ */
+
+KNHAPI(knh_int_t) konoha_invokeIntFunc(konoha_t konoha, char *fmt, ...)
+{
+	KONOHA_CHECK(konoha, 0);
+	Ctx *ctx = 	knh_beginContext(konoha.ctx);
+	knh_sfp_t *lsfp;
+	va_list args;
+	va_start(args , fmt);
+	lsfp = knh_invokeScriptFunc(ctx, fmt, args);
+	va_end(args);
+	knh_endContext(ctx);
+	return lsfp[0].ivalue;
+}
+
+/* ------------------------------------------------------------------------ */
+
+KNHAPI(knh_float_t) konoha_invokeFloatFunc(konoha_t konoha, char *fmt, ...)
+{
+	KONOHA_CHECK(konoha, 0);
+	Ctx *ctx = 	knh_beginContext(konoha.ctx);
+	knh_sfp_t *lsfp;
+	va_list args;
+	va_start(args , fmt);
+	lsfp = knh_invokeScriptFunc(ctx, fmt, args);
+	va_end(args);
+	knh_endContext(ctx);
+	return lsfp[0].fvalue;
+}
+
+/* ------------------------------------------------------------------------ */
+
+KNHAPI(int) konoha_invokeBooleanFunc(konoha_t konoha, char *fmt, ...)
+{
+	KONOHA_CHECK(konoha, 0);
+	Ctx *ctx = 	knh_beginContext(konoha.ctx);
+	knh_sfp_t *lsfp;
+	va_list args;
+	va_start(args , fmt);
+	lsfp = knh_invokeScriptFunc(ctx, fmt, args);
+	va_end(args);
+	knh_endContext(ctx);
+	return lsfp[0].bvalue;
+}
+
+/* ------------------------------------------------------------------------ */
+
+KNHAPI(char*) konoha_invokeStringFunc(konoha_t konoha, char *fmt, ...)
+{
+	KONOHA_CHECK(konoha, 0);
+	Ctx *ctx = 	knh_beginContext(konoha.ctx);
+	char *res = NULL;
+	knh_sfp_t *lsfp;
+	va_list args;
+	va_start(args , fmt);
+	lsfp = knh_invokeScriptFunc(ctx, fmt, args);
+	va_end(args);
+	if(ctx->hasError == 0 && IS_String(lsfp[0].o)) {
+		knh_String_t *s = lsfp[0].s;
+		char *p = (char*)malloc(s->size+1);
+		if(p == NULL) {
+			knh_setRuntimeError(ctx, T__("out of memory"));
+		}
+		else {
+			knh_memcpy(p, s->str, s->size);
+			p[s->size] = 0;
+		}
+		res = p;
+	}
+	knh_endContext(ctx);
+	return res;
+}
+
+/* ------------------------------------------------------------------------ */
+
+KNHAPI(int) konoha_setMethodFunc(konoha_t konoha, char *name, knh_fmethod func)
+{
 	KONOHA_CHECK(konoha, -1);
 	Ctx *ctx = knh_beginContext(konoha.ctx);
-	knh_sfp_t *lsfp = BEGIN_LOCAL(ctx, 5);
-	/* Exception KNH_SETv(ctx, lsfp[0].o, KNH_NULL); */
-	/* Return Value KNH_SETv(ctx, lsfp[1].o, KNH_NULL); */
-	KNH_SETv(ctx, lsfp[2].o, knh_Class_getMethod(ctx, knh_Object_cid(ctx->script), METHODN_main));
-	KNH_SETv(ctx, lsfp[3].o, ctx->script);
-	KNH_SETv(ctx, lsfp[4].o, new_Argument(ctx, argc, argv));
-	if(IS_Method(lsfp[2].o)) {
-		knh_VirtualMachine_run(ctx, lsfp + 3, CODE_LAUNCH);
+	knh_NameSpace_t *ns = ctx->share->mainns;
+	knh_class_t cid; knh_methodn_t mn;
+	knh_bytes_t n = B(name);
+	knh_index_t loc = knh_bytes_rindex(n, '.');
+	if(loc == -1) {
+		cid = knh_Object_cid(knh_NameSpace_getScript(ctx, ns));
 	}
-	END_LOCAL(ctx, lsfp);
-	knh_endContext(ctx);
-	return (int)lsfp[2].ivalue;
-}
-
-/* ------------------------------------------------------------------------ */
-/* [script] */
-/* ------------------------------------------------------------------------ */
-
-knh_bool_t knh_hasScriptFunc(Ctx *ctx, char *fmt)
-{
-	knh_bytes_t fname = B(fmt);
-	knh_index_t loc = knh_bytes_index(fname, '(');
-	if(loc > 0) {
-		fname = knh_bytes_first(fname, loc);
-		fmt = fmt + loc + 1;
+	else {
+		cid = knh_NameSpace_getcid(ctx, ns, knh_bytes_first(n, loc));
+		if(cid == CLASS_unknown) {
+			cid = knh_getcid(ctx, knh_bytes_first(n, loc));
+			if(cid == CLASS_unknown) {
+				goto L_ERROR;
+			}
+		}
+		n = knh_bytes_last(n, loc+1);
 	}
+	mn = knh_getmn(ctx, n, METHODN_NONAME);
 	{
-		knh_methodn_t mn = knh_getmn(ctx, fname, METHODN_NONAME);
-		knh_Method_t *mtd = knh_Class_getMethod(ctx, CLASS_Script, mn);
-		return IS_Method(mtd);
+		knh_Method_t *mtd = knh_Class_getMethod(ctx, cid, mn);
+		if(IS_NULL(mtd)) {
+			goto L_ERROR;
+		}
+		knh_Method_syncFunc(mtd, func);
 	}
-}
+	knh_endContext(ctx);
+	return 0;
 
-///* ------------------------------------------------------------------------ */
-//
-//knh_sfp_t *knh_invokeScriptFunc(Ctx *ctx, char *fmt, va_list args)
-//{
-//	knh_bytes_t fname = B(fmt);
-//	knh_index_t loc = knh_bytes_index(fname, '(');
-//	knh_sfp_t *lsfp = BEGIN_LOCAL(ctx);
-//	if(loc == -1) {
-//		knh_setRuntimeError(ctx, T__("needs ()"));
-//		return lsfp+1;
-//	}
-//	else {
-//		fname = knh_bytes_first(fname, loc);
-//		fmt = fmt + loc + 1;
-//	}
-//
-//	klr_mov(ctx, lsfp[0].o, new_ExceptionHandler(ctx));
-//	KNH_TRY(ctx, L_CATCH, lsfp, 0);
-//	{
-//		knh_methodn_t mn = knh_getmn(ctx, fname, METHODN_NONAME);
-//		knh_Method_t *mtd = knh_lookupMethod(ctx, knh_Object_cid(ctx->script), mn);
-//		int n = knh_stack_vpush(ctx, lsfp + 1, fmt, args);
-//		klr_mov(ctx, lsfp[2].o, ctx->script);
-//		KNH_SCALL(ctx, lsfp, 1, mtd, /* args*/ n);
-//	}
-//	knh_Context_clearstack(ctx);
-//	((knh_Context_t*)ctx)->hasError = 0;
-//	return lsfp + 1;
-//
-//	/* catch */
-//	L_CATCH:;
-//	KNH_PRINT_STACKTRACE(ctx, lsfp, 0);
-//	return lsfp + 1;
-//}
-//
-///* ------------------------------------------------------------------------ */
-//
-//KNHAPI(int) konoha_hasScriptFunc(konoha_t konoha, char *fmt)
-//{
-//	KONOHA_CHECK(konoha, 0);
-//	Ctx *ctx = 	knh_beginContext(konoha.ctx);
-//	int res = knh_hasScriptFunc(ctx, fmt);
-//	knh_endContext(ctx);
-//	return res;
-//}
-//
-///* ------------------------------------------------------------------------ */
-//
-//KNHAPI(void) konoha_invokeScriptFunc(konoha_t konoha, char *fmt, ...)
-//{
-//	KONOHA_CHECK_(konoha);
-//	Ctx *ctx = 	knh_beginContext(konoha.ctx);
-//	va_list args;
-//	va_start(args , fmt);
-//	knh_invokeScriptFunc(ctx, fmt, args);
-//	va_end(args);
-//	knh_endContext(ctx);
-//}
-//
-///* ------------------------------------------------------------------------ */
-//
-//KNHAPI(knh_int_t) konoha_invokeIntFunc(konoha_t konoha, char *fmt, ...)
-//{
-//	KONOHA_CHECK(konoha, 0);
-//	Ctx *ctx = 	knh_beginContext(konoha.ctx);
-//	knh_sfp_t *lsfp;
-//	va_list args;
-//	va_start(args , fmt);
-//	lsfp = knh_invokeScriptFunc(ctx, fmt, args);
-//	va_end(args);
-//	knh_endContext(ctx);
-//	return lsfp[0].ivalue;
-//}
-//
-///* ------------------------------------------------------------------------ */
-//
-//KNHAPI(knh_float_t) konoha_invokeFloatFunc(konoha_t konoha, char *fmt, ...)
-//{
-//	KONOHA_CHECK(konoha, 0);
-//	Ctx *ctx = 	knh_beginContext(konoha.ctx);
-//	knh_sfp_t *lsfp;
-//	va_list args;
-//	va_start(args , fmt);
-//	lsfp = knh_invokeScriptFunc(ctx, fmt, args);
-//	va_end(args);
-//	knh_endContext(ctx);
-//	return lsfp[0].fvalue;
-//}
-//
-///* ------------------------------------------------------------------------ */
-//
-//KNHAPI(int) konoha_invokeBooleanFunc(konoha_t konoha, char *fmt, ...)
-//{
-//	KONOHA_CHECK(konoha, 0);
-//	Ctx *ctx = 	knh_beginContext(konoha.ctx);
-//	knh_sfp_t *lsfp;
-//	va_list args;
-//	va_start(args , fmt);
-//	lsfp = knh_invokeScriptFunc(ctx, fmt, args);
-//	va_end(args);
-//	knh_endContext(ctx);
-//	return lsfp[0].bvalue;
-//}
-//
-///* ------------------------------------------------------------------------ */
-//
-//KNHAPI(char*) konoha_invokeStringFunc(konoha_t konoha, char *fmt, ...)
-//{
-//	KONOHA_CHECK(konoha, 0);
-//	Ctx *ctx = 	knh_beginContext(konoha.ctx);
-//	char *res = NULL;
-//	knh_sfp_t *lsfp;
-//	va_list args;
-//	va_start(args , fmt);
-//	lsfp = knh_invokeScriptFunc(ctx, fmt, args);
-//	va_end(args);
-//	if(ctx->hasError == 0 && IS_String(lsfp[0].o)) {
-//		knh_String_t *s = lsfp[0].s;
-//		char *p = (char*)malloc(s->size+1);
-//		if(p == NULL) {
-//			knh_setRuntimeError(ctx, T__("out of memory"));
-//		}
-//		else {
-//			knh_memcpy(p, s->str, s->size);
-//			p[s->size] = 0;
-//		}
-//		res = p;
-//	}
-//	knh_endContext(ctx);
-//	return res;
-//}
-//
-///* ------------------------------------------------------------------------ */
-//
-//KNHAPI(int) konoha_setMethodFunc(konoha_t konoha, char *name, knh_Fmethod func)
-//{
-//	KONOHA_CHECK(konoha, -1);
-//	Ctx *ctx = knh_beginContext(konoha.ctx);
-//	knh_class_t cid; knh_methodn_t mn;
-//	knh_bytes_t n = B(name);
-//	knh_index_t loc = knh_bytes_rindex(n, '.');
-//	if(loc == -1) {
-//		cid = CLASS_Script;
-//	}
-//	else {
-//		cid = knh_getcid(ctx, knh_bytes_first(n, loc));
-//		if(cid == CLASS_unknown) {
-//			goto L_ERROR;
-//		}
-//		n = knh_bytes_last(n, loc+1);
-//	}
-//	mn = knh_getmn(ctx, n, METHODN_NONAME);
-//	{
-//		knh_Method_t *mtd = knh_Class_getMethod(ctx, cid, mn);
-//		if(IS_NULL(mtd)) {
-//			goto L_ERROR;
-//		}
-//		knh_Method_syncFunc(mtd, func);
-//	}
-//	knh_endContext(ctx);
-//	return 0;
-//
-//	L_ERROR:
-//	knh_setRuntimeError(ctx, T__("method not found"));
-//	knh_endContext(ctx);
-//	return -1;
-//}
+	L_ERROR:
+	knh_setRuntimeError(ctx, T__("method not found"));
+	knh_endContext(ctx);
+	return -1;
+}
 
 /* ======================================================================== */
 /* [readline] */
@@ -816,14 +772,14 @@ static void knh_Context_initSymbolTable(Ctx *ctx)
 {
 	knh_DictMap_t *symbolDictMap = DP((ctx)->kc)->symbolDictMap;
 	int i, j;
-	for(i = 0; i < ctx->share->ClassTableSize; i++) {
+	for(i = 0; i < KNH_TCLASS_SIZE; i++) {
 		knh_String_t *sname = ClassTable(i).sname;
 		if(sname != NULL) {
 			if(knh_class_isPrivate(i)) continue;
 			knh_DictMap_set(ctx, symbolDictMap, sname, UP(sname));
 		}
-		if(ClassTable(i).constDictMap != NULL) {
-			knh_DictMap_t *dm = ClassTable(i).constDictMap;
+		if(ClassTable(i).constPool != NULL) {
+			knh_DictMap_t *dm = ClassTable(i).constPool;
 			for(j = 0; j < knh_DictMap_size(dm); j++) {
 				knh_String_t *s = knh_DictMap_keyAt(dm, j);
 				knh_DictMap_set(ctx, symbolDictMap, s, UP(s));
@@ -854,6 +810,10 @@ static void knh_Context_initSymbolTable(Ctx *ctx)
 
 /* ------------------------------------------------------------------------ */
 
+#ifdef RL_VERSION_MAJOR  /* 5, or later */
+char **completion_matches(const char *, rl_compentry_func_t *);
+#endif
+
 static
 char **knh_completion(const char* text, int start, int end)
 {
@@ -883,7 +843,7 @@ static
 void knh_Context_addScriptLine(Ctx *ctx, knh_bytes_t l)
 {
 	if(ctx->lines != NULL) {
-		knh_Array_add_(ctx, ctx->lines, UP(new_String(ctx, l, NULL)));
+		knh_Array_add(ctx, ctx->lines, UP(new_String(ctx, l, NULL)));
 	}
 }
 
@@ -914,9 +874,8 @@ knh_String_t *knh_Context_getScriptLineNULL(Ctx *ctx, size_t at)
 /* ------------------------------------------------------------------------ */
 /* @method String[] Script.getLines() @Hidden */
 
-METHOD Script_getLines(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+METHOD Script_getLines(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	knh_Array_t *res = (ctx->lines == NULL)
 		? new_Array(ctx, CLASS_String, 0) : ctx->lines;
 	KNH_RETURN(ctx, sfp, res);
@@ -928,7 +887,7 @@ static
 void knh_clearScriptLine(Ctx *ctx)
 {
 	if(ctx->lines != NULL) {
-//#if KONOHA_BUILDID > KONOHA_BUILDID_LATEST
+#if KONOHA_BUILDID > KONOHA_BUILDID_LATEST
 //		if(knh_getenv("I_LOVE_KONOHA") == NULL) {
 //			char buff[FILEPATH_BUFSIZ];
 //			int i, pid = knh_getpid();
@@ -937,7 +896,7 @@ void knh_clearScriptLine(Ctx *ctx)
 //			fprintf(stdout, "All your cooperation will help the future version of konoha.\n");
 //			knh_snprintf(buff, sizeof(buff), "\nDo you want to save your script? [Y/n]: ");
 //			if(knh_ask(ctx, buff, 1)) {
-//				knh_sfp_t *lsfp = BEGIN_LOCAL(ctx);
+//				knh_sfp_t *lsfp = KNH_LOCAL(ctx);
 //				knh_OutputStream_t *w;
 //				knh_snprintf(buff, sizeof(buff), "myscript%d.k", pid);
 //				w = new_FileOutputStream(ctx, B(buff), "w", 0);
@@ -950,13 +909,13 @@ void knh_clearScriptLine(Ctx *ctx)
 //					knh_println(ctx, w, line);
 //				}
 //				knh_OutputStream_close(ctx, w);
-//				END_LOCAL(ctx, lsfp);
+//				KNH_LOCALBACK(ctx, lsfp);
 //				fprintf(stdout, "More importantly, your script was saved at '%s.'\n", buff);
 //				fprintf(stdout, "We appliciate when you send us your found problems.\n");
 //				fprintf(stdout, "Thank you, again.\n");
 //			}
 //		}
-//#endif
+#endif
 		KNH_FINALv(ctx, ((knh_Context_t*)ctx)->lines);
 		((knh_Context_t*)ctx)->lines = NULL;
 	}
@@ -1012,7 +971,6 @@ KNHAPI(void) konoha_shell(konoha_t konoha)
 {
 	KONOHA_CHECK_(konoha);
 	Ctx *ctx = knh_beginContext(konoha.ctx);
-	knh_sfp_t *lsfp = BEGIN_LOCAL(ctx, 2);
 	knh_Context_setInteractive(ctx, 1);
 	knh_Context_setDebug(ctx, 1);
 	knh_initSIGINT();
@@ -1028,6 +986,8 @@ KNHAPI(void) konoha_shell(konoha_t konoha)
 		int linenum, linecnt = 0;
 		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 		char *ln = NULL;
+		knh_sfp_t *lsfp = KNH_LOCAL(ctx);
+		KNH_LPUSH(ctx, KNH_NULL);  // step esp++;
 
 		START_LINE:;
 		if(ln != NULL) free(ln);
@@ -1090,12 +1050,12 @@ KNHAPI(void) konoha_shell(konoha_t konoha)
 			knh_Bytes_putc(ctx, cwb->ba, '\n');
 			{
 				knh_InputStream_t *in = new_BytesInputStream(ctx, cwb->ba, cwb->pos, knh_Bytes_size(cwb->ba));
-				klr_mov(ctx, lsfp[0].o, in);
+				KNH_MOV(ctx, lsfp[0].o, in);
 				DP(in)->uri = knh_getResourceId(ctx, STEXT("(shell)"));
 				DP(in)->line = linenum;
 				knh_InputStream_setEncoding(ctx, in, KNH_ENC);
 				shellContext = ctx;
-				knh_Script_loadStream(ctx, ctx->script, in, 1/*isEval*/, 0/*isThrowable*/);
+				knh_NameSpace_load(ctx, ctx->share->mainns, in, 1/*isEval*/, 0/*isThrowable*/);
 				shellContext = NULL;
 				knh_cwb_close(cwb);
 			}
@@ -1106,9 +1066,9 @@ KNHAPI(void) konoha_shell(konoha_t konoha)
 		if(ln != NULL) free(ln);
 		knh_clearScriptLine(ctx);
 		knh_cwb_close(cwb);
+		KNH_LOCALBACK(ctx, lsfp);
+		knh_Context_clearstack(ctx);
 		knh_Context_setInteractive(ctx, 0);
-		knh_stack_clear(ctx, lsfp);
-		END_LOCAL(ctx, lsfp);
 		knh_endContext(ctx);
 	}
 }

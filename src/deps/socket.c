@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -103,35 +103,35 @@ KNHAPI(knh_intptr_t) knh_socket_open(Ctx *ctx, char *ip_or_host, int port, int i
 	}
 	return sd;
 #elif defined(KNH_USING_BTRON)
-	char tmp[HBUFLEN];
-	struct hostent host;
-	struct sockaddr_in server = {0};
-	W err, sd;
+        char tmp[HBUFLEN];
+        struct hostent host;
+        struct sockaddr_in server = {0};
+        W err, sd;
 
-	err = so_gethostbyname(ip_or_host, &host, tmp);
-	if (err < 0) {
-		KNH_PERRNO(ctx, NULL, "Socket!!", "gethostbyname", isThrowable);
-		return -1;
-	}
+        err = so_gethostbyname(ip_or_host, &host, tmp);
+        if (err < 0) {
+            KNH_PERRNO(ctx, NULL, "Socket!!", "gethostbyname", isThrowable);
+            return -1;
+        }
 
-	server.sin_family = PF_INET;
-	memcpy(&(server.sin_addr), host.h_addr, host.h_length);
-	server.sin_port = htons(port);
+        server.sin_family = PF_INET;
+        memcpy(&(server.sin_addr), host.h_addr, host.h_length);
+        server.sin_port = htons(port);
 
-	err = so_socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (err < 0) {
-		KNH_PERRNO(ctx, NULL, "Socket!!", "socket", isThrowable);
-		return -1;
-	}
-	sd = err;
+        err = so_socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+        if (err < 0) {
+            KNH_PERRNO(ctx, NULL, "Socket!!", "socket", isThrowable);
+            return -1;
+        }
+        sd = err;
 
-	err = so_connect(sd, (struct sockaddr*)&server, sizeof(server));
-	if (err < 0) {
-		KNH_PERRNO(ctx, NULL, "Socket!!", "connect", isThrowable);
-		so_close(sd);
-		return -1;
-	}
-	return (knh_intptr_t)sd;
+        err = so_connect(sd, (struct sockaddr*)&server, sizeof(server));
+        if (err < 0) {
+            KNH_PERRNO(ctx, NULL, "Socket!!", "connect", isThrowable);
+            so_close(sd);
+            return -1;
+        }
+        return (knh_intptr_t)sd;
 #else
 	return -1;
 #endif
@@ -147,8 +147,8 @@ KNHAPI(int) knh_socket_send(Ctx *ctx, knh_intptr_t sd, char *buf, size_t bufsiz,
 #elif defined(KNH_USING_POSIX)
 	res = send(sd, buf, bufsiz, flags);
 #elif defined(KNH_USING_BTRON)
-	res = so_send(sd, buf, bufsiz, flags);
-	if (res < 0) res = -1;
+        res = so_send(sd, buf, bufsiz, flags);
+        if (res < 0) res = -1;
 #endif
 	if(res == -1) {
 		KNH_PERRNO(ctx, NULL, "Socket!!", "send", knh_Context_isStrict(ctx));
@@ -183,7 +183,7 @@ KNHAPI(int) knh_socket_close(Ctx *ctx, knh_intptr_t sd)
 #elif defined(KNH_USING_POSIX)
 	return close((int)sd);
 #elif defined(KNH_USING_BTRON)
-	return so_close(sd);
+        return so_close(sd);
 #else
 	return 0;  /* becuase, it wasn't opened. */
 #endif
@@ -196,16 +196,17 @@ KNHAPI(int) knh_socket_close(Ctx *ctx, knh_intptr_t sd)
 /* 'host:localhost:80' */
 /* 'socket:localhost:80' */
 
-static knh_io_t knh_iodrv_open__SOCKET(Ctx *ctx, knh_bytes_t file, char *mode, int isThrowable)
+static
+knh_io_t knh_iodrv_open__SOCKET(Ctx *ctx, knh_bytes_t file, char *mode, int isThrowable)
 {
 	knh_bytes_t urn = knh_bytes_skipscheme(file);
 	knh_index_t loc = knh_bytes_rindex(urn, ':');
 	int port = 80; /* default */
-	char host_or_ip[128];
 	if(loc != -1) {
 		port = (int)knh_bytes_toint(knh_bytes_last(urn, loc+1));
 		urn = knh_bytes_first(urn, loc);
 	}
+	char host_or_ip[128];
 	knh_format_bytes(host_or_ip, sizeof(host_or_ip), urn);
 	DBG_P("opening socket host='%s', port=%d", host_or_ip, port);
 	return (knh_io_t)knh_socket_open(ctx, host_or_ip, port, isThrowable);
@@ -213,26 +214,30 @@ static knh_io_t knh_iodrv_open__SOCKET(Ctx *ctx, knh_bytes_t file, char *mode, i
 
 /* ------------------------------------------------------------------------ */
 
-static void knh_iodrv_init__SOCKET(Ctx *ctx, Object *stream, char *mode)
+static
+void knh_iodrv_init__SOCKET(Ctx *ctx, Object *stream, char *mode)
 {
 }
 
 /* ------------------------------------------------------------------------ */
-static knh_intptr_t knh_iodrv_read__SOCKET(Ctx *ctx, knh_io_t sd, char *buf, size_t bufsiz)
+static
+knh_intptr_t knh_iodrv_read__SOCKET(Ctx *ctx, knh_io_t sd, char *buf, size_t bufsiz)
 {
 	return knh_socket_recv(ctx, (knh_intptr_t)sd, buf, bufsiz, 0);
 }
 
 /* ------------------------------------------------------------------------ */
 
-static knh_intptr_t knh_iodrv_write__SOCKET(Ctx *ctx, knh_io_t sd, char *buf, size_t bufsiz)
+static
+knh_intptr_t knh_iodrv_write__SOCKET(Ctx *ctx, knh_io_t sd, char *buf, size_t bufsiz)
 {
 	return knh_socket_send(ctx, (knh_intptr_t)sd, buf, bufsiz, 0);
 }
 
 /* ------------------------------------------------------------------------ */
 
-static void knh_iodrv_close__SOCKET(Ctx *ctx, knh_io_t sd)
+static
+void knh_iodrv_close__SOCKET(Ctx *ctx, knh_io_t sd)
 {
 	knh_socket_close(ctx, (knh_intptr_t)sd);
 }
@@ -240,8 +245,8 @@ static void knh_iodrv_close__SOCKET(Ctx *ctx, knh_io_t sd)
 /* ------------------------------------------------------------------------ */
 /* @data */
 
-static knh_StreamDSPI_t IO__SOCKET = {
-	KNH_STREAM_DSPI, "socket",
+static knh_iodrv_t IO__SOCKET = {
+	KNH_DRVAPI_TYPE__IO, "socket",
 	4096,
 	knh_iodrv_open__SOCKET,
 	knh_iodrv_init__SOCKET,
@@ -252,7 +257,7 @@ static knh_StreamDSPI_t IO__SOCKET = {
 
 /* ------------------------------------------------------------------------ */
 
-knh_StreamDSPI_t *knh_getSocketDriver(void)
+knh_iodrv_t *knh_getSocketDriver(void)
 {
 	return &IO__SOCKET;
 }
@@ -263,20 +268,20 @@ knh_StreamDSPI_t *knh_getSocketDriver(void)
 /* 'host:localhost:80' */
 /* 'socket:localhost:80' */
 
-static knh_io_t knh_iodrv_open__HTTP(Ctx *ctx, knh_bytes_t url, char *mode, int isThrowable)
+static
+knh_io_t knh_iodrv_open__HTTP(Ctx *ctx, knh_bytes_t url, char *mode, int isThrowable)
 {
 	char bfscheme[20], bfhost[80];
 	char bfuname[20];
 	int port = 80;
 	knh_bytes_t path;
-	knh_intptr_t sd;
 	knh_bytes_parseURLscheme(url, bfscheme, sizeof(bfscheme));
 	knh_bytes_parseURLhost(url, bfhost, sizeof(bfhost));
 	knh_bytes_parseURLuname(url, bfuname, sizeof(bfuname));
 	knh_bytes_parseURLport(url, &port);
 	path = knh_bytes_substringURLpath(url);
 	DBG2_P("socket host='%s', port=%d, path='%s'", bfhost, port, path.buf);
-	sd = knh_socket_open(ctx, bfhost, port, isThrowable);
+	knh_intptr_t sd = knh_socket_open(ctx, bfhost, port, isThrowable);
 	if(sd != -1) {
 		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 		knh_bytes_t msg;
@@ -296,16 +301,17 @@ static knh_io_t knh_iodrv_open__HTTP(Ctx *ctx, knh_bytes_t url, char *mode, int 
 
 /* ------------------------------------------------------------------------ */
 
-static void knh_iodrv_init__HTTP(Ctx *ctx, Object *stream, char *mode)
+static
+void knh_iodrv_init__HTTP(Ctx *ctx, Object *stream, char *mode)
 {
 	if(IS_InputStream(stream) && mode[0] != 'h') {
 		knh_InputStream_t *in = (knh_InputStream_t*)stream;
 		knh_sfp_t *esp = ctx->esp + 1;
 		do {
 			knh_String_t *s = knh_InputStream_readLine(ctx, in);
+			KNH_SETv(ctx, esp[0].o, s);  // TO AVOID GC
 			knh_bytes_t t = __tobytes(s);
 			int loc = knh_bytes_indexOf(t, STEXT("charset="));
-			KNH_SETv(ctx, esp[0].o, s);  // TO AVOID GC
 			if(loc > 0) {
 				DBG_P("charset='%s'", t.buf + 8);
 				TODO();
@@ -321,21 +327,24 @@ static void knh_iodrv_init__HTTP(Ctx *ctx, Object *stream, char *mode)
 
 /* ------------------------------------------------------------------------ */
 
-static knh_intptr_t knh_iodrv_read__HTTP(Ctx *ctx, knh_io_t sd, char *buf, size_t bufsiz)
+static
+knh_intptr_t knh_iodrv_read__HTTP(Ctx *ctx, knh_io_t sd, char *buf, size_t bufsiz)
 {
-	return knh_socket_recv(ctx, (knh_intptr_t)sd, buf, bufsiz, 0);
+  return knh_socket_recv(ctx, (knh_intptr_t)sd, buf, bufsiz, 0);
 }
 
 /* ------------------------------------------------------------------------ */
 
-static knh_intptr_t knh_iodrv_write__HTTP(Ctx *ctx, knh_io_t sd, char *buf, size_t bufsiz)
+static
+knh_intptr_t knh_iodrv_write__HTTP(Ctx *ctx, knh_io_t sd, char *buf, size_t bufsiz)
 {
 	return 0; //knh_socket_send(ctx, (knh_intptr_t)sd, buf, bufsiz, 0);
 }
 
 /* ------------------------------------------------------------------------ */
 
-static void knh_iodrv_close__HTTP(Ctx *ctx, knh_io_t sd)
+static
+void knh_iodrv_close__HTTP(Ctx *ctx, knh_io_t sd)
 {
 	knh_socket_close(ctx, (knh_intptr_t)sd);
 }
@@ -343,8 +352,8 @@ static void knh_iodrv_close__HTTP(Ctx *ctx, knh_io_t sd)
 /* ------------------------------------------------------------------------ */
 /* @data */
 
-static knh_StreamDSPI_t IO__HTTP = {
-	KNH_STREAM_DSPI, "http",
+static knh_iodrv_t IO__HTTP = {
+	KNH_DRVAPI_TYPE__IO, "http",
 	4096,
 	knh_iodrv_open__HTTP,
 	knh_iodrv_init__HTTP,
@@ -356,7 +365,7 @@ static knh_StreamDSPI_t IO__HTTP = {
 /* ======================================================================== */
 /* [KNHAPI] */
 
-void knh_loadDefaultSocketDriver(Ctx *ctx)
+void knh_Socket_newClass(Ctx *ctx, knh_class_t cid)
 {
 	knh_addIODriver(ctx, NULL, &IO__SOCKET);
 	knh_addIODriver(ctx, "ip", &IO__SOCKET);

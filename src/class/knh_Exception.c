@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -34,9 +34,9 @@
 static int errno;
 #else
 
-#ifdef KNH_USING_POSIX
+#if defined(KNH_USING_POSIX) || defined(KONOHA_ON_WINDOWS)
 #include<errno.h>
-#elif !defined(KONOHA_ON_WINDOWS)
+#else
 static int errno;
 #endif
 #endif
@@ -50,15 +50,17 @@ extern "C" {
 /* ======================================================================== */
 /* [ExptTable] */
 
-static knh_expt_t new_ExptId(Ctx *ctx)
+static knh_expt_t knh_ExptTable_newId(Ctx *ctx)
 {
 	knh_class_t newid = 0;
 	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
-	if(ctx->share->ExptTableSize == ctx->share->ExptTableMax) {
-		knh_expandExptTable(ctx);
+	if(!(ctx->share->ExptTableSize < KNH_TEXPT_SIZE)) {
+		KNH_EXIT("Enlarge KNH_TEXPT_SIZE %d", KNH_TEXPT_SIZE);
+		goto L_UNLOCK;
 	}
-	((knh_share_t*)ctx->share)->ExptTableSize += 1;
+	((knh_SharedData_t*)ctx->share)->ExptTableSize += 1;
 	newid = ctx->share->ExptTableSize;
+	L_UNLOCK:
 	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
 	return newid;
 }
@@ -119,9 +121,9 @@ knh_expt_t
 knh_addException(Ctx *ctx, knh_flag_t flag, knh_class_t eid, knh_String_t *name, knh_class_t peid)
 {
 	if(eid == EXPT_newid) {
-		eid = new_ExptId(ctx);
+		eid = knh_ExptTable_newId(ctx);
 	}else {
-		((knh_share_t*)ctx->share)->ExptTableSize += 1;
+		((knh_SharedData_t*)ctx->share)->ExptTableSize += 1;
 		DBG2_ASSERT(eid == ctx->share->ExptTableSize);
 	}
 	KNH_ASSERT_eid(eid);

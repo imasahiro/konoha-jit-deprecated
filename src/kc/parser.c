@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -184,7 +184,7 @@ void knh_Stmt_tokens_perror(Ctx *ctx, knh_Stmt_t *o, knh_tkc_t *tc, char *fmt)
 	knh_Stmt_addT(ctx, o, tk);
 	if(TT_(tk) == TT_ERR) {
 		knh_tokens_nextStmt(tc);
-		DBG2_ASSERT(SP(o)->stt == STT_ERR);
+		KNH_ASSERT(SP(o)->stt == STT_ERR);
 	}
 }
 
@@ -519,7 +519,7 @@ void knh_Stmt_add_FIRSTNAME(Ctx *ctx, knh_Stmt_t *stmt, knh_Token_t *tk, knh_byt
 		name = fname;
 
 		if(isupper(name.buf[0])) {
-			size_t i, has_ = 0, hasLOWER = 0, hasDOT = 0;
+			int i, has_ = 0, hasLOWER = 0, hasDOT = 0;
 			for(i = 1; i < name.len; i++) {
 				if(name.buf[i] == '_') {has_ = 0; continue; }
 				if(islower(name.buf[i])) { hasLOWER = 1; continue; }
@@ -536,7 +536,7 @@ void knh_Stmt_add_FIRSTNAME(Ctx *ctx, knh_Stmt_t *stmt, knh_Token_t *tk, knh_byt
 			}
 		}
 		else {
-			size_t i, hasDOT = 0;
+			int i, hasDOT = 0;
 			for(i = 1; i < name.len; i++) {
 				if(name.buf[i] == '.') { hasDOT = 1; break; }
 			}
@@ -1882,11 +1882,11 @@ void knh_StmtMETA_addMeta(Ctx *ctx, knh_Stmt_t *stmt, knh_String_t *k, knh_Token
 				for(c = 0; c < tc->e; c++) {
 					if(TT_(ts[c]) == TT_COMMA) continue;
 					if(IS_String(DP(tc->ts[0])->data)) {
-						knh_Array_add_(ctx, a, DP(ts[0])->data);
+						knh_Array_add(ctx, a, DP(ts[0])->data);
 					}
 					else {
 						knh_bytes_t t = knh_Token_tobytes(ctx, tc->ts[0]);
-						knh_Array_add_(ctx, a, UP(new_String(ctx, t, NULL)));
+						knh_Array_add(ctx, a, UP(new_String(ctx, t, NULL)));
 					}
 				}
 				knh_DictMap_set(ctx, DP(stmt)->metaDictMap, k, UP(a));
@@ -1947,21 +1947,17 @@ knh_Stmt_t *new_StmtMETA(Ctx *ctx,  knh_tkc_t *tc, knh_stmt_t stt)
 
 static knh_Stmt_t *new_StmtNAMESPACE(Ctx *ctx, knh_tkc_t *tc)
 {
-	knh_Stmt_t *o = new_StmtMETA(ctx, tc, STT_NAMESPACE);
-	knh_Stmt_add_STMT1(ctx, o, tc);
-	return o;
+	knh_Token_perror(ctx, tc->ts[tc->c-1], KERR_EWARN, _("namespace will be supported soon or later"));
+	knh_tokens_nextStmt(tc);
+	return new_Stmt(ctx, 0, STT_DONE);
 }
 
-static knh_Stmt_t *new_StmtSCRIPT(Ctx *ctx, knh_tkc_t *tc)
-{
-	knh_Stmt_t *o = new_StmtMETA(ctx, tc, STT_SCRIPT);
-	knh_Stmt_add_STMT1(ctx, o, tc);
-	return o;
-}
+/* ------------------------------------------------------------------------ */
+/* [import] */
 
-static knh_Stmt_t *new_StmtINCLUDE(Ctx *ctx, knh_tkc_t *tc)
+static knh_Stmt_t *new_StmtIMPORT(Ctx *ctx, knh_tkc_t *tc)
 {
-	knh_Stmt_t *o = new_StmtMETA(ctx, tc, STT_INCLUDE);
+	knh_Stmt_t *o = new_StmtMETA(ctx, tc, STT_IMPORT);
 	knh_Stmt_tadd(ctx, o, tc, isPATH, _("not path: %s")); /* PATH */
 	knh_Stmt_add_SEMICOLON(ctx, o, tc); /* ; */
 	return o;
@@ -1970,12 +1966,16 @@ static knh_Stmt_t *new_StmtINCLUDE(Ctx *ctx, knh_tkc_t *tc)
 /* ------------------------------------------------------------------------ */
 /* [USING] */
 
+/* ------------------------------------------------------------------------ */
+/* [using class] */
+
 static int isUCLASSN(Ctx *ctx, knh_Token_t *tk)
 {
 	return ((knh_Token_isTYPEN(tk) && !knh_Token_isTailWildCard(tk)) || knh_Token_isNAME(tk));
 }
 
-static knh_Stmt_t *new_StmtUCLASS(Ctx *ctx, knh_tkc_t *tc)
+static
+knh_Stmt_t *new_StmtUCLASS(Ctx *ctx, knh_tkc_t *tc)
 {
 	knh_Stmt_t *o = new_StmtMETA(ctx, tc, STT_UCLASS);
 	knh_Stmt_tadd(ctx, o, tc, isUCLASSN, _("not class %s"));
@@ -1983,7 +1983,11 @@ static knh_Stmt_t *new_StmtUCLASS(Ctx *ctx, knh_tkc_t *tc)
 	return o;
 }
 
-static knh_Stmt_t *new_StmtUUNIT(Ctx *ctx, knh_tkc_t *tc)
+/* ------------------------------------------------------------------------ */
+/* [using unit] */
+
+static
+knh_Stmt_t *new_StmtUUNIT(Ctx *ctx, knh_tkc_t *tc)
 {
 	knh_Stmt_t *o = new_StmtMETA(ctx, tc, STT_UUNIT);
 	knh_Stmt_tadd(ctx, o, tc, isCLASSN, _("not class: %s")); /* CLASSTN */
@@ -1992,7 +1996,11 @@ static knh_Stmt_t *new_StmtUUNIT(Ctx *ctx, knh_tkc_t *tc)
 	return o;
 }
 
-static knh_Stmt_t *new_StmtUENUM(Ctx *ctx, knh_tkc_t *tc)
+/* ------------------------------------------------------------------------ */
+/* [using enum] */
+
+static
+knh_Stmt_t *new_StmtUENUM(Ctx *ctx, knh_tkc_t *tc)
 {
 	knh_Stmt_t *o = new_StmtMETA(ctx, tc, STT_UENUM);
 	knh_Stmt_tadd(ctx, o, tc, isCLASSN, _("not class: %s")); /* CLASSTN */
@@ -2001,7 +2009,11 @@ static knh_Stmt_t *new_StmtUENUM(Ctx *ctx, knh_tkc_t *tc)
 	return o;
 }
 
-static knh_Stmt_t *new_StmtUVOCAB(Ctx *ctx, knh_tkc_t *tc)
+/* ------------------------------------------------------------------------ */
+/* [using vocab] */
+
+static
+knh_Stmt_t *new_StmtUVOCAB(Ctx *ctx, knh_tkc_t *tc)
 {
 	knh_Stmt_t *o = new_StmtMETA(ctx, tc, STT_UVOCAB);
 	knh_Stmt_tadd(ctx, o, tc, isCLASSN, _("not class: %s")); /* CLASSTN */
@@ -2010,18 +2022,25 @@ static knh_Stmt_t *new_StmtUVOCAB(Ctx *ctx, knh_tkc_t *tc)
 	return o;
 }
 
+/* ------------------------------------------------------------------------ */
+/* [using func] */
+
 static int isUFUNCN(Ctx *ctx, knh_Token_t *tk)
 {
 	return (knh_Token_isCMETHODN(tk) || (knh_Token_isTYPEN(tk) && knh_Token_isTailWildCard(tk)));
 }
 
-static knh_Stmt_t *new_StmtUFUNC(Ctx *ctx, knh_tkc_t *tc)
+static
+knh_Stmt_t *new_StmtUFUNC(Ctx *ctx, knh_tkc_t *tc)
 {
 	knh_Stmt_t *o = new_StmtMETA(ctx, tc, STT_UFUNC);
 	knh_Stmt_tadd(ctx, o, tc, isUFUNCN, _("not func"));
 	knh_Stmt_add_SEMICOLON(ctx, o, tc); /* ; */
 	return o;
 }
+
+/* ------------------------------------------------------------------------ */
+/* [using mapmap] */
 
 //static
 //Stmt *new_StmtUMAPMAP(Ctx *ctx, knh_tokens_t *tc)
@@ -2034,7 +2053,10 @@ static knh_Stmt_t *new_StmtUFUNC(Ctx *ctx, knh_tkc_t *tc)
 //	return o;
 //}
 
-static knh_Stmt_t *new_StmtUSING(Ctx *ctx, knh_tkc_t *tc)
+/* ------------------------------------------------------------------------ */
+
+static
+knh_Stmt_t *new_StmtUSING(Ctx *ctx, knh_tkc_t *tc)
 {
 	if(HAS_TOKEN(tc)) {
 		knh_Token_t *tk = TK0(tc);
@@ -2405,26 +2427,33 @@ static int knh_tokens_findFROMIDX(knh_tkc_t *tc, int def)
 }
 
 static
-void knh_Stmt_add_PEACH(Ctx *ctx, knh_Stmt_t *o, knh_tkc_t *tc, int idx)
+void knh_Stmt_add_PEACH(Ctx *ctx, knh_Stmt_t *o, knh_tkc_t *tc)
 {
-	knh_tkc_t tcbuf, *expr = knh_tokens_firstEXPR(tc, idx, &tcbuf);
-#if defined(TT_SELECT)
-	if(TT_(TK0(expr)) == TT_SELECT) {
-		knh_Stmt_setSELECT(o, 1);
-		expr->c += 1;
-	}
-#endif
-	knh_Stmt_add_PARAMs(ctx, o, expr);
-	if(STT_(o) == STT_ERR) return;
-	idx = knh_tokens_findTTIDX(tc, TT_WHERE, tc->e);
-	expr = knh_tokens_firstEXPR(tc, idx, &tcbuf);
-	knh_Stmt_add(ctx, o, new_TermEXPR(ctx, expr, 0/*isData*/)); /* FROM */
-	if(STT_(o) == STT_ERR) return;
-	if(HAS_TOKEN(tc)) { /* WHERE */
-		knh_Stmt_add(ctx, o, new_TermEXPR(ctx, tc, 0/*isData*/));
+	int idx = knh_tokens_findFROMIDX(tc, -1);
+	if(idx == -1) {
+		knh_Stmt_tokens_perror(ctx, o, tc, _("syntax error: needs in/from"));
+		return;
 	}
 	else {
-		knh_Stmt_add(ctx, o, TM(new_TokenCONST(ctx, FL(o), KNH_TRUE)));
+		knh_tkc_t tcbuf, *expr = knh_tokens_firstEXPR(tc, idx, &tcbuf);
+#if defined(TT_SELECT)
+		if(TT_(TK0(expr)) == TT_SELECT) {
+			knh_Stmt_setSELECT(o, 1);
+			expr->c += 1;
+		}
+#endif
+		knh_Stmt_add_PARAMs(ctx, o, expr);
+		if(STT_(o) == STT_ERR) return;
+		idx = knh_tokens_findTTIDX(tc, TT_WHERE, tc->e);
+		expr = knh_tokens_firstEXPR(tc, idx, &tcbuf);
+		knh_Stmt_add(ctx, o, new_TermEXPR(ctx, expr, 0/*isData*/)); /* FROM */
+		if(STT_(o) == STT_ERR) return;
+		if(HAS_TOKEN(tc)) { /* WHERE */
+			knh_Stmt_add(ctx, o, new_TermEXPR(ctx, tc, 0/*isData*/));
+		}
+		else {
+			knh_Stmt_add(ctx, o, TM(new_TokenCONST(ctx, FL(o), KNH_TRUE)));
+		}
 	}
 }
 
@@ -2449,15 +2478,9 @@ static knh_Stmt_t *new_StmtFOREACH(Ctx *ctx, knh_tkc_t *tc)
 	if(HAS_TOKEN(tc)) {
 		if(TT_(TK0(tc)) == TT_PARENTHESIS) {
 			knh_tkc_t tcbuf, *stmts = knh_Token_tc(ctx, TK0(tc), &tcbuf);
-			int idx = knh_tokens_findFROMIDX(stmts, -1);
-			if(idx == -1) {
-				knh_Stmt_tokens_perror(ctx, o, tc, _("syntax error: needs in"));
-			}
-			else {
-				knh_Stmt_add_PEACH(ctx, o, stmts, idx); /* peach */
-				tc->c += 1;
-				knh_Stmt_add_STMT1(ctx, o, tc);
-			}
+			knh_Stmt_add_PEACH(ctx, o, stmts); /* peach */
+			tc->c += 1;
+			knh_Stmt_add_STMT1(ctx, o, tc);
 			return o;
 		}
 		else {
@@ -2465,15 +2488,9 @@ static knh_Stmt_t *new_StmtFOREACH(Ctx *ctx, knh_tkc_t *tc)
 			int idx = knh_tokens_findPEACHBRACEIDX(tc);
 			if(idx != -1) {
 				knh_tkc_t tcbuf, *stmts = knh_tokens_firstEXPR(tc, idx, &tcbuf);
-				int idx = knh_tokens_findFROMIDX(stmts, -1);
-				if(idx == -1) {
-					knh_Stmt_tokens_perror(ctx, o, tc, _("syntax error: needs in"));
-				}
-				else {
-					knh_Stmt_add_PEACH(ctx, o, stmts, idx); /* peach */
-					tc->c -= 1; DBG2_ASSERT(TT_(TK0(tc)) == TT_BRACE);
-					knh_Stmt_add_STMT1(ctx, o, tc);
-				}
+				knh_Stmt_add_PEACH(ctx, o, stmts); /* peach */
+				tc->c -= 1; DBG2_ASSERT(TT_(TK0(tc)) == TT_BRACE);
+				knh_Stmt_add_STMT1(ctx, o, tc);
 				return o;
 			}
 		}
@@ -2549,16 +2566,9 @@ static knh_Stmt_t *new_StmtFOR(Ctx *ctx, knh_tkc_t *tc)
 			if(idx != -1) {
 				knh_tkc_t tcbuf, *stmts = knh_tokens_firstEXPR(tc, idx, &tcbuf);
 				knh_Stmt_t *o = new_StmtMETA(ctx, tc, STT_FOREACH);
-				int idx = knh_tokens_findFROMIDX(stmts, -1);
-				if(idx == -1) {
-					knh_Stmt_tokens_perror(ctx, o, tc, _("syntax error: needs in"));
-				}
-				else {
-
-					knh_Stmt_add_PEACH(ctx, o, stmts, idx); /* peach */
-					tc->c -= 1; DBG2_ASSERT(TT_(TK0(tc)) == TT_BRACE);
-					knh_Stmt_add_STMT1(ctx, o, tc);
-				}
+				knh_Stmt_add_PEACH(ctx, o, stmts); /* peach */
+				tc->c -= 1; DBG2_ASSERT(TT_(TK0(tc)) == TT_BRACE);
+				knh_Stmt_add_STMT1(ctx, o, tc);
 				return o;
 			}
 		}
@@ -2880,7 +2890,6 @@ static knh_Stmt_t *new_StmtSTMT1(Ctx *ctx, knh_tkc_t *tc, int isData)
 
 	tk0 = TK0(tc);
 	tc->c += 1;
-	DP(ctx->kc)->statStmt += 1;
 	if(knh_Token_isDEBUG(tk0)) {
 		knh_Stmt_t *stmt = new_StmtBLOCK(ctx, tc);
 		knh_Stmt_setDEBUG(stmt, 1);
@@ -2907,15 +2916,13 @@ static knh_Stmt_t *new_StmtSTMT1(Ctx *ctx, knh_tkc_t *tc, int isData)
 		goto L_TAIL;
 	}
 
+	case TT_NAMESPACE:
+		return new_StmtNAMESPACE(ctx, tc);
+	case TT_IMPORT:
+		return new_StmtIMPORT(ctx, tc);
 	case TT_PRAGMA:
 		konohac_pragma(ctx, tc);
 		return new_Stmt(ctx, 0, STT_DONE);
-	case TT_NAMESPACE:
-		return new_StmtNAMESPACE(ctx, tc);
-	case TT_SCRIPT:
-		return new_StmtSCRIPT(ctx, tc);
-	case TT_INCLUDE:
-		return new_StmtINCLUDE(ctx, tc);
 	case TT_USING:
 		return new_StmtUSING(ctx, tc);
 	case TT_WITH:
@@ -3078,6 +3085,7 @@ static knh_Stmt_t *new_StmtSTMT1(Ctx *ctx, knh_tkc_t *tc, int isData)
 	case TT_LOCAL:
 	case TT_STACK:  /* STACK */
 	case TT_FIELD:  /* FIELD */
+	case TT_SCRIPT:  /* GLOBAL */
 	case TT_MEMBER:  /* MEMBER */
 	case TT_CLASSID:  /* CLASSID */
 	case TT_ASIS:  /* ASIS */

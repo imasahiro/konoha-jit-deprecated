@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -465,10 +465,10 @@ void knh_Token_join(Ctx *ctx, knh_Token_t *o)
 				i++;
 			}
 		}
-		knh_Array_add_(ctx, newa, UP(tk0));
+		knh_Array_add(ctx, newa, UP(tk0));
 	}
 	if(i < knh_Array_size(a)) {
-		knh_Array_add_(ctx, newa, knh_Array_n(a, i));
+		knh_Array_add(ctx, newa, knh_Array_n(a, i));
 	}
 
 	size = knh_Array_size(newa) - 1;

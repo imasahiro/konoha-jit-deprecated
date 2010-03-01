@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -40,6 +40,7 @@
 #include<stdint.h>
 #define __STDC_FORMAT_MACROS
 #include<inttypes.h>
+
 #endif
 
 #if defined(KNH_USING_PTHREAD)
@@ -52,13 +53,22 @@ extern "C" {
 
 /* ------------------------------------------------------------------------ */
 
+#ifdef KONOHA_ON_WINDOWS
+#define METHOD             void __declspec(dllexport)
+#else
+#define METHOD             void  KNH_CC_FASTCALL
+#endif
+
+#define MAPPER             METHOD
+#define ITRNEXT            int   KNH_CC_FASTCALL
+
 #ifdef KNH_USING_THREAD
-#define KNH_MT_VOLATILE    volatile
+#define KNH_MT_VOLATILE           volatile
 #else
 #define KNH_MT_VOLATILE
 #endif
 
-#define KONOHA_SYSTEM_BIT  (sizeof(void*) * CHAR_BIT)
+#define KONOHA_SYSTEM_BIT        (sizeof(void*) * CHAR_BIT))
 
 typedef int16_t           knh_int16_t;
 typedef uint16_t          knh_uint16_t;
@@ -67,9 +77,9 @@ typedef uint32_t          knh_uint32_t;
 typedef int64_t           knh_int64_t;
 typedef uint64_t          knh_uint64_t;
 
-typedef intptr_t          knh_intptr_t;
-typedef uintptr_t         knh_uintptr_t;
-typedef knh_intptr_t      knh_index_t;
+typedef intptr_t                  knh_intptr_t;
+typedef uintptr_t                 knh_uintptr_t;
+typedef knh_intptr_t              knh_index_t;
 
 #if defined(__LP64__)
 typedef int32_t           knh_short_t;
@@ -214,11 +224,10 @@ typedef double                    knh_float_t;
 /* ------------------------------------------------------------------------ */
 
 typedef unsigned char           knh_uchar_t;    /* byte */
-typedef const char              knh_text_t;
 
 typedef struct {
 	knh_uchar_t *buf;
-	size_t       len;
+	size_t     len;
 } knh_bytes_t;
 
 #define ismulti(c)             (((knh_uchar_t)c)>127)
@@ -227,6 +236,30 @@ typedef struct {
 #define B2(c,n)   new_bytes__2(c,n)
 #define STEXT(c)  new_bytes__2(c,sizeof(c)-1)
 #define ISB(t,c) (t.len == (sizeof(c)-1) && knh_strncmp((char*)t.buf,c,t.len) == 0)
+
+/* ------------------------------------------------------------------------ */
+/* ConstData  */
+/* ------------------------------------------------------------------------ */
+
+typedef struct {
+	char *name;
+	knh_int_t ivalue;
+} knh_IntConstData_t;
+
+typedef struct {
+	char *name;
+	knh_float_t fvalue;
+} knh_FloatConstData_t;
+
+typedef struct {
+	char *name;
+	char *value;
+} knh_StringConstData_t;
+
+typedef struct {
+	char *name;
+	void *ptr;
+} knh_NamedPointerData_t;
 
 /* ------------------------------------------------------------------------ */
 /* knh_flag_t */
@@ -261,21 +294,34 @@ typedef knh_ushort_t              knh_flag_t;    /* flag field */
 
 typedef const struct knh_Context_t    Ctx;
 
+typedef knh_uint16_t       knh_struct_t ; /* struct id*/
 typedef knh_uint16_t       knh_class_t;   /* class id */
 typedef knh_uint16_t       knh_type_t;    /* extended knh_type_t */
 typedef knh_uint16_t       knh_expt_t;    /* knh_expt_t */
 
+/* knh_struct_t */
+#define KNH_FLAG_SF_FIELD          KNH_FLAG_T1
+
+#define STRUCT_ISFIELD(sid)        ((sid & KNH_FLAG_SF_FIELD) == KNH_FLAG_SF_FIELD)
+#define BSIZE_TOSID(bsize)         (((knh_struct_t)bsize)|KNH_FLAG_SF_FIELD)
+#define STRUCT_FIELD(bsize)        (((knh_struct_t)bsize)|KNH_FLAG_SF_FIELD)
+#define STRUCT_FIELDSIZE(sid)      (sid & (~KNH_FLAG_SF_FIELD))
+#define STRUCT_UNMASK(sid)         (sid & (~KNH_FLAG_SF_FIELD))
+#define KNH_ASSERT_sid(sid)        KNH_ASSERT(((knh_struct_t)sid) < ctx->share->StructTableSize)
+
 /* knh_class_t */
+
 #define CLASS_newid                ((knh_class_t)-1)
 #define CLASS_unknown              ((knh_class_t)-2)
 
-#define DBG2_ASSERT_cid(cid)       KNH_ASSERT(cid < ctx->share->ClassTableSize)
+#define DBG2_ASSERT_cid(cid)        KNH_ASSERT(cid < KNH_TCLASS_SIZE)
 #define CLASSN(cid)                knh_ClassTable_CLASSN(ctx, cid)
-#define STRUCTN(bcid)              knh_getStructTableName(ctx, bcid)
 #define CLASSNo(o)                 knh_ClassTable_CLASSN(ctx, knh_Object_cid(o))
 #define CTXCLASSN(cid)     knh_Context_CLASSN(ctx,cid)
+//#define CTXTYPEQN(cid)     knh_Context_CLASSN(ctx,CLASS_type(cid)), TYPEQ(cid)
 
 /* knh_type_t */
+
 #define KNH_FLAG_TF_NA      KNH_FLAG_T0
 #define CLASS_type(t)       (t&(~KNH_FLAG_TF_NA))
 #define IS_NNTYPE(t)        ((t & KNH_FLAG_TF_NA)==0)
@@ -296,8 +342,10 @@ typedef knh_uint16_t       knh_expt_t;    /* knh_expt_t */
 
 #define TYPE_var                      CLASS_Tvar
 #define TYPE_void                     CLASS_Tvoid
+//#define TYPE_Void                     TYPE_void
 
 /* knh_expt_t */
+
 #define EXPT_unknown  ((knh_expt_t)-1)
 #define EXPT_newid    ((knh_expt_t)0)
 #define KNH_ASSERT_eid(eid)    KNH_ASSERT(eid < ctx->share->ExptTableSize + 1)
@@ -399,6 +447,8 @@ typedef struct knh_Object_t {
 #define T2              knh_Object_t
 #define UP(o)           (Object*)(o)
 
+#define KNH_FIELDn(v,n)            ((knh_Script_t*)(v))->fields[(n)]
+
 /* ------------------------------------------------------------------------ */
 /* Common Object Structure */
 
@@ -452,7 +502,10 @@ typedef knh_intptr_t knh_thread_key_t;
 typedef knh_intptr_t knh_mutex_t;
 #endif
 
-typedef void* (*knh_fgo)(void *);
+typedef struct knh_Thread_t {
+	knh_hObject_t h;
+	knh_thread_t thid;
+} knh_Thread_t ;
 
 typedef struct knh_LockTable_t {
 	knh_mutex_t *mutex;
@@ -477,21 +530,14 @@ typedef struct knh_LockTable_t {
 
 #define SIZEOF_TLOCK   (KNH_TLOCK_SIZE * sizeof(knh_LockTable_t))
 
-#define KNH_LOCK_INIT(ctx, lockid)  knh_lockID_init(ctx, lockid)
 #define KNH_LOCK(ctx, lockid, o)    knh_lockID(ctx, lockid, o, (char*)__FILE__, (int)__LINE__)
 #define KNH_UNLOCK(ctx, lockid, o)  knh_unlockID(ctx, lockid, (char*)__FILE__, __LINE__)
-#define KNH_LOCK_DESTROY(ctx, lockid)  knh_lockID_destroy(ctx, lockid)
 
 /* ------------------------------------------------------------------------ */
 /* Stack Frame Pointer */
 /* ------------------------------------------------------------------------ */
 
 typedef unsigned char           knh_code_t;          /* knh_vmc_t */
-
-typedef struct knh_callinfo_t {
-	knh_ushort_t shift;
-	knh_class_t   reqc;
-} knh_callinfo_t;
 
 typedef struct knh_sfp_t {
 	union {
@@ -514,7 +560,6 @@ typedef struct knh_sfp_t {
 		struct knh_HashMap_t  *hmap;
 		struct knh_HashSet_t *hset;
 		struct knh_Closure_t *cc;
-		struct knh_InputStream_t  *in;
 		struct knh_OutputStream_t *w;
 		struct knh_Method_t *mtd;
 		struct knh_Mapper_t *mpr;
@@ -522,7 +567,6 @@ typedef struct knh_sfp_t {
 		struct knh_ExceptionHandler_t *hdr;
 		struct knh_NameSpace_t *ns;
 		struct knh_Glue_t   *glue;
-		struct knh_ObjectField_t *ox;
 	};
 	union {
 		knh_boolean_t bvalue;
@@ -531,7 +575,6 @@ typedef struct knh_sfp_t {
 		knh_float_t   fvalue;
 		knh_uint64_t  data;
 		knh_code_t    *pc;
-		knh_callinfo_t ci;
 	};
 } knh_sfp_t;
 
@@ -544,73 +587,65 @@ typedef struct knh_sfp_t {
 #define KNH_SMALLMALLOC_SIZE 80
 
 /* ------------------------------------------------------------------------ */
-/* [ObjectFunc] */
+/* [StructTable] */
 
-typedef void (*knh_Ftraverse)(Ctx *ctx, Object *);
-typedef int (*knh_Fscriptinit)(Ctx *);
+#ifndef KNH_TSTRUCT_SIZE
+#define KNH_TSTRUCT_SIZE 256
+#endif
+
+#define STRUCT_newid         ((knh_struct_t)-1)
+#define SIZEOF_TSTRUCT       (KNH_TSTRUCT_SIZE * sizeof(knh_StructTable_t))
+
+char *knh_getStructTableName(Ctx *ctx, knh_struct_t sid);
+#define STRUCTN(sid)         knh_getStructTableName(ctx, sid)
+
+typedef void (*knh_fgchook)(Ctx *ctx);
+typedef void (*knh_ftraverse)(Ctx *ctx, Object *);
+typedef int (*knh_finit)(Ctx *);
 
 typedef knh_uintptr_t                knh_hashcode_t;  /* knh_hashcode_t */
 #define knh_hcode_join(s1,s2)	   ((knh_hashcode_t)s1 << (sizeof(knh_short_t)*8)) + s2;
 
-#define KNH_FOBJECT_HASH  0    /*knh_fobject_hashkey */
-#define KNH_FOBJECT_KEY   1    /*knh_fobject_hashkey */
+#define KNH_OBJECT_RAWINIT              (-1)
 
-typedef FASTAPI(void) (*knh_Fobject_init)(Ctx *, Object *, int);
-typedef FASTAPI(Object*) (*knh_Fobject_copy)(Ctx *ctx, Object *, int);
-typedef FASTAPI(void) (*knh_Fobject_traverse)(Ctx *, Object*, knh_Ftraverse);
-typedef FASTAPI(void) (*knh_Fobject_checkout)(Ctx *, Object*, int);
-typedef int     (*knh_Fobject_compareTo)(Ctx *ctx, Object*, Object*);
-typedef FASTAPI(void*) (*knh_Fstack_hashkey)(Ctx *, knh_sfp_t *, int);
-typedef struct  knh_Mapper_t* (*knh_Fgenmap)(Ctx *, knh_class_t, knh_class_t);
-
-typedef struct {
-	char                   *name;
-	knh_ushort_t            size;
-	knh_flag_t              cflag;
-	knh_Fobject_init        init;
-	knh_Fobject_copy        copy;
-	knh_Fobject_traverse    traverse;
-	knh_Fobject_checkout    checkout;
-	knh_Fobject_compareTo   compareTo;
-	knh_Fstack_hashkey     hashkey;
-	knh_Fgenmap             genmap;
-} knh_ObjectCSPI_t ;
-
-typedef FASTAPI(knh_int_t) (*knh_Fnumber_toint)(Ctx *, knh_sfp_t *);
-typedef FASTAPI(knh_float_t) (*knh_Fnumber_tofloat)(Ctx *, knh_sfp_t *);
+typedef void         (*knh_fstruct_init)(Ctx *, Object *, int);
+typedef void         (*knh_fstruct_traverse)(Ctx *, Object*, knh_ftraverse);
+typedef int          (*knh_fstruct_compareTo)(Ctx *ctx, Object*, Object*);
+typedef knh_hashcode_t  (*knh_fstruct_hashCode)(Ctx *ctx, Object *);
+typedef Object*      (*knh_fstruct_copy)(Ctx *, Object *);
+typedef void         (*knh_fstruct_newClass)(Ctx *ctx, knh_class_t cid);
+typedef struct knh_String_t* (*knh_fstruct_getkey)(Ctx *ctx, knh_sfp_t *lsfp);
 
 typedef struct {
-	knh_ObjectCSPI_t    common;
-	knh_Fnumber_toint       toint;
-	knh_Fnumber_tofloat     tofloat;
-} knh_NumberCSPI_t ;
+	knh_fstruct_traverse   ftraverse;
+	knh_fstruct_compareTo  fcompareTo;
+	knh_fstruct_init       finit;
+	knh_fstruct_getkey     fgetkey;
+	size_t                 size;
+	knh_flag_t             flag;
+	knh_struct_t           sid;
+	knh_fstruct_hashCode   fhashCode;
+	knh_fstruct_copy       fcopy;
+	knh_fstruct_newClass   fnewClass;
+	char                  *name;
+} knh_StructTable_t ;
 
 /* ------------------------------------------------------------------------ */
 
-#define KNH_CLASSTABLE_INIT 128
+#ifndef KNH_TCLASS_SIZE
+#define KNH_TCLASS_SIZE 1024
+#endif
 
-#define SIZEOF_TCLASS(n)  ((n) * sizeof(knh_ClassTable_t))
-typedef knh_Object_t* (*knh_Fdefault)(Ctx *ctx, knh_class_t cid);
+#define SIZEOF_TCLASS  (KNH_TCLASS_SIZE * sizeof(knh_ClassTable_t))
 
-typedef struct {
-	knh_flag_t    flag  ;
-	knh_type_t    type  ;
-	knh_fieldn_t  fn    ;
-	knh_type_t    type2 ;
-	Object        *value;
-	union {
-		knh_int_t   ivalue;
-		knh_float_t fvalue;
-		knh_bool_t  bvalue;
-		void       *ref;
-	};
-} knh_fields_t ;
+typedef knh_Object_t* (*knh_fdefault)(Ctx *ctx, knh_class_t cid);
 
 typedef struct {
 	knh_flag_t    cflag;   knh_flag_t    oflag;
-	knh_class_t   bcid;    knh_ushort_t  bsize;
-	knh_class_t   supcid;  knh_ushort_t  offset;
-	knh_class_t   p1;      knh_class_t   p2;
+	knh_class_t   bcid;    knh_class_t   supcid;
+	knh_class_t   p1;      knh_type_t    p2;
+	knh_ushort_t  offset;  knh_struct_t  sid;
+	knh_ushort_t  size;    knh_ushort_t  bsize;
 	union {
 		knh_short_t   keyidx;
 		knh_type_t    r0;
@@ -619,46 +654,29 @@ typedef struct {
 		knh_short_t   keyidx2;
 		knh_type_t    p3;
 	};
-	union {
-		knh_ObjectCSPI_t *cspi;
-		knh_NumberCSPI_t *numcspi;
-	};
-	size_t size;
 	struct knh_String_t       *sname;
 	struct knh_String_t       *lname;
 	struct knh_Class_t        *class_cid;
 	struct knh_Class_t        *class_natype;
-	knh_fields_t              *fields;
-	size_t                     fsize;
-	struct knh_Array_t        *methods;
-
+	struct knh_ClassField_t  *cstruct;
 	struct knh_ClassMap_t     *cmap;
-	union {
-		struct knh_Object_t       *defval;
-		struct knh_Semantics_t    *cspec;
-	};
-	knh_Fdefault               fdefault;
-	struct knh_DictMap_t      *constDictMap;
-//#ifndef KNH_USING_NODATAPOOL
-//	knh_mutex_t                dataLock;
-//	struct knh_Array_t        *dataList;
-//	struct knh_DictMap_t      *dataKeyMap;
-//#endif
+	struct knh_Object_t       *cspec;
+	struct knh_DictMap_t      *constPool;
+	knh_fdefault               fdefault;
+#ifndef KNH_USING_NODATAPOOL
+	knh_mutex_t                dataLock;
+	struct knh_Array_t        *dataList;
+	struct knh_DictMap_t      *dataKeyMap;
+#endif
 } knh_ClassTable_t;
-
-#define knh_class_bcid(c)   ClassTable(c).bcid
-#define knh_class_p1(c)     ClassTable(c).p1
-#define knh_class_p2(c)     ClassTable(c).p2
-#define knh_class_p3(c)     ClassTable(c).p3
-#define knh_class_r0(c)     ClassTable(c).r0
 
 /* ------------------------------------------------------------------------ */
 
-#ifndef KNH_EXPTTABLE_INIT
-#define KNH_EXPTTABLE_INIT 64
+#ifndef KNH_TEXPT_SIZE
+#define KNH_TEXPT_SIZE (KNH_TCLASS_SIZE/4)
 #endif
 
-#define SIZEOF_TEXPT(n)  (n * sizeof(knh_ExptTable_t))
+#define SIZEOF_TEXPT  (KNH_TEXPT_SIZE * sizeof(knh_ExptTable_t))
 
 typedef struct {
 	knh_flag_t   flag;
@@ -678,7 +696,7 @@ typedef struct {
 	size_t fmtCacheMiss;
 	size_t mprCacheHit;
 	size_t mprCacheMiss;
-} knh_stat_t;
+} knh_ctxstat_t;
 
 #define knh_stat_incUsedMemorySize(ctx, n)   (ctx->stat)->usedMemorySize += (n)
 #define knh_stat_dclUsedMemorySize(ctx, n)   (ctx->stat)->usedMemorySize -= (n)
@@ -717,6 +735,8 @@ typedef struct {
 #define KNH_TOBJECTPAGE_INITSIZE     1024
 #endif
 
+//#define SIZEOF_TOBJECTPAGE       (sizeof(knh_ObjectPageTable_t) * KNH_TOBJECTPAGE_INITSIZE)
+
 #ifndef KNH_OBJECTPAGE_SIZE
 #define KNH_OBJECTPAGE_SIZE     4096
 #endif
@@ -725,7 +745,7 @@ typedef struct {
 
 typedef struct knh_ObjectPageTable_t {
 	int   ctxid;
-	char *opage;
+	char *thead;
 } knh_ObjectPageTable_t ;
 
 /* ------------------------------------------------------------------------ */
@@ -733,14 +753,14 @@ typedef struct knh_ObjectPageTable_t {
 typedef struct {
 	/* system table */
 	knh_ObjectPageTable_t    *ObjectPageTable;
+	const knh_StructTable_t  *StructTable;
 	const knh_ClassTable_t   *ClassTable;
 	const knh_ExptTable_t    *ExptTable;
 	size_t ObjectPageTableSize;
-	size_t ObjectPageTableMax;
+	size_t ObjectPageTableMaxSize;
+	size_t StructTableSize;
 	size_t ClassTableSize;
-	size_t ClassTableMax;
 	size_t ExptTableSize;
-	size_t ExptTableMax;
 
 	/* system shared const */
 	knh_Object_t         *constNull;
@@ -749,32 +769,25 @@ typedef struct {
 	struct knh_Int_t     *constInt0;
 	struct knh_Float_t   *constFloat0;
 	struct knh_String_t  **tString;
-	struct knh_Context_t     *ctx0;
+	/* share level=2 */
 	struct knh_NameSpace_t   *mainns;
-	struct knh_Script_t      *script;
-	knh_code_t *PC_LAUNCH;
-	knh_code_t *PC_FUNCCALL;
-	knh_code_t *PC_RUN;
-	knh_code_t *PC_ABSTRACT;
 
 	/* thread */
 	size_t              contextCounter;
 	size_t              threadCounter;
 	knh_LockTable_t    *LockTable;
 	knh_LockTable_t    *unusedLockTable;
-} knh_share_t ;
-
-#define KNH_ASSERT_CTX0(ctx)   KNH_ASSERT(ctx->ctxid == 0)
+} knh_SharedData_t ;
 
 #define LockTable(mx)     ctx->share->LockTable[mx]
 #define pLockTable(mx)    (knh_LockTable_t*)(ctx->share->LockTable + (mx))
 
+#define StructTable(sid)  ctx->share->StructTable[sid]
+#define pStructTable(sid) (knh_StructTable_t*)(ctx->share->StructTable + (sid))
 #define ClassTable(cid)   ctx->share->ClassTable[cid]
-#define pClassTable(ctx, cid)  (knh_ClassTable_t*)((ctx)->share->ClassTable + (cid))
+#define pClassTable(cid)  (knh_ClassTable_t*)(ctx->share->ClassTable + (cid))
 #define ExptTable(eid)    ctx->share->ExptTable[eid]
 #define pExptTable(eid)   (knh_ExptTable_t*)(ctx->share->ExptTable + (eid))
-
-#define knh_setClassDefaultValue(ctx, cid, v, f) knh_setClassDefaultValue_(ctx, cid, UP(v), f)
 
 /* ------------------------------------------------------------------------ */
 
@@ -787,8 +800,7 @@ typedef struct knh_Context_t {
 	knh_sfp_t*                   stack;
 	knh_sfp_t*                   esp;
 	size_t                       stacksize;
-	knh_sfp_t*                   stacktop;
-	knh_Ftraverse                fsweep;
+	knh_ftraverse                fsweep;
 
 	/* cache (stacksize * 2 + 1) */
 	size_t                        cachesize;
@@ -797,8 +809,8 @@ typedef struct knh_Context_t {
 	struct knh_Mapper_t         **mprCache;
 
 	/* shared table */
-	const knh_share_t           *share;
-	knh_stat_t                  *stat;
+	const knh_SharedData_t       *share;
+	knh_ctxstat_t                *stat;
 
 	knh_flag_t                   flag;
 	knh_ushort_t                 ctxid;
@@ -808,7 +820,6 @@ typedef struct knh_Context_t {
 	const struct knh_Context_t   *unusedContext;
 
 	struct knh_System_t*         sys;
-	struct knh_Script_t*         script;
 	struct knh_String_t*         enc;
 	struct knh_InputStream_t*    in;
 	struct knh_OutputStream_t*   out;
@@ -838,13 +849,13 @@ typedef struct konoha_t {
 
 #define KONOHA_CHECK_(konoha) \
 	if(konoha.magic != KONOHA_MAGIC) { \
-		KNH_SYSLOG0(NULL, LOG_ERR, "this is not a Konoha Scripting Engine"); \
+		KNH_SAYS("This is not a Konoha Scripting Engine"); \
 		return; \
 	}\
 
 #define KONOHA_CHECK(konoha, value) \
 	if(konoha.magic != KONOHA_MAGIC) { \
-		KNH_SYSLOG0(NULL, LOG_ERR, "this is not a Konoha Scripting Engine"); \
+		KNH_SAYS("This is not a Konoha Scripting Engine"); \
 		return value; \
 	}\
 
@@ -862,107 +873,89 @@ typedef struct {
 /* Functions */
 /* ------------------------------------------------------------------------ */
 
-#define METHODARG
-#define MAPPERARG
-
-#ifdef KONOHA_ON_WINDOWS
-#define METHOD  void KNH_CC_FASTCALL
-#define MAPPER             METHOD
-typedef void (KNH_CC_FASTCALL *knh_Fmethod)(Ctx *, knh_sfp_t* METHODARG);
-typedef void (KNH_CC_FASTCALL *knh_Fmapper)(Ctx *, knh_sfp_t * MAPPERARG);
-typedef int  (KNH_CC_FASTCALL *knh_Fitrnext)(Ctx *, knh_sfp_t *, int n);
+#ifdef _MSC_VER
+typedef void   (KNH_CC_FASTCALL *knh_fmethod)(Ctx *, knh_sfp_t *);
 #else
-#define METHOD  void  KNH_CC_FASTCALL
-#define MAPPER             METHOD
-#define ITRNEXT int   KNH_CC_FASTCALL
-typedef METHOD (*knh_Fmethod)(Ctx*, knh_sfp_t* METHODARG);
-typedef MAPPER (*knh_Fmapper)(Ctx *, knh_sfp_t * MAPPERARG);
-typedef ITRNEXT (*knh_Fitrnext)(Ctx *, knh_sfp_t *, int n);
+typedef METHOD (*knh_fmethod)(Ctx *, knh_sfp_t *);
+#endif
+
+#ifdef _MSC_VER
+typedef void   (KNH_CC_FASTCALL *knh_fmapper)(Ctx *, knh_sfp_t *);
+#else
+typedef MAPPER (*knh_fmapper)(Ctx *, knh_sfp_t *);
 #endif
 
 /* ======================================================================== */
 /* driver */
 /* ======================================================================== */
 
+#define KNHINIT
+
 typedef struct {
 	int   type;
 	char *name;
-} knh_DriverSPI_t ;
+} knh_drvapi_t ;
 
-#define KNH_BCONV_DSPI            0
-#define KNH_SCONV_DSPI            1
-#define KNH_PARSER_DSPI           2
-#define KNH_PATH_DSPI             3
-#define KNH_STREAM_DSPI           4
-#define KNH_REGEX_DSPI            5
-#define KNH_SQL_DSPI              6
-#define KNH_QUERY_DSPI            6
-#define KNH_JIT_DSPI              7
+#define KNH_DRVAPI_TYPE__UNKNOWN          0
+#define KNH_DRVAPI_TYPE__BCONV            1
+#define KNH_DRVAPI_TYPE__SCONV            2
+#define KNH_DRVAPI_TYPE__IO               3
+#define KNH_DRVAPI_TYPE__PARSER           4
+#define KNH_DRVAPI_TYPE__REGEX            5
+#define KNH_DRVAPI_TYPE__DB               6
 
-#define IS_DRVAPI(c)   (0 <= c && c < 8)
+#define IS_DRVAPI(c)   (0 < c && c < 7)
 
 /* ------------------------------------------------------------------------ */
 /* KNH_DRVAPI_TYPE__BYTECONV */
 
 struct knh_BytesConv_t;
-typedef size_t (*knh_Fbyteconv)(Ctx *ctx, struct knh_BytesConv_t *o, knh_bytes_t t, struct knh_Bytes_t *ba);
-typedef void   (*knh_Fbyteconvfree)(Ctx *ctx, struct knh_BytesConv_t *);
+typedef size_t (*knh_fbyteconv)(Ctx *ctx, struct knh_BytesConv_t *o, knh_bytes_t t, struct knh_Bytes_t *ba);
+typedef void   (*knh_fbyteconvfree)(Ctx *ctx, struct knh_BytesConv_t *);
 
 typedef struct {
 	int  type;
 	char *name;
-	knh_Fbyteconv  fbconv;
-	knh_Fbyteconv  fbconv_inverse;
-} knh_BytesConvDSPI_t;
+	knh_fbyteconv  fbconv;
+	knh_fbyteconv  fbconv_inverse;
+} knh_bconv_driapi_t;
 
 /* ------------------------------------------------------------------------ */
-/* KNH_PARSER_DSPI */
-
-typedef knh_Object_t* (*knh_Fparser)(Ctx *, struct knh_String_t *p);
-
-typedef struct {
-	int   type;
-	char *name;
-	knh_type_t  rtype;
-	knh_Fparser parser;
-} knh_ParserDSPI_t;
-
-/* ------------------------------------------------------------------------ */
-/* KNH_PATH_DSPI */
-
-typedef knh_String_t* (*knh_Fstatic)(Ctx *, knh_bytes_t *path, Object *aux);
-
-typedef struct {
-	int   type;
-	char *name;
-	knh_Fstatic static;
-} knh_PathDSPI_t;
-
-/* ------------------------------------------------------------------------ */
-/* KNH_STREAM_DSPI */
+/* KNH_DRVAPI_TYPE__IO */
 
 typedef knh_intptr_t knh_io_t;
 
-typedef knh_io_t (*knh_Fopen)(Ctx *ctx, knh_bytes_t urn, char *mode, int isThrowable);
-typedef void (*knh_Finit)(Ctx *ctx, Object *stream, char *mode);
-typedef knh_intptr_t (*knh_Fread)(Ctx *ctx, knh_io_t fd, char *buf, size_t bufsiz);
-typedef knh_intptr_t (*knh_Fwrite)(Ctx *ctx, knh_io_t fd, char *buf, size_t bufsiz);
-typedef void   (*knh_Fclose)(Ctx *ctx, knh_io_t fd);
+typedef knh_io_t (*f_io_open)(Ctx *ctx, knh_bytes_t urn, char *mode, int isThrowable);
+typedef void (*f_io_init)(Ctx *ctx, Object *stream, char *mode);
+typedef knh_intptr_t (*f_io_read)(Ctx *ctx, knh_io_t fd, char *buf, size_t bufsiz);
+typedef knh_intptr_t (*f_io_write)(Ctx *ctx, knh_io_t fd, char *buf, size_t bufsiz);
+typedef void   (*f_io_close)(Ctx *ctx, knh_io_t fd);
 
 typedef struct {
 	int type;
 	char *name;
 	size_t bufsiz;  /* knh_io_t == FILE* if bufsiz == 0 */
-	knh_Fopen    fopen;
-	knh_Finit    finit;
-	knh_Fread    fread;
-	knh_Fwrite   fwrite;
-	knh_Fclose   fclose;
-} knh_StreamDSPI_t;
-
+	f_io_open    fopen;
+	f_io_init    finit;
+	f_io_read    fread;
+	f_io_write   fwrite;
+	f_io_close   fclose;
+} knh_iodrv_t;
 
 /* ------------------------------------------------------------------------ */
-/* KNH_REGEX_DSPI */
+/* KNH_DRVAPI_TYPE__PARSER */
+
+typedef knh_Object_t* (*knh_fparser)(Ctx *, struct knh_String_t *p);
+
+typedef struct {
+	int   type;
+	char *name;
+	knh_type_t  rtype;
+	knh_fparser parser;
+} knh_parser_drvapi_t;
+
+/* ------------------------------------------------------------------------ */
+/* KNH_DRVAPI_TYPE__REGEX */
 
 typedef void knh_regex_t;
 
@@ -976,89 +969,47 @@ typedef struct {
 	knh_bytes_t rm_name;  /* {NULL, 0}, if not NAMED */
 } knh_regmatch_t;
 
-typedef knh_regex_t* (*knh_Fregmalloc)(Ctx *);
-typedef int (*knh_Fregcomp)(Ctx *, knh_regex_t *, char *pattern, char *option);
-typedef int (*knh_Fregexec)(Ctx *, knh_regex_t *, char *str, size_t nmatch, knh_regmatch_t p[], int flags);
-typedef void (*knh_Fregfree)(Ctx *, knh_regex_t *);
+typedef knh_regex_t* (*knh_fregmalloc)(Ctx *);
+typedef int (*knh_fregcomp)(Ctx *, knh_regex_t *, char *pattern, char *option);
+typedef int (*knh_fregexec)(Ctx *, knh_regex_t *, char *str, size_t nmatch, knh_regmatch_t p[], int flags);
+typedef void (*knh_fregfree)(Ctx *, knh_regex_t *);
 
 typedef struct {
 	int  type;
 	char *name;
-	knh_Fregmalloc regmalloc;
-	knh_Fregcomp   regcomp;
-	knh_Fregexec   regexec;
-	knh_Fregfree   regfree;
-} knh_RegexDSPI_t;
+	knh_fregmalloc regmalloc;
+	knh_fregcomp   regcomp;
+	knh_fregexec   regexec;
+	knh_fregfree   regfree;
+} knh_regex_drvapi_t;
 
 /* ------------------------------------------------------------------------ */
-/* KNH_SQL_DSPI */
+/* KNH_DRVAPI_TYPE__DB */
 
-typedef void   knh_dbconn_t;
+typedef void   knh_db_t;
 typedef void   knh_dbcur_t;
 struct knh_ResultSet_t;
-typedef knh_dbconn_t* (*knh_Fdbopen)(Ctx *ctx, knh_bytes_t url);
-typedef knh_dbcur_t* (*knh_Fdbquery)(Ctx *ctx, knh_dbconn_t *, knh_bytes_t query, struct knh_ResultSet_t*);
-typedef void   (*knh_Fdbclose)(Ctx *ctx, knh_dbconn_t *);
+typedef knh_db_t* (*knh_fdbopen)(Ctx *ctx, knh_bytes_t url);
+typedef knh_dbcur_t* (*knh_fdbquery)(Ctx *ctx, knh_db_t *, knh_bytes_t query, struct knh_ResultSet_t*);
+typedef void   (*knh_fdbclose)(Ctx *ctx, knh_db_t *);
 
-typedef int    (*knh_Fcurnext)(Ctx *, knh_dbcur_t *, struct knh_ResultSet_t*);
-typedef void   (*knh_Fcurfree)(knh_dbcur_t *);
+typedef int    (*knh_fdbcurnext)(Ctx *, knh_dbcur_t *, struct knh_ResultSet_t*);
+typedef void   (*knh_fdbcurfree)(knh_dbcur_t *);
 
 typedef struct {
 	int  type;
 	char *name;
-	knh_Fdbopen   dbopen;
-	knh_Fdbquery  dbquery;
-	knh_Fdbclose  dbclose;
-	knh_Fcurnext  dbcurnext;
-	knh_Fcurfree  dbcurfree;
-} knh_QueryDSPI_t;
+	knh_fdbopen   dbopen;
+	knh_fdbquery  dbquery;
+	knh_fdbclose  dbclose;
+	knh_fdbcurnext dbcurnext;
+	knh_fdbcurfree dbcurfree;
+} knh_db_drvapi_t;
 
-/* ------------------------------------------------------------------------ */
-/* ConstData  */
-/* ------------------------------------------------------------------------ */
+/* ======================================================================== */
+/* mutex */
+/* ======================================================================== */
 
-typedef struct {
-	char *name;
-	knh_int_t ivalue;
-} knh_IntData_t;
-
-typedef struct {
-	char *name;
-	knh_float_t fvalue;
-} knh_FloatData_t;
-
-typedef struct {
-	char *name;
-	char *value;
-} knh_StringData_t;
-
-typedef struct {
-	char *name;
-	void *ptr;
-} knh_NamedPointerData_t;
-
-typedef struct {
-	char *cname;
-	knh_ObjectCSPI_t *cspi;
-	char *supname;
-	char *p1; char *p2;
-} knh_ClassData_t;
-
-typedef struct {
-	knh_Fmethod func;
-	char *cname;
-	char *mname;
-	char *rname;
-	char *params;
-	knh_flag_t flag;
-} knh_MethodData_t;
-
-typedef struct {
-	knh_Fmapper func;
-	char *sname;
-	char *tname;
-	knh_flag_t flag;
-} knh_MapperData_t;
 
 /* ------------------------------------------------------------------------ */
 

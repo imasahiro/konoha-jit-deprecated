@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -38,10 +38,10 @@
 #include <signal.h>
 #include <dirent.h>
 #include <sys/stat.h>
-#include <dlfcn.h>
-#include <time.h>
-#include <sys/time.h>
-#include <sys/param.h>
+#include<dlfcn.h>
+#include<time.h>
+#include<sys/time.h>
+#include<sys/param.h>
 #ifdef KONOHA_ON_MACOSX
 #include <mach-o/dyld.h>
 #endif
@@ -101,16 +101,17 @@ char* knh_cwb_realpath(Ctx *ctx, knh_cwb_t *cwb)
 	// if "p" isnt exsists , p is always NULL.
 	// so, we cant create realpath for unexsist file.
 	//
+	// imasahiro
 	//if(p != NULL) {
-	knh_cwb_subclear(cwb, 0);
-	knh_Bytes_write(ctx, cwb->ba, B(buf));
+		knh_cwb_subclear(cwb, 0);
+		knh_Bytes_write(ctx, cwb->ba, B(buf));
 #if !defined(PATH_MAX)
-	free(p);
+		free(p);
 #endif
-	p = knh_cwb_tochar(ctx, cwb);
+		p = knh_cwb_tochar(ctx, cwb);
+	// FIXME realpath is always return NULL . if file isnt exsists.
+	//}
 #else
-	// avoid "unused variable" warning unused variable
-	(void)buf;
 	TODO();
 #endif
 	return p;
@@ -139,8 +140,6 @@ knh_bool_t knh_cwb_isfile(Ctx *ctx, knh_cwb_t *cwb)
 	fclose(fp);
 	return 1;
 #else
-	// avoid "unused variable" warning unused variable
-	(void)pathname;
 	TODO();
 	return 0;
 #endif
@@ -160,8 +159,6 @@ knh_bool_t knh_cwb_isdir(Ctx *ctx, knh_cwb_t *cwb)
 	if(stat(pathname, &buf) == -1) return 0;
 	return S_ISDIR(buf.st_mode);
 #else
-	// avoid "unused variable" warning unused variable
-	(void)pathname;
 	return 0;
 #endif
 }
@@ -256,8 +253,6 @@ knh_bool_t knh_unlink(Ctx *ctx, knh_bytes_t path, int isThrowable)
 		res = 0;
 	}
 #else
-	// avoid "unused variable" warning unused variable
-	(void)pathname;
 	KNH_NOAPI(ctx, cwb, isThrowable);
 #endif
 	knh_cwb_close(cwb);
@@ -284,8 +279,6 @@ knh_bool_t knh_rename(Ctx *ctx, knh_bytes_t on, knh_bytes_t nn, int isThrowable)
 		res = 0;
 	}
 #else
-	// avoid "unused variable" warning unused variable
-	(void)pathname; (void)pathname2;
 	KNH_NOAPI(ctx, cwb, isThrowable);
 #endif
 	knh_cwb_close(cwb);

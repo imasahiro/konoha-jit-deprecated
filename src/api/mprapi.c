@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -46,7 +46,7 @@ extern "C" {
 /* ------------------------------------------------------------------------ */
 //## @Const @Final mapper Float Int;
 
-static MAPPER Float_Int(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static MAPPER Float_Int(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_int_t v = (knh_int_t)sfp[0].fvalue;
 	KNH_MAPPED_Int(ctx, sfp, v);
@@ -55,7 +55,7 @@ static MAPPER Float_Int(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## @Const @Final mapper String Int?;
 
-static MAPPER String_Int(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static MAPPER String_Int(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_int_t v = 0;
 	if(knh_bytes_parseint(__tobytes(sfp[0].s), &v)) {
@@ -70,7 +70,7 @@ static MAPPER String_Int(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## @Const @Final mapper Int Float;
 
-static MAPPER Int_Float(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static MAPPER Int_Float(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_float_t v = (knh_float_t)sfp[0].ivalue;
 	KNH_MAPPED_Float(ctx, sfp, v);
@@ -79,7 +79,7 @@ static MAPPER Int_Float(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## @Final @Const mapper String Float?;
 
-static MAPPER String_Float(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static MAPPER String_Float(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_float_t f = KNH_FLOAT_ZERO;
 	if(knh_bytes_parsefloat(__tobytes(sfp[0].s), &f)) {
@@ -96,28 +96,25 @@ static MAPPER String_Float(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## mapper Object String;
 
-static MAPPER Object_String(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static MAPPER Object_String(Ctx *ctx, knh_sfp_t *sfp)
 {
 	Object *o = sfp[0].o;
 	knh_Method_t *mtd = knh_lookupFormatter(ctx, knh_Object_cid(o), METHODN__s);
-	if(IS_NOTNULL(mtd)) {
-		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-		klr_mov(ctx, sfp[1].o, mtd);
-		klr_mov(ctx, sfp[2].o, o);
-		klr_mov(ctx, sfp[3].o, cwb->w);
-		klr_mov(ctx, sfp[4].o, KNH_NULL);
-		KNH_SCALL(ctx, sfp, 1, 2);
-		KNH_MAPPED(ctx, sfp, knh_cwb_newString(ctx, cwb));
-	}
-	else {
+	if(IS_NULL(mtd)) {
 		KNH_MAPPED(ctx, sfp, TS_EMPTY);
 	}
+	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
+	KNH_MOV(ctx, sfp[2].o, o);
+	KNH_MOV(ctx, sfp[3].o, cwb->w);
+	KNH_MOV(ctx, sfp[4].o, KNH_NULL);
+	KNH_SCALL(ctx, sfp, 1, mtd, 2);
+	KNH_MAPPED(ctx, sfp, knh_cwb_newString(ctx, cwb));
 }
 
 /* ------------------------------------------------------------------------ */
 //## @Const @Final @LossLess mapper Boolean String;
 
-static MAPPER Boolean_String(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static MAPPER Boolean_String(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_String_t *s = (p_bool(sfp[0])) ? TS_true : TS_false;
 	KNH_MAPPED(ctx, sfp, s);
@@ -126,7 +123,7 @@ static MAPPER Boolean_String(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## @Const @Final @LossLess mapper Int String;
 
-static MAPPER Int_String(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static MAPPER Int_String(Ctx *ctx, knh_sfp_t *sfp)
 {
 	char buf[256];
 	knh_snprintf(buf, sizeof(buf), KNH_INT_FMT, sfp[0].ivalue);
@@ -136,7 +133,7 @@ static MAPPER Int_String(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## @Const @Final @LossLess mapper Float String;
 
-static MAPPER Float_String(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static MAPPER Float_String(Ctx *ctx, knh_sfp_t *sfp)
 {
 	char buf[256];
 	knh_snprintf(buf, sizeof(buf), KNH_FLOAT_FMT, sfp[0].fvalue);
@@ -146,7 +143,7 @@ static MAPPER Float_String(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## @Const @Final mapper Bytes String;
 
-static MAPPER Bytes_String(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static MAPPER Bytes_String(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_bytes_t t = knh_Bytes_tobytes((knh_Bytes_t*)sfp[0].o);
 	knh_String_t *s = TS_EMPTY;
@@ -162,7 +159,7 @@ static MAPPER Bytes_String(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## @Const @Final mapper String Bytes;
 
-static MAPPER String_Bytes(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static MAPPER String_Bytes(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_Bytes_t *b = new_Bytes(ctx, knh_String_strlen(sfp[0].s) + 1);
 	knh_Bytes_write(ctx, b, __tobytes(sfp[0].s));
@@ -173,9 +170,9 @@ static MAPPER String_Bytes(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* [Iterator] */
 
 /* ------------------------------------------------------------------------ */
-//## @Const mapper Object Iterator!;
+//## mapper Object Iterator! @Const */
 
-static MAPPER Object_Iterator(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static MAPPER Object_Iterator(Ctx *ctx, knh_sfp_t *sfp)
 {
 	Object *o = sfp[0].o;
 	KNH_MAPPED(ctx, sfp, new_Iterator(ctx, o->h.cid, o, NULL));
@@ -184,9 +181,8 @@ static MAPPER Object_Iterator(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* ------------------------------------------------------------------------ */
 //## method This.. Object.opItr();
 
-static METHOD Object_opItr(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static METHOD Object_opItr(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_CHKESP(ctx, sfp);
 	KNH_RETURN(ctx, sfp, new_Iterator(ctx, knh_Object_cid(sfp[0].o), sfp[0].o, NULL));
 }
 
@@ -194,15 +190,15 @@ static METHOD Object_opItr(Ctx *ctx, knh_sfp_t *sfp METHODARG)
 /* [Iterator] */
 
 /* ------------------------------------------------------------------------ */
-//## mapper Iterator Array!;
+//## mapper Iterator Array! */
 
-static MAPPER Iterator_Array(Ctx *ctx, knh_sfp_t *sfp METHODARG)
+static MAPPER Iterator_Array(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_Iterator_t *it = sfp[0].it;
 	knh_Array_t *a = new_Array(ctx, ctx->share->ClassTable[it->h.cid].p1, 0);
 	while(it->fnext_1(ctx, sfp, 1)) {
 		knh_stack_boxing(ctx, sfp + 1);
-		knh_Array_add_(ctx, a, sfp[1].o);
+		knh_Array_add(ctx, a, sfp[1].o);
 	}
 	KNH_MAPPED(ctx, sfp, a);
 }

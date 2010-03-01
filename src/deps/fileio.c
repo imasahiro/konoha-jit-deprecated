@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -55,10 +55,7 @@ KNHAPI(FILE*) knh_fopen(Ctx *ctx, char *filename, char *mode, int isThrowable)
 #elif defined(KNH_USING_STDC) || defined(KNH_USING_POSIX)
 	FILE *fp = fopen(filename, mode);
 	if(fp == NULL) {
-		// TODO
-		// Does KNH_PERRNO throw IO Exception?
-		//KNH_PERRNO(ctx, NULL, "IO!!", "fopen", isThrowable);
-		KNH_THROW__T(ctx, "IO!!");
+		KNH_PERRNO(ctx, NULL, "IO!!", "fopen", isThrowable);
 	}
 	return fp;
 #else
@@ -212,8 +209,8 @@ void knh_iodrv_close__FILE(Ctx *ctx, knh_io_t fd)
 /* ======================================================================== */
 /* @data */
 
-static knh_StreamDSPI_t IO__NOP = {
-	KNH_STREAM_DSPI, "NOP",
+static knh_iodrv_t IO__NOP = {
+	KNH_DRVAPI_TYPE__IO, "NOP",
 	0,
 	knh_iodrv_open__NOP,
 	knh_iodrv_init__NOP,
@@ -222,8 +219,8 @@ static knh_StreamDSPI_t IO__NOP = {
 	knh_iodrv_close__NOP
 };
 
-static knh_StreamDSPI_t IO__FILE = {
-	KNH_STREAM_DSPI, "file",
+static knh_iodrv_t IO__FILE = {
+	KNH_DRVAPI_TYPE__IO, "file",
 	0,
 	knh_iodrv_open__FILE,
 	knh_iodrv_init__NOP,
@@ -235,9 +232,9 @@ static knh_StreamDSPI_t IO__FILE = {
 /* ======================================================================== */
 /* [drivers] */
 
-knh_StreamDSPI_t *knh_getIODriver(Ctx *ctx, knh_bytes_t name)
+knh_iodrv_t *knh_getIODriver(Ctx *ctx, knh_bytes_t name)
 {
-	knh_StreamDSPI_t *p = (knh_StreamDSPI_t*)knh_getDriverAPI(ctx, KNH_STREAM_DSPI, name);
+	knh_iodrv_t *p = (knh_iodrv_t*)knh_getDriverAPI(ctx, KNH_DRVAPI_TYPE__IO, name);
 	if(p == NULL) {
 		KNH_WARNING(ctx, "IO!!: unsupported scheme '%s'", name);
 		p = &IO__NOP;
@@ -247,22 +244,22 @@ knh_StreamDSPI_t *knh_getIODriver(Ctx *ctx, knh_bytes_t name)
 
 /* ------------------------------------------------------------------------ */
 
-knh_StreamDSPI_t *knh_getDefaultIODriver(void)
+knh_iodrv_t *knh_getDefaultIODriver(void)
 {
 	return &IO__NOP;
 }
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(void) knh_addIODriver(Ctx *ctx, char *alias, knh_StreamDSPI_t *d)
+KNHAPI(void) knh_addIODriver(Ctx *ctx, char *alias, knh_iodrv_t *d)
 {
-	knh_addDriverAPI(ctx, alias, (knh_DriverSPI_t*)d);
+	knh_addDriverAPI(ctx, alias, (knh_drvapi_t*)d);
 }
 
 /* ======================================================================== */
 /* [init] */
 
-void knh_loadDefaultIODriver(Ctx *ctx)
+void knh_InputStream_newClass(Ctx *ctx, knh_class_t cid)
 {
 	knh_addIODriver(ctx, NULL, &IO__NOP);
 	knh_addIODriver(ctx, NULL, &IO__FILE);
@@ -272,8 +269,8 @@ void knh_loadDefaultIODriver(Ctx *ctx)
 /* [init] */
 /* @data */
 
-static knh_StreamDSPI_t IO__stdio = {
-	KNH_STREAM_DSPI, "stdio",
+static knh_iodrv_t IO__stdio = {
+	KNH_DRVAPI_TYPE__IO, "stdio",
 	0,
 	knh_iodrv_open__NOP,
 	knh_iodrv_init__NOP,

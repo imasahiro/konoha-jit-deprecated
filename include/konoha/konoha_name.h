@@ -2,8 +2,9 @@
 
 /* ======================================================================== */
 /* MACROS */
-#define KONOHA_REVISION                 1126
-#define KONOHA_BUILDID                  799
+#define KONOHA_REVISION                 1188
+#define KONOHA_BUILDID                  752
+#define KONOHA_EXPIRE                   1267684079LL
 
 /* ======================================================================== */
 /* STRUCT */
@@ -11,745 +12,789 @@
 /* ------------------------------------------------------------------------ */
 /* Object */
 #define CLASS_Object            ((knh_class_t)0)
+#define STRUCT_Object           ((knh_struct_t)0)
 #define IS_Object(o)            ((o)->h.cid == CLASS_Object)
 #define TYPE_Object             CLASS_Object
 #define NNTYPE_Object           NNTYPE_cid(CLASS_Object)
 #define NATYPE_Object           NATYPE_cid(CLASS_Object)
 #define CFLAG_Object            ((knh_flag_t)0)
-#define FLAG_Object             FLAG_oflag(CFLAG_Object)
+#define FLAG_Object             knh_flag_oflag(CFLAG_Object)
 
 /* ------------------------------------------------------------------------ */
 /* Boolean */
 #define CLASS_Boolean           ((knh_class_t)1)
+#define STRUCT_Boolean          ((knh_struct_t)1)
 #define IS_Boolean(o)           ((o)->h.cid == CLASS_Boolean)
 #define IS_bBoolean(o)          ((o)->h.bcid == CLASS_Boolean)
 #define TYPE_Boolean            CLASS_Boolean
 #define NNTYPE_Boolean          NNTYPE_cid(CLASS_Boolean)
 #define NATYPE_Boolean          NATYPE_cid(CLASS_Boolean)
 #define CFLAG_Boolean           ((knh_flag_t)FLAG_Class_Immutable)
-#define FLAG_Boolean            FLAG_oflag(CFLAG_Boolean)
+#define FLAG_Boolean            knh_flag_oflag(CFLAG_Boolean)
 
 /* ------------------------------------------------------------------------ */
 /* Number */
 #define CLASS_Number            ((knh_class_t)2)
+#define STRUCT_Number           ((knh_struct_t)2)
 #define IS_Number(o)            ((o)->h.cid == CLASS_Number)
 #define IS_bNumber(o)           ((o)->h.bcid == CLASS_Number)
 #define TYPE_Number             CLASS_Number
 #define NNTYPE_Number           NNTYPE_cid(CLASS_Number)
 #define NATYPE_Number           NATYPE_cid(CLASS_Number)
 #define CFLAG_Number            ((knh_flag_t)0)
-#define FLAG_Number             FLAG_oflag(CFLAG_Number)
+#define FLAG_Number             knh_flag_oflag(CFLAG_Number)
 
 /* ------------------------------------------------------------------------ */
 /* Int */
 #define CLASS_Int               ((knh_class_t)3)
+#define STRUCT_Int              ((knh_struct_t)3)
 #define IS_Int(o)               ((o)->h.cid == CLASS_Int)
 #define IS_bInt(o)              ((o)->h.bcid == CLASS_Int)
 #define TYPE_Int                CLASS_Int
 #define NNTYPE_Int              NNTYPE_cid(CLASS_Int)
 #define NATYPE_Int              NATYPE_cid(CLASS_Int)
 #define CFLAG_Int               ((knh_flag_t)FLAG_Class_Immutable)
-#define FLAG_Int                FLAG_oflag(CFLAG_Int)
+#define FLAG_Int                knh_flag_oflag(CFLAG_Int)
 
 /* ------------------------------------------------------------------------ */
 /* Float */
 #define CLASS_Float             ((knh_class_t)4)
+#define STRUCT_Float            ((knh_struct_t)4)
 #define IS_Float(o)             ((o)->h.cid == CLASS_Float)
 #define IS_bFloat(o)            ((o)->h.bcid == CLASS_Float)
 #define TYPE_Float              CLASS_Float
 #define NNTYPE_Float            NNTYPE_cid(CLASS_Float)
 #define NATYPE_Float            NATYPE_cid(CLASS_Float)
 #define CFLAG_Float             ((knh_flag_t)FLAG_Class_Immutable)
-#define FLAG_Float              FLAG_oflag(CFLAG_Float)
+#define FLAG_Float              knh_flag_oflag(CFLAG_Float)
 
 /* ------------------------------------------------------------------------ */
 /* String */
 #define CLASS_String            ((knh_class_t)5)
+#define STRUCT_String           ((knh_struct_t)5)
 #define IS_String(o)            ((o)->h.cid == CLASS_String)
 #define IS_bString(o)           ((o)->h.bcid == CLASS_String)
 #define TYPE_String             CLASS_String
 #define NNTYPE_String           NNTYPE_cid(CLASS_String)
 #define NATYPE_String           NATYPE_cid(CLASS_String)
 #define CFLAG_String            ((knh_flag_t)FLAG_Class_Immutable)
-#define FLAG_String             FLAG_oflag(CFLAG_String)
+#define FLAG_String             knh_flag_oflag(CFLAG_String)
 
 /* ------------------------------------------------------------------------ */
 /* Bytes */
 #define CLASS_Bytes             ((knh_class_t)6)
+#define STRUCT_Bytes            ((knh_struct_t)6)
 #define IS_Bytes(o)             ((o)->h.cid == CLASS_Bytes)
 #define IS_bBytes(o)            ((o)->h.bcid == CLASS_Bytes)
 #define TYPE_Bytes              CLASS_Bytes
 #define NNTYPE_Bytes            NNTYPE_cid(CLASS_Bytes)
 #define NATYPE_Bytes            NATYPE_cid(CLASS_Bytes)
 #define CFLAG_Bytes             ((knh_flag_t)0)
-#define FLAG_Bytes              FLAG_oflag(CFLAG_Bytes)
+#define FLAG_Bytes              knh_flag_oflag(CFLAG_Bytes)
 
 /* ------------------------------------------------------------------------ */
 /* Any */
 #define CLASS_Any               ((knh_class_t)7)
+#define STRUCT_Any              ((knh_struct_t)7)
 #define IS_Any(o)               ((o)->h.cid == CLASS_Any)
 #define IS_bAny(o)              ((o)->h.bcid == CLASS_Any)
 #define TYPE_Any                NATYPE_cid(CLASS_Any)
 #define NNTYPE_Any              NATYPE_cid(CLASS_Any)
 #define NATYPE_Any              NATYPE_cid(CLASS_Any)
 #define CFLAG_Any               ((knh_flag_t)0)
-#define FLAG_Any                FLAG_oflag(CFLAG_Any)
+#define FLAG_Any                knh_flag_oflag(CFLAG_Any)
 
 /* ------------------------------------------------------------------------ */
 /* Iterator */
 #define CLASS_Iterator          ((knh_class_t)8)
+#define STRUCT_Iterator         ((knh_struct_t)8)
 #define IS_Iterator(o)          ((o)->h.cid == CLASS_Iterator)
 #define IS_bIterator(o)         ((o)->h.bcid == CLASS_Iterator)
 #define TYPE_Iterator           CLASS_Iterator
 #define NNTYPE_Iterator         NNTYPE_cid(CLASS_Iterator)
 #define NATYPE_Iterator         NATYPE_cid(CLASS_Iterator)
 #define CFLAG_Iterator          ((knh_flag_t)FLAG_Class_Immutable)
-#define FLAG_Iterator           FLAG_oflag(CFLAG_Iterator)
+#define FLAG_Iterator           knh_flag_oflag(CFLAG_Iterator)
 
 /* ------------------------------------------------------------------------ */
 /* Pair */
 #define CLASS_Pair              ((knh_class_t)9)
+#define STRUCT_Pair             ((knh_struct_t)9)
 #define IS_Pair(o)              ((o)->h.cid == CLASS_Pair)
 #define IS_bPair(o)             ((o)->h.bcid == CLASS_Pair)
 #define TYPE_Pair               CLASS_Pair
 #define NNTYPE_Pair             NNTYPE_cid(CLASS_Pair)
 #define NATYPE_Pair             NATYPE_cid(CLASS_Pair)
 #define CFLAG_Pair              ((knh_flag_t)FLAG_Class_Immutable)
-#define FLAG_Pair               FLAG_oflag(CFLAG_Pair)
+#define FLAG_Pair               knh_flag_oflag(CFLAG_Pair)
 
 /* ------------------------------------------------------------------------ */
 /* Tuple */
 #define CLASS_Tuple             ((knh_class_t)10)
+#define STRUCT_Tuple            ((knh_struct_t)10)
 #define IS_Tuple(o)             ((o)->h.cid == CLASS_Tuple)
 #define IS_bTuple(o)            ((o)->h.bcid == CLASS_Tuple)
 #define TYPE_Tuple              CLASS_Tuple
 #define NNTYPE_Tuple            NNTYPE_cid(CLASS_Tuple)
 #define NATYPE_Tuple            NATYPE_cid(CLASS_Tuple)
 #define CFLAG_Tuple             ((knh_flag_t)FLAG_Class_Immutable)
-#define FLAG_Tuple              FLAG_oflag(CFLAG_Tuple)
+#define FLAG_Tuple              knh_flag_oflag(CFLAG_Tuple)
 
 /* ------------------------------------------------------------------------ */
 /* Range */
 #define CLASS_Range             ((knh_class_t)11)
+#define STRUCT_Range            ((knh_struct_t)11)
 #define IS_Range(o)             ((o)->h.cid == CLASS_Range)
 #define IS_bRange(o)            ((o)->h.bcid == CLASS_Range)
 #define TYPE_Range              CLASS_Range
 #define NNTYPE_Range            NNTYPE_cid(CLASS_Range)
 #define NATYPE_Range            NATYPE_cid(CLASS_Range)
 #define CFLAG_Range             ((knh_flag_t)FLAG_Class_Immutable)
-#define FLAG_Range              FLAG_oflag(CFLAG_Range)
+#define FLAG_Range              knh_flag_oflag(CFLAG_Range)
 
 /* ------------------------------------------------------------------------ */
 /* Array */
 #define CLASS_Array             ((knh_class_t)12)
+#define STRUCT_Array            ((knh_struct_t)12)
 #define IS_Array(o)             ((o)->h.cid == CLASS_Array)
 #define IS_bArray(o)            ((o)->h.bcid == CLASS_Array)
 #define TYPE_Array              CLASS_Array
 #define NNTYPE_Array            NNTYPE_cid(CLASS_Array)
 #define NATYPE_Array            NATYPE_cid(CLASS_Array)
 #define CFLAG_Array             ((knh_flag_t)0)
-#define FLAG_Array              FLAG_oflag(CFLAG_Array)
+#define FLAG_Array              knh_flag_oflag(CFLAG_Array)
 
 /* ------------------------------------------------------------------------ */
 /* IArray */
 #define CLASS_IArray            ((knh_class_t)13)
+#define STRUCT_IArray           ((knh_struct_t)13)
 #define IS_IArray(o)            ((o)->h.cid == CLASS_IArray)
 #define IS_bIArray(o)           ((o)->h.bcid == CLASS_IArray)
 #define TYPE_IArray             CLASS_IArray
 #define NNTYPE_IArray           NNTYPE_cid(CLASS_IArray)
 #define NATYPE_IArray           NATYPE_cid(CLASS_IArray)
 #define CFLAG_IArray            ((knh_flag_t)0)
-#define FLAG_IArray             FLAG_oflag(CFLAG_IArray)
+#define FLAG_IArray             knh_flag_oflag(CFLAG_IArray)
 
 /* ------------------------------------------------------------------------ */
 /* FArray */
 #define CLASS_FArray            ((knh_class_t)14)
+#define STRUCT_FArray           ((knh_struct_t)14)
 #define IS_FArray(o)            ((o)->h.cid == CLASS_FArray)
 #define IS_bFArray(o)           ((o)->h.bcid == CLASS_FArray)
 #define TYPE_FArray             CLASS_FArray
 #define NNTYPE_FArray           NNTYPE_cid(CLASS_FArray)
 #define NATYPE_FArray           NATYPE_cid(CLASS_FArray)
 #define CFLAG_FArray            ((knh_flag_t)0)
-#define FLAG_FArray             FLAG_oflag(CFLAG_FArray)
+#define FLAG_FArray             knh_flag_oflag(CFLAG_FArray)
 
 /* ------------------------------------------------------------------------ */
 /* DictMap */
 #define CLASS_DictMap           ((knh_class_t)15)
+#define STRUCT_DictMap          ((knh_struct_t)15)
 #define IS_DictMap(o)           ((o)->h.cid == CLASS_DictMap)
 #define IS_bDictMap(o)          ((o)->h.bcid == CLASS_DictMap)
 #define TYPE_DictMap            CLASS_DictMap
 #define NNTYPE_DictMap          NNTYPE_cid(CLASS_DictMap)
 #define NATYPE_DictMap          NATYPE_cid(CLASS_DictMap)
 #define CFLAG_DictMap           ((knh_flag_t)0)
-#define FLAG_DictMap            FLAG_oflag(CFLAG_DictMap)
+#define FLAG_DictMap            knh_flag_oflag(CFLAG_DictMap)
 
 /* ------------------------------------------------------------------------ */
 /* DictSet */
 #define CLASS_DictSet           ((knh_class_t)16)
+#define STRUCT_DictSet          ((knh_struct_t)16)
 #define IS_DictSet(o)           ((o)->h.cid == CLASS_DictSet)
 #define IS_bDictSet(o)          ((o)->h.bcid == CLASS_DictSet)
 #define TYPE_DictSet            CLASS_DictSet
 #define NNTYPE_DictSet          NNTYPE_cid(CLASS_DictSet)
 #define NATYPE_DictSet          NATYPE_cid(CLASS_DictSet)
 #define CFLAG_DictSet           ((knh_flag_t)0)
-#define FLAG_DictSet            FLAG_oflag(CFLAG_DictSet)
+#define FLAG_DictSet            knh_flag_oflag(CFLAG_DictSet)
 
 /* ------------------------------------------------------------------------ */
 /* HashMap */
 #define CLASS_HashMap           ((knh_class_t)17)
+#define STRUCT_HashMap          ((knh_struct_t)17)
 #define IS_HashMap(o)           ((o)->h.cid == CLASS_HashMap)
 #define IS_bHashMap(o)          ((o)->h.bcid == CLASS_HashMap)
 #define TYPE_HashMap            CLASS_HashMap
 #define NNTYPE_HashMap          NNTYPE_cid(CLASS_HashMap)
 #define NATYPE_HashMap          NATYPE_cid(CLASS_HashMap)
 #define CFLAG_HashMap           ((knh_flag_t)0)
-#define FLAG_HashMap            FLAG_oflag(CFLAG_HashMap)
+#define FLAG_HashMap            knh_flag_oflag(CFLAG_HashMap)
 
 /* ------------------------------------------------------------------------ */
 /* HashSet */
 #define CLASS_HashSet           ((knh_class_t)18)
+#define STRUCT_HashSet          ((knh_struct_t)18)
 #define IS_HashSet(o)           ((o)->h.cid == CLASS_HashSet)
 #define IS_bHashSet(o)          ((o)->h.bcid == CLASS_HashSet)
 #define TYPE_HashSet            CLASS_HashSet
 #define NNTYPE_HashSet          NNTYPE_cid(CLASS_HashSet)
 #define NATYPE_HashSet          NATYPE_cid(CLASS_HashSet)
 #define CFLAG_HashSet           ((knh_flag_t)0)
-#define FLAG_HashSet            FLAG_oflag(CFLAG_HashSet)
+#define FLAG_HashSet            knh_flag_oflag(CFLAG_HashSet)
 
 /* ------------------------------------------------------------------------ */
 /* DictIdx */
 #define CLASS_DictIdx           ((knh_class_t)19)
+#define STRUCT_DictIdx          ((knh_struct_t)19)
 #define IS_DictIdx(o)           ((o)->h.cid == CLASS_DictIdx)
 #define IS_bDictIdx(o)          ((o)->h.bcid == CLASS_DictIdx)
 #define TYPE_DictIdx            CLASS_DictIdx
 #define NNTYPE_DictIdx          NNTYPE_cid(CLASS_DictIdx)
 #define NATYPE_DictIdx          NATYPE_cid(CLASS_DictIdx)
 #define CFLAG_DictIdx           ((knh_flag_t)FLAG_Class_Private)
-#define FLAG_DictIdx            FLAG_oflag(CFLAG_DictIdx)
+#define FLAG_DictIdx            knh_flag_oflag(CFLAG_DictIdx)
 
 /* ------------------------------------------------------------------------ */
 /* Class */
 #define CLASS_Class             ((knh_class_t)20)
+#define STRUCT_Class            ((knh_struct_t)20)
 #define IS_Class(o)             ((o)->h.cid == CLASS_Class)
 #define IS_bClass(o)            ((o)->h.bcid == CLASS_Class)
 #define TYPE_Class              CLASS_Class
 #define NNTYPE_Class            NNTYPE_cid(CLASS_Class)
 #define NATYPE_Class            NATYPE_cid(CLASS_Class)
 #define CFLAG_Class             ((knh_flag_t)FLAG_Class_Immutable)
-#define FLAG_Class              FLAG_oflag(CFLAG_Class)
+#define FLAG_Class              knh_flag_oflag(CFLAG_Class)
+
+/* ------------------------------------------------------------------------ */
+/* ClassField */
+#define CLASS_ClassField        ((knh_class_t)21)
+#define STRUCT_ClassField       ((knh_struct_t)21)
+#define IS_ClassField(o)        ((o)->h.cid == CLASS_ClassField)
+#define IS_bClassField(o)       ((o)->h.bcid == CLASS_ClassField)
+#define TYPE_ClassField         CLASS_ClassField
+#define NNTYPE_ClassField       NNTYPE_cid(CLASS_ClassField)
+#define NATYPE_ClassField       NATYPE_cid(CLASS_ClassField)
+#define CFLAG_ClassField        ((knh_flag_t)FLAG_Class_Private)
+#define FLAG_ClassField         knh_flag_oflag(CFLAG_ClassField)
 
 /* ------------------------------------------------------------------------ */
 /* MethodField */
-#define CLASS_MethodField       ((knh_class_t)21)
+#define CLASS_MethodField       ((knh_class_t)22)
+#define STRUCT_MethodField      ((knh_struct_t)22)
 #define IS_MethodField(o)       ((o)->h.cid == CLASS_MethodField)
 #define IS_bMethodField(o)      ((o)->h.bcid == CLASS_MethodField)
 #define TYPE_MethodField        CLASS_MethodField
 #define NNTYPE_MethodField      NNTYPE_cid(CLASS_MethodField)
 #define NATYPE_MethodField      NATYPE_cid(CLASS_MethodField)
 #define CFLAG_MethodField       ((knh_flag_t)FLAG_Class_Private)
-#define FLAG_MethodField        FLAG_oflag(CFLAG_MethodField)
+#define FLAG_MethodField        knh_flag_oflag(CFLAG_MethodField)
 
 /* ------------------------------------------------------------------------ */
 /* Method */
-#define CLASS_Method            ((knh_class_t)22)
+#define CLASS_Method            ((knh_class_t)23)
+#define STRUCT_Method           ((knh_struct_t)23)
 #define IS_Method(o)            ((o)->h.cid == CLASS_Method)
 #define IS_bMethod(o)           ((o)->h.bcid == CLASS_Method)
 #define TYPE_Method             CLASS_Method
 #define NNTYPE_Method           NNTYPE_cid(CLASS_Method)
 #define NATYPE_Method           NATYPE_cid(CLASS_Method)
 #define CFLAG_Method            ((knh_flag_t)0)
-#define FLAG_Method             FLAG_oflag(CFLAG_Method)
+#define FLAG_Method             knh_flag_oflag(CFLAG_Method)
 
 /* ------------------------------------------------------------------------ */
 /* Mapper */
-#define CLASS_Mapper            ((knh_class_t)23)
+#define CLASS_Mapper            ((knh_class_t)24)
+#define STRUCT_Mapper           ((knh_struct_t)24)
 #define IS_Mapper(o)            ((o)->h.cid == CLASS_Mapper)
 #define IS_bMapper(o)           ((o)->h.bcid == CLASS_Mapper)
 #define TYPE_Mapper             CLASS_Mapper
 #define NNTYPE_Mapper           NNTYPE_cid(CLASS_Mapper)
 #define NATYPE_Mapper           NATYPE_cid(CLASS_Mapper)
 #define CFLAG_Mapper            ((knh_flag_t)0)
-#define FLAG_Mapper             FLAG_oflag(CFLAG_Mapper)
+#define FLAG_Mapper             knh_flag_oflag(CFLAG_Mapper)
 
 /* ------------------------------------------------------------------------ */
 /* ClassMap */
-#define CLASS_ClassMap          ((knh_class_t)24)
+#define CLASS_ClassMap          ((knh_class_t)25)
+#define STRUCT_ClassMap         ((knh_struct_t)25)
 #define IS_ClassMap(o)          ((o)->h.cid == CLASS_ClassMap)
 #define IS_bClassMap(o)         ((o)->h.bcid == CLASS_ClassMap)
 #define TYPE_ClassMap           CLASS_ClassMap
 #define NNTYPE_ClassMap         NNTYPE_cid(CLASS_ClassMap)
 #define NATYPE_ClassMap         NATYPE_cid(CLASS_ClassMap)
 #define CFLAG_ClassMap          ((knh_flag_t)FLAG_Class_Private)
-#define FLAG_ClassMap           FLAG_oflag(CFLAG_ClassMap)
+#define FLAG_ClassMap           knh_flag_oflag(CFLAG_ClassMap)
 
 /* ------------------------------------------------------------------------ */
 /* Closure */
-#define CLASS_Closure           ((knh_class_t)25)
+#define CLASS_Closure           ((knh_class_t)26)
+#define STRUCT_Closure          ((knh_struct_t)26)
 #define IS_Closure(o)           ((o)->h.cid == CLASS_Closure)
 #define IS_bClosure(o)          ((o)->h.bcid == CLASS_Closure)
 #define TYPE_Closure            CLASS_Closure
 #define NNTYPE_Closure          NNTYPE_cid(CLASS_Closure)
 #define NATYPE_Closure          NATYPE_cid(CLASS_Closure)
 #define CFLAG_Closure           ((knh_flag_t)0)
-#define FLAG_Closure            FLAG_oflag(CFLAG_Closure)
+#define FLAG_Closure            knh_flag_oflag(CFLAG_Closure)
 
 /* ------------------------------------------------------------------------ */
 /* Thunk */
-#define CLASS_Thunk             ((knh_class_t)26)
+#define CLASS_Thunk             ((knh_class_t)27)
+#define STRUCT_Thunk            ((knh_struct_t)27)
 #define IS_Thunk(o)             ((o)->h.cid == CLASS_Thunk)
 #define IS_bThunk(o)            ((o)->h.bcid == CLASS_Thunk)
 #define TYPE_Thunk              CLASS_Thunk
 #define NNTYPE_Thunk            NNTYPE_cid(CLASS_Thunk)
 #define NATYPE_Thunk            NATYPE_cid(CLASS_Thunk)
 #define CFLAG_Thunk             ((knh_flag_t)0)
-#define FLAG_Thunk              FLAG_oflag(CFLAG_Thunk)
+#define FLAG_Thunk              knh_flag_oflag(CFLAG_Thunk)
 
 /* ------------------------------------------------------------------------ */
 /* AffineConv */
-#define CLASS_AffineConv        ((knh_class_t)27)
+#define CLASS_AffineConv        ((knh_class_t)28)
+#define STRUCT_AffineConv       ((knh_struct_t)28)
 #define IS_AffineConv(o)        ((o)->h.cid == CLASS_AffineConv)
 #define IS_bAffineConv(o)       ((o)->h.bcid == CLASS_AffineConv)
 #define TYPE_AffineConv         CLASS_AffineConv
 #define NNTYPE_AffineConv       NNTYPE_cid(CLASS_AffineConv)
 #define NATYPE_AffineConv       NATYPE_cid(CLASS_AffineConv)
 #define CFLAG_AffineConv        ((knh_flag_t)FLAG_Class_Immutable|FLAG_Class_Private)
-#define FLAG_AffineConv         FLAG_oflag(CFLAG_AffineConv)
+#define FLAG_AffineConv         knh_flag_oflag(CFLAG_AffineConv)
 
 /* ------------------------------------------------------------------------ */
 /* Regex */
-#define CLASS_Regex             ((knh_class_t)28)
+#define CLASS_Regex             ((knh_class_t)29)
+#define STRUCT_Regex            ((knh_struct_t)29)
 #define IS_Regex(o)             ((o)->h.cid == CLASS_Regex)
 #define IS_bRegex(o)            ((o)->h.bcid == CLASS_Regex)
 #define TYPE_Regex              CLASS_Regex
 #define NNTYPE_Regex            NNTYPE_cid(CLASS_Regex)
 #define NATYPE_Regex            NATYPE_cid(CLASS_Regex)
 #define CFLAG_Regex             ((knh_flag_t)FLAG_Class_Immutable)
-#define FLAG_Regex              FLAG_oflag(CFLAG_Regex)
+#define FLAG_Regex              knh_flag_oflag(CFLAG_Regex)
 
 /* ------------------------------------------------------------------------ */
 /* BytesConv */
-#define CLASS_BytesConv         ((knh_class_t)29)
+#define CLASS_BytesConv         ((knh_class_t)30)
+#define STRUCT_BytesConv        ((knh_struct_t)30)
 #define IS_BytesConv(o)         ((o)->h.cid == CLASS_BytesConv)
 #define IS_bBytesConv(o)        ((o)->h.bcid == CLASS_BytesConv)
 #define TYPE_BytesConv          CLASS_BytesConv
 #define NNTYPE_BytesConv        NNTYPE_cid(CLASS_BytesConv)
 #define NATYPE_BytesConv        NATYPE_cid(CLASS_BytesConv)
 #define CFLAG_BytesConv         ((knh_flag_t)FLAG_Class_Private)
-#define FLAG_BytesConv          FLAG_oflag(CFLAG_BytesConv)
+#define FLAG_BytesConv          knh_flag_oflag(CFLAG_BytesConv)
 
 /* ------------------------------------------------------------------------ */
-/* Semantics */
-#define CLASS_Semantics         ((knh_class_t)30)
-#define IS_Semantics(o)         ((o)->h.cid == CLASS_Semantics)
-#define IS_bSemantics(o)        ((o)->h.bcid == CLASS_Semantics)
-#define TYPE_Semantics          CLASS_Semantics
-#define NNTYPE_Semantics        NNTYPE_cid(CLASS_Semantics)
-#define NATYPE_Semantics        NATYPE_cid(CLASS_Semantics)
-#define CFLAG_Semantics         ((knh_flag_t)FLAG_Class_Private)
-#define FLAG_Semantics          FLAG_oflag(CFLAG_Semantics)
+/* ClassSpec */
+#define CLASS_ClassSpec         ((knh_class_t)31)
+#define STRUCT_ClassSpec        ((knh_struct_t)31)
+#define IS_ClassSpec(o)         ((o)->h.cid == CLASS_ClassSpec)
+#define IS_bClassSpec(o)        ((o)->h.bcid == CLASS_ClassSpec)
+#define TYPE_ClassSpec          CLASS_ClassSpec
+#define NNTYPE_ClassSpec        NNTYPE_cid(CLASS_ClassSpec)
+#define NATYPE_ClassSpec        NATYPE_cid(CLASS_ClassSpec)
+#define CFLAG_ClassSpec         ((knh_flag_t)FLAG_Class_Private)
+#define FLAG_ClassSpec          knh_flag_oflag(CFLAG_ClassSpec)
 
 /* ------------------------------------------------------------------------ */
 /* InputStream */
-#define CLASS_InputStream       ((knh_class_t)31)
+#define CLASS_InputStream       ((knh_class_t)32)
+#define STRUCT_InputStream      ((knh_struct_t)32)
 #define IS_InputStream(o)       ((o)->h.cid == CLASS_InputStream)
 #define IS_bInputStream(o)      ((o)->h.bcid == CLASS_InputStream)
 #define TYPE_InputStream        CLASS_InputStream
 #define NNTYPE_InputStream      NNTYPE_cid(CLASS_InputStream)
 #define NATYPE_InputStream      NATYPE_cid(CLASS_InputStream)
 #define CFLAG_InputStream       ((knh_flag_t)0)
-#define FLAG_InputStream        FLAG_oflag(CFLAG_InputStream)
+#define FLAG_InputStream        knh_flag_oflag(CFLAG_InputStream)
 
 /* ------------------------------------------------------------------------ */
 /* OutputStream */
-#define CLASS_OutputStream      ((knh_class_t)32)
+#define CLASS_OutputStream      ((knh_class_t)33)
+#define STRUCT_OutputStream     ((knh_struct_t)33)
 #define IS_OutputStream(o)      ((o)->h.cid == CLASS_OutputStream)
 #define IS_bOutputStream(o)     ((o)->h.bcid == CLASS_OutputStream)
 #define TYPE_OutputStream       CLASS_OutputStream
 #define NNTYPE_OutputStream     NNTYPE_cid(CLASS_OutputStream)
 #define NATYPE_OutputStream     NATYPE_cid(CLASS_OutputStream)
 #define CFLAG_OutputStream      ((knh_flag_t)0)
-#define FLAG_OutputStream       FLAG_oflag(CFLAG_OutputStream)
+#define FLAG_OutputStream       knh_flag_oflag(CFLAG_OutputStream)
 
 /* ------------------------------------------------------------------------ */
 /* Socket */
-#define CLASS_Socket            ((knh_class_t)33)
+#define CLASS_Socket            ((knh_class_t)34)
+#define STRUCT_Socket           ((knh_struct_t)34)
 #define IS_Socket(o)            ((o)->h.cid == CLASS_Socket)
 #define IS_bSocket(o)           ((o)->h.bcid == CLASS_Socket)
 #define TYPE_Socket             CLASS_Socket
 #define NNTYPE_Socket           NNTYPE_cid(CLASS_Socket)
 #define NATYPE_Socket           NATYPE_cid(CLASS_Socket)
 #define CFLAG_Socket            ((knh_flag_t)0)
-#define FLAG_Socket             FLAG_oflag(CFLAG_Socket)
+#define FLAG_Socket             knh_flag_oflag(CFLAG_Socket)
 
 /* ------------------------------------------------------------------------ */
 /* Connection */
-#define CLASS_Connection        ((knh_class_t)34)
+#define CLASS_Connection        ((knh_class_t)35)
+#define STRUCT_Connection       ((knh_struct_t)35)
 #define IS_Connection(o)        ((o)->h.cid == CLASS_Connection)
 #define IS_bConnection(o)       ((o)->h.bcid == CLASS_Connection)
 #define TYPE_Connection         CLASS_Connection
 #define NNTYPE_Connection       NNTYPE_cid(CLASS_Connection)
 #define NATYPE_Connection       NATYPE_cid(CLASS_Connection)
 #define CFLAG_Connection        ((knh_flag_t)0)
-#define FLAG_Connection         FLAG_oflag(CFLAG_Connection)
+#define FLAG_Connection         knh_flag_oflag(CFLAG_Connection)
 
 /* ------------------------------------------------------------------------ */
 /* ResultSet */
-#define CLASS_ResultSet         ((knh_class_t)35)
+#define CLASS_ResultSet         ((knh_class_t)36)
+#define STRUCT_ResultSet        ((knh_struct_t)36)
 #define IS_ResultSet(o)         ((o)->h.cid == CLASS_ResultSet)
 #define IS_bResultSet(o)        ((o)->h.bcid == CLASS_ResultSet)
 #define TYPE_ResultSet          CLASS_ResultSet
 #define NNTYPE_ResultSet        NNTYPE_cid(CLASS_ResultSet)
 #define NATYPE_ResultSet        NATYPE_cid(CLASS_ResultSet)
 #define CFLAG_ResultSet         ((knh_flag_t)0)
-#define FLAG_ResultSet          FLAG_oflag(CFLAG_ResultSet)
+#define FLAG_ResultSet          knh_flag_oflag(CFLAG_ResultSet)
 
 /* ------------------------------------------------------------------------ */
 /* Exception */
-#define CLASS_Exception         ((knh_class_t)36)
+#define CLASS_Exception         ((knh_class_t)37)
+#define STRUCT_Exception        ((knh_struct_t)37)
 #define IS_Exception(o)         ((o)->h.cid == CLASS_Exception)
 #define IS_bException(o)        ((o)->h.bcid == CLASS_Exception)
 #define TYPE_Exception          CLASS_Exception
 #define NNTYPE_Exception        NNTYPE_cid(CLASS_Exception)
 #define NATYPE_Exception        NATYPE_cid(CLASS_Exception)
 #define CFLAG_Exception         ((knh_flag_t)0)
-#define FLAG_Exception          FLAG_oflag(CFLAG_Exception)
+#define FLAG_Exception          knh_flag_oflag(CFLAG_Exception)
 
 /* ------------------------------------------------------------------------ */
 /* ExceptionHandler */
-#define CLASS_ExceptionHandler  ((knh_class_t)37)
+#define CLASS_ExceptionHandler  ((knh_class_t)38)
+#define STRUCT_ExceptionHandler ((knh_struct_t)38)
 #define IS_ExceptionHandler(o)  ((o)->h.cid == CLASS_ExceptionHandler)
 #define IS_bExceptionHandler(o) ((o)->h.bcid == CLASS_ExceptionHandler)
 #define TYPE_ExceptionHandler   CLASS_ExceptionHandler
 #define NNTYPE_ExceptionHandler NNTYPE_cid(CLASS_ExceptionHandler)
 #define NATYPE_ExceptionHandler NATYPE_cid(CLASS_ExceptionHandler)
 #define CFLAG_ExceptionHandler  ((knh_flag_t)FLAG_Class_Private)
-#define FLAG_ExceptionHandler   FLAG_oflag(CFLAG_ExceptionHandler)
+#define FLAG_ExceptionHandler   knh_flag_oflag(CFLAG_ExceptionHandler)
 
 /* ------------------------------------------------------------------------ */
 /* Script */
-#define CLASS_Script            ((knh_class_t)38)
+#define CLASS_Script            ((knh_class_t)39)
+#define STRUCT_Script           ((knh_struct_t)39)
 #define IS_Script(o)            ((o)->h.cid == CLASS_Script)
 #define IS_bScript(o)           ((o)->h.bcid == CLASS_Script)
 #define TYPE_Script             CLASS_Script
 #define NNTYPE_Script           NNTYPE_cid(CLASS_Script)
 #define NATYPE_Script           NATYPE_cid(CLASS_Script)
 #define CFLAG_Script            ((knh_flag_t)FLAG_Class_Singleton|FLAG_Class_Private)
-#define FLAG_Script             FLAG_oflag(CFLAG_Script)
+#define FLAG_Script             knh_flag_oflag(CFLAG_Script)
 
 /* ------------------------------------------------------------------------ */
 /* NameSpace */
-#define CLASS_NameSpace         ((knh_class_t)39)
+#define CLASS_NameSpace         ((knh_class_t)40)
+#define STRUCT_NameSpace        ((knh_struct_t)40)
 #define IS_NameSpace(o)         ((o)->h.cid == CLASS_NameSpace)
 #define IS_bNameSpace(o)        ((o)->h.bcid == CLASS_NameSpace)
 #define TYPE_NameSpace          CLASS_NameSpace
 #define NNTYPE_NameSpace        NNTYPE_cid(CLASS_NameSpace)
 #define NATYPE_NameSpace        NATYPE_cid(CLASS_NameSpace)
 #define CFLAG_NameSpace         ((knh_flag_t)0)
-#define FLAG_NameSpace          FLAG_oflag(CFLAG_NameSpace)
-
-/* ------------------------------------------------------------------------ */
-/* Package */
-#define CLASS_Package           ((knh_class_t)40)
-#define IS_Package(o)           ((o)->h.cid == CLASS_Package)
-#define IS_bPackage(o)          ((o)->h.bcid == CLASS_Package)
-#define TYPE_Package            CLASS_Package
-#define NNTYPE_Package          NNTYPE_cid(CLASS_Package)
-#define NATYPE_Package          NATYPE_cid(CLASS_Package)
-#define CFLAG_Package           ((knh_flag_t)0)
-#define FLAG_Package            FLAG_oflag(CFLAG_Package)
+#define FLAG_NameSpace          knh_flag_oflag(CFLAG_NameSpace)
 
 /* ------------------------------------------------------------------------ */
 /* System */
 #define CLASS_System            ((knh_class_t)41)
+#define STRUCT_System           ((knh_struct_t)41)
 #define IS_System(o)            ((o)->h.cid == CLASS_System)
 #define IS_bSystem(o)           ((o)->h.bcid == CLASS_System)
 #define TYPE_System             CLASS_System
 #define NNTYPE_System           NNTYPE_cid(CLASS_System)
 #define NATYPE_System           NATYPE_cid(CLASS_System)
 #define CFLAG_System            ((knh_flag_t)FLAG_Class_Singleton)
-#define FLAG_System             FLAG_oflag(CFLAG_System)
+#define FLAG_System             knh_flag_oflag(CFLAG_System)
 
 /* ------------------------------------------------------------------------ */
 /* Context */
 #define CLASS_Context           ((knh_class_t)42)
+#define STRUCT_Context          ((knh_struct_t)42)
 #define IS_Context(o)           ((o)->h.cid == CLASS_Context)
 #define IS_bContext(o)          ((o)->h.bcid == CLASS_Context)
 #define TYPE_Context            CLASS_Context
 #define NNTYPE_Context          NNTYPE_cid(CLASS_Context)
 #define NATYPE_Context          NATYPE_cid(CLASS_Context)
 #define CFLAG_Context           ((knh_flag_t)0)
-#define FLAG_Context            FLAG_oflag(CFLAG_Context)
-
-/* ------------------------------------------------------------------------ */
-/* Thread */
-#define CLASS_Thread            ((knh_class_t)43)
-#define IS_Thread(o)            ((o)->h.cid == CLASS_Thread)
-#define IS_bThread(o)           ((o)->h.bcid == CLASS_Thread)
-#define TYPE_Thread             CLASS_Thread
-#define NNTYPE_Thread           NNTYPE_cid(CLASS_Thread)
-#define NATYPE_Thread           NATYPE_cid(CLASS_Thread)
-#define CFLAG_Thread            ((knh_flag_t)0)
-#define FLAG_Thread             FLAG_oflag(CFLAG_Thread)
-
-/* ------------------------------------------------------------------------ */
-/* ScriptEngine */
-#define CLASS_ScriptEngine      ((knh_class_t)44)
-#define IS_ScriptEngine(o)      ((o)->h.cid == CLASS_ScriptEngine)
-#define IS_bScriptEngine(o)     ((o)->h.bcid == CLASS_ScriptEngine)
-#define TYPE_ScriptEngine       CLASS_ScriptEngine
-#define NNTYPE_ScriptEngine     NNTYPE_cid(CLASS_ScriptEngine)
-#define NATYPE_ScriptEngine     NATYPE_cid(CLASS_ScriptEngine)
-#define CFLAG_ScriptEngine      ((knh_flag_t)0)
-#define FLAG_ScriptEngine       FLAG_oflag(CFLAG_ScriptEngine)
+#define FLAG_Context            knh_flag_oflag(CFLAG_Context)
 
 /* ------------------------------------------------------------------------ */
 /* Token */
-#define CLASS_Token             ((knh_class_t)45)
+#define CLASS_Token             ((knh_class_t)43)
+#define STRUCT_Token            ((knh_struct_t)43)
 #define IS_Token(o)             ((o)->h.cid == CLASS_Token)
 #define IS_bToken(o)            ((o)->h.bcid == CLASS_Token)
 #define TYPE_Token              CLASS_Token
 #define NNTYPE_Token            NNTYPE_cid(CLASS_Token)
 #define NATYPE_Token            NATYPE_cid(CLASS_Token)
 #define CFLAG_Token             ((knh_flag_t)0)
-#define FLAG_Token              FLAG_oflag(CFLAG_Token)
+#define FLAG_Token              knh_flag_oflag(CFLAG_Token)
 
 /* ------------------------------------------------------------------------ */
 /* Stmt */
-#define CLASS_Stmt              ((knh_class_t)46)
+#define CLASS_Stmt              ((knh_class_t)44)
+#define STRUCT_Stmt             ((knh_struct_t)44)
 #define IS_Stmt(o)              ((o)->h.cid == CLASS_Stmt)
 #define IS_bStmt(o)             ((o)->h.bcid == CLASS_Stmt)
 #define TYPE_Stmt               CLASS_Stmt
 #define NNTYPE_Stmt             NNTYPE_cid(CLASS_Stmt)
 #define NATYPE_Stmt             NATYPE_cid(CLASS_Stmt)
 #define CFLAG_Stmt              ((knh_flag_t)0)
-#define FLAG_Stmt               FLAG_oflag(CFLAG_Stmt)
+#define FLAG_Stmt               knh_flag_oflag(CFLAG_Stmt)
 
 /* ------------------------------------------------------------------------ */
 /* Gamma */
-#define CLASS_Gamma             ((knh_class_t)47)
+#define CLASS_Gamma             ((knh_class_t)45)
+#define STRUCT_Gamma            ((knh_struct_t)45)
 #define IS_Gamma(o)             ((o)->h.cid == CLASS_Gamma)
 #define IS_bGamma(o)            ((o)->h.bcid == CLASS_Gamma)
 #define TYPE_Gamma              CLASS_Gamma
 #define NNTYPE_Gamma            NNTYPE_cid(CLASS_Gamma)
 #define NATYPE_Gamma            NATYPE_cid(CLASS_Gamma)
 #define CFLAG_Gamma             ((knh_flag_t)FLAG_Class_Private)
-#define FLAG_Gamma              FLAG_oflag(CFLAG_Gamma)
+#define FLAG_Gamma              knh_flag_oflag(CFLAG_Gamma)
 
 /* ------------------------------------------------------------------------ */
 /* KLRInst */
-#define CLASS_KLRInst           ((knh_class_t)48)
+#define CLASS_KLRInst           ((knh_class_t)46)
+#define STRUCT_KLRInst          ((knh_struct_t)46)
 #define IS_KLRInst(o)           ((o)->h.cid == CLASS_KLRInst)
 #define IS_bKLRInst(o)          ((o)->h.bcid == CLASS_KLRInst)
 #define TYPE_KLRInst            CLASS_KLRInst
 #define NNTYPE_KLRInst          NNTYPE_cid(CLASS_KLRInst)
 #define NATYPE_KLRInst          NATYPE_cid(CLASS_KLRInst)
 #define CFLAG_KLRInst           ((knh_flag_t)0)
-#define FLAG_KLRInst            FLAG_oflag(CFLAG_KLRInst)
+#define FLAG_KLRInst            knh_flag_oflag(CFLAG_KLRInst)
 
 /* ------------------------------------------------------------------------ */
 /* KLRCode */
-#define CLASS_KLRCode           ((knh_class_t)49)
+#define CLASS_KLRCode           ((knh_class_t)47)
+#define STRUCT_KLRCode          ((knh_struct_t)47)
 #define IS_KLRCode(o)           ((o)->h.cid == CLASS_KLRCode)
 #define IS_bKLRCode(o)          ((o)->h.bcid == CLASS_KLRCode)
 #define TYPE_KLRCode            CLASS_KLRCode
 #define NNTYPE_KLRCode          NNTYPE_cid(CLASS_KLRCode)
 #define NATYPE_KLRCode          NATYPE_cid(CLASS_KLRCode)
 #define CFLAG_KLRCode           ((knh_flag_t)0)
-#define FLAG_KLRCode            FLAG_oflag(CFLAG_KLRCode)
+#define FLAG_KLRCode            knh_flag_oflag(CFLAG_KLRCode)
 
 /* ======================================================================== */
 /* CLASS */
 
 /* ------------------------------------------------------------------------ */
 /* This */
-#define CLASS_This              ((knh_class_t)50)
+#define CLASS_This              ((knh_class_t)KNH_TCLASS_SIZE-(0+1))
+#define STRUCT_This             STRUCT_Any
 #define IS_This(o)              ((o)->h.cid == CLASS_This)
 #define TYPE_This               CLASS_This
 #define NNTYPE_This             NNTYPE_cid(CLASS_This)
 #define NATYPE_This             NATYPE_cid(CLASS_This)
 #define CFLAG_This              ((knh_flag_t)FLAG_Class_TypeVariable)
-#define FLAG_This               FLAG_oflag(CFLAG_This)
+#define FLAG_This               knh_flag_oflag(CFLAG_This)
 
 /* ------------------------------------------------------------------------ */
 /* Tvoid */
-#define CLASS_Tvoid             ((knh_class_t)51)
+#define CLASS_Tvoid             ((knh_class_t)KNH_TCLASS_SIZE-(1+1))
+#define STRUCT_Tvoid            STRUCT_Any
 #define IS_Tvoid(o)             ((o)->h.cid == CLASS_Tvoid)
 #define TYPE_Tvoid              CLASS_Tvoid
 #define NNTYPE_Tvoid            NNTYPE_cid(CLASS_Tvoid)
 #define NATYPE_Tvoid            NATYPE_cid(CLASS_Tvoid)
 #define CFLAG_Tvoid             ((knh_flag_t)FLAG_Class_TypeVariable)
-#define FLAG_Tvoid              FLAG_oflag(CFLAG_Tvoid)
+#define FLAG_Tvoid              knh_flag_oflag(CFLAG_Tvoid)
 
 /* ------------------------------------------------------------------------ */
 /* T0 */
-#define CLASS_T0                ((knh_class_t)52)
+#define CLASS_T0                ((knh_class_t)KNH_TCLASS_SIZE-(2+1))
+#define STRUCT_T0               STRUCT_Any
 #define IS_T0(o)                ((o)->h.cid == CLASS_T0)
 #define TYPE_T0                 CLASS_T0
 #define NNTYPE_T0               NNTYPE_cid(CLASS_T0)
 #define NATYPE_T0               NATYPE_cid(CLASS_T0)
 #define CFLAG_T0                ((knh_flag_t)FLAG_Class_TypeVariable)
-#define FLAG_T0                 FLAG_oflag(CFLAG_T0)
+#define FLAG_T0                 knh_flag_oflag(CFLAG_T0)
 
 /* ------------------------------------------------------------------------ */
 /* T1 */
-#define CLASS_T1                ((knh_class_t)53)
+#define CLASS_T1                ((knh_class_t)KNH_TCLASS_SIZE-(3+1))
+#define STRUCT_T1               STRUCT_Any
 #define IS_T1(o)                ((o)->h.cid == CLASS_T1)
 #define TYPE_T1                 CLASS_T1
 #define NNTYPE_T1               NNTYPE_cid(CLASS_T1)
 #define NATYPE_T1               NATYPE_cid(CLASS_T1)
 #define CFLAG_T1                ((knh_flag_t)FLAG_Class_TypeVariable)
-#define FLAG_T1                 FLAG_oflag(CFLAG_T1)
+#define FLAG_T1                 knh_flag_oflag(CFLAG_T1)
 
 /* ------------------------------------------------------------------------ */
 /* T2 */
-#define CLASS_T2                ((knh_class_t)54)
+#define CLASS_T2                ((knh_class_t)KNH_TCLASS_SIZE-(4+1))
+#define STRUCT_T2               STRUCT_Any
 #define IS_T2(o)                ((o)->h.cid == CLASS_T2)
 #define TYPE_T2                 CLASS_T2
 #define NNTYPE_T2               NNTYPE_cid(CLASS_T2)
 #define NATYPE_T2               NATYPE_cid(CLASS_T2)
 #define CFLAG_T2                ((knh_flag_t)FLAG_Class_TypeVariable)
-#define FLAG_T2                 FLAG_oflag(CFLAG_T2)
+#define FLAG_T2                 knh_flag_oflag(CFLAG_T2)
 
 /* ------------------------------------------------------------------------ */
 /* T3 */
-#define CLASS_T3                ((knh_class_t)55)
+#define CLASS_T3                ((knh_class_t)KNH_TCLASS_SIZE-(5+1))
+#define STRUCT_T3               STRUCT_Any
 #define IS_T3(o)                ((o)->h.cid == CLASS_T3)
 #define TYPE_T3                 CLASS_T3
 #define NNTYPE_T3               NNTYPE_cid(CLASS_T3)
 #define NATYPE_T3               NATYPE_cid(CLASS_T3)
 #define CFLAG_T3                ((knh_flag_t)FLAG_Class_TypeVariable)
-#define FLAG_T3                 FLAG_oflag(CFLAG_T3)
+#define FLAG_T3                 knh_flag_oflag(CFLAG_T3)
 
 /* ------------------------------------------------------------------------ */
 /* Tx */
-#define CLASS_Tx                ((knh_class_t)56)
+#define CLASS_Tx                ((knh_class_t)KNH_TCLASS_SIZE-(6+1))
+#define STRUCT_Tx               STRUCT_Any
 #define IS_Tx(o)                ((o)->h.cid == CLASS_Tx)
 #define TYPE_Tx                 CLASS_Tx
 #define NNTYPE_Tx               NNTYPE_cid(CLASS_Tx)
 #define NATYPE_Tx               NATYPE_cid(CLASS_Tx)
 #define CFLAG_Tx                ((knh_flag_t)FLAG_Class_TypeVariable)
-#define FLAG_Tx                 FLAG_oflag(CFLAG_Tx)
+#define FLAG_Tx                 knh_flag_oflag(CFLAG_Tx)
 
 /* ------------------------------------------------------------------------ */
 /* Tvar */
-#define CLASS_Tvar              ((knh_class_t)57)
+#define CLASS_Tvar              ((knh_class_t)KNH_TCLASS_SIZE-(7+1))
+#define STRUCT_Tvar             STRUCT_Any
 #define IS_Tvar(o)              ((o)->h.cid == CLASS_Tvar)
 #define TYPE_Tvar               CLASS_Tvar
 #define NNTYPE_Tvar             NNTYPE_cid(CLASS_Tvar)
 #define NATYPE_Tvar             NATYPE_cid(CLASS_Tvar)
 #define CFLAG_Tvar              ((knh_flag_t)FLAG_Class_TypeVariable)
-#define FLAG_Tvar               FLAG_oflag(CFLAG_Tvar)
+#define FLAG_Tvar               knh_flag_oflag(CFLAG_Tvar)
 
 /* ------------------------------------------------------------------------ */
 /* PairSS */
-#define CLASS_PairSS            ((knh_class_t)58)
+#define CLASS_PairSS            ((knh_class_t)KNH_TCLASS_SIZE-(8+1))
+#define STRUCT_PairSS           STRUCT_Pair
 #define IS_PairSS(o)            ((o)->h.cid == CLASS_PairSS)
 #define TYPE_PairSS             CLASS_PairSS
 #define NNTYPE_PairSS           NNTYPE_cid(CLASS_PairSS)
 #define NATYPE_PairSS           NATYPE_cid(CLASS_PairSS)
 #define CFLAG_PairSS            ((knh_flag_t)0)
-#define FLAG_PairSS             FLAG_oflag(CFLAG_PairSS)
+#define FLAG_PairSS             knh_flag_oflag(CFLAG_PairSS)
 
 /* ------------------------------------------------------------------------ */
 /* PairST1 */
-#define CLASS_PairST1           ((knh_class_t)59)
+#define CLASS_PairST1           ((knh_class_t)KNH_TCLASS_SIZE-(9+1))
+#define STRUCT_PairST1          STRUCT_Pair
 #define IS_PairST1(o)           ((o)->h.cid == CLASS_PairST1)
 #define TYPE_PairST1            CLASS_PairST1
 #define NNTYPE_PairST1          NNTYPE_cid(CLASS_PairST1)
 #define NATYPE_PairST1          NATYPE_cid(CLASS_PairST1)
 #define CFLAG_PairST1           ((knh_flag_t)0)
-#define FLAG_PairST1            FLAG_oflag(CFLAG_PairST1)
+#define FLAG_PairST1            knh_flag_oflag(CFLAG_PairST1)
 
 /* ------------------------------------------------------------------------ */
 /* PairT1T2 */
-#define CLASS_PairT1T2          ((knh_class_t)60)
+#define CLASS_PairT1T2          ((knh_class_t)KNH_TCLASS_SIZE-(10+1))
+#define STRUCT_PairT1T2         STRUCT_Pair
 #define IS_PairT1T2(o)          ((o)->h.cid == CLASS_PairT1T2)
 #define TYPE_PairT1T2           CLASS_PairT1T2
 #define NNTYPE_PairT1T2         NNTYPE_cid(CLASS_PairT1T2)
 #define NATYPE_PairT1T2         NATYPE_cid(CLASS_PairT1T2)
 #define CFLAG_PairT1T2          ((knh_flag_t)0)
-#define FLAG_PairT1T2           FLAG_oflag(CFLAG_PairT1T2)
+#define FLAG_PairT1T2           knh_flag_oflag(CFLAG_PairT1T2)
 
 /* ------------------------------------------------------------------------ */
 /* Cmpr */
-#define CLASS_Cmpr              ((knh_class_t)61)
+#define CLASS_Cmpr              ((knh_class_t)KNH_TCLASS_SIZE-(11+1))
+#define STRUCT_Cmpr             STRUCT_Closure
 #define IS_Cmpr(o)              ((o)->h.cid == CLASS_Cmpr)
 #define TYPE_Cmpr               CLASS_Cmpr
 #define NNTYPE_Cmpr             NNTYPE_cid(CLASS_Cmpr)
 #define NATYPE_Cmpr             NATYPE_cid(CLASS_Cmpr)
 #define CFLAG_Cmpr              ((knh_flag_t)0)
-#define FLAG_Cmpr               FLAG_oflag(CFLAG_Cmpr)
-
-/* ------------------------------------------------------------------------ */
-/* String_Ary */
-#define CLASS_String_Ary        ((knh_class_t)62)
-#define IS_String_Ary(o)        ((o)->h.cid == CLASS_String_Ary)
-#define TYPE_String_Ary         CLASS_String_Ary
-#define NNTYPE_String_Ary       NNTYPE_cid(CLASS_String_Ary)
-#define NATYPE_String_Ary       NATYPE_cid(CLASS_String_Ary)
-#define CFLAG_String_Ary        ((knh_flag_t)0)
-#define FLAG_String_Ary         FLAG_oflag(CFLAG_String_Ary)
-
-/* ------------------------------------------------------------------------ */
-/* T1_Ary */
-#define CLASS_T1_Ary            ((knh_class_t)63)
-#define IS_T1_Ary(o)            ((o)->h.cid == CLASS_T1_Ary)
-#define TYPE_T1_Ary             CLASS_T1_Ary
-#define NNTYPE_T1_Ary           NNTYPE_cid(CLASS_T1_Ary)
-#define NATYPE_T1_Ary           NATYPE_cid(CLASS_T1_Ary)
-#define CFLAG_T1_Ary            ((knh_flag_t)0)
-#define FLAG_T1_Ary             FLAG_oflag(CFLAG_T1_Ary)
+#define FLAG_Cmpr               knh_flag_oflag(CFLAG_Cmpr)
 
 /* ------------------------------------------------------------------------ */
 /* String_Itr */
-#define CLASS_String_Itr        ((knh_class_t)64)
+#define CLASS_String_Itr        ((knh_class_t)KNH_TCLASS_SIZE-(12+1))
+#define STRUCT_String_Itr       STRUCT_Iterator
 #define IS_String_Itr(o)        ((o)->h.cid == CLASS_String_Itr)
 #define TYPE_String_Itr         CLASS_String_Itr
 #define NNTYPE_String_Itr       NNTYPE_cid(CLASS_String_Itr)
 #define NATYPE_String_Itr       NATYPE_cid(CLASS_String_Itr)
 #define CFLAG_String_Itr        ((knh_flag_t)0)
-#define FLAG_String_Itr         FLAG_oflag(CFLAG_String_Itr)
+#define FLAG_String_Itr         knh_flag_oflag(CFLAG_String_Itr)
 
 /* ------------------------------------------------------------------------ */
 /* T1_Itr */
-#define CLASS_T1_Itr            ((knh_class_t)65)
+#define CLASS_T1_Itr            ((knh_class_t)KNH_TCLASS_SIZE-(13+1))
+#define STRUCT_T1_Itr           STRUCT_Iterator
 #define IS_T1_Itr(o)            ((o)->h.cid == CLASS_T1_Itr)
 #define TYPE_T1_Itr             CLASS_T1_Itr
 #define NNTYPE_T1_Itr           NNTYPE_cid(CLASS_T1_Itr)
 #define NATYPE_T1_Itr           NATYPE_cid(CLASS_T1_Itr)
 #define CFLAG_T1_Itr            ((knh_flag_t)0)
-#define FLAG_T1_Itr             FLAG_oflag(CFLAG_T1_Itr)
+#define FLAG_T1_Itr             knh_flag_oflag(CFLAG_T1_Itr)
 
 /* ------------------------------------------------------------------------ */
 /* PairST1_Itr */
-#define CLASS_PairST1_Itr       ((knh_class_t)66)
+#define CLASS_PairST1_Itr       ((knh_class_t)KNH_TCLASS_SIZE-(14+1))
+#define STRUCT_PairST1_Itr      STRUCT_Iterator
 #define IS_PairST1_Itr(o)       ((o)->h.cid == CLASS_PairST1_Itr)
 #define TYPE_PairST1_Itr        CLASS_PairST1_Itr
 #define NNTYPE_PairST1_Itr      NNTYPE_cid(CLASS_PairST1_Itr)
 #define NATYPE_PairST1_Itr      NATYPE_cid(CLASS_PairST1_Itr)
 #define CFLAG_PairST1_Itr       ((knh_flag_t)0)
-#define FLAG_PairST1_Itr        FLAG_oflag(CFLAG_PairST1_Itr)
+#define FLAG_PairST1_Itr        knh_flag_oflag(CFLAG_PairST1_Itr)
 
 /* ------------------------------------------------------------------------ */
 /* PairT1T2_Itr */
-#define CLASS_PairT1T2_Itr      ((knh_class_t)67)
+#define CLASS_PairT1T2_Itr      ((knh_class_t)KNH_TCLASS_SIZE-(15+1))
+#define STRUCT_PairT1T2_Itr     STRUCT_Iterator
 #define IS_PairT1T2_Itr(o)      ((o)->h.cid == CLASS_PairT1T2_Itr)
 #define TYPE_PairT1T2_Itr       CLASS_PairT1T2_Itr
 #define NNTYPE_PairT1T2_Itr     NNTYPE_cid(CLASS_PairT1T2_Itr)
 #define NATYPE_PairT1T2_Itr     NATYPE_cid(CLASS_PairT1T2_Itr)
 #define CFLAG_PairT1T2_Itr      ((knh_flag_t)0)
-#define FLAG_PairT1T2_Itr       FLAG_oflag(CFLAG_PairT1T2_Itr)
+#define FLAG_PairT1T2_Itr       knh_flag_oflag(CFLAG_PairT1T2_Itr)
 
 /* ------------------------------------------------------------------------ */
 /* This_Itr */
-#define CLASS_This_Itr          ((knh_class_t)68)
+#define CLASS_This_Itr          ((knh_class_t)KNH_TCLASS_SIZE-(16+1))
+#define STRUCT_This_Itr         STRUCT_Iterator
 #define IS_This_Itr(o)          ((o)->h.cid == CLASS_This_Itr)
 #define TYPE_This_Itr           CLASS_This_Itr
 #define NNTYPE_This_Itr         NNTYPE_cid(CLASS_This_Itr)
 #define NATYPE_This_Itr         NATYPE_cid(CLASS_This_Itr)
 #define CFLAG_This_Itr          ((knh_flag_t)0)
-#define FLAG_This_Itr           FLAG_oflag(CFLAG_This_Itr)
-#define KNH_CLASS_INITSIZE              70
+#define FLAG_This_Itr           knh_flag_oflag(CFLAG_This_Itr)
+
+/* ------------------------------------------------------------------------ */
+/* String_Ary */
+#define CLASS_String_Ary        ((knh_class_t)KNH_TCLASS_SIZE-(17+1))
+#define STRUCT_String_Ary       STRUCT_Array
+#define IS_String_Ary(o)        ((o)->h.cid == CLASS_String_Ary)
+#define TYPE_String_Ary         CLASS_String_Ary
+#define NNTYPE_String_Ary       NNTYPE_cid(CLASS_String_Ary)
+#define NATYPE_String_Ary       NATYPE_cid(CLASS_String_Ary)
+#define CFLAG_String_Ary        ((knh_flag_t)0)
+#define FLAG_String_Ary         knh_flag_oflag(CFLAG_String_Ary)
+
+/* ------------------------------------------------------------------------ */
+/* Any_Ary */
+#define CLASS_Any_Ary           ((knh_class_t)KNH_TCLASS_SIZE-(18+1))
+#define STRUCT_Any_Ary          STRUCT_Array
+#define IS_Any_Ary(o)           ((o)->h.cid == CLASS_Any_Ary)
+#define TYPE_Any_Ary            CLASS_Any_Ary
+#define NNTYPE_Any_Ary          NNTYPE_cid(CLASS_Any_Ary)
+#define NATYPE_Any_Ary          NATYPE_cid(CLASS_Any_Ary)
+#define CFLAG_Any_Ary           ((knh_flag_t)0)
+#define FLAG_Any_Ary            knh_flag_oflag(CFLAG_Any_Ary)
 
 /* ======================================================================== */
 /* FLAG */
@@ -846,42 +891,87 @@
 #define knh_DictSet_setIgnoreCase(o,b) if(b) (o)->h.flag |= FLAG_DictSet_IgnoreCase; else (o)->h.flag &= ~(FLAG_DictSet_IgnoreCase);
 #define FLAG_Class_Release              (knh_flag_t)(1<<0)
 
-#define knh_class_isRelease(o)  (((pClassTable(ctx,o))->cflag & FLAG_Class_Release) == FLAG_Class_Release)
+#define knh_class_isRelease(o)  (((pClassTable(o))->cflag & FLAG_Class_Release) == FLAG_Class_Release)
 
-#define knh_class_isDebug(o)  (((pClassTable(ctx,o))->cflag & FLAG_Class_Release) != FLAG_Class_Release)
+#define knh_class_isDebug(o)  (((pClassTable(o))->cflag & FLAG_Class_Release) != FLAG_Class_Release)
 #define FLAG_Class_Immutable            (knh_flag_t)(1<<1)
 
-#define knh_class_isImmutable(o)  (((pClassTable(ctx,o))->cflag & FLAG_Class_Immutable) == FLAG_Class_Immutable)
+#define knh_class_isImmutable(o)  (((pClassTable(o))->cflag & FLAG_Class_Immutable) == FLAG_Class_Immutable)
 #define FLAG_Class_Cyclic               (knh_flag_t)(1<<2)
 
-#define knh_class_isCyclic(o)  (((pClassTable(ctx,o))->cflag & FLAG_Class_Cyclic) == FLAG_Class_Cyclic)
+#define knh_class_isCyclic(o)  (((pClassTable(o))->cflag & FLAG_Class_Cyclic) == FLAG_Class_Cyclic)
 
-#define knh_class_setCyclic(o,b) if(b) (pClassTable(ctx,o))->cflag |= FLAG_Class_Cyclic; else (pClassTable(ctx,o))->cflag &= ~(FLAG_Class_Cyclic);
+#define knh_class_setCyclic(o,b) if(b) (pClassTable(o))->cflag |= FLAG_Class_Cyclic; else (pClassTable(o))->cflag &= ~(FLAG_Class_Cyclic);
 #define FLAG_Class_MetaClass            (knh_flag_t)(1<<3)
 
-#define knh_class_isMetaClass(o)  (((pClassTable(ctx,o))->cflag & FLAG_Class_MetaClass) == FLAG_Class_MetaClass)
+#define knh_class_isMetaClass(o)  (((pClassTable(o))->cflag & FLAG_Class_MetaClass) == FLAG_Class_MetaClass)
 #define FLAG_Class_Private              (knh_flag_t)(1<<4)
 
-#define knh_class_isPrivate(o)  (((pClassTable(ctx,o))->cflag & FLAG_Class_Private) == FLAG_Class_Private)
+#define knh_class_isPrivate(o)  (((pClassTable(o))->cflag & FLAG_Class_Private) == FLAG_Class_Private)
 
-#define knh_class_isPublic(o)  (((pClassTable(ctx,o))->cflag & FLAG_Class_Private) != FLAG_Class_Private)
+#define knh_class_isPublic(o)  (((pClassTable(o))->cflag & FLAG_Class_Private) != FLAG_Class_Private)
 #define FLAG_Class_Final                (knh_flag_t)(1<<5)
 
-#define knh_class_isFinal(o)  (((pClassTable(ctx,o))->cflag & FLAG_Class_Final) == FLAG_Class_Final)
+#define knh_class_isFinal(o)  (((pClassTable(o))->cflag & FLAG_Class_Final) == FLAG_Class_Final)
 #define FLAG_Class_Singleton            (knh_flag_t)(1<<6)
 
-#define knh_class_isSingleton(o)  (((pClassTable(ctx,o))->cflag & FLAG_Class_Singleton) == FLAG_Class_Singleton)
+#define knh_class_isSingleton(o)  (((pClassTable(o))->cflag & FLAG_Class_Singleton) == FLAG_Class_Singleton)
 #define FLAG_Class_Unique               (knh_flag_t)(1<<7)
 
-#define knh_class_isUnique(o)  (((pClassTable(ctx,o))->cflag & FLAG_Class_Unique) == FLAG_Class_Unique)
+#define knh_class_isUnique(o)  (((pClassTable(o))->cflag & FLAG_Class_Unique) == FLAG_Class_Unique)
 #define FLAG_Class_Interface            (knh_flag_t)(1<<8)
 
-#define knh_class_isInterface(o)  (((pClassTable(ctx,o))->cflag & FLAG_Class_Interface) == FLAG_Class_Interface)
+#define knh_class_isInterface(o)  (((pClassTable(o))->cflag & FLAG_Class_Interface) == FLAG_Class_Interface)
 #define FLAG_Class_TypeVariable         (knh_flag_t)(1<<9)
 
-#define knh_class_isTypeVariable(o)  (((pClassTable(ctx,o))->cflag & FLAG_Class_TypeVariable) == FLAG_Class_TypeVariable)
+#define knh_class_isTypeVariable(o)  (((pClassTable(o))->cflag & FLAG_Class_TypeVariable) == FLAG_Class_TypeVariable)
 
-#define knh_class_setTypeVariable(o,b) if(b) (pClassTable(ctx,o))->cflag |= FLAG_Class_TypeVariable; else (pClassTable(ctx,o))->cflag &= ~(FLAG_Class_TypeVariable);
+#define knh_class_setTypeVariable(o,b) if(b) (pClassTable(o))->cflag |= FLAG_Class_TypeVariable; else (pClassTable(o))->cflag &= ~(FLAG_Class_TypeVariable);
+#define FLAG_ClassField_Hidden          (knh_flag_t)(1<<0)
+
+#define knh_ClassField_isHidden(o,n)  (((o)->fields[n].flag & FLAG_ClassField_Hidden) == FLAG_ClassField_Hidden)
+
+#define knh_ClassField_setHidden(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassField_Hidden; else (o)->fields[n].flag &= ~(FLAG_ClassField_Hidden);
+#define FLAG_ClassField_Protected       (knh_flag_t)(1<<1)
+
+#define knh_ClassField_isProtected(o,n)  (((o)->fields[n].flag & FLAG_ClassField_Protected) == FLAG_ClassField_Protected)
+
+#define knh_ClassField_setProtected(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassField_Protected; else (o)->fields[n].flag &= ~(FLAG_ClassField_Protected);
+#define FLAG_ClassField_Getter          (knh_flag_t)(1<<2)
+
+#define knh_ClassField_isGetter(o,n)  (((o)->fields[n].flag & FLAG_ClassField_Getter) == FLAG_ClassField_Getter)
+
+#define knh_ClassField_setGetter(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassField_Getter; else (o)->fields[n].flag &= ~(FLAG_ClassField_Getter);
+#define FLAG_ClassField_Setter          (knh_flag_t)(1<<3)
+
+#define knh_ClassField_isSetter(o,n)  (((o)->fields[n].flag & FLAG_ClassField_Setter) == FLAG_ClassField_Setter)
+
+#define knh_ClassField_setSetter(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassField_Setter; else (o)->fields[n].flag &= ~(FLAG_ClassField_Setter);
+#define FLAG_ClassField_Key             (knh_flag_t)(1<<4)
+
+#define knh_ClassField_isKey(o,n)  (((o)->fields[n].flag & FLAG_ClassField_Key) == FLAG_ClassField_Key)
+
+#define knh_ClassField_setKey(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassField_Key; else (o)->fields[n].flag &= ~(FLAG_ClassField_Key);
+#define FLAG_ClassField_Volatile        (knh_flag_t)(1<<5)
+
+#define knh_ClassField_isVolatile(o,n)  (((o)->fields[n].flag & FLAG_ClassField_Volatile) == FLAG_ClassField_Volatile)
+
+#define knh_ClassField_setVolatile(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassField_Volatile; else (o)->fields[n].flag &= ~(FLAG_ClassField_Volatile);
+#define FLAG_ClassField_ReadOnly        (knh_flag_t)(1<<6)
+
+#define knh_ClassField_isReadOnly(o,n)  (((o)->fields[n].flag & FLAG_ClassField_ReadOnly) == FLAG_ClassField_ReadOnly)
+
+#define knh_ClassField_setReadOnly(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassField_ReadOnly; else (o)->fields[n].flag &= ~(FLAG_ClassField_ReadOnly);
+#define FLAG_ClassField_Property        (knh_flag_t)(1<<7)
+
+#define knh_ClassField_isProperty(o,n)  (((o)->fields[n].flag & FLAG_ClassField_Property) == FLAG_ClassField_Property)
+
+#define knh_ClassField_setProperty(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassField_Property; else (o)->fields[n].flag &= ~(FLAG_ClassField_Property);
+#define FLAG_ClassField_Principle       (knh_flag_t)(1<<8)
+
+#define knh_ClassField_isPrinciple(o,n)  (((o)->fields[n].flag & FLAG_ClassField_Principle) == FLAG_ClassField_Principle)
+
+#define knh_ClassField_setPrinciple(o,n,b) if(b) (o)->fields[n].flag |= FLAG_ClassField_Principle; else (o)->fields[n].flag &= ~(FLAG_ClassField_Principle);
 #define FLAG_Method_Private             (knh_flag_t)(1<<0)
 
 #define knh_Method_isPrivate(o)  ((DP(o)->flag & FLAG_Method_Private) == FLAG_Method_Private)
@@ -1163,46 +1253,41 @@
 #define knh_Gamma_isCancelled(o)  ((DP(o)->flag & FLAG_Gamma_Cancelled) == FLAG_Gamma_Cancelled)
 
 #define knh_Gamma_setCancelled(o,b) if(b) DP(o)->flag |= FLAG_Gamma_Cancelled; else DP(o)->flag &= ~(FLAG_Gamma_Cancelled);
-#define FLAG_Gamma_Quiet                (knh_flag_t)(1<<1)
-
-#define knh_Gamma_isQuiet(o)  ((DP(o)->flag & FLAG_Gamma_Quiet) == FLAG_Gamma_Quiet)
-
-#define knh_Gamma_setQuiet(o,b) if(b) DP(o)->flag |= FLAG_Gamma_Quiet; else DP(o)->flag &= ~(FLAG_Gamma_Quiet);
-#define FLAG_Gamma_Throwable            (knh_flag_t)(1<<2)
-
-#define knh_Gamma_isThrowable(o)  ((DP(o)->flag & FLAG_Gamma_Throwable) == FLAG_Gamma_Throwable)
-
-#define knh_Gamma_setThrowable(o,b) if(b) DP(o)->flag |= FLAG_Gamma_Throwable; else DP(o)->flag &= ~(FLAG_Gamma_Throwable);
-#define FLAG_Gamma_PROCEED              (knh_flag_t)(1<<3)
+#define FLAG_Gamma_PROCEED              (knh_flag_t)(1<<1)
 
 #define knh_Gamma_hasPROCEED(o)  ((DP(o)->flag & FLAG_Gamma_PROCEED) == FLAG_Gamma_PROCEED)
 
 #define knh_Gamma_foundPROCEED(o,b) if(b) DP(o)->flag |= FLAG_Gamma_PROCEED; else DP(o)->flag &= ~(FLAG_Gamma_PROCEED);
-#define FLAG_Gamma_RETURN               (knh_flag_t)(1<<4)
+#define FLAG_Gamma_RETURN               (knh_flag_t)(1<<2)
 
 #define knh_Gamma_hasRETURN(o)  ((DP(o)->flag & FLAG_Gamma_RETURN) == FLAG_Gamma_RETURN)
 
 #define knh_Gamma_foundRETURN(o,b) if(b) DP(o)->flag |= FLAG_Gamma_RETURN; else DP(o)->flag &= ~(FLAG_Gamma_RETURN);
-#define FLAG_Gamma_YEILD                (knh_flag_t)(1<<5)
+#define FLAG_Gamma_YEILD                (knh_flag_t)(1<<3)
 
 #define knh_Gamma_hasYEILD(o)  ((DP(o)->flag & FLAG_Gamma_YEILD) == FLAG_Gamma_YEILD)
 
 #define knh_Gamma_foundYEILD(o,b) if(b) DP(o)->flag |= FLAG_Gamma_YEILD; else DP(o)->flag &= ~(FLAG_Gamma_YEILD);
-#define FLAG_Gamma_FIELD                (knh_flag_t)(1<<6)
+#define FLAG_Gamma_FIELD                (knh_flag_t)(1<<4)
 
 #define knh_Gamma_hasFIELD(o)  ((DP(o)->flag & FLAG_Gamma_FIELD) == FLAG_Gamma_FIELD)
 
 #define knh_Gamma_foundFIELD(o,b) if(b) DP(o)->flag |= FLAG_Gamma_FIELD; else DP(o)->flag &= ~(FLAG_Gamma_FIELD);
-#define FLAG_Gamma_STACK                (knh_flag_t)(1<<7)
+#define FLAG_Gamma_STACK                (knh_flag_t)(1<<5)
 
 #define knh_Gamma_hasSTACK(o)  ((DP(o)->flag & FLAG_Gamma_STACK) == FLAG_Gamma_STACK)
 
 #define knh_Gamma_foundSTACK(o,b) if(b) DP(o)->flag |= FLAG_Gamma_STACK; else DP(o)->flag &= ~(FLAG_Gamma_STACK);
-#define FLAG_Gamma_SCRIPT               (knh_flag_t)(1<<7)
+#define FLAG_Gamma_SCRIPT               (knh_flag_t)(1<<6)
 
 #define knh_Gamma_hasSCRIPT(o)  ((DP(o)->flag & FLAG_Gamma_SCRIPT) == FLAG_Gamma_SCRIPT)
 
 #define knh_Gamma_foundSCRIPT(o,b) if(b) DP(o)->flag |= FLAG_Gamma_SCRIPT; else DP(o)->flag &= ~(FLAG_Gamma_SCRIPT);
+#define FLAG_Gamma_Data                 (knh_flag_t)(1<<0)
+
+#define knh_Gamma_isData(o)  ((DP(o)->pflag & FLAG_Gamma_Data) == FLAG_Gamma_Data)
+
+#define knh_Gamma_setData(o,b) if(b) DP(o)->pflag |= FLAG_Gamma_Data; else DP(o)->pflag &= ~(FLAG_Gamma_Data);
 
 /* ======================================================================== */
 /* EXPT */
@@ -1230,16 +1315,16 @@
 #define FIELDN_addHistory 5
 #define FIELDN_addhistory 5
 #define FIELDN_all      6
-#define FIELDN_ascii    7
-#define FIELDN_autoFlush 8
-#define FIELDN_autoflush 8
-#define FIELDN_bag      9
-#define FIELDN_base     10
-#define FIELDN_bits     11
-#define FIELDN_buf      12
-#define FIELDN_bytes    13
-#define FIELDN_c        14
-#define FIELDN_cc       15
+#define FIELDN_anno     7
+#define FIELDN_ascii    8
+#define FIELDN_autoFlush 9
+#define FIELDN_autoflush 9
+#define FIELDN_bag      10
+#define FIELDN_base     11
+#define FIELDN_bits     12
+#define FIELDN_buf      13
+#define FIELDN_bytes    14
+#define FIELDN_c        15
 #define FIELDN_ch       16
 #define FIELDN_char     17
 #define FIELDN_class    18
@@ -1339,223 +1424,220 @@
 #define FIELDN_listdir  91
 #define FIELDN_listProperties 92
 #define FIELDN_listproperties 92
-#define FIELDN_load     93
-#define FIELDN_local    94
-#define FIELDN_logging  95
-#define FIELDN_lossLess 96
-#define FIELDN_lossless 96
-#define FIELDN_m        97
-#define FIELDN_main     98
-#define FIELDN_man      99
-#define FIELDN_match    100
-#define FIELDN_memcpy   101
-#define FIELDN_metaClass 102
-#define FIELDN_metaclass 102
-#define FIELDN_method   103
-#define FIELDN_mkdir    104
-#define FIELDN_mode     105
-#define FIELDN_modified 106
-#define FIELDN_msg      107
-#define FIELDN_n        108
-#define FIELDN_name     109
-#define FIELDN_new      110
-#define FIELDN_new__array 111
-#define FIELDN_new__array 111
-#define FIELDN_new__array2D 112
-#define FIELDN_new__array2d 112
-#define FIELDN_new__array3D 113
-#define FIELDN_new__array3d 113
-#define FIELDN_new__dictmap 114
-#define FIELDN_new__dictmap 114
-#define FIELDN_new__init 115
-#define FIELDN_new__init 115
-#define FIELDN_new__range 116
-#define FIELDN_new__range 116
-#define FIELDN_newone   117
-#define FIELDN_newpath  118
-#define FIELDN_next     119
-#define FIELDN_notNull  120
-#define FIELDN_notnull  120
-#define FIELDN_null     121
-#define FIELDN_o        122
-#define FIELDN_offset   123
-#define FIELDN_op0      124
-#define FIELDN_op1      125
-#define FIELDN_opAdd    126
-#define FIELDN_opadd    126
-#define FIELDN_opAddr   127
-#define FIELDN_opaddr   127
-#define FIELDN_opAppend 128
-#define FIELDN_opappend 128
-#define FIELDN_opAs     129
-#define FIELDN_opas     129
-#define FIELDN_opCase   130
-#define FIELDN_opcase   130
-#define FIELDN_opDiv    131
-#define FIELDN_opdiv    131
-#define FIELDN_opEq     132
-#define FIELDN_opeq     132
-#define FIELDN_opGt     133
-#define FIELDN_opgt     133
-#define FIELDN_opGte    134
-#define FIELDN_opgte    134
-#define FIELDN_opHas    135
-#define FIELDN_ophas    135
-#define FIELDN_opInstanceof 136
-#define FIELDN_opinstanceof 136
-#define FIELDN_opInTo   137
-#define FIELDN_opinto   137
-#define FIELDN_opIs     138
-#define FIELDN_opis     138
-#define FIELDN_opItr    139
-#define FIELDN_opitr    139
-#define FIELDN_opItr__2 140
-#define FIELDN_opitr__2 140
-#define FIELDN_opLand   141
-#define FIELDN_opland   141
-#define FIELDN_opLnot   142
-#define FIELDN_oplnot   142
-#define FIELDN_opLor    143
-#define FIELDN_oplor    143
-#define FIELDN_opLshift 144
-#define FIELDN_oplshift 144
-#define FIELDN_opLt     145
-#define FIELDN_oplt     145
-#define FIELDN_opLte    146
-#define FIELDN_oplte    146
-#define FIELDN_opMatch  147
-#define FIELDN_opmatch  147
-#define FIELDN_opMod    148
-#define FIELDN_opmod    148
-#define FIELDN_opMul    149
-#define FIELDN_opmul    149
-#define FIELDN_opN      150
-#define FIELDN_opn      150
-#define FIELDN_opNeg    151
-#define FIELDN_opneg    151
-#define FIELDN_opNeq    152
-#define FIELDN_opneq    152
-#define FIELDN_opNext   153
-#define FIELDN_opnext   153
-#define FIELDN_opNot    154
-#define FIELDN_opnot    154
-#define FIELDN_opPrev   155
-#define FIELDN_opprev   155
-#define FIELDN_opRangeTo 156
-#define FIELDN_oprangeto 156
-#define FIELDN_opRangeUntil 157
-#define FIELDN_oprangeuntil 157
-#define FIELDN_opRshift 158
-#define FIELDN_oprshift 158
-#define FIELDN_opSub    159
-#define FIELDN_opsub    159
-#define FIELDN_option   160
-#define FIELDN_opXor    161
-#define FIELDN_opxor    161
-#define FIELDN_out      162
-#define FIELDN_outputStream 163
-#define FIELDN_outputstream 163
-#define FIELDN_p        164
-#define FIELDN_partial  165
-#define FIELDN_path     166
-#define FIELDN_pattern  167
-#define FIELDN_pop      168
-#define FIELDN_port     169
-#define FIELDN_print    170
-#define FIELDN_println  171
-#define FIELDN_private  172
-#define FIELDN_profCount 173
-#define FIELDN_profcount 173
-#define FIELDN_profTime 174
-#define FIELDN_proftime 174
-#define FIELDN_prompt   175
-#define FIELDN_property 176
-#define FIELDN_public   177
-#define FIELDN_putc     178
-#define FIELDN_putChar  179
-#define FIELDN_putchar  179
-#define FIELDN_query    180
-#define FIELDN_random   181
-#define FIELDN_randomSeed 182
-#define FIELDN_randomseed 182
-#define FIELDN_re       183
-#define FIELDN_read     184
-#define FIELDN_readData 185
-#define FIELDN_readdata 185
-#define FIELDN_readLine 186
-#define FIELDN_readline 186
-#define FIELDN_release  187
-#define FIELDN_remove   188
-#define FIELDN_rename   189
-#define FIELDN_replace  190
-#define FIELDN_result   191
-#define FIELDN_reverse  192
-#define FIELDN_s        193
-#define FIELDN_script   194
-#define FIELDN_second   195
-#define FIELDN_seed     196
-#define FIELDN_shared   197
-#define FIELDN_shuffle  198
-#define FIELDN_significant 199
-#define FIELDN_singleton 200
-#define FIELDN_size     201
-#define FIELDN_sort     202
-#define FIELDN_split    203
-#define FIELDN_start    204
-#define FIELDN_startsWith 205
-#define FIELDN_startswith 205
-#define FIELDN_startsWith__IgnoreCase 206
-#define FIELDN_startswith__ignorecase 206
-#define FIELDN_static   207
-#define FIELDN_status   208
-#define FIELDN_stmt     209
-#define FIELDN_storingBuffer 210
-#define FIELDN_storingbuffer 210
-#define FIELDN_strict   211
-#define FIELDN_string   212
-#define FIELDN_substring 213
-#define FIELDN_super    214
-#define FIELDN_swap     215
-#define FIELDN_synonym  216
-#define FIELDN_system   217
-#define FIELDN_temporal 218
-#define FIELDN_test     219
-#define FIELDN_this     220
-#define FIELDN_time     221
-#define FIELDN_times    222
-#define FIELDN_toLower  223
-#define FIELDN_tolower  223
-#define FIELDN_total    224
-#define FIELDN_toUpper  225
-#define FIELDN_toupper  225
-#define FIELDN_trace    226
-#define FIELDN_trim     227
-#define FIELDN_twofold  228
-#define FIELDN_typeof   229
-#define FIELDN_u        230
-#define FIELDN_uCS4     231
-#define FIELDN_ucs4     231
-#define FIELDN_undefined 232
-#define FIELDN_unique   233
-#define FIELDN_unlikely 234
-#define FIELDN_unlink   235
-#define FIELDN_urn      236
-#define FIELDN_v        237
-#define FIELDN_value    238
-#define FIELDN_values   239
-#define FIELDN_varArgs  240
-#define FIELDN_varargs  240
-#define FIELDN_vargs    241
-#define FIELDN_verbose  242
-#define FIELDN_virtual  243
-#define FIELDN_w        244
-#define FIELDN_write    245
-#define FIELDN_writeData 246
-#define FIELDN_writedata 246
-#define FIELDN_x        247
-#define FIELDN_y        248
-#define FIELDN_z        249
-#define KNH_TFIELDN_SIZE 250
+#define FIELDN_local    93
+#define FIELDN_logging  94
+#define FIELDN_lossLess 95
+#define FIELDN_lossless 95
+#define FIELDN_m        96
+#define FIELDN_main     97
+#define FIELDN_man      98
+#define FIELDN_match    99
+#define FIELDN_memcpy   100
+#define FIELDN_metaClass 101
+#define FIELDN_metaclass 101
+#define FIELDN_method   102
+#define FIELDN_methodCompilationListener 103
+#define FIELDN_methodcompilationlistener 103
+#define FIELDN_methodTypingListener 104
+#define FIELDN_methodtypinglistener 104
+#define FIELDN_mkdir    105
+#define FIELDN_mode     106
+#define FIELDN_modified 107
+#define FIELDN_msg      108
+#define FIELDN_n        109
+#define FIELDN_name     110
+#define FIELDN_new      111
+#define FIELDN_new__array 112
+#define FIELDN_new__array 112
+#define FIELDN_new__array2D 113
+#define FIELDN_new__array2d 113
+#define FIELDN_new__array3D 114
+#define FIELDN_new__array3d 114
+#define FIELDN_new__dictmap 115
+#define FIELDN_new__dictmap 115
+#define FIELDN_new__init 116
+#define FIELDN_new__init 116
+#define FIELDN_new__range 117
+#define FIELDN_new__range 117
+#define FIELDN_newone   118
+#define FIELDN_newpath  119
+#define FIELDN_next     120
+#define FIELDN_notNull  121
+#define FIELDN_notnull  121
+#define FIELDN_null     122
+#define FIELDN_o        123
+#define FIELDN_offset   124
+#define FIELDN_op0      125
+#define FIELDN_op1      126
+#define FIELDN_opAdd    127
+#define FIELDN_opadd    127
+#define FIELDN_opAddr   128
+#define FIELDN_opaddr   128
+#define FIELDN_opAppend 129
+#define FIELDN_opappend 129
+#define FIELDN_opAs     130
+#define FIELDN_opas     130
+#define FIELDN_opCase   131
+#define FIELDN_opcase   131
+#define FIELDN_opDiv    132
+#define FIELDN_opdiv    132
+#define FIELDN_opEq     133
+#define FIELDN_opeq     133
+#define FIELDN_opGt     134
+#define FIELDN_opgt     134
+#define FIELDN_opGte    135
+#define FIELDN_opgte    135
+#define FIELDN_opHas    136
+#define FIELDN_ophas    136
+#define FIELDN_opInstanceof 137
+#define FIELDN_opinstanceof 137
+#define FIELDN_opInTo   138
+#define FIELDN_opinto   138
+#define FIELDN_opIs     139
+#define FIELDN_opis     139
+#define FIELDN_opItr    140
+#define FIELDN_opitr    140
+#define FIELDN_opItr__2 141
+#define FIELDN_opitr__2 141
+#define FIELDN_opLand   142
+#define FIELDN_opland   142
+#define FIELDN_opLnot   143
+#define FIELDN_oplnot   143
+#define FIELDN_opLor    144
+#define FIELDN_oplor    144
+#define FIELDN_opLshift 145
+#define FIELDN_oplshift 145
+#define FIELDN_opLt     146
+#define FIELDN_oplt     146
+#define FIELDN_opLte    147
+#define FIELDN_oplte    147
+#define FIELDN_opMatch  148
+#define FIELDN_opmatch  148
+#define FIELDN_opMod    149
+#define FIELDN_opmod    149
+#define FIELDN_opMul    150
+#define FIELDN_opmul    150
+#define FIELDN_opN      151
+#define FIELDN_opn      151
+#define FIELDN_opNeg    152
+#define FIELDN_opneg    152
+#define FIELDN_opNeq    153
+#define FIELDN_opneq    153
+#define FIELDN_opNext   154
+#define FIELDN_opnext   154
+#define FIELDN_opNot    155
+#define FIELDN_opnot    155
+#define FIELDN_opPrev   156
+#define FIELDN_opprev   156
+#define FIELDN_opRangeTo 157
+#define FIELDN_oprangeto 157
+#define FIELDN_opRangeUntil 158
+#define FIELDN_oprangeuntil 158
+#define FIELDN_opRshift 159
+#define FIELDN_oprshift 159
+#define FIELDN_opSub    160
+#define FIELDN_opsub    160
+#define FIELDN_option   161
+#define FIELDN_opXor    162
+#define FIELDN_opxor    162
+#define FIELDN_out      163
+#define FIELDN_outputStream 164
+#define FIELDN_outputstream 164
+#define FIELDN_p        165
+#define FIELDN_partial  166
+#define FIELDN_path     167
+#define FIELDN_pattern  168
+#define FIELDN_pop      169
+#define FIELDN_port     170
+#define FIELDN_print    171
+#define FIELDN_println  172
+#define FIELDN_private  173
+#define FIELDN_prompt   174
+#define FIELDN_property 175
+#define FIELDN_public   176
+#define FIELDN_putc     177
+#define FIELDN_putChar  178
+#define FIELDN_putchar  178
+#define FIELDN_query    179
+#define FIELDN_random   180
+#define FIELDN_randomSeed 181
+#define FIELDN_randomseed 181
+#define FIELDN_re       182
+#define FIELDN_read     183
+#define FIELDN_readData 184
+#define FIELDN_readdata 184
+#define FIELDN_readLine 185
+#define FIELDN_readline 185
+#define FIELDN_release  186
+#define FIELDN_remove   187
+#define FIELDN_rename   188
+#define FIELDN_replace  189
+#define FIELDN_result   190
+#define FIELDN_reverse  191
+#define FIELDN_s        192
+#define FIELDN_script   193
+#define FIELDN_second   194
+#define FIELDN_seed     195
+#define FIELDN_shared   196
+#define FIELDN_shuffle  197
+#define FIELDN_significant 198
+#define FIELDN_singleton 199
+#define FIELDN_size     200
+#define FIELDN_sort     201
+#define FIELDN_split    202
+#define FIELDN_start    203
+#define FIELDN_startsWith 204
+#define FIELDN_startswith 204
+#define FIELDN_startsWith__IgnoreCase 205
+#define FIELDN_startswith__ignorecase 205
+#define FIELDN_static   206
+#define FIELDN_status   207
+#define FIELDN_stmt     208
+#define FIELDN_storingBuffer 209
+#define FIELDN_storingbuffer 209
+#define FIELDN_strict   210
+#define FIELDN_string   211
+#define FIELDN_substring 212
+#define FIELDN_super    213
+#define FIELDN_swap     214
+#define FIELDN_synonym  215
+#define FIELDN_system   216
+#define FIELDN_temporal 217
+#define FIELDN_test     218
+#define FIELDN_this     219
+#define FIELDN_times    220
+#define FIELDN_toLower  221
+#define FIELDN_tolower  221
+#define FIELDN_total    222
+#define FIELDN_toUpper  223
+#define FIELDN_toupper  223
+#define FIELDN_trim     224
+#define FIELDN_twofold  225
+#define FIELDN_typeof   226
+#define FIELDN_u        227
+#define FIELDN_uCS4     228
+#define FIELDN_ucs4     228
+#define FIELDN_undefined 229
+#define FIELDN_unique   230
+#define FIELDN_unlikely 231
+#define FIELDN_unlink   232
+#define FIELDN_urn      233
+#define FIELDN_v        234
+#define FIELDN_value    235
+#define FIELDN_values   236
+#define FIELDN_varArgs  237
+#define FIELDN_varargs  237
+#define FIELDN_vargs    238
+#define FIELDN_verbose  239
+#define FIELDN_virtual  240
+#define FIELDN_w        241
+#define FIELDN_write    242
+#define FIELDN_writeData 243
+#define FIELDN_writedata 243
+#define FIELDN_x        244
+#define FIELDN_y        245
+#define FIELDN_z        246
+#define KNH_TFIELDN_SIZE 247
 
 /* ======================================================================== */
 /* METHODN */
@@ -1563,6 +1645,7 @@
 #define METHODN_unlikely FIELDN_unlikely
 #define METHODN_format  FIELDN_format
 #define METHODN_shuffle FIELDN_shuffle
+#define METHODN_value   FIELDN_value
 #define METHODN_opLte   FIELDN_oplte
 #define METHODN_indexOf__IgnoreCase FIELDN_indexof__ignorecase
 #define METHODN_isIgnoreCase METHODN_TO_GETTER(FIELDN_ignorecase)
@@ -1579,7 +1662,7 @@
 #define METHODN_eval    FIELDN_eval
 #define METHODN_isUndefined METHODN_TO_GETTER(FIELDN_undefined)
 #define METHODN_opNot   FIELDN_opnot
-#define METHODN_keys    FIELDN_keys
+#define METHODN_isClosed METHODN_TO_GETTER(FIELDN_closed)
 #define METHODN_system  FIELDN_system
 #define METHODN_addHistory FIELDN_addhistory
 #define METHODN_getString METHODN_TO_GETTER(FIELDN_string)
@@ -1599,10 +1682,7 @@
 #define METHODN_endsWith FIELDN_endswith
 #define METHODN_add     FIELDN_add
 #define METHODN_get3D   METHODN_TO_GETTER(FIELDN_3d)
-#define METHODN_hasDir  FIELDN_hasdir
-#define METHODN_rename  FIELDN_rename
-#define METHODN_new__array2D FIELDN_new__array2d
-#define METHODN_isInteractive METHODN_TO_GETTER(FIELDN_interactive)
+#define METHODN_setMethodTypingListener METHODN_TO_SETTER(FIELDN_methodtypinglistener)
 #define METHODN_equals__IgnoreCase FIELDN_equals__ignorecase
 #define METHODN_readData FIELDN_readdata
 #define METHODN_setStoringBuffer METHODN_TO_SETTER(FIELDN_storingbuffer)
@@ -1635,7 +1715,6 @@
 #define METHODN_isAbstract METHODN_TO_GETTER(FIELDN_abstract)
 #define METHODN_insert  FIELDN_insert
 #define METHODN_opAdd   FIELDN_opadd
-#define METHODN_isVerbose METHODN_TO_GETTER(FIELDN_verbose)
 #define METHODN_isModified METHODN_TO_GETTER(FIELDN_modified)
 #define METHODN_exec    FIELDN_exec
 #define METHODN_getProperty METHODN_TO_GETTER(FIELDN_property)
@@ -1646,10 +1725,11 @@
 #define METHODN_new__array FIELDN_new__array
 #define METHODN_opHas   FIELDN_ophas
 #define METHODN_isLossLess METHODN_TO_GETTER(FIELDN_lossless)
+#define METHODN_isInteractive METHODN_TO_GETTER(FIELDN_interactive)
 #define METHODN_setProperty METHODN_TO_SETTER(FIELDN_property)
 #define METHODN_this    FIELDN_this
 #define METHODN_isSignificant METHODN_TO_GETTER(FIELDN_significant)
-#define METHODN_getProfTime METHODN_TO_GETTER(FIELDN_proftime)
+#define METHODN_new__array2D FIELDN_new__array2d
 #define METHODN_setRandomSeed METHODN_TO_SETTER(FIELDN_randomseed)
 #define METHODN_opLshift FIELDN_oplshift
 #define METHODN_opEq    FIELDN_opeq
@@ -1679,11 +1759,11 @@
 #define METHODN_set2D   METHODN_TO_SETTER(FIELDN_2d)
 #define METHODN_opLand  FIELDN_opland
 #define METHODN_domain  FIELDN_domain
-#define METHODN_clear   FIELDN_clear
+#define METHODN_isVerbose METHODN_TO_GETTER(FIELDN_verbose)
 #define METHODN_getInputStream METHODN_TO_GETTER(FIELDN_inputstream)
 #define METHODN_opRshift FIELDN_oprshift
 #define METHODN_hashCode FIELDN_hashcode
-#define METHODN_getProfCount METHODN_TO_GETTER(FIELDN_profcount)
+#define METHODN_clear   FIELDN_clear
 #define METHODN_set     METHODN_TO_SETTER(FIELDN_)
 #define METHODN_getIn   METHODN_TO_GETTER(FIELDN_in)
 #define METHODN_isStoringBuffer METHODN_TO_GETTER(FIELDN_storingbuffer)
@@ -1691,7 +1771,6 @@
 #define METHODN_isImmutable METHODN_TO_GETTER(FIELDN_immutable)
 #define METHODN_isRelease METHODN_TO_GETTER(FIELDN_release)
 #define METHODN_invoke  FIELDN_invoke
-#define METHODN_load    FIELDN_load
 #define METHODN_test    FIELDN_test
 #define METHODN_typeof  FIELDN_typeof
 #define METHODN_setModified METHODN_TO_SETTER(FIELDN_modified)
@@ -1726,7 +1805,7 @@
 #define METHODN_isAutoFlush METHODN_TO_GETTER(FIELDN_autoflush)
 #define METHODN_remove  FIELDN_remove
 #define METHODN_listDir FIELDN_listdir
-#define METHODN_isClosed METHODN_TO_GETTER(FIELDN_closed)
+#define METHODN_keys    FIELDN_keys
 #define METHODN_unlink  FIELDN_unlink
 #define METHODN_setShared METHODN_TO_SETTER(FIELDN_shared)
 #define METHODN_isPrivate METHODN_TO_GETTER(FIELDN_private)
@@ -1747,8 +1826,8 @@
 #define METHODN_endsWith__IgnoreCase FIELDN_endswith__ignorecase
 #define METHODN_pop     FIELDN_pop
 #define METHODN_twofold FIELDN_twofold
-#define METHODN_getTime METHODN_TO_GETTER(FIELDN_time)
-#define METHODN_setTrace METHODN_TO_SETTER(FIELDN_trace)
+#define METHODN_rename  FIELDN_rename
+#define METHODN_hasDir  FIELDN_hasdir
 #define METHODN_close   FIELDN_close
 #define METHODN_isNull  METHODN_TO_GETTER(FIELDN_null)
 #define METHODN_isSingleton METHODN_TO_GETTER(FIELDN_singleton)
@@ -1761,6 +1840,7 @@
 #define METHODN_opGte   FIELDN_opgte
 #define METHODN_set3D   METHODN_TO_SETTER(FIELDN_3d)
 #define METHODN_times   FIELDN_times
+#define METHODN_setMethodCompilationListener METHODN_TO_SETTER(FIELDN_methodcompilationlistener)
 #define METHODN_putChar FIELDN_putchar
 #define METHODN_lastIndexOf FIELDN_lastindexof
 #define METHODN_opIs    FIELDN_opis

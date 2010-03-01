@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -48,7 +48,7 @@ extern "C" {
 /* [NOP] */
 
 static
-knh_dbconn_t *knh_dbopen__NOP(Ctx *ctx, knh_bytes_t url)
+knh_db_t *knh_dbopen__NOP(Ctx *ctx, knh_bytes_t url)
 {
 	return NULL;
 }
@@ -56,7 +56,7 @@ knh_dbconn_t *knh_dbopen__NOP(Ctx *ctx, knh_bytes_t url)
 /* ------------------------------------------------------------------------ */
 
 static
-knh_dbcur_t *knh_dbquery__NOP(Ctx *ctx, knh_dbconn_t *hdr, knh_bytes_t sql, knh_ResultSet_t *b)
+knh_dbcur_t *knh_dbquery__NOP(Ctx *ctx, knh_db_t *hdr, knh_bytes_t sql, knh_ResultSet_t *b)
 {
 	return NULL;
 }
@@ -64,7 +64,7 @@ knh_dbcur_t *knh_dbquery__NOP(Ctx *ctx, knh_dbconn_t *hdr, knh_bytes_t sql, knh_
 /* ------------------------------------------------------------------------ */
 
 static
-void knh_dbclose__NOP(Ctx *ctx, knh_dbconn_t *hdr)
+void knh_dbclose__NOP(Ctx *ctx, knh_db_t *hdr)
 {
 	//
 }
@@ -87,8 +87,8 @@ void knh_dbcurfree__NOP(knh_dbcur_t *dbcur)
 /* ------------------------------------------------------------------------ */
 /* @data */
 
-static knh_QueryDSPI_t DB__NOP = {
-	KNH_SQL_DSPI, "NOP",
+static knh_db_drvapi_t DB__NOP = {
+	KNH_DRVAPI_TYPE__DB, "NOP",
 	knh_dbopen__NOP,
 	knh_dbquery__NOP,
 	knh_dbclose__NOP,
@@ -122,7 +122,7 @@ void knh_sqlite3_perror(Ctx *ctx, sqlite3 *db, int r)
 /* ------------------------------------------------------------------------ */
 
 static
-knh_dbconn_t *knh_dbopen__sqlite3(Ctx *ctx, knh_bytes_t url)
+knh_db_t *knh_dbopen__sqlite3(Ctx *ctx, knh_bytes_t url)
 {
 	sqlite3 *db = NULL;
 	url = knh_bytes_skipscheme(url);
@@ -130,7 +130,7 @@ knh_dbconn_t *knh_dbopen__sqlite3(Ctx *ctx, knh_bytes_t url)
 	if (r != SQLITE_OK) {
 		return NULL;
 	}
-	return (knh_dbconn_t*)db;
+	return (knh_db_t*)db;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -182,7 +182,7 @@ int knh_dbcurnext__sqlite3(Ctx *ctx, knh_dbcur_t *dbcur, struct knh_ResultSet_t 
 /* ------------------------------------------------------------------------ */
 
 static
-knh_dbcur_t *knh_dbquery__sqlite3(Ctx *ctx, knh_dbconn_t *hdr, knh_bytes_t sql, knh_ResultSet_t *rs)
+knh_dbcur_t *knh_dbquery__sqlite3(Ctx *ctx, knh_db_t *hdr, knh_bytes_t sql, knh_ResultSet_t *rs)
 {
 	if(rs == NULL) {
 		int r = sqlite3_exec((sqlite3*)hdr, (const char*)sql.buf, NULL, NULL, NULL);
@@ -224,7 +224,7 @@ knh_dbcur_t *knh_dbquery__sqlite3(Ctx *ctx, knh_dbconn_t *hdr, knh_bytes_t sql, 
 /* ------------------------------------------------------------------------ */
 
 static
-void knh_dbclose__sqlite3(Ctx *ctx, knh_dbconn_t *hdr)
+void knh_dbclose__sqlite3(Ctx *ctx, knh_db_t *hdr)
 {
 	sqlite3_close((sqlite3*)hdr);
 }
@@ -242,8 +242,8 @@ void knh_dbcurfree__sqlite3(knh_dbcur_t *dbcur)
 /* ------------------------------------------------------------------------ */
 /* @data */
 
-static knh_QueryDSPI_t DB__sqlite3 = {
-	KNH_SQL_DSPI, "sqlite3",
+static knh_db_drvapi_t DB__sqlite3 = {
+	KNH_DRVAPI_TYPE__DB, "sqlite3",
 	knh_dbopen__sqlite3,
 	knh_dbquery__sqlite3,
 	knh_dbclose__sqlite3,
@@ -279,7 +279,7 @@ void knh_mysql_perror(Ctx *ctx, MYSQL *db, int r)
 /* ------------------------------------------------------------------------ */
 
 static
-knh_dbconn_t *knh_dbopen__mysql(Ctx *ctx, knh_bytes_t url)
+knh_db_t *knh_dbopen__mysql(Ctx *ctx, knh_bytes_t url)
 {
     MYSQL *db = NULL;
     char* server = "localhost";
@@ -293,7 +293,7 @@ knh_dbconn_t *knh_dbopen__mysql(Ctx *ctx, knh_bytes_t url)
     if(mysql_real_connect(db,  server, user, passwd, dbname, port, NULL, 0)==NULL) {
         KNH_THROW__T(ctx, "SQL!!: connection error");
     }
-    return (knh_dbconn_t*)db;
+    return (knh_db_t*)db;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -340,7 +340,7 @@ int knh_dbcurnext__mysql(Ctx *ctx, knh_dbcur_t *dbcur, struct knh_ResultSet_t *r
 /* ------------------------------------------------------------------------ */
 
 static
-knh_dbcur_t *knh_dbquery__mysql(Ctx *ctx, knh_dbconn_t *hdr, knh_bytes_t sql, knh_ResultSet_t *rs)
+knh_dbcur_t *knh_dbquery__mysql(Ctx *ctx, knh_db_t *hdr, knh_bytes_t sql, knh_ResultSet_t *rs)
 {
     if(rs == NULL) {
         // rs is NULL
@@ -374,7 +374,7 @@ knh_dbcur_t *knh_dbquery__mysql(Ctx *ctx, knh_dbconn_t *hdr, knh_bytes_t sql, kn
 /* ------------------------------------------------------------------------ */
 
 static
-void knh_dbclose__mysql(Ctx *ctx, knh_dbconn_t *hdr)
+void knh_dbclose__mysql(Ctx *ctx, knh_db_t *hdr)
 {
     mysql_close((MYSQL*)hdr);
 }
@@ -392,8 +392,8 @@ void knh_dbcurfree__mysql(knh_dbcur_t *dbcur)
 /* ------------------------------------------------------------------------ */
 /* @data */
 
-static knh_QueryDSPI_t DB__mysql = {
-	KNH_SQL_DSPI, "mysql",
+static knh_db_drvapi_t DB__mysql = {
+	KNH_DRVAPI_TYPE__DB, "mysql",
 	knh_dbopen__mysql,
 	knh_dbquery__mysql,
 	knh_dbclose__mysql,
@@ -407,20 +407,20 @@ static knh_QueryDSPI_t DB__mysql = {
 /* ======================================================================== */
 /* [drivers] */
 
-knh_QueryDSPI_t *knh_System_getDefaultDBDriver(void)
+knh_db_drvapi_t *knh_System_getDefaultDBDriver(void)
 {
 	return &DB__NOP;
 }
 
 /* ------------------------------------------------------------------------ */
 
-knh_QueryDSPI_t *knh_System_getDBDriver(Ctx *ctx, knh_bytes_t name)
+knh_db_drvapi_t *knh_System_getDBDriver(Ctx *ctx, knh_bytes_t name)
 {
     if(ctx == NULL) {
         return &DB__NOP;
     }
     else {
-        knh_QueryDSPI_t *p = (knh_QueryDSPI_t *)knh_getDriverAPI(ctx, KNH_SQL_DSPI, name);
+        knh_db_drvapi_t *p = (knh_db_drvapi_t *)knh_getDriverAPI(ctx, KNH_DRVAPI_TYPE__DB, name);
         if(p == NULL) {
 #ifdef KNHX_SQLITE3_EXCEPTION
             KNH_THROWf(ctx, "DB!!: unsupported scheme '%s'", name);
@@ -435,15 +435,15 @@ knh_QueryDSPI_t *knh_System_getDBDriver(Ctx *ctx, knh_bytes_t name)
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(void) knh_addDBDriver(Ctx *ctx, char *alias, knh_QueryDSPI_t *d)
+KNHAPI(void) knh_addDBDriver(Ctx *ctx, char *alias, knh_db_drvapi_t *d)
 {
-	knh_addDriverAPI(ctx, alias, (knh_DriverSPI_t*)d);
+	knh_addDriverAPI(ctx, alias, (knh_drvapi_t*)d);
 }
 
 /* ======================================================================== */
 /* [init] */
 
-void knh_loadDefaultDBDriver(Ctx *ctx)
+void knh_Connection_newClass(Ctx *ctx, knh_class_t cid)
 {
 	knh_addDBDriver(ctx, NULL, &DB__NOP);
 #ifdef KNH_USING_SQLITE3

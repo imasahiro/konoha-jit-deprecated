@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -37,22 +37,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/* ======================================================================== */
-/* [verbose] */
-
-void knh_syslog(int p, const char *fmt, ...)
-{
-//	Ctx *ctx = knh_getCurrentContext();
-	va_list ap;
-	va_start(ap , fmt);
-#ifdef KONOHA_ON_LKM
-	vprintk(fmt, ap);
-#else
-	vfprintf(stderr, fmt, ap);
-#endif
-	va_end(ap);
-}
 
 /* ======================================================================== */
 /* [verbose] */
@@ -124,10 +108,9 @@ void knh_stack_p(Ctx *ctx, knh_sfp_t *sfp, knh_flag_t flag, knh_methodn_t mn)
 	knh_OutputStream_t *w = knh_stack_pstream(ctx, flag);
 	knh_stack_beginPRINT(ctx, flag, w);
 	knh_Method_t *mtd = knh_lookupFormatter(ctx, knh_Object_cid(sfp[1].o), mn);
-	KNH_SETv(ctx, sfp[2].o, mtd)
-	KNH_SETv(ctx, sfp[3].o, w);
-	KNH_SETv(ctx, sfp[4].o, KNH_NULL);
-	KNH_SCALL(ctx, sfp, 0, 2);
+	KNH_SETv(ctx, sfp[2].o, w);
+	KNH_SETv(ctx, sfp[3].o, KNH_NULL);
+	KNH_SCALL(ctx, sfp, 0, mtd, /*args*/2);
 	knh_stack_endPRINT(ctx, flag, w);
 }
 

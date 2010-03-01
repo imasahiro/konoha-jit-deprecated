@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -43,12 +43,12 @@ extern "C" {
 size_t knh_bytes_newsize(size_t s)
 {
 	if(s <= KONOHA_SMALLPAGESIZE) return KONOHA_SMALLPAGESIZE;
-	if(s <= KNH_PAGESIZE) {
+	if(s <= KONOHA_PAGESIZE) {
 		if(s <= 1024) return 1024;
-		return KNH_PAGESIZE;
+		return KONOHA_PAGESIZE;
 	}
-	if((s % KNH_PAGESIZE) == 0) return s;
-	return ((s / KNH_PAGESIZE)+1) * KNH_PAGESIZE;
+	if((s % KONOHA_PAGESIZE) == 0) return s;
+	return ((s / KONOHA_PAGESIZE)+1) * KONOHA_PAGESIZE;
 }
 
 /* ------------------------------------------------------------------------ */

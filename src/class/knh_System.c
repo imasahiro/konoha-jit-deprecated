@@ -1,7 +1,7 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Software Foundation
  * All rights reserved.
  *
@@ -86,13 +86,6 @@ KNHAPI(void) knh_setSystemPropertyText(Ctx *ctx, char *key, char *value)
 	knh_String_t *k = T__(key);
 	knh_String_t *v = T__(value);
 	knh_DictMap_set(ctx, DP(ctx->sys)->props, k, UP(v));
-}
-
-/* ------------------------------------------------------------------------ */
-
-KNHAPI(void) knh_System_setExceptionHandler(Ctx *ctx, knh_System_t *o, knh_ExceptionHandler_t *hdr)
-{
-	//DP(o)->excepthook = hdr;
 }
 
 /* ------------------------------------------------------------------------ */
