@@ -218,7 +218,11 @@ void knh_Context_traverseCommon(Ctx *ctx, knh_Context_t *o, knh_ftraverse ftr)
 		KNH_FREE(ctx, o->ctxlock, sizeof(knh_mutex_t));
 		o->ctxlock = NULL;
 	} else {
-	  ftr(ctx, UP(o->lines));
+		// we traverse "o->lines" only when intaractive mode.
+		// if konoha is not intaractive mode, o->lines is NULL.
+		if(knh_isToInteractiveMode()) {
+			ftr(ctx, UP(o->lines));
+		}
 	}
 
 }
@@ -240,7 +244,7 @@ static Ctx *new_Context0(Ctx *parent)
 #ifdef KNH_HOBJECT_REFC
 	ctx->h.refc = KNH_RCGC_INIT;
 #endif
-	ctx->h.flag = 	FLAG_CTX(FLAG_Context);
+	ctx->h.flag = FLAG_CTX(FLAG_Context);
 	ctx->h.bcid = CLASS_Context;
 	ctx->h.cid  = CLASS_Context;
 	ctx->h.ctxid = 0;
