@@ -113,6 +113,7 @@ char* knh_cwb_realpath(Ctx *ctx, knh_cwb_t *cwb)
 	//}
 #else
 	TODO();
+	(void*)buf; /* unused */
 #endif
 	return p;
 }
@@ -141,6 +142,7 @@ knh_bool_t knh_cwb_isfile(Ctx *ctx, knh_cwb_t *cwb)
 	return 1;
 #else
 	TODO();
+	(void*)pathname; /* unused */
 	return 0;
 #endif
 }
@@ -159,6 +161,8 @@ knh_bool_t knh_cwb_isdir(Ctx *ctx, knh_cwb_t *cwb)
 	if(stat(pathname, &buf) == -1) return 0;
 	return S_ISDIR(buf.st_mode);
 #else
+	TODO();
+	(void*)pathname; /* unused */
 	return 0;
 #endif
 }
@@ -254,6 +258,7 @@ knh_bool_t knh_unlink(Ctx *ctx, knh_bytes_t path, int isThrowable)
 	}
 #else
 	KNH_NOAPI(ctx, cwb, isThrowable);
+	(void*)pathname; /* unused */
 #endif
 	knh_cwb_close(cwb);
 	return res;
@@ -280,6 +285,8 @@ knh_bool_t knh_rename(Ctx *ctx, knh_bytes_t on, knh_bytes_t nn, int isThrowable)
 	}
 #else
 	KNH_NOAPI(ctx, cwb, isThrowable);
+	(void*)pathname;  /* unused */
+	(void*)pathname2; /* unused */
 #endif
 	knh_cwb_close(cwb);
 	return res;

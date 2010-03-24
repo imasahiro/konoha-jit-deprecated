@@ -12,5 +12,6 @@ void main(String[] argv) {
 	}
 	OUT << "fib(" << n << "): ";
 	OUT << fib(n) << EOL;
+	os.gc();
 }
 

@@ -23,6 +23,7 @@ extern "C" {
 //    use
 //    def
 
+/*
 void knh_SSAGraph_new(Ctx *ctx, knh_Array_t *insts)
 {
 	size_t i, inst_size = knh_Array_size(insts);
@@ -55,7 +56,7 @@ void knh_SSAGraph_new(Ctx *ctx, knh_Array_t *insts)
 	}
 	knh_write_EOL(ctx, w);
 }
-
+*/
 
 /* ------------------------------------------------------------------- */
 

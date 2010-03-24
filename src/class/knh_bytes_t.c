@@ -28,7 +28,7 @@
 /* ************************************************************************ */
 
 #include"commons.h"
-#ifdef KONOHA_ON_LKM
+#if defined(KONOHA_ON_LKM) && defined(__linux__)
 #include<linux/string.h>
 #else
 #include<string.h>

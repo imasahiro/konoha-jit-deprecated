@@ -33,6 +33,10 @@
 #endif
 
 /* configuration and dependency */
+#if defined(__APPLE__) && defined(KERNEL)
+#define KONOHA_ON_LKM
+#define KONOHA_ON_KEXT
+#endif
 
 #ifndef KONOHA_ON_LKM
 #include<stdio.h>

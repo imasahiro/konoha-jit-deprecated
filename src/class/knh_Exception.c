@@ -29,8 +29,12 @@
 
 #include"commons.h"
 
-#ifdef KONOHA_ON_LKM
+#if defined(KONOHA_ON_LKM)
+#if defined(__linux__)
 #include<linux/errno.h>
+#elif defined(__APPLE__)
+extern 	char *strerror(int errno);
+#endif
 static int errno;
 #else
 

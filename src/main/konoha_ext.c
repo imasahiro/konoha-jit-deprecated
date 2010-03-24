@@ -29,8 +29,10 @@
 
 #include"commons.h"
 
-#ifdef KONOHA_ON_LKM
+#if defined(KONOHA_ON_LKM)
+#if defined(__linux__)
 #include <linux/random.h>
+#endif
 #else
 #include<time.h>
 #ifdef KNH_USING_POSIX
@@ -85,7 +87,11 @@ void knh_srand(knh_uint_t seed)
 knh_uint_t knh_rand(void)
 {
 #ifdef KONOHA_ON_LKM
+#if defined(__linux__)
 	return (knh_uint_t)random32();
+#else
+	return (knh_uint_t)random();
+#endif
 #else
 #ifdef KNH_USING_INT32
 	return (knh_uint_t)genrand_int31();

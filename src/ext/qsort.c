@@ -21,8 +21,13 @@
    Engineering a sort function; Jon Bentley and M. Douglas McIlroy;
    Software - Practice and Experience; Vol. 23 (11), 1249-1265, 1993.  */
 
-#ifdef KONOHA_ON_LKM
+#include <konoha.h>
+#if defined(KONOHA_ON_LKM)
+#ifdef __linux__
 #include <linux/string.h>
+#elif defined(__APPLE__)
+#include <string.h>
+#endif
 #else
 #include <limits.h>
 #include <stdlib.h>
