@@ -220,7 +220,7 @@ void knh_Context_traverseCommon(Ctx *ctx, knh_Context_t *o, knh_ftraverse ftr)
 	} else {
 		// we traverse "o->lines" only when intaractive mode.
 		// if konoha is not intaractive mode, o->lines is NULL.
-		if(knh_isToInteractiveMode()) {
+		if(knh_isToInteractiveMode() && o->lines) {
 			ftr(ctx, UP(o->lines));
 		}
 	}
