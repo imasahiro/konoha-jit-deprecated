@@ -43,10 +43,10 @@ extern "C" {
 /* ======================================================================== */
 /* [ctxkey] */
 
-static int isInit = 0;
 
 #ifdef KNH_USING_THREAD
 static knh_thread_key_t ctxkey;
+static Ctx *curctx = NULL;
 #else
 static Ctx *curctx = NULL;
 #endif
@@ -55,9 +55,9 @@ static Ctx *curctx = NULL;
 
 void konoha_init(void)
 {
+	static int isInit = 0;
 #ifdef KNH_USING_THREAD
 	if(isInit == 0) {
-		isInit = 1;
 		knh_thread_key_create(&ctxkey);
 	}
 #endif
@@ -73,9 +73,8 @@ KNHAPI(Ctx*) knh_beginContext(Ctx *ctx)
 #ifdef KNH_USING_THREAD
 	knh_mutex_lock(ctx->ctxlock);
 	knh_thread_setspecific(ctxkey, ctx);
-#else
-	curctx = ctx;
 #endif
+	curctx = ctx;
 	return ctx;
 }
 
@@ -86,9 +85,8 @@ KNHAPI(void) knh_endContext(Ctx *ctx)
 #ifdef KNH_USING_THREAD
 	knh_thread_setspecific(ctxkey, NULL);
 	knh_mutex_unlock(ctx->ctxlock);
-#else
-	curctx = NULL;
 #endif
+	curctx = NULL;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -98,6 +96,9 @@ KNHAPI(Ctx*) knh_getCurrentContext(void)
 	Ctx *ctx;
 #ifdef KNH_USING_THREAD
 	ctx = (Ctx*)knh_thread_getspecific(ctxkey);
+	if (ctx == NULL) {
+		ctx = (Ctx *) curctx;
+	}
 #else
 	ctx = curctx;
 #endif
@@ -887,7 +888,7 @@ static
 void knh_clearScriptLine(Ctx *ctx)
 {
 	if(ctx->lines != NULL) {
-#if KONOHA_BUILDID > KONOHA_BUILDID_LATEST
+//#if KONOHA_BUILDID > KONOHA_BUILDID_LATEST
 //		if(knh_getenv("I_LOVE_KONOHA") == NULL) {
 //			char buff[FILEPATH_BUFSIZ];
 //			int i, pid = knh_getpid();
@@ -915,7 +916,7 @@ void knh_clearScriptLine(Ctx *ctx)
 //				fprintf(stdout, "Thank you, again.\n");
 //			}
 //		}
-#endif
+//#endif
 		KNH_FINALv(ctx, ((knh_Context_t*)ctx)->lines);
 		((knh_Context_t*)ctx)->lines = NULL;
 	}

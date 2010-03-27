@@ -191,7 +191,7 @@ knh_String_t *new_String__float(Ctx *ctx, knh_float_t n)
 /* ======================================================================== */
 /* [misc] */
 
-KNHAPI(knh_bytes_t) __tobytes(knh_String_t *o)
+KNHAPI(knh_bytes_t) knh_String_tobytes(knh_String_t *o)
 {
 	knh_bytes_t bt = {o->str, o->size};
 	return bt;

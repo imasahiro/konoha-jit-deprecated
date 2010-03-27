@@ -134,7 +134,7 @@ KNHAPI(void) knh_loadStringConstData(Ctx *ctx, knh_StringConstData_t *data)
 /* ======================================================================== */
 /* [SystemConst] */
 
-Object *knh_getSystemConst(Ctx *ctx, int n)
+KNHAPI(Object*) knh_getSystemConst(Ctx *ctx, int n)
 {
 	switch(n) {
 		case KNH_SYS_CTX:     return (Object*)ctx;
@@ -370,7 +370,7 @@ knh_fieldn_t knh_getfnq(Ctx *ctx, knh_bytes_t tname, knh_fieldn_t def)
 
 /* ------------------------------------------------------------------------ */
 
-knh_methodn_t knh_getmn(Ctx *ctx, knh_bytes_t tname, knh_methodn_t def)
+KNHAPI(knh_methodn_t) knh_getmn(Ctx *ctx, knh_bytes_t tname, knh_methodn_t def)
 {
 	if(tname.len == 0 || tname.len > 64) {
 		DBG2_P("invalid method name '%s'", tname.buf);

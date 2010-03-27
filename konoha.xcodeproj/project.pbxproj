@@ -67,7 +67,6 @@
 		44880D1211506763005B76C1 /* mt19937ar.c in Sources */ = {isa = PBXBuildFile; fileRef = 44880CB011506763005B76C1 /* mt19937ar.c */; };
 		44880D1311506763005B76C1 /* qsort.c in Sources */ = {isa = PBXBuildFile; fileRef = 44880CB111506763005B76C1 /* qsort.c */; };
 		44880D1411506763005B76C1 /* setjmp.S in Sources */ = {isa = PBXBuildFile; fileRef = 44880CB211506763005B76C1 /* setjmp.S */; };
-		44880D1511506763005B76C1 /* strerror.c in Sources */ = {isa = PBXBuildFile; fileRef = 44880CB311506763005B76C1 /* strerror.c */; };
 		44880D1611506763005B76C1 /* strlen.c in Sources */ = {isa = PBXBuildFile; fileRef = 44880CB411506763005B76C1 /* strlen.c */; };
 		44880D1711506763005B76C1 /* asm.c in Sources */ = {isa = PBXBuildFile; fileRef = 44880CB611506763005B76C1 /* asm.c */; };
 		44880D1811506763005B76C1 /* kcode.c in Sources */ = {isa = PBXBuildFile; fileRef = 44880CB811506763005B76C1 /* kcode.c */; };
@@ -83,7 +82,6 @@
 		44880D2211506763005B76C1 /* konoha.c in Sources */ = {isa = PBXBuildFile; fileRef = 44880CC211506763005B76C1 /* konoha.c */; };
 		44880D2311506763005B76C1 /* b4.c in Sources */ = {isa = PBXBuildFile; fileRef = 44880CC411506763005B76C1 /* b4.c */; };
 		44880D2411506763005B76C1 /* convert.c in Sources */ = {isa = PBXBuildFile; fileRef = 44880CC611506763005B76C1 /* convert.c */; };
-		44880D2511506763005B76C1 /* lkm.c in Sources */ = {isa = PBXBuildFile; fileRef = 44880CC711506763005B76C1 /* lkm.c */; };
 		44880D2611506763005B76C1 /* ssa.c in Sources */ = {isa = PBXBuildFile; fileRef = 44880CC811506763005B76C1 /* ssa.c */; };
 		44880D2711506763005B76C1 /* tb.c in Sources */ = {isa = PBXBuildFile; fileRef = 44880CC911506763005B76C1 /* tb.c */; };
 		44880D2811506763005B76C1 /* exports.c in Sources */ = {isa = PBXBuildFile; fileRef = 44880CCC11506763005B76C1 /* exports.c */; };
@@ -150,7 +148,6 @@
 		44BAD1D1115238110047EF64 /* konoha_code_.c in Sources */ = {isa = PBXBuildFile; fileRef = 44880CB911506763005B76C1 /* konoha_code_.c */; };
 		44BAD1D2115238110047EF64 /* konoha_ext.c in Sources */ = {isa = PBXBuildFile; fileRef = 44880CCF11506763005B76C1 /* konoha_ext.c */; };
 		44BAD1D3115238110047EF64 /* konohac.c in Sources */ = {isa = PBXBuildFile; fileRef = 44880CBA11506763005B76C1 /* konohac.c */; };
-		44BAD1D4115238110047EF64 /* lkm.c in Sources */ = {isa = PBXBuildFile; fileRef = 44880CC711506763005B76C1 /* lkm.c */; };
 		44BAD1D5115238110047EF64 /* locale.c in Sources */ = {isa = PBXBuildFile; fileRef = 44880CA811506763005B76C1 /* locale.c */; };
 		44BAD1D6115238110047EF64 /* logging.c in Sources */ = {isa = PBXBuildFile; fileRef = 44880CD011506763005B76C1 /* logging.c */; };
 		44BAD1D7115238110047EF64 /* memory.c in Sources */ = {isa = PBXBuildFile; fileRef = 44880CD111506763005B76C1 /* memory.c */; };
@@ -174,7 +171,6 @@
 		44BAD1EC115238110047EF64 /* stack.c in Sources */ = {isa = PBXBuildFile; fileRef = 44880CD511506763005B76C1 /* stack.c */; };
 		44BAD1ED115238110047EF64 /* stmt.c in Sources */ = {isa = PBXBuildFile; fileRef = 44880CBE11506763005B76C1 /* stmt.c */; };
 		44BAD1EE115238110047EF64 /* streamapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 44880C7E11506762005B76C1 /* streamapi.c */; };
-		44BAD1EF115238110047EF64 /* strerror.c in Sources */ = {isa = PBXBuildFile; fileRef = 44880CB311506763005B76C1 /* strerror.c */; };
 		44BAD1F0115238110047EF64 /* stringapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 44880C7F11506762005B76C1 /* stringapi.c */; };
 		44BAD1F2115238110047EF64 /* structapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 44880C8011506762005B76C1 /* structapi.c */; };
 		44BAD1F4115238110047EF64 /* system.c in Sources */ = {isa = PBXBuildFile; fileRef = 44880CD611506763005B76C1 /* system.c */; };
@@ -271,7 +267,6 @@
 		44880CB011506763005B76C1 /* mt19937ar.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mt19937ar.c; sourceTree = "<group>"; };
 		44880CB111506763005B76C1 /* qsort.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = qsort.c; sourceTree = "<group>"; };
 		44880CB211506763005B76C1 /* setjmp.S */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = setjmp.S; sourceTree = "<group>"; };
-		44880CB311506763005B76C1 /* strerror.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = strerror.c; sourceTree = "<group>"; };
 		44880CB411506763005B76C1 /* strlen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = strlen.c; sourceTree = "<group>"; };
 		44880CB611506763005B76C1 /* asm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = asm.c; sourceTree = "<group>"; };
 		44880CB711506763005B76C1 /* commons.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = commons.h; sourceTree = "<group>"; };
@@ -289,7 +284,6 @@
 		44880CC411506763005B76C1 /* b4.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = b4.c; sourceTree = "<group>"; };
 		44880CC511506763005B76C1 /* commons.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = commons.h; sourceTree = "<group>"; };
 		44880CC611506763005B76C1 /* convert.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = convert.c; sourceTree = "<group>"; };
-		44880CC711506763005B76C1 /* lkm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lkm.c; sourceTree = "<group>"; };
 		44880CC811506763005B76C1 /* ssa.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ssa.c; sourceTree = "<group>"; };
 		44880CC911506763005B76C1 /* tb.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tb.c; sourceTree = "<group>"; };
 		44880CCB11506763005B76C1 /* commons.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = commons.h; sourceTree = "<group>"; };
@@ -540,7 +534,6 @@
 				44880CB011506763005B76C1 /* mt19937ar.c */,
 				44880CB111506763005B76C1 /* qsort.c */,
 				44880CB211506763005B76C1 /* setjmp.S */,
-				44880CB311506763005B76C1 /* strerror.c */,
 				44880CB411506763005B76C1 /* strlen.c */,
 			);
 			path = ext;
@@ -571,7 +564,6 @@
 				44880CC411506763005B76C1 /* b4.c */,
 				44880CC511506763005B76C1 /* commons.h */,
 				44880CC611506763005B76C1 /* convert.c */,
-				44880CC711506763005B76C1 /* lkm.c */,
 				44880CC811506763005B76C1 /* ssa.c */,
 				44880CC911506763005B76C1 /* tb.c */,
 			);
@@ -1026,7 +1018,6 @@
 				44BAD1D1115238110047EF64 /* konoha_code_.c in Sources */,
 				44BAD1D2115238110047EF64 /* konoha_ext.c in Sources */,
 				44BAD1D3115238110047EF64 /* konohac.c in Sources */,
-				44BAD1D4115238110047EF64 /* lkm.c in Sources */,
 				44BAD1D5115238110047EF64 /* locale.c in Sources */,
 				44BAD1D6115238110047EF64 /* logging.c in Sources */,
 				44BAD1D7115238110047EF64 /* memory.c in Sources */,
@@ -1050,7 +1041,6 @@
 				44BAD1EC115238110047EF64 /* stack.c in Sources */,
 				44BAD1ED115238110047EF64 /* stmt.c in Sources */,
 				44BAD1EE115238110047EF64 /* streamapi.c in Sources */,
-				44BAD1EF115238110047EF64 /* strerror.c in Sources */,
 				44BAD1F0115238110047EF64 /* stringapi.c in Sources */,
 				44BAD1F2115238110047EF64 /* structapi.c in Sources */,
 				44BAD1F4115238110047EF64 /* system.c in Sources */,
@@ -1130,7 +1120,6 @@
 				44880D1211506763005B76C1 /* mt19937ar.c in Sources */,
 				44880D1311506763005B76C1 /* qsort.c in Sources */,
 				44880D1411506763005B76C1 /* setjmp.S in Sources */,
-				44880D1511506763005B76C1 /* strerror.c in Sources */,
 				44880D1611506763005B76C1 /* strlen.c in Sources */,
 				44880D1711506763005B76C1 /* asm.c in Sources */,
 				44880D1811506763005B76C1 /* kcode.c in Sources */,
@@ -1146,7 +1135,6 @@
 				44880D2211506763005B76C1 /* konoha.c in Sources */,
 				44880D2311506763005B76C1 /* b4.c in Sources */,
 				44880D2411506763005B76C1 /* convert.c in Sources */,
-				44880D2511506763005B76C1 /* lkm.c in Sources */,
 				44880D2611506763005B76C1 /* ssa.c in Sources */,
 				44880D2711506763005B76C1 /* tb.c in Sources */,
 				44880D2811506763005B76C1 /* exports.c in Sources */,

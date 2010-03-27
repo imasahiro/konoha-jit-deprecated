@@ -38,7 +38,7 @@ extern "C" {
 /* ======================================================================== */
 /* [instaceof] */
 
-knh_bool_t knh_class_instanceof(Ctx *ctx, knh_class_t scid, knh_class_t tcid)
+KNHAPI(knh_bool_t) knh_class_instanceof(Ctx *ctx, knh_class_t scid, knh_class_t tcid)
 {
 	DBG2_ASSERT_cid(scid);
 	DBG2_ASSERT_cid(tcid);
@@ -70,7 +70,7 @@ knh_bool_t knh_class_instanceof(Ctx *ctx, knh_class_t scid, knh_class_t tcid)
 /* ------------------------------------------------------------------------ */
 
 
-knh_bool_t knh_Object_opTypeOf(Ctx *ctx, Object *o, knh_type_t t)
+KNHAPI(knh_bool_t) knh_Object_opTypeOf(Ctx *ctx, Object *o, knh_type_t t)
 {
 	if(IS_NULL(o)) {
 		return IS_NATYPE(t);

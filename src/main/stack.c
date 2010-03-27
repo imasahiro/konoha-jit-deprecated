@@ -46,7 +46,7 @@ int knh_stack_argc(Ctx *ctx, knh_sfp_t *v)
 
 /* ------------------------------------------------------------------------ */
 
-knh_Array_t* knh_stack_toArray(Ctx *ctx, knh_sfp_t *sfp, knh_class_t cid)
+KNHAPI(knh_Array_t*) knh_stack_toArray(Ctx *ctx, knh_sfp_t *sfp, knh_class_t cid)
 {
 	DBG2_ASSERT_cid(cid);
 	if(cid == CLASS_Any) {
@@ -123,7 +123,7 @@ KNHAPI(void) knh_stack_w(Ctx *ctx, knh_sfp_t *sfp, knh_sfp_t *one, knh_methodn_t
 /* ======================================================================== */
 /* [call] */
 
-void knh_stack_typecheck(Ctx *ctx, knh_sfp_t *sfp, knh_Method_t *mtd, knh_code_t *pc)
+KNHAPI(void) knh_stack_typecheck(Ctx *ctx, knh_sfp_t *sfp, knh_Method_t *mtd, knh_code_t *pc)
 {
 	DBG2_ASSERT(IS_Method(sfp[-1].mtd));
 	char *emsg;

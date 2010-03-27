@@ -87,7 +87,7 @@ void knh_stack_endPRINT(Ctx *ctx, knh_flag_t flag, knh_OutputStream_t *w)
 
 /* ------------------------------------------------------------------------ */
 
-void knh_stack_pmsg(Ctx *ctx, knh_flag_t flag, knh_String_t *s)
+KNHAPI(void) knh_stack_pmsg(Ctx *ctx, knh_flag_t flag, knh_String_t *s)
 {
 	knh_OutputStream_t *w = knh_stack_pstream(ctx, flag);
 	knh_stack_beginPRINT(ctx, flag, w);
@@ -103,7 +103,7 @@ void knh_stack_pmsg(Ctx *ctx, knh_flag_t flag, knh_String_t *s)
 
 /* ------------------------------------------------------------------------ */
 
-void knh_stack_p(Ctx *ctx, knh_sfp_t *sfp, knh_flag_t flag, knh_methodn_t mn)
+KNHAPI(void) knh_stack_p(Ctx *ctx, knh_sfp_t *sfp, knh_flag_t flag, knh_methodn_t mn)
 {
 	knh_OutputStream_t *w = knh_stack_pstream(ctx, flag);
 	knh_stack_beginPRINT(ctx, flag, w);

@@ -286,10 +286,18 @@ void knh_write_fline(Ctx *ctx, knh_OutputStream_t *w, char *file, int line)
 
 KNHAPI(void) knh_format(Ctx *ctx, knh_OutputStream_t *w, knh_methodn_t mn, Object *o, Any *m)
 {
-	knh_sfp_t sfpbuf;
+	knh_sfp_t sfpbuf, sfp[5] = {0};
 	sfpbuf.o = o;
 	sfpbuf.data = knh_Object_data(o);
-	knh_stack_w(ctx, ctx->esp, &sfpbuf, mn, w, m);
+	int i;
+	for(i=0;i<5;i++) {
+		KNH_INITv(sfp[i].o, KNH_NULL);
+	}
+	knh_stack_w(ctx, sfp, &sfpbuf, mn, w, m);
+	for(i=0;i<5;i++) {
+		KNH_FINALv(ctx, sfp[i].o);
+	}
+
 }
 
 /* ======================================================================== */
@@ -297,7 +305,7 @@ KNHAPI(void) knh_format(Ctx *ctx, knh_OutputStream_t *w, knh_methodn_t mn, Objec
 
 static char* knh_vprintf_parseindex(char *p, int *index)
 {
-    char *ptr = p+1;
+	char *ptr = p+1;
 	if(ptr[0] == '{' && isdigit(ptr[1]) && ptr[2] == '}') {
 		*index = ptr[1] - '0';
 		ptr += 3;

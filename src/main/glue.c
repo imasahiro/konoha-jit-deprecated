@@ -117,7 +117,7 @@ static inline int knh_pow2(int n)
 //
 #define MAX_FUNC_SIZE 256
 // copy callback func and return function that allocate form heap.
-#if __x86_64__
+#if defined(__x86_64__)
 #define NEG 0xffffffffffffff
 #else
 #define NEG 0xffffffff
