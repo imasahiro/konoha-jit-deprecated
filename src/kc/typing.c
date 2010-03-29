@@ -805,7 +805,7 @@ knh_class_t knh_Token_tagcNUM(Ctx *ctx, knh_Token_t *tk, knh_class_t reqc, knh_N
 		}
 		else {
 			if((t.buf[i] == 'E' || t.buf[i] == 'e')) {
-				if(isdigit(t.buf[i+1]) || t.buf[i+1] == '-') {
+				if(isdigit(t.buf[i+1]) || t.buf[i+1] == '+' || t.buf[i+1] == '-') {
 					i++;
 					continue;
 				}

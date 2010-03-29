@@ -405,7 +405,7 @@ int knh_bytes_parsefloat(knh_bytes_t t, knh_float_t *value)
 	size_t i = 0;
 	knh_float_t v = KNH_FLOAT_ZERO, prev = KNH_FLOAT_ZERO, c = KNH_FLOAT_ONE;
 
-	if(t.buf[0] == '-') i = 1;
+	if(t.buf[0] == '-' || t.buf[0] == '+') i = 1;
 
 	for(;i < t.len; i++) {
 		if('0' <= t.buf[i] && t.buf[i] <= '9') {
@@ -480,7 +480,7 @@ KNHAPI(knh_intptr_t) knh_bytes_toint(knh_bytes_t t)
 			else if(t.buf[1] == 'b') {
 				base = 2;  i = 2;
 			}
-		}else if(t.buf[0] == '-') {
+		}else if(t.buf[0] == '-' || t.buf[0] == '+') {
 			base = 10; i = 1;
 		}
 	}

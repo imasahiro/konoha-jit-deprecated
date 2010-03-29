@@ -990,7 +990,7 @@ void knh_InputStream_parseToken(Ctx *ctx, knh_InputStream_t *in, knh_Token_t *tk
 						knh_Bytes_putc(ctx, cwb->ba, ch);
 					}
 					else {
-						if(ch == '-' && (prev == 'e' || prev == 'E')) {
+						if((ch == '+' || ch == '-') && (prev == 'e' || prev == 'E')) {
 							prev = ch;
 							knh_Bytes_putc(ctx, cwb->ba, ch);
 							break;
