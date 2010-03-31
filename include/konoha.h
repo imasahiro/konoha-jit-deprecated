@@ -53,7 +53,9 @@
 #include<stdarg.h>
 
 #include"konoha/konoha_tb.h"
+#ifdef KONOHA_ON_LKM
 #include"konoha/konoha_lkm.h"
+#endif
 
 #include"konoha/konoha_deps.h"
 
