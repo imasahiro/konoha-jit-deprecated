@@ -203,6 +203,8 @@ void knh_Context_traverseCommon(Ctx *ctx, knh_Context_t *o, knh_ftraverse ftr)
 	ftr(ctx, UP(o->kc));
 	ftr(ctx, UP(o->msgError));
 
+	if(o->lines) ftr(ctx, UP(o->lines));
+
 	if(IS_SWEEP(ftr)) {
 		DBG2_P("freeing stack (ctxid=%d)...", o->ctxid);
 		KNH_FREE(ctx, o->stack, sizeof(knh_sfp_t) * o->stacksize);
@@ -217,14 +219,7 @@ void knh_Context_traverseCommon(Ctx *ctx, knh_Context_t *o, knh_ftraverse ftr)
 		knh_mutex_destroy(o->ctxlock);
 		KNH_FREE(ctx, o->ctxlock, sizeof(knh_mutex_t));
 		o->ctxlock = NULL;
-	} else {
-		// we traverse "o->lines" only when intaractive mode.
-		// if konoha is not intaractive mode, o->lines is NULL.
-		if(knh_isToInteractiveMode() && o->lines) {
-			ftr(ctx, UP(o->lines));
-		}
 	}
-
 }
 
 /* ------------------------------------------------------------------------ */
