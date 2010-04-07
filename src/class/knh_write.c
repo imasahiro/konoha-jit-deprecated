@@ -286,17 +286,12 @@ void knh_write_fline(Ctx *ctx, knh_OutputStream_t *w, char *file, int line)
 
 KNHAPI(void) knh_format(Ctx *ctx, knh_OutputStream_t *w, knh_methodn_t mn, Object *o, Any *m)
 {
-	knh_sfp_t sfpbuf, sfp[5] = {0};
+	knh_sfp_t sfpbuf;
+	knh_sfp_t *lsfp = KNH_LOCAL(ctx);
 	sfpbuf.o = o;
 	sfpbuf.data = knh_Object_data(o);
-	int i;
-	for(i=0;i<5;i++) {
-		KNH_INITv(sfp[i].o, KNH_NULL);
-	}
-	knh_stack_w(ctx, sfp, &sfpbuf, mn, w, m);
-	for(i=0;i<5;i++) {
-		KNH_FINALv(ctx, sfp[i].o);
-	}
+	knh_stack_w(ctx, lsfp, &sfpbuf, mn, w, m);
+	KNH_LOCALBACK(ctx, lsfp);
 
 }
 
