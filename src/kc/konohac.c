@@ -224,7 +224,7 @@ int knh_NameSpace_load(Ctx *ctx, knh_NameSpace_t *ns, knh_InputStream_t *in, int
 		knh_Stmt_t *stmt = knh_InputStream_parseStmt(ctx, in, 0/*isData*/);
 		KNH_LPUSH(ctx, stmt);
 		if(URI_UNMASK(uri) != 0) {
-			DBG_DUMP(ctx, stmt, KNH_NULL, "stmt");
+			//DBG_DUMP(ctx, stmt, KNH_NULL, "stmt");
 		}
 		if(isEval) {
 			knh_Gamma_openDynamicLinkLibrary(ctx, uri);

@@ -313,7 +313,6 @@
 		44880D4211506775005B76C1 /* konoha_deps.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = konoha_deps.h; sourceTree = "<group>"; };
 		44880D4311506775005B76C1 /* konoha_gc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = konoha_gc.h; sourceTree = "<group>"; };
 		44880D4411506775005B76C1 /* konoha_glue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = konoha_glue.h; sourceTree = "<group>"; };
-		44880D4511506775005B76C1 /* konoha_lkm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = konoha_lkm.h; sourceTree = "<group>"; };
 		44880D4611506775005B76C1 /* konoha_macros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = konoha_macros.h; sourceTree = "<group>"; };
 		44880D4711506775005B76C1 /* konoha_name.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = konoha_name.h; sourceTree = "<group>"; };
 		44880D4811506775005B76C1 /* konoha_stmt_.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = konoha_stmt_.h; sourceTree = "<group>"; };
@@ -624,7 +623,6 @@
 				44880D4211506775005B76C1 /* konoha_deps.h */,
 				44880D4311506775005B76C1 /* konoha_gc.h */,
 				44880D4411506775005B76C1 /* konoha_glue.h */,
-				44880D4511506775005B76C1 /* konoha_lkm.h */,
 				44880D4611506775005B76C1 /* konoha_macros.h */,
 				44880D4711506775005B76C1 /* konoha_name.h */,
 				44880D4811506775005B76C1 /* konoha_stmt_.h */,
@@ -1199,7 +1197,8 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
 					.,
-					./include/,
+					../../include/,
+					../include,
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
@@ -1221,6 +1220,18 @@
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					.,
+					../../include/,
+					../include,
+				);
+				OTHER_LDFLAGS = (
+					"-liconv",
+					"-lncurses",
+					"-lreadline",
+					"-lsqlite3",
+					"-lpthread",
+				);
 				PREBINDING = NO;
 				SDKROOT = macosx10.6;
 			};

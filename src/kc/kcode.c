@@ -89,7 +89,7 @@ knh_KLRCode_t* knh_InstList_newKLRCode(Ctx *ctx, knh_Array_t *insts)
 		inst_size += 1;
 	}
 
-	//knh_SSAGraph_new(ctx, insts);
+	//knh_KLRCode_optimize(ctx, insts);
 
 	// count opcode size
 	for(i = 0; i < inst_size; i++) {
