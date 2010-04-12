@@ -518,7 +518,7 @@ static METHOD Array_sort(Ctx *ctx, knh_sfp_t *sfp)
 	knh_Array_t *o = sfp[0].a;
 	if(IS_NULL(sfp[1].o)) {
 		knh_qsort_r(o->list, o->size, sizeof(Object*),
-			(void*)ctx, (int (*)(void*, const void*, const void*))knh_Object_compareTo2);
+			(int (*)(void*, const void*, const void*))knh_Object_compareTo2, (void*)ctx);
 	}
 	//else {
 	//	knh_env_t env = {ctx, sfp};
