@@ -610,10 +610,18 @@ static METHOD String_opSub(Ctx *ctx, knh_sfp_t *sfp)
 
 METHOD Any_opAdd(Ctx *ctx, knh_sfp_t *sfp)
 {
-	knh_Method_t *mtd = knh_lookupMethod(ctx, knh_Object_cid(sfp[0].o), DP(mtd)->mn);
+	knh_Method_t *mtd = knh_lookupMethod(ctx, knh_Object_cid(sfp[0].o), DP(sfp[-1].mtd)->mn);
 	KNH_SETv(ctx, sfp[-1].mtd, mtd);
 	knh_stack_typecheck(ctx, sfp, mtd, NULL);
 	(sfp[-1].mtd)->fcall_1(ctx, sfp);
+#ifdef KNH_USING_UNBOXFIELD
+	{
+	  knh_type_t rtype = knh_Method_rztype(mtd);
+	  if (IS_ubxtype(rtype)) {
+	    KLR_BOX(ctx, -1, CLASS_type(rtype));
+	  }
+	}
+#endif/*KNU_USING_UNBOXFIED*/
 }
 
 /* ------------------------------------------------------------------------ */
@@ -621,10 +629,18 @@ METHOD Any_opAdd(Ctx *ctx, knh_sfp_t *sfp)
 
 METHOD Any_opNeg(Ctx *ctx, knh_sfp_t *sfp)
 {
-	knh_Method_t *mtd = knh_lookupMethod(ctx, knh_Object_cid(sfp[0].o), DP(mtd)->mn);
+	knh_Method_t *mtd = knh_lookupMethod(ctx, knh_Object_cid(sfp[0].o), DP(sfp[-1].mtd)->mn);
 	KNH_SETv(ctx, sfp[-1].mtd, mtd);
 	knh_stack_typecheck(ctx, sfp, mtd, NULL);
 	(sfp[-1].mtd)->fcall_1(ctx, sfp);
+#ifdef KNH_USING_UNBOXFIELD
+	{
+	  knh_type_t rtype = knh_Method_rztype(mtd);
+	  if (IS_ubxtype(rtype)) {
+	    KLR_BOX(ctx, -1, CLASS_type(rtype));
+	  }
+	}
+#endif/*KNU_USING_UNBOXFIED*/
 }
 
 /* ======================================================================== */
