@@ -501,6 +501,7 @@ typedef knh_intptr_t knh_thread_t;
 typedef knh_intptr_t knh_thread_key_t;
 typedef knh_intptr_t knh_mutex_t;
 #endif
+typedef void *(*threadfunc_t)(void *);
 
 typedef struct knh_Thread_t {
 	knh_hObject_t h;

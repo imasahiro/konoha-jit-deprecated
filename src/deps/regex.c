@@ -29,14 +29,7 @@
 
 #include"commons.h"
 
-#if defined(KNH_USING_ONIGURUMA)
-#define KNH_USING_REGEX
-	#ifdef KONOHA_ON_WINDOWS
-	#include "onigposix.h"  // this path was written by nakata. why?
-	#else
-	#include<onigposix.h>
-	#endif
-#elif defined(KNH_USING_REGEX)
+#if defined(KNH_USING_REGEX)
 #include<regex.h>
 #endif
 
@@ -253,11 +246,7 @@ void knh_Regex_newClass(Ctx *ctx, knh_class_t cid)
 #ifdef KNH_USING_REGEX
 	knh_addRegexDriver(ctx, NULL, &RE__regex);
 	knh_addRegexDriver(ctx, "re", &RE__regex);
-#if defined(KNH_USING_ONIGURUMA)
-	knh_setSystemPropertyText(ctx, "konoha.regex", "oniguruma");
-#else
 	knh_setSystemPropertyText(ctx, "konoha.regex", "POSIX.2");
-#endif
 #endif
 }
 

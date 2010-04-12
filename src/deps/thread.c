@@ -98,10 +98,10 @@ static void knh_thread_btronEntryPoint(knh_thread_target_btron* arg)
 
 /* ------------------------------------------------------------------------ */
 
-int knh_thread_create(Ctx *ctx, knh_thread_t *thread, void *attr, void *(*frun)(void *), void * arg)
+int knh_thread_create(Ctx *ctx, knh_thread_t *thread, void *attr, threadfunc_t func, void * arg)
 {
 #if defined(KNH_USING_PTHREAD)
-	return pthread_create((pthread_t*)thread, attr, frun, arg);
+	return pthread_create((pthread_t*)thread, attr, func, arg);
 #elif defined(KNH_USING_BTRON)
         // FIXME: attr is ignored
         W err;
@@ -110,7 +110,7 @@ int knh_thread_create(Ctx *ctx, knh_thread_t *thread, void *attr, void *(*frun)(
         if (target == NULL) {
             return -1;
         }
-        target->func = frun;
+        target->func = func;
         target->arg = arg;
         err = b_cre_tsk((FP)knh_thread_btronEntryPoint, -1, (W)target);
         if (err < 0) {
