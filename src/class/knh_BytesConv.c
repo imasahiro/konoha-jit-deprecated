@@ -101,25 +101,23 @@ size_t knh_fbyteconv_iconv(Ctx *ctx, knh_BytesConv_t *bc, knh_bytes_t t, knh_Byt
 	while(ilen > 0) {
 		char *obuf = buffer;
 		size_t olen = sizeof(buffer);
-//		DBG2_P("S in=%p,%d out=%p,%d", ibuf, ilen, obuf, olen);
-#if defined(KONOHA_ON_MACOSX)
 		size_t rc = iconv(cd, &ibuf, &ilen, &obuf, &olen);
-#else
-		size_t rc = iconv(cd, &ibuf, &ilen, &obuf, &olen);
-#endif
-//		DBG2_P("E in=%p,%d out=%p,%d", ibuf, ilen, obuf, olen);
 		olen = sizeof(buffer) - olen;
-//		DBG2_P("E2 in=%p,%d out=%p,%d", ibuf, ilen, obuf, olen);
+		rsize += olen;
+		knh_Bytes_write(ctx, ba, B2(buffer, olen));
 		if(rc == (size_t)-1) {
+			// convert the rest in next loop
+			if (ilen > 0) {
+				continue;
+			}
 			KNH_WARNING(ctx, "iconv: misplaced..");
 			return rsize;
- 		}
- 		rsize += olen;
- 		knh_Bytes_write(ctx, ba, B2(buffer, olen));
- 		if(ilen == ilen_prev) {
- 			DBG2_P("infinite loop!!: ilen = %d", (int)ilen); return rsize;
- 		}
- 		ilen_prev = ilen;
+		}
+		if(ilen == ilen_prev) {
+			DBG2_P("infinite loop!!: ilen = %d", (int)ilen);
+			return rsize;
+		}
+		ilen_prev = ilen;
 	}
 	return rsize;
 #else
