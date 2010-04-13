@@ -56,3 +56,8 @@ test "UNBOX, BOX" {
 	b2 = new Box2(str);
 	assert (int)b1.m == (int)b2.m;
 }
+
+test "null as String #21400" {
+    String s = null;
+    |s|
+}

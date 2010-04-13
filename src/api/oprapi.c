@@ -791,9 +791,13 @@ static METHOD Bytes_getSize(Ctx *ctx, knh_sfp_t *sfp)
 
 static METHOD String_getSize(Ctx *ctx, knh_sfp_t *sfp)
 {
-	size_t size = IS_bString(sfp[0].s) ? (sfp[0].s)->size : 0;
-	if(!knh_String_isAscii(sfp[0].s)) {
-		size = knh_bytes_mlen(__tobytes(sfp[0].s));
+	size_t size = 0;
+	if (IS_bString(sfp[0].s)) {
+		if(knh_String_isAscii(sfp[0].s)) {
+			size =  (sfp[0].s)->size;
+		} else {
+			size = knh_bytes_mlen(__tobytes(sfp[0].s));
+		}
 	}
 	KNH_RETURN_Int(ctx, sfp, size);
 }
