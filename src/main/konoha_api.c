@@ -679,7 +679,7 @@ static void knh_initSIGINT(void)
 
 #if defined(KNH_USING_READLINE)
 
-volatile static Ctx *ctxRL = NULL;
+static volatile Ctx *ctxRL = NULL;
 
 /* ------------------------------------------------------------------------ */
 
@@ -730,7 +730,7 @@ char *knh_rl_stmt(const char *text, int state)
 static
 knh_bytes_t knh_bytes_token(knh_bytes_t t)
 {
-	int i;
+	size_t i;
 	for(i = 0; i < t.len; i++) {
 		if(isalnum(t.buf[i])) {
 			t.buf = t.buf + i + 1;
@@ -746,7 +746,7 @@ knh_bytes_t knh_bytes_token(knh_bytes_t t)
 static
 char *knh_rl_name(const char *text, int state)
 {
-	static int index;
+	static size_t index;
 	static knh_bytes_t t = {(knh_uchar_t*)"", 0};
 	Ctx *ctx = (Ctx*)ctxRL;
 	if(state == 0) {
@@ -772,7 +772,7 @@ char *knh_rl_name(const char *text, int state)
 static void knh_Context_initSymbolTable(Ctx *ctx)
 {
 	knh_DictMap_t *symbolDictMap = DP((ctx)->kc)->symbolDictMap;
-	int i, j;
+	size_t i, j;
 	for(i = 0; i < KNH_TCLASS_SIZE; i++) {
 		knh_String_t *sname = ClassTable(i).sname;
 		if(sname != NULL) {
@@ -982,6 +982,7 @@ KNHAPI(void) konoha_shell(konoha_t konoha)
 	using_history();
 #endif
 	knh_showWelcome(ctx, KNH_STDOUT);
+	knh_check_update(ctx);
 	knh_initScriptLine(ctx);
 	{
 		int linenum, linecnt = 0;

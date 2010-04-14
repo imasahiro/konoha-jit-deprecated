@@ -95,10 +95,10 @@ am_libkonoha_la_OBJECTS = structapi.lo knh_Array.lo knh_Bytes.lo \
 	locale.lo regex.lo socket.lo sqlite3.lo thread.lo time.lo \
 	mt19937-64.lo mt19937ar.lo qsort.lo strlen.lo asm.lo kcode.lo \
 	konoha_code_.lo konohac.lo misc_.lo parser.lo perror.lo \
-	stmt.lo token.lo tokenizer.lo typing.lo b4.lo convert.lo \
-	ssa.lo tb.lo exports.lo glue.lo konoha_api.lo konoha_ext.lo \
-	logging.lo memory.lo metadata.lo objectdbms.lo security.lo \
-	stack.lo system.lo systemtable.lo typesystem.lo
+	stmt.lo token.lo tokenizer.lo typing.lo b4.lo check.lo \
+	convert.lo ssa.lo tb.lo exports.lo glue.lo konoha_api.lo \
+	konoha_ext.lo logging.lo memory.lo metadata.lo objectdbms.lo \
+	security.lo stack.lo system.lo systemtable.lo typesystem.lo
 libkonoha_la_OBJECTS = $(am_libkonoha_la_OBJECTS)
 libkonoha_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
@@ -290,14 +290,15 @@ libkonoha_la_SOURCES = ../src/api/structapi.c ../src/class/knh_Array.c \
 	../src/kc/kcode.c ../src/kc/konoha_code_.c ../src/kc/konohac.c \
 	../src/kc/misc_.c ../src/kc/parser.c ../src/kc/perror.c \
 	../src/kc/stmt.c ../src/kc/token.c ../src/kc/tokenizer.c \
-	../src/kc/typing.c ../src/labs/b4.c ../src/labs/convert.c \
-	../src/labs/ssa.c ../src/labs/tb.c ../src/main/exports.c \
-	../src/main/glue.c ../src/main/konoha_api.c \
-	../src/main/konoha_ext.c ../src/main/logging.c \
-	../src/main/memory.c ../src/main/metadata.c \
-	../src/main/objectdbms.c ../src/main/security.c \
-	../src/main/stack.c ../src/main/system.c \
-	../src/main/systemtable.c ../src/main/typesystem.c
+	../src/kc/typing.c ../src/labs/b4.c ../src/labs/check.c \
+	../src/labs/convert.c ../src/labs/ssa.c ../src/labs/tb.c \
+	../src/main/exports.c ../src/main/glue.c \
+	../src/main/konoha_api.c ../src/main/konoha_ext.c \
+	../src/main/logging.c ../src/main/memory.c \
+	../src/main/metadata.c ../src/main/objectdbms.c \
+	../src/main/security.c ../src/main/stack.c \
+	../src/main/system.c ../src/main/systemtable.c \
+	../src/main/typesystem.c
 libkonoha_la_includedir = $(includedir)
 libkonoha_la_include_HEADERS = ../include/konoha.h
 libkonoha_la_includekonohadir = $(includedir)/../include/konoha
@@ -551,6 +552,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asm.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/b4.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/check.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/convert.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dlopen.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/exports.Plo@am__quote@
@@ -1027,6 +1029,13 @@ b4.lo: ../src/labs/b4.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/labs/b4.c' object='b4.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o b4.lo `test -f '../src/labs/b4.c' || echo '$(srcdir)/'`../src/labs/b4.c
+
+check.lo: ../src/labs/check.c
+@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT check.lo -MD -MP -MF $(DEPDIR)/check.Tpo -c -o check.lo `test -f '../src/labs/check.c' || echo '$(srcdir)/'`../src/labs/check.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/check.Tpo $(DEPDIR)/check.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/labs/check.c' object='check.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o check.lo `test -f '../src/labs/check.c' || echo '$(srcdir)/'`../src/labs/check.c
 
 convert.lo: ../src/labs/convert.c
 @am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT convert.lo -MD -MP -MF $(DEPDIR)/convert.Tpo -c -o convert.lo `test -f '../src/labs/convert.c' || echo '$(srcdir)/'`../src/labs/convert.c

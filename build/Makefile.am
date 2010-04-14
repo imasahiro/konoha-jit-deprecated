@@ -71,6 +71,7 @@ libkonoha_la_SOURCES += ../src/kc/token.c
 libkonoha_la_SOURCES += ../src/kc/tokenizer.c
 libkonoha_la_SOURCES += ../src/kc/typing.c
 libkonoha_la_SOURCES += ../src/labs/b4.c
+libkonoha_la_SOURCES += ../src/labs/check.c
 libkonoha_la_SOURCES += ../src/labs/convert.c
 libkonoha_la_SOURCES += ../src/labs/ssa.c
 libkonoha_la_SOURCES += ../src/labs/tb.c
