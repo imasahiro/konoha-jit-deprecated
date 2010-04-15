@@ -12,9 +12,6 @@
 extern "C" {
 #endif
 
-#if 1
-void knh_KLRCode_optimize(Ctx *ctx, knh_Array_t *insts){}
-#else
 #define Method_isSetter(mtd) (METHODN_IS_SETTER(DP(mtd)->mn))
 #define Method_isGetter(mtd) (METHODN_IS_GETTER(DP(mtd)->mn))
 #define sfpidx_t knh_sfpidx_t 
@@ -44,19 +41,19 @@ struct sfpinfo_t {
     bool  is_array;
 } sfpinfo_t;
 
-void sfpinfo_update(sfarray_t *a, int i, sfpidx_t idx) {
-   sfpinfo_t *info = (sfpinfo_t *) knh_Array_n((knh_IArray_t*) a, idx);
-   info->livearea.end = i;
-}
-
-void sfpinfo_expire(sfarray_t *a, int i, sfpidx_t idx) {
-    knh_IArray_t *ia = (knh_IArray_t *) a;
-    int i, size = knh_Array_size(ia);
-
-    for (i = 0; i < size; i++) {
-        
-    }
-}
+//void sfpinfo_update(sfarray_t *a, int i, sfpidx_t idx) {
+//   sfpinfo_t *info = (sfpinfo_t *) knh_Array_n((knh_IArray_t*) a, idx);
+//   info->livearea.end = i;
+//}
+//
+//void sfpinfo_expire(sfarray_t *a, int i, sfpidx_t idx) {
+//    knh_IArray_t *ia = (knh_IArray_t *) a;
+//    int i, size = knh_Array_size(ia);
+//
+//    for (i = 0; i < size; i++) {
+//        
+//    }
+//}
 static inline void KLRInst_updateInst(Ctx *ctx, knh_Array_t *insts, int i, knh_inst_t *op)
 {
     knh_KLRInst_t *inst = new_KLRInst(ctx, op);
@@ -64,6 +61,7 @@ static inline void KLRInst_updateInst(Ctx *ctx, knh_Array_t *insts, int i, knh_i
 }
 void knh_KLRCode_optimize(Ctx *ctx, knh_Array_t *insts)
 {
+#if 0
     size_t i, inst_size = knh_Array_size(insts);
     knh_KLRInst_t *inst;
 
@@ -121,9 +119,9 @@ void knh_KLRCode_optimize(Ctx *ctx, knh_Array_t *insts)
             break;
         }
     }
+#endif
 }
 
-#endif
 #ifdef __cplusplus
 }
 #endif
