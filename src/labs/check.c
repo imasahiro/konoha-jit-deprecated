@@ -20,7 +20,7 @@ static void knh_check_exec(void *arg)
 {
 	Ctx *ctx = (Ctx*)arg;
 	char url[512] = {0};
-	knh_snprintf(url, 512, "%s?var=%s&arch=%s(%s)&rev=%d",
+	knh_snprintf(url, 512, "%s?ver=%s&arch=%s(%s)&rev=%d",
 			UPDATE_SERVER, KONOHA_VERSION, KONOHA_PLATFORM,
 			CPU_NAME, KONOHA_REVISION);
 
