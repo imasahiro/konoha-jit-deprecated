@@ -31,6 +31,8 @@
 
 #if defined(KNH_USING_REGEX)
 #include<regex.h>
+#elif defined(KONOHA_ON_WINDOWS)
+#include "onigposix.h"
 #endif
 
 /* ************************************************************************ */

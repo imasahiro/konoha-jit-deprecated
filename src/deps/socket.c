@@ -69,7 +69,7 @@ KNHAPI(knh_Socket_t*) new_Socket(Ctx *ctx, knh_intptr_t sd)
 
 KNHAPI(knh_intptr_t) knh_socket_open(Ctx *ctx, char *ip_or_host, int port, int isThrowable)
 {
-#if defined(KNH_USING_POSIX)
+#if defined(KNH_USING_POSIX) | defined(KNH_USING_WINDOWS)
 #if defined(KNH_USING_WINDOWS)
 	WSADATA wsaData;
 	WSAStartup(MAKEWORD(2,0), &wsaData);
