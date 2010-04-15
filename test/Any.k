@@ -54,7 +54,7 @@ test "UNBOX, BOX" {
 	String str = "5";
 	b1 = new Box(i);
 	b2 = new Box2(str);
-	assert (int)b1.m == (int)b2.m;
+	assert b1.m != b2.m;
 }
 
 test "null as String #21400" {

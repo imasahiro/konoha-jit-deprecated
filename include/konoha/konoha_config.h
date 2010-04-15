@@ -51,14 +51,14 @@
 #define KONOHA_NAME     "konoha"
 #define KONOHA_MAJOR_VERSION  0
 #define KONOHA_MINER_VERSION  5
-#define KONOHA_PATCH_VERSION  0
-#define KONOHA_VERSION  "0.5"
+#define KONOHA_PATCH_VERSION  1
+#define KONOHA_VERSION  "0.5.1"
 #endif
 
 #define LIBKONOHA_VERSION "0.5"
 
-#define KONOHA_XCODE    "TOGURO"
-#define KONOHA_URL		"http://konoha.sourceforge.jp/"
+#define KONOHA_XCODE    "awazi"
+#define KONOHA_URL	"http://konoha.sourceforge.jp/"
 #define KONOHA_URLBASE  "kttp://konoha.sourceforge.jp/wiki/"
 
 /* ======================================================================== */
