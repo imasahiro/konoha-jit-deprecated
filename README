@@ -39,10 +39,11 @@ If Konoha is installed succeedly, you can try Konoha as an
 interactive mode.
 
 	$ konoha
-	Konoha 0.1-GPL2 (#367, Sep  5 2008, 16:35:22)
-	[4.0.1 (Apple Inc. build 5465)] on MacOSX (32, UTF-8)
-	>>> print "hello,world"
-	hello,world
+	Konoha 0.5.1(awazi) LGPL3.0 (rev:1293, Apr 15 2010 20:47:38)
+	[GCC 4.0.1 (Apple Inc. build 5493)] on macosx_32 (32, UTF-8)
+	Options: iconv refc sqlite3 thread regex used_memory:368 kb
+	>>> 
+
 	
 DO YOU WANT TO KNOW MORE?
 -------------------------
