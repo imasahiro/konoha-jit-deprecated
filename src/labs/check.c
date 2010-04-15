@@ -14,12 +14,14 @@ extern "C" {
 #define CPU_NAME "unknown"
 #endif
 #define UPDATE_SERVER "http://www.ubicg.ynu.ac.jp/cgi-bin/konoha-userdata/update_server"
+
 /*--------------------------------------------------------------*/
 static void knh_check_exec(void *arg)
 {
 	Ctx *ctx = (Ctx*)arg;
 	char url[512] = {0};
-	knh_snprintf(url, 512, "%s?arch=%s(%s)&rev=%d", 
+	knh_snprintf(url, 512, "%s?var=%d.%d.%d&arch=%s(%s)&rev=%d",
+			KONOHA_MAJOR_VERSION, KONOHA_MINER_VERSION, KONOHA_PATCH_VERSION,
 			UPDATE_SERVER, KONOHA_PLATFORM,
 			CPU_NAME, KONOHA_REVISION);
 
