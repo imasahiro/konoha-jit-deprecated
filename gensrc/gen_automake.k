@@ -24,7 +24,7 @@ void main(String[] args)
 AM_CFLAGS = -g -pipe
 lib_LTLIBRARIES = libkonoha.la
 
-libkonoha_la_LDFLAGS = -no-undefined -release 0 -version-info 7:0:0
+libkonoha_la_LDFLAGS = -no-undefined -release 0 -version-info 5:0:0
 #if LDL
 #libkonoha_la_LDFLAGS += -ldl
 #endif
