@@ -14,46 +14,6 @@ extern "C" {
 
 #define Method_isSetter(mtd) (METHODN_IS_SETTER(DP(mtd)->mn))
 #define Method_isGetter(mtd) (METHODN_IS_GETTER(DP(mtd)->mn))
-#define sfpidx_t knh_sfpidx_t 
-struct opt_t {
-    // 最大操作するsfpの数
-    int max_sfp_idx;
-    // 引数の数 (klr_THCODE_t->a1)
-    int arg_num;
-    //struct sfpidx_t *sfpinfo;
-};
-
-struct sfpinfo_t {
-    // stack 変数の生存領域
-    struct {
-        // 開始地点
-        sfpidx_t start;
-        // 終了地点
-        sfpidx_t end;
-    } livearea;
-
-    bool isLoaded;
-    sfpidx_t loadedArea;
-    // オブジェクトからフィールドとの差分
-    short delta;
-    bool  is_env;
-    bool  is_field;
-    bool  is_array;
-} sfpinfo_t;
-
-//void sfpinfo_update(sfarray_t *a, int i, sfpidx_t idx) {
-//   sfpinfo_t *info = (sfpinfo_t *) knh_Array_n((knh_IArray_t*) a, idx);
-//   info->livearea.end = i;
-//}
-//
-//void sfpinfo_expire(sfarray_t *a, int i, sfpidx_t idx) {
-//    knh_IArray_t *ia = (knh_IArray_t *) a;
-//    int i, size = knh_Array_size(ia);
-//
-//    for (i = 0; i < size; i++) {
-//        
-//    }
-//}
 static inline void KLRInst_updateInst(Ctx *ctx, knh_Array_t *insts, int i, knh_inst_t *op)
 {
     knh_KLRInst_t *inst = new_KLRInst(ctx, op);

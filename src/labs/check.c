@@ -37,13 +37,7 @@ void knh_check_update(Ctx *ctx)
 	knh_io_t fp;
 	knh_iodrv_t *d;
 	knh_thread_t th;
-	threadfunc_t func = knh_check_exec;
-
-	if (!knh_ask(ctx, "Do you mind to send your environment information "
-				"to update_server? [y/N]", 0)) {
-		return;
-	}
-
+	threadfunc_t func = (threadfunc_t) knh_check_exec;
 	knh_thread_create(ctx, &th, NULL, func, (void*)ctx);
 	knh_thread_detach(ctx, th);
 }
