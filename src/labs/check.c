@@ -4,11 +4,11 @@
 extern "C" {
 #endif
 
-#if defined(__x86_64__)
+#if defined(__x86_64__) || defined(_M_X64)
 #define CPU_NAME "x86_64"
-#elif defined(__i386__)
+#elif defined(__i386__) || defined(_M_IX86)
 #define CPU_NAME "i386"
-#elif defined(__amd64__)
+#elif defined(__amd64__) || defined(_M_AMD64)
 #define CPU_NAME "amd64"
 #else
 #define CPU_NAME "unknown"
