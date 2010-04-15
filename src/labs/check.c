@@ -33,7 +33,8 @@ static void knh_check_exec(void *arg)
 		if ((version_str = strstr(url, "\r\n\r\n<!--")) != 0) {
 		  version_str += sizeof("\r\n\r\n<!--");
 		  // we want to write cwb, but we need lock.
-		  fprintf(stdout, "Please update Konoha to %s.\n", version_str);
+		  version_str[sizeof("x.x.x")] = '\0';
+		  fprintf(stdout, "[info]Please update Konoha to %s \n>>>", version_str);
 		  fflush(stdout);
 		}
 		d->fclose(ctx, fd);

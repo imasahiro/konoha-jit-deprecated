@@ -29,10 +29,10 @@
 
 #include"commons.h"
 
-#if defined(KNH_USING_REGEX)
-#include<regex.h>
-#elif defined(KONOHA_ON_WINDOWS)
+#if defined(KNH_USING_REGEX) && defined(KNH_USING_ONIGURUMA)
 #include "onigposix.h"
+#elif defined(KNH_USING_REGEX)
+#include<regex.h>
 #endif
 
 /* ************************************************************************ */
