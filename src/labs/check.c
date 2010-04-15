@@ -28,6 +28,14 @@ static void knh_check_exec(void *arg)
 	knh_io_t fd = d->fopen(ctx, B(url), "r", 0);
 	if (fd != -1) {
 		d->fread(ctx, fd, url, 512);
+		// parse if its update
+		char *version_str = NULL;
+		if ((version_str = strstr(url, "\r\n\r\n<!--")) != 0) {
+		  version_str += sizeof("\r\n\r\n<!--");
+		  // we want to write cwb, but we need lock.
+		  fprintf(stdout, "Please update Konoha to %s.\n", version_str);
+		  fflush(stdout);
+		}
 		d->fclose(ctx, fd);
 	}
 }
