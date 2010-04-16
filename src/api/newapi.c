@@ -55,7 +55,7 @@ void knh_ObjectField_setValue(Ctx *ctx, knh_ObjectField_t *of, knh_index_t idx, 
 {
 	if(IS_NULL(value)) {
 		if(IS_NNTYPE(type)) return;
-		goto L_SET;
+		goto L_SET_;
 	}
 	else {
 		knh_class_t tcid = CLASS_type(type);
@@ -63,7 +63,7 @@ void knh_ObjectField_setValue(Ctx *ctx, knh_ObjectField_t *of, knh_index_t idx, 
 		DBG2_ASSERT_cid(tcid);
 		DBG2_ASSERT_cid(scid);
 		if(scid == tcid || knh_class_instanceof(ctx, scid, tcid)) {
-			goto L_SET;
+			goto L_SET_;
 		}
 		DBG2_P("COERCION %s -> %s", CLASSN(scid), CLASSN(tcid));
 		TODO();
@@ -75,7 +75,7 @@ void knh_ObjectField_setValue(Ctx *ctx, knh_ObjectField_t *of, knh_index_t idx, 
 		return ;
 	}
 
-	L_SET:;
+	L_SET_:;
 #ifdef KNH_USING_UNBOXFIELD
 	if(IS_ubxint(type)) {
 		knh_int_t *data = (knh_int_t*)(of->fields + idx);
