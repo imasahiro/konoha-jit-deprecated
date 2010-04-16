@@ -57,9 +57,13 @@
 
 #define LIBKONOHA_VERSION "0.5"
 
-#define KONOHA_XCODE    "awazi"
+#define KONOHA_XCODE    "kurume"
 #define KONOHA_URL	"http://konoha.sourceforge.jp/"
 #define KONOHA_URLBASE  "kttp://konoha.sourceforge.jp/wiki/"
+
+#ifndef KONOHA_DIST
+#define KONOHA_DIST     "source"
+#endif
 
 /* ======================================================================== */
 /* COMMON */
