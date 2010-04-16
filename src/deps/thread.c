@@ -40,6 +40,10 @@
 #endif
 
 
+#ifdef KONOHA_ON_WINDOWS
+#include <process.h>
+#endif
+
 /* ************************************************************************ */
 
 //機能 	pthread関数名 	win32 スレッドapi名
@@ -68,6 +72,8 @@ knh_thread_t knh_thread_self(void)
 	return (knh_thread_t)pthread_self();
 #elif defined(KNH_USING_BTRON)
         return b_get_tid();
+#elif defined (KONOHA_ON_WINDOWS)
+	return (knh_thread_t)GetCurrentThread();
 #else
 	return 0;
 #endif
@@ -119,6 +125,9 @@ int knh_thread_create(Ctx *ctx, knh_thread_t *thread, void *attr, threadfunc_t f
         }
         *thread = err;
         return 0;
+#elif defined(KONOHA_ON_WINDOWS)
+	//	return _beginthreadex(NULL, 0, (unsigned *(*)(void))func, arg, 0, thread);
+	return _beginthread((void( *)( void * ))func, 1024, arg);
 #else
 	return -1;
 #endif
@@ -197,7 +206,7 @@ void knh_stack_threadRun(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_thread_t th;
 	knh_threadcc_t ta = {ctx, sfp};
-	knh_thread_create(ctx, &th, NULL, threading, (void*)&ta);
+	knh_thread_create(ctx, &th, NULL, (void (*)(void *))threading, (void*)&ta);
 	knh_thread_detach(ctx, th);
 }
 
