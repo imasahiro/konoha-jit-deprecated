@@ -20,8 +20,8 @@ static void knh_check_exec(void *arg)
 {
 	Ctx *ctx = (Ctx*)arg;
 	char url[512] = {0};
-	knh_snprintf(url, 512, "%s?ver=%s&arch=%s(%s)&rev=%d",
-			UPDATE_SERVER, KONOHA_VERSION, KONOHA_PLATFORM,
+	knh_snprintf(url, 512, "%s?dist=%s&ver=%s&arch=%s(%s)&rev=%d",
+			UPDATE_SERVER, KONOHA_DIST, KONOHA_VERSION, KONOHA_PLATFORM,
 			CPU_NAME, KONOHA_REVISION);
 
 	knh_iodrv_t *d = knh_getIODriver(ctx, STEXT("http"));
