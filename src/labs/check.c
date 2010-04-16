@@ -29,13 +29,16 @@ static void knh_check_exec(void *arg)
 	if (fd != -1) {
 		d->fread(ctx, fd, url, 512);
 		// parse if its update
-		char *version_str = NULL;
-		if ((version_str = strstr(url, "\r\n\r\n<!--")) != 0) {
-		  version_str += sizeof("\r\n\r\n<!--");
+		char *comment_in = NULL;
+		if ((comment_in = strstr(url, "\r\n\r\n<!--")) != 0) {
+		  comment_in += sizeof("\r\n\r\n<!--");
 		  // we want to write cwb, but we need lock.
-		  version_str[sizeof("x.x.x")] = '\0';
-		  fprintf(stdout, "[info]Please update Konoha to %s \n>>>", version_str);
-		  fflush(stdout);
+		  char *comment_out = strstr(url, "-->");
+		  if (comment_out) {
+			comment_in[comment_out - comment_in] = '\0';
+			fprintf(stdout, "%s \n>>>", comment_in);
+			fflush(stdout);
+		  }
 		}
 		d->fclose(ctx, fd);
 	}
