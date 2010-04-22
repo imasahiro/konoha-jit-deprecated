@@ -119,6 +119,7 @@ void DBG2_free(Ctx *ctx, void *p, size_t size, char *func)
 		((knh_Context_t*)ctx)->unusedObjectSize += 1;\
 	}\
 
+#define SIZEOF_OBJECTTABLE(ctx) (ctx->share->ObjectPageTableMaxSize * sizeof(knh_ObjectPageTable_t))
 
 /* ------------------------------------------------------------------------ */
 
@@ -132,8 +133,8 @@ knh_Object_t *new_UnusedObject(Ctx *ctx)
 		knh_ObjectPageTable_t *newpage
 			= (knh_ObjectPageTable_t*)KNH_MALLOC(ctx, sizeof(knh_ObjectPageTable_t) * newsize);
 		knh_bzero(newpage, sizeof(knh_ObjectPageTable_t) * newsize);
-		knh_memcpy(newpage, ctx->share->ObjectPageTable, ctx->share->ObjectPageTableMaxSize);
-		KNH_FREE(ctx, ctx->share->ObjectPageTable, ctx->share->ObjectPageTableMaxSize);
+		knh_memcpy(newpage, ctx->share->ObjectPageTable, SIZEOF_OBJECTTABLE(ctx));
+		KNH_FREE(ctx, ctx->share->ObjectPageTable, SIZEOF_OBJECTTABLE(ctx));
 		((knh_SharedData_t*)ctx->share)->ObjectPageTable = newpage;
 		((knh_SharedData_t*)ctx->share)->ObjectPageTableMaxSize = newsize;
 	}
@@ -202,7 +203,7 @@ static void knh_unsetFastMallocMemory(void *p)
 
 /* ------------------------------------------------------------------------ */
 
-int knh_isFastMallocMemory(void *p)
+static inline int knh_isFastMallocMemory(void *p)
 {
 	knh_uintptr_t *b = (knh_uintptr_t*)((((knh_uintptr_t)p) / KONOHA_PAGESIZE) * KONOHA_PAGESIZE);
 	int n = ((Object*)p - (Object*)b); /*((knh_uintptr_t)p % KONOHA_PAGESIZE) / sizeof(knh_Object_t); */
@@ -328,6 +329,17 @@ knh_Object_t *new_Object_bcid(Ctx *ctx, knh_class_t bcid, int init)
 knh_Object_t *new_Object_init(Ctx *ctx, knh_flag_t flag, knh_class_t cid, int init)
 {
 	DBG2_ASSERT(cid != CLASS_Context);
+#ifdef KNH_USING_MARKGC
+	size_t maxsize = ctx->share->ObjectPageTableMaxSize;
+	size_t gc_threshold = maxsize / 4 * 3;
+	if (unlikely(ctx->share->ObjectPageTableSize == gc_threshold))
+	{
+		size_t tsize  = ctx->share->ObjectPageTableSize;
+		knh_System_gc(ctx);
+		knh_Object_t *old = ctx->unusedObject;
+		knh_Object_t *o = new_UnusedObject(ctx);
+	}
+#endif
 	CHECK_UNUSED_OBJECT(ctx);
 	{
 		knh_Object_t *o = ctx->unusedObject;
@@ -416,7 +428,7 @@ void knh_Object_traverse(Ctx *ctx, knh_Object_t *o, knh_ftraverse ftr)
 
 #define BSHIFT ((KONOHA_PAGESIZE / sizeof(knh_Object_t)) / (sizeof(knh_uintptr_t) * 8))
 
-volatile static size_t markedObjectSize = 0;
+static volatile size_t markedObjectSize = 0;
 
 /* ------------------------------------------------------------------------ */
 
@@ -469,7 +481,6 @@ void knh_System_gc(Ctx *ctx)
 		char *max = ctx->share->ObjectPageTable[tindex].thead + SIZEOF_OBJECTPAGE;
 		while(t + KONOHA_PAGESIZE < max) {
 			knh_memcpy(t + ((BSHIFT) * sizeof(knh_uintptr_t)), t, (BSHIFT) * sizeof(knh_uintptr_t));
-			//knh_bzero(t + ((BSHIFT) * sizeof(knh_uintptr_t)), (BSHIFT) * sizeof(knh_uintptr_t));
 			t += KONOHA_PAGESIZE;
 		}
 	}
@@ -520,7 +531,10 @@ void knh_System_gc(Ctx *ctx)
 void knh_Object_RCsweep(Ctx *ctx, Object *o)
 {
 	knh_Object_RCdec(o);
-	if(knh_Object_isRC0(o)) {
+#if defined(KNH_USING_RCGC)
+	if (knh_Object_isRC0(o))
+#endif
+	{
 		knh_Object_free(ctx, o);
 	}
 }

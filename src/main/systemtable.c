@@ -403,7 +403,7 @@ void knh_ClassField_toAbstractAll(Ctx *ctx, knh_ClassField_t *cs)
 static
 void knh_traverseSharedData(Ctx *ctx, knh_SharedData_t *share, knh_ftraverse ftr)
 {
-	int i;
+	size_t i;
 	ftr(ctx, share->constNull);
 	ftr(ctx, share->constTrue);
 	ftr(ctx, share->constFalse);
@@ -425,7 +425,7 @@ void knh_traverseSharedData(Ctx *ctx, knh_SharedData_t *share, knh_ftraverse ftr
 		}
 	}
 
-	for(i = 0; i < (int)(share->ExptTableSize); i++) {
+	for(i = 0; i < share->ExptTableSize; i++) {
 		if(ExptTable(i).name != NULL) {
 			ftr(ctx, UP(ExptTable(i).name));
 		}
@@ -509,7 +509,7 @@ void knh_traverseSharedData(Ctx *ctx, knh_SharedData_t *share, knh_ftraverse ftr
 
 		((knh_Context_t*)ctx)->fsweep = knh_Object_finalSweep;
 		KNH_ASSERT(share->ObjectPageTable != NULL);
-		for(i = 0; i < (int)(share->ObjectPageTableSize); i++) {
+		for(i = 0; i < share->ObjectPageTableSize; i++) {
 			knh_ObjectPageTable_free(ctx, share->ObjectPageTable[i].thead);
 			share->ObjectPageTable[i].thead = NULL;
 		}
@@ -660,7 +660,7 @@ static int isFirstVirtualMachine = 1;
 
 KNHAPI(konoha_t) konoha_open(size_t stacksize)
 {
-	konoha_t k = {KONOHA_MAGIC};
+	konoha_t k = {KONOHA_MAGIC, NULL};
 	if(isFirstVirtualMachine) {
 		isFirstVirtualMachine = 0;
 		konoha_init();
@@ -688,6 +688,7 @@ KNHAPI(void) konoha_close(konoha_t konoha)
 		return;
 	}
 	{
+		knh_System_gc(ctx);
 		knh_ObjectField_t *scr = (knh_ObjectField_t*)knh_NameSpace_getScript(ctx, ctx->share->mainns);
 		//knh_ObjectField_traverse(konoha.ctx, scr, ctx->fsweep);
 		StructTable(CLASS_ObjectField).ftraverse(ctx,UP(scr), ctx->fsweep);

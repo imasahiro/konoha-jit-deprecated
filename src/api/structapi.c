@@ -2081,7 +2081,9 @@ Term *knh_Stmt_done(Ctx *ctx, knh_Stmt_t *o)
 {
 	SP(o)->stt = STT_DONE;
 	if(DP(o)->terms != NULL) {
+#ifdef KNH_USING_RCGC
 		knh_Stmt_terms_traverse(ctx, DP(o), knh_Object_sweep);
+#endif
 	}
 	KNH_SETv(ctx, DP(o)->metaDictMap, KNH_NULL);
 	return (Term*)(o);

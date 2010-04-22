@@ -707,7 +707,6 @@ void *knh_malloc(Ctx *ctx, size_t size);
 void knh_free(Ctx *ctx, void *block, size_t size);
 void *DBG2_malloc(Ctx *ctx, size_t size, char *func);
 void DBG2_free(Ctx *ctx, void *p, size_t size, char *func);
-int knh_isFastMallocMemory(void *p);
 void *knh_fastmalloc(Ctx *ctx, size_t size);
 void knh_fastfree(Ctx *ctx, void *block, size_t size);
 knh_Object_t *new_hObject(Ctx *ctx, knh_flag_t flag, knh_class_t bcid, knh_class_t cid);

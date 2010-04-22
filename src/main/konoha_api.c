@@ -948,6 +948,9 @@ void knh_showWelcome(Ctx *ctx, knh_OutputStream_t *w)
 #ifdef KNH_USING_RCGC
 	knh_write_char(ctx, w, " refc");
 #endif
+#ifdef KNH_USING_MARKGC
+	knh_write_char(ctx, w, " m&s");
+#endif
 	knh_write_USING_SQLITE3(ctx, w);
 #ifdef KNH_USING_THREAD
 	knh_write_char(ctx, w, " thread");

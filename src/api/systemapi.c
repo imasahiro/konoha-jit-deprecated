@@ -94,6 +94,15 @@ static METHOD System_gc(Ctx *ctx, knh_sfp_t *sfp)
 }
 
 /* ------------------------------------------------------------------------ */
+//## @Static method Int System.getTotalMemory();
+
+static METHOD System_getTotalMemory(Ctx *ctx, knh_sfp_t *sfp)
+{
+	KNH_RETURN_Int(ctx, sfp, (int)ctx->stat->usedMemorySize);
+}
+
+
+/* ------------------------------------------------------------------------ */
 //## @Hidden method void System.test(Boolean result, String? msg);
 
 static METHOD System_test(Ctx *ctx, knh_sfp_t *sfp)
