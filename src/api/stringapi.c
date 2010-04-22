@@ -344,12 +344,14 @@ static METHOD String_replace(Ctx *ctx, knh_sfp_t *sfp)
 	knh_bytes_t target = __tobytes(sfp[1].s);
 	knh_bytes_t alt = __tobytes(sfp[2].s);
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-	int search_flag= 0, ch = target.buf[0], i;
+	int search_flag= 0, ch = target.buf[0];
+	size_t i;
 
-	if (base.len == 0 || target.len == 0) KNH_RETURN(ctx, sfp, sfp[0].o);
-	for(i = 0; i < base.len - target.len+1; i++) {
+	if (base.len == 0 || target.len == 0 || base.len < target.len)
+		KNH_RETURN(ctx, sfp, sfp[0].o);
+	for(i = 0; i < (base.len - target.len+1); i++) {
 		if(base.buf[i] == ch && knh_bytes_equals_(base, i, target)) {
-		    knh_Bytes_write(ctx, cwb->ba, alt);
+			knh_Bytes_write(ctx, cwb->ba, alt);
 			i += target.len - 1;
 			search_flag = 1;
 		}else {
