@@ -229,16 +229,15 @@ static Ctx *new_Context0(Ctx *parent)
 	knh_Context_t *ctx;
 	if(parent == NULL) {
 		ctx = (knh_Context_t*)malloc(sizeof(knh_Context_t));
+		knh_bzero(ctx, sizeof(knh_Context_t));
 		parent = ctx;
 	}
 	else {
 		ctx = (knh_Context_t*)knh_malloc(parent, sizeof(knh_Context_t));
+		knh_bzero(ctx, sizeof(knh_Context_t));
 	}
-	knh_bzero(ctx, sizeof(knh_Context_t));
 	ctx->h.magic = KNH_OBJECT_MAGIC;
-#ifdef KNH_HOBJECT_REFC
-	ctx->h.refc = KNH_RCGC_INIT;
-#endif
+	knh_Object_RCset(ctx, KNH_RCGC_INIT);
 	ctx->h.flag = FLAG_CTX(FLAG_Context);
 	ctx->h.bcid = CLASS_Context;
 	ctx->h.cid  = CLASS_Context;
