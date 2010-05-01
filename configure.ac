@@ -27,6 +27,7 @@ AC_DISABLE_STATIC
 AC_LIBTOOL_WIN32_DLL
 AC_PROG_LIBTOOL
 
+DOLT
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-ldl':
 
@@ -67,7 +68,7 @@ AC_HELP_STRING([--enable-rcgc], [referencing counting mode [[default=no]]]),
 yes|no) ;;
 *) AC_MSG_ERROR([bad value $withval for --enable-rcgc, need yes/no]) ;;
 esac],
-[enable_mono=no])
+[enable_rcgc=no])
 
 if test $enable_rcgc = yes; then
   AC_DEFINE_UNQUOTED([KNH_USING_RCGC], [1], Enable referencing counting mode)
