@@ -14,3 +14,8 @@ test "String.sort #18821" {
 test "String.opCase" {
 	assert ("" != "test");
 }
+
+test "String.replace" {
+	s = "1".replace("123", "321");
+	assert (s == "1");
+}

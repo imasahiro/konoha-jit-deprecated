@@ -508,7 +508,12 @@ static METHOD String_split(Ctx *ctx, knh_sfp_t *sfp)
 				else {
 					knh_bytes_t t = knh_bytes_first(base, loc);
 					if(istrim) t = knh_bytes_trim(t);
-					knh_Array_add(ctx, a, UP(new_String(ctx, t, sfp[0].s)));
+					// FIXME
+					// We want to use sfp[0].s in order to save memory.
+					// knh_Array_add(ctx, a, UP(new_String(ctx, t, sfp[0].s)));
+					// But, in some case that use raw string (t.buf), it does not work.
+					// "hello world".split(" ") -> t = {"hello world", 5}
+					knh_Array_add(ctx, a, UP(new_String(ctx, t, NULL)));
 				}
 				base.buf = base.buf + loc + delim.len;
 				base.len = base.len - loc - delim.len;
