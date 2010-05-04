@@ -211,7 +211,7 @@ static METHOD Regex__s(Ctx *ctx, knh_sfp_t *sfp)
 
 static METHOD Class__s(Ctx *ctx, knh_sfp_t *sfp)
 {
-	knh_write_ltype(ctx, sfp[1].w, knh_Object_cid(sfp[0].o));
+	knh_write_ltype(ctx, sfp[1].w, knh_Class_cid(sfp[0].c));
 }
 
 /* ------------------------------------------------------------------------ */
