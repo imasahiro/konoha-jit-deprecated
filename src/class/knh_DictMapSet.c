@@ -543,8 +543,14 @@ void knh_DictMap_remove(Ctx *ctx, knh_DictMap_t *o, knh_String_t *key)
 {
 	int loc = knh_dict_index_b(o->_list, o->size, o->fcmp, __tobytes(key));
 	if(loc != -1) {
-		KNH_SETv(ctx, o->list[loc].key, key);  /* To avoid losing key */
-		KNH_SETv(ctx, o->list[loc].value, KNH_NULL);
+		int i;
+		for(i = loc; i < o->size - 1; i++) {
+			KNH_SETv(ctx, o->list[i].key,   o->list[i+1].key);
+			KNH_SETv(ctx, o->list[i].value, o->list[i+1].value);
+		}
+		KNH_SETv(ctx, o->list[i].key,   KNH_NULL);
+		KNH_SETv(ctx, o->list[i].value, KNH_NULL);
+		o->size--;
 	}
 }
 
