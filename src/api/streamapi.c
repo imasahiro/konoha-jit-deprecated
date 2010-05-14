@@ -41,11 +41,22 @@ extern "C" {
 
 /* ------------------------------------------------------------------------ */
 //## method InputStream InputStream.new(String! urn, String? mode);
-
+	
 static METHOD InputStream_new(Ctx *ctx, knh_sfp_t *sfp)
 {
-	knh_InputStream_t *o = (knh_InputStream_t*)sfp[0].o;
-	KNH_RETURN(ctx, sfp, knh_InputStream_open(ctx, o, sfp[1].s, sfp[2].s));
+	knh_InputStream_t *in = (knh_InputStream_t*)sfp[0].o;
+	in = (knh_InputStream_t*) knh_InputStream_open(ctx, in, sfp[1].s, sfp[2].s);
+#if defined(KNH_USING_WINDOWS)	
+	knh_String_t *enc;
+	if(knh_InputStream_checkUTF8(ctx, in)) {
+		enc = new_String(ctx, STEXT("UTF-8"), NULL);
+	}
+	else {
+		enc = new_String(ctx, STEXT("CP932"), NULL);
+	}
+	knh_InputStream_setEncoding(ctx, in, enc);
+#endif
+	KNH_RETURN(ctx, sfp, UP(in));
 }
 
 /* ------------------------------------------------------------------------ */

@@ -152,7 +152,17 @@ knh_InputStream_t* new_ScriptInputStream(Ctx *ctx, knh_bytes_t path, knh_cwb_t *
 		if(!knh_InputStream_isClosed(ctx, in)) {
 			DP(in)->uri = uri;
 			if(!knh_bytes_startsWith(path, STEXT("http://"))) {
-				knh_InputStream_setEncoding(ctx, in, KNH_ENC);
+				knh_String_t *enc;
+#if defined(KNH_USING_WINDOWS)
+
+				if (!knh_InputStream_checkUTF8(ctx, in))
+					enc = new_String(ctx, STEXT("CP932"), NULL);
+				else
+					enc = new_String(ctx, STEXT("UTF-8"), NULL);
+#else
+				enc = KNH_ENC;
+#endif
+				knh_InputStream_setEncoding(ctx, in, enc);
 			}
 		}
 		return in;

@@ -243,6 +243,27 @@ void knh_InputStream_setEncoding(Ctx *ctx, knh_InputStream_t *o, knh_String_t *e
 	}
 }
 
+/* ------------------------------------------------------------------------ */
+
+#define MAXBUF 256
+knh_bool_t knh_InputStream_checkUTF8(Ctx *ctx, knh_InputStream_t *in)
+{
+       knh_bool_t isUTF8;
+       knh_iodrv_t *d = DP(in)->driver;
+       while (1) {
+               char buf[MAXBUF] = {0};
+               size_t size = knh_InputStream_read(ctx, in, buf, MAXBUF);
+               isUTF8 = knh_bytes_checkENCODING(B(buf));
+               if (size < MAXBUF || !isUTF8) {
+                       break;
+               }
+       }
+       /* Reopen InputStream */
+       d->fclose(ctx, DP(in)->fd);
+       d->fopen(ctx, __tobytes(DP(in)->urn), "r", 0/*isThrowable*/);
+       return isUTF8;
+}
+
 /* ======================================================================== */
 /* [File] */
 

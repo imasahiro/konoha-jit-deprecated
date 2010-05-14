@@ -385,6 +385,7 @@ knh_InputStream_read(Ctx *ctx, knh_InputStream_t *o, char *buf, size_t bufsiz);
 knh_String_t* knh_InputStream_readLine(Ctx *ctx, knh_InputStream_t *in);
 void knh_InputStream_close(Ctx *ctx, knh_InputStream_t *o);
 int knh_InputStream_isClosed(Ctx *ctx, knh_InputStream_t *o);
+knh_bool_t knh_InputStream_checkUTF8(Ctx *ctx, knh_InputStream_t *o);
 void knh_InputStream_setEncoding(Ctx *ctx, knh_InputStream_t *o, knh_String_t *enc);
 MAPPER knh_Bytes_InputStream(Ctx *ctx, knh_sfp_t *sfp);
 knh_Mapper_t* new_MapMap(Ctx *ctx, knh_Mapper_t *m1, knh_Mapper_t *m2);

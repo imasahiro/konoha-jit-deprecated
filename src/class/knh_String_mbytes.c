@@ -115,7 +115,10 @@ knh_bool_t knh_bytes_checkENCODING(knh_bytes_t s)
 					return 0;
 				}
 			}
-			i += bytes;
+			i += bytes - 1;
+		}
+		else {
+			return 0;
 		}
 	}
 	return 1;
