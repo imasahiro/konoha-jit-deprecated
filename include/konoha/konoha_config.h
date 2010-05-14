@@ -52,8 +52,8 @@
 #define KONOHA_NAME     "konoha"
 #define KONOHA_MAJOR_VERSION  0
 #define KONOHA_MINER_VERSION  5
-#define KONOHA_PATCH_VERSION  1
-#define KONOHA_VERSION  "0.5.1"
+#define KONOHA_PATCH_VERSION  2
+#define KONOHA_VERSION  "0.5.2"
 #endif
 
 #define LIBKONOHA_VERSION "0.5"

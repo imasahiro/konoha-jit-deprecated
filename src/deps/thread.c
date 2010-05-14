@@ -206,7 +206,7 @@ void knh_stack_threadRun(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_thread_t th;
 	knh_threadcc_t ta = {ctx, sfp};
-	knh_thread_create(ctx, &th, NULL, (void (*)(void *))threading, (void*)&ta);
+	knh_thread_create(ctx, &th, NULL, (threadfunc_t)threading, (void*)&ta);
 	knh_thread_detach(ctx, th);
 }
 

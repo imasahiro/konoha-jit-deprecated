@@ -2,7 +2,7 @@
 # define extra dirs
 # these dirs only included for distribution archive.
 
-EXTRA_SUBDIRS = src include dist
+EXTRA_SUBDIRS = src include dist test
 EXTRA_FILES = bootstrap konoha.1
 # dirs which include Makefile.in
 SUBDIRS = build 
