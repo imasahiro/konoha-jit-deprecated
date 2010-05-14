@@ -89,7 +89,7 @@ knh_bool_t knh_bytes_checkUTF8_isSingleton(knh_uchar_t c)
 
 /* ------------------------------------------------------------------------ */
 
-knh_bool_t knh_bytes_checkENCODING(knh_bytes_t s)
+knh_short_t knh_bytes_checkENCODING(knh_bytes_t s)
 {
 #ifdef KONOHA_ENCODING__UTF8
 	size_t i, j;
@@ -107,23 +107,22 @@ knh_bool_t knh_bytes_checkENCODING(knh_bytes_t s)
 		if (knh_bytes_checkUTF8_isSingleton(ch)) {
 		} else if (knh_bytes_checkUTF8_isLead(ch)) {
 			bytes = knh_bytes_checkUTF8_getBytes(ch);
-			for (j=1;j<bytes;j++)
-			{
+			for (j=1;j<bytes;j++){
 				ch = s.buf[i+j];
 				if (!knh_bytes_checkUTF8_isTrail(ch)) {
 					DBG2_P("invalid UTF!");
-					return 0;
+					return j;
 				}
 			}
 			i += bytes - 1;
 		}
 		else {
-			return 0;
+			return -1;
 		}
 	}
-	return 1;
+	return 0;
 #endif
-	return 1; /* if KONOHA_ENCODING is not set */
+	return 0; /* if KONOHA_ENCODING is not set */
 }
 
 /* ------------------------------------------------------------------------ */

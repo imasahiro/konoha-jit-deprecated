@@ -248,20 +248,37 @@ void knh_InputStream_setEncoding(Ctx *ctx, knh_InputStream_t *o, knh_String_t *e
 #define MAXBUF 256
 knh_bool_t knh_InputStream_checkUTF8(Ctx *ctx, knh_InputStream_t *in)
 {
-       knh_bool_t isUTF8;
-       knh_iodrv_t *d = DP(in)->driver;
-       while (1) {
-               char buf[MAXBUF] = {0};
-               size_t size = knh_InputStream_read(ctx, in, buf, MAXBUF);
-               isUTF8 = knh_bytes_checkENCODING(B(buf));
-               if (size < MAXBUF || !isUTF8) {
-                       break;
-               }
-       }
-       /* Reopen InputStream */
-       d->fclose(ctx, DP(in)->fd);
-       d->fopen(ctx, __tobytes(DP(in)->urn), "r", 0/*isThrowable*/);
-       return isUTF8;
+	knh_short_t ret = 0;
+	knh_iodrv_t *d = DP(in)->driver;
+    size_t total_size = 0;
+	while (1) {
+		char buf[MAXBUF] = {0};
+		unsigned long pre_pos = ftell(DP(in)->fp);
+		size_t size = knh_InputStream_read(ctx, in, buf, MAXBUF);
+		total_size += size;
+		fseek(DP(in)->fp, total_size, SEEK_SET);
+		buf[MAXBUF] = '\0';
+		ret = knh_bytes_checkENCODING(B(buf));
+		if (ret == -1) {
+			fseek(DP(in)->fp, 0L, SEEK_SET);
+			return 0;
+		}
+		else if (size < MAXBUF) {
+			break;
+		}
+		else if (ret > 0) {
+			total_size -= ret;
+			fseek(DP(in)->fp, total_size, SEEK_SET);
+			if (pre_pos == ftell(DP(in)->fp)) {
+				fseek(DP(in)->fp, 0L, SEEK_SET);
+				return 0;
+			}
+		}
+	}
+	/* Reopen InputStream */
+	d->fclose(ctx, DP(in)->fd);
+	d->fopen(ctx, __tobytes(DP(in)->urn), "r", 0/*isThrowable*/);
+	return 1;
 }
 
 /* ======================================================================== */

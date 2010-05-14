@@ -484,7 +484,7 @@ knh_bool_t knh_String_endsWith(knh_String_t *b, knh_bytes_t s);
 Object* new_String_parseOf(Ctx *ctx, knh_String_t *p);
 int knh_bytes_splitTag(knh_bytes_t t, knh_bytes_t *tag, knh_bytes_t *body);
 Object *new_Object_parseOf(Ctx *ctx, knh_String_t *s);
-knh_bool_t knh_bytes_checkENCODING(knh_bytes_t s);
+knh_short_t knh_bytes_checkENCODING(knh_bytes_t s);
 size_t knh_bytes_mlen(knh_bytes_t s);
 knh_bytes_t knh_bytes_mofflen(knh_bytes_t m, size_t moff, size_t mlen);
 knh_int_t knh_uchar_toucs4(knh_uchar_t *utf8);

@@ -147,7 +147,7 @@ static MAPPER Bytes_String(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_bytes_t t = knh_Bytes_tobytes((knh_Bytes_t*)sfp[0].o);
 	knh_String_t *s = TS_EMPTY;
-	if(knh_bytes_checkENCODING(t)) {
+	if(knh_bytes_checkENCODING(t) == 0) {
 		s = new_String(ctx, t, NULL);
 	}
 	KNH_MAPPED(ctx, sfp, s);
