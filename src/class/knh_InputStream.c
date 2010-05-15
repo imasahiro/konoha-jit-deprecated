@@ -250,14 +250,21 @@ knh_bool_t knh_InputStream_checkUTF8(Ctx *ctx, knh_InputStream_t *in)
 {
 	knh_short_t ret = 0;
 	knh_iodrv_t *d = DP(in)->driver;
-    size_t total_size = 0;
+	size_t total_size = 0;
+
+	// TODO We have to care about FileInputStream
+	if(!knh_InputStream_isFILE(in)) {
+		TODO();
+		return 1;
+	}
+#if !defined(KNH_USING_NOFILE)
 	while (1) {
 		char buf[MAXBUF] = {0};
-		unsigned long pre_pos = ftell(DP(in)->fp);
+		long pre_pos = ftell(DP(in)->fp);
 		size_t size = knh_InputStream_read(ctx, in, buf, MAXBUF);
 		total_size += size;
 		fseek(DP(in)->fp, total_size, SEEK_SET);
-		buf[MAXBUF] = '\0';
+		buf[MAXBUF-1] = '\0';
 		ret = knh_bytes_checkENCODING(B(buf));
 		if (ret == -1) {
 			fseek(DP(in)->fp, 0L, SEEK_SET);
@@ -278,6 +285,7 @@ knh_bool_t knh_InputStream_checkUTF8(Ctx *ctx, knh_InputStream_t *in)
 	/* Reopen InputStream */
 	d->fclose(ctx, DP(in)->fd);
 	d->fopen(ctx, __tobytes(DP(in)->urn), "r", 0/*isThrowable*/);
+#endif
 	return 1;
 }
 

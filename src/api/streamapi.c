@@ -46,7 +46,7 @@ static METHOD InputStream_new(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_InputStream_t *in = (knh_InputStream_t*)sfp[0].o;
 	in = (knh_InputStream_t*) knh_InputStream_open(ctx, in, sfp[1].s, sfp[2].s);
-#if defined(KNH_USING_WINDOWS)	
+#if defined(KNH_USING_WINDOWS)
 	knh_String_t *enc;
 	if(knh_InputStream_checkUTF8(ctx, in)) {
 		enc = new_String(ctx, STEXT("UTF-8"), NULL);
