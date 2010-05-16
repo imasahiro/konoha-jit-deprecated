@@ -826,10 +826,10 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_code_t *pc);
 
 #define KLR_iMODn(ctx, c, a, n)  SFi(c) = (SFi(a) % n)
 
-#define KLR_iEQ(ctx, c, a, b)  SFi(c) = (SFi(a) == SFi(b))
-#define KLR_iEQn(ctx, c, a, n)  SFi(c) = (SFi(a) == n)
-#define KLR_iNEQ(ctx, c, a, b)  SFi(c) = (SFi(a) != SFi(b))
-#define KLR_iNEQn(ctx, c, a, n)  SFi(c) = (SFi(a) != n)
+#define KLR_iEQ(ctx, c, a, b)  SFb(c) = (SFi(a) == SFi(b))
+#define KLR_iEQn(ctx, c, a, n)  SFb(c) = (SFi(a) == n)
+#define KLR_iNEQ(ctx, c, a, b)  SFb(c) = (SFi(a) != SFi(b))
+#define KLR_iNEQn(ctx, c, a, n)  SFb(c) = (SFi(a) != n)
 
 #define KLR_iLT(ctx, c, a, b)  SFb(c) = (SFi(a) < SFi(b))
 #define KLR_iLTn(ctx, c, a, n)  SFb(c) = (SFi(a) < n)
