@@ -2103,6 +2103,7 @@ Term *knh_Stmt_done(Ctx *ctx, knh_Stmt_t *o)
 static void knh_Gamma_init(Ctx *ctx, knh_Gamma_t *kc, int init)
 {
 	knh_Gamma_struct *b = DP(kc);
+	b->goffset = 0;
 	b->flag = 0;
 	b->this_cid = CLASS_Object;
 	KNH_INITv(b->ns, ctx->share->mainns);
