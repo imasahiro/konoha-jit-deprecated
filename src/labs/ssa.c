@@ -19,7 +19,7 @@ static inline void KLRInst_updateInst(Ctx *ctx, knh_Array_t *insts, int i, knh_i
     knh_KLRInst_t *inst = new_KLRInst(ctx, op);
     KNH_SETv(ctx, knh_Array_n(insts, i), inst);
 }
-void knh_KLRCode_optimize(Ctx *ctx, knh_Array_t *insts)
+void knh_KLRInst_optimize(Ctx *ctx, knh_Array_t *insts)
 {
 #if 0
     size_t i, inst_size = knh_Array_size(insts);

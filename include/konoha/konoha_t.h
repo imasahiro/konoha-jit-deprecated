@@ -904,8 +904,9 @@ typedef struct {
 #define KNH_DRVAPI_TYPE__PARSER           4
 #define KNH_DRVAPI_TYPE__REGEX            5
 #define KNH_DRVAPI_TYPE__DB               6
+#define KNH_DRVAPI_TYPE__JIT              7
 
-#define IS_DRVAPI(c)   (0 < c && c < 7)
+#define IS_DRVAPI(c)   (0 < c && c < 8)
 
 /* ------------------------------------------------------------------------ */
 /* KNH_DRVAPI_TYPE__BYTECONV */
@@ -1006,6 +1007,22 @@ typedef struct {
 	knh_fdbcurnext dbcurnext;
 	knh_fdbcurfree dbcurfree;
 } knh_db_drvapi_t;
+
+/* ------------------------------------------------------------------------ */
+/* KNH_DRVAPI_TYPE__JIT */
+
+typedef knh_code_t* (*func_t)(Ctx *ctx, knh_code_t *pc, void *data);
+typedef void (*finit_t)(Ctx *ctx, knh_sfp_t *sfp, void **data);
+typedef void (*fexit_t)(Ctx *ctx, knh_sfp_t *sfp, void **data);
+
+typedef struct knh_jit_drvapi_t {
+	int type;
+	char *name;
+	finit_t init;
+	fexit_t exit;
+	func_t func[144];
+} knh_jitDSPI_t;
+
 
 /* ======================================================================== */
 /* mutex */

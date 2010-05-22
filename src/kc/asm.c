@@ -210,11 +210,7 @@ static void knh_Gamma_finish(Ctx *ctx)
 		knh_sfp_t *lsfp = KNH_LOCAL(ctx);
 		KNH_SETv(ctx, lsfp[0].o, mtd);
 		//lsfp[0].pc = mtd->pc_start;
-#ifdef KNH_KLR_CONVERT
-		knh_KLRCode_toCttCode(ctx, lsfp+1); /* convert KLRCode to CTT  */
-#else
-		knh_KLRCode_exec(ctx, lsfp+1); /* code threading */
-#endif
+		knh_KLRCode_optimize(ctx, lsfp+1);
 		DBG2_P("mtd(%p)", mtd);
 		DBG2_DUMP(ctx, mtd, KNH_NULL, "Compiled Code");
 	}
