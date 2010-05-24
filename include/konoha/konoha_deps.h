@@ -64,7 +64,7 @@
 #define     KNH_USING_REGEX    1
 //#define     KNH_USING_SQLITE3  1
 //#define     KNH_USING_THREAD   1
-//#define     KNH_USING_PTHREAD  1
+#define     KNH_USING_PTHREAD  1
 #define     KONOHA_OS_ENCODING "UTF-8"
 #define     KONOHA_OS_LINEFEED "\n"
 #define     KONOHA_OS_DLLEXT ".dylib"

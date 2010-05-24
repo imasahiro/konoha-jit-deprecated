@@ -52,7 +52,8 @@ knh_jitDSPI_t JIT__NOP = {
 		knh_jit_nop, knh_jit_nop, knh_jit_nop, knh_jit_nop, knh_jit_nop,
 		knh_jit_nop, knh_jit_nop, knh_jit_nop, knh_jit_nop, knh_jit_nop,
 		knh_jit_nop, knh_jit_nop, knh_jit_nop, knh_jit_nop, knh_jit_nop,
-		knh_jit_nop, knh_jit_nop, knh_jit_nop, knh_jit_nop
+		knh_jit_nop, knh_jit_nop, knh_jit_nop, knh_jit_nop, knh_jit_nop,
+		knh_jit_nop, knh_jit_nop, knh_jit_nop, knh_jit_nop,
 	}
 };
 
