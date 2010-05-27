@@ -147,8 +147,9 @@ static METHOD String_indexOf__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp)
 	knh_bytes_t base = __tobytes(sfp[0].s);
 	knh_bytes_t delim = __tobytes(sfp[1].s);
 	knh_intptr_t loc = base.len - delim.len;
+	knh_uchar_t ch = tolower(delim.buf[0]);
 	for(loc = 0; loc < base.len - delim.len; loc++) {
-		if(base.buf[loc] != delim.buf[loc]) continue;
+		if(tolower(base.buf[loc]) != ch) continue;
 		knh_bytes_t sub = knh_bytes_offlen(base, loc, delim.len);
 		if(knh_bytes_strcasecmp(sub, delim) == 0) break;
 	}
@@ -169,7 +170,7 @@ static METHOD String_lastIndexOf(Ctx *ctx, knh_sfp_t *sfp)
 	knh_bytes_t delim = __tobytes(sfp[1].s);
 	knh_intptr_t loc = base.len - delim.len;
 	for(; loc >= 0; loc--) {
-		if(base.buf[loc] != delim.buf[loc]) continue;
+		if(base.buf[loc] != delim.buf[0]) continue;
 		knh_bytes_t sub = knh_bytes_offlen(base, loc, delim.len);
 		if(knh_bytes_strcmp(sub, delim) == 0) break;
 	}
@@ -188,8 +189,9 @@ static METHOD String_lastIndexOf__IgnoreCase(Ctx *ctx, knh_sfp_t *sfp)
 	knh_bytes_t base = __tobytes(sfp[0].s);
 	knh_bytes_t delim = __tobytes(sfp[1].s);
 	knh_intptr_t loc = base.len - delim.len;
+	knh_uchar_t ch = tolower(delim.buf[0]);
 	for(; loc >= 0; loc--) {
-		if(base.buf[loc] != delim.buf[loc]) continue;
+		if(tolower(base.buf[loc]) != ch) continue;
 		knh_bytes_t sub = knh_bytes_offlen(base, loc, delim.len);
 		if(knh_bytes_strcasecmp(sub, delim) == 0) break;
 	}
