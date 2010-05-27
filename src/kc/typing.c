@@ -2631,7 +2631,9 @@ Term *knh_StmtNEW_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_class_t reqt)
 		goto L_LOOKUPMETHOD;
 	}
 
-	if(mtd_cid == CLASS_Array) {
+	if((mtd_cid == CLASS_Array) || 
+			(mtd_cid == CLASS_IArray) ||
+			(mtd_cid == CLASS_FArray)) {
 		knh_class_t bcid = ClassTable(reqc).bcid;
 		if(bcid == CLASS_Array || bcid == CLASS_IArray || bcid == CLASS_FArray) {
 			mtd_cid = reqc;

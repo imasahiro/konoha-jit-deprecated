@@ -4,7 +4,7 @@
 # Autoconf for konoha scripting language
 
 # required Autoconf version
-AC_PREREQ(2.61)
+AC_PREREQ(2.57)
 #initiate Autoconf
 
 AC_INIT([konoha], [0.5.2], [konoha-bugs@list.sourceforge.jp])
@@ -156,6 +156,10 @@ use_iconv=$with_iconv
 if test $with_iconv = detect; then
   use_iconv=no
   AC_CHECK_LIB(iconv, iconv_open, use_iconv=yes)
+  if test $use_iconv=no; then
+    AC_CHECK_LIB(iconv, libiconv_open, use_iconv=yes)
+  fi
+
   AC_CHECK_LIB(c, iconv_open, with_iconv=yes)
   AC_MSG_CHECKING(iconv detected)
   AC_MSG_RESULT($use_iconv)

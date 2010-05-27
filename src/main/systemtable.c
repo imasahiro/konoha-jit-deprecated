@@ -544,15 +544,15 @@ void knh_traverseSharedData(Ctx *ctx, knh_SharedData_t *share, knh_ftraverse ftr
 /* ------------------------------------------------------------------------ */
 
 static
-void knh_traverseUnusedContext(Ctx *ctx, knh_ftraverse ftr)
+void knh_traverseUnusedContext(Ctx *ctx, Ctx *o, knh_ftraverse ftr)
 {
-	if(ctx->unusedContext != NULL) {
-		knh_traverseUnusedContext(ctx->unusedContext, ftr);
+	if(o->unusedContext != NULL) {
+		knh_traverseUnusedContext(o, o->unusedContext, ftr);
 	}
-	knh_Context_traverseCommon(ctx, (knh_Context_t*)ctx, ftr);
+	knh_Context_traverseCommon(ctx, (knh_Context_t*)o, ftr);
 	if(IS_SWEEP(ftr)) {
-		knh_bzero((void*)ctx, sizeof(knh_Context_t));
-		knh_free(ctx, (void*)ctx, sizeof(knh_Context_t));
+		knh_bzero((void*)o, sizeof(knh_Context_t));
+		knh_free(ctx, (void*)o, sizeof(knh_Context_t));
 	}
 }
 
@@ -563,7 +563,7 @@ void knh_Context_traverse(Ctx *ctx, knh_Context_t *o, knh_ftraverse ftr)
 	knh_Context_traverseCommon(ctx, (knh_Context_t*)o, ftr);
 	if(o->parent == (knh_Context_t*)o) {
 		if(o->unusedContext != NULL) {
-			knh_traverseUnusedContext(o->unusedContext, ftr);
+			knh_traverseUnusedContext(ctx, o->unusedContext, ftr);
 		}
 		knh_traverseSharedData(ctx, (knh_SharedData_t*)o->share, ftr);
 		if(IS_SWEEP(ftr)) {
@@ -574,7 +574,7 @@ void knh_Context_traverse(Ctx *ctx, knh_Context_t *o, knh_ftraverse ftr)
 	else {
 		if(IS_SWEEP(ftr)) {
 			knh_bzero((void*)o, sizeof(knh_Context_t));
-			knh_free(o, (void*)o, sizeof(knh_Context_t));
+			knh_free(ctx, (void*)o, sizeof(knh_Context_t));
 		}
 	}
 }
@@ -595,7 +595,7 @@ Ctx *new_ThreadContext(Ctx *parent)
 	Ctx *root = knh_getRootContext(parent);
 	knh_Context_t *ctx = NULL;
 	if(root->unusedContext != NULL) {
-		KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
+		KNH_LOCK(root, LOCK_SYSTBL, NULL);
 		ctx = (knh_Context_t*)root->unusedContext;
 		if(ctx != NULL) {
 			((knh_Context_t*)root)->unusedContext = ctx->unusedContext;
