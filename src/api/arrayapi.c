@@ -60,7 +60,7 @@ static METHOD Bytes_write(Ctx *ctx, knh_sfp_t *sfp)
 	knh_Bytes_t *o = (knh_Bytes_t*)sfp[0].o;
 	knh_bytes_t t = knh_Bytes_tobytes(sfp[1].ba);
 	if(IS_NOTNULL(sfp[2].o)) {
-		size_t n = knh_array_index(ctx, p_int(sfp[2]), o->size);
+		size_t n = knh_array_index(ctx, p_int(sfp[2]), t.len);
 		t = knh_bytes_last(t, n);
 	}
 	if(IS_NOTNULL(sfp[3].o)) {

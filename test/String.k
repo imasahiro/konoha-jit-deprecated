@@ -71,6 +71,93 @@ test "String.replace" {
     assert (str.replace("0","o") == "konoha");
 }
 
+String jaiu = "あいうえお";
+String jaaa = "あああああ";
+String ja = "あ";
+String jp = "あaいaaあacいcc";
+String jaiu2 = "あいうあいう";
+String jk = "よろしくお願いします！";
+
+test "String []" {
+    assert(jk[5] == "願");
+}
+
+test "String +" {
+    assert( jaiu+ja == "あいうえおあ");
+}
+
+test "String - String" {
+    assert(jaiu2 - "いう" == "ああ");
+}
+
+test "String * int" {
+    assert(jaiu.times(2)=="あいうえおあいうえお");
+}
+
+test "String + + *3" {
+    assert(ja + jaiu2 + "を".times(3) == "ああいうあいうををを");
+}
+
+test "String.endsWith" {
+    assert(jk.endsWith("！") && jp.endsWith("c"));
+}
+
+test "String.equals" {
+    assert(jp.equals("あaいaaあacいc"+"c"));
+}
+
+test "String.get" {
+    assert(jk.get(8)=="ま");
+}
+
+test "String.get size over" {
+    try {
+        jk.get(13);
+    } catch(OutOfIndex!! e) {
+        assert(true);
+    }
+}
+
+test "String.getSize" {
+    assert(jp.getSize()==11);
+}
+
+test "String.indexOf" {
+    assert(jp.indexOf("いc")==8); //14??
+}
+
+test "String.replace" {
+    assert(jp.replace("あ","a")=="aaいaaaacいcc");
+}
+
+test "String.replace(2)" {
+    assert(jaaa.replace(ja,"い") == "いいいいい");
+}
+
+test "String.startsWith" {
+    assert(ja.startsWith("あ") && jp.startsWith("あaい"));
+}
+
+test "String.startsWith (long arg)" {
+    assert(!ja.startsWith("sあえせ"));
+}
+
+test "String.toLower" {
+    assert(jp.toLower() == jp);
+}
+
+test "String.toUpper" {
+    assert(jp.toUpper() == "あAいAAあACいCC");
+}
+
+test "String.trim" {
+    assert("　あ　".trim() == "　あ　");
+}
+
+test "String.trim(2)" {
+    assert("　あ い う ".trim() == "　あ い う");
+}
+
 test "String.toLower" {
     String str = "SMALL";
     assert (str.toLower() == "small");
