@@ -21,7 +21,7 @@ static inline void KLRInst_updateInst(Ctx *ctx, knh_Array_t *insts, int i, knh_i
 }
 void knh_KLRInst_optimize(Ctx *ctx, knh_Array_t *insts)
 {
-#if 0
+#if 1
     size_t i, inst_size = knh_Array_size(insts);
     knh_KLRInst_t *inst;
 
@@ -32,8 +32,7 @@ void knh_KLRInst_optimize(Ctx *ctx, knh_Array_t *insts)
         if(inst->opcode == OPCODE_FCALL) {
             klr_FCALL_t *o = (klr_FCALL_t *) inst->op;
             knh_Method_t *mtd = o->a4;
-            knh_String_t *name = knh_Method_getName(ctx, mtd);
-            if (knh_bytes_strcmp(knh_String_tobytes(name), B("opNext")) == 0) {
+            if (DP(mtd)->mn == FIELDN_opNext) {
                 klr_iADDn_t op = {TADDR OPCODE_iADDn, o->a1, o->a3, 1};
                 KLRInst_updateInst(ctx, insts, i, (knh_inst_t *)&op);
             }

@@ -119,6 +119,14 @@ static METHOD System_test(Ctx *ctx, knh_sfp_t *sfp)
 }
 
 /* ------------------------------------------------------------------------ */
+//## method Int System.getTime();
+
+static METHOD System_getTime(Ctx *ctx, knh_sfp_t *sfp, long rix)
+{
+	KNH_RETURN_Int(ctx, sfp, knh_getTimeMilliSecond());
+}
+
+/* ------------------------------------------------------------------------ */
 //## @static method Int Script.system(String cmd);
 
 static METHOD Script_system(Ctx *ctx, knh_sfp_t *sfp)
