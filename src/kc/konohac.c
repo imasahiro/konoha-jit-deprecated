@@ -481,6 +481,8 @@ int knh_StmtCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt)
 		else if(knh_class_isFinal(supcid)) {
 			knh_Gamma_perror(ctx, KERR_ERROR, _("cannot extends %C: this class is final"), supcid);
 			knh_Stmt_done(ctx, stmt);
+			/* failed to generate new Class id. resize ClassTableSize. */
+			((knh_SharedData_t*)ctx->share)->ClassTableSize += 1;
 			return 0;
 		}
 	}

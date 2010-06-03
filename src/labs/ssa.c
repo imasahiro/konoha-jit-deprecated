@@ -21,7 +21,7 @@ static inline void KLRInst_updateInst(Ctx *ctx, knh_Array_t *insts, int i, knh_i
 }
 void knh_KLRInst_optimize(Ctx *ctx, knh_Array_t *insts)
 {
-#if 1
+#if 0
     size_t i, inst_size = knh_Array_size(insts);
     knh_KLRInst_t *inst;
 
