@@ -7,7 +7,7 @@
 #define DN_LEDEC  -203
 
 /* -------------------------------------------------------------------------*/
-//## method void System.chipLed(Int! x);
+//## method void System.chipLed(Int x);
 
 METHOD System_chipLed(Ctx *ctx, knh_sfp_t *sfp)
 {
@@ -18,7 +18,7 @@ METHOD System_chipLed(Ctx *ctx, knh_sfp_t *sfp)
 	KNH_RETURN_void(ctx, sfp);
 }
 /* -------------------------------------------------------------------------*/
-//## method void System.segLed(Int! x);
+//## method void System.segLed(Int x);
 
 METHOD System_segLed(Ctx *ctx, knh_sfp_t *sfp)
 {
@@ -30,7 +30,7 @@ METHOD System_segLed(Ctx *ctx, knh_sfp_t *sfp)
 }
 
 /* -------------------------------------------------------------------------*/
-//## method void System.led(Int! x);
+//## method void System.led(Int x);
 
 METHOD System_led(Ctx *ctx, knh_sfp_t *sfp)
 {

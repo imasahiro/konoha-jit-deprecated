@@ -1,8 +1,8 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
- *           (c) 2008-      Konoha Software Foundation
+ * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ *           (c) 2008-      Konoha Team konohaken@googlegroups.com
  * All rights reserved.
  *
  * You may choose one of the following two licenses when you use konoha.
@@ -28,26 +28,7 @@
 #ifndef COMMONS_H_
 #define COMMONS_H_
 
-#define KONOHA_MACROS
+#define K_INTERNAL  1
 #include"../../include/konoha.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
-/* ------------------------------------------------------------------------ */
-
-#define KNH_SAYS(fmt, ...) \
-	fflush(stdout); \
-	fprintf(stderr, "konoha[%s:%d/%s]: ", knh_safefile(__FILE__), __LINE__, __FUNCTION__); \
-	fprintf(stderr, fmt, ## __VA_ARGS__); \
-	fprintf(stderr, "\n"); \
-
-/* ------------------------------------------------------------------------ */
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /*COMMONS_H_*/

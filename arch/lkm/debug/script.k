@@ -1,1 +1,0 @@
-(Chardev.read).setDebugMode();

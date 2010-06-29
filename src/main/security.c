@@ -1,8 +1,8 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
- *           (c) 2008-      Konoha Software Foundation
+ * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ *           (c) 2008-      Konoha Team konohaken@googlegroups.com
  * All rights reserved.
  *
  * You may choose one of the following two licenses when you use konoha.
@@ -51,10 +51,10 @@ void knh_setSecureMode(void)
 
 knh_bool_t knh_isTrustedPath(Ctx *ctx, knh_bytes_t path)
 {
-	DBG2_P("check: %s", (char*)path.buf);
-	if(knh_bytes_startsWith(path, STEXT("http:"))) {
-		return 0;
-	}
+//	DBG_P("check: %s", (char*)path.buf);
+//	if(knh_bytes_startsWith(path, STEXT("http:"))) {
+//		return 0;
+//	}
 	return (secureMode != 1);
 }
 
@@ -71,18 +71,18 @@ KNHAPI(char*) knh_getPassword(Ctx *ctx, knh_bytes_t url)
 
 KNHAPI(void) knh_stack_checkSecurityManager(Ctx *ctx, knh_sfp_t *sfp)
 {
-	/* VERY SLOW */
-	knh_sfp_t *sp = sfp - 2;
-	while(ctx->stack < sp) {
-		if(IS_Method(sp[0].mtd)) {
-			if(!URI_ISTRUSTED(DP(sp[0].mtd)->uri)) {
-				char buf[FILEPATH_BUFSIZ];
-				knh_snprintf(buf, sizeof(buf), "Security!!: untrusted domain='%s'", URIDN(DP(sp[0].mtd)->uri));
-				KNH_THROW__T(ctx, buf);
-			}
-		}
-		sp--;
-	}
+//	/* VERY SLOW */
+//	knh_sfp_t *sp = sfp - 2;
+//	while(ctx->stack < sp) {
+//		if(IS_Method(sp[0].mtd)) {
+//			if(!URI_ISTRUSTED(DP(sp[0].mtd)->uri)) {
+//				char buf[FILEPATH_BUFSIZ];
+//				knh_snprintf(buf, sizeof(buf), "Security!!: untrusted domain='%s'", URIDN(DP(sp[0].mtd)->uri));
+//				KNH_THROW__T(ctx, buf);
+//			}
+//		}
+//		sp--;
+//	}
 }
 
 /* ------------------------------------------------------------------------ */

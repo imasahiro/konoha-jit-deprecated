@@ -7,11 +7,11 @@
 AC_PREREQ(2.57)
 #initiate Autoconf
 
-AC_INIT([konoha], [0.5.2], [konoha-bugs@list.sourceforge.jp])
+AC_INIT([konoha], [0.7], [konoha-bugs@list.sourceforge.jp])
 
 # initiate automake with program name, version, -wall option
 
-AM_INIT_AUTOMAKE([konoha], [0.5.2], -Wall)
+AM_INIT_AUTOMAKE([konoha], [0.7], -Wall)
 
 AC_CONFIG_SRCDIR([build/Makefile.in])
 AC_CONFIG_HEADER([config.h])
@@ -27,7 +27,6 @@ AC_DISABLE_STATIC
 AC_LIBTOOL_WIN32_DLL
 AC_PROG_LIBTOOL
 
-DOLT
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-ldl':
 
@@ -47,7 +46,7 @@ esac
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([float.h langinfo.h localcharset.h limits.h locale.h stdlib.h string.h sys/time.h unistd.h iconv.h readline/readline.h])
+AC_CHECK_HEADERS([float.h langinfo.h localcharset.h limits.h locale.h stdlib.h string.h sys/time.h unistd.h iconv.h readline/readline.h sys/param.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -57,7 +56,7 @@ AC_STRUCT_TM
 
 # Checks for library functions.
 AC_FUNC_MALLOC
-AC_CHECK_FUNCS([isascii memset realpath qsort_r])
+AC_CHECK_FUNCS([isascii memset realpath qsort_r posix_memalign mmap])
 
 # Options ###### ############################################################
 # Kimio Kuramitsu
@@ -71,7 +70,7 @@ esac],
 [enable_rcgc=no])
 
 if test $enable_rcgc = yes; then
-  AC_DEFINE_UNQUOTED([KNH_USING_RCGC], [1], Enable referencing counting mode)
+  AC_DEFINE_UNQUOTED([K_USING_RCGC], [1], Enable referencing counting mode)
 fi
 
 AC_ARG_ENABLE(debug,
@@ -83,13 +82,10 @@ esac],
 [enable_debug=no])
 
 if test $enable_debug = yes; then
-  AC_DEFINE_UNQUOTED([KNH_DBGMODE], [1], Enable debug mode)
+  AC_DEFINE_UNQUOTED([K_USING_DEBUG], [1], Enable debug mode)
 fi
 if test $enable_debug = 1; then
-  AC_DEFINE_UNQUOTED([KNH_DBGMODE], [1], Enable debug mode)
-fi
-if test $enable_debug = 2; then
-  AC_DEFINE_UNQUOTED([KNH_DBGMODE2], [1], Enable debug mode level2)
+  AC_DEFINE_UNQUOTED([K_USING_DEBUG], [1], Enable debug mode)
 fi
 
 AC_ARG_ENABLE(int32,
@@ -101,14 +97,7 @@ esac],
 [enable_int32=no])
 
 if test $enable_int32 = yes; then
-  AC_DEFINE_UNQUOTED([KNH_USING_INT32], [1], Enable int32)
-fi
-
-with_regex=no
-AC_CHECK_HEADER(regex.h, with_regex=yes)
-
-if test $with_regex = 2; then
-  AC_DEFINE_UNQUOTED([KNH_USING_REGEX], [1], Using regex)
+  AC_DEFINE_UNQUOTED([K_USING_INT32], [1], Enable int32)
 fi
 
 # ADDED for mtune ############################################################
@@ -137,7 +126,7 @@ fi
 if test $with_mtune = no; then
   WITHOUT_MTUNE=0
 else
-  AC_DEFINE_UNQUOTED([KONOHA_CC_CPU], ["{$with_mtune}"], mtune option)
+  AC_DEFINE_UNQUOTED([K_CC_CPU], ["{$with_mtune}"], mtune option)
 fi
 
 # ADDED for iconv ############################################################
@@ -156,16 +145,15 @@ use_iconv=$with_iconv
 if test $with_iconv = detect; then
   use_iconv=no
   AC_CHECK_LIB(iconv, iconv_open, use_iconv=yes)
-  if test $use_iconv=no; then
+  if test $use_iconv = no; then
     AC_CHECK_LIB(iconv, libiconv_open, use_iconv=yes)
   fi
-
   AC_CHECK_LIB(c, iconv_open, with_iconv=yes)
   AC_MSG_CHECKING(iconv detected)
   AC_MSG_RESULT($use_iconv)
 fi
 if test $with_iconv = yes; then
-  AC_DEFINE_UNQUOTED([KNH_USING_ICONV], [1], Using iconv)
+  AC_DEFINE_UNQUOTED([K_USING_ICONV], [1], Using iconv)
   AC_SUBST(WITH_ICONV_01, 1)
 else
   WITH_ICONV_01=0
@@ -212,7 +200,7 @@ fi
 if test $use_readline = yes; then
   AC_SUBST(WITH_READLINE_01, 1)
   AC_SUBST(LIBREADLINE, -lreadline)
-  AC_DEFINE_UNQUOTED([KNH_USING_READLINE], [1], Using readline)
+  AC_DEFINE_UNQUOTED([K_USING_READLINE], [1], Using readline)
   if test $with_libcurses = yes; then
     LIBS="$LIBS -lncurses"
   fi
@@ -248,7 +236,7 @@ if test $with_socket = detect; then
   AC_MSG_RESULT($use_socket)
 fi
 if test $with_socket = yes; then
-  AC_DEFINE_UNQUOTED([KNH_USING_SOCKET], [1], Using socket)
+  AC_DEFINE_UNQUOTED([K_USING_SOCKET], [1], Using socket)
   AC_SUBST(WITH_SOCKET_01, 1)
 else
   WITH_SOCKET_01=0
@@ -278,7 +266,7 @@ if test $with_sqlite3 = detect; then
   AC_MSG_RESULT($use_sqlite3)
 fi
 if test $use_sqlite3 = yes; then
-  AC_DEFINE_UNQUOTED([KNH_USING_SQLITE3], [1], Using sqlite3)
+  AC_DEFINE_UNQUOTED([K_USING_SQLITE3], [1], Using sqlite3)
   AC_SUBST(LIBSQLITE3, -lsqlite3)
   LIBS="$LIBS -lsqlite3"
 fi
@@ -302,11 +290,11 @@ if test $with_thread = detect; then
   AC_MSG_CHECKING(pthread detected)
   AC_MSG_RESULT($use_thread)
   if test $use_thread = yes; then
-    AC_DEFINE_UNQUOTED([KNH_USING_PTHREAD], [1], Using pthread detected)
+    AC_DEFINE_UNQUOTED([K_USING_PTHREAD], [1], Using pthread detected)
   fi
 fi
 if test $use_thread = yes; then
-  AC_DEFINE_UNQUOTED([KNH_USING_THREAD], [1], Using thread)
+  AC_DEFINE_UNQUOTED([K_USING_THREAD], [1], Using thread)
   AC_SUBST(WITH_THREAD_01, 1)
   AC_SUBST(LIBTHREAD, -lpthread)
   LIBS="$LIBS -lpthread"
@@ -316,8 +304,7 @@ fi
 
 #############################################################################
 
-AC_CONFIG_FILES([Makefile
-		 build/Makefile])
+AC_CONFIG_FILES([Makefile build/Makefile konoha.pc])
 
 # define macros for each operating system.
 # available for linux, cygwin, mingw, darwin.(present)
@@ -342,15 +329,33 @@ AC_CONFIG_FILES([Makefile
 #AM_CONDITIONAL([LDL], [test x$ldl = xtrue])
 
 # define macros for konoha
-AC_DEFINE_UNQUOTED([ACCONFIG_KONOHA_OS], [${host_os}], Defining KONOHA_OS_MACROS)
+AC_DEFINE_UNQUOTED([ACCONFIG_K_OS], [${host_os}], Defining K_OS_MACROS)
 
 AC_MSG_RESULT([this is ${prefix}])
 if  test  "${prefix}" != "NONE" ; then
-  AC_DEFINE_UNQUOTED([KNH_PREFIX], ["${prefix}"], Defineing konoha prefix install folder)
+  AC_DEFINE_UNQUOTED([K_PREFIX], ["${prefix}"], Defineing konoha prefix install folder)
 else
-  AC_DEFINE_UNQUOTED([KNH_PREFIX], "$ac_default_prefix", Difining konoha library prefix with default value)
+  AC_DEFINE_UNQUOTED([K_PREFIX], "$ac_default_prefix", Difining konoha library prefix with default value)
 fi
 
-AC_DEFINE_UNQUOTED([KONOHA_CONFIG_OS], ["${host_os}"], Konoha os type)
+AC_DEFINE_UNQUOTED([K_CONFIG_OS], ["${host_os}"], Konoha os type)
 
 AC_OUTPUT
+AC_MSG_RESULT([
+Konoha ${PACKAGE_VERSION} is now configured for ${host_os}.
+
+  Installation prefix:  ${prefix}
+  C compiler:           $CC $CFLAGS $CPPFLAGS
+  Linker:               $CC $LIBS $LDFLAGS
+  Debug Mode            $enable_debug
+  iconv    support      $use_iconv
+  readline support      $use_readline
+  sqlite3  support      $use_sqlite3
+  thread   support      $use_thread
+  socket   support      $use_socket
+
+Now run 'make' to build everything, and 'make test' to 
+test builded software. 'make install' install this 
+software on your system. To remove the installed software
+at a later time use the 'make uninstall' command.
+])

@@ -1,8 +1,8 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
- *           (c) 2008-      Konoha Software Foundation
+ * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ *           (c) 2008-      Konoha Team konohaken@googlegroups.com
  * All rights reserved.
  *
  * You may choose one of the following two licenses when you use konoha.
@@ -35,186 +35,341 @@ extern "C" {
 #endif
 
 /* ------------------------------------------------------------------------ */
+/* UTILS_API */
+
+typedef struct knh_ExportsAPI_t {
+	void* (*malloc)(Ctx *, size_t);
+	void  (*free)(Ctx *, void *, size_t);
+	// stack
+	void  (*setsfp)(Ctx *, knh_sfp_t *, void *);
+	void  (*closeIterator)(Ctx *, knh_Iterator_t *);
+	void  (*ebilog)(Ctx *, const char*, const char*, int, const char*, ...);
+	void  (*perror)(Ctx *, knh_sfp_t *sfp, const char*, const char*);
+	void  (*dbg_p)(const char*, const char*, int, const char*, ...);
+	void  (*todo_p)(const char*, const char*, int, const char*, ...);
+	// cwbbuf
+	void (*cwb_clear)(knh_cwb_t *, size_t);
+	char* (*cwb_tochar)(Ctx*, knh_cwb_t *);
+	// String
+	knh_String_t* (*new_String)(Ctx*, char*);
+	char* (*tochar)(Ctx*, knh_String_t*);
+	// RawPtr
+	knh_RawPtr_t* (*new_RawPtr)(Ctx*, void*, knh_FfreeRawPtr, knh_class_t, const char*);
+	void (*RawPtr_init)(Ctx *, knh_RawPtr_t*, void *, knh_FfreeRawPtr);
+	knh_InputStream_t* (*new_InputStreamNULL)(Ctx *, knh_String_t *, char *mode);
+	knh_OutputStream_t* (*new_OutputStreamNULL)(Ctx *, knh_String_t *, char *mode);
+	// OutputStream, Bytes
+	void (*putc)(Ctx *, void *, int);
+	void (*write)(Ctx *, void *, char *, size_t);
+} knh_ExportsAPI_t;
+
+#ifdef K_EXPORTS
+//#define knh_cwb_open(ctx, cwbbuf)   ctx->api->cwb_open(ctx, cwbbuf)
+//#define knh_cwb_clear(cwb, s)       ctx->api->cwb_clear(cwb, s)
+#define knh_cwb_tochar(ctx, cwb)    ctx->api->cwb_tochar(ctx, cwb)
+//#define knh_cwb_tobytes(cwb, s)     ctx->api->cwb_clear(cwb, s)
+//#define new_String(ctx, s)          ctx->api->new_String(ctx, s)
+//#define S_tochar(s)                 ctx->api->tochar(ctx, s)
+#define new_RawPtr(ctx, p, f, cid, n)  ctx->api->new_RawPtr(ctx, p, f, cid, n)
+#define knh_RawPtr_init(ctx, rp, p, f) ctx->api->RawPtr_init(ctx, rp, p, f)
+#define new_InputStreamNULL(ctx, s, mode)  ctx->api->new_InputStreamNULL(ctx, s, mode)
+#define new_OutputStreamNULL(ctx, s, mode)  ctx->api->new_OutputStreamNULL(ctx, s, mode)
+//#define knh_putc(ctx, w, ch)         ctx->api->putc(ctx, w, ch)
+//#define knh_write(ctx, w, s, len)    ctx->api->write(ctx, w, s, len)
+#endif
+
+/* ------------------------------------------------------------------------ */
+/* driver */
+
+typedef struct {
+	int   type;
+	char *name;
+} knh_DriverSPI_t ;
+
+#define K_PATH_DSPI             1
+#define K_CONVTO_DSPI           2
+#define K_CONVFROM_DSPI         3
+#define K_STREAM_DSPI           4
+#define K_REGEX_DSPI            5
+#define K_QUERY_DSPI            6
+#define K_MAP_DSPI              7
+
+#define IS_DRVAPI(c)   (0 < c && c < 8)
+#define K_DEFAULT_DSPI          STEXT("")
+
+/* ------------------------------------------------------------------------ */
+/* K_PATH_DSPI */
+
+#define PATH_INTERNAL    0
+#define PATH_SYSTEM      1
+#define PATH_STREAM      2
+#define PATH_EXTERNAL    3
+#define PATH_CONVERTER   4
+
+typedef struct knh_PathDSPI_t {
+	int   type;
+	char *name;
+	knh_ushort_t pathtype;
+	knh_ushort_t cid;
+	knh_bool_t (*exists)(Ctx *, knh_bytes_t, knh_intptr_t *);
+	Object* (*newObjectNULL)(Ctx *, knh_class_t, knh_String_t *s);
+//	union {
+//		struct knh_StreamDSPI_t    *streamDSPI;
+//		struct knh_ConverterDSPI_t *convDSPI;
+//	};
+} knh_PathDSPI_t;
+
+/* ------------------------------------------------------------------------ */
+/* K_BCONV_DSPI */
+
+typedef struct knh_ConverterDSPI_t {
+	int  type;
+	char *name;
+	knh_conv_t* (*open)(Ctx *, const char*, const char*);
+	knh_bool_t (*conv)(Ctx *, knh_conv_t *, knh_bytes_t t, knh_Bytes_t *);
+	knh_bool_t (*enc)(Ctx *, knh_conv_t *, knh_bytes_t t, knh_Bytes_t *);
+	knh_bool_t (*dec)(Ctx *, knh_conv_t *, knh_bytes_t t, knh_Bytes_t *);
+	knh_bool_t (*sconv)(Ctx *, knh_conv_t *, knh_bytes_t t, knh_Bytes_t *);
+	void (*close)(Ctx *ctx, knh_conv_t*);
+	void (*setparam)(Ctx *ctx, knh_conv_t *, void *, void *);
+} knh_ConverterDSPI_t;
+
+/* ------------------------------------------------------------------------ */
+/* K_STREAM_DSPI */
+
+typedef void   (*knh_Fclose)(Ctx *, knh_io_t);
+
+typedef struct knh_StreamDSPI_t {
+	int type;
+	char *name;
+	size_t bufsiz;  /* knh_io_t == FILE* if bufsiz == 0 */
+	knh_io_t (*fopen)(Ctx *, knh_bytes_t, char *);
+	knh_io_t (*wopen)(Ctx *, knh_bytes_t, char *);
+	knh_intptr_t (*fread)(Ctx *, knh_io_t, char *, size_t);
+	knh_intptr_t (*fwrite)(Ctx *, knh_io_t, char *, size_t);
+	void   (*fclose)(Ctx *, knh_io_t);
+	int (*feof)(Ctx *, knh_io_t);
+	int (*fgetc)(Ctx *, knh_io_t);
+	const char* (*getContentType)(Ctx *, knh_io_t);
+	const char* (*getCharset)(Ctx *, knh_io_t);
+} knh_StreamDSPI_t;
+
+/* ------------------------------------------------------------------------ */
+/* K_QUERY_DSPI */
+
+typedef struct knh_QueryDPI_t {
+	int   type;
+	char *name;
+	knh_qconn_t* (*qopen)(Ctx *ctx, knh_bytes_t);
+	knh_qcur_t* (*qexec)(Ctx *ctx, knh_qconn_t *, knh_bytes_t, knh_ResultSet_t*);
+	void   (*qclose)(Ctx *ctx, knh_qconn_t *);
+	int    (*qcurnext)(Ctx *, knh_qcur_t *, knh_ResultSet_t*);
+	void   (*qcurfree)(knh_qcur_t *);
+} knh_QueryDSPI_t;
+
+/* ------------------------------------------------------------------------ */
+/* K_MAP_DSPI */
+
+typedef struct knh_MapDSPI_t {
+	int   type;
+	char *name;
+	const struct knh_MapDSPI_t* (*config)(Ctx *, knh_class_t, knh_class_t);
+	knh_map_t* (*init)(Ctx *, size_t, char*, void *);
+	void (*ftrmap)(Ctx *, knh_map_t*, knh_Ftraverse ftr);
+	void (*freemap)(Ctx *, knh_map_t*);
+	knh_bool_t (*get)(Ctx *, knh_map_t*, knh_sfp_t*, knh_sfp_t *);
+	void (*set)(Ctx *, knh_map_t*, knh_sfp_t *, knh_sfp_t *);
+	void (*remove)(Ctx *, knh_map_t*, knh_sfp_t *);
+	size_t (*size)(Ctx *, knh_map_t*);
+	knh_bool_t (*setIterator)(Ctx *, knh_map_t*, knh_Iterator_t *);
+} knh_MapDSPI_t;
+
+/* ------------------------------------------------------------------------ */
+/* SHELL_SPI */
+
+typedef struct knh_ShellAPI_t {
+	int (*checkstmt)(knh_bytes_t t);
+	knh_bool_t (*command)(Ctx *ctx, knh_cwb_t *cwb);
+} knh_ShellAPI_t;
+
+typedef struct knh_ShellSPI_t {
+	char *name;  // shell name
+	void* (*shell_init)(Ctx *ctx, char *msg, char *optstr);
+	knh_bool_t (*shell_readstmt)(Ctx *, void* status, knh_cwb_t *cwb, const knh_ShellAPI_t *api);
+	void  (*shell_display)(Ctx *, void*, char *, const knh_ShellAPI_t *api);
+	void  (*shell_cleanup)(Ctx *, void*);
+} knh_ShellSPI_t;
+
+/* ------------------------------------------------------------------------ */
+/* REGEX_SPI */
+
+#ifndef K_REGEX_MATCHSIZE
+#define K_REGEX_MATCHSIZE    16
+#endif
+
+typedef struct {
+	int rm_so;   /* start of match */
+	int rm_eo;   /* end of match */
+	knh_bytes_t rm_name;  /* {NULL, 0}, if not NAMED */
+} knh_regmatch_t;
+
+typedef struct knh_RegexSPI_t {
+	char *name;
+	knh_regex_t* (*regmalloc)(Ctx *, knh_String_t *);
+	int (*parse_cflags)(Ctx *, char *opt);
+	int (*parse_eflags)(Ctx *, char *opt);
+	int (*regcomp)(Ctx *, knh_regex_t *, char *, int);
+	int (*regexec)(Ctx *, knh_regex_t *, char *, size_t, knh_regmatch_t*, int);
+	size_t (*regerror)(int, knh_regex_t *, char *, size_t);
+	void (*regfree)(Ctx *, knh_regex_t *);
+} knh_RegexSPI_t;
+
+/* ------------------------------------------------------------------------ */
+/* EBI_SPI */
+
+typedef struct knh_EbiSPI_t {
+	char *name;
+	void (*syslog)(int, const char *, ...);
+	void (*vsyslog)(int, const char *, va_list);
+} knh_EbiSPI_t;
+
+/* ------------------------------------------------------------------------ */
+/* ConstData  */
+/* ------------------------------------------------------------------------ */
+
+typedef struct {
+	char *name;
+	knh_int_t ivalue;
+} knh_IntData_t;
+
+typedef struct {
+	char *name;
+	knh_float_t fvalue;
+} knh_FloatData_t;
+
+typedef struct {
+	char *name;
+	char *value;
+} knh_StringData_t;
+
+typedef struct {
+	char *name;
+	void *ptr;
+} knh_NamedPointerData_t;
+
+#define _DATA(s)    (knh_intptr_t)(s)
+#define DATA_END      0
+#define DATA_STRUCT   1
+#define DATA_CLASS    2
+#define DATA_CPARAM   3
+#define DATA_GENERICS 4
+#define DATA_EXPT     5
+#define DATA_METHOD0  6
+#define DATA_METHOD   7
+#define DATA_TCAST   8
+//{cid, psize, rsize, 0, 0}
+#define DATA_PARAM    9
+
+typedef knh_intptr_t knh_data_t;
+
+/* ------------------------------------------------------------------------ */
+
+//typedef void (*knh_FquerySPI)(Ctx *, knh_QueryDPI_t *);
+
+typedef struct knh_PackageLoaderAPI_t {
+	void (*loadData)(Ctx *, knh_data_t *, knh_ParamArray_t **);
+	void (*loadIntData)(Ctx *, knh_IntData_t *);
+	void (*loadFloatData)(Ctx *, knh_FloatData_t *);
+	void (*loadStringData)(Ctx *, knh_StringData_t *);
+	void (*setRegexSPI)(Ctx *, const knh_RegexSPI_t *);
+	void (*setShellSPI)(Ctx *, const knh_ShellSPI_t *, int);
+	void (*setEvidenceSPI)(Ctx *, const knh_EbiSPI_t *, int);
+	void (*addPathDSPI)(Ctx *, char*, const knh_PathDSPI_t *, int);
+	void (*addStreamDSPI)(Ctx *, char*, const knh_StreamDSPI_t *, int);
+	void (*addQueryDSPI)(Ctx *, char *, const knh_QueryDSPI_t *, int);
+	void (*addConverterDSPI)(Ctx *, char *, const knh_ConverterDSPI_t*, int);
+} knh_PackageLoaderAPI_t;
+
+typedef int  (*knh_FcheckPKG)(void);
+typedef void (*knh_FsetupPKG)(Ctx *ctx, const knh_PackageLoaderAPI_t *, char *, int);
+
+#define knh_isSelectedDSPI(c, T)   (c == NULL || strstr(c, ":" T ":") != NULL)
+
+/* ------------------------------------------------------------------------ */
 /* new version */
 
 #define Boolean_to(T, a)         ((T)a.bvalue)
 #define Int_to(T, a)             ((T)a.ivalue)
-#define IntNull_to(T, a, def)    ((T)(IS_bInt(a.o) ? (a.ivalue) : (def)))
 #define Float_to(T, a)           ((T)a.fvalue)
-#define FloatNull_to(T, a, def)  ((T)(IS_bFloat(a.o) ? (a.fvalue) : (def)))
-#define String_to(T, a)          ((T)knh_String_text(ctx, a.s))
-#define StringNull_to(T, a, def) ((T)(IS_bString(a.o) ? knh_String_text(ctx, a.s) : def))
-#define Glue_to(T, a)            ((T)((a.glue)->ptr))
-#define GlueNull_to(T, a, def)   (IS_bGlue(a.o) ? ((T)((a.glue)->ptr)) : (def))
-
-#define Boolean_to_(a)         (a.bvalue)
-#define Int_to_(a)             (a.ivalue)
-#define IntNull_to_(a, def)    ((IS_bInt(a.o) ? (a.ivalue) : (def)))
-#define Float_to_(a)           (a.fvalue)
-#define FloatNull_to_(a, def)  ((IS_bFloat(a.o) ? (a.fvalue) : (def)))
-#define String_to_(a)          (knh_String_text(ctx, a.s))
-#define StringNull_to_(a, def) ((IS_bString(a.o) ? knh_String_text(ctx, a.s) : def))
-#define Glue_to_(a)            (((a.glue)->ptr))
-#define GlueNull_to_(a, def)   (IS_bGlue(a.o) ? (((a.glue)->ptr)) : (def))
-
-/* ------------------------------------------------------------------------ */
-/* old */
-
-#define p_size(a)      ((size_t)(a).ivalue)
-#define p_int(a)         ((knh_int_t)(a).ivalue)
-#define p_uint(a)        ((knh_uint_t)(a).ivalue)
-#define p_integer(a)     ((a).ivalue)
-#define p_uinteger(a)    ((knh_uint_t)(a).ivalue)
-
-#define p_float(a)       ((a).fvalue)
-#ifdef KONOHA_ON_LKM
-#define p_double(a)      ((a).fvalue)
-#else
-#define p_double(a)      ((double)(a).fvalue)
-#endif
-#define p_bool(a)        ((a).bvalue)
-#define p_char(a)        (__tochar(a.s))
-#define p_bytes(a)       (knh_Bytes_tobytes(a.s))
-#define p_cid(a)         ((a.c)->cid)
-#define ARG_Object_cid(a)  knh_Object_cid(a.o)
-#define p_cptr(a)        ((a.glue)->ptr)
+#define String_to(T, a)          ((T)ctx->api->tochar(ctx, a.s))
+#define StringNull_to(T, a, def) ((T)(IS_bString(a.o) ? ctx->api->tochar(ctx, a.s) : def))
+#define RawPtr_to(T, a)            ((T)((a.p)->ptr))
+#define RawPtrNull_to(T, a, def)   (IS_bRawPtr(a.o) ? ((T)((a.p)->ptr)) : (def))
+#define Class_tocid(a)           ((a.c)->cid)
 
 /* ------------------------------------------------------------------------ */
 
-#define sfp_bool(n_)           (sfp[n_].bvalue)
-#define sfp_int(n_)            sfp[n_].ivalue
-#define sfp_intOR(n_, d_)      (IS_bInt(sfp[n_].o) ? (sfp[n_].ivalue) : (d_))
-#define sfp_float(n_)          (sfp[n_].fvalue)
-#define sfp_floatOR(n_, d_)    (IS_bFloat(sfp[n_].o) ? (sfp[n_].fvalue) : (d_))
-#define sfp_double(n_)         (sfp[n_].fvalue)
-#define sfp_doubleOR(n_, d_)   (IS_bFloat(sfp[n_].o) ? (sfp[n_].fvalue) : (d_))
-
-#define sfp_charptr(n_)            knh_Object_charptr(ctx, sfp[n_].s)
-#define sfp_charptrOR(n_, d_)      (IS_NULL(sfp[n_].o) ? (d_) : knh_Object_charptr(ctx, sfp[n_].s))
-
-#define sfp_glueptr(n_)            ((sfp[n_].glue)->ptr)
-#define sfp_glueptrOR(n_, d_)      (IS_NULL(sfp[n_].o) ? (d_) : ((sfp[n_].glue)->ptr))
-
-/* ------------------------------------------------------------------------ */
-
-#define KNH_RETURN(ctx, sfp, v) {\
-		knh_Int_t *n_ = (knh_Int_t*)v;\
-		KNH_NGCMOV(ctx, sfp[-1].o, n_);\
-		sfp[-1].data = (n_)->n.data;\
+#define RETURN_(vv) {\
+		ctx->api->setsfp(ctx, sfp+rix, vv);\
 		return; \
 	}\
 
-#define KNH_RETURN_void(ctx, sfp)      {\
-		KNH_NGCMOV(ctx, sfp[-1].o, KNH_VOID); \
+#define RETURNa_(v) {\
+		Object *vv_ = (Object*)v;\
+		ctx->api->setsfp(ctx, sfp+rix, vv_);\
+		sfp[rix].data = knh_Object_data(vv_);\
 		return; \
 	}\
 
-#define KNH_RETURN_Boolean(ctx, sfp, c) {\
-		sfp[-1].bvalue = c; \
+#define RETURNd_(d) {\
+		sfp[rix].data = d; \
 		return; \
 	}\
 
-#define KNH_RETURN_Int(ctx, sfp, n)      {\
-		sfp[-1].ivalue = (knh_int_t)n;\
+#define RETURNb_(c) {\
+		sfp[rix].bvalue = c; \
 		return; \
 	}\
 
-#define KNH_RETURN_NNInt(ctx, sfp, n)      {\
-		KNH_NGCMOV(ctx, sfp[-1].o, KNH_INT0);\
-		sfp[-1].ivalue = (knh_int_t)n;\
+#define RETURNi_(c) {\
+		sfp[rix].ivalue = c; \
 		return; \
 	}\
 
-#define KNH_RETURN_Float(ctx, sfp, n)      {\
-		sfp[-1].fvalue = (knh_float_t)n;\
+#define RETURNf_(c) {\
+		sfp[rix].fvalue = c; \
 		return; \
 	}\
 
-#define KNH_RETURN_NNFloat(ctx, sfp, n)      {\
-		KNH_NGCMOV(ctx, sfp[-1].o, KNH_FLOAT0);\
-		sfp[-1].fvalue = (knh_float_t)n;\
+#define RETURNvoid_() {\
 		return; \
 	}\
 
-/* --------------------------------------------------------------------------- */
-/* [Iterator] */
 
-#define KNH_ITREND(ctx, sfp, n) {\
-		knh_Iterator_close(ctx, sfp[0].it);\
-		/*KNH_MOV(ctx, sfp[n].o, KNH_VOID); */\
+#define ITREND_() {\
+		ctx->api->closeIterator(ctx, sfp[0].it);\
 		return 0; \
 	}\
 
-#define KNH_ITRNEXT(ctx, sfp, i, v) {\
-		KNH_MOV(ctx, sfp[i].o, v);\
-		sfp[i].data = ((knh_Int_t*)v)->n.data;\
+#define ITRNEXT_(vv) {\
+		ctx->api->setsfp(ctx, sfp+rtnidx, vv);\
 		return 1; \
 	}\
 
-#define KNH_ITRNEXT_Int(ctx, sfp, i, n) {\
-		KNH_MOV(ctx, sfp[i].o, KNH_INT0);\
-		sfp[i].ivalue = n;\
+#define ITRNEXTd_(d) {\
+		sfp[rtnidx].data = d;\
 		return 1; \
 	}\
 
-#define KNH_ITRNEXT_IntX(ctx, sfp, i, n, def) {\
-		KNH_MOV(ctx, sfp[i].o, def);\
-		sfp[i].ivalue = n;\
+#define ITRNEXTi_(n) {\
+		sfp[rtnidx].ivalue = n;\
 		return 1; \
 	}\
 
-#define KNH_ITRNEXT_Float(ctx, sfp, i, n) {\
-		KNH_MOV(ctx, sfp[i].o, KNH_FLOAT0);\
-		sfp[i].fvalue = n;\
+#define ITRNEXTf_(n) {\
+		sfp[rtnidx].fvalue = n;\
 		return 1; \
 	}\
-
-#define KNH_ITRNEXT_FloatX(ctx, sfp, i, n, def) {\
-		KNH_MOV(ctx, sfp[i].o, def);\
-		sfp[i].fvalue = n;\
-		return 1; \
-	}\
-
-#define KNH_ITRNEXT_envsfp(ctx, sfp, i, envsfp) {\
-		KNH_MOV(ctx, sfp[i].o, envsfp[0].o);\
-		sfp[i].data = envsfp[0].data;\
-		return 1; \
-	}\
-
-
-//#define HAS_ITRNEXT(v)   IS_NOTNULL(v)
-
-/* --------------------------------------------------------------------------- */
-/* [Mapper] */
-
-
-#define KNH_GETMAPPER(ctx, sfp) sfp[1].mpr
-
-#define KNH_MAPPED(ctx, sfp, v) {\
-		knh_Int_t *vn_ = (knh_Int_t*)(v);\
-		KNH_MOV(ctx, sfp[0].o, vn_);\
-		sfp[0].data = (vn_)->n.data;\
-		return; \
-	}\
-
-#define KNH_MAPPED_Boolean(ctx, sfp, value) {\
-		KNH_MOV(ctx, sfp[0].o, KNH_FALSE);\
-		sfp[0].bvalue = value;\
-		return; \
-	}\
-
-#define KNH_MAPPED_Int(ctx, sfp, value) {\
-		KNH_MOV(ctx, sfp[0].o, KNH_INT0); \
-		sfp[0].ivalue = value;\
-		return; \
-	}\
-
-#define KNH_MAPPED_Float(ctx, sfp, value) {\
-		KNH_MOV(ctx, sfp[0].o, KNH_FLOAT0);\
-		sfp[0].fvalue = value;\
-		return;\
-	}\
-
 
 /* ------------------------------------------------------------------------ */
 

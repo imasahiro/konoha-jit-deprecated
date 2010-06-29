@@ -1,8 +1,8 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
- *           (c) 2008-      Konoha Software Foundation
+ * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ *           (c) 2008-      Konoha Team konohaken@googlegroups.com
  * All rights reserved.
  *
  * You may choose one of the following two licenses when you use konoha.
@@ -27,8 +27,17 @@
 
 /* ************************************************************************ */
 
-#include"commons.h"
+#define USE_STEXT 1
+#define USE_B     1
+#define USE_bytes_first       1
+#define USE_bytes_index       1
+#define USE_bytes_last        1
+#define USE_bytes_indexOf     1
+//#define USE_bytes_startsWith  1
+#define USE_cwb_open      1
+#define USE_cwb_tobytes   1
 
+#include"commons.h"
 
 /* ************************************************************************ */
 
@@ -36,59 +45,103 @@
 extern "C" {
 #endif
 
-/* ======================================================================== */
-/* [argc] */
+/* ------------------------------------------------------------------------ */
 
-int knh_stack_argc(Ctx *ctx, knh_sfp_t *v)
+knh_sfp_t* knh_stack_initexpand(Ctx *ctx, knh_sfp_t *sfp, size_t n)
 {
-	return (((knh_Context_t*)ctx)->esp - v);
+	knh_Context_t *ctxo = (knh_Context_t*)ctx;
+	size_t i, s;
+	if(sfp == NULL) {
+		DBG_ASSERT(ctxo->stacksize == 0);
+		s = 0;
+		ctxo->stacksize = n;
+		ctxo->stack = (knh_sfp_t*)KNH_MALLOC(ctx, sizeof(knh_sfp_t) * ctxo->stacksize);
+		ctxo->esp = ctxo->stack;
+		ctxo->mtdCache = (knh_Method_t**)KNH_MALLOC(ctx, K_PAGESIZE * (sizeof(void*) / 4));
+		knh_bzero(ctxo->mtdCache, K_PAGESIZE * (sizeof(void*) / 4));
+		ctxo->fmtCache = ctxo->mtdCache + K_CACHESIZE;
+		ctxo->trlCache = (knh_Translator_t**)(ctxo->fmtCache + K_CACHESIZE);
+//		for(i = 0; i < K_CACHESIZE; i++) {
+//			ctxo->mtdCache[i] = NULL /*mtdInit*/;
+//			ctxo->fmtCache[i] = NULL /*fmtInit*/;
+//			ctxo->trlCache[i] = NULL /* mprInit*/;
+//		}
+		KNH_INITv(ctxo->bufw, new_(OutputStream));
+		knh_OutputStream_setBOL(ctxo->bufw, 1);
+		knh_OutputStream_setStoringBuffer(ctxo->bufw, 1);
+		KNH_INITv(ctxo->bufa, DP(ctxo->bufw)->ba);
+	}
+	else {
+		knh_sfp_t **cstack_top = &sfp;
+		knh_sfp_t *newstack;
+		size_t size = ctxo->stacksize, newsize = ctxo->stacksize * 2;
+		if(newsize < size + n) newsize = size + n;
+		DBG_ASSERT(ctxo->stacksize != 0);
+		newstack = (knh_sfp_t*)KNH_MALLOC(ctx, sizeof(knh_sfp_t) * newsize);
+		knh_memcpy(newstack, ctxo->stack, sizeof(knh_sfp_t) * size);
+		KNH_SYSLOG(ctx, LOG_NOTICE, "ExtendedStack", "newsize=%d, oldstack=%p-%p", (int)newsize, ctx->stack, ctx->stack+size);
+		if(ctxo->cstack_bottom < (void*)cstack_top) {
+			knh_sfp_t **p = (knh_sfp_t**)ctxo->cstack_bottom;
+			while(p <= cstack_top) {
+				knh_uintptr_t addr = (knh_uintptr_t)p[0];
+				if((ctxo->stack <= p[0] && p[0] < ctxo->stack + size) && addr % sizeof(void*) == 0) {
+					knh_sfp_t *newsfp = p[0] + (newstack - ctxo->stack);
+					DBG_ASSERT(newstack <= newsfp && newsfp < newstack + size);
+//					DBG_P("addr=%lld, sfp=%p[%d] => %p[%d]", (knh_int_t)(addr % sizeof(void*)), p[0], (int)(p[0]->ivalue), newsfp, (int)newsfp->ivalue);
+					DBG_ASSERT((p[0])->data == newsfp->data);
+					p[0] = newsfp;
+				}
+				p++;
+			}
+		}
+		else {
+			knh_sfp_t **p = (knh_sfp_t**)ctxo->cstack_bottom;
+			while(cstack_top <= p) {
+				knh_uintptr_t addr = (knh_uintptr_t)p[0];
+				if((ctxo->stack <= p[0] && p[0] < ctxo->stack + size) && addr % sizeof(void*) == 0) {
+					knh_sfp_t *newsfp = p[0] + (newstack - ctxo->stack);
+					DBG_ASSERT(newstack <= newsfp && newsfp < newstack + size);
+//					DBG_P("addr=%lld, sfp=%p[%d] => %p[%d]", (knh_int_t)(addr % sizeof(void*)), p[0], (int)(p[0]->ivalue), newsfp, (int)newsfp->ivalue);
+					DBG_ASSERT((p[0])->data == newsfp->data);
+					p[0] = newsfp;
+				}
+				p--;
+			}
+		}
+		KNH_FREE(ctx, ctxo->stack, sizeof(knh_sfp_t) * size);
+		ctxo->stack = newstack;
+		ctxo->stacksize = newsize;
+		s = size;
+	}
+	for(i = s; i < ctxo->stacksize; i++) {
+		KNH_INITv(ctxo->stack[i].o, KNH_NULL);
+		ctxo->stack[i].data = 0;
+	}
+	ctxo->stacktop = ctxo->stack + (ctxo->stacksize - K_GAMMASIZE);
+	return sfp;
 }
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(knh_Array_t*) knh_stack_toArray(Ctx *ctx, knh_sfp_t *sfp, knh_class_t cid)
+void knh_stack_clear(Ctx *ctx, knh_sfp_t *sfp)
 {
-	DBG2_ASSERT_cid(cid);
-	if(cid == CLASS_Any) {
-		knh_Array_t *a = new_Array0(ctx, ctx->esp - sfp);
-		while(sfp < ctx->esp) {
-			knh_stack_boxing(ctx, sfp);
-			knh_Array_add(ctx, a, sfp->o);
-			sfp++;
-		}
-		return a;
+	if(!(ctx->stack <= sfp && sfp < ctx->stacktop)) {
+		sfp = ctx->stack; // sometimes, rewriting pointer is failed.
 	}
-	else if(cid == CLASS_Int || ClassTable(cid).bcid == CLASS_Int) {
-		knh_IArray_t *a = new_IArray(ctx, cid, ctx->esp - sfp);
-		while(sfp < ctx->esp) {
-			if(IS_NOTNULL(sfp->o)) {
-				knh_IArray_add(ctx, a, sfp->ivalue);
-			}
-			sfp++;
-		}
-		return (knh_Array_t*)a;
+	while(sfp < ctx->stack + ctx->stacksize) {
+		KNH_SETv(ctx, sfp[0].o, KNH_NULL);
+		sfp[0].data = 0;
+		sfp++;
 	}
-	else if(cid == CLASS_Float || ClassTable(cid).bcid == CLASS_Float) {
-		knh_FArray_t *a = new_FArray(ctx, cid, ctx->esp - sfp);
-		while(sfp < ctx->esp) {
-			if(IS_NOTNULL(sfp->o)) {
-				knh_FArray_add(ctx, a, sfp->fvalue);
-			}
-			sfp++;
-		}
-		return (knh_Array_t*)a;
-	}
-	else {
-		knh_Array_t *a = new_Array(ctx, cid, ctx->esp - sfp);
-		while(sfp < ctx->esp) {
-			if(IS_NOTNULL(sfp->o)) {
-				knh_stack_boxing(ctx, sfp);
-				knh_Array_add(ctx, a, sfp->o);
-			}
-			sfp++;
-		}
-		return a;
-	}
+}
+
+/* ------------------------------------------------------------------------ */
+
+knh_sfp_t* knh_stack_local(Ctx *ctx, size_t n)
+{
+	knh_sfp_t *esp = ctx->esp;
+	((knh_Context_t*)ctx)->esp = esp + n;
+	return esp;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -97,151 +150,228 @@ KNHAPI(void) knh_stack_boxing(Ctx *ctx, knh_sfp_t *sfp)
 {
 	knh_class_t bcid = (sfp[0].o)->h.bcid;
 	if(CLASS_Boolean <= bcid && bcid <= CLASS_Float && sfp[0].data != knh_Object_data(sfp[0].o)) {
-		KNH_MOV(ctx, sfp[0].o, new_Object_boxing(ctx, knh_Object_cid(sfp[0].o), sfp));
+		klr_mov(ctx, sfp[0].o, new_Object_boxing(ctx, knh_Object_cid(sfp[0].o), sfp));
 	}
 }
 
-/* ------------------------------------------------------------------------ */
-
-KNHAPI(void) knh_stack_unboxing(Ctx *ctx, knh_sfp_t *sfp)
-{
-	sfp[0].data = knh_Object_data(sfp[0].o);
-}
-
-/* ------------------------------------------------------------------------ */
-
-KNHAPI(void) knh_stack_w(Ctx *ctx, knh_sfp_t *sfp, knh_sfp_t *one, knh_methodn_t mn, knh_OutputStream_t *w, Any *m)
-{
-	knh_Method_t *mtd = knh_lookupFormatter(ctx, knh_Object_cid(one[0].o), mn);
-	KNH_SETv(ctx, sfp[1].o, one[0].o);
-	sfp[1].data = one[0].data;
-	KNH_SETv(ctx, sfp[2].o, w);
-	KNH_SETv(ctx, sfp[3].o, m);
-	KNH_SCALL(ctx, sfp, 0, mtd, /*args*/2);
-}
+///* ------------------------------------------------------------------------ */
+//
+//KNHAPI(void) knh_stack_w(Ctx *ctx, knh_sfp_t *sfp, knh_sfp_t *one, knh_methodn_t mn, knh_OutputStream_t *w)
+//{
+//	knh_Method_t *mtd = knh_lookupFormatter(ctx, knh_Object_cid(one[0].o), mn);
+//	KNH_SETv(ctx, sfp[3].o, one[0].o); sfp[3].data = one[0].data;
+//	KNH_SETv(ctx, sfp[4].o, w);
+//	KNH_SCALL(ctx, sfp, 0, mtd, 1);
+//}
 
 /* ======================================================================== */
 /* [call] */
 
-KNHAPI(void) knh_stack_typecheck(Ctx *ctx, knh_sfp_t *sfp, knh_Method_t *mtd, knh_code_t *pc)
+void knh_stack_typecheck(Ctx *ctx, knh_sfp_t *sfp, knh_Method_t *mtd, knh_opset_t *pc)
 {
-	DBG2_ASSERT(IS_Method(sfp[-1].mtd));
 	char *emsg;
 	knh_class_t this_cid = knh_Object_cid(sfp[0].o);
-	int i, argc = knh_Method_isVarArgs(mtd) ? (ctx->esp - sfp) : knh_Method_psize(mtd);
+	int i, argc;
+	DBG_ASSERT(IS_Method(sfp[K_MTDIDX].callmtd));
+	argc = knh_ParamArray_isVARGs(DP(mtd)->mp) ? (ctx->esp - sfp) : knh_Method_psize(mtd);
 	for(i = 1; i < argc; i++) {
 		knh_type_t type = knh_Method_ptype(ctx, mtd, this_cid, i - 1);
-		if(IS_NULL(sfp[i].o)) {
-			if(IS_NNTYPE(type)) {
-				emsg = "Null!!: the parameter %d of %M"; goto L_THROWERR;
-			}
-		}
-		else {
-			knh_class_t reqc = CLASS_type(type);
-			if(!knh_class_instanceof(ctx, knh_Object_cid(sfp[i].o), reqc)) {
-				emsg = "Type!!: the parameter %d of %M"; goto L_THROWERR;
-			}
+		knh_class_t reqc = CLASS_type(type);
+		if(!knh_class_instanceof(ctx, knh_Object_cid(sfp[i].o), reqc)) {
+			emsg = "Type!!: the parameter %d of %M"; goto L_THROWERR;
 		}
 	}
 	return;
 
 	L_THROWERR:
 	{
-		char *file = (pc != NULL) ? knh_Method_file(ctx, sfp[-1].mtd) : NULL;
-		int line = (pc != NULL) ? knh_Method_pcline(sfp[-1].mtd, pc) : 0;
-		knh_Exception_t *e;
 		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 		knh_printf(ctx, cwb->w, emsg, (knh_intptr_t)i, DP(mtd)->mn);
-		e = knh_cwb_newException(ctx, cwb);
-		knh_stack_throw(ctx, ctx->esp, e, file, line);
+		knh_stack_throw(ctx, ctx->esp, knh_cwb_newException(ctx, cwb));
 	}
 }
 
 /* ======================================================================== */
 /* [throw] */
 
-static
-void knh_Exception_addStackTrace(Ctx *ctx, knh_Exception_t *o, knh_String_t *msg)
+static knh_bool_t knh_stack_isCalledMethod(Ctx *ctx, knh_sfp_t *sfp)
 {
-	KNH_ASSERT(IS_Exception(o));
-	if(IS_NOTNULL(msg)) {
-		if(IS_NULL(DP(o)->traces)) {
-			KNH_SETv(ctx, DP(o)->traces, new_Array(ctx, CLASS_String, 16));
+	//IS_Method(sfp[0].mtd)
+	return 0;
+}
+
+knh_sfp_t* knh_stack_callee(Ctx *ctx, knh_sfp_t *sfp, char **file, int *linenum)
+{
+	while(ctx->stack <= sfp) {
+		if(knh_stack_isCalledMethod(ctx, sfp)) {
+			knh_opset_t *pc = sfp[0].pc;
+			//DBG_P("sfp[%d] pc=%p callee yes=%d", sfp - ctx->stack, pc, sfp[0].data != knh_Object_data(sfp[0].mtd));
+			if(pc == NULL) {
+				return sfp;
+			}
+//			if(sfp[0].data != knh_Object_data(sfp[0].mtd)) {
+//				*linenum = knh_Method_pcline(sfp[0].mtd, pc);
+//				*file = knh_Method_file(ctx, sfp[0].mtd);
+//				return sfp;
+//			}
 		}
-		knh_Array_add(ctx, DP(o)->traces, UP(msg));
+		sfp--;
 	}
+	return ctx->stack;
+}
+
+//static void knh_stack_writeStackTrace(Ctx *ctx, knh_sfp_t *sfp, knh_OutputStream_t *w)
+//{
+//	knh_Method_t *mtd = sfp[K_MTDIDX].callmtd;
+//	knh_write_sname(ctx, w, DP(mtd)->cid);
+//	if(DP(mtd)->mn != MN_LAMBDA) {
+//		int i = 0, psize = knh_Method_psize(mtd);
+//		knh_putc(ctx, w, '.');
+//		knh_write_mn(ctx, w, DP(mtd)->mn);
+//		knh_putc(ctx, w, '(');
+//		for(i = 0; i < psize; i++) {
+//			knh_param_t *p = knh_ParamArray_get(DP(mtd)->mp, i);
+//			knh_type_t type = knh_type_tocid(ctx, p->type, knh_Object_cid(sfp[0].o));
+//			if(i > 0) {
+//				knh_putc(ctx, w, ',');
+//			}
+//			knh_write_fn(ctx, w, p->fn);
+//			knh_putc(ctx, w, '=');
+//			if(IS_Tunbox(type)) {
+//				knh_write_ifmt(ctx, w, K_INT_FMT, sfp[i+1].ivalue);
+//			}
+//			else if (IS_Tfloat(type)) {
+//				knh_write_ifmt(ctx, w, K_FLOAT_FMT, sfp[i+1].fvalue);
+//			}
+//			else if(type == TYPE_Boolean){
+//				knh_write_bool(ctx, w, sfp[i+1].bvalue);
+//			}
+//			else {
+//				knh_stack_w(ctx, ctx->esp, &sfp[i+1], MN__k, w, KNH_NULL);
+//			}
+//		}
+//		knh_putc(ctx, w, ')');
+//	}
+//}
+
+
+//static void knh_stack_writeReturnValue(Ctx *ctx, knh_sfp_t *sfp, knh_OutputStream_t *w, knh_type_t rtype)
+//{
+//	if(rtype == TYPE_void) {
+//		knh_write(ctx, w, STEXT("void"));
+//	}
+//	if(IS_Tunbox(rtype)) {
+//		knh_write_ifmt(ctx, w, K_INT_FMT, sfp[-1].ivalue);
+//	}
+//	else if (IS_Tfloat(rtype)) {
+//		knh_write_ifmt(ctx, w, K_FLOAT_FMT, sfp[-1].fvalue);
+//	}
+//	else if(rtype == TYPE_Boolean){
+//		knh_write_bool(ctx, w, sfp[-1].bvalue);
+//	}
+//	else {
+//		knh_stack_w(ctx, ctx->esp, &sfp[-1], MN__k, w, KNH_NULL);
+//	}
+//}
+
+/* ------------------------------------------------------------------------ */
+
+METHOD knh_Fmethod_stackTrace(Ctx *ctx, knh_sfp_t *sfp, long rix)
+{
+//	knh_Method_t *mtd = sfp[K_MTDIDX].callmtd;
+//	knh_OutputStream_t *w = KNH_STDERR;
+//	knh_intptr_t count = DP(mtd)->prof_count;
+//	DBG_(knh_sfp_t *esp = ctx->esp;)
+//	knh_type_t rtype = knh_Method_rztype(mtd);
+//	knh_putc(ctx, w, '#');
+//	knh_write_ifmt(ctx, w, K_INT_FMT, (knh_int_t)count);
+//	knh_putc(ctx, w, ':');
+//	knh_stack_writeStackTrace(ctx, sfp, w);
+//	knh_write_EOL(ctx, w);
+//	DBG_ASSERT(ctx->esp == esp);
+//	DP(mtd)->prof_count += 1;
+//	DP(mtd)->fproceed(ctx, sfp);
+//	knh_putc(ctx, w, '#');
+//	knh_write_ifmt(ctx, w, K_INT_FMT, (knh_int_t)count);
+//	knh_write(ctx, w, STEXT(":-> "));
+//	knh_stack_writeReturnValue(ctx, sfp, w, rtype);
+//	knh_write_EOL(ctx, w);
 }
 
 /* ------------------------------------------------------------------------ */
 
-static
-knh_String_t *knh_stack_newStackTrace(Ctx *ctx, knh_sfp_t *sfp, knh_Exception_t *e)
-{
-	knh_Method_t *mtd = sfp[-1].mtd;
-	knh_code_t *pc = sfp[-1].pc;
-	char *file = "-";
-	int  line = 0;
-	if(pc != NULL) {
-		line = knh_Method_pcline(mtd, pc);
-		if(line > 0) {
-			file = knh_Method_file(ctx, mtd);
-			if(IS_Exception(e) && DP(e)->line == 0) {
-				DP(e)->file = file;
-				DP(e)->line = line;
-			}
-		}
-		else {
-			return (knh_String_t*)KNH_NULL;
-		}
-	}
-	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-	knh_write_fline(ctx, cwb->w, file, line);
-	knh_putc(ctx, cwb->w, ':');
-	knh_write_cid(ctx, cwb->w, DP(mtd)->cid);
-	if(DP(mtd)->mn != METHODN_LAMBDA) {
-		int i = 0, psize = knh_Method_psize(mtd);
-		knh_putc(ctx, cwb->w, '.');
-		knh_write_mn(ctx, cwb->w, knh_Method_rztype(mtd), DP(mtd)->mn);
-		knh_putc(ctx, cwb->w, '(');
-		for(i = 0; i < psize; i++) {
-			knh_mparam_t p = knh_Method_param(mtd, i);
-			p.type = knh_Method_ptype(ctx, mtd, knh_Object_cid(sfp[0].o), i);
-			if(i > 0) {
-				knh_putc(ctx, cwb->w, ',');
-			}
-			knh_write_fn(ctx, cwb->w, p.fn);
-			knh_putc(ctx, cwb->w, '=');
-			knh_stack_w(ctx, ctx->esp, &sfp[i+1], METHODN__k, cwb->w, KNH_NULL);
-		}
-		knh_putc(ctx, cwb->w, ')');
-	}
-	knh_String_t *s = knh_cwb_newString(ctx, cwb);
-	return s;
-}
+//static knh_sfp_t *knh_stack_addStackTrace(Ctx *ctx, knh_sfp_t *sfp, knh_Exception_t *e)
+//{
+//	char *file = "-";
+//	int  line = 0;
+//	knh_sfp_t *callee = knh_stack_callee(ctx, sfp, &file, &line);
+//	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
+//	knh_write_fline(ctx, cwb->w, file, line);
+//	knh_putc(ctx, cwb->w, ':');
+//	knh_stack_writeStackTrace(ctx, sfp, cwb->w);
+//	{
+//		knh_String_t *msg = knh_cwb_newString(ctx, cwb);
+//		if(IS_NULL(DP(e)->traces)) {
+//			KNH_SETv(ctx, DP(e)->traces, new_Array(ctx, CLASS_String, 16));
+//		}
+//		knh_Array_add_(ctx, DP(e)->traces, UP(msg));
+//	}
+//	return callee;
+//}
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(void) knh_stack_throw(Ctx *ctx, knh_sfp_t *sfp, knh_Exception_t *e, char *file, int line)
+KNHAPI(void) knh_stack_throw(Ctx *ctx, knh_sfp_t *sfp, knh_Exception_t *e)
 {
-	DBG2_ASSERT(IS_Exception(e));
 	knh_sfp_t *sp = (sfp == NULL) ? ctx->esp : sfp;
-	DBG2_P("throwing %s at %d esp=%d", __tochar(DP(e)->msg), sp - ctx->stack, ctx->esp - ctx->stack);
-	KNH_SETv(ctx, ctx->stack[ctx->stacksize-1].o, e);  // TO AVOID GC
+//	if(DP(e)->line != 0) {
+//		if(line == 0) {
+//			knh_stack_callee(ctx, sp, &file, &line);
+//		}
+//		DP(e)->file = file;
+//		DP(e)->line = line;
+//	}
 	while(ctx->stack <= sp) {
 		if(IS_ExceptionHandler(sp[0].hdr) && knh_ExceptionHandler_isCatching(sp[0].hdr)) {
-			knh_ExceptionHandler_setCatching(sp[0].hdr, 0);
-			knh_ExceptionHandler_longjmp(ctx, sp[0].hdr, e);
+			TODO();
 		}
-		else if(IS_Method(sp[0].o)) {
-			knh_String_t *msg = knh_stack_newStackTrace(ctx, sp+1, e);
-			knh_Exception_addStackTrace(ctx, e, msg);
-		}
+//		else if(IS_Method(sp[0].o) && sp[0].data != knh_Object_data(sp[0].mtd)) {
+//			knh_stack_addStackTrace(ctx, sp+1, e);
+//		}
 		sp--;
 	}
 	fprintf(stderr, "********** USE STACKTRACE IN YOUR C/C++ DEBUGGER ************\n");
-	fprintf(stderr, "Uncaught Exception: %s\n", __tochar(DP(e)->msg));
+	fprintf(stderr, "Uncaught Exception: %s\n", S_tochar(DP(e)->msg));
 	fprintf(stderr, "*************************************************************\n");
 	exit(0);
+}
+
+/* ------------------------------------------------------------------------ */
+
+knh_ExceptionHandler_t* knh_stack_findExceptionHandler(Ctx *ctx, knh_sfp_t *sfp, long start)
+{
+	knh_sfp_t *sp = (sfp == NULL) ? ctx->esp : sfp + start;
+//	if(DP(e)->line != 0) {
+//		if(line == 0) {
+//			knh_stack_callee(ctx, sp, &file, &line);
+//		}
+//		DP(e)->file = file;
+//		DP(e)->line = line;
+//	}
+	while(ctx->stack <= sp) {
+		if(IS_ExceptionHandler(sp[0].hdr) && knh_ExceptionHandler_isCatching(sp[0].hdr)) {
+			return sp[0].hdr;
+		}
+//		else if(IS_Method(sp[0].o) && sp[0].data != knh_Object_data(sp[0].mtd)) {
+//			knh_stack_addStackTrace(ctx, sp+1, e);
+//		}
+		sp--;
+	}
+	fprintf(stderr, "********** USE STACKTRACE IN YOUR C/C++ DEBUGGER ************\n");
+	fprintf(stderr, "Uncaught Exception: %s\n", S_tochar(DP(ctx->e)->msg));
+	fprintf(stderr, "*************************************************************\n");
+	exit(0);
+	return NULL;
 }
 
 ///* ------------------------------------------------------------------------ */
@@ -250,6 +380,273 @@ KNHAPI(void) knh_stack_throw(Ctx *ctx, knh_sfp_t *sfp, knh_Exception_t *e, char 
 //{
 //	Ctx *ctx = knh_getCurrentContext();
 //	knh_stack_throw(ctx, new_Exception(ctx, knh_getExptName(ctx, EXPT_Security)), NULL, 0);
+//}
+
+///* ======================================================================== */
+///* [Context] */
+//
+//void knh_Context_setEncoding(Ctx *ctx, knh_Context_t *o, knh_String_t *enc)
+//{
+//	if(IS_NULL(enc)) {
+//		enc = KNH_ENC;
+//	}
+//	KNH_SETv(ctx, o->enc, enc);
+//	if(knh_bytes_strcasecmp(S_tobytes(enc), STEXT(knh_getLocalEncoding()))==0) {
+//		KNH_SETv(ctx, DP(o->in)->bconv, KNH_NULL);
+//		KNH_SETv(ctx, DP(o->out)->bconv, KNH_NULL);
+//		KNH_SETv(ctx, DP(o->err)->bconv, KNH_NULL);
+//	}
+//	else {
+//		knh_StringEncoder_t *bin = new_StringDecoder(ctx, S_tochar(enc));
+//		knh_StringEncoder_t *bout = new_StringEncoder__out(ctx, S_tochar(enc));
+//		if(IS_NULL(bin) || IS_NULL(bout)) {
+//			KNH_SYSLOG(ctx, LOG_WARNING, "unsupported character encoding: %s", S_tochar(enc));
+//		}
+//		KNH_SETv(ctx, DP(o->in)->bconv, bin);
+//		KNH_SETv(ctx, DP(o->out)->bconv, bout);
+//		KNH_SETv(ctx, DP(o->err)->bconv, bout);
+//	}
+//}
+
+/* ------------------------------------------------------------------------ */
+/* [ExptTable] */
+
+static knh_expt_t new_ExptId(Ctx *ctx)
+{
+	knh_class_t newid = 0;
+	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
+	if(ctx->share->ExptTableSize == ctx->share->ExptTableMax) {
+		knh_expandExptTable(ctx);
+	}
+	((knh_share_t*)ctx->share)->ExptTableSize += 1;
+	newid = ctx->share->ExptTableSize;
+	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
+	return newid;
+}
+
+/* ------------------------------------------------------------------------ */
+
+int knh_expt_isa(Ctx *ctx, knh_expt_t eid, knh_expt_t parent)
+{
+	KNH_ASSERT_eid(eid);
+	KNH_ASSERT(parent <= ctx->share->ExptTableSize);
+	if(eid == parent || parent == 1) return 1;
+	if(eid == 1) return 0;
+	while((eid = ctx->share->ExptTable[eid-1].parent) != 1) {
+		if(eid == parent) return 1;
+	}
+	return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+
+knh_String_t *knh_getExptName(Ctx *ctx, knh_expt_t eid)
+{
+	KNH_ASSERT_eid(eid);
+	return ctx->share->ExptTable[eid-1].name;
+}
+
+/* ------------------------------------------------------------------------ */
+/* [forname] */
+
+knh_expt_t knh_geteid(Ctx *ctx, knh_bytes_t msg, knh_expt_t def)
+{
+	knh_expt_t eid = EXPT_Exception;
+	knh_intptr_t loc = knh_bytes_index(msg, '!');
+	if(loc != -1) {
+		if(msg.buf[loc+1] != '!') {
+			return eid;
+		}
+		msg = knh_bytes_first(msg, loc);
+	}
+	if(msg.len == 0) return EXPT_Exception; /* '!!' */
+	{
+		KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
+		eid = (knh_expt_t)knh_DictSet_get(DP(ctx->sys)->ExptNameDictSet, msg);
+		KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
+		DBG_P("'%s', eid=%d", msg.buf, eid);
+		if(eid != 0) return eid;
+		if(def == EXPT_newid) {
+			return knh_addException(ctx, 0, EXPT_newid, new_S(ctx, msg), EXPT_Exception);
+		}
+	}
+	return def;
+}
+
+/* ------------------------------------------------------------------------ */
+/* [TABLE] */
+
+knh_expt_t knh_addException(Ctx *ctx, knh_flag_t flag, knh_class_t eid, knh_String_t *name, knh_class_t peid)
+{
+	if(eid == EXPT_newid) {
+		eid = new_ExptId(ctx);
+	}else {
+		((knh_share_t*)ctx->share)->ExptTableSize += 1;
+		DBG_ASSERT(eid == ctx->share->ExptTableSize);
+	}
+	KNH_ASSERT_eid(eid);
+	{
+		knh_ExptTable_t *t = pExptTable(eid-1);
+		DBG_ASSERT(t->name == NULL);
+		t->flag = flag;
+		t->parent = peid;
+		KNH_INITv(t->name, name);
+		KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
+		knh_DictSet_set(ctx, DP(ctx->sys)->ExptNameDictSet, name, eid);
+		KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
+	}
+	return eid;
+}
+
+/* ======================================================================== */
+/* [Exception.new] */
+
+/* @method Exception! Exception.new:init(String e, String msg, Object bag) */
+// new Exception("Security!!", "hogehoge");
+// new Exception("Security!!: hogehoge", null);
+
+knh_Exception_t* knh_Exception_new__init(Ctx *ctx, knh_Exception_t *e, knh_String_t *ename, knh_String_t *msg, Object *bag)
+{
+	knh_expt_t eid = EXPT_Exception;
+	if(IS_NOTNULL(ename)) {
+		KNH_RCSETv(ctx, DP(e)->bag, ename);
+		eid = knh_geteid(ctx, S_tobytes(ename), EXPT_newid /*EXPT_unknown*/);
+	}
+	if(eid == EXPT_unknown) {
+		KNH_SYSLOG(ctx, LOG_WARNING, "unknown exception: %s", S_tochar(ename));
+		DP(e)->eid = EXPT_Exception;
+	}
+	else {
+		DP(e)->eid = eid;
+	}
+	KNH_ASSERT_eid(eid);
+	DP(e)->flag = ctx->share->ExptTable[DP(e)->eid].flag;
+	{
+		if(IS_NOTNULL(msg)) {
+			KNH_RCSETv(ctx, DP(e)->bag, msg);
+			knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
+			knh_write_char(ctx, cwb->w, EXPTN(DP(e)->eid));
+			knh_write_char(ctx, cwb->w, "!!: ");
+			knh_write(ctx, cwb->w, S_tobytes(msg));
+			KNH_SETv(ctx, DP(e)->msg, knh_cwb_newString(ctx, cwb));
+		}
+		else {
+			int loc = knh_bytes_indexOf(S_tobytes(ename), STEXT("!!:"));
+			if(loc > 0 && eid != EXPT_unknown) {
+				KNH_SETv(ctx, DP(e)->msg, ename);
+				return e;
+			}
+			knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
+			knh_write_char(ctx, cwb->w, EXPTN(DP(e)->eid));
+			knh_write_char(ctx, cwb->w, "!!");
+			if(loc > 0) {
+				knh_write_char(ctx, cwb->w, ": ");
+				knh_write(ctx, cwb->w, knh_bytes_last(S_tobytes(ename), loc+3));
+			}
+			KNH_SETv(ctx, DP(e)->msg, knh_cwb_newString(ctx, cwb));
+		}
+	}
+	KNH_SETv(ctx, DP(e)->bag, bag);
+	return e;
+}
+
+/* ------------------------------------------------------------------------ */
+
+KNHAPI(knh_Exception_t*) new_Exception(Ctx *ctx, knh_String_t *msg)
+{
+	knh_Exception_t* e = new_(Exception);
+	knh_expt_t eid = knh_geteid(ctx, S_tobytes(msg), EXPT_newid);
+	DP(e)->eid = eid;
+	DP(e)->flag = ctx->share->ExptTable[eid].flag;
+	KNH_SETv(ctx, DP(e)->msg, msg);
+	return e;
+}
+
+/* ------------------------------------------------------------------------ */
+
+KNHAPI(knh_Exception_t*) knh_cwb_newException(Ctx *ctx, knh_cwb_t *cwb)
+{
+	knh_Exception_t* e = new_(Exception);
+	knh_expt_t eid = knh_geteid(ctx, knh_cwb_tobytes(cwb), EXPT_newid);
+	DP(e)->eid = eid;
+	DP(e)->flag = ctx->share->ExptTable[eid].flag;
+	KNH_SETv(ctx, DP(e)->msg, knh_cwb_newString(ctx, cwb));
+	return e;
+}
+
+/* ------------------------------------------------------------------------ */
+
+KNHAPI(knh_Exception_t*) new_Exception__T(Ctx *ctx, char *msg)
+{
+	knh_Exception_t* e = new_(Exception);
+	knh_expt_t eid = knh_geteid(ctx, B(msg), EXPT_newid);
+	DP(e)->eid = eid;
+	DP(e)->flag = ctx->share->ExptTable[eid].flag;
+	KNH_SETv(ctx, DP(e)->msg, new_T(msg));
+	return e;
+}
+
+/* ------------------------------------------------------------------------ */
+
+int knh_Exception_isa(Ctx *ctx, knh_Exception_t *o, knh_String_t *msg)
+{
+	int res = 0;
+	knh_expt_t eid = knh_geteid(ctx, S_tobytes(msg), EXPT_unknown);
+	if(eid != EXPT_unknown) {
+		res = knh_expt_isa(ctx, DP(o)->eid, eid);
+	}
+	return res;
+}
+
+/* ------------------------------------------------------------------------ */
+
+void knh_Exception_setCInfo(Ctx *ctx, knh_Exception_t *o, char *file, int line)
+{
+	DP(o)->Cfile = knh_sfile(file);
+	DP(o)->Cline = line;
+}
+
+/* ------------------------------------------------------------------------ */
+
+void knh_Context_setThrowingException(Ctx *ctx, knh_Exception_t *e)
+{
+	KNH_SETv(ctx, ((knh_Context_t*)ctx)->e, e);
+}
+
+/* ------------------------------------------------------------------------ */
+
+KNHAPI(void) knh_throw_OutOfIndex(Ctx *ctx, knh_int_t n, size_t max, char *file, int line)
+{
+	knh_Exception_t *e;
+	knh_cwb_t cwbbuf2, *cwb2 = knh_cwb_open(ctx, &cwbbuf2);
+	knh_printf(ctx, cwb2->w, "OutOfIndex!!: %i not < %i", n, (knh_int_t)max);
+	e = knh_cwb_newException(ctx, cwb2);
+	knh_stack_throw(ctx, ctx->esp, e);
+}
+
+/* ======================================================================== */
+/* [ExceptionHandler] */
+//
+//knh_ExceptionHandler_t* new_ExceptionHandler(Ctx *ctx)
+//{
+//	return (knh_ExceptionHandler_t*)new_Object_bcid(ctx, CLASS_ExceptionHandler, 0);
+//}
+//
+///* ------------------------------------------------------------------------ */
+//
+//void knh_ExceptionHandler_longjmp(Ctx *ctx, knh_ExceptionHandler_t *o, knh_Exception_t *e)
+//{
+//	KNH_ASSERT(IS_Exception(e));
+//	KNH_SETv(ctx, DP(o)->caught, e);
+//	knh_longjmp(DP(o)->jmpbuf, ((int)DP(e)->eid));
+//}
+//
+///* ------------------------------------------------------------------------ */
+//
+//knh_Exception_t* knh_ExceptionHandler_getCaughtException(knh_ExceptionHandler_t *o)
+//{
+//	KNH_ASSERT(IS_Exception(DP(o)->caught));
+//	return DP(o)->caught;
 //}
 
 /* ------------------------------------------------------------------------ */

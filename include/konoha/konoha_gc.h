@@ -1,8 +1,8 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
- *           (c) 2008-      Konoha Software Foundation
+ * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ *           (c) 2008-      Konoha Team konohaken@googlegroups.com
  * All rights reserved.
  *
  * You may choose one of the following two licenses when you use konoha.
@@ -36,29 +36,23 @@ extern "C" {
 
 /* ------------------------------------------------------------------------ */
 
-#ifdef KNH_USING_DRCGC
-#define KNH_RCGC_INIT           ((knh_uint_t)1 << (sizeof(knh_uint_t) * 8 - 1))
-#define KNH_RCGC_MASK           (~(KNH_RCGC_INIT))
-#else
-#define KNH_RCGC_INIT           0
-#endif
+#define K_RCGC_INIT           0
 
-#ifdef KNH_USING_RCGC
-
-#ifdef KNH_RCGC_MASK
-#define knh_Object_RCinc(o)     (o)->h.refc = (KNH_RCGC_MASK & ((o)->h.refc + 1))
-#define knh_Object_RCplus(o,n)  (o)->h.refc = (KNH_RCGC_MASK & ((o)->h.refc + n))
-#define knh_Object_DRCsweep(ctx, o)  knh_Object_RCdec(o)
-#else
+#ifdef K_USING_RCGC
 #define knh_Object_RCinc(o)     (o)->h.refc ++
 #define knh_Object_RCplus(o,n)  (o)->h.refc += n
 #define knh_Object_DRCsweep(ctx, o)  knh_Object_sweep(ctx, o)
-#endif
 #define knh_Object_RCdec(o)     (o)->h.refc--
 #define knh_Object_RCset(o,c)   (o)->h.refc = (c)
 #define knh_Object_isRC0(o)     ((o)->h.refc == 0)
 
-#else/* KNH_USING_RCGC*/
+#define KNH_SWAPMOV(ctx, sfp, n, n2) {\
+		knh_sfp_t sfpN = sfp[n];\
+		sfp[n] = sfp[n2];\
+		sfp[n2] = sfpN;\
+	}\
+
+#else/* K_USING_RCGC*/
 
 #define knh_Object_RCinc(o)
 #define knh_Object_RCplus(o,n)
@@ -67,14 +61,18 @@ extern "C" {
 #define knh_Object_RCset(o,c)
 #define knh_Object_DRCsweep(ctx, o)
 
-#endif/*KNH_USING_RCGC*/
+#define KNH_SWAPMOV(ctx, sfp, n, n2) {\
+		sfp[n] = sfp[n2];\
+	}\
+
+#endif/*K_USING_RCGC*/
 
 #ifdef _MSC_VER
 
 #define KNH_INITv(v,o) {\
 		knh_Object_t *h_ = (knh_Object_t*)o; \
 		knh_Object_t **v_ = (knh_Object_t**)&v; \
-		DBG2_ASSERT_ISOBJECT(h_); \
+		DBG_ASSERT_ISOBJECT(h_); \
 		knh_Object_RCinc(h_); \
 		v_[0] = (h_); \
 	}\
@@ -83,8 +81,8 @@ extern "C" {
 #define KNH_SETv(ctx,v,o) {\
 		knh_Object_t *h_ = (knh_Object_t*)o; \
 		knh_Object_t **v_ = (knh_Object_t**)&v; \
-		DBG2_ASSERT_ISOBJECT(v);  \
-		DBG2_ASSERT_ISOBJECT(h_); \
+		DBG_ASSERT_ISOBJECT(v);  \
+		DBG_ASSERT_ISOBJECT(h_); \
 		knh_Object_RCinc(h_); \
 		knh_Object_DRCsweep(ctx, (knh_Object_t*)v); \
 		v_[0] = (h_); \
@@ -93,8 +91,8 @@ extern "C" {
 #define KNH_RCSETv(ctx,v,o) {\
 		knh_Object_t *h_ = (knh_Object_t*)o; \
 		knh_Object_t **v_ = (knh_Object_t**)&v; \
-		DBG2_ASSERT_ISOBJECT(v);  \
-		DBG2_ASSERT_ISOBJECT(h_); \
+		DBG_ASSERT_ISOBJECT(v);  \
+		DBG_ASSERT_ISOBJECT(h_); \
 		knh_Object_RCinc(h_); \
 		knh_Object_DRCsweep(ctx, (knh_Object_t*)v); \
 		v_[0] = (h_); \
@@ -103,7 +101,7 @@ extern "C" {
 #define KNH_NGCSETv(ctx,v,o) {\
 		knh_Object_t *h_ = (knh_Object_t*)o; \
 		knh_Object_t **v_ = (knh_Object_t**)&v; \
-		DBG2_ASSERT_ISOBJECT(h_); \
+		DBG_ASSERT_ISOBJECT(h_); \
 		knh_Object_RCinc(h_); \
 		knh_Object_RCdec(v); \
 		v_[0] = (h_); \
@@ -113,14 +111,14 @@ extern "C" {
 
 #define KNH_INITv(v,o) {\
 		knh_Object_t *h_ = (knh_Object_t*)o; \
-		DBG2_ASSERT_ISOBJECT(h_); \
+		DBG_ASSERT_ISOBJECT(h_); \
 		knh_Object_RCinc(h_); \
 		v = (typeof(v))(h_); \
 	}\
 
 #define KNH_SETv(ctx,v,o) {\
 		knh_Object_t *h_ = (knh_Object_t*)o; \
-		DBG2_ASSERT_ISOBJECT(h_); \
+		DBG_ASSERT_ISOBJECT(h_); \
 		knh_Object_RCinc(h_); \
 		knh_Object_DRCsweep(ctx, (knh_Object_t*)v); \
 		v = (typeof(v))(h_); \
@@ -128,7 +126,7 @@ extern "C" {
 
 #define KNH_RCSETv(ctx,v,o) {\
 		knh_Object_t *h_ = (knh_Object_t*)o; \
-		DBG2_ASSERT_ISOBJECT(h_); \
+		DBG_ASSERT_ISOBJECT(h_); \
 		knh_Object_RCinc(h_); \
 		knh_Object_DRCsweep(ctx, (knh_Object_t*)v); \
 		v = (typeof(v))(h_); \
@@ -136,7 +134,7 @@ extern "C" {
 
 #define KNH_NGCSETv(ctx,v,o) {\
 		knh_Object_t *h_ = (knh_Object_t*)o; \
-		DBG2_ASSERT_ISOBJECT(h_); \
+		DBG_ASSERT_ISOBJECT(h_); \
 		knh_Object_RCinc(h_); \
 		knh_Object_RCdec(v); \
 		v = (typeof(v))(h_); \

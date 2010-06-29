@@ -1,8 +1,8 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
- *           (c) 2008-      Konoha Software Foundation
+ * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ *           (c) 2008-      Konoha Team konohaken@googlegroups.com
  * All rights reserved.
  *
  * You may choose one of the following two licenses when you use konoha.
@@ -27,6 +27,17 @@
 
 /* ************************************************************************ */
 
+#define USE_STEXT 1
+#define USE_B     1
+#define USE_bytes_first       1
+#define USE_bytes_index       1
+#define USE_bytes_last        1
+#define USE_bytes_startsWith  1
+#define USE_bytes_endsWith    1
+
+#define USE_cwb_open      1
+#define USE_cwb_tobytes   1
+
 #include"commons.h"
 
 /* ************************************************************************ */
@@ -36,13 +47,55 @@ extern "C" {
 #endif
 
 /* ======================================================================== */
+/* [properties] */
+
+static void knh_cwb_nzenvkey(Ctx *ctx, knh_cwb_t *cwb, knh_bytes_t t)
+{
+	size_t i;
+	for(i = 0; i < t.len; i++) {
+		knh_Bytes_putc(ctx, (cwb->ba), toupper(t.buf[i]));
+	}
+}
+
+/* ------------------------------------------------------------------------ */
+
+knh_String_t* knh_getPropertyNULL(Ctx *ctx, knh_bytes_t key)
+{
+	if(knh_bytes_startsWith(key, STEXT("env."))) {
+		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
+		knh_cwb_nzenvkey(ctx, cwb, knh_bytes_last(key, 4));
+		char *v = knh_getenv(knh_cwb_tochar(ctx, cwb));
+		knh_cwb_close(cwb);
+		if(v == NULL) return NULL;
+		return new_S(ctx, B(v));
+	}
+	return (knh_String_t*)knh_DictMap_getNULL(ctx,  DP(ctx->sys)->props, key);
+}
+
+/* ------------------------------------------------------------------------ */
+
+void knh_setProperty(Ctx *ctx, knh_String_t *key, Any *value)
+{
+	knh_DictMap_set_(ctx, DP(ctx->sys)->props, key, value);
+}
+
+/* ------------------------------------------------------------------------ */
+
+KNHAPI(void) knh_setPropertyText(Ctx *ctx, char *key, char *value)
+{
+	knh_String_t *k = new_T(key);
+	knh_String_t *v = new_T(value);
+	knh_DictMap_set_(ctx, DP(ctx->sys)->props, k, UP(v));
+}
+
+/* ======================================================================== */
 /* [Constant Value] */
 
 Object *knh_getClassConstNULL(Ctx *ctx, knh_class_t cid, knh_bytes_t name)
 {
-	DBG2_ASSERT_cid(cid);
-	if(ClassTable(cid).constPool == NULL) return NULL;
-	knh_DictMap_t *cmap = ClassTable(cid).constPool;
+	DBG_ASSERT_cid(cid);
+	if(ClassTable(cid).constDictMap == NULL) return NULL;
+	knh_DictMap_t *cmap = ClassTable(cid).constDictMap;
 	Object *value = NULL;
 	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
 	int res = knh_DictMap_index(cmap, name);
@@ -57,92 +110,45 @@ Object *knh_getClassConstNULL(Ctx *ctx, knh_class_t cid, knh_bytes_t name)
 
 int knh_addClassConst(Ctx *ctx, knh_class_t cid, knh_String_t* name, Object *value)
 {
-	DBG2_ASSERT_cid(cid);
-	if(ClassTable(cid).constPool == NULL) {
-		knh_ClassTable_t *t = pClassTable(cid);
-		KNH_INITv(t->constPool, new_DictMap0(ctx, 0));
+	int ret;
+	knh_DictMap_t *cmap = ClassTable(cid).constDictMap;
+	DBG_ASSERT_cid(cid);
+	if(cmap == NULL) {
+		knh_ClassTable_t *t = pClassTable(ctx, cid);
+		cmap = new_DictMap0(ctx, 0);
+		KNH_INITv(t->constDictMap, cmap);
 	}
-	knh_DictMap_t *cmap = ClassTable(cid).constPool;
-	KNH_ASSERT(IS_DictMap(cmap));
+	DBG_ASSERT(IS_DictMap(cmap));
 	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
-	int res = knh_DictMap_index(cmap, __tobytes(name));
-	if(res != -1) return 0;
+	int idx = knh_DictMap_index(cmap, S_tobytes(name));
+	if(idx != -1) {
+		ret =  0;
+		goto L_UNLOCK;
+	}
 	knh_DictMap_append(ctx, cmap, name, value);
+	ret = 1;
+
+	L_UNLOCK:
 	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
-	return 1;
+	return ret;
 }
 
-
-/* ------------------------------------------------------------------------ */
-
-static
-void knh_addConstData(Ctx *ctx, char *dname, Object *value)
-{
-	knh_bytes_t n = B(dname);
-	knh_index_t loc = knh_bytes_rindex(n, '.');
-	knh_String_t *name = T__(dname + (loc+1));
-	knh_class_t cid = CLASS_Any;
-	if(loc != -1) {
-		if(ctx->kc != NULL && IS_Gamma(ctx->kc)) {
-			DBG2_P("nsname=%s", __tochar(DP(DP(ctx->kc)->ns)->nsname));
-			cid = knh_NameSpace_getcid(ctx, DP(ctx->kc)->ns, knh_bytes_first(n, loc));
-		}
-		else {
-			cid = knh_getcid(ctx, knh_bytes_first(n, loc));
-		}
-		if(cid == CLASS_unknown) {
-			DBG2_P("unknown class const: %s", dname);
-			cid = CLASS_Any;
-		}
-	}
-	knh_addClassConst(ctx, cid, name, value);
-}
-
-/* ------------------------------------------------------------------------ */
-
-KNHAPI(void) knh_loadIntConstData(Ctx *ctx, knh_IntConstData_t *data)
-{
-	while(data->name != NULL) {
-		Object *value = UP(new_Int(ctx, data->ivalue));
-		knh_addConstData(ctx, data->name, value);
-		data++;
-	}
-}
-
-/* ------------------------------------------------------------------------ */
-
-KNHAPI(void) knh_loadFloatConstData(Ctx *ctx, knh_FloatConstData_t *data)
-{
-	while(data->name != NULL) {
-		Object *value = UP(new_Float(ctx, data->fvalue));
-		knh_addConstData(ctx, data->name, value);
-		data++;
-	}
-}
-
-/* ------------------------------------------------------------------------ */
-
-KNHAPI(void) knh_loadStringConstData(Ctx *ctx, knh_StringConstData_t *data)
-{
-	while(data->name != NULL) {
-		Object *value = UP(T__(data->value));
-		knh_addConstData(ctx, data->name, value);
-		data++;
-	}
-}
 
 /* ======================================================================== */
 /* [SystemConst] */
 
-KNHAPI(Object*) knh_getSystemConst(Ctx *ctx, int n)
+Object *knh_getSystemConst(Ctx *ctx, int n)
 {
 	switch(n) {
 		case KNH_SYS_CTX:     return (Object*)ctx;
-		case KNH_SYS_STDIN:   return (Object*)((ctx)->in);
-		case KNH_SYS_STDOUT:  return (Object*)((ctx)->out);
-		case KNH_SYS_STDERR:  return (Object*)((ctx)->err);
+		case KNH_SYS_CTXIN:   return (Object*)((ctx)->in);
+		case KNH_SYS_CTXOUT:  return (Object*)((ctx)->out);
+		case KNH_SYS_CTXERR:  return (Object*)((ctx)->err);
+		case KNH_SYS_STDIN:   return (Object*)(DP((ctx)->sys)->in);
+		case KNH_SYS_STDOUT:  return (Object*)(DP((ctx)->sys)->out);
+		case KNH_SYS_STDERR:  return (Object*)(DP((ctx)->sys)->err);
 		case KNH_SYS_OS:      return (Object*)knh_getClassDefaultValue(ctx, CLASS_System);
-		case KNH_SYS_SCRIPT:  return (Object*)knh_NameSpace_getScript(ctx, (ctx->share)->mainns);
+		case KNH_SYS_SCRIPT:  return (Object*)ctx->script;
 	}
 	DBG_P("unknown system const n=%d", n);
 	return KNH_NULL;
@@ -151,322 +157,166 @@ KNHAPI(Object*) knh_getSystemConst(Ctx *ctx, int n)
 /* ======================================================================== */
 /* [tfieldn, tmethodn] */
 
-static
-char *knh_format_nzname(char *buf, size_t bufsiz, knh_bytes_t t)
+knh_fieldn_t knh_addname(Ctx *ctx, knh_String_t *s, knh_Fdictset f)
 {
-	size_t i = 0, u =  0, c = 0;
-	if(isdigit(t.buf[i])) {
-		/* %4.2f*/
-		while(isdigit(t.buf[i]) || t.buf[i] == '.') i++;
+	knh_SystemEX_t *b = DP(ctx->sys);
+	size_t n = knh_DictSet_size(b->nameDictSet);
+	if(n == b->hnameinfo[-1].capacity) {
+		b->hnameinfo = knh_hrealloc(ctx, b->hnameinfo, n * 2);
 	}
-	for(; i < t.len; i++) {
-		if(t.buf[i] == '.')  break ;  /* %itr.%itr */
-		if(t.buf[i] == '_') {
-			u = 1; continue;
-		}
-		if(u == 1) {
-			buf[c] = toupper(t.buf[i]);
-			u = 0;
-		}
-		else {
-			buf[c] = t.buf[i];
-		}
-		c++;
-		if(!(c + 1 < bufsiz)) {
-			break;
-		}
+	DBG_ASSERT(n < b->hnameinfo[-1].capacity);
+	KNH_INITv(b->nameinfo[n].name, s);
+	if(unlikely(!(n+1 < K_FLAG_MN_SETTER))) {  /* Integer overflowed */
+		KNH_SYSLOG(ctx, LOG_CRIT, "TooManyNames", "last nameid(fn)=%d < %d", (int)(n+1), (int)K_FLAG_MN_SETTER);
 	}
-	buf[c] = 0;
-	if(isupper(buf[0])) buf[0] = tolower(buf[0]);
-//	DEBUG("'%s'", buf);
-	return buf;
+	f(ctx, b->nameDictSet, s, n + 1);
+	return (knh_fieldn_t)(n);
 }
 
-/* ------------------------------------------------------------------------ */
-
-static
-knh_fieldn_t knh_System_getfn(Ctx *ctx, knh_bytes_t n, knh_fieldn_t def)
+static knh_fieldn_t knh_getname(Ctx *ctx, knh_bytes_t n, knh_fieldn_t def)
 {
-	char buf[CLASSNAME_BUFSIZ];
 	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
-	knh_index_t idx = knh_DictIdx_index(ctx, DP(ctx->sys)->FieldNameDictIdx, n);
+	knh_index_t idx = knh_DictSet_index(DP(ctx->sys)->nameDictSet, n);
 	if(idx == -1) {
-		knh_format_nzname(buf, sizeof(buf), n);
-		n = B(buf);
-		idx = knh_DictIdx_index(ctx, DP(ctx->sys)->FieldNameDictIdx, n);
-	}
-	if(idx == -1) {
-		if(def == FIELDN_NEWID) {
-			knh_String_t *s = new_String(ctx, n, NULL);
-			idx = knh_DictIdx_add__fast(ctx, DP(ctx->sys)->FieldNameDictIdx, s);
-			if(!(idx < KNH_FLAG_MN_SETTER)) {  /* Integer overflowed */
-				DBG_P("idx=%d < %d", (int)idx, (int)KNH_FLAG_MN_SETTER);
-				DBG2_ABORT();
-				KNH_THROW__T(ctx, "OutOfMemory!!: Too many field names");
-			}
+		if(def == FN_NEWID) {
+			idx = knh_addname(ctx, new_S(ctx, n), knh_DictSet_set);
 		}
 		else {
-			idx = def;
+			idx = def - MN_OPSIZE;
 		}
+	}
+	else {
+		idx = knh_DictSet_valueAt(DP(ctx->sys)->nameDictSet, idx) - 1;
 	}
 	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
-	return (knh_fieldn_t)idx;
+	return (knh_fieldn_t)idx + MN_OPSIZE;
 }
 
-/* ------------------------------------------------------------------------ */
-
-int knh_bytes_isOptionalMT(knh_bytes_t t)
+knh_NameInfo_t *knh_getnameinfo(Ctx *ctx, knh_fieldn_t fn)
 {
-	DBG2_ASSERT(t.buf[0] != '%');
-	return (isdigit(t.buf[0]) || knh_bytes_index(t, '%') > 0);
+	size_t n = (FN_UNMASK(fn) - MN_OPSIZE);
+	DBG_(
+		size_t size = knh_DictSet_size(DP(ctx->sys)->nameDictSet);
+		DBG_ASSERT(n < size);
+	);
+	return DP(ctx->sys)->nameinfo + n;
 }
 
-/* ------------------------------------------------------------------------ */
-
-knh_bytes_t knh_bytes_mtoption(knh_bytes_t t)
-{
-	size_t i = 0;
-	while(isdigit(t.buf[i]) || t.buf[i] == '.') i++;
-	t.len = i;
-	return t;
-}
-
-/* ------------------------------------------------------------------------ */
-
-char *knh_format_newFMT(char *buf, size_t bufsiz, knh_bytes_t t, int dot, char *fmt)
-{
-	size_t i = 0, j = 1;
-	buf[0] = '%';
-	for(j = 1; j < bufsiz; j++) {
-		if(t.buf[i] == '.') {
-			i++;
-			if(dot == 1) {
-				buf[j] = '.';
-				dot = 0;
-			}
-			else {
-				dot = -1;
-			}
-			continue;
-		}
-		if(!isdigit(t.buf[i])) {
-			i = (fmt[0] == '%') ? 1 : 0;
-			for(;fmt[i] != 0; i++) {
-				buf[j] = fmt[i]; j++;
-			}
-			buf[j] = 0;
-			DBG_P("FMT='%s'", buf);
-			return buf;
-		}
-		if(dot >= 0) {
-			buf[j] = t.buf[i];
-		}
-		i++;
-	}
-	buf[0] = 0;
-	return buf;
-}
+///* ------------------------------------------------------------------------ */
+//
+//int knh_bytes_isOptionalMT(knh_bytes_t t)
+//{
+//	DBG_ASSERT(t.buf[0] != '%');
+//	return (isdigit(t.buf[0]) || knh_bytes_index(t, '%') > 0);
+//}
+//
+///* ------------------------------------------------------------------------ */
+//
+//knh_bytes_t knh_bytes_mtoption(knh_bytes_t t)
+//{
+//	size_t i = 0;
+//	while(isdigit(t.buf[i]) || t.buf[i] == '.') i++;
+//	t.len = i;
+//	return t;
+//}
 
 /* ======================================================================== */
-/* [tfieldn] */
+/* [fn] */
 
 knh_String_t *knh_getFieldName(Ctx *ctx, knh_fieldn_t fn)
 {
-	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
-	knh_String_t *s = (knh_String_t*)knh_DictIdx_get__fast(DP(ctx->sys)->FieldNameDictIdx, FIELDN_UNMASK(fn));
-	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
-	DBG_(
-	if(IS_NULL(s)) {
-		DBG_P("unknown fn=%d", (int)FIELDN_UNMASK(fn));
-		return TS_EMPTY;
-	})
-	return s;
+	return knh_getnameinfo(ctx, fn)->name;
 }
 
 /* ------------------------------------------------------------------------ */
 
 knh_fieldn_t knh_getfnq(Ctx *ctx, knh_bytes_t tname, knh_fieldn_t def)
 {
+	knh_fieldn_t mask = 0;
 	knh_index_t idx = knh_bytes_index(tname, ':');
 	if(idx > 0) {
 		tname = knh_bytes_first(tname, idx);
 	}
-	if(tname.len == 0 || tname.len > 80) {
-		DBG2_P("invalid field name '%s'", tname.buf);
-		return FIELDN_NONAME;
+	else if(knh_bytes_startsWith(tname, STEXT("super."))) {
+		mask = (def == FN_NONAME) ? 0 : K_FLAG_FN_SUPER;
+		tname = knh_bytes_last(tname, 6);
 	}
-	else {
-		knh_fieldn_t mask = 0;
-		if(knh_bytes_startsWith(tname, STEXT("super."))) {
-			mask = KNH_FLAG_FN_SUPER;
-			tname = knh_bytes_last(tname, 6);
+	else if(!knh_bytes_endsWith(tname, STEXT("__"))) {
+		if(tname.buf[0] == '_' && def != FN_NONAME) {
+			mask = K_FLAG_FN_U1;
+			tname = knh_bytes_last(tname, 1);
 		}
-		else if(!knh_bytes_endsWith(tname, STEXT("__"))) {
-			if(tname.buf[0] == '_') {
-				mask = KNH_FLAG_FN_U1;
-				tname = knh_bytes_last(tname, 1);
-			}
-			if(tname.buf[0] == '_') {
-				mask = KNH_FLAG_FN_U2;
-				tname = knh_bytes_last(tname, 1);
-			}
-			while(tname.buf[0] == '_') {
-				tname = knh_bytes_last(tname, 1);
-			}
+		if(tname.buf[0] == '_' && def != FN_NONAME) {
+			mask = K_FLAG_FN_U2;
+			tname = knh_bytes_last(tname, 1);
 		}
-
-		KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
-		idx = knh_DictIdx_index(ctx, DP(ctx->sys)->FieldNameDictIdx, tname);
-		if(idx == -1) {
-			if(def == FIELDN_NEWID) {
-				knh_String_t *s = new_String(ctx, tname, NULL);
-				idx = knh_DictIdx_add__fast(ctx, DP(ctx->sys)->FieldNameDictIdx, s);
-				if(!(idx < KNH_FLAG_FN_U2)) {
-					DBG_P("idx=%d < %d", (int)idx, (int)KNH_FLAG_FN_U2);
-					DBG2_ABORT();
-					KNH_THROW__T(ctx, "OutOfMemory!!: Too many field names");
-				}
-			}
-			else {
-				idx = def;
-			}
+		while(tname.buf[0] == '_') {
+			tname = knh_bytes_last(tname, 1);
 		}
-		KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
-		return ((knh_fieldn_t)idx | mask);
 	}
+	return knh_getname(ctx, tname, def) | mask;
 }
 
-/* ======================================================================== */
+/* ------------------------------------------------------------------------ */
 /* [methodn] */
 
-//String *new_String__mn(Ctx *ctx, knh_methodn_t mn)
-//{
-//	if(METHODN_IS_MOVTEXT(mn)) {
-//		char buf[CLASSNAME_BUFSIZ];
-//		knh_snprintf(buf, sizeof(buf), "%%%s", FIELDN(METHODN_TOFIELDN(mn)));
-//		return new_String(ctx, B(buf), NULL);
-//	}
-//	if(METHODN_IS_GETTER(mn)) {
-//		char buf[CLASSNAME_BUFSIZ];
-//		knh_snprintf(buf, sizeof(buf), "get%s", FIELDN(METHODN_TOFIELDN(mn)));
-//		if(islower(buf[3])) buf[3] = toupper(buf[3]);
-//		return new_String(ctx, B(buf), NULL);
-//	}
-//	if(METHODN_IS_SETTER(mn)) {
-//		char buf[CLASSNAME_BUFSIZ];
-//		knh_snprintf(buf, sizeof(buf), "set%s", FIELDN(METHODN_TOFIELDN(mn)));
-//		if(islower(buf[3])) buf[3] = toupper(buf[3]);
-//		return new_String(ctx, B(buf), NULL);
-//	}
-//
-//	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
-//	String *s = (String*)knh_DictIdx_get__fast(DP(ctx->sys)->FieldNameDictIdx, FIELDN_UNMASK(mn));
-//	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
-//	if(IS_NULL(s)) {
-//		return TS_EMPTY;
-//	}
-//	return s;
-//}
+static knh_bytes_t knh_bytes_skipFMTOPT(knh_bytes_t t)
+{
+	size_t i;
+	for(i = 1; i < t.len; i++) {
+		if(isalnum(t.buf[i])) break;
+	}
+	t.buf = t.buf + i;
+	t.len = t.len - i;
+	return t;
+}
+
+knh_methodn_t knh_getmn(Ctx *ctx, knh_bytes_t tname, knh_methodn_t def)
+{
+	knh_fieldn_t mask = 0;
+	if(tname.buf[0] == '%') {
+		tname = knh_bytes_skipFMTOPT(tname);
+		if(def != MN_NONAME) mask = K_FLAG_MN_FMT;
+	}
+	else if(tname.buf[0] == 'i' && tname.buf[1] == 's') { /* is => get */
+		tname = knh_bytes_last(tname, 2);
+		if(def != MN_NONAME) mask = K_FLAG_MN_ISBOOL;
+	}
+	else if(tname.buf[0] == 'g' && tname.buf[1] == 'e' && tname.buf[2] == 't') {
+		tname = knh_bytes_last(tname, 3);
+		if(def != MN_NONAME) mask = K_FLAG_MN_GETTER;
+	}
+	else if(tname.buf[0] == 's' && tname.buf[1] == 'e' && tname.buf[2] == 't') {
+		tname = knh_bytes_last(tname, 3);
+		if(def != MN_NONAME) mask = K_FLAG_MN_SETTER;
+	}
+	return knh_getname(ctx, tname, def) | mask;
+}
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(knh_methodn_t) knh_getmn(Ctx *ctx, knh_bytes_t tname, knh_methodn_t def)
+char* knh_getmnname(Ctx *ctx, knh_methodn_t mn)
 {
-	if(tname.len == 0 || tname.len > 64) {
-		DBG2_P("invalid method name '%s'", tname.buf);
-		return METHODN_NONAME;
+	mn = MN_toFN(mn);
+	if(mn < MN_OPSIZE) {
+		return knh_getopname(mn);
 	}
-	if(tname.buf[0] == '%') {
-		knh_fieldn_t fn = knh_System_getfn(ctx, knh_bytes_last(tname, 1), def);
-		if(fn == FIELDN_NONAME) {
-			return METHODN_NONAME;
-		}
-		return KNH_FLAG_MN_MOVTEXT | fn;
-	}
-	else if(tname.buf[0] == 'i' && tname.buf[1] == 's') { /* is => get */
-		knh_fieldn_t fn = knh_System_getfn(ctx, knh_bytes_last(tname, 2), def);
-		if(fn == FIELDN_NONAME) {
-			return METHODN_NONAME;
-		}
-		return KNH_FLAG_MN_GETTER | fn;
-	}
-	else if(tname.buf[0] == 'g' && tname.buf[1] == 'e' && tname.buf[2] == 't') {
-		knh_fieldn_t fn = knh_System_getfn(ctx, knh_bytes_last(tname, 3), def);
-		if(fn == FIELDN_NONAME) {
-			return METHODN_NONAME;
-		}
-		return KNH_FLAG_MN_GETTER | fn;
-	}
-	else if(tname.buf[0] == 's' && tname.buf[1] == 'e' && tname.buf[2] == 't') {
-		knh_fieldn_t fn = knh_System_getfn(ctx, knh_bytes_last(tname, 3), def);
-		if(fn == FIELDN_NONAME) {
-			return METHODN_NONAME;
-		}
-		return KNH_FLAG_MN_SETTER | fn;
-	}
-	else {
-		knh_fieldn_t fn = knh_System_getfn(ctx, tname, def);
-		return fn;
-	}
+	return S_tochar(knh_getFieldName(ctx, mn));
 }
-
-///* ------------------------------------------------------------------------ */
-//
-//char *knh_format_methodn(Ctx *ctx, char *buf, size_t bufsiz, knh_methodn_t mn)
-//{
-//	if(METHODN_IS_MOVTEXT(mn)) {
-//		knh_snprintf(buf, bufsiz, "%%%s", FIELDN(METHODN_TOFIELDN(mn)));
-//		return buf;
-//	}
-//	if(METHODN_IS_GETTER(mn)) {
-//		knh_snprintf(buf, bufsiz, "get%s", FIELDN(METHODN_TOFIELDN(mn)));
-//		if(islower(buf[3])) buf[3] = toupper(buf[3]);
-//		return buf;
-//	}
-//	if(METHODN_IS_SETTER(mn)) {
-//		knh_snprintf(buf, bufsiz, "set%s", FIELDN(METHODN_TOFIELDN(mn)));
-//		if(islower(buf[3])) buf[3] = toupper(buf[3]);
-//		return buf;
-//	}
-//	knh_snprintf(buf, bufsiz, "%s", FIELDN(mn));
-//	return buf;
-//}
-//
-///* ------------------------------------------------------------------------ */
-//
-//char *
-//knh_format_cmethodn(Ctx *ctx, char *buf, size_t bufsiz, knh_class_t cid, knh_methodn_t mn)
-//{
-//	if(METHODN_IS_MOVTEXT(mn)) {
-//		knh_snprintf(buf, bufsiz, "%s.%%%s", CLASSN(cid), FIELDN(METHODN_TOFIELDN(mn)));
-//		return buf;
-//	}
-//	if(METHODN_IS_GETTER(mn)) {
-//		int off = knh_strlen(CLASSN(cid))+4;
-//		knh_snprintf(buf, bufsiz, "%s.get%s", CLASSN(cid), FIELDN(METHODN_TOFIELDN(mn)));
-//		if(islower(buf[off])) buf[off] = toupper(buf[off]);
-//		return buf;
-//	}
-//	if(METHODN_IS_SETTER(mn)) {
-//		int off = knh_strlen(CLASSN(cid))+4;
-//		knh_snprintf(buf, bufsiz, "%s.set%s", CLASSN(cid), FIELDN(METHODN_TOFIELDN(mn)));
-//		if(islower(buf[off])) buf[off] = toupper(buf[off]);
-//		return buf;
-//	}
-//	knh_snprintf(buf, bufsiz, "%s.%s", CLASSN(cid), FIELDN(mn));
-//	return buf;
-//}
 
 /* ======================================================================== */
 /* [uri] */
 
-knh_uri_t knh_getResourceId(Ctx *ctx, knh_bytes_t t)
+knh_uri_t knh_getURI(Ctx *ctx, knh_bytes_t t)
 {
 	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
-	knh_index_t idx = knh_DictIdx_index(ctx, DP(ctx->sys)->ResourceDictIdx, t);
+	knh_index_t idx = knh_DictSet_index(DP(ctx->sys)->urnDictSet, t);
 	if(idx == -1) {
-		knh_String_t *s = new_String(ctx, t, NULL);
-		idx = knh_DictIdx_add__fast(ctx, DP(ctx->sys)->ResourceDictIdx, s);
+		knh_String_t *s = new_S(ctx, t);
+		idx = knh_Array_size(DP(ctx->sys)->urns);
+		knh_DictSet_set(ctx, DP(ctx->sys)->urnDictSet, s, idx);
+		knh_Array_add(ctx, DP(ctx->sys)->urns, s);
+		KNH_SYSLOG(ctx, LOG_INFO, "NEW_URI", "URI=%d, URN=%s", idx, S_tobytes(s));
 	}
 	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
 	return (knh_uri_t)idx;
@@ -474,106 +324,48 @@ knh_uri_t knh_getResourceId(Ctx *ctx, knh_bytes_t t)
 
 /* ------------------------------------------------------------------------ */
 
-knh_uri_t knh_cwb_getResourceId(Ctx *ctx, knh_cwb_t *cwb)
+knh_String_t *knh_getURN(Ctx *ctx, knh_uri_t uri)
 {
-	knh_bytes_t t = knh_cwb_tobytes(cwb);
-	knh_uri_t uri = 0;
-	if(!knh_bytes_startsWith(t, STEXT("http://"))) {
-		knh_cwb_realpath(ctx, cwb);
-		t = knh_cwb_tobytes(cwb);
-	}
+	size_t n = URI_UNMASK(uri);
+	knh_Array_t *a = DP(ctx->sys)->urns;
+	DBG_ASSERT(n < knh_Array_size(a));
+	return (knh_String_t*)(a)->list[n];
+}
+
+/* ======================================================================== */
+/* [Driver] */
+
+void knh_addDriverSPI(Ctx *ctx, const char *scheme, knh_DriverSPI_t* p)
+{
+	char *name = (scheme == NULL) ? p->name : (char*)scheme;
+	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
+	knh_write(ctx, cwb->w, B(name));
+	knh_putc(ctx, cwb->w, ':');
+	knh_write_ifmt(ctx, cwb->w, K_INT_FMT, p->type);
 	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
-	{
-		knh_index_t idx = knh_DictIdx_index(ctx, DP(ctx->sys)->ResourceDictIdx, t);
-		if(idx == -1) {
-			knh_String_t *s = knh_cwb_newString(ctx, cwb);
-			idx = knh_DictIdx_add__fast(ctx, DP(ctx->sys)->ResourceDictIdx, s);
-			t = __tobytes(s);
-			knh_cwb_write(ctx, cwb, t);
-		}
-		uri = (knh_uri_t)idx;
-	}
+	knh_DictSet_set(ctx, DP(ctx->sys)->dspiDictSet, knh_cwb_newString(ctx, cwb), (knh_uintptr_t)p);
 	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
-	if(!knh_isTrustedPath(ctx, t)) {
-		uri = URI_UNTRUSTED(uri);
-	}
-	return uri;
 }
 
 /* ------------------------------------------------------------------------ */
 
-knh_String_t *knh_getResourceName(Ctx *ctx, knh_uri_t uri)
+knh_DriverSPI_t *knh_getDriverSPI(Ctx *ctx, int type, knh_bytes_t path)
 {
-	knh_String_t *s;
-	uri = URI_UNMASK(uri);
-	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
-	s = (knh_String_t*)knh_DictIdx_get__fast(DP(ctx->sys)->ResourceDictIdx, uri);
-	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
-	DBG_(
-		if(IS_NULL(s)) {
-			DBG_P("unknown uri=%d", (int)uri);
-			return TS_EMPTY;
-		}
-	)
-	return s;
-}
-
-/* ======================================================================== */
-/* [tPackage] */
-
-#define knh_homeDir                DP(ctx->sys)->homeDir
-#define knh_sysnsDictMap           DP(ctx->sys)->sysnsDictMap
-#define knh_funcDictSet            DP(ctx->sys)->funcDictSet
-#define knh_drvapiDictSet          DP(ctx->sys)->drvapiDictSet
-#define knh_makespecDictSet        DP(ctx->sys)->makespecDictSet
-
-/* ======================================================================== */
-/* [DRVAPI] */
-
-void knh_addDriverAPI(Ctx *ctx, char *alias, knh_drvapi_t* p)
-{
-	char bufn[CLASSNAME_BUFSIZ];
-	KNH_ASSERT(IS_DRVAPI(p->type));
-	if(alias == NULL) {
-		knh_snprintf(bufn, sizeof(bufn), "%s:%02d", p->name, p->type);
+	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
+	knh_index_t idx = knh_bytes_index(path, ':');
+	if(idx == -1) {
+		knh_write(ctx, cwb->w, path);
 	}
 	else {
-		knh_snprintf(bufn, sizeof(bufn), "%s:%02d", alias, p->type);
+		knh_write(ctx, cwb->w, knh_bytes_first(path, idx));
 	}
+	knh_putc(ctx, cwb->w, ':');
+	knh_write_ifmt(ctx, cwb->w, K_INT_FMT, type);
 	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
-	knh_DictSet_set(ctx, DP(ctx->sys)->DriversTableDictSet, new_String(ctx, B(bufn), NULL), (knh_uintptr_t)p);
+	knh_DriverSPI_t *p = (knh_DriverSPI_t*)knh_DictSet_get(DP(ctx->sys)->dspiDictSet, knh_cwb_tobytes(cwb));
 	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
-}
-
-/* ------------------------------------------------------------------------ */
-
-knh_drvapi_t *knh_getDriverAPI(Ctx *ctx, int type, knh_bytes_t name)
-{
-	char bufn[CLASSNAME_BUFSIZ], bufn2[CLASSNAME_BUFSIZ];
-	knh_format_bytes(bufn2, sizeof(bufn2), name);
-	knh_snprintf(bufn, sizeof(bufn), "%s:%02d", bufn2, type);
-	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
-	knh_drvapi_t *p = (knh_drvapi_t*)knh_DictSet_get__b(DP(ctx->sys)->DriversTableDictSet, B(bufn));
-	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
+	knh_cwb_close(cwb);
 	return p;
-}
-
-/* ------------------------------------------------------------------------ */
-/* [NameSpace] */
-
-knh_NameSpace_t *knh_getNameSpace(Ctx *ctx, knh_bytes_t name)
-{
-	if(knh_bytes_equals(name, STEXT("main"))) {
-		KNH_ASSERT(IS_NameSpace(ctx->share->mainns));
-		return ctx->share->mainns;
-	}
-	else {
-		knh_NameSpace_t *ns;
-		KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
-		ns = (knh_NameSpace_t*)knh_DictMap_get__b(ctx,  DP(ctx->sys)->NameSpaceTableDictMap, name);
-		KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
-		return ns;
-	}
 }
 
 /* ------------------------------------------------------------------------ */

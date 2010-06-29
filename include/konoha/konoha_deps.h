@@ -1,8 +1,8 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
- *           (c) 2008-      Konoha Software Foundation
+ * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ *           (c) 2008-      Konoha Team konohaken@googlegroups.com
  * All rights reserved.
  *
  * You may choose one of the following two licenses when you use konoha.
@@ -32,50 +32,98 @@
 /* [UNIX] */
 
 #ifdef KONOHA_ON_UNKNOWN
-	#define KNH_USING_STDC  1
+	#define K_USING_STDC  1
 	#define KONOHA_OS_ENCODING "UTF-8"
 	#define KONOHA_OS_LINEFEED "\n"
-	#define KONOHA_OS_DLLEXT   ".so"
+	#define K_OSDLLEXT   ".so"
 #endif
 
+#ifdef KONOHA_ON_BSD
+	#define K_USING_POSIX    1
+	#define KONOHA_OS_ENCODING "UTF-8"
+	#define KONOHA_OS_LINEFEED "\n"
+	#define K_OSDLLEXT ".so"
+#endif
+
+#ifdef KONOHA_ON_UNKNOWN_POSIX
+	#define K_USING_POSIX    1
+	#define KONOHA_OS_ENCODING "UTF-8"
+	#define KONOHA_OS_LINEFEED "\n"
+	#define K_OSDLLEXT ".so"
+#endif
+
+#ifdef KONOHA_ON_UNKNOWN_UNIX
+	#define K_USING_POSIX    1
+	#define K_USING_UNIX     1
+	#define KONOHA_OS_ENCODING "UTF-8"
+	#define KONOHA_OS_LINEFEED "\n"
+	#define K_OSDLLEXT ".so"
+#endif
+
+
 #ifdef KONOHA_ON_LINUX
-#define     KNH_USING_POSIX 1
-#define     KNH_USING_UNIX  1
-#define     KNH_USING_SOCKET 1
-#define     KNH_USING_THREAD   1
-#define     KNH_USING_PTHREAD  1
+#define     K_USING_POSIX 1
+#define     K_USING_UNIX  1
+#define     K_USING_SOCKET 1
+#define     K_USING_THREAD   1
+#define     K_USING_PTHREAD  1
 #define     KONOHA_OS_ENCODING "UTF-8"
-#define     KNH_USING_KONOHAGET 1
+#define     K_USING_KONOHAGET 1
 #ifdef HAVE_ICONV_H
-#define     KNH_USING_ICONV 1
+#define     K_USING_ICONV 1
 #endif
 //#ifdef HAVE_REGEX_H
-#define     KNH_USING_REGEX 1
+#define     K_USING_REGEX 1
 //#endif
 #define     KONOHA_OS_LINEFEED "\n"
-#define     KONOHA_OS_DLLEXT   ".so"
+#define     K_OSDLLEXT   ".so"
 #endif
 
 #ifdef KONOHA_ON_MACOSX
-#define     KNH_USING_POSIX    1
-#define     KNH_USING_UNIX     1
-#define     KNH_USING_SOCKET   1
-#define     KNH_USING_ICONV    1
-#define     KNH_USING_REGEX    1
-//#define     KNH_USING_SQLITE3  1
-//#define     KNH_USING_THREAD   1
-#define     KNH_USING_PTHREAD  1
+#define     K_USING_POSIX    1
+#define     K_USING_UNIX     1
+#define     K_USING_SOCKET   1
+#define     K_USING_ICONV    1
+#define     K_USING_REGEX    1
 #define     KONOHA_OS_ENCODING "UTF-8"
 #define     KONOHA_OS_LINEFEED "\n"
-#define     KONOHA_OS_DLLEXT ".dylib"
+#define     K_OSDLLEXT ".dylib"
+#endif
+
+#ifdef KONOHA_ON_FREEBSD
+#define     K_USING_POSIX    1
+#define     KONOHA_OS_ENCODING "UTF-8"
+#define     KONOHA_OS_LINEFEED "\n"
+#define     K_OSDLLEXT ".so"
+#endif
+
+#ifdef KONOHA_ON_UNKNOWN_BSD
+#define     K_USING_POSIX    1
+#define     KONOHA_OS_ENCODING "UTF-8"
+#define     KONOHA_OS_LINEFEED "\n"
+#define     K_OSDLLEXT ".so"
+#endif
+
+#ifdef KONOHA_ON_UNKNOWN_POSIX
+#define     K_USING_POSIX    1
+#define     KONOHA_OS_ENCODING "UTF-8"
+#define     KONOHA_OS_LINEFEED "\n"
+#define     K_OSDLLEXT ".so"
+#endif
+
+#ifdef KONOHA_ON_UNKNOWN_UNIX
+#define     K_USING_POSIX    1
+#define     KONOHA_OS_ENCODING "UTF-8"
+#define     KONOHA_OS_LINEFEED "\n"
+#define     K_OSDLLEXT ".so"
 #endif
 
 /* ------------------------------------------------------------------------ */
 
 #ifdef KONOHA_ON_LKM
-#define KNH_USING_INT32      1
-#define KNH_USING_NOFLOAT    1
-#define KNH_USING_NOFILE     1
+#define K_USING_INT32      1
+#define K_USING_NOFLOAT    1
+#define K_USING_NOFILE     1
 
 #define KNH_EXT_QSORT  1
 #define KNH_EXT_SETJMP 1
@@ -83,19 +131,18 @@
 #define FILEPATH_BUFSIZ     80  /* TO SAVE STACKSIZE */
 #define KONOHA_HOMEPATH     "/dev/konoha"   /* meaningless */
 
-#undef KNH_USING_SOCKET
-#undef KNH_USING_ICONV
-#undef KNH_USING_REGEX
-#undef KNH_USING_SQLITE3
-#undef KNH_USING_KONOHAGET
-#undef KNH_USING_PTHREAD
-#undef KNH_USING_THREAD
-#undef KNH_USING_READLINE
+#undef K_USING_SOCKET
+#undef K_USING_ICONV
+#undef K_USING_REGEX
+#undef K_USING_SQLITE3
+#undef K_USING_KONOHAGET
+#undef K_USING_PTHREAD
+#undef K_USING_THREAD
+#undef K_USING_READLINE
 
 #define KONOHA_OS_ENCODING "UTF-8"
 #define KONOHA_OS_LINEFEED "\n"
-#define KONOHA_OS_DLLEXT   ""
-
+#define K_OSDLLEXT   ""
 #endif
 
 /* ======================================================================== */
@@ -103,100 +150,66 @@
 
 #ifdef KONOHA_ON_WINDOWS
 #include<windows.h>
-#define 	KNH_USING_WIN32    1
-#define 	KNH_USING_WINDOWS  1
-#define     KNH_USING_MATH     1
+#define 	K_USING_WIN32    1
+#define 	K_USING_WINDOWS  1
+#define     K_USING_MATH     1
 #define 	KONOHA_OS_LINEFEED "\r\n"
+#define     KNH_CC_EXPORT __declspec(dllexport)
 #ifdef KNHAPI_IMPORTS
-#define 	KNHAPI(T__)     __declspec(dllimport) T__ __cdecl
+#define 	KNHAPI(T__)      KNH_CC_EXPORT T__ __cdecl
+#define     FASTAPI(T__)     T__
+#define 	KNHFASTAPI(T__)  KNH_CC_EXPORT T__
 #else
-#define 	KNHAPI(T__)     __declspec(dllexport) T__ __cdecl
+#define 	KNHAPI(T__)      KNH_CC_EXPORT  T__ __cdecl
+#define     FASTAPI(T__)     T__
+#define 	KNHFASTAPI(T__)  KNH_CC_EXPORT T__ KNH_CC_FASTCALL
 #endif
+#define 	KNH_EXPORTS(T__)  KNH_CC_EXPORT T__ __cdecl
 
-#define 	KNH_EXPORTS(T__)     __declspec(dllexport) T__ __cdecl
-
-#define 	KONOHA_OS_DLLEXT ".dll"
-#define		KONOHA_OS_FILE_SEPARATOR '\\'
+#define 	K_OSDLLEXT ".dll"
+#define		K_FILESEPARATOR '\\'
 #define     KONOHA_FOLDER "Konoha"
-#endif
-
-#ifdef KONOHA_ON_MINGW
-#define 	KNH_USING_WIN32    1
-#define 	KNH_USING_WINDOWS  1
-#define 	KONOHA_OS_LINEFEED "\r\n"
-#ifdef KNHAPI_IMPORTS
-#define 	KNHAPI(T__) __declspec(dllimport) T__ __cdecl
-#else
-#define 	KNHAPI(T__) __declspec(dllexport) T__ __cdecl
-#endif
-#define 	KNH_EXPORTS(T__)  __declspec(dllexport) T__ __cdecl
-#define 	KONOHA_OS_DLLEXT ".dll"
-#define		KONOHA_OS_FILE_SEPARATOR '\\'
-#ifndef HAVE_CONFIG_H
-#define 	KNH_USING_ICONV       1
-#define 	HAVE_LOCALCHARSET_H   1
-#endif
-#endif
-
-#ifdef KONOHA_ON_CYGWIN
-#define 	KNH_USING_POSIX    1
-#define 	KNH_USING_UNIX     1
-#define 	KNH_USING_REGEX    1
-#define 	KONOHA_OS_LINEFEED "\r\n"
-#define 	KONOHA_OS_DLLEXT ".dll.a"
 #endif
 
 /* ======================================================================== */
 /* [TEABOARD] */
 
 #ifdef KONOHA_ON_TB
-#define 	KNH_USING_BTRON    1
-#define 	KNH_USING_TKAPI    1
-#define 	KONOHA_OS_ENCODING KONOHA_ENCODING
+#define 	K_USING_BTRON    1
+#define 	K_USING_TKAPI    1
+#define 	KONOHA_OS_ENCODING knh_getLocalEncoding
 #define 	KONOHA_OS_LINEFEED "\n"
-#define 	KONOHA_OS_DLLEXT ".so"
+#define 	K_OSDLLEXT ".so"
 #define     ALT_GETENV
-#undef      KNH_USING_I18N
+#undef      K_USING_I18N
 #endif
 
 /* ======================================================================== */
 /* [KNHAPI] */
 
-#ifndef KNHAPI_
-#ifdef KNHAPI
-#define KNHAPI_(T__)       KNHAPI(T__)
-#else
-#define KNHAPI_(T)       T KNH_CC_FASTCALL
+#ifndef KNH_CC_EXPORT
+#define KNH_CC_EXPORT
 #endif
+
+#ifndef KNHAPI
+#define KNHAPI(T)         T
+#define FASTAPI(T)        T  KNH_CC_FASTCALL
+#define KNHFASTAPI(T)     T  KNH_CC_FASTCALL
+#define KNH_EXPORTS(T)    T
+#endif
+
+#ifndef K_FILESEPARATOR
+#define K_FILESEPARATOR  '/'
 #endif
 
 #ifndef KONOHA_FOLDER
 #define KONOHA_FOLDER ".konoha"
 #endif
 
-#ifndef KNHAPI
-#ifdef  KONOHA_ON_WINDOWS
-#define KNHAPI(T__)         T__ __declspec(dllexport)
-#else
-#define KNHAPI(T)         T
-#endif
-#define KNH_EXPORTS(T)    T
-#endif
-
-#ifdef KONOHA_MONOLITHIC
-#undef KNHAPI
-#define KNHAPI(T__)        T__
-#define KNH_EXPORTS(T__)   T__
-#endif
-
-#ifndef KONOHA_OS_FILE_SEPARATOR
-#define KONOHA_OS_FILE_SEPARATOR  '/'
-#endif
-
 #ifdef KNH_CC_LABELPTR
-#define KNH_USING_THREADEDCODE 1
+#define K_USING_THREADEDCODE 1
 #else
-#undef KNH_USING_THREADEDCODE
+#undef K_USING_THREADEDCODE
 #endif
 
 /*
@@ -205,28 +218,27 @@
 #endif
 */
 
-
-#ifdef KNH_USING_THREAD
-#if !defined(KNH_USING_PTHREAD) && defined(KNH_USING_POSIX)
-#define KNH_USING_PTHREAD 1
+#ifdef K_USING_THREAD
+#if !defined(K_USING_PTHREAD) && defined(K_USING_POSIX)
+#define K_USING_PTHREAD 1
 #endif
 #endif
 
 /* ======================================================================== */
 /* [CONFIG_H] */
 
-#if !defined(KNH_USING_ICONV) && defined(HAVE_LIBICONV)
-#define 	KNH_USING_ICONV 1
+#if !defined(K_USING_ICONV) && defined(HAVE_LIBICONV)
+#define 	K_USING_ICONV 1
 #endif
 
-#if !defined(KNH_USING_REGEX) && defined(HAVE_REGCOMP)
-#define 	KNH_USING_REGEX 1
+#if !defined(K_USING_REGEX) && defined(HAVE_REGCOMP)
+#define 	K_USING_REGEX 1
 #endif
 
 /* ======================================================================== */
 
-#ifndef KNH_USING_ICONV
-#undef KNH_USING_I18N
+#ifndef K_USING_ICONV
+#undef K_USING_I18N
 #endif
 
 /* ======================================================================== */
@@ -246,9 +258,11 @@
 
 #define knh_strlen(c)                  strlen(c)
 #define knh_memcpy(d, s, n)            memcpy(d,s,n)
+#define knh_memmove(d, s, n)           memmove(d, s, n)
 #define knh_bzero(s, n)                memset(s,0,n)
 #define knh_strcmp(s1, s2)             strcmp(s1,s2)
-#define knh_strncmp(s1, s2, n)         strncmp(s1,s2,n)
+#define knh_strncmp(s1, s2, n)         strncmp((const char*)(s1),(const char*)(s2),n)
+#define knh_strncasecmp(s1, s2, n)     strncasecmp((const char*)(s1),(const char*)(s2),n)
 
 /* ------------------------------------------------------------------------ */
 
@@ -264,7 +278,7 @@
 #endif
 
 void knh_qsort_r (void *const pbase, size_t total_elems, size_t size, 
-        int (*cmp)(void* ,const void*,const void*), void* thunk);
+        void* thunk,int (*cmp)(void* ,const void*,const void*));
 
 //#ifdef KONOHA_ON_MACOSX
 //#define  knh_qsort_r(b,s,w,thunk,f)   qsort_r(b,s,w,thunk,f)
@@ -280,7 +294,7 @@ void knh_qsort_r (void *const pbase, size_t total_elems, size_t size,
 
 /* ======================================================================== */
 
-#if defined(KNH_USING_POSIX) && !defined(KONOHA_ON_LKM)
+#if defined(K_USING_POSIX) && !defined(KONOHA_ON_LKM)
 #include<dlfcn.h>
 #endif
 

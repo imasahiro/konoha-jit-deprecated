@@ -8,7 +8,7 @@
 */
 
 #include"../../include/konoha.h"
-#ifdef KNH_USING_SSE2
+#ifdef K_USING_SSE2
 #ifdef _WIN32
     #include <intrin.h>
     #define bsf(x) (_BitScanForward(&x, x), x)

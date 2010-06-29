@@ -7,7 +7,7 @@
 #include <konoha/konoha_api.h>
 #include "konoha/lkm.h"
 
-//## class Chardev Glue;
+//## class Chardev RawPtr;
 typedef struct {
 	knh_Object_t* self;
 	dev_t id;
@@ -17,13 +17,13 @@ typedef struct {
 	knh_Method_t *write;
 } knh_device_t;
 
-//## class File Glue;
+//## class File RawPtr;
 typedef struct {
 	knh_Object_t* self;
 	struct file *file;
 } knh_file_t;
 
-//## class Inode Glue;
+//## class Inode RawPtr;
 typedef struct {
 	knh_Object_t* self;
 	struct inode *inode;
@@ -48,7 +48,7 @@ static knh_device_t* new_device(Ctx *ctx, knh_String_t *str)
 	return d;
 }
 
-static void device_gfree(Ctx *ctx, knh_Glue_t *g)
+static void device_gfree(Ctx *ctx, knh_RawPtr_t *g)
 {
 	knh_device_t *d = (knh_device_t *) g->ptr;
 	printk("%s:%d\n",__func__,__LINE__);
@@ -65,7 +65,7 @@ METHOD Chardev_new(Ctx *ctx, knh_sfp_t *sfp)
 {
 	printk("%s:%d\n",__func__,__LINE__);
 	knh_device_t *dev = new_device(ctx, sfp[1].s);
-	knh_Glue_init(ctx, sfp[0].glue, dev, device_gfree);
+	knh_RawPtr_init(ctx, sfp[0].glue, dev, device_gfree);
 
 	// set ref for object.
 	// but we do not set ref because it becomes cyclic refalence.
@@ -237,7 +237,7 @@ static knh_bool_t knh_Chardev_register(Ctx *ctx, knh_device_t *dev)
 }
 
 /* ------------------------------------------------------------------------ */
-//## method Boolean! Chardev.register();
+//## method Boolean Chardev.register();
 
 METHOD Chardev_register(Ctx *ctx, knh_sfp_t *sfp)
 {
@@ -247,7 +247,7 @@ METHOD Chardev_register(Ctx *ctx, knh_sfp_t *sfp)
 }
 
 /* ------------------------------------------------------------------------ */
-//## method Boolean! Chardev.unregister();
+//## method Boolean Chardev.unregister();
 
 METHOD Chardev_unregister(Ctx *ctx, knh_sfp_t *sfp)
 {
@@ -261,7 +261,7 @@ METHOD Chardev_unregister(Ctx *ctx, knh_sfp_t *sfp)
 }
 
 /* ------------------------------------------------------------------------ */
-//## method Int! File.getMode();
+//## method Int File.getMode();
 
 METHOD File_getMode(Ctx *ctx, knh_sfp_t *sfp)
 {
@@ -271,7 +271,7 @@ METHOD File_getMode(Ctx *ctx, knh_sfp_t *sfp)
 }
 
 /* ------------------------------------------------------------------------ */
-//## method Int! Task.getPid();
+//## method Int Task.getPid();
 
 METHOD Task_getPid(Ctx *ctx, knh_sfp_t *sfp)
 {

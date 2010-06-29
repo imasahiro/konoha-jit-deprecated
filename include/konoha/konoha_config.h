@@ -1,8 +1,8 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
- *           (c) 2008-      Konoha Software Foundation
+ * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ *           (c) 2008-      Konoha Team konohaken@googlegroups.com
  * All rights reserved.
  *
  * You may choose one of the following two licenses when you use konoha.
@@ -31,72 +31,67 @@
 /* ======================================================================== */
 /* You are aggreed to use konoha under the following License */
 
-#define KONOHA_LICENSE         "LGPL3.0"
+#define K_LICENSE         "LGPL3.0"
 #define KONOHA_UNDER_LGPL3      3
 
 /* ======================================================================== */
-/* configure */
+/* configuration */
 
-#define KNH_USING_RCGC         1
-//#define KNH_USING_MARKGC       1
-#define KNH_USING_FASTMALLOC   1
-#define KNH_USING_UNBOXFIELD   1
+#define K_USING_UTF8         1
+#define K_USING_RCGC         1
+#define K_USING_FASTMALLOC   1
+
+//#define K_USING_VMCOUNT    1
+
+#ifdef K_USING_DEBUG
+#define K_USING_STATCLASS    1
+#endif/*K_USING_DEBUG*/
 
 /* ======================================================================== */
 /* Manifesto */
 
 #ifdef PACKAGE_NAME
-#define KONOHA_NAME      PACKAGE_NAME
-#define KONOHA_VERSION   PACKAGE_VERSION
+#define K_PROGNAME       PACKAGE_NAME
+#define K_VERSION        PACKAGE_VERSION
 #else
-#define KONOHA_NAME     "konoha"
-#define KONOHA_MAJOR_VERSION  0
-#define KONOHA_MINER_VERSION  5
-#define KONOHA_PATCH_VERSION  2
-#define KONOHA_VERSION  "0.5.2"
+#define K_PROGNAME     "konoha"
+#define K_MAJOR_VERSION  0
+#define K_MINER_VERSION  7
+#define K_PATCH_VERSION  0
+#define K_VERSION        "0.7"
 #endif
 
-#define LIBKONOHA_VERSION "0.5"
-
-#define KONOHA_XCODE    "kurume"
-#define KONOHA_URL	"http://konoha.sourceforge.jp/"
-#define KONOHA_URLBASE  "kttp://konoha.sourceforge.jp/wiki/"
-
-#ifndef KONOHA_DIST
-#define KONOHA_DIST     "source"
+#ifndef K_DIST
+#define K_DIST  "source"
 #endif
+
+#define LIBK_VERSION     "0.7"
+
+#define K_CODENAME    "aomori"
+#define K_URL		"http://code.google.com/p/konoha"
 
 /* ======================================================================== */
 /* COMMON */
 
-#if defined(__LP64__)
-#define KONOHA_TSTRUCT_SIZE                 512
-#define KONOHA_TCLASS_SIZE                 4096
-#define KONOHA_TEXP_SIZE                    128
-#define KONOHA_PAGESIZE                    8192
-#define KONOHA_FIELDSIZE                     64
-#define KONOHA_STACKSIZE                   4096
+#if defined(__LP64__) || defined(__LLP64__)
+#define K_PAGESIZE                    4096 /*8192*/
 #else
-#define KONOHA_TSTRUCT_SIZE                  64
-#define KONOHA_TCLASS_SIZE                  256
-#define KONOHA_TEXP_SIZE                    128
-#define KONOHA_PAGESIZE                    4096
-#define KONOHA_FIELDSIZE                     64
-#define KONOHA_STACKSIZE                   1024
+#define K_PAGESIZE                    4096
 #endif
 
-#define KONOHA_SMALLPAGESIZE               256
+/* prime number < 4096 / sizeof(void*) / 3*/
+#define K_CACHESIZE     337
 
-#define KONOHA_ERROR_MSG_SIZE              256
-#define KONOHA_INT_SETBUF                  256
-#define KONOHA_DEFAULT_ARRAY_SIZE           16
-#define KONOHA_STRING_BUFSIZ               128
-#define CLASSNAME_BUFSIZ                   128
+#define K_FIELDSIZE                   64
+#define K_STACKSIZE                   1024
+#define K_SMALLPAGESIZE               256
+
+#define K_ERRBUFSIZE                  256
 
 /* object specification */
 
-#define KNH_USING_I18N                     1
-#define KONOHA_ENCODING                    "UTF-8"
+#define K_USING_I18N                  1
+#define K_ENCODING                    "UTF-8"
 
 /* ======================================================================== */
 
@@ -120,20 +115,23 @@
 #define KONOHA_OS "teaboard"
 #endif
 
-#define KNH_USING_STDC   1
+#define K_USING_STDC   1
 
 #ifdef KONOHA_ON_LKM
-	#undef KNH_USING_STDC
+	#undef K_USING_STDC
 	#define KONOHA_OS "LKM"
 #endif
 
+#ifdef KONOHA_ON_FREEBSD
+#define KONOHA_OS  "FreeBSD"
+#endif
 
 /* ======================================================================== */
 /* [CC] */
 /* cpp -dM /dev/null */
 
 #ifdef __GNUC__
-	#define KONOHA_CC_VERSION "GCC " __VERSION__
+	#define K_CC "GCC " __VERSION__
 	#if defined(__i386__) || (defined(__x86_64__) && !defined(__amd64__))
 		#undef fastcall
 		#define fastcall __attribute__((fastcall))
@@ -168,13 +166,51 @@
 	#endif/*KONOHA_OS*/
 #endif/*__GNUC__*/
 
+#if defined(HAVE_SYS_PARAM_H)
+	#include <sys/param.h>
+	#ifdef BSD
+		#if defined(__FreeBSD__)
+			#define KONOHA_OS  "freebsd"
+			#define KONOHA_ON_BSD 1
+		#elif defined(__APPLE__)
+			#ifndef KONOHA_OS
+				#error "This must not be happen"
+			#endif
+		#else
+			#warn "This OS is not surpported."
+			#define KONOHA_OS  "unknown-bsd"
+			#define KONOHA_ON_BSD 1
+		#endif
+	#endif /* BSD */
+#endif /* HAVE_SYS_PARAM_H */
+
+#if !defined(KONOHA_OS)
+	/* Other POSIX system check must done before this */
+	#if defined(HAVE_UNISTD_H)
+		#include <unistd.h>
+		#if defined(_POSIX_VERSION)
+			#define KONOHA_OS  "unknown-posix"
+			#define KONOHA_ON_UNKNOWN_POSIX 1
+		#endif /* _POSIX_VERSION */
+	#endif /* HAVE_UNISTD_H */
+#endif /* KONOHA_OS */
+
+#if !defined(KONOHA_OS)
+	/* Other Unix-like system check must done before this */
+	#if defined(__unix__) || defined(__unix) || defined(unix)
+		#define KONOHA_OS  "unknown-unix"
+		#define KONOHA_ON_UNKNOWN_UNIX 1
+	#endif /* unix */
+#endif /* KONOHA_OS */
+
+
 #ifdef _MSC_VER
-//#define KNH_DBGMODE2
+//#define K_USING_DEBUG
 #define KNH_CC_FASTCALL  /* __fastcall */
 #if _MSC_VER == 1500
-	#define KONOHA_CC_VERSION "Microsoft Visual C++ 9.0 (1500)"
+	#define K_CC "Microsoft Visual C++ 9.0 (1500)"
 #else
-	#define KONOHA_CC_VERSION "Microsoft Visual C++"
+	#define K_CC "Microsoft Visual C++"
 #endif
 	#ifndef KONOHA_OS
 		#define KONOHA_OS  "windows"
@@ -188,8 +224,8 @@
 	#define KONOHA_ON_UNKNOWN
 #endif
 
-#ifndef KONOHA_CC_VERSION
-#define KONOHA_CC_VERSION "UNKNOWN COMPILER"
+#ifndef K_CC
+#define K_CC "UNKNOWN COMPILER"
 #endif
 
 #ifndef likely
@@ -202,13 +238,13 @@
 #endif
 
 #if defined(__LP64__)
-#define KONOHA_PLATFORM (KONOHA_OS KONOHA_CPU "_64")
+#define K_PLATFORM (KONOHA_OS KONOHA_CPU "_64")
 #else
-#define KONOHA_PLATFORM KONOHA_OS "_32"
+#define K_PLATFORM KONOHA_OS "_32"
 #endif
 
 #ifdef __SSE2__
-#define KNH_USING_SSE2
+#define K_USING_SSE2
 #endif
 
 /* ======================================================================== */

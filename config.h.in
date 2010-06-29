@@ -1,7 +1,7 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
-/* Defining KONOHA_OS_MACROS */
-#undef ACCONFIG_KONOHA_OS
+/* Defining K_OS_MACROS */
+#undef ACCONFIG_K_OS
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
@@ -46,6 +46,12 @@
 /* Define to 1 if you have the `memset' function. */
 #undef HAVE_MEMSET
 
+/* Define to 1 if you have the `mmap' function. */
+#undef HAVE_MMAP
+
+/* Define to 1 if you have the `posix_memalign' function. */
+#undef HAVE_POSIX_MEMALIGN
+
 /* Define to 1 if you have the `qsort_r' function. */
 #undef HAVE_QSORT_R
 
@@ -67,6 +73,9 @@
 /* Define to 1 if you have the <string.h> header file. */
 #undef HAVE_STRING_H
 
+/* Define to 1 if you have the <sys/param.h> header file. */
+#undef HAVE_SYS_PARAM_H
+
 /* Define to 1 if you have the <sys/stat.h> header file. */
 #undef HAVE_SYS_STAT_H
 
@@ -79,47 +88,41 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
-/* Enable debug mode */
-#undef KNH_DBGMODE
-
-/* Enable debug mode level2 */
-#undef KNH_DBGMODE2
-
-/* Difining konoha library prefix with default value */
-#undef KNH_PREFIX
-
-/* Using iconv */
-#undef KNH_USING_ICONV
-
-/* Enable int32 */
-#undef KNH_USING_INT32
-
-/* Using pthread detected */
-#undef KNH_USING_PTHREAD
-
-/* Enable referencing counting mode */
-#undef KNH_USING_RCGC
-
-/* Using readline */
-#undef KNH_USING_READLINE
-
-/* Using regex */
-#undef KNH_USING_REGEX
-
-/* Using socket */
-#undef KNH_USING_SOCKET
-
-/* Using sqlite3 */
-#undef KNH_USING_SQLITE3
-
-/* Using thread */
-#undef KNH_USING_THREAD
-
 /* mtune option */
-#undef KONOHA_CC_CPU
+#undef K_CC_CPU
 
 /* Konoha os type */
-#undef KONOHA_CONFIG_OS
+#undef K_CONFIG_OS
+
+/* Difining konoha library prefix with default value */
+#undef K_PREFIX
+
+/* Enable debug mode */
+#undef K_USING_DEBUG
+
+/* Using iconv */
+#undef K_USING_ICONV
+
+/* Enable int32 */
+#undef K_USING_INT32
+
+/* Using pthread detected */
+#undef K_USING_PTHREAD
+
+/* Enable referencing counting mode */
+#undef K_USING_RCGC
+
+/* Using readline */
+#undef K_USING_READLINE
+
+/* Using socket */
+#undef K_USING_SOCKET
+
+/* Using sqlite3 */
+#undef K_USING_SQLITE3
+
+/* Using thread */
+#undef K_USING_THREAD
 
 /* Define to the sub-directory in which libtool stores uninstalled libraries.
    */

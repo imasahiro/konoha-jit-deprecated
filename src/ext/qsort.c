@@ -21,13 +21,8 @@
    Engineering a sort function; Jon Bentley and M. Douglas McIlroy;
    Software - Practice and Experience; Vol. 23 (11), 1249-1265, 1993.  */
 
-#include <konoha.h>
-#if defined(KONOHA_ON_LKM)
-#ifdef __linux__
+#ifdef KONOHA_ON_LKM
 #include <linux/string.h>
-#elif defined(__APPLE__)
-#include <string.h>
-#endif
 #else
 #include <limits.h>
 #include <stdlib.h>
@@ -258,8 +253,8 @@ jump_over:;
     }
 }
 
-void knh_qsort_r (void *const pbase, size_t total_elems, size_t size,
-        int (*cmp)(void* ,const void*,const void*),void* thunk)
+void knh_qsort_r (void *const pbase, size_t total_elems, size_t size, 
+        void* thunk,int (*cmp)(void* ,const void*,const void*))
 {
     register char *base_ptr = (char *) pbase;
 

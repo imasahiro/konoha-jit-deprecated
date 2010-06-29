@@ -1,8 +1,8 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
- *           (c) 2008-      Konoha Software Foundation
+ * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ *           (c) 2008-      Konoha Team konohaken@googlegroups.com
  * All rights reserved.
  *
  * You may choose one of the following two licenses when you use konoha.
@@ -25,57 +25,42 @@
  *
  ****************************************************************************/
 
+#define USE_B     1
 #include<konoha.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int
-main(int argc, char **argv)
+int main(int argc, char **argv)
 {
-#if defined(KNH_USING_BTRON)
-	char buf[4096];
-	char* args[256];
-	int i, pos = 0, len;
-
-	for (i = 0; i < argc; i++) {
-		args[i] = buf + pos;
-		len = tcstoeucs(args[i], (TC*)argv[i]);
-		if (len >= 0) {
-			pos += (len + 1);
-		}
-		else {
-			buf[pos] = '\0';
-			pos++;
-		}
-	}
-	args[argc] = NULL;
+#if defined(K_USING_BTRON)
+	char **args = knh_tcstoeucs(argc, argv);
 #else
 	char** args = (char**) argv;
 #endif
 	konoha_t konoha = konoha_open(4096);
 	int n = konoha_parseopt(konoha, argc, args);
 	if(argc - n == 0) {
-		konoha_shell(konoha);
+		konoha_shell(konoha, NULL);
 	}
 	else {
-		if(konoha_loadScript(konoha, args[n]) != -1) {
-			if(!knh_Context_isCompiling(konoha.ctx)) {
+		int isCompileOnly = knh_Context_isCompiling(konoha.ctx);
+		if(konoha_load(konoha, B(args[n]), isCompileOnly) != -1) {
+			if(!isCompileOnly) {
 				konoha_runMain(konoha, argc - n, args + n);
-				if(knh_isToInteractiveMode()) {
-					konoha_shell(konoha);
+				if(knh_isInteractiveMode()) {
+					konoha_shell(konoha, NULL);
 				}
 			}
 		}
 		else {
-			fprintf(stderr, "[konoha] cannot open: %s\n", args[n]);
+			KNH_SYSLOG(konoha.ctx, LOG_CRIT, "FailedLaunchScript", "script='%s'", args[n]);
 		}
 	}
 	konoha_close(konoha);
 	return 0;
 }
-
 
 #ifdef __cplusplus
 }

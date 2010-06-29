@@ -1,8 +1,8 @@
 /****************************************************************************
  * KONOHA COPYRIGHT, LICENSE NOTICE, AND DISCRIMER
  *
- * Copyright (c) 2005-2009, Kimio Kuramitsu <kimio at ynu.ac.jp>
- *           (c) 2008-      Konoha Software Foundation
+ * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
+ *           (c) 2008-      Konoha Team konohaken@googlegroups.com
  * All rights reserved.
  *
  * You may choose one of the following two licenses when you use konoha.
@@ -27,16 +27,15 @@
 
 #ifndef KONOHA_H_
 #define KONOHA_H_
+#ifndef K_INTERNAL
+#define K_EXPORTS   1
+#endif
 
 #ifdef HAVE_CONFIG_H
 #include"../config.h"
 #endif
 
 /* configuration and dependency */
-#if defined(__APPLE__) && defined(KERNEL)
-#define KONOHA_ON_LKM
-#define KONOHA_ON_KEXT
-#endif
 
 #ifndef KONOHA_ON_LKM
 #include<stdio.h>
@@ -45,36 +44,39 @@
 #include<assert.h>
 #include<string.h>
 #include<setjmp.h>
+#include<stdarg.h>
 #endif
 
 #include"konoha/konoha_config.h"
-
-
-#include<stdarg.h>
-
-#include"konoha/konoha_tb.h"
-#ifdef KONOHA_ON_LKM
-#include"konoha/konoha_lkm.h"
-#endif
-
+//#include"konoha/konoha_tb.h"
+//#include"konoha/konoha_lkm.h"
 #include"konoha/konoha_deps.h"
 
 /* types, symbols */
 
 #include"konoha/konoha_t.h"
 #include"konoha/konoha_class.h"
+#include"konoha/konoha_grammar_.h"
 
 /* functionality */
 
 #include"konoha/konoha_glue.h"
 #include"konoha/konoha_gc.h"
 #include"konoha/konoha_vm.h"
-#include"konoha/konoha_macros.h"
 #include"konoha/konoha_debug.h"
 
 /* konohaapi, prototypes */
 
 #include"konoha/konoha_api.h"
+#include"konoha/inlinelibs.h"
+
+#ifdef KONOHA_ON_WINDOWS
+#undef METHOD
+#define METHOD void __declspec(dllexport)
+#undef KNHAPI
+#define KNHAPI(T) T __declspec(dllexport)
+#endif
+
 
 #endif /*KONOHA_H_*/
 
