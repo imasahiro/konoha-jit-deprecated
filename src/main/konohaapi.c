@@ -390,7 +390,7 @@ static void knh_showWelcome(Ctx *ctx, knh_OutputStream_t *w)
 	knh_write_char(ctx, w, " int32");
 #endif
 #ifdef K_USING_RCGC
-	knh_write_char(ctx, w, " refc");
+	knh_write_char(ctx, w, " rcgc");
 #endif
 #ifdef K_USING_THREAD
 	knh_write_char(ctx, w, " thread");

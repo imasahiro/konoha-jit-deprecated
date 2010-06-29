@@ -531,41 +531,16 @@ char *knh_getSystemEncoding(void)
 {
 #if defined(KONOHA_OS_ENCODING)
 	return KONOHA_OS_ENCODING;
-#elif defined(K_USING_ICONV) && defined(HAVE_LOCALCHARSET_H)
+#elif defined(HAVE_LOCALCHARSET_H)
 	return (char*)locale_charset();
 #else
 //	char *enc = knh_getenv("LC_CTYPE");
 //	if(enc != NULL) {
 //		return (char*)enc;
 //	}
-	return knh_getSystemEncoding;
+	return K_ENCODING;
 #endif
 }
-
-///* ------------------------------------------------------------------------ */
-//
-//char *knh_format_lang(char *buf, size_t bufsiz)
-//{
-//#ifdef KONOHA_OS_LANG
-//	knh_snprintf(buf, bufsiz, "%s", KONOHA_OS_LANG);
-//#else
-//	char *enc = knh_getenv("LANG");
-//	if(enc == NULL || (enc[0] == 'C' && enc[1] == 0)) {
-//		knh_snprintf(buf, bufsiz, "en");
-//	}
-//	else {
-//		int i = 0;
-//		while(enc[i] != 0) {
-//			if(enc[i] == '.' || i + 1 == bufsiz ) {
-//				break;
-//			}
-//			buf[i] = enc[i]; i++;
-//		}
-//		buf[i] = 0;
-//	}
-//#endif
-//	return buf;
-//}
 
 /* ------------------------------------------------------------------------ */
 
