@@ -8,7 +8,7 @@
  * You may choose one of the following two licenses when you use konoha.
  * See www.konohaware.org/license.html for further information.
  *
- * (1) GNU Lesser General Public License 3.0 (with KONOHA_UNDER_LGPL3)
+ * (1) GNU Lesser General Public License 3.0 (with K_UNDER_LGPL)
  * (2) Konoha Software Foundation License 1.0
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -374,13 +374,13 @@ void knh_System_initPath(Ctx *ctx, knh_System_t *o)
 	/* $konoha.package.path {$konoha.path}/package */
 	knh_cwb_clear(cwb, 0);
 	knh_cwb_write(ctx, cwb, home);
-	knh_cwb_write(ctx, cwb, STEXT("/package-" LIBK_VERSION));
+	knh_cwb_write(ctx, cwb, STEXT("/package/" LIBK_VERSION));
 	knh_DictMap_set_(ctx, sys->props,
 		new_T("konoha.package.path"), UP(knh_cwb_newString(ctx, cwb)));
 
 	/* $konoha.script.path {$konoha.path}/script */
 	knh_cwb_write(ctx, cwb, home);
-	knh_cwb_write(ctx, cwb, STEXT("/script-" LIBK_VERSION));
+	knh_cwb_write(ctx, cwb, STEXT("/script/" LIBK_VERSION));
 	knh_DictMap_set_(ctx, sys->props, new_T("konoha.tool.path"), UP(knh_cwb_newString(ctx, cwb)));
 
 	homepath = knh_getenv("HOME");
@@ -399,12 +399,12 @@ void knh_System_initPath(Ctx *ctx, knh_System_t *o)
 
 		/* $user.package.path ${user.path}/package */
 		knh_cwb_write(ctx, cwb, home);
-		knh_cwb_write(ctx, cwb, STEXT("/package-" LIBK_VERSION));
+		knh_cwb_write(ctx, cwb, STEXT("/package/" LIBK_VERSION));
 		knh_DictMap_set_(ctx, sys->props, new_T("user.package.path"), UP(knh_cwb_newString(ctx, cwb)));
 
 		/* $user.script.path ${user.path}/script */
 		knh_cwb_write(ctx, cwb, home);
-		knh_cwb_write(ctx, cwb, STEXT("/script-" LIBK_VERSION));
+		knh_cwb_write(ctx, cwb, STEXT("/script/" LIBK_VERSION));
 		knh_DictMap_set_(ctx, sys->props, new_T("user.tool.path"), UP(knh_cwb_newString(ctx, cwb)));
 	}
 	else {

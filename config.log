@@ -30,8 +30,8 @@ Kernel configured for up to 2 processors.
 Processor type: i486 (Intel 80486)
 Processors active: 0 1
 Primary memory available: 2.00 gigabytes
-Default processor set: 97 tasks, 456 threads, 2 processors
-Load average: 1.59, Mach factor: 0.73
+Default processor set: 96 tasks, 391 threads, 2 processors
+Load average: 1.19, Mach factor: 0.80
 /bin/machine           = unknown
 /usr/bin/oslevel       = unknown
 /bin/universe          = unknown
@@ -151,7 +151,7 @@ configure:4881: checking the name lister (/usr/bin/nm) interface
 configure:4888: gcc -c -g -O2  conftest.c >&5
 configure:4891: /usr/bin/nm "conftest.o"
 configure:4894: output
-0000000000000188 D _some_variable
+0000000000000184 D _some_variable
 configure:4901: result: BSD nm
 configure:4904: checking whether ln -s works
 configure:4908: result: yes
@@ -560,7 +560,7 @@ configure:11461: checking for iconv_open in -lc
 configure:11486: gcc -o conftest -g -O2   conftest.c -lc   >&5
 Undefined symbols:
   "_iconv_open", referenced from:
-      _main in cczNVoyG.o
+      _main in cc1pwWAR.o
 ld: symbol(s) not found
 collect2: ld returned 1 exit status
 configure:11486: $? = 1
@@ -862,16 +862,16 @@ lt_cv_sys_max_cmd_len=196608
 ## Output variables. ##
 ## ----------------- ##
 
-ACLOCAL='${SHELL} /Users/kimio/D/svn/konoha/branches/konoha7/missing --run aclocal-1.11'
+ACLOCAL='${SHELL} /Users/kimio/D/svn/konoha/trunk/konoha/missing --run aclocal-1.11'
 AMDEPBACKSLASH='\'
 AMDEP_FALSE='#'
 AMDEP_TRUE=''
-AMTAR='${SHELL} /Users/kimio/D/svn/konoha/branches/konoha7/missing --run tar'
+AMTAR='${SHELL} /Users/kimio/D/svn/konoha/trunk/konoha/missing --run tar'
 AR='ar'
 AS='as'
-AUTOCONF='${SHELL} /Users/kimio/D/svn/konoha/branches/konoha7/missing --run autoconf'
-AUTOHEADER='${SHELL} /Users/kimio/D/svn/konoha/branches/konoha7/missing --run autoheader'
-AUTOMAKE='${SHELL} /Users/kimio/D/svn/konoha/branches/konoha7/missing --run automake-1.11'
+AUTOCONF='${SHELL} /Users/kimio/D/svn/konoha/trunk/konoha/missing --run autoconf'
+AUTOHEADER='${SHELL} /Users/kimio/D/svn/konoha/trunk/konoha/missing --run autoheader'
+AUTOMAKE='${SHELL} /Users/kimio/D/svn/konoha/trunk/konoha/missing --run automake-1.11'
 AWK='awk'
 CC='gcc'
 CCDEPMODE='depmode=gcc3'
@@ -908,7 +908,7 @@ LIBTOOL='$(SHELL) $(top_builddir)/libtool'
 LIPO='lipo'
 LN_S='ln -s'
 LTLIBOBJS=''
-MAKEINFO='${SHELL} /Users/kimio/D/svn/konoha/branches/konoha7/missing --run makeinfo'
+MAKEINFO='${SHELL} /Users/kimio/D/svn/konoha/trunk/konoha/missing --run makeinfo'
 MKDIR_P='./install-sh -c -d'
 NM='/usr/bin/nm'
 NMEDIT='nmedit'
@@ -965,7 +965,7 @@ host_vendor='apple'
 htmldir='${docdir}'
 includedir='${prefix}/include'
 infodir='${datarootdir}/info'
-install_sh='${SHELL} /Users/kimio/D/svn/konoha/branches/konoha7/install-sh'
+install_sh='${SHELL} /Users/kimio/D/svn/konoha/trunk/konoha/install-sh'
 libdir='${exec_prefix}/lib'
 libexecdir='${exec_prefix}/libexec'
 localedir='${datarootdir}/locale'
@@ -1058,6 +1058,7 @@ config.status:1102: creating Makefile
 config.status:1102: creating build/Makefile
 config.status:1102: creating konoha.pc
 config.status:1102: creating config.h
+config.status:1274: config.h is unchanged
 config.status:1322: executing depfiles commands
 config.status:1322: executing libtool commands
 

@@ -448,7 +448,7 @@ Copyright (C) 2009 Free Software Foundation, Inc.
 This config.status script is free software; the Free Software Foundation
 gives unlimited permission to copy, distribute and modify it."
 
-ac_pwd='/Users/kimio/D/svn/konoha/branches/konoha7'
+ac_pwd='/Users/kimio/D/svn/konoha/trunk/konoha'
 srcdir='.'
 INSTALL='/usr/bin/install -c'
 MKDIR_P='./install-sh -c -d'
@@ -864,7 +864,7 @@ S["CFLAGS"]="-g -O2"
 S["CC"]="gcc"
 S["am__untar"]="${AMTAR} xf -"
 S["am__tar"]="${AMTAR} chof - \"$$tardir\""
-S["AMTAR"]="${SHELL} /Users/kimio/D/svn/konoha/branches/konoha7/missing --run tar"
+S["AMTAR"]="${SHELL} /Users/kimio/D/svn/konoha/trunk/konoha/missing --run tar"
 S["am__leading_dot"]="."
 S["SET_MAKE"]=""
 S["AWK"]="awk"
@@ -872,12 +872,12 @@ S["mkdir_p"]="$(top_builddir)/./install-sh -c -d"
 S["MKDIR_P"]="./install-sh -c -d"
 S["INSTALL_STRIP_PROGRAM"]="$(install_sh) -c -s"
 S["STRIP"]="strip"
-S["install_sh"]="${SHELL} /Users/kimio/D/svn/konoha/branches/konoha7/install-sh"
-S["MAKEINFO"]="${SHELL} /Users/kimio/D/svn/konoha/branches/konoha7/missing --run makeinfo"
-S["AUTOHEADER"]="${SHELL} /Users/kimio/D/svn/konoha/branches/konoha7/missing --run autoheader"
-S["AUTOMAKE"]="${SHELL} /Users/kimio/D/svn/konoha/branches/konoha7/missing --run automake-1.11"
-S["AUTOCONF"]="${SHELL} /Users/kimio/D/svn/konoha/branches/konoha7/missing --run autoconf"
-S["ACLOCAL"]="${SHELL} /Users/kimio/D/svn/konoha/branches/konoha7/missing --run aclocal-1.11"
+S["install_sh"]="${SHELL} /Users/kimio/D/svn/konoha/trunk/konoha/install-sh"
+S["MAKEINFO"]="${SHELL} /Users/kimio/D/svn/konoha/trunk/konoha/missing --run makeinfo"
+S["AUTOHEADER"]="${SHELL} /Users/kimio/D/svn/konoha/trunk/konoha/missing --run autoheader"
+S["AUTOMAKE"]="${SHELL} /Users/kimio/D/svn/konoha/trunk/konoha/missing --run automake-1.11"
+S["AUTOCONF"]="${SHELL} /Users/kimio/D/svn/konoha/trunk/konoha/missing --run autoconf"
+S["ACLOCAL"]="${SHELL} /Users/kimio/D/svn/konoha/trunk/konoha/missing --run aclocal-1.11"
 S["VERSION"]="0.7"
 S["PACKAGE"]="konoha"
 S["CYGPATH_W"]="echo"

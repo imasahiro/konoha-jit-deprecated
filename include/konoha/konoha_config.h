@@ -8,7 +8,7 @@
  * You may choose one of the following two licenses when you use konoha.
  * See www.konohaware.org/license.html for further information.
  *
- * (1) GNU Lesser General Public License 3.0 (with KONOHA_UNDER_LGPL3)
+ * (1) GNU Lesser General Public License 3.0 (with K_UNDER_LGPL)
  * (2) Konoha Software Foundation License 1.0
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -31,8 +31,13 @@
 /* ======================================================================== */
 /* You are aggreed to use konoha under the following License */
 
+#define K_UNDER_LGPL      3
+#define K_PREVIEW         1   // when released, comment this out
+#ifdef K_UNDER_LGPL
 #define K_LICENSE         "LGPL3.0"
-#define KONOHA_UNDER_LGPL3      3
+#else
+#define K_LICENSE         "Konoha"
+#endif
 
 /* ======================================================================== */
 /* configuration */

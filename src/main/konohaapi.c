@@ -8,7 +8,7 @@
  * You may choose one of the following two licenses when you use konoha.
  * See www.konohaware.org/license.html for further information.
  *
- * (1) GNU Lesser General Public License 3.0 (with KONOHA_UNDER_LGPL3)
+ * (1) GNU Lesser General Public License 3.0 (with K_UNDER_LGPL)
  * (2) Konoha Software Foundation License 1.0
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -378,9 +378,8 @@ KNHAPI(int) konoha_runMain(konoha_t konoha, int argc, char **argv)
 
 static void knh_showWelcome(Ctx *ctx, knh_OutputStream_t *w)
 {
-	knh_printf(ctx, w, "Konoha %s(%s) %s (rev:%d, %s %s)",
+	knh_printf(ctx, w, "Konoha %s(%s) %s (rev:%d, %s %s)\n",
 		K_VERSION, K_CODENAME, K_DIST, ((knh_intptr_t)K_REVISION), __DATE__, __TIME__);
-	knh_write_EOL(ctx, w);
 	knh_printf(ctx, w, "[%s] on %s (%d, %s)\n", K_CC, K_PLATFORM, (knh_intptr_t)(sizeof(void*) * 8), knh_getSystemEncoding());
 	knh_write_char(ctx, w, "Options:");
 
@@ -396,8 +395,10 @@ static void knh_showWelcome(Ctx *ctx, knh_OutputStream_t *w)
 #ifdef K_USING_THREAD
 	knh_write_char(ctx, w, " thread");
 #endif
-	knh_printf(ctx, w, " used_memory:%d kb", (knh_intptr_t)(ctx->stat->usedMemorySize / 1024));
-	knh_write_EOL(ctx, w);
+	knh_printf(ctx, w, " used_memory:%d kb\n", (knh_intptr_t)(ctx->stat->usedMemorySize / 1024));
+#ifdef K_PREVIEW
+	knh_printf(ctx, w, "SECURITY ALERT: ** FOR EVALUATION USE ONLY IN DEVELOPMENT **\n\n");
+#endif
 }
 
 
