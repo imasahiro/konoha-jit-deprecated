@@ -426,55 +426,33 @@ static METHOD Array__k(Ctx *ctx, knh_sfp_t *sfp, long rix)
 }
 
 /* ------------------------------------------------------------------------ */
-//## method void DictMap.%k(OutputStream w);
+//## method void Map.%k(OutputStream w);
 
-static METHOD DictMap__k(Ctx *ctx, knh_sfp_t *sfp, long rix)
+static METHOD Map__k(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-	knh_OutputStream_t *w = sfp[1].w;
-	knh_putc(ctx, w, '{');
-	if(knh_stack_isRecuriveFormatting(ctx, sfp)) {
-		knh_write_dots(ctx, w);
-	}
-	else {
-		knh_DictMap_t *o = sfp[0].dmap;
-		knh_DictMap_sort(o);
-		if(knh_DictMap_size(o) > 0) {
-			size_t c;
-			knh_Method_t *mtd = knh_lookupFormatter(ctx, knh_Object_cid(o->list[0].value), MN__k);
-			for(c = 0; c < o->size; c++) {
-				if(c > 0) knh_write_delim(ctx, w);
-				knh_write(ctx, w, S_tobytes(o->list[c].key));
-				knh_putc(ctx, w, ':');	knh_putc(ctx, w, ' ');
-				knh_write_Object(ctx, w, ctx->esp, &mtd, o->list[c].value);
-			}
-		}
-	}
-	knh_putc(ctx, w, '}');
+	KNH_TODO(__FUNCTION__);
+//	knh_OutputStream_t *w = sfp[1].w;
+//	knh_putc(ctx, w, '{');
+//	if(knh_stack_isRecuriveFormatting(ctx, sfp)) {
+//		knh_write_dots(ctx, w);
+//	}
+//	else {
+//		knh_DictMap_t *o = sfp[0].dmap;
+//		knh_DictMap_sort(o);
+//		if(knh_DictMap_size(o) > 0) {
+//			size_t c;
+//			knh_Method_t *mtd = knh_lookupFormatter(ctx, knh_Object_cid(o->list[0].value), MN__k);
+//			for(c = 0; c < o->size; c++) {
+//				if(c > 0) knh_write_delim(ctx, w);
+//				knh_write(ctx, w, S_tobytes(o->list[c].key));
+//				knh_putc(ctx, w, ':');	knh_putc(ctx, w, ' ');
+//				knh_write_Object(ctx, w, ctx->esp, &mtd, o->list[c].value);
+//			}
+//		}
+//	}
+//	knh_putc(ctx, w, '}');
 }
 
-/* ------------------------------------------------------------------------ */
-//## method void DictSet.%k(OutputStream w);
-
-static METHOD DictSet__k(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	knh_DictSet_t *o = sfp[0].dset;
-	knh_OutputStream_t *w = sfp[1].w;
-	int isInline = IS_NULL(sfp[2].o) ? 1 : 0;
-	size_t c;
-	knh_DictSet_sort(o);
-	knh_putc(ctx, w, '{');
-	for(c = 0; c < o->size; c++) {
-		if(c > 0) {
-			if(isInline && c > 3) {
-				knh_write_dots(ctx, w);
-				break;
-			}
-			knh_write_delim(ctx, w);
-		}
-		knh_write(ctx, w, S_tobytes(o->list[c].key));
-	}
-	knh_putc(ctx, w, '}');
-}
 
 /* ------------------------------------------------------------------------ */
 //## method void Class.%k(OutputStream w);
@@ -813,26 +791,27 @@ static METHOD Array__data(Ctx *ctx, knh_sfp_t *sfp, long rix)
 
 
 /* ------------------------------------------------------------------------ */
-//## method void DictMap.%data(OutputStream w);
+//## method void Map.%data(OutputStream w);
 
-static METHOD DictMap__data(Ctx *ctx, knh_sfp_t *sfp, long rix)
+static METHOD Map__data(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-	knh_DictMap_t *o = sfp[0].dmap;
-	knh_OutputStream_t *w = sfp[1].w;
-	knh_intptr_t i = 0, size = knh_DictMap_size(o);
-	knh_DictMap_sort(o);
-	knh_write_begin(ctx, w, '{');
-	if(size > 0) {
-		knh_Method_t *mtd = knh_lookupFormatter(ctx, knh_Object_cid(knh_DictMap_valueAt(o, i)), MN__data);
-		for(; i < size; i++) {
-			knh_write_BOL(ctx, w);
-			knh_write(ctx, w, S_tobytes(knh_DictMap_keyAt(o, i)));
-			knh_putc(ctx, w, ':'); knh_putc(ctx, w, ' ');
-			knh_write_Object(ctx, w, ctx->esp, &mtd, knh_DictMap_valueAt(o, i));
-			knh_putc(ctx, w, ',');
-		}
-	}
-	knh_write_end(ctx, w, '}');
+	KNH_TODO(__FUNCTION__);
+//	knh_DictMap_t *o = sfp[0].dmap;
+//	knh_OutputStream_t *w = sfp[1].w;
+//	knh_intptr_t i = 0, size = knh_DictMap_size(o);
+//	knh_DictMap_sort(o);
+//	knh_write_begin(ctx, w, '{');
+//	if(size > 0) {
+//		knh_Method_t *mtd = knh_lookupFormatter(ctx, knh_Object_cid(knh_DictMap_valueAt(o, i)), MN__data);
+//		for(; i < size; i++) {
+//			knh_write_BOL(ctx, w);
+//			knh_write(ctx, w, S_tobytes(knh_DictMap_keyAt(o, i)));
+//			knh_putc(ctx, w, ':'); knh_putc(ctx, w, ' ');
+//			knh_write_Object(ctx, w, ctx->esp, &mtd, knh_DictMap_valueAt(o, i));
+//			knh_putc(ctx, w, ',');
+//		}
+//	}
+//	knh_write_end(ctx, w, '}');
 }
 
 /* ------------------------------------------------------------------------ */
@@ -851,171 +830,171 @@ static METHOD Func__data(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	TODO();
 }
 
-/* ======================================================================== */
-/* [man] */
-
-static char *knh_methodop__tochar(knh_methodn_t mn)
-{
-	switch(mn) {
-	case MN_opNOT: return "!x";
-	case MN_opOF: return "x instanceof T";
-
-	case MN_opHAS:  return "y in x";
-	case MN_opIS:  return "x is y";
-//	case MN_opAs:  return "x as y";
-//	case MN_opInto:  return "x into y";
-
-	case MN_opEQ:  return "x == y";
-	case MN_opNOTEQ:  return "x != y";
-	case MN_opLT:  return "x < y";
-	case MN_opLTE:  return "x <= y";
-	case MN_opGT:  return "x > y";
-	case MN_opGTE:  return "x >= y";
-
-	case MN_opLSFT:  return "x << y";
-	case MN_opSEND:  return "x << y";
-	case MN_opRSFT:  return "x >> y";
-
-	case MN_opMOD:  return "x mod y";
-
-	case MN_opADD:  return "x + y";
-	case MN_opNEG:  return "-x";
-	case MN_opSUB:  return "x - y";
-	case MN_opDIV:  return "x / y";
-	case MN_opMUL:  return "x * y";
-
-	case MN_opLOR:        return "x & y";
-	case MN_opLAND:       return "x | y";
-	case MN_opLNOT:       return "~x";
-	case MN_opLXOR:        return "x ^ y";
-	case MN_opNEXT:       return "x++";
-	case MN_opPREV:       return "x--";
-	case MN_opITR:        return "x..";
-	case MN_getSize:      return "|x|";
-	case MN_get:          return "x[n]";
-	case MN_set:          return "x[n]=y";
-	case MN_setAll:       return "x[]=y";
-	case MN_opTO:    return "x[m to n]";
-	case MN_opUNTIL: return "x[m until n]";
-	case MN_opEXPAND:          return "a,b = x";
-	case MN_opCASE :      return "x =~ y";
-	}
-	return NULL;
-}
-
-static void knh_ClassNAME__man(Ctx *ctx, knh_class_t cid, knh_OutputStream_t *w)
-{
-	knh_write(ctx, w, STEXT("Class"));
-	knh_write_EOL(ctx, w);
-
-	knh_write_TAB(ctx, w);
-	knh_write_ltype(ctx, w, cid);
-	knh_write_EOL(ctx, w);
-
-	while(ClassTable(cid).supcid != CLASS_Object) {
-		cid = ClassTable(cid).supcid;
-		knh_write_TAB(ctx, w);
-		knh_write(ctx, w, STEXT("extends "));
-		knh_write_ltype(ctx, w, cid);
-		knh_write_EOL(ctx, w);
-	}
-}
-
-static void knh_ClassCONST__man(Ctx *ctx, knh_class_t cid, knh_OutputStream_t *w)
-{
-	DBG_ASSERT_cid(cid);
-	if(ClassTable(cid).constDictMap == NULL) return ;
-	knh_DictMap_t *tcmap = ClassTable(cid).constDictMap;
-	size_t i, size = knh_DictMap_size(tcmap);
-	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
-	int hasCaption = 0;
-	for(i = 0; i < size; i++) {
-		if(!hasCaption) {
-			knh_write_char(ctx, w, _("Const"));
-			knh_write_EOL(ctx, w);
-			hasCaption = 1;
-		}
-		knh_printf(ctx, w, "\t%s.%s: %O\n", CLASSN(cid),
-				S_tochar(knh_DictMap_keyAt(tcmap, i)),
-				knh_DictMap_valueAt(tcmap, i));
-	}
-	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
-}
-
-
-static void knh_Method__man(Ctx *ctx, knh_Method_t *o, knh_OutputStream_t *w, knh_class_t cid)
-{
-	if(!knh_Context_isVerbose(ctx)) {
-		if(knh_Method_isPrivate(o)) return;
-	}
-
-	if(knh_Method_isAbstract(o)) {
-		knh_write(ctx, w, STEXT("@Abstract"));
-		knh_putc(ctx, w, ' ');
-	}
-
-	knh_write_type(ctx, w, knh_type_tocid(ctx, knh_ParamArray_rtype(DP(o)->mp), cid));
-	knh_putc(ctx, w, ' ');
-
-	if(knh_Method_isStatic(o)) {
-		knh_write_char(ctx, w, CTXCLASSN(cid));
-		knh_putc(ctx, w, '.');
-	}
-	knh_write_mn(ctx, w, DP(o)->mn);
-
-	knh_putc(ctx, w, '(');
-	size_t i;
-	for(i = 0; i < knh_Method_psize(o); i++) {
-		knh_param_t *p = knh_ParamArray_get(DP(o)->mp, i);
-		if(i > 0) {
-			knh_write_delim(ctx, w);
-		}
-		knh_write_type(ctx, w, knh_type_tocid(ctx, p->type, cid));
-		knh_putc(ctx, w, ' ');
-		knh_write(ctx, w, B(FN_tochar(p->fn)));
-	}
-	if(knh_ParamArray_isVARGs(DP(o)->mp)) {
-		knh_write_delim(ctx, w);
-		knh_write_dots(ctx, w);
-	}
-	knh_putc(ctx, w, ')');
-}
-
-static void knh_ClassMap__man(Ctx *ctx, knh_Array_t *tmaps, knh_OutputStream_t *w, knh_class_t cid)
-{
-	size_t i;
-	int hasCaption = 0, from = 0;
-	L_TAIL:;
-	for(i = 0; i < tmaps->size; i++) {
-		if(hasCaption == 0) {
-			knh_write_char(ctx, w, _("Translator"));
-			knh_write_EOL(ctx, w);
-			hasCaption = 1;
-		}
-		if(from == 0) {
-			knh_write_TAB(ctx, w);
-			knh_write_sname(ctx, w, cid);
-			knh_write_EOL(ctx, w);
-			from = 1;
-		}
-		knh_Translator_t *mpr = tmaps->trans[i];
-		knh_write_TAB(ctx, w); knh_write_TAB(ctx, w);
-		if(knh_Translator_isTotal(mpr)) {
-			knh_write_char(ctx, w, "==> ");
-		}
-		else {
-			knh_write_char(ctx, w, "--> ");
-		}
-		knh_write_sname(ctx, w, SP(mpr)->tcid);
-		knh_write_EOL(ctx, w);
-	}
-	if(ClassTable(cid).supcid != CLASS_Object) {
-		cid = ClassTable(cid).supcid;
-		tmaps = ClassTable(cid).tmaps;
-		from = 0;
-		goto L_TAIL;
-	}
-}
+///* ======================================================================== */
+///* [man] */
+//
+//static char *knh_methodop__tochar(knh_methodn_t mn)
+//{
+//	switch(mn) {
+//	case MN_opNOT: return "!x";
+//	case MN_opOF: return "x instanceof T";
+//
+//	case MN_opHAS:  return "y in x";
+//	case MN_opIS:  return "x is y";
+////	case MN_opAs:  return "x as y";
+////	case MN_opInto:  return "x into y";
+//
+//	case MN_opEQ:  return "x == y";
+//	case MN_opNOTEQ:  return "x != y";
+//	case MN_opLT:  return "x < y";
+//	case MN_opLTE:  return "x <= y";
+//	case MN_opGT:  return "x > y";
+//	case MN_opGTE:  return "x >= y";
+//
+//	case MN_opLSFT:  return "x << y";
+//	case MN_opSEND:  return "x << y";
+//	case MN_opRSFT:  return "x >> y";
+//
+//	case MN_opMOD:  return "x mod y";
+//
+//	case MN_opADD:  return "x + y";
+//	case MN_opNEG:  return "-x";
+//	case MN_opSUB:  return "x - y";
+//	case MN_opDIV:  return "x / y";
+//	case MN_opMUL:  return "x * y";
+//
+//	case MN_opLOR:        return "x & y";
+//	case MN_opLAND:       return "x | y";
+//	case MN_opLNOT:       return "~x";
+//	case MN_opLXOR:        return "x ^ y";
+//	case MN_opNEXT:       return "x++";
+//	case MN_opPREV:       return "x--";
+//	case MN_opITR:        return "x..";
+//	case MN_getSize:      return "|x|";
+//	case MN_get:          return "x[n]";
+//	case MN_set:          return "x[n]=y";
+//	case MN_setAll:       return "x[]=y";
+//	case MN_opTO:    return "x[m to n]";
+//	case MN_opUNTIL: return "x[m until n]";
+//	case MN_opEXPAND:          return "a,b = x";
+//	case MN_opCASE :      return "x =~ y";
+//	}
+//	return NULL;
+//}
+//
+//static void knh_ClassNAME__man(Ctx *ctx, knh_class_t cid, knh_OutputStream_t *w)
+//{
+//	knh_write(ctx, w, STEXT("Class"));
+//	knh_write_EOL(ctx, w);
+//
+//	knh_write_TAB(ctx, w);
+//	knh_write_ltype(ctx, w, cid);
+//	knh_write_EOL(ctx, w);
+//
+//	while(ClassTable(cid).supcid != CLASS_Object) {
+//		cid = ClassTable(cid).supcid;
+//		knh_write_TAB(ctx, w);
+//		knh_write(ctx, w, STEXT("extends "));
+//		knh_write_ltype(ctx, w, cid);
+//		knh_write_EOL(ctx, w);
+//	}
+//}
+//
+//static void knh_ClassCONST__man(Ctx *ctx, knh_class_t cid, knh_OutputStream_t *w)
+//{
+//	DBG_ASSERT_cid(cid);
+//	if(ClassTable(cid).constDictMap == NULL) return ;
+//	knh_DictMap_t *tcmap = ClassTable(cid).constDictMap;
+//	size_t i, size = knh_DictMap_size(tcmap);
+//	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
+//	int hasCaption = 0;
+//	for(i = 0; i < size; i++) {
+//		if(!hasCaption) {
+//			knh_write_char(ctx, w, _("Const"));
+//			knh_write_EOL(ctx, w);
+//			hasCaption = 1;
+//		}
+//		knh_printf(ctx, w, "\t%s.%s: %O\n", CLASSN(cid),
+//				S_tochar(knh_DictMap_keyAt(tcmap, i)),
+//				knh_DictMap_valueAt(tcmap, i));
+//	}
+//	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
+//}
+//
+//
+//static void knh_Method__man(Ctx *ctx, knh_Method_t *o, knh_OutputStream_t *w, knh_class_t cid)
+//{
+//	if(!knh_Context_isVerbose(ctx)) {
+//		if(knh_Method_isPrivate(o)) return;
+//	}
+//
+//	if(knh_Method_isAbstract(o)) {
+//		knh_write(ctx, w, STEXT("@Abstract"));
+//		knh_putc(ctx, w, ' ');
+//	}
+//
+//	knh_write_type(ctx, w, knh_type_tocid(ctx, knh_ParamArray_rtype(DP(o)->mp), cid));
+//	knh_putc(ctx, w, ' ');
+//
+//	if(knh_Method_isStatic(o)) {
+//		knh_write_char(ctx, w, CTXCLASSN(cid));
+//		knh_putc(ctx, w, '.');
+//	}
+//	knh_write_mn(ctx, w, DP(o)->mn);
+//
+//	knh_putc(ctx, w, '(');
+//	size_t i;
+//	for(i = 0; i < knh_Method_psize(o); i++) {
+//		knh_param_t *p = knh_ParamArray_get(DP(o)->mp, i);
+//		if(i > 0) {
+//			knh_write_delim(ctx, w);
+//		}
+//		knh_write_type(ctx, w, knh_type_tocid(ctx, p->type, cid));
+//		knh_putc(ctx, w, ' ');
+//		knh_write(ctx, w, B(FN_tochar(p->fn)));
+//	}
+//	if(knh_ParamArray_isVARGs(DP(o)->mp)) {
+//		knh_write_delim(ctx, w);
+//		knh_write_dots(ctx, w);
+//	}
+//	knh_putc(ctx, w, ')');
+//}
+//
+//static void knh_ClassMap__man(Ctx *ctx, knh_Array_t *tmaps, knh_OutputStream_t *w, knh_class_t cid)
+//{
+//	size_t i;
+//	int hasCaption = 0, from = 0;
+//	L_TAIL:;
+//	for(i = 0; i < tmaps->size; i++) {
+//		if(hasCaption == 0) {
+//			knh_write_char(ctx, w, _("Translator"));
+//			knh_write_EOL(ctx, w);
+//			hasCaption = 1;
+//		}
+//		if(from == 0) {
+//			knh_write_TAB(ctx, w);
+//			knh_write_sname(ctx, w, cid);
+//			knh_write_EOL(ctx, w);
+//			from = 1;
+//		}
+//		knh_Translator_t *mpr = tmaps->trans[i];
+//		knh_write_TAB(ctx, w); knh_write_TAB(ctx, w);
+//		if(knh_Translator_isTotal(mpr)) {
+//			knh_write_char(ctx, w, "==> ");
+//		}
+//		else {
+//			knh_write_char(ctx, w, "--> ");
+//		}
+//		knh_write_sname(ctx, w, SP(mpr)->tcid);
+//		knh_write_EOL(ctx, w);
+//	}
+//	if(ClassTable(cid).supcid != CLASS_Object) {
+//		cid = ClassTable(cid).supcid;
+//		tmaps = ClassTable(cid).tmaps;
+//		from = 0;
+//		goto L_TAIL;
+//	}
+//}
 
 /* ------------------------------------------------------------------------ */
 //## method void Class.%man(OutputStream w);
@@ -1023,143 +1002,140 @@ static void knh_ClassMap__man(Ctx *ctx, knh_Array_t *tmaps, knh_OutputStream_t *
 
 static METHOD Class__man(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-	knh_class_t cid, this_cid;
-	knh_OutputStream_t *w = sfp[1].w;
-	size_t i = 0;
-	knh_DictMap_t *dm = new_DictMap0(ctx, 128);
-	BEGIN_LOCAL(ctx, lsfp, 1);
-	KNH_SETv(ctx, lsfp[0].o, dm);
-
-	if(IS_Class(sfp[0].o)) {
-		this_cid = ((knh_Class_t*)sfp[0].o)->cid;
-		DBG_ASSERT_cid(this_cid);
-	}
-	else {
-		this_cid = knh_Object_cid(sfp[0].o);
-	}
-	cid = this_cid;
-	while(1) {
-		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-		knh_Array_t *a = ClassTable(cid).methods;
-		for(i = 0; i < knh_Array_size(a); i++) {
-			knh_Method_t *mtd = (knh_Method_t*)knh_Array_n(a, i);
-			char *op = knh_methodop__tochar(DP(mtd)->mn);
-			if(op == NULL) {
-				knh_cwb_clear(cwb, 0);
-				knh_write_mn(ctx, cwb->w, DP(mtd)->mn);
-				if(knh_DictMap_getNULL(ctx, dm, knh_cwb_tobytes(cwb)) == NULL) {
-					knh_DictMap_set(ctx, dm, knh_cwb_newString(ctx, cwb), mtd);
-				}
-			}
-			else {
-				knh_bytes_t name = B(op);
-				if(knh_DictMap_getNULL(ctx,  dm, name) == NULL) {
-					knh_DictMap_set(ctx, dm, new_T(op), mtd);
-				}
-			}
-		}
-		if(cid == CLASS_Object) {
-			knh_cwb_close(cwb);
-			break;
-		}
-		cid = ClassTable(cid).supcid;
-		END_LOCAL(ctx, lsfp);
-	}
-
-	knh_ClassNAME__man(ctx, this_cid, w);
-	knh_ClassCONST__man(ctx, this_cid, w);
-
-	int cnt = 0;
-	int hasCaption = 0;
-	int isBOL = 1;
-	char buf[40];
-	for(i = 0; i < knh_DictMap_size(dm); i++) {
-		knh_Method_t *mtd = (knh_Method_t*)knh_DictMap_valueAt(dm, i);
-		if(IS_Method(mtd)) {
-			char *op = knh_methodop__tochar(DP(mtd)->mn);
-			if(op == NULL) continue;
-			knh_DictMap_removeAt(ctx, dm, i);
-			if(DP(mtd)->cid == CLASS_Object && this_cid != CLASS_Object) continue;
-			if(hasCaption == 0) {
-				knh_write_char(ctx, w, _("Operator"));
-				knh_write_EOL(ctx, w);
-				hasCaption = 1;
-			}
-			if(isBOL == 1) {
-				knh_write_TAB(ctx, w);
-				isBOL = 0;
-			}
-			knh_snprintf(buf, sizeof(buf), "%10s  ", op);
-			knh_write_char(ctx, w, buf);
-			if(cnt % 5 == 4) {
-				knh_write_EOL(ctx, w);
-				isBOL = 1;
-			}
-			cnt++;
-		}
-	}
-	if(isBOL != 1) {
-		knh_write_EOL(ctx, w);
-	}
-
-	hasCaption = 0;
-	isBOL = 1;
-	knh_DictMap_sort(dm);
-
-	for(i = 0; i < knh_DictMap_size(dm); i++) {
-		knh_Method_t *mtd = (knh_Method_t*)knh_DictMap_valueAt(dm, i);
-		if(IS_Method(mtd)) {
-			if(MN_isFMT(DP(mtd)->mn)) continue;
-			if(DP(mtd)->cid == CLASS_Object && this_cid != CLASS_Object) continue;
-			if(hasCaption == 0) {
-				knh_write_char(ctx, w, _("Method"));
-				knh_write_EOL(ctx, w);
-				hasCaption = 1;
-			}
-#if defined(K_USING_DEBUG)
-			if(1)
-#else
-			if(!knh_Method_isPrivate(mtd) || !knh_Method_isHidden(mtd))
-#endif
-			{
-				knh_write_TAB(ctx, w);
-				knh_Method__man(ctx, mtd, w, this_cid);
-				knh_write_EOL(ctx, w);
-			}
-			//knh_DictMap_removeAt(ctx, dm, i);
-		}
-	}
-
-	hasCaption = 0;
-	cnt = 8;
-	for(i = 0; i < knh_DictMap_size(dm); i++) {
-		knh_Method_t *mtd = (knh_Method_t*)knh_DictMap_valueAt(dm, i);
-		if(IS_Method(mtd)) {
-			if(!MN_isFMT(DP(mtd)->mn)) continue;
-			if(DP(mtd)->cid == CLASS_Object && this_cid != CLASS_Object) continue;
-			if(hasCaption == 0) {
-				knh_write_char(ctx, w, _("Formatter"));
-				knh_write_EOL(ctx, w);
-				knh_write_TAB(ctx, w);
-				hasCaption = 1;
-			}
-			knh_bytes_t k = S_tobytes(knh_DictMap_keyAt(dm, i));
-			if(cnt + k.len > 72) {
-				knh_write_EOL(ctx, w);
-				knh_write_TAB(ctx, w);
-				cnt = 8;
-			}
-			knh_write(ctx, w, k); knh_putc(ctx, w, ' ');
-			cnt += (k.len + 1);
-		}
-	}
-	knh_write_EOL(ctx, w);
-	knh_ClassMap__man(ctx, ClassTable(this_cid).tmaps, w, this_cid);
+	KNH_TODO("man Class");
+//	knh_class_t cid, this_cid;
+//	knh_OutputStream_t *w = sfp[1].w;
+//	size_t i = 0;
+//	knh_DictMap_t *dm = new_DictMap0(ctx, 128);
+//	BEGIN_LOCAL(ctx, lsfp, 1);
+//	KNH_SETv(ctx, lsfp[0].o, dm);
+//
+//	if(IS_Class(sfp[0].o)) {
+//		this_cid = ((knh_Class_t*)sfp[0].o)->cid;
+//		DBG_ASSERT_cid(this_cid);
+//	}
+//	else {
+//		this_cid = knh_Object_cid(sfp[0].o);
+//	}
+//	cid = this_cid;
+//	while(1) {
+//		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
+//		knh_Array_t *a = ClassTable(cid).methods;
+//		for(i = 0; i < knh_Array_size(a); i++) {
+//			knh_Method_t *mtd = (knh_Method_t*)knh_Array_n(a, i);
+//			char *op = knh_methodop__tochar(DP(mtd)->mn);
+//			if(op == NULL) {
+//				knh_cwb_clear(cwb, 0);
+//				knh_write_mn(ctx, cwb->w, DP(mtd)->mn);
+//				if(knh_DictMap_getNULL(ctx, dm, knh_cwb_tobytes(cwb)) == NULL) {
+//					knh_DictMap_set(ctx, dm, knh_cwb_newString(ctx, cwb), mtd);
+//				}
+//			}
+//			else {
+//				knh_bytes_t name = B(op);
+//				if(knh_DictMap_getNULL(ctx,  dm, name) == NULL) {
+//					knh_DictMap_set(ctx, dm, new_T(op), mtd);
+//				}
+//			}
+//		}
+//		if(cid == CLASS_Object) {
+//			knh_cwb_close(cwb);
+//			break;
+//		}
+//		cid = ClassTable(cid).supcid;
+//		END_LOCAL(ctx, lsfp);
+//	}
+//
+//	knh_ClassNAME__man(ctx, this_cid, w);
+//	knh_ClassCONST__man(ctx, this_cid, w);
+//
+//	int cnt = 0;
+//	int hasCaption = 0;
+//	int isBOL = 1;
+//	char buf[40];
+//	for(i = 0; i < knh_DictMap_size(dm); i++) {
+//		knh_Method_t *mtd = (knh_Method_t*)knh_DictMap_valueAt(dm, i);
+//		if(IS_Method(mtd)) {
+//			char *op = knh_methodop__tochar(DP(mtd)->mn);
+//			if(op == NULL) continue;
+//			knh_DictMap_removeAt(ctx, dm, i);
+//			if(DP(mtd)->cid == CLASS_Object && this_cid != CLASS_Object) continue;
+//			if(hasCaption == 0) {
+//				knh_write_char(ctx, w, _("Operator"));
+//				knh_write_EOL(ctx, w);
+//				hasCaption = 1;
+//			}
+//			if(isBOL == 1) {
+//				knh_write_TAB(ctx, w);
+//				isBOL = 0;
+//			}
+//			knh_snprintf(buf, sizeof(buf), "%10s  ", op);
+//			knh_write_char(ctx, w, buf);
+//			if(cnt % 5 == 4) {
+//				knh_write_EOL(ctx, w);
+//				isBOL = 1;
+//			}
+//			cnt++;
+//		}
+//	}
+//	if(isBOL != 1) {
+//		knh_write_EOL(ctx, w);
+//	}
+//
+//	hasCaption = 0;
+//	isBOL = 1;
+//	knh_DictMap_sort(dm);
+//
+//	for(i = 0; i < knh_DictMap_size(dm); i++) {
+//		knh_Method_t *mtd = (knh_Method_t*)knh_DictMap_valueAt(dm, i);
+//		if(IS_Method(mtd)) {
+//			if(MN_isFMT(DP(mtd)->mn)) continue;
+//			if(DP(mtd)->cid == CLASS_Object && this_cid != CLASS_Object) continue;
+//			if(hasCaption == 0) {
+//				knh_write_char(ctx, w, _("Method"));
+//				knh_write_EOL(ctx, w);
+//				hasCaption = 1;
+//			}
+//#if defined(K_USING_DEBUG)
+//			if(1)
+//#else
+//			if(!knh_Method_isPrivate(mtd) || !knh_Method_isHidden(mtd))
+//#endif
+//			{
+//				knh_write_TAB(ctx, w);
+//				knh_Method__man(ctx, mtd, w, this_cid);
+//				knh_write_EOL(ctx, w);
+//			}
+//			//knh_DictMap_removeAt(ctx, dm, i);
+//		}
+//	}
+//
+//	hasCaption = 0;
+//	cnt = 8;
+//	for(i = 0; i < knh_DictMap_size(dm); i++) {
+//		knh_Method_t *mtd = (knh_Method_t*)knh_DictMap_valueAt(dm, i);
+//		if(IS_Method(mtd)) {
+//			if(!MN_isFMT(DP(mtd)->mn)) continue;
+//			if(DP(mtd)->cid == CLASS_Object && this_cid != CLASS_Object) continue;
+//			if(hasCaption == 0) {
+//				knh_write_char(ctx, w, _("Formatter"));
+//				knh_write_EOL(ctx, w);
+//				knh_write_TAB(ctx, w);
+//				hasCaption = 1;
+//			}
+//			knh_bytes_t k = S_tobytes(knh_DictMap_keyAt(dm, i));
+//			if(cnt + k.len > 72) {
+//				knh_write_EOL(ctx, w);
+//				knh_write_TAB(ctx, w);
+//				cnt = 8;
+//			}
+//			knh_write(ctx, w, k); knh_putc(ctx, w, ' ');
+//			cnt += (k.len + 1);
+//		}
+//	}
+//	knh_write_EOL(ctx, w);
+//	knh_ClassMap__man(ctx, ClassTable(this_cid).tmaps, w, this_cid);
 }
-
-
-/* ======================================================================== */
-/* [C Compatible] */
 
 /* ------------------------------------------------------------------------ */
 //## method void Object.%p(OutputStream w);

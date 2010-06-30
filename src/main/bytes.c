@@ -51,16 +51,30 @@ extern "C" {
 /* ======================================================================== */
 /* [memory] */
 
-size_t knh_good_size(size_t s)
+//size_t knh_good_size(size_t ss)
+//{
+//	size_t s = ss;
+//	if(s > 64 * 1024) return s;
+//	s |= s >> 1;
+//	s |= s >> 2;
+//	s |= s >> 4;
+//	s |= s >> 8;
+//	s |= s >> 16;
+//	DBG_P("ss=%ld, s=%ld", ss, s+1);
+//	return s + 1;
+//}
+
+size_t knh_good_size(size_t ss)
 {
-	if(s > 64 * 1024)
-		return s;
+	size_t s = ss;
+	if(s > 64 * 1024) return s;
+	if(s <= K_FASTMALLOC_SIZE) return K_FASTMALLOC_SIZE;
 	s |= s >> 1;
 	s |= s >> 2;
 	s |= s >> 4;
 	s |= s >> 8;
 	s |= s >> 16;
-	return s + 1;
+	return ((s + 1) == ss * 2) ? ss : s + 1;
 }
 
 /* ------------------------------------------------------------------------ */

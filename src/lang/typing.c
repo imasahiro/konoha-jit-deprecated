@@ -197,8 +197,8 @@ knh_Token_t* new_TokenTYPED(Ctx *ctx, knh_term_t tt, knh_type_t type, knh_short_
 
 knh_bool_t knh_StmtMETA_is(Ctx *ctx, knh_Stmt_t *stmt, knh_bytes_t name)
 {
-	if(IS_DictMap(DP(stmt)->metaDictMap)) {
-		Object *v = knh_DictMap_getNULL(ctx, DP(stmt)->metaDictMap, name);
+	if(IS_Map(DP(stmt)->metaDictCaseMap)) {
+		Object *v = knh_DictCaseMap_getNULL(ctx, DP(stmt)->metaDictCaseMap, name);
 		if(v != NULL) return 1;
 	}
 	return 0;
@@ -473,9 +473,9 @@ static knh_Term_t *knh_TokenNAME_typing(Ctx *ctx, knh_Token_t *tk, knh_type_t re
 static Object *knh_NameSpace_getConstNULL(Ctx *ctx, knh_NameSpace_t *ns, knh_bytes_t name)
 {
 	L_TAIL:
-	if(DP(ns)->lconstDictMapNULL != NULL) {
-		knh_index_t idx = knh_DictMap_index(DP(ns)->lconstDictMapNULL, name);
-		if(idx != -1) return knh_DictMap_valueAt(DP(ns)->lconstDictMapNULL, idx);
+	if(DP(ns)->lconstDictCaseMapNULL != NULL) {
+		knh_index_t idx = knh_DictMap_index(DP(ns)->lconstDictCaseMapNULL, name);
+		if(idx != -1) return knh_DictMap_valueAt(DP(ns)->lconstDictCaseMapNULL, idx);
 	}
 	if(DP(ns)->parentNULL != NULL) {
 		ns = DP(ns)->parentNULL;
@@ -905,7 +905,7 @@ static knh_Term_t *knh_StmtLET_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t req
 static knh_flag_t knh_StmtDECL_flag(Ctx *ctx, knh_Stmt_t *o)
 {
 	knh_flag_t flag = 0;
-	if(IS_DictMap(DP(o)->metaDictMap)) {
+	if(IS_Map(DP(o)->metaDictCaseMap)) {
 		ADD_FLAG(flag, "Getter", _FGETTER);
 		ADD_FLAG(flag, "Setter", _FSETTER);
 		ADD_FLAG(flag, "Volatile", FLAG_Field_Volatile);
@@ -2975,7 +2975,7 @@ static knh_methodn_t knh_StmtMETHOD_name(Ctx *ctx, knh_Stmt_t *stmt)
 static knh_flag_t knh_StmtMETHOD_flag(Ctx *ctx, knh_Stmt_t *o, knh_class_t cid)
 {
 	knh_flag_t flag = 0;
-	if(IS_DictMap(DP(o)->metaDictMap)) {
+	if(IS_Map(DP(o)->metaDictCaseMap)) {
 		ADD_FLAG(flag, "Virtual", FLAG_Method_Virtual);
 		ADD_FLAG(flag, "Private", FLAG_Method_Private);
 		ADD_FLAG(flag, "Const", FLAG_Method_Const);
@@ -3098,6 +3098,11 @@ static knh_Fmethod knh_Gamma_loadMethodFunc(Ctx *ctx, knh_class_t cid, knh_metho
 	else if(MN_isSETTER(mn)) {
 		int off = knh_strlen(cname)+4;
 		knh_snprintf(buf, sizeof(buf), "%s_set%s", cname, FN_tochar(MN_toFN(mn)));
+		if(islower(buf[off])) buf[off] = toupper(buf[off]);
+	}
+	else if(MN_isISBOOL(mn)) {
+		int off = knh_strlen(cname)+4;
+		knh_snprintf(buf, sizeof(buf), "%s_sis%s", cname, FN_tochar(MN_toFN(mn)));
 		if(islower(buf[off])) buf[off] = toupper(buf[off]);
 	}
 	else {

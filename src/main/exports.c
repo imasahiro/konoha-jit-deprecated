@@ -205,7 +205,7 @@ static void knh_addConstData(Ctx *ctx, char *dname, Object *value)
 {
 	if(dname[0] == '$') {
 		knh_String_t *n = new_T(dname + 1);
-		knh_DictMap_append(ctx, DP(ctx->sys)->props, n, value);
+		knh_DictMap_set_(ctx, DP(ctx->sys)->props, n, value);
 	}
 	else {
 		knh_bytes_t n = B(dname);

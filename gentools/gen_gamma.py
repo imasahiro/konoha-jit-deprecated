@@ -373,7 +373,7 @@ static void knh_loadTokenData(Ctx *ctx)
 	knh_TokenData_t *data = knh_TokenData;
 	knh_DictSet_t *ds = DP(ctx->sys)->tokenDictSet;
 	while(data->name != NULL) {
-		knh_DictSet_append(ctx, ds, new_T(data->name), data->tt);
+		knh_DictSet_set(ctx, ds, new_T(data->name), data->tt);
 		data++;
 	}
 }
@@ -397,10 +397,9 @@ static void knh_loadAliasTokenData(Ctx *ctx)
 	knh_DictMap_t *dm = new_DictMap0(ctx, 0);
 	KNH_INITv(DP(ctx->share->mainns)->aliasDictMapNULL, dm);
 	while(data->name != NULL) {
-		knh_DictMap_append(ctx, dm, new_T(data->name), UP(new_T(data->alias)));
+		knh_DictMap_set(ctx, dm, new_T(data->name), UP(new_T(data->alias)));
 		data++;
 	}
-	knh_DictMap_sort(dm);
 }
 
 #endif/*K_USING_LOADDATA*/

@@ -351,7 +351,7 @@ static void knh_share_traverse(Ctx *ctx, knh_share_t *share, knh_Ftraverse ftr)
 		KNH_FTR(ctx, ftr, t->tmaps);
 		KNH_NULLFTR(ctx, ftr, t->cparam);
 		KNH_NULLFTR(ctx, ftr, t->defnull);
-		KNH_NULLFTR(ctx, ftr, t->constDictMap);
+		KNH_NULLFTR(ctx, ftr, t->constDictCaseMapNULL);
 		KNH_FTR(ctx, ftr, t->sname);
 		KNH_FTR(ctx, ftr, t->lname);
 	}

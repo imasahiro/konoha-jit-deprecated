@@ -178,7 +178,7 @@ typedef struct knh_MapDSPI_t {
 	void (*ftrmap)(Ctx *, knh_map_t*, knh_Ftraverse ftr);
 	void (*freemap)(Ctx *, knh_map_t*);
 	knh_bool_t (*get)(Ctx *, knh_map_t*, knh_sfp_t*, knh_sfp_t *);
-	void (*set)(Ctx *, knh_map_t*, knh_sfp_t *, knh_sfp_t *);
+	knh_map_t* (*set)(Ctx *, knh_map_t*, knh_sfp_t *);  // map pointer might be reallocated
 	void (*remove)(Ctx *, knh_map_t*, knh_sfp_t *);
 	size_t (*size)(Ctx *, knh_map_t*);
 	knh_bool_t (*setIterator)(Ctx *, knh_map_t*, knh_Iterator_t *);
@@ -274,8 +274,6 @@ typedef knh_intptr_t knh_data_t;
 
 /* ------------------------------------------------------------------------ */
 
-//typedef void (*knh_FquerySPI)(Ctx *, knh_QueryDPI_t *);
-
 typedef struct knh_PackageLoaderAPI_t {
 	void (*loadData)(Ctx *, knh_data_t *, knh_ParamArray_t **);
 	void (*loadIntData)(Ctx *, knh_IntData_t *);
@@ -294,6 +292,15 @@ typedef int  (*knh_FcheckPKG)(void);
 typedef void (*knh_FsetupPKG)(Ctx *ctx, const knh_PackageLoaderAPI_t *, char *, int);
 
 #define knh_isSelectedDSPI(c, T)   (c == NULL || strstr(c, ":" T ":") != NULL)
+
+typedef struct {
+	const char *name;
+	knh_ObjectCSPI_t *cspi;  // if cspi is NULL, rawptr is be used instead.
+	void *rawptr;
+	knh_FfreeRawPtr freeRawPtr;
+} knh_ClassData_t;
+
+typedef knh_ClassData_t* (*knh_Fclass)(void);
 
 /* ------------------------------------------------------------------------ */
 /* new version */

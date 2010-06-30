@@ -178,26 +178,26 @@ static TCAST Array_Iterator(Ctx *ctx, knh_sfp_t *sfp, long rix)
 //	ITREND_();
 //}
 
-/* ------------------------------------------------------------------------ */
-
-typedef void (*knh_fadd_dict)(Ctx *, knh_Array_t *a, knh_String_t *key, Object *value);
-
-static void knh_DictMap_array(Ctx *ctx, knh_DictMap_t *d, knh_Array_t *a, knh_fadd_dict fadd)
-{
-	size_t i;
-	knh_DictMap_sort(d);
-	for(i = 0; i < d->size; i++) {
-		Object *v = knh_DictMap_valueAt(d, i);
-		if(IS_NOTNULL(v)) {
-			fadd(ctx, a, knh_DictMap_keyAt(d, i), v);
-		}
-	}
-}
-
-static void knh_fadd_dictkey(Ctx *ctx, knh_Array_t *a, knh_String_t *key, Object *value)
-{
-	knh_Array_add_(ctx, a, UP(key));
-}
+///* ------------------------------------------------------------------------ */
+//
+//typedef void (*knh_fadd_dict)(Ctx *, knh_Array_t *a, knh_String_t *key, Object *value);
+//
+//static void knh_DictMap_array(Ctx *ctx, knh_DictMap_t *d, knh_Array_t *a, knh_fadd_dict fadd)
+//{
+//	size_t i;
+//	knh_DictMap_sort(d);
+//	for(i = 0; i < d->size; i++) {
+//		Object *v = knh_DictMap_valueAt(d, i);
+//		if(IS_NOTNULL(v)) {
+//			fadd(ctx, a, knh_DictMap_keyAt(d, i), v);
+//		}
+//	}
+//}
+//
+//static void knh_fadd_dictkey(Ctx *ctx, knh_Array_t *a, knh_String_t *key, Object *value)
+//{
+//	knh_Array_add_(ctx, a, UP(key));
+//}
 
 //static void knh_fadd_dictentry(Ctx *ctx, knh_Array_t *a, knh_String_t *key, Object *value)
 //{
@@ -209,29 +209,18 @@ static void knh_fadd_dictkey(Ctx *ctx, knh_Array_t *a, knh_String_t *key, Object
 //}
 
 /* ------------------------------------------------------------------------ */
-//## mapper DictMap Iterator!;
-//## mapper DictMap String..!;
-//## method String.. DictMap.opITR();
+//## mapper Map Iterator!;
+//## mapper Map String..!;
+//## method String.. Map.opITR();
 
 static TCAST DictMap_String__(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-	long selfidx = K_SELFIDX;
-	knh_Array_t *a = new_Array(ctx, CLASS_String, (sfp[selfidx].dmap)->size);
-	knh_DictMap_array(ctx, sfp[selfidx].dmap, a, knh_fadd_dictkey);
-	RETURN_(new_ArrayIterator(ctx, a));
-}
-
-///* ------------------------------------------------------------------------ */
-////## method PairST1.. DictMap.opALT();
-//
-//static METHOD DictMap_opALT(Ctx *ctx, knh_sfp_t *sfp, long rix)
-//{
-//	
-//	knh_class_t cid = knh_class_P2(ctx, CLASS_Tuple, CLASS_String, knh_Object_p1(sfp[0].dmap));
-//	knh_Array_t *a = new_Array(ctx, cid, (sfp[0].dmap)->size);
-//	knh_DictMap_array(ctx, sfp[0].dmap, a, knh_fadd_dictentry);
+	KNH_TODO(__FUNCTION__);
+//	long selfidx = K_SELFIDX;
+//	knh_Array_t *a = new_Array(ctx, CLASS_String, (sfp[selfidx].dmap)->size);
+//	knh_DictMap_array(ctx, sfp[selfidx].dmap, a, knh_fadd_dictkey);
 //	RETURN_(new_ArrayIterator(ctx, a));
-//}
+}
 
 #endif/* K_USING_DEFAULTAPI*/
 

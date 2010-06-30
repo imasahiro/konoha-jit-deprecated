@@ -1563,8 +1563,8 @@ static
 void knh_Gamma_pushLABEL(Ctx *ctx, knh_Stmt_t *stmt, knh_KLRInst_t *lbC, knh_KLRInst_t *lbB)
 {
 	knh_Object_t *tkL = NULL;
-	if(IS_DictMap(DP(stmt)->metaDictMap)) {
-		tkL = knh_DictMap_getNULL(ctx, DP(stmt)->metaDictMap, S_tobytes(TS_ATlabel));
+	if(IS_Map(DP(stmt)->metaDictCaseMap)) {
+		tkL = knh_DictCaseMap_getNULL(ctx, DP(stmt)->metaDictCaseMap, S_tobytes(TS_ATlabel));
 	}
 	if(tkL == NULL) {
 		tkL = KNH_NULVAL(CLASS_Any);
@@ -1981,8 +1981,8 @@ static void KNH_ASM_SKIP(Ctx *ctx, knh_KLRInst_t* lbskip)
 static knh_flag_t knh_StmtPRINT_flag(Ctx *ctx, knh_Stmt_t *o)
 {
 	knh_flag_t flag = 0;
-	if(IS_bDictMap(DP(o)->metaDictMap)) {
-		Object *v = knh_DictMap_getNULL(ctx,  DP(o)->metaDictMap, STEXT("time"));
+	if(IS_Map(DP(o)->metaDictCaseMap)) {
+		Object *v = knh_DictCaseMap_getNULL(ctx,  DP(o)->metaDictCaseMap, STEXT("time"));
 		if(v != NULL) {
 			flag |= K_FLAG_PF_TIME;
 		}

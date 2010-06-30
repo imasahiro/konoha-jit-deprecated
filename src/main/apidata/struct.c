@@ -744,55 +744,55 @@ static knh_ObjectCSPI_t IteratorSPI = {
 	DEFAULT_hashkey, knh_Iterator_genmap,
 };
 
-/* ======================================================================== */
-/* DictMap */
-
-static FASTAPI(void) knh_DictMap_init(Ctx *ctx, Object *o)
-{
-	knh_DictMap_t *d = (knh_DictMap_t*)o;
-	d->_list = knh_dictmap_malloc(ctx, 0);
-	d->size = 0;
-	d->fcmp = knh_bytes_strcmp;
-}
-
-static FASTAPI(void) knh_DictMap_traverse(Ctx *ctx, Object *o, knh_Ftraverse ftr)
-{
-	knh_DictMap_t *d = (knh_DictMap_t*)o;
-	knh_dict_traverse(ctx, d->_list, ftr);
-}
-
-static FASTAPI(void) knh_DictMap_free(Ctx *ctx, Object *o)
-{
-	knh_DictMap_t *d = (knh_DictMap_t*)o;
-	knh_dict_free(ctx, d->_list);
-}
-
-static knh_ObjectCSPI_t DictMapSPI = {
-	"DictMap", 0, CFLAG_DictMap,
-	knh_DictMap_init, DEFAULT_initcopy,
-	knh_DictMap_traverse, knh_DictMap_free,
-	DEFAULT_checkout, DEFAULT_compareTo,
-	DEFAULT_hashkey, DEFAULT_genmap /*knh_DictMap_genmap*/,
-};
-
-/* ======================================================================== */
-/* DictSet */
-
-static FASTAPI(void) knh_DictSet_init(Ctx *ctx, Object *o)
-{
-	knh_DictSet_t *d = (knh_DictSet_t*)o;
-	d->_list = knh_dictset_malloc(ctx, 0);
-	d->size = 0;
-	d->fcmp = knh_bytes_strcmp;
-}
-
-static knh_ObjectCSPI_t DictSetSPI = {
-	"DictSet", 0, CFLAG_DictSet,
-	knh_DictSet_init, DEFAULT_initcopy,
-	knh_DictMap_traverse, knh_DictMap_free,
-	DEFAULT_checkout, DEFAULT_compareTo,
-	DEFAULT_hashkey, DEFAULT_genmap /*knh_DictMap_genmap*/,
-};
+///* ======================================================================== */
+///* DictMap */
+//
+//static FASTAPI(void) knh_DictMap_init(Ctx *ctx, Object *o)
+//{
+//	knh_DictMap_t *d = (knh_DictMap_t*)o;
+//	d->_list = knh_dictmap_malloc(ctx, 0);
+//	d->size = 0;
+//	d->fcmp = knh_bytes_strcmp;
+//}
+//
+//static FASTAPI(void) knh_DictMap_traverse(Ctx *ctx, Object *o, knh_Ftraverse ftr)
+//{
+//	knh_DictMap_t *d = (knh_DictMap_t*)o;
+//	knh_dict_traverse(ctx, d->_list, ftr);
+//}
+//
+//static FASTAPI(void) knh_DictMap_free(Ctx *ctx, Object *o)
+//{
+//	knh_DictMap_t *d = (knh_DictMap_t*)o;
+//	knh_dict_free(ctx, d->_list);
+//}
+//
+//static knh_ObjectCSPI_t DictMapSPI = {
+//	"DictMap", 0, CFLAG_DictMap,
+//	knh_DictMap_init, DEFAULT_initcopy,
+//	knh_DictMap_traverse, knh_DictMap_free,
+//	DEFAULT_checkout, DEFAULT_compareTo,
+//	DEFAULT_hashkey, DEFAULT_genmap /*knh_DictMap_genmap*/,
+//};
+//
+///* ======================================================================== */
+///* DictSet */
+//
+//static FASTAPI(void) knh_DictSet_init(Ctx *ctx, Object *o)
+//{
+//	knh_DictSet_t *d = (knh_DictSet_t*)o;
+//	d->_list = knh_dictset_malloc(ctx, 0);
+//	d->size = 0;
+//	d->fcmp = knh_bytes_strcmp;
+//}
+//
+//static knh_ObjectCSPI_t DictSetSPI = {
+//	"DictSet", 0, CFLAG_DictSet,
+//	knh_DictSet_init, DEFAULT_initcopy,
+//	knh_DictMap_traverse, knh_DictMap_free,
+//	DEFAULT_checkout, DEFAULT_compareTo,
+//	DEFAULT_hashkey, DEFAULT_genmap /*knh_DictMap_genmap*/,
+//};
 
 /* ======================================================================== */
 /* DictSet */
@@ -1719,7 +1719,7 @@ static FASTAPI(void) knh_NameSpace_init(Ctx *ctx, Object *o)
 	b->parentNULL = NULL;
 	b->aliasDictMapNULL = NULL;
 	b->name2cidDictSetNULL = NULL;
-	b->lconstDictMapNULL = NULL;
+	b->lconstDictCaseMapNULL = NULL;
 	b->func2cidDictSetNULL = NULL;
 	b->strregexSPI = &STRREGEXSPI;
 	b->regexSPI = &STRREGEXSPI;
@@ -1734,7 +1734,7 @@ static FASTAPI(void) knh_NameSpace_traverse(Ctx *ctx, Object *o, knh_Ftraverse f
 	KNH_NULLFTR(ctx, ftr, (b->aliasDictMapNULL));
 	KNH_NULLFTR(ctx, ftr, (b->name2cidDictSetNULL));
 	KNH_NULLFTR(ctx, ftr, (b->func2cidDictSetNULL));
-	KNH_NULLFTR(ctx, ftr, (b->lconstDictMapNULL));
+	KNH_NULLFTR(ctx, ftr, (b->lconstDictCaseMapNULL));
 }
 
 static FASTAPI(void) knh_NameSpace_free(Ctx *ctx, Object *o)
@@ -1801,25 +1801,25 @@ static FASTAPI(void) knh_System_init(Ctx *ctx, Object *o)
 	sys->sysid = knh_autoSystemId++;
 	sys->ctxcount = 0;
 
-	KNH_INITv(sys->ClassNameDictSet, new_DictSet0(ctx, 1, 0/*isIgnoreCase*/));
-	KNH_INITv(sys->ExptNameDictSet, new_DictSet0(ctx, 1, 1/*isIgnoreCase*/));
+	KNH_INITv(sys->ClassNameDictSet, new_DictSet0(ctx, 0));
+	KNH_INITv(sys->EventDictCaseSet, new_DictCaseSet0(ctx, 0));
 	KNH_INITv(sys->enc,   new_T(knh_getSystemEncoding()));
 	KNH_INITv(sys->in,    new_InputStream__stdio(ctx, stdin, sys->enc));
 	KNH_INITv(sys->out,   new_OutputStream__stdio(ctx, stdout, sys->enc));
 	KNH_INITv(sys->err,   new_OutputStream__stdio(ctx, stderr, sys->enc));
 
-	KNH_INITv(sys->props, new_DictMap0(ctx, 64));
+	KNH_INITv(sys->props, new_DictCaseMap0(ctx, 20));
 	{
 		size_t ncapacity = knh_good_entrysize(sizeof(knh_hmem_t), sizeof(knh_NameInfo_t), K_TFIELD_SIZE + 10);
-		KNH_INITv(sys->nameDictSet, new_DictSet0(ctx, K_TFIELD_SIZE + 10, 1/*isIgnoreCase*/));
+		KNH_INITv(sys->nameDictCaseSet, new_DictCaseSet0(ctx, K_TFIELD_SIZE + 10));
 		sys->hnameinfo = knh_hmalloc(ctx, sizeof(knh_NameInfo_t), ncapacity);
 	}
-	KNH_INITv(sys->urnDictSet, new_DictSet0(ctx, 1, 0/*isIgnoreCase*/));
+	KNH_INITv(sys->urnDictSet, new_DictSet0(ctx, 0));
 	KNH_INITv(sys->urns, new_Array0(ctx, 1));
-	KNH_INITv(sys->tokenDictSet, new_DictSet0(ctx, K_TOKEN_MAXSIZ, 0/*isIgnoreCase*/));
-	KNH_INITv(sys->dspiDictSet, new_DictSet0(ctx, 32, 0/*isIgnoreCase*/));
-	KNH_INITv(sys->PackageDictMap, new_DictMap0(ctx, 8));
-	KNH_INITv(sys->URNAliasDictMap, new_DictMap0(ctx, 8));
+	KNH_INITv(sys->tokenDictSet, new_DictSet0(ctx, K_TOKEN_MAXSIZ));
+	KNH_INITv(sys->dspiDictSet, new_DictSet0(ctx, 32));
+	KNH_INITv(sys->PackageDictMap, new_DictMap0(ctx, 0));
+	KNH_INITv(sys->URNAliasDictMap, new_DictMap0(ctx, 0));
 	o->ref = sys;
 }
 
@@ -1831,15 +1831,15 @@ static FASTAPI(void) knh_System_traverse(Ctx *ctx, Object *o, knh_Ftraverse ftr)
 	KNH_FTR(ctx, ftr, (sys->out));
 	KNH_FTR(ctx, ftr, (sys->err));
 	KNH_FTR(ctx, ftr, (sys->props));
-	KNH_FTR(ctx, ftr, (sys->ExptNameDictSet));
+	KNH_FTR(ctx, ftr, (sys->EventDictCaseSet));
 	KNH_FTR(ctx, ftr, (sys->ClassNameDictSet));
 	{
-		size_t i, size = knh_DictSet_size(sys->nameDictSet);
+		size_t i, size = knh_DictSet_size(sys->nameDictCaseSet);
 		for(i = 0; i < size; i++) {
 			KNH_FTR(ctx, ftr, sys->nameinfo[i].name);
 		}
 	}
-	KNH_FTR(ctx, ftr, (sys->nameDictSet));
+	KNH_FTR(ctx, ftr, (sys->nameDictCaseSet));
 	KNH_FTR(ctx, ftr, (sys->urnDictSet));
 	KNH_FTR(ctx, ftr, (sys->urns));
 	KNH_FTR(ctx, ftr, (sys->tokenDictSet));
@@ -1987,7 +1987,7 @@ static FASTAPI(void) knh_Stmt_init(Ctx *ctx, Object *o)
 	b->capacity = 0;
 	b->terms = NULL;
 	b->nextNULL = NULL;
-	KNH_INITv(b->metaDictMap,  KNH_NULL);
+	KNH_INITv(b->metaDictCaseMap,  KNH_NULL);
 	o->ref = b;
 }
 
@@ -2000,7 +2000,7 @@ static FASTAPI(void) knh_Stmt_traverse(Ctx *ctx, Object *o, knh_Ftraverse ftr)
 			KNH_FTR(ctx, ftr, b->terms[i]);
 		}
 	}
-	KNH_FTR(ctx, ftr, (b->metaDictMap));
+	KNH_FTR(ctx, ftr, (b->metaDictCaseMap));
 	KNH_NULLFTR(ctx, ftr, (b->nextNULL));
 }
 
@@ -2037,7 +2037,7 @@ knh_Term_t *knh_Stmt_done(Ctx *ctx, knh_Stmt_t *o)
 		b->capacity = 0;
 		b->size = 0;
 	}
-	KNH_SETv(ctx, b->metaDictMap, KNH_NULL);
+	KNH_SETv(ctx, b->metaDictCaseMap, KNH_NULL);
 	return (knh_Term_t*)(o);
 }
 
@@ -2272,11 +2272,11 @@ static void knh_loadFieldNameData0(Ctx *ctx, knh_FieldNameData0_t *data)
 	while(data->name != NULL) {
 		knh_String_t *name = new_T(data->name);
 #if defined(K_USING_DEBUG)
-		knh_fieldn_t fn = knh_addname(ctx, name, knh_DictSet_append);
+		knh_fieldn_t fn = knh_addname(ctx, name, knh_DictCaseSet_append);
 		//DBG_P("name=%s, fn=%d, data->fn=%d, %d", data->name, fn, data->fn, data->fn-MN_OPSIZE);
 		DBG_ASSERT(fn == data->fn - MN_OPSIZE);
 #else
-		knh_addname(ctx, name, knh_DictSet_append);
+		knh_addname(ctx, name, knh_DictCaseSet_append);
 #endif
 		data++;
 	}
@@ -2316,7 +2316,7 @@ static knh_data_t CParamData0[] = {
 	DATA_CPARAM, CLASS_Tuple, 1, 0, TYPE_Any, FN_V,
 	DATA_CPARAM, CLASS_Range, 1, 0, TYPE_Any, FN_V,
 	DATA_CPARAM, CLASS_Array, 1, 0, TYPE_Any, FN_V,
-	DATA_CPARAM, CLASS_DictMap, 1, 0, TYPE_Any, FN_V,
+	DATA_CPARAM, CLASS_Map, 2, 0, TYPE_Any, FN_K, TYPE_Any, FN_V,
 	DATA_CPARAM, CLASS_Func, 1, 1, TYPE_Any, FN_P, TYPE_Any, FN_V,
 	0,
 };

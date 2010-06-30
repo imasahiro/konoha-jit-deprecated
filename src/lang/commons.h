@@ -41,7 +41,7 @@ char* TT_tochar(knh_term_t tt);
 	}\
 
 #define ADD_FLAG(flag, T, F) \
-	if(knh_DictMap_getNULL(ctx, DP(o)->metaDictMap, STEXT(T)) != NULL) {\
+	if(knh_DictCaseMap_getNULL(ctx, DP(o)->metaDictCaseMap, STEXT(T)) != NULL) {\
 		flag |= F;\
 	}\
 

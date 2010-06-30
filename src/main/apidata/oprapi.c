@@ -654,7 +654,6 @@ static METHOD Int_opRSFT(Ctx *ctx, knh_sfp_t *sfp, long rix)
 /* ------------------------------------------------------------------------ */
 //## method Int Bytes.getSize();
 //## method Int Array.getSize();
-//## method Int DictMap.getSize();
 
 METHOD Bytes_getSize(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
@@ -671,6 +670,14 @@ static METHOD String_getSize(Ctx *ctx, knh_sfp_t *sfp, long rix)
 		size = knh_bytes_mlen(S_tobytes(sfp[0].s));
 	}
 	RETURNi_(size);
+}
+
+/* ------------------------------------------------------------------------ */
+//## method Int Map.getSize();
+METHOD Map_getSize(Ctx *ctx, knh_sfp_t *sfp, long rix)
+{
+	knh_Map_t *m = sfp[0].m;
+	RETURNi_(m->dspi->size(ctx, m->map));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -932,49 +939,6 @@ static METHOD Array_opTO(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	RETURN_(new_Array__range(ctx, sfp[0].a, s, e));
 }
 
-/* ------------------------------------------------------------------------ */
-/* [DictMap] */
-
-static
-int knh_fbytescmp_1(knh_bytes_t t1, knh_bytes_t t2)
-{
-	return 1;
-}
-
-static
-knh_DictMap_t *knh_DictMap_subset(Ctx *ctx, knh_DictMap_t *d, knh_String_t* ss, knh_String_t *es, int isInclusive)
-{
-	knh_bytes_t s = IS_bString(ss) ? S_tobytes(ss) : STEXT("");
-	knh_bytes_t e = IS_bString(es) ? S_tobytes(es) : STEXT("");
-	size_t i, dsize = d->size;
-	knh_DictMap_t *newd = new_DictMap(ctx, knh_Object_p1(d), 0);
-	int zero = (isInclusive) ?  0 : 1;
-	knh_Fbytescmp f1 = (s.len > 0) ? d->fcmp : knh_fbytescmp_1;
-	knh_Fbytescmp f2 = (e.len > 0) ? d->fcmp : knh_fbytescmp_1;
-	for(i = 0; i < dsize; i++) {
-		knh_bytes_t key = S_tobytes(knh_DictMap_keyAt(d, i));
-		if(f1(key, s) <= 0 && f2(e, key) >= zero) {
-			knh_DictMap_append(ctx, newd, knh_DictMap_keyAt(d, i), knh_DictMap_valueAt(d, i));
-		}
-	}
-	return newd;
-}
-
-/* ------------------------------------------------------------------------ */
-//## method This DictMap.opTO(String s, String e);
-
-static METHOD DictMap_opTO(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURN_(knh_DictMap_subset(ctx, sfp[0].dmap, sfp[1].s, sfp[2].s, 1));
-}
-
-/* ------------------------------------------------------------------------ */
-//## method This DictMap.opUNTIL(String s, String e);
-
-static METHOD DictMap_opUNTIL(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURN_(knh_DictMap_subset(ctx, sfp[0].dmap, sfp[1].s, sfp[2].s, 1));
-}
 /* ------------------------------------------------------------------------ */
 //## method Any Tuple.opEXPAND();
 

@@ -75,7 +75,7 @@ knh_class_t knh_NameSpace_getcid(Ctx *ctx, knh_NameSpace_t *ns, knh_bytes_t snam
 	}
 	L_TAIL:
 	if(DP(ns)->name2cidDictSetNULL != NULL) {
-		knh_uintptr_t cid = knh_DictSet_get(DP(ns)->name2cidDictSetNULL, sname);
+		knh_uintptr_t cid = knh_DictSet_get(ctx, DP(ns)->name2cidDictSetNULL, sname);
 		if(cid > 0) return (knh_class_t)(cid-1);
 	}
 	if(DP(ns)->parentNULL != NULL) {
@@ -90,8 +90,8 @@ knh_class_t knh_NameSpace_getcid(Ctx *ctx, knh_NameSpace_t *ns, knh_bytes_t snam
 
 knh_flag_t knh_Stmt_flag_(Ctx *ctx, knh_Stmt_t *stmt, knh_bytes_t name, knh_flag_t flag)
 {
-	if(IS_DictMap(DP(stmt)->metaDictMap)) {
-		Object *v = knh_DictMap_getNULL(ctx, DP(stmt)->metaDictMap, name);
+	if(IS_Map(DP(stmt)->metaDictCaseMap)) {
+		Object *v = knh_DictCaseMap_getNULL(ctx, DP(stmt)->metaDictCaseMap, name);
 		return (v != NULL) ? flag : 0;
 	}
 	return 0;
@@ -119,7 +119,7 @@ knh_class_t knh_NameSpace_getFuncClass(Ctx *ctx, knh_NameSpace_t *ns, knh_method
 		knh_bytes_t name = S_tobytes(knh_getFieldName(ctx, MN_toFN(mn)));
 		L_TAIL:
 		if(DP(ns)->func2cidDictSetNULL != NULL) {
-			knh_uintptr_t cid = knh_DictSet_get(DP(ns)->func2cidDictSetNULL, name);
+			knh_uintptr_t cid = knh_DictSet_get(ctx, DP(ns)->func2cidDictSetNULL, name);
 			if(cid != 0) {
 				return (knh_class_t)(cid-1);
 			}
@@ -257,7 +257,7 @@ knh_bool_t knh_loadPackage(Ctx *ctx, knh_bytes_t path)
 static void knh_NameSpace_setcid(Ctx *ctx, knh_NameSpace_t *ns, knh_String_t *name, knh_class_t cid, int isOVERRIDE)
 {
 	if(DP(ns)->name2cidDictSetNULL == NULL) {
-		KNH_INITv(DP(ns)->name2cidDictSetNULL, new_DictSet0(ctx, 1, 0/*isIgnoreCase*/));
+		KNH_INITv(DP(ns)->name2cidDictSetNULL, new_DictSet0(ctx, 0));
 	}
 	else {
 		knh_class_t oldcid = knh_NameSpace_getcid(ctx, ns, S_tobytes(name));
@@ -505,7 +505,7 @@ static knh_bool_t knh_StmtUSING_eval(Ctx *ctx, knh_Stmt_t *stmt)
 static knh_flag_t knh_StmtCLASS_flag(Ctx *ctx, knh_Stmt_t *stmt)
 {
 	knh_flag_t flag = 0;
-	if(IS_DictMap(DP(stmt)->metaDictMap)) {
+	if(IS_Map(DP(stmt)->metaDictCaseMap)) {
 		flag |= knh_Stmt_flag(ctx, stmt, "Final",     FLAG_Class_Final);
 		flag |= knh_Stmt_flag(ctx, stmt, "Private",   FLAG_Class_Private);
 		flag |= knh_Stmt_flag(ctx, stmt, "Interface", FLAG_Class_Interface);
@@ -534,41 +534,58 @@ static int knh_StmtCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt)
 		t = pClassTable(ctx, cid);
 	}
 	else {
+		knh_cwb_close(cwb);
 		t = pClassTable(ctx, cid);
-		if(t->bcid != CLASS_Any /* RawPtr */ || t->supcid != CLASS_Object) {
-			knh_Gamma_perror(ctx, KERR_ERR, _("re-definition of %C"), cid);
+		if(!(t->bcid == CLASS_Object && t->fields == NULL)) {
+			knh_Gamma_perror(ctx, KERR_ERR, _("re-definition of %B(%d)"), S_tobytes(DP(tkC)->text), cid);
 			goto L_ERROR;
 		}
 	}
 
 	DP(tkC)->cid = cid;
-	DBG_ASSERT(t->lname == NULL);
-	knh_setClassName(ctx, cid, knh_cwb_newString(ctx, cwb), DP(tkC)->text);
-	t->cflag  = knh_StmtCLASS_flag(ctx, stmt);
-	t->oflag  = FLAG_oflag(t->cflag);
-	t->bcid = (DP(stmt)->size == 5) ? CLASS_Any /* GLUE*/ : CLASS_Object;
-	t->supcid = knh_Token_getcid(ctx, tkE, CLASS_Object);
-	DBG_ASSERT_cid(t->supcid);
-	if(knh_class_isFinal(t->supcid)) {
-		knh_Gamma_perror(ctx, KERR_ERR, _("cannot extends final class %C"), t->supcid);
-		goto L_ERROR;
+	t->bcid = CLASS_Object; //(DP(stmt)->size == 5) ? CLASS_Any /* GLUE*/ : CLASS_Object;
+	if(t->supcid == 0) {
+		t->supcid = knh_Token_getcid(ctx, tkE, CLASS_Object);
+		if(knh_class_isFinal(t->supcid)) {
+			knh_Gamma_perror(ctx, KERR_ERR, _("cannot extends final class %C"), t->supcid);
+			goto L_ERROR;
+		}
+		t->offset = 0; /* will be extended in CLASS_typing */
+		t->keyidx = ClassTable(t->supcid).keyidx;
 	}
-	t->offset = 0; /* will be extended in CLASS_typing */
-	t->keyidx = ClassTable(t->supcid).keyidx;
-	DBG_ASSERT(t->fields == NULL);
-	DBG_ASSERT(t->fsize  == 0);
-	KNH_INITv(t->methods, KNH_EMPTYLIST);
-	KNH_INITv(t->tmaps, KNH_EMPTYLIST);
-	knh_setClassDefaultValue(ctx, cid, new_hObject_(ctx, t->oflag | FLAG_Object_NullObject, t->bcid, cid), NULL);
-	if(t->bcid == CLASS_Any) {
-		ctx->api->RawPtr_init(ctx, (knh_RawPtr_t*)t->defnull, NULL, NULL);
-		t->cspi = ClassTable(CLASS_RawPtr).cspi;
+	if(t->lname == NULL) {
+		knh_setClassName(ctx, cid, knh_cwb_newString(ctx, cwb), DP(tkC)->text);
+		t->cflag  = knh_StmtCLASS_flag(ctx, stmt);
+		t->oflag  = FLAG_oflag(t->cflag);
+		DBG_ASSERT(t->fields == NULL);
+		DBG_ASSERT(t->fsize  == 0);
+		KNH_INITv(t->methods, KNH_EMPTYLIST);
+		KNH_INITv(t->tmaps, KNH_EMPTYLIST);
+		knh_setClassDefaultValue(ctx, cid, new_hObject_(ctx, t->oflag | FLAG_Object_NullObject, t->bcid, cid), NULL);
+		knh_NameSpace_setcid(ctx, ns, DP(tkC)->text, cid, 1);
+		KNH_SYSLOG(ctx, LOG_NOTICE, "NEW_CLASS", "*cid=%d, name='%s'", cid, CLASSN(cid));
 	}
-	knh_NameSpace_setcid(ctx, ns, DP(tkC)->text, cid, 1);
-	if(t->bcid == CLASS_Any) {
+	if(DP(stmt)->size == 5) {
+		if(DP(ctx->gma)->dlhdr != NULL) {
+			knh_Fclass f = (knh_Fclass)knh_dlsym(ctx, DP(ctx->gma)->dlhdr, S_tochar(DP(tkC)->text), 0/*isRequired*/);
+			if(f != NULL) {
+				knh_ClassData_t *csetup = f();
+				if(csetup->cspi != NULL) {
+					t->bcid = cid;
+					(t->defnull)->h.bcid = cid;
+					t->cspi = csetup->cspi;
+					t->cspi->init(ctx, t->defnull);
+				}
+				else {
+					t->bcid = CLASS_RawPtr;
+					(t->defnull)->h.bcid = CLASS_RawPtr;
+					t->cspi = ClassTable(CLASS_RawPtr).cspi;
+					ctx->api->RawPtr_init(ctx, (knh_RawPtr_t*)t->defnull, csetup->rawptr, csetup->freeRawPtr);
+				}
+			}
+		}
 		knh_Stmt_done(ctx, stmt);
 	}
-	KNH_SYSLOG(ctx, LOG_NOTICE, "NEW_CLASS", "cid=%d, name=%s", CLASSN(cid));
 	return 1;
 
 	L_ERROR:;

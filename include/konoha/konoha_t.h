@@ -331,6 +331,7 @@ typedef knh_uint16_t       knh_expt_t;    /* knh_expt_t */
 #define IS_Tbool(t)       (TYPE_Boolean == t)
 #define IS_Tunbox(t)      (IS_Tint(t) || IS_Tfloat(t) || IS_Tbool(t))
 #define IS_Tfunc(t)       (ClassTable(CLASS_type(t)).bcid == CLASS_Func)
+#define IS_Tstr(t)        (t == CLASS_String || ClassTable(CLASS_type(t)).bcid == CLASS_String)
 
 #define knh_Method_isPoly(mtd, T) \
 	(DP(mtd)->cid == T || knh_class_bcid(T) == DP(mtd)->cid || knh_class_instanceof(ctx, cid, DP(mtd)->cid))
@@ -541,8 +542,7 @@ typedef struct knh_sfp_t {
 		struct knh_Range_t  *range;
 		struct knh_Array_t  *a;
 		struct knh_Iterator_t *it;
-		struct knh_DictMap_t  *dmap;
-		struct knh_DictSet_t  *dset;
+		struct knh_Map_t    *m;
 		struct knh_Func_t         *fo;
 		struct knh_InputStream_t  *in;
 		struct knh_OutputStream_t *w;
@@ -656,8 +656,8 @@ typedef struct {
 		struct knh_Func_t         *deffunc;
 //		struct knh_Semantics_t    *cspec;
 	};
-	knh_Fdefnull               fdefnull;
-	struct knh_DictMap_t      *constDictMap;
+	knh_Fdefnull                   fdefnull;
+	struct knh_DictCaseMap_t      *constDictCaseMapNULL;
 #if defined(K_USING_STATCLASS)
 	size_t count;
 	size_t total;

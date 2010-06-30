@@ -297,11 +297,11 @@ void knh_dump_stmt(Ctx *ctx, knh_OutputStream_t *w, knh_Stmt_t *stmt, int isNEXT
 	L_RESTART:;
 	knh_intptr_t i, size;
 	knh_putc(ctx, w, '(');
-	if(IS_DictMap(DP(stmt)->metaDictMap)) {
-		size = (DP(stmt)->metaDictMap)->size;
+	if(IS_Map(DP(stmt)->metaDictCaseMap)) {
+		size = knh_DictCaseMap_size(DP(stmt)->metaDictCaseMap);
 		for(i = 0; i < size; i++) {
-			knh_String_t *k = (knh_String_t*)knh_DictMap_keyAt(DP(stmt)->metaDictMap, i);
-			knh_String_t *v = (knh_String_t*)knh_DictMap_valueAt(DP(stmt)->metaDictMap, i);
+			knh_String_t *k = knh_DictCaseMap_keyAt(DP(stmt)->metaDictCaseMap, i);
+			knh_String_t *v = (knh_String_t*)knh_DictCaseMap_valueAt(DP(stmt)->metaDictCaseMap, i);
 			if(k == v) {
 				knh_printf(ctx, w, "@%s ", S_tochar(k));
 			}
@@ -2258,7 +2258,7 @@ static void _EXPR(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 		case TT_BRACE: {
 			stmt = new_StmtREUSE(ctx, stmt, STT_NEW);
 			knh_Stmt_add(ctx, stmt, new_TokenMN(ctx, MN_new__MAP));
-			_DICT(ctx, stmt, new_TokenCID(ctx, CLASS_DictMap), tkCUR);
+			_DICT(ctx, stmt, new_TokenCID(ctx, CLASS_Map), tkCUR);
 			goto L_FUNC;
 		}
 		case TT_FUNCTION: { /* function () */
@@ -2810,17 +2810,17 @@ static void knh_Stmt_addMETA(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 		return ;
 	}
 	e = (itr->meta < itr->c) ? itr->c : itr->e;
-	if(IS_NULL(DP(stmt)->metaDictMap)) {
-		KNH_SETv(ctx, DP(stmt)->metaDictMap, new_DictMap0(ctx, 2));
+	if(IS_NULL(DP(stmt)->metaDictCaseMap)) {
+		KNH_SETv(ctx, DP(stmt)->metaDictCaseMap, new_DictCaseMap0(ctx, 2));
 	}
 	for(i = itr->meta; i < e; i++) {
 		if(TT_(ts[i]) == TT_NAME || TT_(ts[i]) == TT_UNAME) {
-			knh_DictMap_set(ctx, DP(stmt)->metaDictMap, TS_ATlabel, ts[i]);
+			knh_DictCaseMap_set(ctx, DP(stmt)->metaDictCaseMap, TS_ATlabel, ts[i]);
 			i++;
 			DBG_ASSERT(TT_(ts[i]) == TT_COLON);
 		}
 		else if(TT_(ts[i]) == TT_METAN) {
-			knh_DictMap_set(ctx, DP(stmt)->metaDictMap, DP(ts[i])->text, UP(ts[i]));
+			knh_DictCaseMap_set(ctx, DP(stmt)->metaDictCaseMap, DP(ts[i])->text, UP(ts[i]));
 		}
 	}
 	if(e == itr->e) itr->c = i;

@@ -52,11 +52,12 @@ size_t knh_good_entrysize(size_t hsize, size_t wsize, size_t n)
 
 knh_hmem_t* knh_hmalloc(Ctx *ctx, size_t wsize, size_t n)
 {
-	size_t msize = sizeof(knh_hmem_t) + (wsize * n);
+	size_t msize = knh_good_size(sizeof(knh_hmem_t) + (wsize * n));
 	knh_hmem_t *h = (knh_hmem_t*)KNH_MALLOC(ctx, msize);
-	h->capacity = n;
+	knh_bzero(h, msize);
 	h->wsize = wsize;
-	knh_bzero(h+1, wsize * n);
+	h->capacity = (msize - sizeof(knh_hmem_t)) / wsize;
+	DBG_ASSERT(knh_good_size((h->wsize * h->capacity) + sizeof(knh_hmem_t)) == msize);
 	return (h+1);
 }
 
@@ -65,8 +66,8 @@ knh_hmem_t* knh_hmalloc(Ctx *ctx, size_t wsize, size_t n)
 knh_hmem_t* knh_hrealloc(Ctx *ctx, knh_hmem_t *p, size_t newn)
 {
 	knh_hmem_t *h = p - 1;
-	size_t size = sizeof(knh_hmem_t) + (h->wsize * h->capacity);
-	size_t newsize = sizeof(knh_hmem_t) + (h->wsize * newn);
+	size_t size = knh_good_size(sizeof(knh_hmem_t) + (h->wsize * h->capacity));
+	size_t newsize = knh_good_size(sizeof(knh_hmem_t) + (h->wsize * newn));
 	knh_hmem_t *newh = (knh_hmem_t*)KNH_MALLOC(ctx, newsize);
 	if(newsize > size) {
 		knh_memcpy(newh, h, size);
@@ -75,9 +76,26 @@ knh_hmem_t* knh_hrealloc(Ctx *ctx, knh_hmem_t *p, size_t newn)
 	else {
 		knh_memcpy(newh, h, newsize);
 	}
-	newh->capacity = newn;
+	newh->capacity = (newsize - sizeof(knh_hmem_t)) / h->wsize;
 	newh->wsize = h->wsize;
 	KNH_FREE(ctx, h, size);
+	return (newh+1);
+}
+
+/* ------------------------------------------------------------------------ */
+
+knh_hmem_t* knh_hgrow(Ctx *ctx, knh_hmem_t *p)
+{
+	knh_hmem_t *h = p - 1;
+	size_t size = knh_good_size(sizeof(knh_hmem_t) + (h->wsize * h->capacity));
+	size_t newsize = size * 2;
+	knh_hmem_t *newh = (knh_hmem_t*)KNH_MALLOC(ctx, newsize);
+	knh_memcpy(newh, h, size);
+	knh_bzero((char*)newh + size, newsize - size);
+	newh->capacity = (newsize - sizeof(knh_hmem_t)) / h->wsize;
+	newh->wsize = h->wsize;
+	KNH_FREE(ctx, h, size);
+	DBG_P("GROW ptr=%p, size=%ld, newsize=%ld", h, size, newsize);
 	return (newh+1);
 }
 
@@ -86,7 +104,7 @@ knh_hmem_t* knh_hrealloc(Ctx *ctx, knh_hmem_t *p, size_t newn)
 void knh_hfree(Ctx *ctx, knh_hmem_t *p)
 {
 	knh_hmem_t *h = p - 1;
-	size_t size = sizeof(knh_hmem_t) + (h->wsize * h->capacity);
+	size_t size = knh_good_size(sizeof(knh_hmem_t) + (h->wsize * h->capacity));
 	KNH_FREE(ctx, (void*)h, size);
 }
 

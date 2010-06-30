@@ -96,7 +96,7 @@ static METHOD System_listProperties(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	knh_bytes_t prefix = IS_NULL(sfp[1].s) ? STEXT("") : S_tobytes(sfp[1].s);
 	knh_DictMap_t *map = DP(ctx->sys)->props;
 	size_t i;
-	for(i = 0; i < map->size; i++) {
+	for(i = 0; i < knh_DictMap_size(map); i++) {
 		knh_String_t *key = knh_DictMap_keyAt(map, i);
 		if(knh_bytes_matchWildCard(S_tobytes(key), prefix)) {
 			knh_Array_add(ctx, a, key);
@@ -246,10 +246,10 @@ static METHOD Exception_opOF(Ctx *ctx, knh_sfp_t *sfp, long rix)
 static METHOD NameSpace_setConst(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
 	knh_NameSpace_t *ns = sfp[0].ns;
-	if(DP(ns)->lconstDictMapNULL == NULL) {
-		KNH_INITv(DP(ns)->lconstDictMapNULL, new_DictMap0(ctx, 0));
+	if(DP(ns)->lconstDictCaseMapNULL == NULL) {
+		KNH_INITv(DP(ns)->lconstDictCaseMapNULL, new_DictCaseMap0(ctx, 0));
 	}
-	knh_DictMap_set_(ctx, DP(ns)->lconstDictMapNULL, sfp[1].s, sfp[2].o);
+	knh_DictMap_set_(ctx, DP(ns)->lconstDictCaseMapNULL, sfp[1].s, sfp[2].o);
 	RETURNa_(sfp[2].o);
 }
 

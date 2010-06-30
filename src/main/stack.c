@@ -462,7 +462,7 @@ knh_expt_t knh_geteid(Ctx *ctx, knh_bytes_t msg, knh_expt_t def)
 	if(msg.len == 0) return EXPT_Exception; /* '!!' */
 	{
 		KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
-		eid = (knh_expt_t)knh_DictSet_get(DP(ctx->sys)->ExptNameDictSet, msg);
+		eid = (knh_expt_t)knh_DictCaseSet_get(ctx, DP(ctx->sys)->EventDictCaseSet, msg);
 		KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
 		DBG_P("'%s', eid=%d", msg.buf, eid);
 		if(eid != 0) return eid;
@@ -492,7 +492,7 @@ knh_expt_t knh_addException(Ctx *ctx, knh_flag_t flag, knh_class_t eid, knh_Stri
 		t->parent = peid;
 		KNH_INITv(t->name, name);
 		KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
-		knh_DictSet_set(ctx, DP(ctx->sys)->ExptNameDictSet, name, eid);
+		knh_DictCaseSet_set(ctx, DP(ctx->sys)->EventDictCaseSet, name, eid);
 		KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
 	}
 	return eid;

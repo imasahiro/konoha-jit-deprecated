@@ -290,67 +290,6 @@ typedef struct knh_Array_t {
 #define knh_TOKENs_n(a, n)    ((knh_Token_t*)(a)->list[(n)])
 #define knh_KLRINSTs_n(a, n)  ((knh_KLRInst_t*)(a)->list[(n)])
 
-
-/* ------------------------------------------------------------------------ */
-//## @Cyclic @Param1(Any) class DictMap Object;
-//## @Cyclic @Param1(Any) class DictSet Object;
-//## cparam DictMap 0 V Any;
-//## cparam DictSet 0 V Any;
-//## flag DictMap IgnoreCase 1 - is set is *;
-//## flag DictSet IgnoreCase 1 - is set is *;
-
-#define new_DictSet(ctx, c)   new_DictSet0(ctx, c)
-
-#define K_DICT_INITSIZE (K_FASTMALLOC_SIZE/(sizeof(void*)*2))
-
-typedef int (*knh_Fbytescmp)(knh_bytes_t, knh_bytes_t);
-
-typedef struct knh_dict_t {
-	struct knh_String_t *key;
-	union {
-		Object *_unused;
-		knh_uintptr_t _unused_int;
-	};
-} knh_dict_t;
-
-typedef struct knh_dictmape_t {
-	struct knh_String_t *key;
-	Object *value;
-} knh_dictmape_t;
-
-typedef struct knh_DictMap_t {
-	knh_hObject_t h;
-	union {
-		knh_dictmape_t *list;
-		knh_dict_t *_list;  // To avoid stupid casting
-	};
-	size_t size;
-	knh_Fbytescmp fcmp;
-} knh_DictMap_t;
-
-
-#define knh_DictMap_set(ctx, d, k, v) knh_DictMap_set_(ctx, d, k, UP(v))
-
-/* ------------------------------------------------------------------------ */
-
-typedef struct knh_dictsete_t {
-	struct knh_String_t *key;
-	knh_uintptr_t value;
-} knh_dictsete_t;
-
-typedef struct knh_DictSet_t {
-	knh_hObject_t h;
-	union {
-		knh_dictsete_t *list;
-		knh_dict_t *_list;  // To avoid stupid casting
-	};
-	size_t size;
-	knh_Fbytescmp fcmp;
-} knh_DictSet_t;
-
-typedef void (*knh_Fdictset)(Ctx *, knh_DictSet_t*, knh_String_t *k, knh_uintptr_t);
-#define knh_DictSet_size(d)    (d)->size
-
 ///* ------------------------------------------------------------------------ */
 //## @Cyclic class Map Object;
 //## cparam DictMap 0 V Any;
@@ -358,7 +297,6 @@ typedef void (*knh_Fdictset)(Ctx *, knh_DictSet_t*, knh_String_t *k, knh_uintptr
 typedef struct knh_dentry_t {
 	union {
 		knh_String_t  *key;
-		knh_Object_t *okey;
 		knh_intptr_t   ikey;
 		knh_floatptr_t fkey;
 	};
@@ -372,8 +310,6 @@ typedef struct knh_dentry_t {
 typedef struct knh_dmap_t {
 	size_t size;
 	size_t sorted;
-	knh_Fbytescmp fcmp;
-	int  (*fdict_compar)(const void *, const void *);
 } knh_dmap_t ;
 
 typedef struct knh_hentry_t {
@@ -410,6 +346,57 @@ typedef struct knh_Map_t {
 #define K_HASH_INITSIZE 83
 #define KNH_HASH_FACTOR(i)     ((i * 4) / 3)
 #define knh_Map_get(ctx, m, k)     m->dspi->getkey(ctx, m, k)
+
+// DictMap, DictSet are old names of Map;
+
+typedef struct knh_DictMap_t {
+	knh_hObject_t h;
+	union {
+		knh_map_t     *map;
+		knh_dmap_t    *dmap;
+		knh_dentry_t  *dlistO;
+	};
+	const struct knh_MapDSPI_t *dspi;
+} knh_DictMap_t;
+
+typedef struct knh_DictCaseMap_t {
+	knh_hObject_t h;
+	union {
+		knh_map_t     *map;
+		knh_dmap_t    *dmap;
+		knh_dentry_t  *dlistO;
+	};
+	const struct knh_MapDSPI_t *dspi;
+} knh_DictCaseMap_t;
+
+#define knh_DictMap_size(m)    ((m)->dmap)->size
+#define knh_DictCaseMap_size(m)    ((m)->dmap)->size
+#define knh_DictMap_set(ctx, m, k, v)      knh_DictMap_set_(ctx, m, k, UP(v))
+#define knh_DictCaseMap_set(ctx, m, k, v)  knh_DictCaseMap_set_(ctx, m, k, UP(v))
+
+typedef struct knh_DictSet_t {
+	knh_hObject_t h;
+	union {
+		knh_map_t     *map;
+		knh_dmap_t    *dmap;
+		knh_dentry_t  *dlistI;
+	};
+	const struct knh_MapDSPI_t *dspi;
+} knh_DictSet_t;
+
+typedef struct knh_DictCaseSet_t {
+	knh_hObject_t h;
+	union {
+		knh_map_t     *map;
+		knh_dmap_t    *dmap;
+		knh_dentry_t  *dlistI;
+	};
+	const struct knh_MapDSPI_t *dspi;
+} knh_DictCaseSet_t;
+
+typedef void (*knh_Fdictset)(Ctx *, knh_DictCaseSet_t*, knh_String_t *k, knh_uintptr_t);
+#define knh_DictSet_size(m)      ((m)->dmap)->size
+#define knh_DictCaseSEt_size(m)  ((m)->dmap)->size
 
 /* ------------------------------------------------------------------------ */
 //## @Immutable class Class Object;
@@ -948,7 +935,7 @@ typedef struct knh_NameSpace {
 	struct knh_DictMap_t*   aliasDictMapNULL;
 	struct knh_DictSet_t*   name2cidDictSetNULL;
 	struct knh_DictSet_t*   func2cidDictSetNULL;
-	struct knh_DictMap_t*   lconstDictMapNULL;
+	struct knh_DictMap_t*   lconstDictCaseMapNULL;
 	const struct knh_RegexSPI_t  *strregexSPI;
 	const struct knh_RegexSPI_t  *regexSPI;
 /*	struct knh_DictSet_t*   pathTrustDictSet; */
@@ -991,28 +978,24 @@ typedef struct {
 	struct knh_OutputStream_t* err;
 	struct knh_String_t*       enc;
 
-	struct knh_DictSet_t     *tokenDictSet;
-	struct knh_DictSet_t     *nameDictSet;
+	struct knh_DictSet_t       *tokenDictSet;
+	struct knh_DictCaseSet_t   *nameDictCaseSet;
 	union {
-		knh_hmem_t           *hnameinfo;
-		knh_NameInfo_t       *nameinfo;
+		knh_hmem_t            *hnameinfo;
+		knh_NameInfo_t        *nameinfo;
 	};
-	struct knh_DictSet_t     *urnDictSet;
-	struct knh_Array_t       *urns;
-//	struct knh_DictIdx_t *FieldNameDictIdx;
-//	struct knh_DictIdx_t *ResourceDictIdx;
-//	struct knh_HashMap_t* ParamArrayHashMap;
+	struct knh_DictSet_t      *urnDictSet;
+	struct knh_Array_t        *urns;
 
-	struct knh_DictSet_t *ClassNameDictSet;
-	struct knh_DictSet_t *ExptNameDictSet;
-	struct knh_DictMap_t* PackageDictMap;
-	struct knh_DictMap_t* URNAliasDictMap;
-	struct knh_DictSet_t *dspiDictSet;
+	struct knh_DictSet_t      *ClassNameDictSet;
+	struct knh_DictCaseSet_t  *EventDictCaseSet;
+	struct knh_DictMap_t      *PackageDictMap;
+	struct knh_DictMap_t      *URNAliasDictMap;
+	struct knh_DictSet_t      *dspiDictSet;
 //	struct knh_DictSet_t *SpecFuncDictSet;
 //	struct knh_Array_t   *UsingResources;
 //	struct knh_DictMap_t *listenerDictMap;
 //	struct knh_DictMap_t *trustedPathDictSet;
-
 } knh_SystemEX_t;
 
 typedef struct knh_System_t {
@@ -1178,7 +1161,7 @@ typedef struct {
 		struct knh_Stmt_t**  stmts;
 	};
 	union {
-		struct knh_DictMap_t* metaDictMap;
+		struct knh_DictCaseMap_t* metaDictCaseMap;
 		struct knh_String_t*  errMsg;
 		struct knh_Stmt_t*    stmtPOST;
 	};

@@ -298,39 +298,38 @@ static METHOD Array_new__LIST(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	RETURN_(a);
 }
 
-
 /* ------------------------------------------------------------------------ */
-//## method This DictMap.new(Int initCapacity);
+//## method This Map.new(String path);
 
-static METHOD DictMap_new(Ctx *ctx, knh_sfp_t *sfp, long rix)
+static METHOD Map_new(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-	
-	knh_DictMap_t *o = (knh_DictMap_t*)sfp[0].o;
-	size_t init = sfp[1].ivalue <= 0 ? 0: Int_to(size_t, sfp[1]);
-	if(init > knh_dict_capacity(o->_list)) {
-		o->_list = knh_dict_resize(ctx, o->_list, init);
-		o->size = 0;
-	}
-	RETURN_(o);
+	KNH_TODO(__FUNCTION__);
+//	knh_DictMap_t *o = (knh_DictMap_t*)sfp[0].o;
+//	size_t init = sfp[1].ivalue <= 0 ? 0: Int_to(size_t, sfp[1]);
+//	if(init > knh_dict_capacity(o->_list)) {
+//		o->_list = knh_dict_resize(ctx, o->_list, init);
+//		o->size = 0;
+//	}
+//	RETURN_(o);
 }
 
 /* ------------------------------------------------------------------------ */
-//## @Hidden method This DictMap.new:MAP(T1 value, ...);
+//## @Hidden method This Map.new:MAP(T1 value, ...);
 
-static METHOD DictMap_new__MAP(Ctx *ctx, knh_sfp_t *sfp, long rix)
+static METHOD Map_new__MAP(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-	
-	knh_DictMap_t *o = (knh_DictMap_t*)sfp[0].o;
-	knh_sfp_t *v = sfp + 1;
-	size_t i, ac = knh_stack_argc(ctx, v);
-	for(i = 0; i < ac; i+=2) {
-		if(IS_bString(v[i].s)) {
-			knh_stack_boxing(ctx, v + i + 1);
-			knh_DictMap_append(ctx, o, v[i].s, v[i+1].o);
-		}
-	}
-	knh_DictMap_sort(o);
-	RETURN_(o);
+	KNH_TODO(__FUNCTION__);
+//	knh_DictMap_t *o = (knh_DictMap_t*)sfp[0].o;
+//	knh_sfp_t *v = sfp + 1;
+//	size_t i, ac = knh_stack_argc(ctx, v);
+//	for(i = 0; i < ac; i+=2) {
+//		if(IS_bString(v[i].s)) {
+//			knh_stack_boxing(ctx, v + i + 1);
+//			knh_DictMap_append(ctx, o, v[i].s, v[i+1].o);
+//		}
+//	}
+//	knh_DictMap_sort(o);
+//	RETURN_(o);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -374,42 +373,9 @@ static METHOD Func_new(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	RETURN_(fo);
 }
 
-///* ------------------------------------------------------------------------ */
-//// ## type void(Array) Thrd Func void Array! void;
-//// ## method Thread! Thread.new(Thrd! c, Array! args);
-//
-//static METHOD Thread_new(Ctx *ctx, knh_sfp_t *sfp, long rix)
-//{
-//	knh_Thread_t *t = (knh_Thread_t*)sfp[0].o;
-//	DBG_ASSERT(IS_bThread(t));
-//	DBG_ASSERT(IS_bFunc(sfp[1].cc));
-//	DBG_ASSERT(IS_Array(sfp[2].a));
-//	fprintf(stderr, "%s,%d\n",__func__,__LINE__);
-//	//KNH_INITv((sfp[0].cc)->base, sfp[1].o);
-//	//KNH_INITv((sfp[0].cc)->mtd, sfp[2].mtd);
-//	//(sfp[0].cc)->envsfp = NULL;
-//	RETURN_(sfp[0].o);
-//}
-//
-//// ## method Thread! Thread.start();
-//
-//static METHOD Thread_start(Ctx *ctx, knh_sfp_t *sfp, long rix)
-//{
-//	knh_Thread_t *t = (knh_Thread_t*)sfp[0].o;
-//	DBG_ASSERT(IS_bThread(t));
-//	fprintf(stderr, "%s,%d\n",__func__,__LINE__);
-//	knh_stack_threadRun(ctx, sfp + 1);
-//	//KNH_INITv((sfp[0].cc)->base, sfp[1].o);
-//	//KNH_INITv((sfp[0].cc)->mtd, sfp[2].mtd);
-//	//(sfp[0].cc)->envsfp = NULL;
-//	RETURN_(sfp[0].o);
-//}
-
 /* ------------------------------------------------------------------------ */
 
 #endif/* K_USING_DEFAULTAPI*/
-
-/* ------------------------------------------------------------------------ */
 
 #ifdef __cplusplus
 }

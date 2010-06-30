@@ -164,7 +164,7 @@ void knh_setClassName(Ctx *ctx, knh_class_t cid, knh_String_t *lname, knh_String
 
 knh_class_t knh_getcid(Ctx *ctx, knh_bytes_t lname)
 {
-	knh_uintptr_t cid = knh_DictSet_get(DP(ctx->sys)->ClassNameDictSet, lname);
+	knh_uintptr_t cid = knh_DictSet_get(ctx, DP(ctx->sys)->ClassNameDictSet, lname);
 	if(cid > 0) return (knh_class_t)(cid-1);
 #if defined(K_USING_SEMANTICS)
 	if(lname.buf[lname.len-1] == '}') {
