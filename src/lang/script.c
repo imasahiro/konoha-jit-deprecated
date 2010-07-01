@@ -249,6 +249,13 @@ knh_bool_t knh_loadPackage(Ctx *ctx, knh_bytes_t path)
 			res = 0;
 		}
 	}
+	if(pkg != NULL) {
+		knh_NameSpace_t *ns = knh_getGammaNameSpace(ctx);
+		knh_NameSpace_t *pkgns = SP(pkg)->ns;
+		if(DP(pkgns)->regexSPI != DP(pkgns)->strregexSPI) {
+			DP(ns)->regexSPI = DP(pkgns)->regexSPI;
+		}
+	}
 	return res;
 }
 

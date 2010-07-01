@@ -1998,7 +1998,7 @@ static void _REGEX(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 	int cflags = 0;
 	KNH_INITv(re->pattern, DP(tk)->text);
 	re->spi = DP(ns)->regexSPI;
-	if(re->reg == DP(ns)->strregexSPI) {
+	if(re->spi == DP(ns)->strregexSPI) {
 		knh_Token_perror(ctx, tk, KERR_EWARN, _("regex is not installed"));
 	}
 	re->reg = re->spi->regmalloc(ctx, DP(tk)->text);
