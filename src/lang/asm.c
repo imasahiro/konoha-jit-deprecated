@@ -824,12 +824,22 @@ static void KNH_ASM_RET(Ctx *ctx)
 //	TODO(); DBG_ABORT();
 //}
 
-static void TERMs_JMPIF(Ctx *ctx, knh_Stmt_t *stmt, size_t n, int isTRUE, knh_KLRInst_t* label)
+static void TERMs_JMPIF(Ctx *ctx, knh_Stmt_t *stmt, size_t n, int isTRUE, knh_KLRInst_t* label, int local)
 {
 	knh_Token_t *tk = DP(stmt)->tokens[n];
-	if(IS_Token(tk) && TT_(tk) == TT_LOCAL) {
-		if(isTRUE) KNH_ASM(bNOT, DP(tk)->index, DP(tk)->index);
+	if(TT_(tk) == TT_LOCAL) {
+		if(isTRUE) {
+			KNH_ASM(bNOT, DP(tk)->index, DP(tk)->index);
+			//KNH_ASM(JMPT, {label}, (DP(tk)->index));
+		}
 		KNH_ASM(JMPF, {label}, (DP(tk)->index));
+	}
+	else if(TT_(tk) == TT_CONST) {
+		int isTRUE2 = IS_TRUE(DP(tk)->data);
+		KNH_ASM_SMOV(ctx, TYPE_Boolean, local, tk);
+		if((!isTRUE && !isTRUE2) || (isTRUE && isTRUE2)) {
+			KNH_ASM(JMP, {label});
+		}
 	}
 	else {
 //		if(TERMs_isCALLISNUL(stmt, n)) {
@@ -839,11 +849,13 @@ static void TERMs_JMPIF(Ctx *ctx, knh_Stmt_t *stmt, size_t n, int isTRUE, knh_KL
 //			TERMs_ASM_JMPNUL(ctx, DP(stmt)->stmts[n], 1, label);
 //		}
 //		else {
-			int espidx = DP(ctx->gma)->espidx;
-			TERMs_asm(ctx, stmt, n, TYPE_Boolean, espidx);
-			if(isTRUE) KNH_ASM(bNOT, espidx, espidx);
-			KNH_ASM(JMPF, {label}, (espidx));
-//		}
+			TERMs_asm(ctx, stmt, n, TYPE_Boolean, local);
+			if(isTRUE) {
+//				KNH_ASM(JMPT, {label}, (espidx));
+				KNH_ASM(bNOT, local, local);
+			}
+			KNH_ASM(JMPF, {label}, (local));
+
 	}
 }
 
@@ -1443,8 +1455,8 @@ static void knh_StmtOR_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpi
 	knh_KLRInst_t*  label = new_KLRInstLABEL(ctx);
 	int i, size = DP(stmt)->size;
 	for(i = 0; i < size; i++) {
-		TERMs_asm(ctx, stmt, i, TYPE_Boolean, local);
-		TERMs_JMPIF(ctx, stmt, i, 1/*TRUE*/, label);
+		//TERMs_asm(ctx, stmt, i, TYPE_Boolean, local);
+		TERMs_JMPIF(ctx, stmt, i, 1/*TRUE*/, label, local);
 	}
 	KNH_ASM_LABEL(ctx, label);
 	KNH_ASM_MOVL(ctx, TYPE_Boolean, sfpidx, SP(stmt)->type, local);
@@ -1456,8 +1468,8 @@ static void knh_StmtAND_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfp
 	knh_KLRInst_t*  label = new_KLRInstLABEL(ctx);
 	int i, size = DP(stmt)->size;
 	for(i = 0; i < size; i++) {
-		TERMs_asm(ctx, stmt, i, TYPE_Boolean, local);
-		TERMs_JMPIF(ctx, stmt, i, 0/*FALSE*/, label);
+		//TERMs_asm(ctx, stmt, i, TYPE_Boolean, local);
+		TERMs_JMPIF(ctx, stmt, i, 0/*FALSE*/, label, local);
 	}
 	KNH_ASM_LABEL(ctx, label);
 	KNH_ASM_MOVL(ctx, TYPE_Boolean, sfpidx, SP(stmt)->type, local);
@@ -1468,8 +1480,8 @@ static void knh_StmtTRI_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfp
 	int local = ASML(sfpidx);
 	knh_KLRInst_t*  lbelse = new_KLRInstLABEL(ctx);
 	knh_KLRInst_t*  lbend  = new_KLRInstLABEL(ctx);
-	TERMs_asm(ctx, stmt, 0, TYPE_Boolean, local);
-	TERMs_JMPIF(ctx, stmt, 0, 0/*FALSE*/, lbelse);
+	//TERMs_asm(ctx, stmt, 0, TYPE_Boolean, local);
+	TERMs_JMPIF(ctx, stmt, 0, 0/*FALSE*/, lbelse, local);
 	TERMs_asm(ctx, stmt, 1, reqt, local);
 	KNH_ASM(JMP, {lbend});
 	/* else */
@@ -1610,7 +1622,7 @@ static void knh_StmtIF_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
 	knh_KLRInst_t*  lbELSE = new_KLRInstLABEL(ctx);
 	knh_KLRInst_t*  lbEND  = new_KLRInstLABEL(ctx);
 	/* if */
-	TERMs_JMPIF(ctx, stmt, 0, 0/*FALSE*/, lbELSE);
+	TERMs_JMPIF(ctx, stmt, 0, 0/*FALSE*/, lbELSE, DP(ctx->gma)->espidx);
 	/* then */
 	TERMs_asmBLOCK(ctx, stmt, 1, reqt);
 
@@ -1643,7 +1655,7 @@ static void knh_StmtSWITCH_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
 				knh_KLRInst_t*  lbEND = new_KLRInstLABEL(ctx);
 				DP(ctx->gma)->espidx = DP(stmtCASE)->espidx;
 				DBG_P("it=%d, esp=%d, stmtCASE->esp=%d", DP(tkIT)->index, DP(ctx->gma)->espidx, DP(stmtCASE)->espidx);
-				TERMs_JMPIF(ctx, stmtCASE, 0, 0/*FALSE*/, lbEND);
+				TERMs_JMPIF(ctx, stmtCASE, 0, 0/*FALSE*/, lbEND, DP(ctx->gma)->espidx);
 				TERMs_asmBLOCK(ctx, stmtCASE, 1, reqt);
 				KNH_ASM_LABEL(ctx, lbEND);
 			}
@@ -1711,7 +1723,7 @@ static void knh_StmtWHILE_asm(Ctx *ctx, knh_Stmt_t *stmt)
 	knh_Gamma_pushLABEL(ctx, stmt, lbC, lbB);
 	KNH_ASM_LABEL(ctx, lbC);
 	if(!TERMs_isTRUE(stmt, 0)) {
-		TERMs_JMPIF(ctx, stmt, 0, 0/*FALSE*/, lbB);
+		TERMs_JMPIF(ctx, stmt, 0, 0/*FALSE*/, lbB, DP(ctx->gma)->espidx);
 		KNH_RENAME(OPCODE_JMPF, OPCODE_LOOPJMPF);
 	}
 	TERMs_asmBLOCK(ctx, stmt, 1, TYPE_void);
@@ -1727,7 +1739,7 @@ static void knh_StmtDO_asm(Ctx *ctx, knh_Stmt_t *stmt)
 	knh_Gamma_pushLABEL(ctx, stmt, lbC, lbB);
 	KNH_ASM_LABEL(ctx, lbC);
 	TERMs_asmBLOCK(ctx, stmt, 0, TYPE_void);
-	TERMs_JMPIF(ctx, stmt, 1, 0/*FALSE*/, lbB);
+	TERMs_JMPIF(ctx, stmt, 1, 0/*FALSE*/, lbB, DP(ctx->gma)->espidx);
 	KNH_RENAME(OPCODE_JMPF, OPCODE_LOOPJMPF);
 	KNH_ASM(JMP, {lbC});
 	KNH_ASM_LABEL(ctx, lbB);
@@ -1749,7 +1761,7 @@ static void knh_StmtFOR_asm(Ctx *ctx, knh_Stmt_t *stmt)
 	/* i < 10 part */
 	KNH_ASM_LABEL(ctx, lbREDO);
 	if(!TERMs_isTRUE(stmt, 1)) {
-		TERMs_JMPIF(ctx, stmt, 1, 0/*FALSE*/, lbB);
+		TERMs_JMPIF(ctx, stmt, 1, 0/*FALSE*/, lbB, DP(ctx->gma)->espidx);
 		KNH_RENAME(OPCODE_JMPF, OPCODE_LOOPJMPF);
 	}
 	TERMs_asmBLOCK(ctx, stmt, 3, TYPE_void);
@@ -2080,7 +2092,7 @@ static void knh_StmtASSERT_asm(Ctx *ctx, knh_Stmt_t *stmt)
 		KNH_ASM(DYJMP, {lbskip}, 0, klr_isskip);
 	}
 	/* if */
-	TERMs_JMPIF(ctx, stmt, 0, 1, lbskip);
+	TERMs_JMPIF(ctx, stmt, 0, 1, lbskip, DP(ctx->gma)->espidx);
 	/*then*/
 	TERMs_asmBLOCK(ctx, stmt, 1, TYPE_void);
 	KNH_ASM(OSET, espidx, UP(TS_AssertionException));

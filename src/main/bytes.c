@@ -51,16 +51,14 @@ extern "C" {
 /* ======================================================================== */
 /* [memory] */
 
-//size_t knh_good_size(size_t ss)
+//size_t knh_good_size(size_t s)
 //{
-//	size_t s = ss;
 //	if(s > 64 * 1024) return s;
 //	s |= s >> 1;
 //	s |= s >> 2;
 //	s |= s >> 4;
 //	s |= s >> 8;
 //	s |= s >> 16;
-//	DBG_P("ss=%ld, s=%ld", ss, s+1);
 //	return s + 1;
 //}
 
@@ -223,36 +221,36 @@ knh_String_t *knh_cwb_newString(Ctx *ctx, knh_cwb_t *cwb)
 
 #define u_ knh_uintptr_t
 
-knh_uintptr_t knh_bytes_tou(knh_bytes_t t)
-{
-#if ((defined(__WORDSIZE) && __WORDSIZE == 64)) || defined(__LP64__) || defined(__LLP64__)
-	u_ u = (((u_)t.buf[0]) << 56) | (((u_)t.buf[1]) << 48)
-		| (((u_)t.buf[2]) << 40) | (((u_)t.buf[3]) << 32)
-		| (((u_)t.buf[4]) << 24) | (((u_)t.buf[5]) << 16)
-		| (((u_)t.buf[6]) << 8) | (((u_)t.buf[7]) << 0);
-	switch(t.len) {
-		case 0: return u & 0x0000000000000000LL;
-		case 1: return u & 0xff00000000000000LL;
-		case 2: return u & 0xffff000000000000LL;
-		case 3: return u & 0xffffff0000000000LL;
-		case 4: return u & 0xffffffff00000000LL;
-		case 5: return u & 0xffffffffff000000LL;
-		case 6: return u & 0xffffffffffff0000LL;
-		case 7: return u & 0xffffffffffffff00LL;
-		default: return u;
-	}
-#else
-	u_ u = (((u_)t.buf[0]) << 24) | (((u_)t.buf[1]) << 16)
-		| (((u_)t.buf[2]) << 8) | (((u_)t.buf[3]) << 0);
-	switch(t.len) {
-		case 0: return u & 0x00000000;
-		case 1: return u & 0xff000000;
-		case 2: return u & 0xffff0000;
-		case 3: return u & 0xffffff00;
-		default: return u;
-	}
-#endif
-}
+//knh_uintptr_t knh_bytes_tou(knh_bytes_t t)
+//{
+//#if ((defined(__WORDSIZE) && __WORDSIZE == 64)) || defined(__LP64__) || defined(__LLP64__)
+//	u_ u = (((u_)t.buf[0]) << 56) | (((u_)t.buf[1]) << 48)
+//		| (((u_)t.buf[2]) << 40) | (((u_)t.buf[3]) << 32)
+//		| (((u_)t.buf[4]) << 24) | (((u_)t.buf[5]) << 16)
+//		| (((u_)t.buf[6]) << 8) | (((u_)t.buf[7]) << 0);
+//	switch(t.len) {
+//		case 0: return u & 0x0000000000000000LL;
+//		case 1: return u & 0xff00000000000000LL;
+//		case 2: return u & 0xffff000000000000LL;
+//		case 3: return u & 0xffffff0000000000LL;
+//		case 4: return u & 0xffffffff00000000LL;
+//		case 5: return u & 0xffffffffff000000LL;
+//		case 6: return u & 0xffffffffffff0000LL;
+//		case 7: return u & 0xffffffffffffff00LL;
+//		default: return u;
+//	}
+//#else
+//	u_ u = (((u_)t.buf[0]) << 24) | (((u_)t.buf[1]) << 16)
+//		| (((u_)t.buf[2]) << 8) | (((u_)t.buf[3]) << 0);
+//	switch(t.len) {
+//		case 0: return u & 0x00000000;
+//		case 1: return u & 0xff000000;
+//		case 2: return u & 0xffff0000;
+//		case 3: return u & 0xffffff00;
+//		default: return u;
+//	}
+//#endif
+//}
 
 /* ------------------------------------------------------------------------ */
 
@@ -279,39 +277,9 @@ KNHAPI(knh_bool_t) knh_bytes_matchWildCard(knh_bytes_t t, knh_bytes_t p)
 	}
 }
 
-///* ------------------------------------------------------------------------ */
-//
-//KNHAPI(knh_bytes_t) knh_bytes_mod(knh_bytes_t t, int ch)
-//{
-//	size_t i;
-//	for(i = 0; i < t.len; i++) {
-//		if(t.buf[i] == ch) {
-//			t.buf = t.buf + i + 1;
-//			t.len = t.len -(i+1);
-//			return t;
-//		}
-//	}
-//	return t;
-//}
-//
-///* ------------------------------------------------------------------------ */
-//
-//KNHAPI(knh_bytes_t) knh_bytes_rmod(knh_bytes_t t, int ch)
-//{
-//	int i;
-//	for(i = t.len - 1; i >= 0; i--) {
-//		if(t.buf[i] == ch) {
-//			t.buf = t.buf + i + 1;
-//			t.len = t.len -(i+1);
-//			return t;
-//		}
-//	}
-//	return t;
-//}
-
 /* ------------------------------------------------------------------------ */
 
-knh_bytes_t knh_bytes_trim(knh_bytes_t t /*, knh_intptr_t ch*/)
+knh_bytes_t knh_bytes_trim(knh_bytes_t t)
 {
 	while(isspace(t.buf[0])) {
 		t.buf++;
