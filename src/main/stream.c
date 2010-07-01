@@ -68,20 +68,6 @@ knh_InputStream_t* new_InputStreamDSPI(Ctx *ctx, knh_io_t fd, const knh_StreamDS
 
 /* ------------------------------------------------------------------------ */
 
-//KNHAPI(knh_InputStream_t*) new_InputStream__FILE(Ctx *ctx, knh_String_t *urn, FILE *fp, const knh_StreamDSPI_t *dspi)
-//{
-//	knh_InputStream_t* in = new_(InputStream);
-//	KNH_SETv(ctx, DP(in)->urn, urn);
-//	if(fp != NULL) {
-//		DP(in)->fp = fp;
-//		SP(in)->dspi = dspi;
-//		knh_InputStream_setFILE(in, 1);
-//	}
-//	return in;
-//}
-
-/* ------------------------------------------------------------------------ */
-
 KNHAPI(knh_InputStream_t*) new_BytesInputStream(Ctx *ctx, knh_Bytes_t *ba, size_t s, size_t e)
 {
 	knh_InputStream_t* o = new_(InputStream);
@@ -532,32 +518,6 @@ void knh_write_cap(Ctx *ctx, knh_OutputStream_t *w, knh_bytes_t t)
 	}
 	knh_write(ctx, w, t);
 }
-
-///* ------------------------------------------------------------------------ */
-//
-//void knh_write_type_(Ctx *ctx, knh_OutputStream_t *w, knh_type_t type, int isLongName)
-//{
-//	knh_class_t cid = CLASS_type(type);
-//	DBG_ASSERT_cid(cid);
-//	if(type == TYPE_void) {
-//		knh_write(ctx, w, STEXT("void"));
-//	}
-//	else if(type == TYPE_var) {
-//		knh_write(ctx, w, STEXT("var"));
-//	}
-//	else {
-//		char *cname = (isLongName) ? knh_ClassTable_CLASSN(ctx, cid) : CTXCLASSN(cid);
-//		if(IS_Tunbox(type)) {
-//			knh_putc(ctx, w, tolower(cname[0]));
-//			knh_write_char(ctx, w, cname + 1);
-//			return;
-//		}
-//		knh_write_char(ctx, w, cname);
-//		if(IS_NATYPE(type)) {
-//			knh_putc(ctx, w, '?');
-//		}
-//	}
-//}
 
 /* ======================================================================== */
 /* [String] */

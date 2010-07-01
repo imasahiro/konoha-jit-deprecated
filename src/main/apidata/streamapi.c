@@ -91,23 +91,20 @@ static METHOD InputStream_getChar(Ctx *ctx, knh_sfp_t *sfp, long rix)
 
 static METHOD InputStream_read(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-	
 	knh_Bytes_t *ba = (knh_Bytes_t*)sfp[1].o;
 	knh_bytes_t buf = BA_tobytes(ba);
 	size_t offset = 0;
-	if(IS_Int(sfp[2].o)) {
-		offset = (size_t)sfp[2].ivalue;
-		if(offset > buf.len) {
-			KNH_THROW_OUTOFINDEX(ctx, offset, buf.len);
-		}
-		buf = knh_bytes_last(buf, offset);
+	offset = (size_t)sfp[2].ivalue;
+	if(offset > buf.len) {
+		KNH_THROW_OUTOFINDEX(ctx, offset, buf.len);
 	}
-	if(IS_Int(sfp[3].o)) {
+	buf = knh_bytes_last(buf, offset);
+	if(sfp[3].ivalue != 0) {
 		size_t len = (size_t)sfp[3].ivalue;
 		knh_Bytes_ensureSize(ctx, ba, offset + len);
 		buf.len = len;
 	}
-	RETURNi_(knh_InputStream_read(ctx, sfp[0].in, (char*)buf.buf, buf.len));
+	RETURNi_(knh_InputStream_read(ctx, sfp[0].in, buf.str, buf.len));
 }
 
 /* ------------------------------------------------------------------------ */
