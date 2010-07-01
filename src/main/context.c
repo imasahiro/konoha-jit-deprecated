@@ -171,7 +171,7 @@ static void _syslog(int p, const char *fmt, ...)
 	va_end(ap);
 }
 
-static knh_EbiSPI_t EBISPI = {
+static knh_EvidenceSPI_t EBISPI = {
 	"stderr",
 	_syslog, _vsyslog,
 };

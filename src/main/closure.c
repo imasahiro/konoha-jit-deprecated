@@ -199,7 +199,7 @@ extern "C" {
 //
 //static knh_code_t *knh_KLRCode_yeildingNext(knh_code_t *pc)
 //{
-//	knh_opset_t *op = (knh_opset_t*)pc;
+//	knh_opline_t *op = (knh_opline_t*)pc;
 //	if(op->opcode != OPCODE_NOP) return NULL;
 //	pc += knh_opcode_size(op->opcode);
 //	return pc;
@@ -219,7 +219,7 @@ extern "C" {
 //		size_t stacksize = (cc)->hstacksize[-1];
 //		knh_sfp_copy(ctx, (cc)->envsfp, sfp+1, stacksize);
 //		KNH_CALLGEN(ctx, sfp, 1, mtd, pc, stacksize);  /* args is reset to esp size */
-//		if(((knh_opset_t*)pc)->opcode == OPCODE_YEILDBREAK) {
+//		if(((knh_opline_t*)pc)->opcode == OPCODE_YEILDBREAK) {
 //			ITREND_();
 //		}
 //		DBG_P("stacksize=%d, %d", (int)stacksize, (int)(cc)->hstacksize[-1]);

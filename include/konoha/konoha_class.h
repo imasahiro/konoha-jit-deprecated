@@ -204,7 +204,7 @@ typedef struct {
 	knh_int_t  pos;
 	union {
 		void*   ref;
-		struct knh_opset_t *pc; /* @see(Generator) */
+		struct knh_opline_t *pc; /* @see(Generator) */
 	};
 	knh_Ffree freffree;
 } knh_IteratorEX_t;
@@ -497,7 +497,7 @@ typedef struct knh_Method_t {
 	knh_hObject_t h;
 	knh_MethodEX_t *b;
 	knh_Fmethod fcall_1;
-	struct knh_opset_t *pc_start;
+	struct knh_opline_t *pc_start;
 } knh_Method_t;
 
 #define knh_Method_mn(mtd)    DP(mtd)->mn
@@ -636,9 +636,9 @@ typedef jmp_buf knh_jmpbuf_t;
 
 typedef struct knh_ExceptionHandler_t {
 	knh_hObject_t h;
-	struct knh_opset_t *pc;
+	struct knh_opline_t *pc;
 	knh_ushort_t sfpidx;     knh_ushort_t espidx;
-	struct knh_opset_t *vpc;
+	struct knh_opline_t *vpc;
 	knh_intptr_t vshift;
 } knh_ExceptionHandler_t;
 
@@ -1281,14 +1281,14 @@ typedef struct {
 
 #endif/*K_USING_THREADEDCODE*/
 
-typedef struct knh_opset_t {
+typedef struct knh_opline_t {
 	KCODE_HEAD;
 	union {
 		knh_uintptr_t data[5];
 		void *p[5];
 		knh_uchar_t *u[5];
 	};
-} knh_opset_t;
+} knh_opline_t;
 
 #define DBG_ASSERT_OPCODE(c) \
 	if(((knh_opcode_t)c) >= OPCODE_MAX) {\
@@ -1298,8 +1298,8 @@ typedef struct knh_opset_t {
 
 typedef struct knh_KLRInst_t {
 	knh_hObject_t h;
-	knh_opset_t *op;
-	knh_opset_t *code_pos;
+	knh_opline_t *op;
+	knh_opline_t *code_pos;
 	knh_ushort_t opcode;
 	knh_ushort_t line;
 } knh_KLRInst_t;
@@ -1309,7 +1309,7 @@ typedef struct knh_KLRInst_t {
 
 typedef struct knh_KLRCode_t {
 	knh_hObject_t h;
-	knh_opset_t*  code;
+	knh_opline_t*  code;
 	size_t        codesize;
 	knh_String_t *source;
 	knh_uri_t     uri; knh_uri_t     domain;

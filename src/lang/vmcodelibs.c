@@ -190,141 +190,141 @@ static knh_OPDATA_t OPDATA[] = {
 
 void knh_opcode_check(void)
 {
-	KNH_ASSERT(sizeof(klr_HALT_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_ENTER_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_FUNCCALL_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_THCODE_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_LABEL_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_PROBE_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_VEXEC_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_YEILD_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_EXIT_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_P_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_OSET_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_NSET_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_OMOV_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_NMOV_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_SWAP_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_UNBOX_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_ONMOV_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_OOMOV_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_NNMOV_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_OMOVx_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iMOVx_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_fMOVx_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_bMOVx_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_XMOV_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_XMOVx_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_XOSET_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_XIMOV_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_XFMOV_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_XBMOV_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_CHKSTACK_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_LDMETHOD_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_CALL_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_SCALL_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_VCALL_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_VCALL__t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_RET_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_SCAST_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_TCAST_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_ACAST_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iCAST_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_fCAST_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_TR_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_NUL_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iNUL_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_fNUL_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_JMP_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_JMP__t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_ONCE_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_JMPF_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_DYJMP_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_NEXT_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_TRY_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_THROW_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_CATCH_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_bNOT_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iINC_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iDEC_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iNEG_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iADD_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iSUB_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iMUL_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iDIV_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iMOD_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iEQ_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iNEQ_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iLT_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iLTE_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iGT_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iGTE_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iADDn_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iSUBn_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iDIVn_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iMULn_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iMODn_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iEQn_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iNEQn_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iLTn_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iLTEn_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iGTn_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iGTEn_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_fNEG_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_fADD_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_fSUB_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_fMUL_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_fDIV_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_fEQ_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_fNEQ_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_fLT_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_fLTE_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_fGT_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_fGTE_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_fADDn_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_fSUBn_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_fMULn_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_fDIVn_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_fEQn_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_fNEQn_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_fLTn_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_fLTEn_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_fGTn_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_fGTEn_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_OGETIDX_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_OSETIDX_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_OGETIDXn_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_OSETIDXn_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_NGETIDX_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_NSETIDX_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_NGETIDXn_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_NSETIDXn_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_bJNOT_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iJEQ_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iJNEQ_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iJLT_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iJLTE_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iJGT_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iJGTE_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iJEQn_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iJNEQn_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iJLTn_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iJLTEn_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iJGTn_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_iJGTEn_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_fJEQ_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_fJNEQ_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_fJLT_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_fJLTE_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_fJGT_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_fJGTE_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_fJEQn_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_fJNEQn_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_fJLTn_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_fJLTEn_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_fJGTn_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_fJGTEn_t) <= sizeof(knh_opset_t));
-	KNH_ASSERT(sizeof(klr_NOP_t) <= sizeof(knh_opset_t));
+	KNH_ASSERT(sizeof(klr_HALT_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_ENTER_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_FUNCCALL_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_THCODE_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_LABEL_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_PROBE_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_VEXEC_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_YEILD_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_EXIT_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_P_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_OSET_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_NSET_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_OMOV_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_NMOV_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_SWAP_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_UNBOX_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_ONMOV_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_OOMOV_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_NNMOV_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_OMOVx_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iMOVx_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_fMOVx_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_bMOVx_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_XMOV_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_XMOVx_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_XOSET_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_XIMOV_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_XFMOV_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_XBMOV_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_CHKSTACK_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_LDMETHOD_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_CALL_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_SCALL_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_VCALL_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_VCALL__t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_RET_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_SCAST_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_TCAST_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_ACAST_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iCAST_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_fCAST_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_TR_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_NUL_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iNUL_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_fNUL_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_JMP_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_JMP__t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_ONCE_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_JMPF_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_DYJMP_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_NEXT_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_TRY_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_THROW_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_CATCH_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_bNOT_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iINC_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iDEC_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iNEG_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iADD_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iSUB_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iMUL_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iDIV_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iMOD_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iEQ_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iNEQ_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iLT_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iLTE_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iGT_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iGTE_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iADDn_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iSUBn_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iDIVn_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iMULn_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iMODn_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iEQn_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iNEQn_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iLTn_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iLTEn_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iGTn_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iGTEn_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_fNEG_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_fADD_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_fSUB_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_fMUL_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_fDIV_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_fEQ_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_fNEQ_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_fLT_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_fLTE_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_fGT_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_fGTE_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_fADDn_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_fSUBn_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_fMULn_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_fDIVn_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_fEQn_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_fNEQn_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_fLTn_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_fLTEn_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_fGTn_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_fGTEn_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_OGETIDX_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_OSETIDX_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_OGETIDXn_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_OSETIDXn_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_NGETIDX_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_NSETIDX_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_NGETIDXn_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_NSETIDXn_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_bJNOT_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iJEQ_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iJNEQ_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iJLT_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iJLTE_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iJGT_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iJGTE_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iJEQn_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iJNEQn_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iJLTn_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iJLTEn_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iJGTn_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_iJGTEn_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_fJEQ_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_fJNEQ_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_fJLT_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_fJLTE_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_fJGT_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_fJGTE_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_fJEQn_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_fJNEQn_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_fJLTn_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_fJLTEn_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_fJGTn_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_fJGTEn_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_NOP_t) <= sizeof(knh_opline_t));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -344,7 +344,7 @@ void knh_opcode_stat(Ctx *ctx)
 
 /* ------------------------------------------------------------------------ */
 
-void knh_opcode_count(Ctx *ctx, knh_opset_t *c)
+void knh_opcode_count(Ctx *ctx, knh_opline_t *c)
 {
 	int count = c->count;
 	opcode_count[c->opcode] += count;
@@ -376,7 +376,7 @@ knh_bool_t knh_opcode_hasjump(knh_opcode_t opcode)
 	return (OPDATA[opcode].types[0] == VMT_ADDR);
 }
 /* ------------------------------------------------------------------------ */
-void knh_opcode_traverse(Ctx *ctx, knh_opset_t *c, knh_Ftraverse ftr)
+void knh_opcode_traverse(Ctx *ctx, knh_opline_t *c, knh_Ftraverse ftr)
 {
 	size_t i, size = OPDATA[c->opcode].size;
 	for(i = 0; i < size; i++) {
@@ -387,7 +387,7 @@ void knh_opcode_traverse(Ctx *ctx, knh_opset_t *c, knh_Ftraverse ftr)
 	}
 }
 /* ------------------------------------------------------------------------ */
-void knh_opcode_dump(Ctx *ctx, knh_opset_t *c, knh_OutputStream_t *w, knh_opset_t *pc_start)
+void knh_opcode_dump(Ctx *ctx, knh_opline_t *c, knh_OutputStream_t *w, knh_opline_t *pc_start)
 {
 	size_t i, size = OPDATA[c->opcode].size;
 	knh_ushort_t *vmt = OPDATA[c->opcode].types;
@@ -406,7 +406,7 @@ void knh_opcode_dump(Ctx *ctx, knh_opset_t *c, knh_OutputStream_t *w, knh_opset_
 				knh_printf(ctx, w, "%p", c->p[i]); break;
 			}
 			else {
-				knh_printf(ctx, w, "L%d", (knh_opset_t*)c->p[i] - pc_start); break;
+				knh_printf(ctx, w, "L%d", (knh_opline_t*)c->p[i] - pc_start); break;
 			}
 		case VMT_SFPIDX:
 			knh_printf(ctx, w, "sfp[%d]", c->data[i]); break;
@@ -443,7 +443,7 @@ void knh_opcode_dump(Ctx *ctx, knh_opset_t *c, knh_OutputStream_t *w, knh_opset_
 }
 
 /* ------------------------------------------------------------------------ */
-void knh_opcode_idxshift(knh_opset_t *c, int idxshift)
+void knh_opcode_idxshift(knh_opline_t *c, int idxshift)
 {
 	size_t i, size = OPDATA[c->opcode].size;
 	knh_ushort_t *vmt = OPDATA[c->opcode].types;
@@ -484,7 +484,7 @@ void knh_opcode_idxshift(knh_opset_t *c, int idxshift)
 #define GOTO_PC(pc)         goto L_HEAD;
 #endif/*K_USING_THREADEDCODE*/
 
-knh_opset_t* knh_VirtualMachine_run(Ctx *ctx, knh_sfp_t *sfp, knh_opset_t *pc)
+knh_opline_t* knh_VirtualMachine_run(Ctx *ctx, knh_sfp_t *sfp, knh_opline_t *pc)
 {
 #ifdef K_USING_THREADEDCODE
 	static void *OPJUMP[] = {
@@ -525,7 +525,7 @@ knh_opset_t* knh_VirtualMachine_run(Ctx *ctx, knh_sfp_t *sfp, knh_opset_t *pc)
 	};
 #endif
 	knh_intptr_t vshift = 0;
-	knh_opset_t* vpc = NULL;
+	knh_opline_t* vpc = NULL;
 	DISPATCH_START(pc);
 
 	CASE(HALT) {

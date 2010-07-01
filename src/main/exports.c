@@ -423,7 +423,7 @@ static void knh_setShellSPI(Ctx *ctx, const knh_ShellSPI_t *spi, int isOVERRIDE)
 	((knh_share_t*)ctx->share)->shellSPI = spi;
 }
 
-static void knh_setEbiSPI(Ctx *ctx, const knh_EbiSPI_t *spi, int isOVERRIDE)
+static void knh_setEbiSPI(Ctx *ctx, const knh_EvidenceSPI_t *spi, int isOVERRIDE)
 {
 	KNH_SYSLOG(ctx, LOG_NOTICE, "LoadedEvidenceSPI", "*name=%s", spi->name);
 	((knh_share_t*)ctx->share)->ebiSPI = spi;

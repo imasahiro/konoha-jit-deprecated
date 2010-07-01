@@ -113,10 +113,6 @@ typedef struct knh_PathDSPI_t {
 	knh_ushort_t cid;
 	knh_bool_t (*exists)(Ctx *, knh_bytes_t, knh_intptr_t *);
 	Object* (*newObjectNULL)(Ctx *, knh_class_t, knh_String_t *s);
-//	union {
-//		struct knh_StreamDSPI_t    *streamDSPI;
-//		struct knh_ConverterDSPI_t *convDSPI;
-//	};
 } knh_PathDSPI_t;
 
 /* ------------------------------------------------------------------------ */
@@ -227,11 +223,20 @@ typedef struct knh_RegexSPI_t {
 /* ------------------------------------------------------------------------ */
 /* EBI_SPI */
 
-typedef struct knh_EbiSPI_t {
+typedef struct knh_EvidenceSPI_t {
 	char *name;
 	void (*syslog)(int, const char *, ...);
 	void (*vsyslog)(int, const char *, va_list);
-} knh_EbiSPI_t;
+} knh_EvidenceSPI_t;
+
+/* ------------------------------------------------------------------------ */
+/* JIT_SPI */
+
+typedef struct knh_CompilerSPI_t {
+	char *name;
+	knh_bool_t (*canCompile)(Ctx *ctx, knh_opline_t* line);
+	knh_Fmethod (*compile)(Ctx *ctx, knh_opline_t* line);
+} knh_CompilerSPI_t;
 
 /* ------------------------------------------------------------------------ */
 /* ConstData  */
@@ -281,7 +286,7 @@ typedef struct knh_PackageLoaderAPI_t {
 	void (*loadStringData)(Ctx *, knh_StringData_t *);
 	void (*setRegexSPI)(Ctx *, const knh_RegexSPI_t *);
 	void (*setShellSPI)(Ctx *, const knh_ShellSPI_t *, int);
-	void (*setEvidenceSPI)(Ctx *, const knh_EbiSPI_t *, int);
+	void (*setEvidenceSPI)(Ctx *, const knh_EvidenceSPI_t *, int);
 	void (*addPathDSPI)(Ctx *, char*, const knh_PathDSPI_t *, int);
 	void (*addStreamDSPI)(Ctx *, char*, const knh_StreamDSPI_t *, int);
 	void (*addQueryDSPI)(Ctx *, char *, const knh_QueryDSPI_t *, int);

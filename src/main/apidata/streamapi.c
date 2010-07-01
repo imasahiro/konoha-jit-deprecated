@@ -39,7 +39,6 @@ extern "C" {
 
 #ifdef K_USING_DEFAULTAPI
 
-
 /* ------------------------------------------------------------------------ */
 //## method InputStream InputStream.new(String urn, String mode);
 
@@ -82,7 +81,6 @@ static METHOD InputStream_new(Ctx *ctx, knh_sfp_t *sfp, long rix)
 
 static METHOD InputStream_getChar(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-	
 	RETURNi_(knh_InputStream_getc(ctx, sfp[0].in));
 }
 
@@ -146,7 +144,6 @@ static METHOD InputStream_readLine(Ctx *ctx, knh_sfp_t *sfp, long rix)
 //
 //static METHOD InputStream_readData(Ctx *ctx, knh_sfp_t *sfp, long rix)
 //{
-//	
 //	Object *v = knh_InputStream_readData(ctx, sfp[0].in);
 //	RETURN_(v);
 //}
@@ -322,7 +319,6 @@ static METHOD OutputStream_opSEND(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	RETURNvoid_();
 }
 
-
 /* ------------------------------------------------------------------------ */
 //## method void OutputStream.println(Any value, ...);
 
@@ -390,80 +386,6 @@ static METHOD OutputStream_setCharaset(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	knh_OutputStream_setCharset(ctx, sfp[0].w, (knh_StringEncoder_t*)sfp[1].s);
 	RETURN_(sfp[1].o);
 }
-
-/* ======================================================================== */
-/* [Channel] */
-
-///* ------------------------------------------------------------------------ */
-////## method Channel! Channel.new(String host, Int port);
-//
-//static METHOD Channel_new(Ctx *ctx, knh_sfp_t *sfp, long rix)
-//{
-//
-//	knh_Channel_t *so = (knh_Channel_t*)sfp[0].o;
-//	knh_bytes_t urn = S_tobytes(sfp[1].s);
-//	char *ip_or_host = NULL;
-//	if(knh_bytes_startsWith(urn, STEXT("Channel:"))) {
-//		ip_or_host = (char*)(knh_bytes_last(urn, 7)).buf;
-//	}
-//	else if(knh_bytes_startsWith(urn, STEXT("ip:"))) {
-//		ip_or_host = (char*)(knh_bytes_last(urn, 3)).buf;
-//	}
-//	else {
-//		ip_or_host = (char*)urn.buf;
-//	}
-//	KNH_SETv(ctx, DP(so)->urn, sfp[1].o);
-//	DP(so)->port = (int)sfp[2].ivalue;
-//	DP(so)->sd = knh_socket_open(ctx, ip_or_host, DP(so)->port, knh_Context_isStrict(ctx));
-//	if(DP(so)->sd != -1) {
-//		KNH_SETv(ctx, DP(so)->in,  new_InputStream__io(ctx, DP(so)->urn, (knh_io_t)DP(so)->sd, knh_getChannelDriver()));
-//		KNH_SETv(ctx, DP(so)->out, new_OutputStream__io(ctx, DP(so)->urn, (knh_io_t)DP(so)->sd, knh_getChannelDriver()));
-//	}
-//	RETURN_(sfp[0].o);
-//}
-//
-///* ------------------------------------------------------------------------ */
-////## method InputStream Channel.getInputStream();
-//
-//static METHOD Channel_getInputStream(Ctx *ctx, knh_sfp_t *sfp, long rix)
-//{
-//
-//	knh_Channel_t *so = (knh_Channel_t*)sfp[0].o;
-//	RETURN_(DP(so)->in);
-//}
-//
-///* ------------------------------------------------------------------------ */
-////## method OutputStream Channel.getOutputStream();
-//
-//static METHOD Channel_getOutputStream(Ctx *ctx, knh_sfp_t *sfp, long rix)
-//{
-//
-//	knh_Channel_t *so = (knh_Channel_t*)sfp[0].o;
-//	RETURN_(DP(so)->out);
-//}
-//
-///* ------------------------------------------------------------------------ */
-////## method void Channel.close();
-//
-//static METHOD Channel_close(Ctx *ctx, knh_sfp_t *sfp, long rix)
-//{
-//	knh_Channel_t *so = (knh_Channel_t*)sfp[0].o;
-//	if(DP(so)->sd != -1) {
-//		knh_InputStream_close(ctx, DP(so)->in);
-//		knh_OutputStream_close(ctx, DP(so)->out);
-//		knh_Channel_close(ctx, DP(so)->sd);
-//		DP(so)->sd = -1;
-//	}
-//}
-//
-///* ------------------------------------------------------------------------ */
-////## method Boolean Channel.isClosed();
-//
-//static METHOD Channel_isClosed(Ctx *ctx, knh_sfp_t *sfp, long rix)
-//{
-//	knh_Channel_t *so = (knh_Channel_t*)sfp[0].o;
-//	RETURNb_((DP(so)->sd == -1));
-//}
 
 /* ------------------------------------------------------------------------ */
 

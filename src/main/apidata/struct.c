@@ -2118,8 +2118,8 @@ static knh_ObjectCSPI_t GammaSPI = {
 static FASTAPI(void) knh_KLRInst_init(Ctx *ctx, Object *o)
 {
 	knh_KLRInst_t *inst = (knh_KLRInst_t*)o;
-	inst->op = (knh_opset_t*)KNH_MALLOC(ctx, sizeof(knh_opset_t));
-	knh_bzero(inst->op, sizeof(knh_opset_t));
+	inst->op = (knh_opline_t*)KNH_MALLOC(ctx, sizeof(knh_opline_t));
+	knh_bzero(inst->op, sizeof(knh_opline_t));
 	inst->line   = 0;
 	inst->code_pos = NULL;
 }
@@ -2134,7 +2134,7 @@ static FASTAPI(void) knh_KLRInst_traverse(Ctx *ctx, Object *o, knh_Ftraverse ftr
 static FASTAPI(void) knh_KLRInst_free(Ctx *ctx, Object *o)
 {
 	knh_KLRInst_t *inst = (knh_KLRInst_t*)o;
-	KNH_FREE(ctx, inst->op, sizeof(knh_opset_t));
+	KNH_FREE(ctx, inst->op, sizeof(knh_opline_t));
 }
 
 static knh_ObjectCSPI_t KLRInstSPI = {
@@ -2160,7 +2160,7 @@ static FASTAPI(void) knh_KLRCode_init(Ctx *ctx, Object *o)
 static FASTAPI(void) knh_KLRCode_traverse(Ctx *ctx, Object *o, knh_Ftraverse ftr)
 {
 	knh_KLRCode_t *b = (knh_KLRCode_t*)o;
-	knh_opset_t *pc = b->code;
+	knh_opline_t *pc = b->code;
 	KNH_FTR(ctx, ftr, b->source);
 	while(pc->opcode != OPCODE_RET) {
 		knh_opcode_traverse(ctx, pc, ftr);
@@ -2172,7 +2172,7 @@ static FASTAPI(void) knh_KLRCode_free(Ctx *ctx, Object *o)
 {
 	knh_KLRCode_t *b = (knh_KLRCode_t*)o;
 #ifdef K_USING_VMCOUNT
-	knh_opset_t *pc = b->code;
+	knh_opline_t *pc = b->code;
 	while(pc->opcode != OPCODE_RET) {
 		knh_opcode_count(ctx, pc);
 		pc++;

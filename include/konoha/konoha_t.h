@@ -525,7 +525,7 @@ typedef struct knh_sfp_t {
 		knh_float_t   fvalue;
 		knh_uint64_t  data;
 		knh_uintptr_t shift;
-		struct knh_opset_t  * pc;
+		struct knh_opline_t  * pc;
 		struct knh_Method_t * callmtd;
 		struct knh_Translator_t * casttrl;
 	};
@@ -806,15 +806,15 @@ typedef struct {
 	struct knh_Context_t     *ctx0;
 	struct knh_NameSpace_t   *mainns;
 	struct knh_Script_t      *script;
-	struct knh_opset_t *PC_LAUNCH;
-	struct knh_opset_t *PC_FUNCCALL;
-	struct knh_opset_t *PC_VEXEC;
-	struct knh_opset_t *PC_ABSTRACT;
+	struct knh_opline_t *PC_LAUNCH;
+	struct knh_opline_t *PC_FUNCCALL;
+	struct knh_opline_t *PC_VEXEC;
+	struct knh_opline_t *PC_ABSTRACT;
 
 	/* spi */
 	const struct knh_ShellSPI_t       *shellSPI;
 	const struct knh_ConverterDSPI_t  *iconvDSPI;
-	const struct knh_EbiSPI_t  *ebiSPI;
+	const struct knh_EvidenceSPI_t  *ebiSPI;
 
 	/* thread */
 	size_t              contextCounter;

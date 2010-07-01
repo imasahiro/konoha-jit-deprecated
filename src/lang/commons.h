@@ -178,7 +178,7 @@ void TestToken(Ctx *ctx);
 
 #define KNH_ASM(T, ...) { \
 		klr_##T##_t op_ = {TADDR OPCODE_##T ASMLINE, ## __VA_ARGS__}; \
-		knh_asmop(ctx, (knh_opset_t*)(&op_), sizeof(klr_##T##_t)); \
+		knh_asmop(ctx, (knh_opline_t*)(&op_), sizeof(klr_##T##_t)); \
 	}\
 
 /* ------------------------------------------------------------------------ */

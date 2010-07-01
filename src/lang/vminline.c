@@ -35,7 +35,7 @@ extern "C" {
 #ifdef K_USING_VMINLINE
 
 
-static void knh_code_thread(Ctx *ctx, knh_opset_t *pc, void **codeaddr)
+static void knh_code_thread(Ctx *ctx, knh_opline_t *pc, void **codeaddr)
 {
 #ifdef K_USING_THREADEDCODE
 	while(1) {

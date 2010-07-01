@@ -143,7 +143,7 @@ static void knh_setVerboseMode(Ctx *ctx, int mode, const char *optstr)
 		KNH_ASSERT(sizeof(knh_int_t) <= sizeof(knh_float_t));
 		KNH_SYSLOG(ctx, LOG_DEBUG, "Memory", "*sizeof(knh_sfp_t)=%d, sizeof(Ctx)=%d", sizeof(knh_sfp_t), sizeof(knh_Context_t));
 		KNH_SYSLOG(ctx, LOG_DEBUG, "Memory", "*sizeof(Object)=%d FASTMALLOC=%d", sizeof(knh_Object_t), K_FASTMALLOC_SIZE);
-		KNH_SYSLOG(ctx, LOG_DEBUG, "Memory", "*sizeof(knh_opset_t)=%d FASTMALLOC=%d", sizeof(knh_opset_t), K_FASTMALLOC_SIZE);
+		KNH_SYSLOG(ctx, LOG_DEBUG, "Memory", "*sizeof(knh_opline_t)=%d FASTMALLOC=%d", sizeof(knh_opline_t), K_FASTMALLOC_SIZE);
 	}
 	else {
 		knh_Context_setVerbose(ctx, 1);

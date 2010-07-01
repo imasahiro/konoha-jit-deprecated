@@ -324,7 +324,7 @@ typedef struct klr_JMP_t {
 	KCODE_HEAD;
 	union {
 		knh_KLRInst_t* lb; /* label*/
-		knh_opset_t  *jumppc;
+		knh_opline_t  *jumppc;
 	}; 
 } klr_JMP_t;
 
@@ -333,7 +333,7 @@ typedef struct klr_JMP__t {
 	KCODE_HEAD;
 	union {
 		knh_KLRInst_t* lb; /* label*/
-		knh_opset_t  *jumppc;
+		knh_opline_t  *jumppc;
 	}; 
 } klr_JMP__t;
 
@@ -342,7 +342,7 @@ typedef struct klr_ONCE_t {
 	KCODE_HEAD;
 	union {
 		knh_KLRInst_t* lb; /* label*/
-		knh_opset_t  *jumppc;
+		knh_opline_t  *jumppc;
 	}; 
 } klr_ONCE_t;
 
@@ -351,7 +351,7 @@ typedef struct klr_JMPF_t {
 	KCODE_HEAD;
 	union {
 		knh_KLRInst_t* lb; /* label*/
-		knh_opset_t  *jumppc;
+		knh_opline_t  *jumppc;
 	}; 
 	knh_sfpidx_t a;
 } klr_JMPF_t;
@@ -361,7 +361,7 @@ typedef struct klr_DYJMP_t {
 	KCODE_HEAD;
 	union {
 		knh_KLRInst_t* lb; /* label*/
-		knh_opset_t  *jumppc;
+		knh_opline_t  *jumppc;
 	}; 
 	knh_sfpidx_t a;
 	klr_Fchk chk;
@@ -372,7 +372,7 @@ typedef struct klr_NEXT_t {
 	KCODE_HEAD;
 	union {
 		knh_KLRInst_t* lb; /* label*/
-		knh_opset_t  *jumppc;
+		knh_opline_t  *jumppc;
 	}; 
 	knh_sfpidx_t a;
 	knh_sfpidx_t b;
@@ -383,7 +383,7 @@ typedef struct klr_TRY_t {
 	KCODE_HEAD;
 	union {
 		knh_KLRInst_t* lb; /* label*/
-		knh_opset_t  *jumppc;
+		knh_opline_t  *jumppc;
 	}; 
 	knh_sfpidx_t hn;
 } klr_TRY_t;
@@ -399,7 +399,7 @@ typedef struct klr_CATCH_t {
 	KCODE_HEAD;
 	union {
 		knh_KLRInst_t* lb; /* label*/
-		knh_opset_t  *jumppc;
+		knh_opline_t  *jumppc;
 	}; 
 	knh_sfpidx_t en;
 	knh_String_t* msg;
@@ -847,7 +847,7 @@ typedef struct klr_bJNOT_t {
 	KCODE_HEAD;
 	union {
 		knh_KLRInst_t* lb; /* label*/
-		knh_opset_t  *jumppc;
+		knh_opline_t  *jumppc;
 	}; 
 	knh_sfpidx_t a;
 } klr_bJNOT_t;
@@ -857,7 +857,7 @@ typedef struct klr_iJEQ_t {
 	KCODE_HEAD;
 	union {
 		knh_KLRInst_t* lb; /* label*/
-		knh_opset_t  *jumppc;
+		knh_opline_t  *jumppc;
 	}; 
 	knh_sfpidx_t a;
 	knh_sfpidx_t b;
@@ -868,7 +868,7 @@ typedef struct klr_iJNEQ_t {
 	KCODE_HEAD;
 	union {
 		knh_KLRInst_t* lb; /* label*/
-		knh_opset_t  *jumppc;
+		knh_opline_t  *jumppc;
 	}; 
 	knh_sfpidx_t a;
 	knh_sfpidx_t b;
@@ -879,7 +879,7 @@ typedef struct klr_iJLT_t {
 	KCODE_HEAD;
 	union {
 		knh_KLRInst_t* lb; /* label*/
-		knh_opset_t  *jumppc;
+		knh_opline_t  *jumppc;
 	}; 
 	knh_sfpidx_t a;
 	knh_sfpidx_t b;
@@ -890,7 +890,7 @@ typedef struct klr_iJLTE_t {
 	KCODE_HEAD;
 	union {
 		knh_KLRInst_t* lb; /* label*/
-		knh_opset_t  *jumppc;
+		knh_opline_t  *jumppc;
 	}; 
 	knh_sfpidx_t a;
 	knh_sfpidx_t b;
@@ -901,7 +901,7 @@ typedef struct klr_iJGT_t {
 	KCODE_HEAD;
 	union {
 		knh_KLRInst_t* lb; /* label*/
-		knh_opset_t  *jumppc;
+		knh_opline_t  *jumppc;
 	}; 
 	knh_sfpidx_t a;
 	knh_sfpidx_t b;
@@ -912,7 +912,7 @@ typedef struct klr_iJGTE_t {
 	KCODE_HEAD;
 	union {
 		knh_KLRInst_t* lb; /* label*/
-		knh_opset_t  *jumppc;
+		knh_opline_t  *jumppc;
 	}; 
 	knh_sfpidx_t a;
 	knh_sfpidx_t b;
@@ -923,7 +923,7 @@ typedef struct klr_iJEQn_t {
 	KCODE_HEAD;
 	union {
 		knh_KLRInst_t* lb; /* label*/
-		knh_opset_t  *jumppc;
+		knh_opline_t  *jumppc;
 	}; 
 	knh_sfpidx_t a;
 	knh_int_t n;
@@ -934,7 +934,7 @@ typedef struct klr_iJNEQn_t {
 	KCODE_HEAD;
 	union {
 		knh_KLRInst_t* lb; /* label*/
-		knh_opset_t  *jumppc;
+		knh_opline_t  *jumppc;
 	}; 
 	knh_sfpidx_t a;
 	knh_int_t n;
@@ -945,7 +945,7 @@ typedef struct klr_iJLTn_t {
 	KCODE_HEAD;
 	union {
 		knh_KLRInst_t* lb; /* label*/
-		knh_opset_t  *jumppc;
+		knh_opline_t  *jumppc;
 	}; 
 	knh_sfpidx_t a;
 	knh_int_t n;
@@ -956,7 +956,7 @@ typedef struct klr_iJLTEn_t {
 	KCODE_HEAD;
 	union {
 		knh_KLRInst_t* lb; /* label*/
-		knh_opset_t  *jumppc;
+		knh_opline_t  *jumppc;
 	}; 
 	knh_sfpidx_t a;
 	knh_int_t n;
@@ -967,7 +967,7 @@ typedef struct klr_iJGTn_t {
 	KCODE_HEAD;
 	union {
 		knh_KLRInst_t* lb; /* label*/
-		knh_opset_t  *jumppc;
+		knh_opline_t  *jumppc;
 	}; 
 	knh_sfpidx_t a;
 	knh_int_t n;
@@ -978,7 +978,7 @@ typedef struct klr_iJGTEn_t {
 	KCODE_HEAD;
 	union {
 		knh_KLRInst_t* lb; /* label*/
-		knh_opset_t  *jumppc;
+		knh_opline_t  *jumppc;
 	}; 
 	knh_sfpidx_t a;
 	knh_int_t n;
@@ -989,7 +989,7 @@ typedef struct klr_fJEQ_t {
 	KCODE_HEAD;
 	union {
 		knh_KLRInst_t* lb; /* label*/
-		knh_opset_t  *jumppc;
+		knh_opline_t  *jumppc;
 	}; 
 	knh_sfpidx_t a;
 	knh_sfpidx_t b;
@@ -1000,7 +1000,7 @@ typedef struct klr_fJNEQ_t {
 	KCODE_HEAD;
 	union {
 		knh_KLRInst_t* lb; /* label*/
-		knh_opset_t  *jumppc;
+		knh_opline_t  *jumppc;
 	}; 
 	knh_sfpidx_t a;
 	knh_sfpidx_t b;
@@ -1011,7 +1011,7 @@ typedef struct klr_fJLT_t {
 	KCODE_HEAD;
 	union {
 		knh_KLRInst_t* lb; /* label*/
-		knh_opset_t  *jumppc;
+		knh_opline_t  *jumppc;
 	}; 
 	knh_sfpidx_t a;
 	knh_sfpidx_t b;
@@ -1022,7 +1022,7 @@ typedef struct klr_fJLTE_t {
 	KCODE_HEAD;
 	union {
 		knh_KLRInst_t* lb; /* label*/
-		knh_opset_t  *jumppc;
+		knh_opline_t  *jumppc;
 	}; 
 	knh_sfpidx_t a;
 	knh_sfpidx_t b;
@@ -1033,7 +1033,7 @@ typedef struct klr_fJGT_t {
 	KCODE_HEAD;
 	union {
 		knh_KLRInst_t* lb; /* label*/
-		knh_opset_t  *jumppc;
+		knh_opline_t  *jumppc;
 	}; 
 	knh_sfpidx_t a;
 	knh_sfpidx_t b;
@@ -1044,7 +1044,7 @@ typedef struct klr_fJGTE_t {
 	KCODE_HEAD;
 	union {
 		knh_KLRInst_t* lb; /* label*/
-		knh_opset_t  *jumppc;
+		knh_opline_t  *jumppc;
 	}; 
 	knh_sfpidx_t a;
 	knh_sfpidx_t b;
@@ -1055,7 +1055,7 @@ typedef struct klr_fJEQn_t {
 	KCODE_HEAD;
 	union {
 		knh_KLRInst_t* lb; /* label*/
-		knh_opset_t  *jumppc;
+		knh_opline_t  *jumppc;
 	}; 
 	knh_sfpidx_t a;
 	knh_float_t n;
@@ -1066,7 +1066,7 @@ typedef struct klr_fJNEQn_t {
 	KCODE_HEAD;
 	union {
 		knh_KLRInst_t* lb; /* label*/
-		knh_opset_t  *jumppc;
+		knh_opline_t  *jumppc;
 	}; 
 	knh_sfpidx_t a;
 	knh_float_t n;
@@ -1077,7 +1077,7 @@ typedef struct klr_fJLTn_t {
 	KCODE_HEAD;
 	union {
 		knh_KLRInst_t* lb; /* label*/
-		knh_opset_t  *jumppc;
+		knh_opline_t  *jumppc;
 	}; 
 	knh_sfpidx_t a;
 	knh_float_t n;
@@ -1088,7 +1088,7 @@ typedef struct klr_fJLTEn_t {
 	KCODE_HEAD;
 	union {
 		knh_KLRInst_t* lb; /* label*/
-		knh_opset_t  *jumppc;
+		knh_opline_t  *jumppc;
 	}; 
 	knh_sfpidx_t a;
 	knh_float_t n;
@@ -1099,7 +1099,7 @@ typedef struct klr_fJGTn_t {
 	KCODE_HEAD;
 	union {
 		knh_KLRInst_t* lb; /* label*/
-		knh_opset_t  *jumppc;
+		knh_opline_t  *jumppc;
 	}; 
 	knh_sfpidx_t a;
 	knh_float_t n;
@@ -1110,7 +1110,7 @@ typedef struct klr_fJGTEn_t {
 	KCODE_HEAD;
 	union {
 		knh_KLRInst_t* lb; /* label*/
-		knh_opset_t  *jumppc;
+		knh_opline_t  *jumppc;
 	}; 
 	knh_sfpidx_t a;
 	knh_float_t n;

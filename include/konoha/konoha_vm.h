@@ -60,7 +60,7 @@ extern "C" {
 		KNH_THROW__T(ctx, "Arithmetic!!: Zero Divided"); \
 	}\
 
-int knh_Method_pcline(knh_Method_t *mtd, knh_opset_t *pc);
+int knh_Method_pcline(knh_Method_t *mtd, knh_opline_t *pc);
 #define _HERE_    knh_Method_file(ctx, sfp[K_MTDIDX].callmtd), knh_Method_pcline(sfp[K_MTDIDX].callmtd, pc-1)
 
 #define klr_throw__T(ctx, s) \
@@ -268,7 +268,7 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_opset_t *pc);
 
 #define KLR2_JMP_(ctx, PC, JUMP)   KLR_RET(ctx)
 
-knh_opset_t* knh_VirtualMachine_run(Ctx *, knh_sfp_t *, knh_opset_t *);
+knh_opline_t* knh_VirtualMachine_run(Ctx *, knh_sfp_t *, knh_opline_t *);
 METHOD knh_Fmethod_runVM(Ctx *ctx, knh_sfp_t *sfp, long rix);
 #define knh_Method_isKLRCode(mtd) ((mtd)->fcall_1 == knh_Fmethod_runVM)
 
@@ -348,7 +348,7 @@ typedef KLRAPI(knh_Method_t*) (*klr_Fmethod)(Ctx *, knh_sfp_t *, int, knh_Method
 	} \
 
 #define KLR0_FUNCCALL(ctx) { \
-		knh_opset_t *pc2 = sfp[K_PCIDX].pc;\
+		knh_opline_t *pc2 = sfp[K_PCIDX].pc;\
 		klr_ncall(ctx, (sfp[K_MTDIDX].callmtd)->fcall_1, 0, K_RTNIDX);\
 		pc = pc2; \
 		GOTO_PC(pc);\
@@ -526,7 +526,7 @@ struct klr_P_t;
 typedef KLRAPI(void) (*klr_Fprint)(Ctx *, knh_sfp_t*, struct klr_P_t*);
 #define KLR_P(ctx, fprint, flag, msg, fmt, n) fprint(ctx, sfp, op)
 
-typedef KLRAPI(void) (*klr_Fprobe)(Ctx *, knh_sfp_t*, knh_sfpidx_t n, knh_opset_t *pc);
+typedef KLRAPI(void) (*klr_Fprobe)(Ctx *, knh_sfp_t*, knh_sfpidx_t n, knh_opline_t *pc);
 
 #define KLR0_PROBE(ctx, fprobe, n) { \
 		fprobe(ctx, sfp, n, pc-1);\

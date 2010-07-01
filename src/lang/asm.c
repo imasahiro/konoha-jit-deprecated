@@ -52,7 +52,7 @@ extern "C" {
 static int knh_Gamma_inTry(Ctx *ctx);
 static knh_KLRInst_t *new_KLRInstLABEL(Ctx *ctx);
 static void TERMs_asm(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_type_t reqt, int local);
-static void knh_asmop(Ctx *ctx, knh_opset_t *op, size_t opsize);
+static void knh_asmop(Ctx *ctx, knh_opline_t *op, size_t opsize);
 static void knh_Stmt_asmBLOCK(Ctx *ctx, knh_Stmt_t *stmtH, knh_type_t reqt);
 
 #if defined(K_USING_RCGC)
@@ -62,7 +62,7 @@ static void knh_ftraverse_inc(Ctx* ctx, Object *o)
 }
 #endif
 
-static knh_KLRInst_t* new_KLRInst(Ctx *ctx, knh_opset_t *pc, size_t opsize)
+static knh_KLRInst_t* new_KLRInst(Ctx *ctx, knh_opline_t *pc, size_t opsize)
 {
 	knh_KLRInst_t *inst = new_(KLRInst);
 	knh_memcpy(inst->op, pc, opsize);
@@ -223,15 +223,15 @@ static knh_KLRCode_t* new_KLRCode(Ctx *ctx, knh_Array_t *ia)
 			}
 		}
 		if(inst->opcode == OPCODE_NOP) continue;
-		codesize += sizeof(knh_opset_t);
+		codesize += sizeof(knh_opline_t);
 	}
 	{
 		knh_KLRCode_t *kcode = new_(KLRCode);
-		knh_opset_t *pc, *pc_last = NULL;
+		knh_opline_t *pc, *pc_last = NULL;
 		int isCHKSTACK = 0;
 		SP(kcode)->uri = SP(ctx->gma)->uri;
 		SP(kcode)->codesize = codesize;
-		SP(kcode)->code = (knh_opset_t*)KNH_MALLOC(ctx, SP(kcode)->codesize);
+		SP(kcode)->code = (knh_opline_t*)KNH_MALLOC(ctx, SP(kcode)->codesize);
 		pc = SP(kcode)->code;
 		for(i = 0; i < inst_size; i++) {
 			inst = knh_KLRINSTs_n(ia, i);
@@ -267,7 +267,7 @@ static knh_KLRCode_t* new_KLRCode(Ctx *ctx, knh_Array_t *ia)
 			if(isCHKSTACK == 1 && inst->opcode == OPCODE_VCALL) {
 				inst->op->opcode = OPCODE_VCALL_;
 			}
-			knh_memcpy(pc, inst->op, sizeof(knh_opset_t));
+			knh_memcpy(pc, inst->op, sizeof(knh_opline_t));
 			knh_opcode_traverse(ctx, pc, knh_ftraverse_inc);
 			pc += 1;
 			if(inst->opcode == OPCODE_CALL || inst->opcode == OPCODE_VCALL) {
@@ -325,7 +325,7 @@ static void knh_Gamma_compile(Ctx *ctx)
 /* ------------------------------------------------------------------------ */
 /* [ASM] */
 
-static void knh_asmop(Ctx *ctx, knh_opset_t *op, size_t opsize)
+static void knh_asmop(Ctx *ctx, knh_opline_t *op, size_t opsize)
 {
 	size_t n = knh_Array_size(DP(ctx->gma)->insts);
 	if(n > 0) {
@@ -369,7 +369,7 @@ static void knh_asmop(Ctx *ctx, knh_opset_t *op, size_t opsize)
 			return;
 		}
 		if((instP)->opcode == op->opcode && op->opcode != OPCODE_LABEL) {
-			knh_opset_t *opP = instP->op;
+			knh_opline_t *opP = instP->op;
 			size_t i, size = knh_opcode_size(op->opcode);
 			for(i = 0; i < size; i++) {
 				if(opP->data[i] != op->data[i]) goto L_OK;
@@ -395,7 +395,7 @@ static void knh_asmop(Ctx *ctx, knh_opset_t *op, size_t opsize)
 #endif/*OPCODE_iDEC*/
 #ifdef OPCODE_iJEQ
 		if(op->opcode == OPCODE_JMPF) {
-			knh_opset_t *opP = instP->op;
+			knh_opline_t *opP = instP->op;
 			if(OPCODE_iEQ <= opP->opcode && opP->opcode <= OPCODE_iGTE) {
 				klr_iJEQ_t *opN = (klr_iJEQ_t*)opP;
 				knh_sfpidx_t a = ((klr_iEQ_t*)opP)->a;
@@ -751,7 +751,7 @@ static void KNH_ASM_MOV(Ctx *ctx, knh_Token_t *tka, knh_Token_t *tkb)
 static knh_KLRInst_t* new_KLRInstLABEL(Ctx *ctx)
 {
 	klr_LABEL_t op_ = {TADDR OPCODE_LABEL ASMLINE, 0, TS_EMPTY};
-	return new_KLRInst(ctx, (knh_opset_t*)(&op_), sizeof(klr_LABEL_t));
+	return new_KLRInst(ctx, (knh_opline_t*)(&op_), sizeof(klr_LABEL_t));
 }
 
 static void KNH_ASM_LABEL(Ctx *ctx, knh_KLRInst_t* label)
@@ -988,13 +988,13 @@ static int knh_StmtOP_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpid
 			}
 			opcode = knh_opcode_shiftCONST(opcode, mn);
 			klr_iADDn_t op = {TADDR opcode ASMLINE, (sfpidx), a, b};
-			knh_asmop(ctx, (knh_opset_t*)(&op), sizeof(klr_iADDn_t));
+			knh_asmop(ctx, (knh_opline_t*)(&op), sizeof(klr_iADDn_t));
 		}
 		else {
 			int a = TERMs_put(ctx, stmt, 1, TYPE_Int, local + 1);
 			int b = TERMs_put(ctx, stmt, 2, TYPE_Int, local + 2);
 			klr_iADD_t op = {TADDR opcode ASMLINE, (sfpidx), a, b};
-			knh_asmop(ctx, (knh_opset_t*)(&op), sizeof(klr_iADD_t));
+			knh_asmop(ctx, (knh_opline_t*)(&op), sizeof(klr_iADD_t));
 		}
 		return 1;
 	} /* CLASS_Int */
@@ -1015,13 +1015,13 @@ static int knh_StmtOP_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpid
 			}
 			opcode = knh_opcode_shiftCONST(opcode, mn);
 			klr_fADDn_t op = {TADDR opcode ASMLINE, (sfpidx), a, b};
-			knh_asmop(ctx, (knh_opset_t*)(&op), sizeof(klr_fADDn_t));
+			knh_asmop(ctx, (knh_opline_t*)(&op), sizeof(klr_fADDn_t));
 		}
 		else {
 			int a = TERMs_put(ctx, stmt, 1, TYPE_Float, local + 1);
 			int b = TERMs_put(ctx, stmt, 2, TYPE_Float, local + 2);
 			klr_fADD_t op = {TADDR opcode ASMLINE, (sfpidx), a, b};
-			knh_asmop(ctx, (knh_opset_t*)(&op), sizeof(klr_fADD_t));
+			knh_asmop(ctx, (knh_opline_t*)(&op), sizeof(klr_fADD_t));
 		}
 		return 1;
 	} /* CLASS_Float */
@@ -1087,9 +1087,9 @@ static int knh_StmtPARAMs_asm(Ctx *ctx, knh_Stmt_t *stmt, size_t s, int local, k
 	return 1;
 }
 
-static knh_bool_t knh_opset_isHeadOfBasicBlock(knh_opset_t *codeblock, void *cur)
+static knh_bool_t knh_opset_isHeadOfBasicBlock(knh_opline_t *codeblock, void *cur)
 {
-	knh_opset_t *pc = codeblock;
+	knh_opline_t *pc = codeblock;
 	while(pc->opcode != OPCODE_RET) {
 		if(knh_opcode_hasjump(pc->opcode)) {
 			if(pc->p[0] == cur) {
@@ -1102,9 +1102,9 @@ static knh_bool_t knh_opset_isHeadOfBasicBlock(knh_opset_t *codeblock, void *cur
 	return 0;
 }
 
-static void KNH_ASM_INLINE(Ctx *ctx, int sfpshift, knh_opset_t *codeblock, size_t isize)
+static void KNH_ASM_INLINE(Ctx *ctx, int sfpshift, knh_opline_t *codeblock, size_t isize)
 {
-	knh_opset_t *pc = codeblock;
+	knh_opline_t *pc = codeblock;
 	knh_Array_t *a = DP(ctx->gma)->insts;
 	size_t start = knh_Array_size(a);
 	while(1) {
@@ -1117,7 +1117,7 @@ static void KNH_ASM_INLINE(Ctx *ctx, int sfpshift, knh_opset_t *codeblock, size_
 			break;
 		}
 		else {
-			knh_KLRInst_t *ix = new_KLRInst(ctx, pc, sizeof(knh_opset_t));
+			knh_KLRInst_t *ix = new_KLRInst(ctx, pc, sizeof(knh_opline_t));
 			ix->code_pos = pc;
 			ix->op->count = 0;
 			knh_opcode_idxshift(ix->op, sfpshift);
@@ -1164,7 +1164,7 @@ static void KNH_ASM_CALL(Ctx *ctx, knh_type_t reqt, int sfpidx, knh_Method_t *mt
 		else if(knh_Method_isKLRCode(mtd) || DP(ctx->gma)->mtd == mtd) {
 			if(knh_Gamma_isInlineFunction(ctx->gma) && DP(ctx->gma)->mtd != mtd) {
 				knh_KLRCode_t *kcode = DP(mtd)->kcode;
-				size_t isize = kcode->codesize / sizeof(knh_opset_t);
+				size_t isize = kcode->codesize / sizeof(knh_opline_t);
 				if(isize < K_INLINECODE) {
 					knh_Gamma_perror(ctx, KERR_INFO, _("inlineing: %C.%M"), DP(mtd)->cid, DP(mtd)->mn);
 					KNH_ASM_INLINE(ctx, sfpidx + K_CALLDELTA, kcode->code + 1, isize - 2);
@@ -2238,7 +2238,7 @@ void knh_Method_asm(Ctx *ctx, knh_Method_t *mtd, knh_Stmt_t *stmtP, knh_Stmt_t *
 
 /* ------------------------------------------------------------------------ */
 
-knh_opset_t* knh_code_findLabelId(Ctx *ctx, knh_opset_t *op, knh_intptr_t id)
+knh_opline_t* knh_code_findLabelId(Ctx *ctx, knh_opline_t *op, knh_intptr_t id)
 {
 	while(1) {
 		if(op->opcode == OPCODE_LABEL) {
@@ -2258,7 +2258,7 @@ knh_opset_t* knh_code_findLabelId(Ctx *ctx, knh_opset_t *op, knh_intptr_t id)
 /* [loadSystem] */
 
 //static
-//KLRAPI(void) knh_Fprobe_printStackTrace(Ctx *ctx, knh_sfp_t *sfp, int n, knh_opset_t **pc)
+//KLRAPI(void) knh_Fprobe_printStackTrace(Ctx *ctx, knh_sfp_t *sfp, int n, knh_opline_t **pc)
 //{
 //	knh_Exception_t *e = DP(sfp[n].hdr)->caught;
 //	DBG_ASSERT(IS_ExceptionHandler(sfp[-3].hdr));
@@ -2268,7 +2268,7 @@ knh_opset_t* knh_code_findLabelId(Ctx *ctx, knh_opset_t *op, knh_intptr_t id)
 
 #define knh_Array_addInst(ctx, ilist, T, ...) { \
 		klr_##T##_t op_ = {TADDR OPCODE_##T ASMLINE, ## __VA_ARGS__};\
-		knh_Array_add(ctx, ilist, new_KLRInst(ctx, (knh_opset_t*)(&op_), sizeof(klr_##T##_t)));\
+		knh_Array_add(ctx, ilist, new_KLRInst(ctx, (knh_opline_t*)(&op_), sizeof(klr_##T##_t)));\
 	}\
 
 void knh_loadSystemKLRCode(Ctx *ctx)
@@ -2296,7 +2296,7 @@ void knh_loadSystemKLRCode(Ctx *ctx)
 	knh_Array_addInst(ctx, ia, RET);  // NEED TERMINATION
 	{
 		knh_KLRCode_t *kcode = new_KLRCode(ctx, ia);
-		knh_opset_t *pc = knh_VirtualMachine_run(ctx, ctx->esp, SP(kcode)->code);
+		knh_opline_t *pc = knh_VirtualMachine_run(ctx, ctx->esp, SP(kcode)->code);
 		knh_setClassDefaultValue(ctx, CLASS_KLRCode, kcode, NULL);
 		((knh_share_t*)ctx->share)->PC_LAUNCH = knh_code_findLabelId(ctx, pc, 1);
 		((knh_share_t*)ctx->share)->PC_FUNCCALL = knh_code_findLabelId(ctx, pc, 2);

@@ -264,7 +264,7 @@ typedef struct %s {
 			f.write('''
 	union {
 		knh_KLRInst_t* lb; /* label*/
-		knh_opset_t  *jumppc;
+		knh_opline_t  *jumppc;
 	}; ''')
 		else: 
 			f.write('''
@@ -330,7 +330,7 @@ void knh_opcode_check(void)
 {''')
 	for kc in KCODE_LIST:
 		f.write('''
-	KNH_ASSERT(sizeof(%s) <= sizeof(knh_opset_t));''' % (kc.ctype))
+	KNH_ASSERT(sizeof(%s) <= sizeof(knh_opline_t));''' % (kc.ctype))
 	f.write('''
 }
 
@@ -351,7 +351,7 @@ void knh_opcode_stat(Ctx *ctx)
 
 /* ------------------------------------------------------------------------ */
 
-void knh_opcode_count(Ctx *ctx, knh_opset_t *c)
+void knh_opcode_count(Ctx *ctx, knh_opline_t *c)
 {
 	int count = c->count;
 	opcode_count[c->opcode] += count;
@@ -383,7 +383,7 @@ knh_bool_t knh_opcode_hasjump(knh_opcode_t opcode)
 	return (OPDATA[opcode].types[0] == VMT_ADDR);
 }
 /* ------------------------------------------------------------------------ */
-void knh_opcode_traverse(Ctx *ctx, knh_opset_t *c, knh_Ftraverse ftr)
+void knh_opcode_traverse(Ctx *ctx, knh_opline_t *c, knh_Ftraverse ftr)
 {
 	size_t i, size = OPDATA[c->opcode].size;
 	for(i = 0; i < size; i++) {
@@ -394,7 +394,7 @@ void knh_opcode_traverse(Ctx *ctx, knh_opset_t *c, knh_Ftraverse ftr)
 	}
 }
 /* ------------------------------------------------------------------------ */
-void knh_opcode_dump(Ctx *ctx, knh_opset_t *c, knh_OutputStream_t *w, knh_opset_t *pc_start)
+void knh_opcode_dump(Ctx *ctx, knh_opline_t *c, knh_OutputStream_t *w, knh_opline_t *pc_start)
 {
 	size_t i, size = OPDATA[c->opcode].size;
 	knh_ushort_t *vmt = OPDATA[c->opcode].types;
@@ -413,7 +413,7 @@ void knh_opcode_dump(Ctx *ctx, knh_opset_t *c, knh_OutputStream_t *w, knh_opset_
 				knh_printf(ctx, w, "%p", c->p[i]); break;
 			}
 			else {
-				knh_printf(ctx, w, "L%d", (knh_opset_t*)c->p[i] - pc_start); break;
+				knh_printf(ctx, w, "L%d", (knh_opline_t*)c->p[i] - pc_start); break;
 			}
 		case VMT_SFPIDX:
 			knh_printf(ctx, w, "sfp[%d]", c->data[i]); break;
@@ -450,7 +450,7 @@ void knh_opcode_dump(Ctx *ctx, knh_opset_t *c, knh_OutputStream_t *w, knh_opset_
 }
 
 /* ------------------------------------------------------------------------ */
-void knh_opcode_idxshift(knh_opset_t *c, int idxshift)
+void knh_opcode_idxshift(knh_opline_t *c, int idxshift)
 {
 	size_t i, size = OPDATA[c->opcode].size;
 	knh_ushort_t *vmt = OPDATA[c->opcode].types;
@@ -470,7 +470,7 @@ def write_kcftr(f, kc):
 def write_kcdump(f, kc):
 	##########
 	f.write('''
-static void %s_dump(Ctx *ctx, knh_opset_t *c, knh_OutputStream_t *w)
+static void %s_dump(Ctx *ctx, knh_opline_t *c, knh_OutputStream_t *w)
 {
 	%s *op = (%s*)c; 
 	knh_write_opcode(ctx, w, op->opcode);''' % (kc.name, kc.ctype, kc.ctype))
@@ -487,7 +487,7 @@ static void %s_dump(Ctx *ctx, knh_opset_t *c, knh_OutputStream_t *w)
 def write_kcshift(f, kc):
 	##########
 	f.write('''
-static void %s_shift(Ctx *ctx, knh_opset_t *c, int shift, int pcshift)
+static void %s_shift(Ctx *ctx, knh_opline_t *c, int shift, int pcshift)
 {
 	%s *op = (%s*)c; ''' % (kc.name, kc.ctype, kc.ctype))
 	c = 1
@@ -553,7 +553,7 @@ def write_exec(f):
 #define GOTO_PC(pc)         goto L_HEAD;
 #endif/*K_USING_THREADEDCODE*/
 
-knh_opset_t* knh_VirtualMachine_run(Ctx *ctx, knh_sfp_t *sfp, knh_opset_t *pc)
+knh_opline_t* knh_VirtualMachine_run(Ctx *ctx, knh_sfp_t *sfp, knh_opline_t *pc)
 {
 #ifdef K_USING_THREADEDCODE
 	static void *OPJUMP[] = {''')
@@ -566,7 +566,7 @@ knh_opset_t* knh_VirtualMachine_run(Ctx *ctx, knh_sfp_t *sfp, knh_opset_t *pc)
 	};
 #endif
 	knh_intptr_t vshift = 0;
-	knh_opset_t* vpc = NULL;
+	knh_opline_t* vpc = NULL;
 	DISPATCH_START(pc);
 ''')
 	for kc in KCODE_LIST:

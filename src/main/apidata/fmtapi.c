@@ -651,7 +651,7 @@ static METHOD Method__dump(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	knh_write_EOL(ctx, w);
 	if(knh_Method_isObjectCode(mtd)) {
 		if(IS_KLRCode(DP(mtd)->kcode)) {
-			knh_opset_t *pc = SP(mtd)->pc_start;
+			knh_opline_t *pc = SP(mtd)->pc_start;
 			while(1) {
 				knh_opcode_dump(ctx, pc, w, SP(mtd)->pc_start);
 				if(pc->opcode == OPCODE_RET) break;

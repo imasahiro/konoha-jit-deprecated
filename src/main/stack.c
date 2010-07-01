@@ -167,7 +167,7 @@ KNHAPI(void) knh_stack_boxing(Ctx *ctx, knh_sfp_t *sfp)
 /* ======================================================================== */
 /* [call] */
 
-void knh_stack_typecheck(Ctx *ctx, knh_sfp_t *sfp, knh_Method_t *mtd, knh_opset_t *pc)
+void knh_stack_typecheck(Ctx *ctx, knh_sfp_t *sfp, knh_Method_t *mtd, knh_opline_t *pc)
 {
 	char *emsg;
 	knh_class_t this_cid = knh_Object_cid(sfp[0].o);
@@ -204,7 +204,7 @@ knh_sfp_t* knh_stack_callee(Ctx *ctx, knh_sfp_t *sfp, char **file, int *linenum)
 {
 	while(ctx->stack <= sfp) {
 		if(knh_stack_isCalledMethod(ctx, sfp)) {
-			knh_opset_t *pc = sfp[0].pc;
+			knh_opline_t *pc = sfp[0].pc;
 			//DBG_P("sfp[%d] pc=%p callee yes=%d", sfp - ctx->stack, pc, sfp[0].data != knh_Object_data(sfp[0].mtd));
 			if(pc == NULL) {
 				return sfp;

@@ -49,7 +49,7 @@ extern "C" {
 //static void BB_add(BasicBlock *bb, knh_KLRInst_t *inst)
 //{
 //    Ctx *ctx = bb->ctx;
-//    knh_opset_t *op = inst->op;
+//    knh_opline_t *op = inst->op;
 //    knh_opcode_t opcode = op->opcode;
 //    switch (opcode) {
 //#define omov(v)   ((klr_OMOV_t*)(v))
