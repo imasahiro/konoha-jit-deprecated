@@ -70,12 +70,6 @@
 #include"konoha/konoha_api.h"
 #include"konoha/inlinelibs.h"
 
-#ifdef KONOHA_ON_WINDOWS
-#undef METHOD
-#define METHOD void __declspec(dllexport)
-#undef KNHAPI
-#define KNHAPI(T) T __declspec(dllexport)
-#endif
 
 
 #endif /*KONOHA_H_*/

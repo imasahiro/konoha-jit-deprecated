@@ -928,6 +928,7 @@ typedef struct {
 #ifdef KONOHA_ON_WINDOWS
 #define METHOD  void KNH_CC_FASTCALL
 #define TCAST   METHOD
+#define ITRNEXT int   KNH_CC_FASTCALL
 typedef void (KNH_CC_FASTCALL *knh_Fmethod)(Ctx *, knh_sfp_t*, long rix);
 typedef void (KNH_CC_FASTCALL *knh_Ftranslator)(Ctx *, knh_sfp_t *, long rix);
 typedef int  (KNH_CC_FASTCALL *knh_Fitrnext)(Ctx *, knh_sfp_t *, long rtnidx);

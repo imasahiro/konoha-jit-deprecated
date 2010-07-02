@@ -2,6 +2,7 @@
 #define KONOHA_DEBUG_H_
 
 #ifndef KONOHA_ON_LKM
+#elif !defined(KONOHA_ON_WINDOWS)
 #include<syslog.h>
 #endif
 

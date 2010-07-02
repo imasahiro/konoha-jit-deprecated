@@ -155,10 +155,11 @@
 #define     K_USING_MATH     1
 #define 	KONOHA_OS_LINEFEED "\r\n"
 #define     KNH_CC_EXPORT __declspec(dllexport)
+#define     KNH_CC_IMPORT __declspec(dllimport)
 #ifdef KNHAPI_IMPORTS
-#define 	KNHAPI(T__)      KNH_CC_EXPORT T__ __cdecl
+#define 	KNHAPI(T__)      KNH_CC_IMPORT T__ __cdecl
 #define     FASTAPI(T__)     T__
-#define 	KNHFASTAPI(T__)  KNH_CC_EXPORT T__
+#define 	KNHFASTAPI(T__)  KNH_CC_IMPORT T__
 #else
 #define 	KNHAPI(T__)      KNH_CC_EXPORT  T__ __cdecl
 #define     FASTAPI(T__)     T__
@@ -262,8 +263,11 @@
 #define knh_bzero(s, n)                memset(s,0,n)
 #define knh_strcmp(s1, s2)             strcmp(s1,s2)
 #define knh_strncmp(s1, s2, n)         strncmp((const char*)(s1),(const char*)(s2),n)
+#ifndef KONOHA_ON_WINDOWS
 #define knh_strncasecmp(s1, s2, n)     strncasecmp((const char*)(s1),(const char*)(s2),n)
-
+#else
+#define knh_strncasecmp(s1, s2, n)     _strnicmp((const char*)(s1),(const char*)(s2),n)
+#endif
 /* ------------------------------------------------------------------------ */
 
 #ifdef ALT_SORT

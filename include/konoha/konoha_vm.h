@@ -269,7 +269,7 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_opline_t *pc);
 #define KLR2_JMP_(ctx, PC, JUMP)   KLR_RET(ctx)
 
 knh_opline_t* knh_VirtualMachine_run(Ctx *, knh_sfp_t *, knh_opline_t *);
-METHOD knh_Fmethod_runVM(Ctx *ctx, knh_sfp_t *sfp, long rix);
+//METHOD knh_Fmethod_runVM(Ctx *ctx, knh_sfp_t *sfp, long rix);
 #define knh_Method_isKLRCode(mtd) ((mtd)->fcall_1 == knh_Fmethod_runVM)
 
 #define knh_Gamma_hasJIT(ctx)     0
@@ -676,8 +676,11 @@ typedef KLRAPI(void) (*klr_Fprobe)(Ctx *, knh_sfp_t*, knh_sfpidx_t n, knh_opline
 /* ------------------------------------------------------------------------ */
 
 #define KLR_LABEL(ctx, id, msg) DBG_P("LABEL: id=%d", (int)id)
+#ifndef KONOHA_ON_WINDOWS
 #define KLR_NOP(ctx)  asm("nop")
-
+#else
+#define KLR_NOP(ctx)
+#endif
 /* ------------------------------------------------------------------------ */
 
 #define BEGIN_LOCAL(ctx, lsfp, n) \

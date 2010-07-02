@@ -321,7 +321,12 @@ static FILE* knh_fopen(Ctx *ctx, char *filename, char *mode, int isPERROR)
 #if defined(K_USING_NOFILE)
 	return NULL;
 #elif defined(K_USING_STDC) || defined(K_USING_POSIX)
+#ifndef KONOHA_ON_WINDOWS
 	FILE *fp = fopen(filename, mode);
+#else
+	FILE *fp;
+	fopen_s(&fp, filename, mode);
+#endif
 	KNH_PERROR_IF(ctx, NULL, (fp == NULL && isPERROR), "fopen");
 	return fp;
 #else
