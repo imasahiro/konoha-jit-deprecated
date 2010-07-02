@@ -97,7 +97,7 @@ KNHAPI(knh_Iterator_t*) new_RawPtrIterator(Ctx *ctx, knh_class_t p1, void *ref, 
 static ITRNEXT knh_Array_nextO(Ctx *ctx, knh_sfp_t *sfp, long rtnidx)
 {
 	knh_Array_t *a = (knh_Array_t*)DP(sfp[0].it)->source;
-	size_t pos = DP(sfp[0].it)->pos;
+	size_t pos = (size_t)(DP(sfp[0].it)->pos);
 	while(pos < a->size) {
 		DP(sfp[0].it)->pos = pos+1;
 		ITRNEXT_(a->list[pos]);
@@ -109,7 +109,7 @@ static ITRNEXT knh_Array_nextO(Ctx *ctx, knh_sfp_t *sfp, long rtnidx)
 static ITRNEXT knh_Array_nextN(Ctx *ctx, knh_sfp_t *sfp, long rtnidx)
 {
 	knh_Array_t *a = (knh_Array_t*)DP(sfp[0].it)->source;
-	size_t pos = DP(sfp[0].it)->pos;
+	size_t pos = (size_t)(DP(sfp[0].it)->pos);
 	while(pos < a->size) {
 		DP(sfp[0].it)->pos = pos+1;
 		ITRNEXTd_(a->nlist[pos]);

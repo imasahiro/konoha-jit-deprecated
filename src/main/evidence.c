@@ -205,7 +205,12 @@ void knh_stack_perror(Ctx *ctx, knh_sfp_t *sfp, const char *ns, const char *even
 {
 	int errno_ = errno;
 	int p = (errno_ != 13) ? LOG_ERR : LOG_ALERT;
+#ifndef KONOHA_ON_WINDOWS
 	char *emsg = strerror(errno_);
+#else
+	char emsg[256];
+	strerror_s(emsg, 256, errno_);
+#endif
 	ctx->share->ebiSPI->syslog(p, K_EVENT_FORMAT "errno=%d, msg='%s'", ns, event, errno_, emsg);
 }
 

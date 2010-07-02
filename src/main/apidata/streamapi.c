@@ -218,7 +218,7 @@ static METHOD OutputStream_writeChar(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
 	knh_Bytes_t *ba = DP(sfp[0].w)->ba;
 	KNH_ASSERT(IS_Bytes(ba));
-	knh_Bytes_putc(ctx, ba, sfp[1].ivalue);
+	knh_Bytes_putc(ctx, ba, (int)(sfp[1].ivalue));
 	if(!knh_OutputStream_isStoringBuffer(sfp[0].w) && BA_size(ba) > SP(sfp[0].w)->dspi->bufsiz) {
 		SP(sfp[0].w)->dspi->fwrite(ctx, DP(sfp[0].w)->fd, (char*)(ba)->bu.buf, (ba)->bu.len);
 		knh_Bytes_clear(ba, 0);

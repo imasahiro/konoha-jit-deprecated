@@ -231,7 +231,7 @@ knh_Translator_t *knh_findTranslatorNULL(Ctx *ctx, knh_class_t scid, knh_class_t
 			}
 			if(sbcid == CLASS_Object) break;
 			for(i = 0; i < (a)->size; i++) {
-				int j;
+				size_t j;
 				knh_class_t mcid = SP((a)->trans[i])->tcid;
 				DBG_ASSERT_cid(mcid);
 				if(mcid <= CLASS_String) {

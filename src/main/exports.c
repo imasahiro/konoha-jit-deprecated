@@ -281,8 +281,8 @@ static knh_ParamArray_t *knh_loadParamArray(Ctx *ctx, knh_data_t **d, knh_flag_t
 		knh_ParamArray_add(ctx, pa, p);
 		data += 2;
 	}
-	pa->psize = psize;
-	pa->rsize = rsize;
+	pa->psize = (knh_ushort_t)psize;
+	pa->rsize = (knh_ushort_t)rsize;
 	*d = data;
 	pa->h.flag |= hflag;
 	return pa;

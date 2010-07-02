@@ -91,7 +91,7 @@ extern "C" {
 
 #if defined(K_USING_WINDOWS)
 #define K_PERROR_LIBNAME "Win32/64"
-#define K_PERROR_FAILED  1
+#define K_PERROR_OK  1
 #define K_PERROR_FAILED  0
 
 #else
@@ -162,6 +162,22 @@ char* knh_cwb_realpath(Ctx *ctx, knh_cwb_t *cwb)
 #endif
 	p = realpath(p, buf);
 	if(p == NULL) {
+		knh_cwb_clear(cwb, 0);
+		knh_Bytes_write(ctx, cwb->ba, B(buf));
+#if !defined(PATH_MAX)
+	free(p);
+#endif
+	}
+	p = knh_cwb_tochar(ctx, cwb);
+#elif defined(KONOHA_ON_WINDOWS)
+#if defined(PATH_MAX)
+	char buf[PATH_MAX] = {0};
+	int path_max = PATH_MAX;
+#else
+	char *buf = NULL;
+	int path_max = 0;
+#endif
+	if(_fullpath(buf, p, path_max) != NULL) {
 		knh_cwb_clear(cwb, 0);
 		knh_Bytes_write(ctx, cwb->ba, B(buf));
 #if !defined(PATH_MAX)
@@ -261,7 +277,7 @@ static knh_bool_t knh_cwb_mkdir(Ctx *ctx, knh_cwb_t *cwb, char *subpath)
 	}
 	pathname = knh_cwb_tochar(ctx, cwb);
 #if defined(K_USING_WINDOWS)
-	PERROR_returnb_(reateDirectoryA, pathname, NULL);
+	PERROR_returnb_(CreateDirectoryA, pathname, NULL);
 #elif defined(K_USING_POSIX)
 	PERROR_returnb_(mkdir, pathname, 0777);
 #else

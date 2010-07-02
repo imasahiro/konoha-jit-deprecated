@@ -243,7 +243,7 @@ knh_int_t knh_uchar_toucs4(knh_uchar_t *utf8)   /* utf8 -> ucs4 */
 /* ------------------------------------------------------------------------ */
 /* ucs4 -> utf8 */
 
-char *knh_format_utf8(char *buf, size_t bufsiz, knh_int_t ucs4)
+char *knh_format_utf8(char *buf, size_t bufsiz, knh_uint_t ucs4)
 {
 	/* TODO: here, we assume that BOM bigEndian
 	 and only 3 bytes or 1 byte UTF
@@ -266,16 +266,16 @@ char *knh_format_utf8(char *buf, size_t bufsiz, knh_int_t ucs4)
 	} else if (ucs4 <= byte3) {
 		/* cut last 6 bits */
 		mask = 1 << 0 | 1 << 1 | 1 << 2 | 1 << 3| 1 << 4 | 1 << 5;
-		utf8[2] = ucs4 & mask;
+		utf8[2] = (unsigned char)(ucs4 & mask);
 		utf8[2] = utf8[2] | 1 << 7;
 		/* cut next 6 bits */
 		ucs4 = ucs4 >> 6;
-		utf8[1] = ucs4 & mask;
+		utf8[1] = (unsigned char)(ucs4 & mask);
 		utf8[1] = utf8[1] | 1 << 7;
 		/* first 4 bits */
 		mask = 1 << 0 | 1 << 1 | 1 << 2 | 1 << 3;
 		ucs4 = ucs4 >> 6;
-		utf8[0] = ucs4 & mask;
+		utf8[0] = (unsigned char)(ucs4 & mask);
 		utf8[0] = utf8[0] | 1 << 7 | 1 << 6 | 1 << 5;
 		utf8[3] = '\0';
 		knh_snprintf(buf, bufsiz, "%s", utf8);

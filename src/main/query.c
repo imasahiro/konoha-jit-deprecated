@@ -299,7 +299,7 @@ static knh_String_t *new_String__int(Ctx *ctx, knh_int_t n)
 static knh_String_t *new_String__float(Ctx *ctx, knh_float_t n)
 {
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-	knh_write_ifmt(ctx, cwb->w, K_FLOAT_FMT, n);
+	knh_write_ffmt(ctx, cwb->w, K_FLOAT_FMT, n);
 	return knh_cwb_newString(ctx, cwb);
 }
 

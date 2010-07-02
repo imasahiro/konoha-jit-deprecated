@@ -115,7 +115,7 @@ static METHOD Object__s(Ctx *ctx, knh_sfp_t *sfp, long rix)
 
 static METHOD Boolean__s(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-	knh_write_bool(ctx, sfp[1].w, sfp[0].ivalue);
+	knh_write_bool(ctx, sfp[1].w, sfp[0].bvalue);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1161,7 +1161,8 @@ static METHOD Object__p(Ctx *ctx, knh_sfp_t *sfp, long rix)
 static METHOD Int__c(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
 	char buf[16];
-	knh_format_utf8(buf, sizeof(buf), sfp[0].ivalue);
+	knh_uint_t c = (knh_uint_t) sfp[0].ivalue;
+	knh_format_utf8(buf, sizeof(buf), c);
 	knh_write(ctx, sfp[1].w, B(buf));
 }
 

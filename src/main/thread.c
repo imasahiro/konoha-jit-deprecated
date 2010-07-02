@@ -196,10 +196,10 @@ typedef struct knh_threadcc_t {
 /* ======================================================================== */
 /* [mutex] */
 
-//mutexの作成 	pthread_mutex_init 	CreateMutex
-//mutexのロックを取る 	pthread_mutex_lock 	WaitForSingleObject
-//mutexのロックを解除する 	pthread_mutex_unlock 	ReleaseMutex
-//mutexの破棄 	pthread_mutex_destroy 	CloseHandle
+//create mutex 	pthread_mutex_init 	CreateMutex
+//remove mutex lock 	pthread_mutex_lock 	WaitForSingleObject
+//release mutex lock 	pthread_mutex_unlock 	ReleaseMutex
+//destroy mutex 	pthread_mutex_destroy 	CloseHandle
 
 int knh_mutex_init(knh_mutex_t *m)
 {

@@ -263,7 +263,7 @@ knh_index_t knh_Class_indexOfField(Ctx *ctx, knh_class_t cid, knh_fieldn_t fn)
 		knh_ClassTable_t *t = pClassTable(ctx, cid);
 		if(t->fields != NULL) {
 			knh_index_t idx;
-			for(idx = 0; idx < t->fsize; idx++) {
+			for(idx = 0; idx < (knh_index_t)(t->fsize); idx++) {
 				knh_fieldn_t fn2 = t->fields[idx].fn;
 				if(fn2 == FN_NONAME) return -1;
 				if(fn2 == fn) return t->offset + idx;

@@ -842,7 +842,7 @@ static METHOD String_substring(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	knh_bytes_t base = S_tobytes(sfp[0].s);
 	knh_bytes_t sub;
 	if(knh_String_isASCII(sfp[0].s)) {
-		size_t offset = knh_array_index(ctx, sfp[1].ivalue, base.len);
+		size_t offset = knh_array_index(ctx, (knh_intptr_t)(sfp[1].ivalue), base.len);
 		sub = knh_bytes_last(base, offset);
 		if(sfp[2].ivalue != 0) {
 			size_t len = (size_t)sfp[2].ivalue;
@@ -851,7 +851,7 @@ static METHOD String_substring(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	}
 	else { // multibytes
 		size_t mlen = knh_bytes_mlen(base);
-		size_t offset = knh_array_index(ctx, sfp[1].ivalue, mlen);
+		size_t offset = knh_array_index(ctx, (knh_intptr_t)(sfp[1].ivalue), mlen);
 		size_t length = sfp[2].ivalue == 0  ? (mlen - offset) : (size_t)sfp[2].ivalue;
 		sub = knh_bytes_mofflen(base, offset, length);
 	}

@@ -549,7 +549,7 @@ static knh_Term_t *knh_TokenTYPE_typing(Ctx *ctx, knh_Token_t *tk, knh_type_t re
 					goto L_RETURN;
 				}
 			}
-			for(i = 0; i < (pa)->psize + (pa)->rsize; i++) {
+			for(i = 0; i < (size_t)((pa)->psize + (pa)->rsize); i++) {
 				knh_param_t* p = knh_ParamArray_get(pa, i);
 				knh_param_t* bp = knh_ParamArray_get(bpa, i);
 				p->fn = bp->fn;
@@ -828,7 +828,7 @@ static knh_Term_t *knh_Token_typing(Ctx *ctx, knh_Token_t *tk, knh_type_t reqt)
 static knh_index_t knh_Gamma_add(Ctx *ctx, knh_fields_t *gf, size_t s, size_t e, knh_fields_t *decl, knh_flag_t op)
 {
 	knh_index_t idx;
-	for(idx = s; idx < e; idx++) {
+	for(idx = (knh_index_t)s; idx < (knh_index_t)e; idx++) {
 		if(gf[idx].fn == decl->fn && decl->fn != FN_) {
 			if(FLAG_is(op, GF_UNIQUE)) {
 				if(gf[idx].type == decl->type) return idx;

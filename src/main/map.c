@@ -622,7 +622,7 @@ static knh_dmap_t* add_ikey(Ctx *ctx, knh_dmap_t *dmap, knh_dentry_t *dentry, kn
 	knh_int_t key = ksfp[0].ivalue;
 	*loc = dmap->size;
 	dmap_grow(dmap, dentry);
-	dentry[*loc].ikey = ksfp[0].ivalue;
+	dentry[*loc].ikey = (knh_intptr_t)(ksfp[0].ivalue);
 	dmap->size++;
 	dmap_sort(dmap, dentry, dentry_icmp, iindex);
 	return dmap;
@@ -635,12 +635,12 @@ static knh_map_t* dmap_iset(Ctx *ctx, knh_map_t* m, knh_sfp_t* ksfp)
 
 static knh_map_t* dmap_isetint(Ctx *ctx, knh_map_t* m, knh_sfp_t* ksfp)
 {
-	DMAP_SET(m, knh_int_t key = ksfp[0].ivalue, iindex, add_ikey, dentry[loc].ivalue = ksfp[1].ivalue);
+	DMAP_SET(m, knh_int_t key = ksfp[0].ivalue, iindex, add_ikey, dentry[loc].ivalue = (knh_intptr_t)(ksfp[1].ivalue));
 }
 
 static knh_map_t* dmap_isetfloat(Ctx *ctx, knh_map_t* m, knh_sfp_t* ksfp)
 {
-	DMAP_SET(m, knh_int_t key = ksfp[0].ivalue, iindex, add_ikey, dentry[loc].fvalue = ksfp[1].fvalue);
+	DMAP_SET(m, knh_int_t key = ksfp[0].ivalue, iindex, add_ikey, dentry[loc].fvalue = (knh_floatptr_t)(ksfp[1].fvalue));
 }
 
 static void dmap_iremove(Ctx *ctx, knh_map_t* m, knh_sfp_t *ksfp)
@@ -695,7 +695,7 @@ static knh_bool_t dmap_fgetint(Ctx *ctx, knh_map_t* m, knh_sfp_t *ksfp, knh_sfp_
 
 static knh_bool_t dmap_fgetfloat(Ctx *ctx, knh_map_t* m, knh_sfp_t *ksfp, knh_sfp_t *rsfp)
 {
-	DMAP_GET(m, knh_float_t key = ksfp[0].fvalue, iindex, rsfp[0].fvalue = dentry[loc].fvalue);
+	DMAP_GET(m, knh_int_t key = (knh_int_t)(ksfp[0].fvalue), iindex, rsfp[0].fvalue = dentry[loc].fvalue);
 }
 
 static knh_dmap_t* add_fkey(Ctx *ctx, knh_dmap_t *dmap, knh_dentry_t *dentry, knh_sfp_t *ksfp, knh_index_t (*findex)(knh_dentry_t *, size_t, size_t, knh_float_t), knh_index_t *loc)
@@ -703,7 +703,7 @@ static knh_dmap_t* add_fkey(Ctx *ctx, knh_dmap_t *dmap, knh_dentry_t *dentry, kn
 	knh_float_t key = ksfp[0].fvalue;
 	*loc = dmap->size;
 	dmap_grow(dmap, dentry);
-	dentry[*loc].fkey = key;
+	dentry[*loc].fkey = (knh_floatptr_t)key;
 	dmap->size++;
 	dmap_sort(dmap, dentry, dentry_fcmp, findex);
 	return dmap;
@@ -716,12 +716,12 @@ static knh_map_t* dmap_fset(Ctx *ctx, knh_map_t* m, knh_sfp_t* ksfp)
 
 static knh_map_t* dmap_fsetint(Ctx *ctx, knh_map_t* m, knh_sfp_t* ksfp)
 {
-	DMAP_SET(m, knh_float_t key = ksfp[0].fvalue, findex, add_fkey, dentry[loc].ivalue = ksfp[1].ivalue);
+	DMAP_SET(m, knh_float_t key = ksfp[0].fvalue, findex, add_fkey, dentry[loc].ivalue = (knh_intptr_t)(ksfp[1].ivalue));
 }
 
 static knh_map_t* dmap_fsetfloat(Ctx *ctx, knh_map_t* m, knh_sfp_t* ksfp)
 {
-	DMAP_SET(m, knh_float_t key = ksfp[0].fvalue, findex, add_fkey, dentry[loc].fvalue = ksfp[1].fvalue);
+	DMAP_SET(m, knh_float_t key = ksfp[0].fvalue, findex, add_fkey, dentry[loc].fvalue = (knh_floatptr_t)(ksfp[1].fvalue));
 }
 
 static void dmap_fremove(Ctx *ctx, knh_map_t* m, knh_sfp_t *ksfp)
@@ -821,12 +821,12 @@ static knh_map_t* dmap_sset(Ctx *ctx, knh_map_t* m, knh_sfp_t* ksfp)
 
 static knh_map_t* dmap_ssetint(Ctx *ctx, knh_map_t* m, knh_sfp_t* ksfp)
 {
-	DMAP_SET(m, knh_bytes_t key = S_tobytes(ksfp[0].s), strcmp_sindex, add_skeydata, dentry[loc].ivalue = ksfp[1].ivalue);
+	DMAP_SET(m, knh_bytes_t key = S_tobytes(ksfp[0].s), strcmp_sindex, add_skeydata, dentry[loc].ivalue = (knh_intptr_t)(ksfp[1].ivalue));
 }
 
 static knh_map_t* dmap_ssetfloat(Ctx *ctx, knh_map_t* m, knh_sfp_t* ksfp)
 {
-	DMAP_SET(m, knh_bytes_t key = S_tobytes(ksfp[0].s), strcmp_sindex, add_skeydata, dentry[loc].fvalue = ksfp[1].fvalue);
+	DMAP_SET(m, knh_bytes_t key = S_tobytes(ksfp[0].s), strcmp_sindex, add_skeydata, dentry[loc].fvalue = (knh_floatptr_t)(ksfp[1].fvalue));
 }
 
 static void dmap_sremove(Ctx *ctx, knh_map_t* m, knh_sfp_t *ksfp)
@@ -1020,12 +1020,12 @@ static knh_map_t* casemap_sset(Ctx *ctx, knh_map_t* m, knh_sfp_t* ksfp)
 
 static knh_map_t* casemap_ssetint(Ctx *ctx, knh_map_t* m, knh_sfp_t* ksfp)
 {
-	DMAP_SET(m, knh_bytes_t key = S_tobytes(ksfp[0].s), strcasecmp_sindex, add_casekeydata, dentry[loc].ivalue = ksfp[1].ivalue);
+	DMAP_SET(m, knh_bytes_t key = S_tobytes(ksfp[0].s), strcasecmp_sindex, add_casekeydata, dentry[loc].ivalue = (knh_intptr_t)(ksfp[1].ivalue));
 }
 
 static knh_map_t* casemap_ssetfloat(Ctx *ctx, knh_map_t* m, knh_sfp_t* ksfp)
 {
-	DMAP_SET(m, knh_bytes_t key = S_tobytes(ksfp[0].s), strcasecmp_sindex, add_casekeydata, dentry[loc].fvalue = ksfp[1].fvalue);
+	DMAP_SET(m, knh_bytes_t key = S_tobytes(ksfp[0].s), strcasecmp_sindex, add_casekeydata, dentry[loc].fvalue = (knh_floatptr_t)(ksfp[1].fvalue));
 }
 
 static const knh_MapDSPI_t* casemap_config(Ctx *ctx, knh_class_t p1, knh_class_t p2);

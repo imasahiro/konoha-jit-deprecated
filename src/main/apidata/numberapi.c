@@ -73,7 +73,7 @@ static METHOD Float_random(Ctx *ctx, knh_sfp_t *sfp, long rix)
 
 static METHOD Float_floatToIntBits(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-	RETURNi_(sfp[1].fvalue);
+	RETURNi_((knh_int_t)(sfp[1].fvalue));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -81,7 +81,7 @@ static METHOD Float_floatToIntBits(Ctx *ctx, knh_sfp_t *sfp, long rix)
 
 static METHOD Float_intToFloatBits(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-	RETURNf_(sfp[1].ivalue);
+	RETURNf_((knh_float_t)(sfp[1].ivalue));
 }
 
 /* ------------------------------------------------------------------------ */

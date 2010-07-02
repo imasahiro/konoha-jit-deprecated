@@ -426,7 +426,7 @@ static void knh_asmop(Ctx *ctx, knh_opline_t *op, size_t opsize)
 			if(OPCODE_fEQn <= opP->opcode && opP->opcode <= OPCODE_fGTEn) {
 				klr_fJEQn_t *opN = (klr_fJEQn_t*)opP;
 				knh_sfpidx_t a = ((klr_fEQn_t*)opP)->a;
-				knh_int_t n = ((klr_fEQn_t*)opP)->n;
+				knh_float_t n = ((klr_fEQn_t*)opP)->n;
 				opN->lb = ((klr_JMP_t*)op)->lb;
 				opN->a = a; opN->n = n;
 				knh_KLRInst_rename(instP, OPCODE_fJEQn + ((opP)->opcode - OPCODE_fEQn));
@@ -2197,7 +2197,7 @@ void knh_Method_asm(Ctx *ctx, knh_Method_t *mtd, knh_Stmt_t *stmtP, knh_Stmt_t *
 			KNH_ASM(TR, 0, 0, DP(ctx->gma)->this_cid, _NULVAL);
 		}
 		KNH_ASM_LABEL(ctx, lbBEGIN);
-		for(i = 1;i < knh_Method_psize(mtd) + 1; i++) {
+		for(i = 1;i < (size_t)(knh_Method_psize(mtd) + 1); i++) {
 			xi = i + DP(ctx->gma)->goffset;
 			Object *value = DP(ctx->gma)->gf[xi].value;
 			DBG_(
