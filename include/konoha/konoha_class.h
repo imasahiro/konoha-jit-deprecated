@@ -832,8 +832,8 @@ typedef struct knh_OutputStream_t {
 } knh_OutputStream_t;
 
 #ifdef K_EXPORTS
-#define knh_putc(ctx, w, ch)     ctx->api->putc(ctx, w, ch)
-#define knh_write(ctx, w, s, len)  ctx->api->write(ctx, w, s, len)
+#define knh_putc(ctx, w, ch)     ctx->api->putcAPI(ctx, w, ch)
+#define knh_write(ctx, w, s, len)  ctx->api->writeAPI(ctx, w, s, len)
 #else
 #define knh_putc(ctx, w, ch)    knh_OutputStream_putc(ctx, w, ch)
 #define knh_write(ctx, w, s)    knh_OutputStream_write(ctx, w, s)

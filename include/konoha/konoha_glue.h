@@ -59,8 +59,8 @@ typedef struct knh_ExportsAPI_t {
 	knh_InputStream_t* (*new_InputStreamNULL)(Ctx *, knh_String_t *, char *mode);
 	knh_OutputStream_t* (*new_OutputStreamNULL)(Ctx *, knh_String_t *, char *mode);
 	// OutputStream, Bytes
-	void (*putc)(Ctx *, void *, int);
-	void (*write)(Ctx *, void *, char *, size_t);
+	void (*putcAPI)(Ctx *, void *, int);
+	void (*writeAPI)(Ctx *, void *, char *, size_t);
 } knh_ExportsAPI_t;
 
 #ifdef K_EXPORTS
