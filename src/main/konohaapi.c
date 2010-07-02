@@ -185,6 +185,7 @@ static void knh_setOptimizationMode(Ctx *ctx, int mode, const char *optstr)
 static void knh_setTestFile(Ctx *ctx, int mode, const char *optstr)
 {
 	DBG_P("TESTMODE: %s", optstr);
+
 	KNH_TODO("test");
 }
 
@@ -373,7 +374,7 @@ KNHAPI(int) konoha_runMain(konoha_t konoha, int argc, char **argv)
 	return res;
 }
 
-/* ======================================================================== */
+/* ------------------------------------------------------------------------ */
 /* [shell] */
 
 static void knh_showWelcome(Ctx *ctx, knh_OutputStream_t *w)
@@ -555,77 +556,6 @@ KNHAPI(void) konoha_shell(konoha_t konoha, char *optstr)
 	knh_shell(ctx, optstr, ctx->share->shellSPI, NULL);
 	KONOHA_END(ctx);
 }
-
-/* ------------------------------------------------------------------------ */
-
-//typedef struct {
-//	FILE *fp;
-//	char *testTitle;
-//	char *testBody;
-//	char *testResult;
-//} ktest_t ;
-//
-//static void* test_init(Ctx *ctx, char *msg, char *optstr)
-//{
-//	FILE *fp = knh_fopen(ctx, )
-//	ktest_t *statms = (ktest_t)KNH_MALLOC(ctx, sizeof(ktest_t));
-//	DBG_P("test=%s", opstr);
-//
-//}
-//
-//#define IS_D(L, ch) (L[0] == ch && L[1] == ch && L[3] == ' ')
-//#define IS_T(L, ch) (L[0] == ch && L[1] == ch && L[3] == ch && L[4] == ' ')
-//
-//static char* test_readstmt(Ctx *ctx, void *status)
-//{
-//	ktest_t *kt = (ktest_t*)status;
-//	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-//	char line[LINE_MAX];
-//	while(kt_fgets(ctx, kt, line, LINE_MAX) != NULL) {
-//		if(IS_D(line, '#'))) {
-//			KNH_SETv(ctx, kt->title, new_S(ctx, B(line + 4))); continue;
-//		}
-//		if(IS_T(line, '>') || IS_T(line, '.')) {
-//			knh_Bytes_write(ctx, cwb->ba, B(line+5));
-//			continue;
-//		}
-//		kt_setline(ctx, kt, line);
-//		break;
-//	}
-//
-//	return knh_cwb_tochar(ctx, cwb);
-//}
-//
-//static void shell_display(Ctx *ctx, void *status, char *msg)
-//{
-//	ktest_t *kt = (ktest_t*)status;
-//	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-//	char line[LINE_MAX];
-//	while(kt_fgets(ctx, kt, line, LINE_MAX) != NULL) {
-//		if(IS_D(line, '#') || IS_T(line, '>') || IS_T(line, '.'))) {
-//			kt_setline(ctx, kt, line);
-//			break;
-//		}
-//		knh_Bytes_write(ctx, cwb->ba, B(line));
-//	}
-//	if(strncmp(msg, status, n)) {
-//
-//	}
-//}
-//
-//static void shell_cleanup(Ctx *ctx, void *status)
-//{
-//	//cleanup status
-//	knh_Context_setInteractive(ctx, 0);
-//}
-//
-//static knh_ShellSPI_t SimpleShell = {
-//	"konoha standard shell",
-//	shell_init,
-//	shell_readstmt,
-//	shell_display,
-//	shell_cleanup,
-//};
 
 /* ------------------------------------------------------------------------ */
 

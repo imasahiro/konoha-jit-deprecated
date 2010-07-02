@@ -2703,6 +2703,7 @@ static knh_Term_t *knh_StmtFOREACH_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t
 {
 //	KNH_TODO("foreach statement :)");
 	BEGIN_BLOCK(esp);
+	TERMs_it(ctx, stmt, 3, TYPE_Iterator);
 	knh_Stmt_t *stmtDECL = DP(stmt)->stmts[0];
 	knh_class_t cid = knh_StmtDECL_typingITR(ctx, stmtDECL);
 	if(cid == CLASS_unknown) {

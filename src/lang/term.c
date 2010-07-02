@@ -2906,13 +2906,13 @@ static knh_Stmt_t *new_StmtSTMT1(Ctx *ctx, tkitr_t *itr)
 		CASE_L(PRINT, _EXPRs);
 		CASE_L(YEILD, _EXPRs);
 		CASE_(IF, _PEXPR, _STMT1, _ELSE);
-		CASE_(SWITCH, _PEXPR, _STMT1, _ASIS);  /*IT*/
+		CASE_(SWITCH, _PEXPR, _STMT1, _ASIS);  /* it */
 		CASE_(CASE, _CASEEXPR, _CASESTMT);
 		CASE_(WHILE, _PEXPR, _STMT1);
 		CASE_(DO, _STMT1, _WHILE);
 		CASE_(FOR, _PSTMT3, _STMT1);
-		CASE_(FOREACH, _PEACH, _STMT1);
-		CASE_(TRY, _STMT1, _CATCH, _ASIS);  /*IT*/
+		CASE_(FOREACH, _PEACH, _STMT1, _ASIS);  /* it */
+		CASE_(TRY, _STMT1, _CATCH, _ASIS);  /* it */
 		CASE_(ASSERT, _PEXPR, _STMT1);
 
 		case TT_BLOCK:

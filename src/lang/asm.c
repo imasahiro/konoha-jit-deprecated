@@ -1813,7 +1813,9 @@ static void knh_StmtFOREACH_asm(Ctx *ctx, knh_Stmt_t *stmt)
 	knh_KLRInst_t* lbC = new_KLRInstLABEL(ctx);
 	knh_KLRInst_t* lbB = new_KLRInstLABEL(ctx);
 	knh_Stmt_t *stmtDECL = DP(stmt)->stmts[0];
+	knh_Token_t *tkIT = DP(stmt)->tokens[3];
 	int itridx = DP(stmt)->espidx;
+	DBG_P("DP(stmt)->espidx = %d, it =%d", itridx, DP(tkIT)->index);
 	knh_Gamma_pushLABEL(ctx, stmt, lbC, lbB);
 	if(isSINGLEFOREACH(stmtDECL)) {
 		knh_Token_t *tkN = DP(stmtDECL)->tokens[1];
