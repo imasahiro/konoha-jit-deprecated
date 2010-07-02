@@ -525,7 +525,7 @@ static knh_flag_t knh_StmtCLASS_flag(Ctx *ctx, knh_Stmt_t *stmt)
 /* ------------------------------------------------------------------------ */
 
 static int knh_StmtCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt)
-{   // CNAME:0 CPARAM:1 EXTENDS:2 IMPLEMENTS:3 STMT:4
+{
 	knh_class_t cid;
 	knh_Token_t *tkC = DP(stmt)->tokens[0/*CNAME*/];
 	knh_Token_t *tkE = DP(stmt)->tokens[2/*extends D*/];
@@ -550,7 +550,6 @@ static int knh_StmtCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt)
 	}
 
 	DP(tkC)->cid = cid;
-	t->bcid = CLASS_Object; //(DP(stmt)->size == 5) ? CLASS_Any /* GLUE*/ : CLASS_Object;
 	if(t->supcid == 0) {
 		t->supcid = knh_Token_getcid(ctx, tkE, CLASS_Object);
 		if(knh_class_isFinal(t->supcid)) {
@@ -561,36 +560,48 @@ static int knh_StmtCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt)
 		t->keyidx = ClassTable(t->supcid).keyidx;
 	}
 	if(t->lname == NULL) {
-		knh_setClassName(ctx, cid, knh_cwb_newString(ctx, cwb), DP(tkC)->text);
 		t->cflag  = knh_StmtCLASS_flag(ctx, stmt);
 		t->oflag  = FLAG_oflag(t->cflag);
-		DBG_ASSERT(t->fields == NULL);
-		DBG_ASSERT(t->fsize  == 0);
-		KNH_INITv(t->methods, KNH_EMPTYLIST);
-		KNH_INITv(t->tmaps, KNH_EMPTYLIST);
-		knh_setClassDefaultValue(ctx, cid, new_hObject_(ctx, t->oflag | FLAG_Object_NullObject, t->bcid, cid), NULL);
-		knh_NameSpace_setcid(ctx, ns, DP(tkC)->text, cid, 1);
-		KNH_SYSLOG(ctx, LOG_NOTICE, "NEW_CLASS", "*cid=%d, name='%s'", cid, CLASSN(cid));
-	}
-	if(DP(stmt)->size == 5) {
-		if(DP(ctx->gma)->dlhdr != NULL) {
+		if(DP(stmt)->size == 5 && DP(ctx->gma)->dlhdr != NULL) {
 			knh_Fclass f = (knh_Fclass)knh_dlsym(ctx, DP(ctx->gma)->dlhdr, S_tochar(DP(tkC)->text), 0/*isRequired*/);
 			if(f != NULL) {
 				knh_ClassData_t *csetup = f();
 				if(csetup->cspi != NULL) {
 					t->bcid = cid;
-					(t->defnull)->h.bcid = cid;
 					t->cspi = csetup->cspi;
-					t->cspi->init(ctx, t->defnull);
+					t->cflag = t->cflag | t->cspi->cflag;
+					t->oflag = FLAG_oflag(t->cflag);
 				}
 				else {
 					t->bcid = CLASS_RawPtr;
-					(t->defnull)->h.bcid = CLASS_RawPtr;
 					t->cspi = ClassTable(CLASS_RawPtr).cspi;
-					ctx->api->RawPtr_init(ctx, (knh_RawPtr_t*)t->defnull, csetup->rawptr, csetup->freeRawPtr);
 				}
+				if(csetup->fdefault != NULL) {
+					knh_setClassDefaultValue(ctx, cid, NULL, csetup->fdefault);
+				}
+				else {
+					knh_Object_t *o = new_hObject_(ctx, t->oflag | FLAG_Object_NullObject, t->bcid, cid);
+					t->cspi->init(ctx, o);
+					knh_setClassDefaultValue(ctx, cid, o, NULL);
+				}
+				goto L_NAME;
 			}
 		}
+		t->bcid = CLASS_Object;
+		t->cspi = ClassTable(CLASS_Object).cspi;
+		knh_setClassDefaultValue(ctx, cid, new_hObject_(ctx, t->oflag | FLAG_Object_NullObject, t->bcid, cid), NULL);
+		DBG_ASSERT(t->fields == NULL);
+		DBG_ASSERT(t->fsize  == 0);
+	}
+	L_NAME:;
+	if(t->lname == NULL) {
+		knh_setClassName(ctx, cid, knh_cwb_newString(ctx, cwb), DP(tkC)->text);
+		KNH_INITv(t->methods, KNH_EMPTYLIST);
+		KNH_INITv(t->tmaps, KNH_EMPTYLIST);
+		knh_NameSpace_setcid(ctx, ns, DP(tkC)->text, cid, 1);
+		KNH_SYSLOG(ctx, LOG_NOTICE, "NEW_CLASS", "*cid=%d, name='%s'", cid, CLASSN(cid));
+	}
+	if(DP(stmt)->size == 5) {
 		knh_Stmt_done(ctx, stmt);
 	}
 	return 1;
