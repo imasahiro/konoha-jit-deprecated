@@ -543,9 +543,15 @@ KNHAPI(void) konoha_shell(konoha_t konoha, char *optstr)
 {
 	KONOHA_CHECK_(konoha);
 	Ctx *ctx = KONOHA_BEGIN(konoha.ctx);
+	char *path = knh_getenv("KONOHA_SHELL");
+	if(path != NULL) {
+		knh_loadPackageList(ctx, path);
+	}
+	else {
 #if defined(K_USING_POSIX)
-	knh_loadPackageList(ctx, "readline?");
+		knh_loadPackageList(ctx, "lib.readline?");
 #endif
+	}
 	knh_shell(ctx, optstr, ctx->share->shellSPI, NULL);
 	KONOHA_END(ctx);
 }
