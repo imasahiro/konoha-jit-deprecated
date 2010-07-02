@@ -169,7 +169,7 @@ static METHOD Regex_new(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
 	knh_Regex_t *re = (knh_Regex_t*)sfp[0].o;
 	char *ptn = ctx->api->tochar(ctx, sfp[1].s);
-	char *opt = IS_NULL(sfp[2].o) ? "" : ctx->api->tochar(ctx, sfp[2].s);
+	char *opt = IS_NULL(sfp[2].o) ? (char*) "" : ctx->api->tochar(ctx, sfp[2].s);
 	KNH_SETv(ctx, re->pattern, sfp[1].s);
 	re->spi = DP(sfp[2].ns)->regexSPI;
 	re->reg = re->spi->regmalloc(ctx, sfp[1].s);

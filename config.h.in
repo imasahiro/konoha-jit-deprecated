@@ -9,9 +9,6 @@
 /* Define to 1 if you have the <float.h> header file. */
 #undef HAVE_FLOAT_H
 
-/* Define to 1 if you have the <iconv.h> header file. */
-#undef HAVE_ICONV_H
-
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
@@ -55,9 +52,6 @@
 /* Define to 1 if you have the `qsort_r' function. */
 #undef HAVE_QSORT_R
 
-/* Define to 1 if you have the <readline/readline.h> header file. */
-#undef HAVE_READLINE_READLINE_H
-
 /* Define to 1 if you have the `realpath' function. */
 #undef HAVE_REALPATH
 
@@ -100,9 +94,6 @@
 /* Enable debug mode */
 #undef K_USING_DEBUG
 
-/* Using iconv */
-#undef K_USING_ICONV
-
 /* Enable int32 */
 #undef K_USING_INT32
 
@@ -111,12 +102,6 @@
 
 /* Enable referencing counting mode */
 #undef K_USING_RCGC
-
-/* Using readline */
-#undef K_USING_READLINE
-
-/* Using socket */
-#undef K_USING_SOCKET
 
 /* Using sqlite3 */
 #undef K_USING_SQLITE3

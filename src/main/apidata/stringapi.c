@@ -183,7 +183,7 @@ static int knh_bytes_equals_(knh_bytes_t base, size_t s, knh_bytes_t target)
 
 static METHOD String_replace(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-	if((sfp[1].re)->reg == NULL) { /* @author nakata */
+	if(knh_Regex_isSTRREGEX(sfp[1].re)) { /* @author nakata */
 		knh_bytes_t base = S_tobytes(sfp[0].s);
 		knh_bytes_t target = S_tobytes((sfp[1].re)->pattern);
 		knh_bytes_t alt = S_tobytes(sfp[2].s);

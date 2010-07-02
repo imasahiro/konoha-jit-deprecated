@@ -46,7 +46,7 @@ esac
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([float.h langinfo.h localcharset.h limits.h locale.h stdlib.h string.h sys/time.h unistd.h iconv.h readline/readline.h sys/param.h])
+AC_CHECK_HEADERS([float.h langinfo.h localcharset.h limits.h locale.h stdlib.h string.h sys/time.h unistd.h sys/param.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -129,122 +129,122 @@ else
   AC_DEFINE_UNQUOTED([K_CC_CPU], ["{$with_mtune}"], mtune option)
 fi
 
-# ADDED for iconv ############################################################
-# Kimio Kuramitsu
-
-AC_ARG_WITH(iconv,
-AC_HELP_STRING([--with-iconv],
-               [iconv support [[default=detect]]]),
-[case $withval in
-yes|no|detect) ;;
-*) AC_MSG_ERROR([bad value $withval for --with-readline, need yes/no/detect]) ;;
-esac],
-[with_iconv=detect])
-
-use_iconv=$with_iconv
-if test $with_iconv = detect; then
-  use_iconv=no
-  AC_CHECK_LIB(iconv, iconv_open, use_iconv=yes)
-  if test $use_iconv = no; then
-    AC_CHECK_LIB(iconv, libiconv_open, use_iconv=yes)
-  fi
-  AC_CHECK_LIB(c, iconv_open, with_iconv=yes)
-  AC_MSG_CHECKING(iconv detected)
-  AC_MSG_RESULT($use_iconv)
-fi
-if test $with_iconv = yes; then
-  AC_DEFINE_UNQUOTED([K_USING_ICONV], [1], Using iconv)
-  AC_SUBST(WITH_ICONV_01, 1)
-else
-  WITH_ICONV_01=0
-fi
-if test $use_iconv = yes; then
-  AC_SUBST(LIBICONV, -liconv)
-  LIBS="$LIBS -liconv"
-fi
-
-# ADDED for readline #########################################################
-# Kimio Kuramitsu
-
-AC_ARG_WITH(readline,
-AC_HELP_STRING([--with-readline],
-               [readline support [[default=detect]]]),
-[case $withval in
-yes|no|detect) ;;
-*) AC_MSG_ERROR([bad value $withval for --with-readline, need yes/no/detect]) ;;
-esac],
-[with_readline=detect])
-
-with_libcurses=no
-LIBCURSES=
-if test $with_readline != no; then
-  AC_CHECK_LIB(ncurses, tputs, [with_libcurses=yes],
-    [AC_CHECK_LIB(curses, tputs, [with_libcurses=yes])])
-fi
-#AC_SUBST(LIBCURSES)
-
-case "${host_os}" in 
-*cygwin*) use_readline=no;;
-*) use_readline=$with_readline
-esac
-
-if test $use_readline = detect; then
-  use_readline=no
-  AC_CHECK_LIB(readline, readline,
-    [AC_CHECK_HEADER(readline/readline.h,
-      [AC_CHECK_HEADER(readline/history.h, use_readline=yes)])],
-    , $LIBCURSES)
-  AC_MSG_CHECKING(readline detected)
-  AC_MSG_RESULT($use_readline)
-fi
-if test $use_readline = yes; then
-  AC_SUBST(WITH_READLINE_01, 1)
-  AC_SUBST(LIBREADLINE, -lreadline)
-  AC_DEFINE_UNQUOTED([K_USING_READLINE], [1], Using readline)
-  if test $with_libcurses = yes; then
-    LIBS="$LIBS -lncurses"
-  fi
-  LIBS="$LIBS -lreadline"
-else
-  WITH_READLINE_01=0
-fi
-
-AC_ARG_WITH(iconv-dir,
-AC_HELP_STRING([--with-iconv-dir],
-    [path to libiconv's dir ]),
-    [LIBS="$LIBS $withval"], [])
-
-
-# ADDED for socket ###########################################################
-# Kimio Kuramitsu
-
-AC_ARG_WITH(socket,
-AC_HELP_STRING([--with-socket],
-               [socket support [[default=detect]]]),
-[case $withval in
-yes|no|detect) ;;
-*) AC_MSG_ERROR([bad value $withval for --with-socket, need yes/no/detect]) ;;
-esac],
-[with_socket=detect])
-
-use_socket=$with_socket
-if test $with_socket = detect; then
-  use_socket=no
-  AC_CHECK_LIB(socket, socket, use_socket=yes)
-  AC_CHECK_LIB(c, socket, with_socket=yes)
-  AC_MSG_CHECKING(socket detected)
-  AC_MSG_RESULT($use_socket)
-fi
-if test $with_socket = yes; then
-  AC_DEFINE_UNQUOTED([K_USING_SOCKET], [1], Using socket)
-  AC_SUBST(WITH_SOCKET_01, 1)
-else
-  WITH_SOCKET_01=0
-fi
-if test $use_socket = yes; then
-  AC_SUBST(LIBSOCKET, -lsocket)
-  LIBS="$LIBS -lsocket"
-fi
+## ADDED for iconv ############################################################
+## Kimio Kuramitsu
+#
+#AC_ARG_WITH(iconv,
+#AC_HELP_STRING([--with-iconv],
+#               [iconv support [[default=detect]]]),
+#[case $withval in
+#yes|no|detect) ;;
+#*) AC_MSG_ERROR([bad value $withval for --with-readline, need yes/no/detect]) ;;
+#esac],
+#[with_iconv=detect])
+#
+#use_iconv=$with_iconv
+#if test $with_iconv = detect; then
+#  use_iconv=no
+#  AC_CHECK_LIB(iconv, iconv_open, use_iconv=yes)
+#  if test $use_iconv = no; then
+#    AC_CHECK_LIB(iconv, libiconv_open, use_iconv=yes)
+#  fi
+#  AC_CHECK_LIB(c, iconv_open, with_iconv=yes)
+#  AC_MSG_CHECKING(iconv detected)
+#  AC_MSG_RESULT($use_iconv)
+#fi
+#if test $with_iconv = yes; then
+#  AC_DEFINE_UNQUOTED([K_USING_ICONV], [1], Using iconv)
+#  AC_SUBST(WITH_ICONV_01, 1)
+#else
+#  WITH_ICONV_01=0
+#fi
+#if test $use_iconv = yes; then
+#  AC_SUBST(LIBICONV, -liconv)
+#  LIBS="$LIBS -liconv"
+#fi
+#
+## ADDED for readline #########################################################
+## Kimio Kuramitsu
+#
+#AC_ARG_WITH(readline,
+#AC_HELP_STRING([--with-readline],
+#               [readline support [[default=detect]]]),
+#[case $withval in
+#yes|no|detect) ;;
+#*) AC_MSG_ERROR([bad value $withval for --with-readline, need yes/no/detect]) ;;
+#esac],
+#[with_readline=detect])
+#
+#with_libcurses=no
+#LIBCURSES=
+#if test $with_readline != no; then
+#  AC_CHECK_LIB(ncurses, tputs, [with_libcurses=yes],
+#    [AC_CHECK_LIB(curses, tputs, [with_libcurses=yes])])
+#fi
+##AC_SUBST(LIBCURSES)
+#
+#case "${host_os}" in 
+#*cygwin*) use_readline=no;;
+#*) use_readline=$with_readline
+#esac
+#
+#if test $use_readline = detect; then
+#  use_readline=no
+#  AC_CHECK_LIB(readline, readline,
+#    [AC_CHECK_HEADER(readline/readline.h,
+#      [AC_CHECK_HEADER(readline/history.h, use_readline=yes)])],
+#    , $LIBCURSES)
+#  AC_MSG_CHECKING(readline detected)
+#  AC_MSG_RESULT($use_readline)
+#fi
+#if test $use_readline = yes; then
+#  AC_SUBST(WITH_READLINE_01, 1)
+#  AC_SUBST(LIBREADLINE, -lreadline)
+#  AC_DEFINE_UNQUOTED([K_USING_READLINE], [1], Using readline)
+#  if test $with_libcurses = yes; then
+#    LIBS="$LIBS -lncurses"
+#  fi
+#  LIBS="$LIBS -lreadline"
+#else
+#  WITH_READLINE_01=0
+#fi
+#
+#AC_ARG_WITH(iconv-dir,
+#AC_HELP_STRING([--with-iconv-dir],
+#    [path to libiconv's dir ]),
+#    [LIBS="$LIBS $withval"], [])
+#
+#
+## ADDED for socket ###########################################################
+## Kimio Kuramitsu
+#
+#AC_ARG_WITH(socket,
+#AC_HELP_STRING([--with-socket],
+#               [socket support [[default=detect]]]),
+#[case $withval in
+#yes|no|detect) ;;
+#*) AC_MSG_ERROR([bad value $withval for --with-socket, need yes/no/detect]) ;;
+#esac],
+#[with_socket=detect])
+#
+#use_socket=$with_socket
+#if test $with_socket = detect; then
+#  use_socket=no
+#  AC_CHECK_LIB(socket, socket, use_socket=yes)
+#  AC_CHECK_LIB(c, socket, with_socket=yes)
+#  AC_MSG_CHECKING(socket detected)
+#  AC_MSG_RESULT($use_socket)
+#fi
+#if test $with_socket = yes; then
+#  AC_DEFINE_UNQUOTED([K_USING_SOCKET], [1], Using socket)
+#  AC_SUBST(WITH_SOCKET_01, 1)
+#else
+#  WITH_SOCKET_01=0
+#fi
+#if test $use_socket = yes; then
+#  AC_SUBST(LIBSOCKET, -lsocket)
+#  LIBS="$LIBS -lsocket"
+#fi
 
 # ADDED for sqlite3 ###########################################################
 # Kimio Kuramitsu
