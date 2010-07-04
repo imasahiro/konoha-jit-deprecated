@@ -2112,35 +2112,74 @@ static knh_ObjectCSPI_t GammaSPI = {
 	DEFAULT_hashkey, DEFAULT_genmap,
 };
 
+///* ======================================================================== */
+///* KLRInst */
+//
+//static FASTAPI(void) knh_KLRInst_init(Ctx *ctx, Object *o)
+//{
+//	knh_KLRInst_t *inst = (knh_KLRInst_t*)o;
+//	inst->op = (knh_opline_t*)KNH_MALLOC(ctx, sizeof(knh_opline_t));
+//	knh_bzero(inst->op, sizeof(knh_opline_t));
+//	inst->line   = 0;
+//	inst->code_pos = NULL;
+//}
+//
+//static FASTAPI(void) knh_KLRInst_traverse(Ctx *ctx, Object *o, knh_Ftraverse ftr)
+//{
+//	knh_KLRInst_t *inst = (knh_KLRInst_t*)o;
+//	DBG_ASSERT(inst->opcode <= OPCODE_NOP);
+//	knh_opline_traverse(ctx, inst->op, ftr);
+//}
+//
+//static FASTAPI(void) knh_KLRInst_free(Ctx *ctx, Object *o)
+//{
+//	knh_KLRInst_t *inst = (knh_KLRInst_t*)o;
+//	KNH_FREE(ctx, inst->op, sizeof(knh_opline_t));
+//}
+//
+//static knh_ObjectCSPI_t KLRInstSPI = {
+//	"KLRInst", 0, CFLAG_KLRInst,
+//	knh_KLRInst_init, DEFAULT_initcopy,
+//	knh_KLRInst_traverse, knh_KLRInst_free,
+//	DEFAULT_checkout, DEFAULT_compareTo,
+//	DEFAULT_hashkey, DEFAULT_genmap,
+//};
+
 /* ======================================================================== */
-/* KLRInst */
+/* BasicBlock */
 
-static FASTAPI(void) knh_KLRInst_init(Ctx *ctx, Object *o)
+static FASTAPI(void) knh_BasicBlock_init(Ctx *ctx, Object *o)
 {
-	knh_KLRInst_t *inst = (knh_KLRInst_t*)o;
-	inst->op = (knh_opline_t*)KNH_MALLOC(ctx, sizeof(knh_opline_t));
-	knh_bzero(inst->op, sizeof(knh_opline_t));
-	inst->line   = 0;
-	inst->code_pos = NULL;
+	knh_BasicBlock_t *bb = (knh_BasicBlock_t*)o;
+	bb->b = KNH_MALLOCBODY(ctx, BasicBlock);
+	knh_bzero(bb->b, sizeof(knh_BasicBlockEX_t));
+	bb->listNC  = NULL;
+	bb->nextNC  = NULL;
+	bb->jumpNC  = NULL;
 }
 
-static FASTAPI(void) knh_KLRInst_traverse(Ctx *ctx, Object *o, knh_Ftraverse ftr)
+static FASTAPI(void) knh_BasicBlock_traverse(Ctx *ctx, Object *o, knh_Ftraverse ftr)
 {
-	knh_KLRInst_t *inst = (knh_KLRInst_t*)o;
-	DBG_ASSERT(inst->opcode <= OPCODE_NOP);
-	knh_opcode_traverse(ctx, inst->op, ftr);
+	knh_BasicBlock_t *bb = (knh_BasicBlock_t*)o;
+	size_t i;
+	for(i = 0; i < DP(bb)->size; i++) {
+		knh_opline_traverse(ctx, DP(bb)->opbuf + i, ftr);
+	}
 }
 
-static FASTAPI(void) knh_KLRInst_free(Ctx *ctx, Object *o)
+static FASTAPI(void) knh_BasicBlock_free(Ctx *ctx, Object *o)
 {
-	knh_KLRInst_t *inst = (knh_KLRInst_t*)o;
-	KNH_FREE(ctx, inst->op, sizeof(knh_opline_t));
+	knh_BasicBlock_t *bb = (knh_BasicBlock_t*)o;
+	if(DP(bb)->capacity > 0) {
+		KNH_FREE(ctx, DP(bb)->opbuf, DP(bb)->capacity * sizeof(knh_opline_t));
+	}
+	KNH_FREEBODY(ctx, DP(bb), BasicBlock);
 }
 
-static knh_ObjectCSPI_t KLRInstSPI = {
-	"KLRInst", 0, CFLAG_KLRInst,
-	knh_KLRInst_init, DEFAULT_initcopy,
-	knh_KLRInst_traverse, knh_KLRInst_free,
+static knh_ObjectCSPI_t BasicBlockSPI = {
+	"BasicBlock", 0, CFLAG_BasicBlock,
+	knh_BasicBlock_init, DEFAULT_initcopy,
+	knh_BasicBlock_traverse, knh_BasicBlock_free,
 	DEFAULT_checkout, DEFAULT_compareTo,
 	DEFAULT_hashkey, DEFAULT_genmap,
 };
@@ -2163,7 +2202,7 @@ static FASTAPI(void) knh_KLRCode_traverse(Ctx *ctx, Object *o, knh_Ftraverse ftr
 	knh_opline_t *pc = b->code;
 	KNH_FTR(ctx, ftr, b->source);
 	while(pc->opcode != OPCODE_RET) {
-		knh_opcode_traverse(ctx, pc, ftr);
+		knh_opline_traverse(ctx, pc, ftr);
 		pc++;
 	}
 }

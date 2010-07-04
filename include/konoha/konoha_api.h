@@ -83,7 +83,6 @@ KNHAPI(knh_Range_t*) new_Range(Ctx *ctx, knh_class_t p1, Object *start, Object *
 METHOD knh_Fmethod_runVM(Ctx *ctx, knh_sfp_t *sfp, long rix);
 KLRAPI(void) _PRINT(Ctx *ctx, knh_sfp_t *sfp, struct klr_P_t *op);
 void knh_Method_asm(Ctx *ctx, knh_Method_t *mtd, knh_Stmt_t *stmtP, knh_Stmt_t *stmtB, knh_type_t reqt);
-knh_opline_t* knh_code_findLabelId(Ctx *ctx, knh_opline_t *op, knh_intptr_t id);
 void knh_loadSystemKLRCode(Ctx *ctx);
 void knh_write_vmfunc(Ctx *ctx, knh_OutputStream_t *w, void *f);
 knh_NameSpace_t* new_NameSpace(Ctx *ctx, knh_NameSpace_t *nsNULL);
@@ -125,7 +124,7 @@ void knh_opcode_count(Ctx *ctx, knh_opline_t *c);
 char *knh_opcode_tochar(knh_opcode_t opcode);
 size_t knh_opcode_size(knh_opcode_t opcode);
 knh_bool_t knh_opcode_hasjump(knh_opcode_t opcode);
-void knh_opcode_traverse(Ctx *ctx, knh_opline_t *c, knh_Ftraverse ftr);
+void knh_opline_traverse(Ctx *ctx, knh_opline_t *c, knh_Ftraverse ftr);
 void knh_opcode_dump(Ctx *ctx, knh_opline_t *c, knh_OutputStream_t *w, knh_opline_t *pc_start);
 void knh_opcode_idxshift(knh_opline_t *c, int idxshift);
 knh_opline_t* knh_VirtualMachine_run(Ctx *ctx, knh_sfp_t *sfp, knh_opline_t *pc);

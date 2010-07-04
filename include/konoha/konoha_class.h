@@ -288,7 +288,6 @@ typedef struct knh_Array_t {
 #define knh_Array_add(ctx, a, o)    knh_Array_add_(ctx, a, UP(o))
 
 #define knh_TOKENs_n(a, n)    ((knh_Token_t*)(a)->list[(n)])
-#define knh_KLRINSTs_n(a, n)  ((knh_KLRInst_t*)(a)->list[(n)])
 
 ///* ------------------------------------------------------------------------ */
 //## @Cyclic class Map Object;
@@ -1131,23 +1130,6 @@ typedef struct knh_Token_t {
 #define knh_Stmt_isTAILRECURSION(s)       knh_Stmt_isMemo1(s)
 #define knh_Stmt_setTAILRECURSION(s,b)    knh_Stmt_setMemo1(s,b)
 
-///* STT_DECL */
-//#define knh_Stmt_isFuncScope(s)       knh_Stmt_isMemo1(s)
-//#define knh_Stmt_setFuncScope(s,b)    knh_Stmt_setMemo1(s,b)
-///* TCAST */
-///* STT_BLOCK {} */
-//#define knh_Stmt_isDEBUG(s)       knh_Stmt_isMemo1(s)
-//#define knh_Stmt_setDEBUG(s,b)    knh_Stmt_setMemo1(s,b)
-///* STT_TCAST */
-//#define knh_Stmt_isNNCAST(s)       knh_Stmt_isMemo1(s)
-//#define knh_Stmt_setNNCAST(s,b)    knh_Stmt_setMemo1(s,b)
-///* STT_FOREACH */
-//#define knh_Stmt_isMAPNEXT(s)      knh_Stmt_isMemo1(s)
-//#define knh_Stmt_setMAPNEXT(s,b)   knh_Stmt_setMemo1(s,b)
-///* STT_CALL*/
-//#define knh_Stmt_isPROPN(s)      knh_Stmt_isMemo1(s)
-//#define knh_Stmt_setPROPN(s,b)   knh_Stmt_setMemo1(s,b)
-
 /* ------------------------------------------------------------------------ */
 
 typedef struct {
@@ -1233,6 +1215,7 @@ typedef struct {
 	knh_typevars_t            *typevars;
 
 	struct knh_Array_t    *constPools;
+	struct knh_BasicBlock_t *bbNC;
 	struct knh_Array_t    *insts;
 	struct knh_Array_t*   lstacks;
 	struct knh_Stmt_t*    finallyStmt;
@@ -1254,8 +1237,7 @@ typedef struct knh_Gamma_t {
 	knh_uri_t uri; knh_ushort_t line;
 } knh_Gamma_t;
 
-/* ------------------------------------------------------------------------ */
-//## class KLRInst Object;
+///* ------------------------------------------------------------------------ */
 
 typedef knh_uintptr_t          knh_opcode_t;
 typedef knh_intptr_t           knh_sfpidx_t;
@@ -1296,13 +1278,26 @@ typedef struct knh_opline_t {
 		DBG_ASSERT(c < OPCODE_MAX); \
 	}\
 
-typedef struct knh_KLRInst_t {
+/* ------------------------------------------------------------------------ */
+//## class BasicBlock Object;
+//## flag BasicBlock Visited  1 - is set  *   *;
+
+typedef struct knh_BasicBlockEX_t {
+	knh_ushort_t id;     knh_ushort_t incoming;
+	knh_opline_t *opbuf;
+	knh_ushort_t size;   knh_ushort_t capacity;
+	knh_ushort_t bottom; knh_ushort_t top;
+	knh_opline_t *code;
+	knh_opline_t *opjmp;
+} knh_BasicBlockEX_t ;
+
+typedef struct knh_BasicBlock_t {
 	knh_hObject_t h;
-	knh_opline_t *op;
-	knh_opline_t *code_pos;
-	knh_ushort_t opcode;
-	knh_ushort_t line;
-} knh_KLRInst_t;
+	knh_BasicBlockEX_t *b;
+	struct knh_Array_t *listNC;
+	struct knh_BasicBlock_t *nextNC;
+	struct knh_BasicBlock_t *jumpNC;
+} knh_BasicBlock_t ;
 
 /* ------------------------------------------------------------------------ */
 //## class KLRCode Object;

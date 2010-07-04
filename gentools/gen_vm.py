@@ -252,6 +252,12 @@ for line in INSTRUCTIONS.split('\n'):
 
 #------------------------------------------------------------------------------
 
+#			f.write('''
+#	union {
+#		knh_KLRInst_t* lb; /* label*/
+#		knh_opline_t  *jumppc;
+#	}; ''')
+
 def write_KCODE_h(f, kc):
 	f.write('''
 #define %s ((knh_opcode_t)%d)''' % (kc.OPCODE, kc.opcode))
@@ -262,10 +268,7 @@ typedef struct %s {
 		n, t = a.split(':')
 		if t == "addr" : 
 			f.write('''
-	union {
-		knh_KLRInst_t* lb; /* label*/
-		knh_opline_t  *jumppc;
-	}; ''')
+	knh_opline_t  *jumppc;''')
 		else: 
 			f.write('''
 	%s %s;''' % (getctype(t, n), n))
@@ -383,7 +386,7 @@ knh_bool_t knh_opcode_hasjump(knh_opcode_t opcode)
 	return (OPDATA[opcode].types[0] == VMT_ADDR);
 }
 /* ------------------------------------------------------------------------ */
-void knh_opcode_traverse(Ctx *ctx, knh_opline_t *c, knh_Ftraverse ftr)
+void knh_opline_traverse(Ctx *ctx, knh_opline_t *c, knh_Ftraverse ftr)
 {
 	size_t i, size = OPDATA[c->opcode].size;
 	for(i = 0; i < size; i++) {

@@ -479,7 +479,6 @@ typedef knh_ushort_t              knh_uri_t;
 
 #define NSN_main           0
 #define FILEN_unknown      0
-#define KNH_ASM_JMP(ctx, l)  KNH_ASM_JMP_(ctx, l);
 
 #define URIDN(uri) S_tochar(knh_getURN(ctx, uri))
 #define FILEN(uri) knh_sfile(URIDN(uri))

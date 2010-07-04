@@ -308,7 +308,7 @@ static knh_data_t StructData0[] = {
 	DATA_STRUCT, CLASS_Token, _DATA(&TokenSPI), FLAG_Token,
 	DATA_STRUCT, CLASS_Stmt, _DATA(&StmtSPI), FLAG_Stmt,
 	DATA_STRUCT, CLASS_Gamma, _DATA(&GammaSPI), FLAG_Gamma,
-	DATA_STRUCT, CLASS_KLRInst, _DATA(&KLRInstSPI), FLAG_KLRInst,
+	DATA_STRUCT, CLASS_BasicBlock, _DATA(&BasicBlockSPI), FLAG_BasicBlock,
 	DATA_STRUCT, CLASS_KLRCode, _DATA(&KLRCodeSPI), FLAG_KLRCode,
 	0
 };
@@ -355,7 +355,7 @@ static knh_data_t ClassData0[] = {
 	DATA_CLASS, _DATA("konoha.Token"), FLAG_Token, CLASS_Token, CLASS_Term, 0 + 0 /*0*/,
 	DATA_CLASS, _DATA("konoha.Stmt"), FLAG_Stmt, CLASS_Stmt, CLASS_Term, 0 + 0 /*0*/,
 	DATA_CLASS, _DATA("konoha.Gamma"), FLAG_Gamma, CLASS_Gamma, CLASS_Object, 0 + 0 /*0*/,
-	DATA_CLASS, _DATA("konoha.KLRInst"), FLAG_KLRInst, CLASS_KLRInst, CLASS_Object, 0 + 0 /*0*/,
+	DATA_CLASS, _DATA("konoha.BasicBlock"), FLAG_BasicBlock, CLASS_BasicBlock, CLASS_Object, 0 + 0 /*0*/,
 	DATA_CLASS, _DATA("konoha.KLRCode"), FLAG_KLRCode, CLASS_KLRCode, CLASS_Object, 0 + 0 /*0*/,
 	DATA_CLASS, _DATA("konoha.Tvoid"), FLAG_Tvoid, CLASS_Any, CLASS_Any, 0 + 0 /*0*/,
 	DATA_CLASS, _DATA("konoha.Tvar"), FLAG_Tvar, CLASS_Any, CLASS_Any, 0 + 0 /*0*/,

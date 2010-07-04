@@ -376,7 +376,7 @@ knh_bool_t knh_opcode_hasjump(knh_opcode_t opcode)
 	return (OPDATA[opcode].types[0] == VMT_ADDR);
 }
 /* ------------------------------------------------------------------------ */
-void knh_opcode_traverse(Ctx *ctx, knh_opline_t *c, knh_Ftraverse ftr)
+void knh_opline_traverse(Ctx *ctx, knh_opline_t *c, knh_Ftraverse ftr)
 {
 	size_t i, size = OPDATA[c->opcode].size;
 	for(i = 0; i < size; i++) {

@@ -2,8 +2,8 @@
 
 /* ======================================================================== */
 /* MACROS */
-#define K_REVISION                      1594
-#define K_BUILDID                       937
+#define K_REVISION                      1598
+#define K_BUILDID                       939
 
 /* ======================================================================== */
 /* STRUCT */
@@ -377,13 +377,13 @@
 #define FLAG_Gamma              FLAG_oflag(CFLAG_Gamma)
 
 /* ------------------------------------------------------------------------ */
-/* KLRInst */
-#define CLASS_KLRInst           ((knh_class_t)41)
-#define IS_KLRInst(o)           ((o)->h.cid == CLASS_KLRInst)
-#define IS_bKLRInst(o)          ((o)->h.bcid == CLASS_KLRInst)
-#define TYPE_KLRInst            CLASS_KLRInst
-#define CFLAG_KLRInst           ((knh_flag_t)0)
-#define FLAG_KLRInst            FLAG_oflag(CFLAG_KLRInst)
+/* BasicBlock */
+#define CLASS_BasicBlock        ((knh_class_t)41)
+#define IS_BasicBlock(o)        ((o)->h.cid == CLASS_BasicBlock)
+#define IS_bBasicBlock(o)       ((o)->h.bcid == CLASS_BasicBlock)
+#define TYPE_BasicBlock         CLASS_BasicBlock
+#define CFLAG_BasicBlock        ((knh_flag_t)0)
+#define FLAG_BasicBlock         FLAG_oflag(CFLAG_BasicBlock)
 
 /* ------------------------------------------------------------------------ */
 /* KLRCode */
@@ -891,6 +891,11 @@
 #define knh_Gamma_isTailRecursion(o)  ((DP(o)->cflag & FLAG_Gamma_TailRecursion) == FLAG_Gamma_TailRecursion)
 
 #define knh_Gamma_setTailRecursion(o,b) if(b) DP(o)->cflag |= FLAG_Gamma_TailRecursion; else DP(o)->cflag &= ~(FLAG_Gamma_TailRecursion);
+#define FLAG_BasicBlock_Visited         FLAG_Object_Local1
+
+#define knh_BasicBlock_isVisited(o)  (((o)->h.flag & FLAG_BasicBlock_Visited) == FLAG_BasicBlock_Visited)
+
+#define knh_BasicBlock_setVisited(o,b) if(b) (o)->h.flag |= FLAG_BasicBlock_Visited; else (o)->h.flag &= ~(FLAG_BasicBlock_Visited);
 
 /* ======================================================================== */
 /* EXPT */

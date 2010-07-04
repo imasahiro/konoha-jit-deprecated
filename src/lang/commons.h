@@ -168,18 +168,6 @@ void TestToken(Ctx *ctx);
 
 #define METHOD_getSize  MN_toGETTER(FN_size)
 
-#if defined(K_USING_THREADEDCODE)
-#define TADDR   NULL, 0/*counter*/,
-#else
-#define TADDR   0/*counter*/,
-#endif/*K_USING_THREADEDCODE*/
-
-#define ASMLINE  ,0
-
-#define KNH_ASM(T, ...) { \
-		klr_##T##_t op_ = {TADDR OPCODE_##T ASMLINE, ## __VA_ARGS__}; \
-		knh_asmop(ctx, (knh_opline_t*)(&op_), sizeof(klr_##T##_t)); \
-	}\
 
 /* ------------------------------------------------------------------------ */
 
