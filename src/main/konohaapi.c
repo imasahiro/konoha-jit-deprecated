@@ -477,6 +477,7 @@ static knh_bool_t shell_readstmt(Ctx *ctx, void *status, knh_cwb_t *cwb, const k
 			}
 			else {
 				line++;
+				goto L_TOP;
 			}
 		}
 		knh_Bytes_putc(ctx, cwb->ba, ch);
