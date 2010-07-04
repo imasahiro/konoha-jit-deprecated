@@ -1281,6 +1281,7 @@ typedef struct knh_opline_t {
 /* ------------------------------------------------------------------------ */
 //## class BasicBlock Object;
 //## flag BasicBlock Visited  1 - is set  *   *;
+//## flag BasicBlock StackChecked 2 - is set * *;
 
 typedef struct knh_BasicBlockEX_t {
 	knh_ushort_t id;     knh_ushort_t incoming;

@@ -120,6 +120,7 @@ static void knh_BasicBlock_add_(Ctx *ctx, knh_BasicBlock_t *bb, int line, knh_op
 	}
 }
 
+
 static void knh_Gamma_gc(Ctx *ctx)
 {
 	KNH_SETv(ctx, DP(ctx->gma)->mtd, KNH_NULL);
@@ -260,62 +261,126 @@ static void dumpBB(knh_BasicBlock_t *bb, char *indent)
 	}
 }
 
-static void knh_BasicBlock_strip(Ctx *ctx, knh_BasicBlock_t *bb)
+static void knh_BasicBlock_strip0(Ctx *ctx, knh_BasicBlock_t *bb)
 {
 	L_TAIL:;
+	if(knh_BasicBlock_isVisited(bb)) return;
+	knh_BasicBlock_setVisited(bb, 1);
 	if(bb->jumpNC != NULL) {
 		L_JUMP:;
 		knh_BasicBlock_t *bbJ = bb->jumpNC;
 		if(DP(bbJ)->size == 0 && bbJ->jumpNC != NULL && bbJ->nextNC == NULL) {
-			DBG_P("DIRECT JMP id=%d to id=%d", DP(bbJ)->id, DP(bbJ->jumpNC)->id);
+			DBG_P("DIRECT JMP id=%d JMP to id=%d", DP(bbJ)->id, DP(bbJ->jumpNC)->id);
 			DP(bbJ)->incoming -= 1;
 			bb->jumpNC = bbJ->jumpNC;
 			DP(bb->jumpNC)->incoming += 1;
 			goto L_JUMP;
 		}
 		if(DP(bbJ)->size == 0 && bbJ->jumpNC == NULL && bbJ->nextNC != NULL) {
-			DBG_P("DIRECT JMP id=%d to id=%d", DP(bbJ)->id, DP(bbJ->nextNC)->id);
+			DBG_P("DIRECT JMP id=%d NEXT to id=%d", DP(bbJ)->id, DP(bbJ->nextNC)->id);
 			DP(bbJ)->incoming -= 1;
 			bb->jumpNC = bbJ->nextNC;
 			DP(bb->jumpNC)->incoming += 1;
 			goto L_JUMP;
 		}
 		if(bb->nextNC == NULL) {
-			if(DP(bbJ)->incoming == 1) {
-				DBG_P("%d JMP TO NEXT", DP(bb)->id);
+			if(DP(bbJ)->incoming == 1 ) {
+				DBG_P("REMOVED %d JMP TO %d", DP(bb)->id, DP(bbJ)->id);
 				bb->nextNC = bbJ;
 				bb->jumpNC = NULL;
 				goto L_NEXT;
 			}
-			dumpBB(bb->jumpNC, "");
-			bb = bb->jumpNC;
-			goto L_TAIL;
 		}
-		else {
-			DBG_P("** branch next=%d, jump%d", DP(bb->nextNC)->id, DP(bb->jumpNC)->id);
-			knh_BasicBlock_strip(ctx, bb->jumpNC);
-			knh_BasicBlock_strip(ctx, bb->nextNC);
-			return;
-		}
+		knh_BasicBlock_strip0(ctx, bbJ);
+	}
+	if(bb->jumpNC != NULL && bb->nextNC != NULL) {
+		bb = bb->nextNC;
+		goto L_TAIL;
 	}
 	L_NEXT:;
 	if(bb->nextNC != NULL) {
 		knh_BasicBlock_t *bbN = bb->nextNC;
-		if(DP(bbN)->incoming == 1) {
-			size_t i;
-			DBG_P("join %d(%s) and %d(%s)", DP(bb)->id, BB(bb), DP(bbN)->id, BB(bbN));
+		if(DP(bbN)->size == 0 && bbN->nextNC != NULL && bbN->jumpNC == NULL) {
+			DBG_P("DIRECT NEXT id=%d to id=%d", DP(bbN)->id, DP(bbN->nextNC)->id);
+			DP(bbN)->incoming -= 1;
 			bb->nextNC = bbN->nextNC;
+			DP(bb->nextNC)->incoming += 1;
+			goto L_NEXT;
+		}
+		if(DP(bbN)->size == 0 && bbN->nextNC == NULL && bbN->jumpNC != NULL) {
+			DBG_P("DIRECT NEXT id=%d to JUMP id=%d", DP(bbN)->id, DP(bbN->jumpNC)->id);
+			DP(bbN)->incoming -= 1;
+			bb->nextNC = NULL;
 			bb->jumpNC = bbN->jumpNC;
-			for(i = 0; i < DP(bbN)->size; i++) {
-				knh_opline_t *opN = DP(bbN)->opbuf + i;
-				knh_BasicBlock_add_(ctx, bb, opN->line, opN);
-			}
+			DP(bb->jumpNC)->incoming += 1;
+			goto L_JUMP;
+		}
+		bb = bb->nextNC;
+		goto L_TAIL;
+	}
+}
+
+static void knh_BasicBlock_freebuf(Ctx *ctx, knh_BasicBlock_t *bb)
+{
+	KNH_FREE(ctx, DP(bb)->opbuf, sizeof(knh_opline_t) * DP(bb)->capacity);
+	DP(bb)->capacity = 0;
+	DP(bb)->size = 0;
+	DP(bb)->opbuf = NULL;
+}
+
+static void knh_BasicBlock_join(Ctx *ctx, knh_BasicBlock_t *bb, knh_BasicBlock_t *bbN)
+{
+	DBG_P("join %d(%s) size=%d and %d(%s) size=%d", DP(bb)->id, BB(bb), DP(bb)->size, DP(bbN)->id, BB(bbN), DP(bbN)->size);
+	bb->nextNC = bbN->nextNC;
+	bb->jumpNC = bbN->jumpNC;
+	if(DP(bbN)->size == 0) {
+		return;
+	}
+	if(DP(bb)->size == 0) {
+		DBG_ASSERT(DP(bb)->capacity == 0);
+		DP(bb)->opbuf = DP(bbN)->opbuf;
+		DP(bb)->capacity = DP(bbN)->capacity;
+		DP(bb)->size = DP(bbN)->size;
+		DP(bbN)->opbuf = NULL;
+		DP(bbN)->capacity = 0;
+		DP(bbN)->size = 0;
+		return;
+	}
+	if(DP(bb)->capacity < DP(bb)->size + DP(bbN)->size) {
+		knh_BasicBlock_expand(ctx, bb, DP(bb)->size + DP(bbN)->size);
+	}
+	knh_memcpy(DP(bb)->opbuf + DP(bb)->size, DP(bbN)->opbuf, sizeof(knh_opline_t) * DP(bbN)->size);
+	DP(bb)->size += DP(bbN)->size;
+	knh_BasicBlock_freebuf(ctx, bbN);
+}
+
+static void knh_BasicBlock_strip1(Ctx *ctx, knh_BasicBlock_t *bb)
+{
+	L_TAIL:;
+	if(!knh_BasicBlock_isVisited(bb)) return;
+	knh_BasicBlock_setVisited(bb, 0);  // MUST call after strip0
+	if(bb->jumpNC != NULL) {
+		if(bb->nextNC == NULL) {
+			bb = bb->jumpNC;
+			goto L_TAIL;
+		}
+		else {
+			//DBG_P("** branch next=%d, jump%d", DP(bb->nextNC)->id, DP(bb->jumpNC)->id);
+			knh_BasicBlock_strip1(ctx, bb->jumpNC);
+			bb = bb->nextNC;
+			goto L_TAIL;
+		}
+	}
+	if(bb->nextNC != NULL) {
+		knh_BasicBlock_t *bbN = bb->nextNC;
+		if(DP(bbN)->incoming == 1) {
+			knh_BasicBlock_join(ctx, bb, bbN);
+			knh_BasicBlock_setVisited(bb, 1);
 			goto L_TAIL;
 		}
 		bb = bb->nextNC;
 		goto L_TAIL;
 	}
-	return;
 }
 
 static size_t knh_BasicBlock_size(Ctx *ctx, knh_BasicBlock_t *bb, size_t c)
@@ -328,7 +393,7 @@ static size_t knh_BasicBlock_size(Ctx *ctx, knh_BasicBlock_t *bb, size_t c)
 		bb = bb->jumpNC; goto L_TAIL;
 	}
 	if(bb->jumpNC != NULL) { DBG_ASSERT(bb->nextNC == NULL);
-		if(DP(bb->jumpNC)->size > 0 && DP(bb->jumpNC)->opbuf->opcode == OPCODE_RET) {
+		if(knh_BasicBlock_opcode(bb->jumpNC) == OPCODE_RET) {
 			knh_BasicBlock_add(ctx, bb, JMP_);
 		}
 		else {
@@ -342,25 +407,39 @@ static size_t knh_BasicBlock_size(Ctx *ctx, knh_BasicBlock_t *bb, size_t c)
 	goto L_TAIL;
 }
 
-static knh_opline_t* knh_BasicBlock_copy(Ctx *ctx, knh_opline_t *dst, knh_BasicBlock_t *bb)
+static knh_opline_t* knh_BasicBlock_copy(Ctx *ctx, knh_opline_t *dst, knh_BasicBlock_t *bb, knh_BasicBlock_t **prev)
 {
 	if(bb == NULL || DP(bb)->code != NULL) return dst;
 	knh_BasicBlock_setVisited(bb, 0);
+	if(prev[0] != NULL && prev[0]->nextNC == NULL && prev[0]->jumpNC == bb) {
+		DBG_P("REMOVE NUNECESSARY JMP");
+		dst -= 1;
+	}
 	DP(bb)->code = dst;
 	if(DP(bb)->size > 0) {
+		size_t i;
 		DBG_P("asm bb=%d, %p, %s", DP(bb)->id, dst, BB(bb));
 		knh_memcpy(dst, DP(bb)->opbuf, sizeof(knh_opline_t) * DP(bb)->size);
 		if(bb->jumpNC != NULL) {
 			DP(bb)->opjmp = (dst + (DP(bb)->size - 1));
 		}
+		for(i = 0; i < DP(bb)->size; i++) {
+			knh_opline_t *op = DP(bb)->opbuf + i;
+			if(op->opcode == OPCODE_VCALL) {
+				if(knh_BasicBlock_isStackChecked(bb)) {
+					op->opcode = OPCODE_VCALL_;
+				}
+				else {
+					knh_BasicBlock_setStackChecked(bb, 1);
+				}
+			}
+		}
 		dst = dst + DP(bb)->size;
-		KNH_FREE(ctx, DP(bb)->opbuf, sizeof(knh_opline_t) * DP(bb)->capacity);
-		DP(bb)->capacity = 0;
-		DP(bb)->size = 0;
-		DP(bb)->opbuf = NULL;
+		knh_BasicBlock_freebuf(ctx, bb);
+		prev[0] = bb;
 	}
-	dst = knh_BasicBlock_copy(ctx, dst, bb->nextNC);
-	dst = knh_BasicBlock_copy(ctx, dst, bb->jumpNC);
+	dst = knh_BasicBlock_copy(ctx, dst, bb->nextNC, prev);
+	dst = knh_BasicBlock_copy(ctx, dst, bb->jumpNC, prev);
 	return dst;
 }
 
@@ -383,10 +462,11 @@ static void knh_BasicBlock_setjump(knh_BasicBlock_t *bb)
 static knh_KLRCode_t* knh_BasicBlock_link(Ctx *ctx, knh_BasicBlock_t *bb)
 {
 	knh_KLRCode_t *kcode = new_(KLRCode);
+	knh_BasicBlock_t *prev[1] = {};
 	SP(kcode)->uri = SP(ctx->gma)->uri;
 	SP(kcode)->codesize = knh_BasicBlock_size(ctx, bb, 0) * sizeof(knh_opline_t);
 	SP(kcode)->code = (knh_opline_t*)KNH_MALLOC(ctx, SP(kcode)->codesize);
-	knh_BasicBlock_copy(ctx, SP(kcode)->code, bb);
+	knh_BasicBlock_copy(ctx, SP(kcode)->code, bb, prev);
 	knh_BasicBlock_setjump(bb);
 	return kcode;
 }
@@ -420,7 +500,8 @@ static void knh_Method_threadCode(Ctx *ctx, knh_Method_t *mtd, knh_KLRCode_t *kc
 static void knh_Gamma_compile(Ctx *ctx, knh_BasicBlock_t *bb)
 {
 	knh_Method_t *mtd = DP(ctx->gma)->mtd;
-	knh_BasicBlock_strip(ctx, bb);
+	knh_BasicBlock_strip0(ctx, bb);
+	knh_BasicBlock_strip1(ctx, bb);
 	knh_KLRCode_t *kcode = knh_BasicBlock_link(ctx, bb);
 	DBG_ASSERT(IS_Method(mtd));
 	knh_Method_threadCode(ctx, mtd, kcode);
@@ -455,8 +536,10 @@ static void KNH_ASM_LABEL(Ctx *ctx, knh_BasicBlock_t *label)
 static void KNH_ASM_JMP(Ctx *ctx, knh_BasicBlock_t *label)
 {
 	knh_BasicBlock_t *bb = DP(ctx->gma)->bbNC;
-	bb->nextNC = NULL;
-	bb->jumpNC = label;  DP(label)->incoming += 1;
+	if(bb != NULL) {
+		bb->nextNC = NULL;
+		bb->jumpNC = label;  DP(label)->incoming += 1;
+	}
 	DP(ctx->gma)->bbNC = NULL; /*KNH_TNULL(BasicBlock);*/
 }
 
@@ -1215,26 +1298,23 @@ static int knh_StmtPARAMs_asm(Ctx *ctx, knh_Stmt_t *stmt, size_t s, int local, k
 //
 //static void KNH_ASM_INLINE(Ctx *ctx, int sfpshift, knh_opline_t *codeblock, size_t isize)
 //{
-//	knh_opline_t *pc = codeblock;
-//	knh_Array_t *a = DP(ctx->gma)->insts;
-//	size_t start = knh_Array_size(a);
-//	while(1) {
-//		if(knh_opset_isHeadOfBasicBlock(codeblock, pc)) {
-//			knh_BasicBlock_t *lb = new_BasicBlockLABEL(ctx);
-//			lb->code_pos = pc;
-//			knh_Array_add(ctx, a, lb);
+//	size_t i;
+//	knh_BasicBlock_t *bb = new_BasicBlockLABEL(ctx);
+//	DP(bb)->opbuf = (knh_opline_t*)KNH_MALLOC(ctx, sizeof(knh_opline_t) * isize);
+//	DP(bb)->capacity = isize;
+//	DP(bb)->size = isize;
+//	for(i = 0; i < isize; i++) {
+//		knh_opline_t *op = DP(bb)->opbuf + i;
+//		knh_opcode_idxshift(op, sfpshift);
+//		if(op->opcode == OPCODE_JMP_) {
+//			op->opcode = OPCODE_JMP;
 //		}
-//		if(pc->opcode == OPCODE_RET) {
-//			break;
-//		}
-//		else {
-//			knh_BasicBlock_t *ix = new_BasicBlock(ctx, pc, sizeof(knh_opline_t));
+//	}
+//	DP(bb)->code = codeblock;
+//	knh_BasicBlock_
 //			ix->code_pos = pc;
 //			ix->op->count = 0;
-//			knh_opcode_idxshift(ix->op, sfpshift);
 //			knh_Array_add(ctx, a, ix);
-//			if(ix->opcode == OPCODE_JMP_) {
-//				ix->opcode = OPCODE_JMP;
 //				ix->op->opcode = OPCODE_JMP;
 //			}
 //			if(pc->opcode == OPCODE_RET) break;

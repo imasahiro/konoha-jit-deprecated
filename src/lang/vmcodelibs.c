@@ -395,7 +395,7 @@ void knh_opcode_dump(Ctx *ctx, knh_opline_t *c, knh_OutputStream_t *w, knh_oplin
 		knh_printf(ctx, w, "[%p:%d] %s(%d)", c, c->line, knh_opcode_tochar(c->opcode), (knh_intptr_t)c->opcode);
 	}
 	else {
-		knh_printf(ctx, w, "L%d:%p(%d): %s(%d)", c - pc_start, c, c->line, knh_opcode_tochar(c->opcode), (knh_intptr_t)c->opcode);
+		knh_printf(ctx, w, "L%d(%d): %s(%d)", c - pc_start, c->line, knh_opcode_tochar(c->opcode), (knh_intptr_t)c->opcode);
 	}
 	for(i = 0; i < size; i++) {
 		knh_putc(ctx, w, ' '); 

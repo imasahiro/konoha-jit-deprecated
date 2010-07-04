@@ -2,8 +2,8 @@
 
 /* ======================================================================== */
 /* MACROS */
-#define K_REVISION                      1598
-#define K_BUILDID                       939
+#define K_REVISION                      1599
+#define K_BUILDID                       940
 
 /* ======================================================================== */
 /* STRUCT */
@@ -896,6 +896,11 @@
 #define knh_BasicBlock_isVisited(o)  (((o)->h.flag & FLAG_BasicBlock_Visited) == FLAG_BasicBlock_Visited)
 
 #define knh_BasicBlock_setVisited(o,b) if(b) (o)->h.flag |= FLAG_BasicBlock_Visited; else (o)->h.flag &= ~(FLAG_BasicBlock_Visited);
+#define FLAG_BasicBlock_StackChecked    FLAG_Object_Local2
+
+#define knh_BasicBlock_isStackChecked(o)  (((o)->h.flag & FLAG_BasicBlock_StackChecked) == FLAG_BasicBlock_StackChecked)
+
+#define knh_BasicBlock_setStackChecked(o,b) if(b) (o)->h.flag |= FLAG_BasicBlock_StackChecked; else (o)->h.flag &= ~(FLAG_BasicBlock_StackChecked);
 
 /* ======================================================================== */
 /* EXPT */
