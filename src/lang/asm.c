@@ -234,6 +234,90 @@ static void knh_Gamma_asm(Ctx *ctx, knh_opline_t *op)
 /* ------------------------------------------------------------------------ */
 /* new_KLRCode */
 
+static knh_opcode_t knh_BasicBlock_opcode(knh_BasicBlock_t *bb)
+{
+	if(DP(bb)->size == 0) return OPCODE_NOP;
+	return DP(bb)->opbuf->opcode;
+}
+
+#define BB(bb)   knh_opcode_tochar(knh_BasicBlock_opcode(bb))
+
+static void dumpBB(knh_BasicBlock_t *bb, char *indent)
+{
+	size_t i;
+	DBG_P("%sid=%i, size=%d", indent, DP(bb)->id, DP(bb)->size);
+	if(bb->nextNC != NULL) {
+		DBG_P("%s\tnext=%d", indent, DP(bb->nextNC)->id);
+		if(indent[0] == 0) dumpBB(bb->nextNC, "\t");
+	}
+	if(bb->jumpNC != NULL) {
+		DBG_P("%s\tjump=%d", indent, DP(bb->jumpNC)->id);
+		if(indent[0] == 0) dumpBB(bb->jumpNC, "\t");
+	}
+	for(i = 0; i < DP(bb)->size; i++) {
+		knh_opline_t *op = DP(bb)->opbuf + i;
+		DBG_P("%s\t opcode=%s", indent, knh_opcode_tochar(op->opcode));
+	}
+}
+
+static void knh_BasicBlock_strip(Ctx *ctx, knh_BasicBlock_t *bb)
+{
+	L_TAIL:;
+	if(bb->jumpNC != NULL) {
+		L_JUMP:;
+		knh_BasicBlock_t *bbJ = bb->jumpNC;
+		if(DP(bbJ)->size == 0 && bbJ->jumpNC != NULL && bbJ->nextNC == NULL) {
+			DBG_P("DIRECT JMP id=%d to id=%d", DP(bbJ)->id, DP(bbJ->jumpNC)->id);
+			DP(bbJ)->incoming -= 1;
+			bb->jumpNC = bbJ->jumpNC;
+			DP(bb->jumpNC)->incoming += 1;
+			goto L_JUMP;
+		}
+		if(DP(bbJ)->size == 0 && bbJ->jumpNC == NULL && bbJ->nextNC != NULL) {
+			DBG_P("DIRECT JMP id=%d to id=%d", DP(bbJ)->id, DP(bbJ->nextNC)->id);
+			DP(bbJ)->incoming -= 1;
+			bb->jumpNC = bbJ->nextNC;
+			DP(bb->jumpNC)->incoming += 1;
+			goto L_JUMP;
+		}
+		if(bb->nextNC == NULL) {
+			if(DP(bbJ)->incoming == 1) {
+				DBG_P("%d JMP TO NEXT", DP(bb)->id);
+				bb->nextNC = bbJ;
+				bb->jumpNC = NULL;
+				goto L_NEXT;
+			}
+			dumpBB(bb->jumpNC, "");
+			bb = bb->jumpNC;
+			goto L_TAIL;
+		}
+		else {
+			DBG_P("** branch next=%d, jump%d", DP(bb->nextNC)->id, DP(bb->jumpNC)->id);
+			knh_BasicBlock_strip(ctx, bb->jumpNC);
+			knh_BasicBlock_strip(ctx, bb->nextNC);
+			return;
+		}
+	}
+	L_NEXT:;
+	if(bb->nextNC != NULL) {
+		knh_BasicBlock_t *bbN = bb->nextNC;
+		if(DP(bbN)->incoming == 1) {
+			size_t i;
+			DBG_P("join %d(%s) and %d(%s)", DP(bb)->id, BB(bb), DP(bbN)->id, BB(bbN));
+			bb->nextNC = bbN->nextNC;
+			bb->jumpNC = bbN->jumpNC;
+			for(i = 0; i < DP(bbN)->size; i++) {
+				knh_opline_t *opN = DP(bbN)->opbuf + i;
+				knh_BasicBlock_add_(ctx, bb, opN->line, opN);
+			}
+			goto L_TAIL;
+		}
+		bb = bb->nextNC;
+		goto L_TAIL;
+	}
+	return;
+}
+
 static size_t knh_BasicBlock_size(Ctx *ctx, knh_BasicBlock_t *bb, size_t c)
 {
 	L_TAIL:;
@@ -244,11 +328,6 @@ static size_t knh_BasicBlock_size(Ctx *ctx, knh_BasicBlock_t *bb, size_t c)
 		bb = bb->jumpNC; goto L_TAIL;
 	}
 	if(bb->jumpNC != NULL) { DBG_ASSERT(bb->nextNC == NULL);
-		if(DP(bb->jumpNC)->incoming == 1) {
-			bb->nextNC = bb->jumpNC;
-			bb->jumpNC = NULL;
-			goto L_NEXT;
-		}
 		if(DP(bb->jumpNC)->size > 0 && DP(bb->jumpNC)->opbuf->opcode == OPCODE_RET) {
 			knh_BasicBlock_add(ctx, bb, JMP_);
 		}
@@ -258,7 +337,6 @@ static size_t knh_BasicBlock_size(Ctx *ctx, knh_BasicBlock_t *bb, size_t c)
 		c = DP(bb)->size + c; bb = bb->jumpNC;
 		goto L_TAIL;
 	}
-	L_NEXT:;
 	c = DP(bb)->size + c;
 	bb = bb->nextNC;
 	goto L_TAIL;
@@ -270,6 +348,7 @@ static knh_opline_t* knh_BasicBlock_copy(Ctx *ctx, knh_opline_t *dst, knh_BasicB
 	knh_BasicBlock_setVisited(bb, 0);
 	DP(bb)->code = dst;
 	if(DP(bb)->size > 0) {
+		DBG_P("asm bb=%d, %p, %s", DP(bb)->id, dst, BB(bb));
 		knh_memcpy(dst, DP(bb)->opbuf, sizeof(knh_opline_t) * DP(bb)->size);
 		if(bb->jumpNC != NULL) {
 			DP(bb)->opjmp = (dst + (DP(bb)->size - 1));
@@ -291,9 +370,11 @@ static void knh_BasicBlock_setjump(knh_BasicBlock_t *bb)
 	if(bb == NULL || knh_BasicBlock_isVisited(bb)) return;
 	knh_BasicBlock_setVisited(bb, 1);
 	if(bb->jumpNC != NULL) {
+		knh_BasicBlock_t *bbJ = bb->jumpNC;
 		klr_JMP_t *j = (klr_JMP_t*)DP(bb)->opjmp;
-		j->jumppc = DP(bb->jumpNC)->code;
-		knh_BasicBlock_setjump(bb->jumpNC);
+		j->jumppc = DP(bbJ)->code;
+		DBG_P("jump to id=%d jumppc=%p", DP(bbJ)->id, DP(bbJ)->code);
+		knh_BasicBlock_setjump(bbJ);
 	}
 	bb = bb->nextNC;
 	goto L_TAIL;
@@ -339,6 +420,7 @@ static void knh_Method_threadCode(Ctx *ctx, knh_Method_t *mtd, knh_KLRCode_t *kc
 static void knh_Gamma_compile(Ctx *ctx, knh_BasicBlock_t *bb)
 {
 	knh_Method_t *mtd = DP(ctx->gma)->mtd;
+	knh_BasicBlock_strip(ctx, bb);
 	knh_KLRCode_t *kcode = knh_BasicBlock_link(ctx, bb);
 	DBG_ASSERT(IS_Method(mtd));
 	knh_Method_threadCode(ctx, mtd, kcode);
@@ -1626,11 +1708,11 @@ static void knh_Gamma_popLABEL(Ctx *ctx)
 /* ======================================================================== */
 /* [IF, WHILE, DO, FOR, FOREACH]  */
 
-static int TERMs_isDONE(knh_Stmt_t *stmt, size_t n)
-{
-	knh_Stmt_t *cur = DP(stmt)->stmts[n];
-	return (IS_Stmt(cur) && SP(cur)->stt == STT_DONE);
-}
+//static int TERMs_isDONE(knh_Stmt_t *stmt, size_t n)
+//{
+//	knh_Stmt_t *cur = DP(stmt)->stmts[n];
+//	return (IS_Stmt(cur) && SP(cur)->stt == STT_DONE);
+//}
 
 static knh_Token_t *knh_Stmt_getLOCAL(knh_Stmt_t *stmt, size_t n)
 {
@@ -1655,12 +1737,12 @@ static void knh_StmtIF_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
 	TERMs_JMPIF(ctx, stmt, 0, 0/*FALSE*/, lbELSE, DP(ctx->gma)->espidx);
 	/* then */
 	TERMs_asmBLOCK(ctx, stmt, 1, reqt);
-
-	if(TERMs_isDONE(stmt, 2)) { /* PEEPHOLE this isn't a bug */
-		KNH_ASM_LABEL(ctx, lbELSE);
-		KNH_ASM_LABEL(ctx, lbEND);
-		return ;
-	}
+//
+//	if(TERMs_isDONE(stmt, 2)) { /* PEEPHOLE this isn't a bug */
+//		KNH_ASM_LABEL(ctx, lbELSE);
+//		KNH_ASM_LABEL(ctx, lbEND);
+//		return ;
+//	}
 	KNH_ASM_JMP(ctx, lbEND);
 	/* else */
 	KNH_ASM_LABEL(ctx, lbELSE);
