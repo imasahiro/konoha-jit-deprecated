@@ -45,12 +45,20 @@ extern "C" {
 
 #define K_INLINECODE    (10)
 
-static int knh_Gamma_inTry(Ctx *ctx);
-static knh_BasicBlock_t *new_BasicBlockLABEL(Ctx *ctx);
+//static int knh_Gamma_inTry(Ctx *ctx);
+//static knh_BasicBlock_t *new_BasicBlockLABEL(Ctx *ctx);
 static void TERMs_asm(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_type_t reqt, int local);
-static void knh_Gamma_asm(Ctx *ctx, knh_opline_t *op);
+//static void knh_Gamma_asm(Ctx *ctx, knh_opline_t *op);
 static void knh_Stmt_asmBLOCK(Ctx *ctx, knh_Stmt_t *stmtH, knh_type_t reqt);
 #define knh_GammaLabel(ctx, n)   (knh_BasicBlock_t*)knh_Array_n(DP(ctx->gma)->lstacks, n)
+
+static knh_BasicBlock_t* new_BasicBlockLABEL(Ctx *ctx)
+{
+	knh_BasicBlock_t *bb = new_(BasicBlock);
+	DP(bb)->id = knh_Array_size(DP(ctx->gma)->insts);
+	knh_Array_add(ctx, DP(ctx->gma)->insts, bb);
+	return bb;
+}
 
 #if defined(K_USING_THREADEDCODE)
 #define TADDR   NULL, 0/*counter*/
@@ -410,6 +418,12 @@ static size_t knh_BasicBlock_size(Ctx *ctx, knh_BasicBlock_t *bb, size_t c)
 		c = DP(bb)->size + c; bb = bb->jumpNC;
 		goto L_TAIL;
 	}
+	if(bb->nextNC != NULL && knh_BasicBlock_opcode(bb->nextNC) == OPCODE_RET) {
+		knh_BasicBlock_t *bb2 = new_BasicBlockLABEL(ctx);
+		bb2->jumpNC = bb->nextNC;
+		bb->nextNC = bb2;
+		DBG_P("************** TODO ****************");
+	}
 	c = DP(bb)->size + c;
 	bb = bb->nextNC;
 	goto L_TAIL;
@@ -533,14 +547,6 @@ static void knh_Gamma_compile(Ctx *ctx, knh_BasicBlock_t *bb, knh_BasicBlock_t *
 		knh_Method_toAbstract(ctx, mtd);
 	}
 	knh_Gamma_gc(ctx);
-}
-
-static knh_BasicBlock_t* new_BasicBlockLABEL(Ctx *ctx)
-{
-	knh_BasicBlock_t *bb = new_(BasicBlock);
-	DP(bb)->id = knh_Array_size(DP(ctx->gma)->insts);
-	knh_Array_add(ctx, DP(ctx->gma)->insts, bb);
-	return bb;
 }
 
 static void KNH_ASM_LABEL(Ctx *ctx, knh_BasicBlock_t *label)
