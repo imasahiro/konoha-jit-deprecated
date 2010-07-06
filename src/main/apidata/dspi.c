@@ -181,7 +181,7 @@ knh_StringDecoder_t* new_StringDecoderNULL(Ctx *ctx, knh_bytes_t t)
 	}
 	if(ctx->share->iconvDSPI != NULL) {
 		const knh_ConverterDSPI_t *dspi = ctx->share->iconvDSPI;
-		knh_conv_t *conv = dspi->open(ctx, t.text, K_ENCODING);
+		knh_conv_t *conv = dspi->open(ctx, K_ENCODING, t.text);
 		if(conv != NULL) {
 			knh_StringDecoder_t *c = new_(StringDecoder);
 			c->conv = conv;
