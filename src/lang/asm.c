@@ -91,7 +91,7 @@ static knh_BasicBlock_t* new_BasicBlockLABEL(Ctx *ctx)
 static void knh_BasicBlock_expand(Ctx *ctx, knh_BasicBlock_t *bb, size_t newsize)
 {
 	knh_opline_t* newbuf = (knh_opline_t*)KNH_MALLOC(ctx, sizeof(knh_opline_t) * newsize);
-	DBG_ASSERT(DP(bb)->size == DP(bb)->capacity);
+	//DBG_ASSERT(DP(bb)->size == DP(bb)->capacity);
 	knh_memcpy(newbuf, DP(bb)->opbuf, DP(bb)->capacity * sizeof(knh_opline_t));
 	KNH_FREE(ctx, DP(bb)->opbuf, DP(bb)->capacity * sizeof(knh_opline_t));
 	DP(bb)->opbuf = newbuf;
@@ -143,20 +143,20 @@ static void knh_Gamma_asm(Ctx *ctx, knh_opline_t *op)
 			return;
 		}
 		L_REPLACE_INSTRUCTION:;
-#ifdef OPCODE_iINC
-		if(op->opcode == OPCODE_iADDn) {
-			klr_iADDn_t *opN = (klr_iADDn_t*)op;
-			if(opN->a == opN->c && opN->n == 1) {
-				opN->opcode = OPCODE_iINC;
-			}
-		}
-		if(op->opcode == OPCODE_iSUBn) {
-			klr_iSUBn_t *opN = (klr_iSUBn_t*)op;
-			if(opN->a == opN->c && opN->n == 1) {
-				opN->opcode = OPCODE_iDEC;
-			}
-		}
-#endif/*OPCODE_iDEC*/
+//#ifdef OPCODE_iINC
+//		if(op->opcode == OPCODE_iADDn) {
+//			klr_iADDn_t *opN = (klr_iADDn_t*)op;
+//			if(opN->a == opN->c && opN->n == 1) {
+//				opN->opcode = OPCODE_iINC;
+//			}
+//		}
+//		if(op->opcode == OPCODE_iSUBn) {
+//			klr_iSUBn_t *opN = (klr_iSUBn_t*)op;
+//			if(opN->a == opN->c && opN->n == 1) {
+//				opN->opcode = OPCODE_iDEC;
+//			}
+//		}
+//#endif/*OPCODE_iDEC*/
 		if(op->opcode == OPCODE_NMOV) {
 			if(opP->opcode == OPCODE_NMOV) {
 				klr_NNMOV_t *opMOV = (klr_NNMOV_t*)opP;
@@ -474,7 +474,8 @@ static void knh_BasicBlock_setjump(knh_BasicBlock_t *bb)
 		knh_BasicBlock_t *bbJ = bb->jumpNC;
 		klr_JMP_t *j = (klr_JMP_t*)DP(bb)->opjmp;
 		j->jumppc = DP(bbJ)->code;
-		DBG_P("jump to id=%d jumppc=%p", DP(bbJ)->id, DP(bbJ)->code);
+		DBG_P("jump from id=%d to id=%d %s jumppc=%p", DP(bb)->id, DP(bbJ)->id, knh_opcode_tochar(j->opcode), DP(bbJ)->code);
+		bb->jumpNC = NULL;
 		knh_BasicBlock_setjump(bbJ);
 	}
 	bb = bb->nextNC;
@@ -1939,7 +1940,6 @@ static void knh_StmtFOR_asm(Ctx *ctx, knh_Stmt_t *stmt)
 	}
 	TERMs_asmBLOCK(ctx, stmt, 3, TYPE_void);
 	KNH_ASM_JMP(ctx, lbC);
-
 	KNH_ASM_LABEL(ctx, lbB);
 	knh_Gamma_popLABEL(ctx);
 }
