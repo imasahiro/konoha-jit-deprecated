@@ -315,22 +315,22 @@ static void knh_BasicBlock_strip0(Ctx *ctx, knh_BasicBlock_t *bb)
 	}
 	L_NEXT:;
 	if(bb->nextNC != NULL) {
-		knh_BasicBlock_t *bbN = bb->nextNC;
-		if(DP(bbN)->size == 0 && bbN->nextNC != NULL && bbN->jumpNC == NULL) {
-			DBG_P("DIRECT NEXT id=%d to id=%d", DP(bbN)->id, DP(bbN->nextNC)->id);
-			DP(bbN)->incoming -= 1;
-			bb->nextNC = bbN->nextNC;
-			DP(bb->nextNC)->incoming += 1;
-			goto L_NEXT;
-		}
-		if(DP(bbN)->size == 0 && bbN->nextNC == NULL && bbN->jumpNC != NULL) {
-			DBG_P("DIRECT NEXT id=%d to JUMP id=%d", DP(bbN)->id, DP(bbN->jumpNC)->id);
-			DP(bbN)->incoming -= 1;
-			bb->nextNC = NULL;
-			bb->jumpNC = bbN->jumpNC;
-			DP(bb->jumpNC)->incoming += 1;
-			goto L_JUMP;
-		}
+//		knh_BasicBlock_t *bbN = bb->nextNC;
+//		if(DP(bbN)->size == 0 && bbN->nextNC != NULL && bbN->jumpNC == NULL) {
+//			DBG_P("DIRECT NEXT id=%d to id=%d", DP(bbN)->id, DP(bbN->nextNC)->id);
+//			DP(bbN)->incoming -= 1;
+//			bb->nextNC = bbN->nextNC;
+//			DP(bb->nextNC)->incoming += 1;
+//			goto L_NEXT;
+//		}
+//		if(DP(bbN)->size == 0 && bbN->nextNC == NULL && bbN->jumpNC != NULL) {
+//			DBG_P("DIRECT NEXT id=%d to JUMP id=%d", DP(bbN)->id, DP(bbN->jumpNC)->id);
+//			DP(bbN)->incoming -= 1;
+//			bb->nextNC = NULL;
+//			bb->jumpNC = bbN->jumpNC;
+//			DP(bb->jumpNC)->incoming += 1;
+//			goto L_JUMP;
+//		}
 		bb = bb->nextNC;
 		goto L_TAIL;
 	}
