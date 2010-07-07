@@ -52,6 +52,8 @@
 #define K_USING_STATCLASS    1
 #endif/*K_USING_DEBUG*/
 
+#define K_USING_SECURITY_ALERT  1
+
 /* ======================================================================== */
 /* Manifesto */
 

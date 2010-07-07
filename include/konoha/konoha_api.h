@@ -94,6 +94,7 @@ knh_type_t knh_NameSpace_tagcid(Ctx *ctx, knh_NameSpace_t *o, knh_class_t cid, k
 knh_bool_t knh_loadPackage(Ctx *ctx, knh_bytes_t path);
 knh_bool_t knh_eval(Ctx *ctx, knh_InputStream_t *in, knh_type_t reqt, knh_Array_t *resultsNULL);
 knh_bool_t knh_load(Ctx *ctx, knh_bytes_t path, knh_type_t reqt, knh_Array_t *resultsNULL);
+void knh_BasicBlock_optimize(Ctx *ctx, knh_BasicBlock_t *bb);
 knh_Token_t* new_Token(Ctx *ctx, knh_flag_t flag, knh_term_t tt);
 void knh_Stmt_swap(Ctx *ctx, knh_Stmt_t *stmt, size_t n, size_t m);
 void knh_Stmt_trimToSize(Ctx *ctx, knh_Stmt_t *stmt, size_t n);
@@ -318,6 +319,7 @@ knh_type_t knh_ResultSet_get_type(Ctx *ctx, knh_ResultSet_t *o, size_t n);
 knh_int_t knh_ResultSet_getInt(Ctx *ctx, knh_ResultSet_t *o, size_t n);
 knh_float_t knh_ResultSet_getFloat(Ctx *ctx, knh_ResultSet_t *o, size_t n);
 knh_String_t* knh_ResultSet_getString(Ctx *ctx, knh_ResultSet_t *o, size_t n);
+void knh_checkSecurityAlert(void);
 void knh_setSecureMode(void);
 knh_bool_t knh_isTrustedPath(Ctx *ctx, knh_bytes_t path);
 knh_bool_t knh_isTrustedHost(Ctx *ctx, knh_bytes_t host);

@@ -541,6 +541,39 @@ static void knh_shell(Ctx *ctx, char *optstr, const knh_ShellSPI_t *spi, const k
 	END_LOCAL(ctx, lsfp);
 }
 
+#ifdef K_USING_SECURITY_ALERT
+static void knh_askSecurityAlert(Ctx *ctx)
+{
+	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
+	knh_Bytes_write(ctx, cwb->ba, S_tobytes(knh_getPropertyNULL(ctx, STEXT("user.path"))));
+	knh_Bytes_putc(ctx, cwb->ba, '/');
+	knh_Bytes_write(ctx, cwb->ba, STEXT("ALLOWED_SECURITY_ALERT"));
+	if(!knh_cwb_isfile(ctx, cwb)) {
+		char buf[80];
+		fprintf(stdout,
+"IMPORTANT: for improving Konoha and your security updates, Konoha project are\n"
+"collecting the following information:\n"
+"\tversion: version=%s distributuon=%s revision=%d\n"
+"\tsystem: %s %dbits LANG=%s\n"
+"DO YOU ALLOW? [y/N]: ", K_VERSION, K_DIST, (int)K_REVISION, K_PLATFORM, (int)(sizeof(void*) * 8), knh_getenv("LANG"));
+		if(fgets(buf, sizeof(80), stdin) != NULL) {
+			if((buf[0] == 'y' || buf[0] == 'Y') && (buf[1] == 0 || buf[1] == '\n' || buf[1] == '\r')) {
+				DBG_P("file: '%s'", knh_cwb_tochar(ctx, cwb));
+				FILE *fp = fopen(knh_cwb_tochar(ctx, cwb), "a");
+				fclose(fp);
+				fprintf(stdout, "Thank you for using Konoha!!\n");
+				goto L_CHECK;
+			}
+		}
+		knh_cwb_close(cwb);
+		return;
+	}
+	L_CHECK:;
+	knh_cwb_close(cwb);
+	knh_checkSecurityAlert();
+}
+#endif
+
 KNHAPI(void) konoha_shell(konoha_t konoha, char *optstr)
 {
 	KONOHA_CHECK_(konoha);
@@ -554,6 +587,9 @@ KNHAPI(void) konoha_shell(konoha_t konoha, char *optstr)
 		knh_loadPackageList(ctx, "lib.readline?");
 #endif
 	}
+#ifdef K_USING_SECURITY_ALERT
+	knh_askSecurityAlert(ctx);
+#endif
 	knh_shell(ctx, optstr, ctx->share->shellSPI, NULL);
 	KONOHA_END(ctx);
 }
