@@ -284,14 +284,14 @@ static void knh_BasicBlock_strip0(Ctx *ctx, knh_BasicBlock_t *bb)
 		L_JUMP:;
 		knh_BasicBlock_t *bbJ = bb->jumpNC;
 		if(DP(bbJ)->size == 0 && bbJ->jumpNC != NULL && bbJ->nextNC == NULL) {
-			DBG_P("DIRECT JMP id=%d JMP to id=%d", DP(bbJ)->id, DP(bbJ->jumpNC)->id);
+			//DBG_P("DIRECT JMP id=%d JMP to id=%d", DP(bbJ)->id, DP(bbJ->jumpNC)->id);
 			DP(bbJ)->incoming -= 1;
 			bb->jumpNC = bbJ->jumpNC;
 			DP(bb->jumpNC)->incoming += 1;
 			goto L_JUMP;
 		}
 		if(DP(bbJ)->size == 0 && bbJ->jumpNC == NULL && bbJ->nextNC != NULL) {
-			DBG_P("DIRECT JMP id=%d NEXT to id=%d", DP(bbJ)->id, DP(bbJ->nextNC)->id);
+			//DBG_P("DIRECT JMP id=%d NEXT to id=%d", DP(bbJ)->id, DP(bbJ->nextNC)->id);
 			DP(bbJ)->incoming -= 1;
 			bb->jumpNC = bbJ->nextNC;
 			DP(bb->jumpNC)->incoming += 1;
@@ -299,7 +299,7 @@ static void knh_BasicBlock_strip0(Ctx *ctx, knh_BasicBlock_t *bb)
 		}
 		if(bb->nextNC == NULL) {
 			if(DP(bbJ)->incoming == 1 ) {
-				DBG_P("REMOVED %d JMP TO %d", DP(bb)->id, DP(bbJ)->id);
+				//DBG_P("REMOVED %d JMP TO %d", DP(bb)->id, DP(bbJ)->id);
 				bb->nextNC = bbJ;
 				bb->jumpNC = NULL;
 				goto L_NEXT;
@@ -315,14 +315,14 @@ static void knh_BasicBlock_strip0(Ctx *ctx, knh_BasicBlock_t *bb)
 	if(bb->nextNC != NULL) {
 		knh_BasicBlock_t *bbN = bb->nextNC;
 		if(DP(bbN)->size == 0 && bbN->nextNC != NULL && bbN->jumpNC == NULL) {
-			DBG_P("DIRECT NEXT id=%d to NEXT id=%d", DP(bbN)->id, DP(bbN->nextNC)->id);
+			//DBG_P("DIRECT NEXT id=%d to NEXT id=%d", DP(bbN)->id, DP(bbN->nextNC)->id);
 			DP(bbN)->incoming -= 1;
 			bb->nextNC = bbN->nextNC;
 			DP(bb->nextNC)->incoming += 1;
 			goto L_NEXT;
 		}
 		if(DP(bbN)->size == 0 && bbN->nextNC == NULL && bbN->jumpNC != NULL) {
-			DBG_P("DIRECT NEXT id=%d to JUMP id=%d", DP(bbN)->id, DP(bbN->jumpNC)->id);
+			//DBG_P("DIRECT NEXT id=%d to JUMP id=%d", DP(bbN)->id, DP(bbN->jumpNC)->id);
 			DP(bbN)->incoming -= 1;
 			bb->nextNC = NULL;
 			bb->jumpNC = bbN->jumpNC;
@@ -416,7 +416,9 @@ static size_t knh_BasicBlock_size(Ctx *ctx, knh_BasicBlock_t *bb, size_t c)
 		c = DP(bb)->size + c; bb = bb->jumpNC;
 		goto L_TAIL;
 	}
-	if(bb->nextNC != NULL && knh_BasicBlock_opcode(bb->nextNC) == OPCODE_RET) {
+	if(bb->nextNC != NULL &&
+		(knh_BasicBlock_isVisited(bb) || knh_BasicBlock_opcode(bb->nextNC) == OPCODE_RET)) {
+		DBG_P("INSERT JMP");
 		knh_BasicBlock_t *bb2 = new_BasicBlockLABEL(ctx);
 		bb2->jumpNC = bb->nextNC;
 		bb->nextNC = bb2;
@@ -482,6 +484,7 @@ static void knh_BasicBlock_setjump(knh_BasicBlock_t *bb)
 			DBG_P("jump from id=%d to id=%d %s jumppc=%p", DP(bb)->id, DP(bbJ)->id, knh_opcode_tochar(j->opcode), DP(bbJ)->code);
 			bb->jumpNC = NULL;
 			if(!knh_BasicBlock_isVisited(bbJ)) {
+				knh_BasicBlock_setVisited(bbJ, 1);
 				knh_BasicBlock_setjump(bbJ);
 			}
 		}
@@ -1940,7 +1943,7 @@ static void knh_StmtFOR_asm(Ctx *ctx, knh_Stmt_t *stmt)
 	/* i++ part */
 	KNH_ASM_LABEL(ctx, lbC); /* CONTINUE */
 	TERMs_asmBLOCK(ctx, stmt, 2, TYPE_void);
-	KNH_ASM_JMP(ctx, lbREDO); // wakamori
+	//KNH_ASM_JMP(ctx, lbREDO); // added by wakamori
 	/* i < 10 part */
 	KNH_ASM_LABEL(ctx, lbREDO);
 	if(!TERMs_isTRUE(stmt, 1)) {
@@ -2479,6 +2482,7 @@ typedef struct knh_funcname_t {
 	void *func;
 	char *name;
 } knh_funcname_t;
+
 #define _FUNC(func, name) { (void*) func, (char *) name }
 
 static struct knh_funcname_t _FuncData[] = {
