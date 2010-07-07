@@ -2448,8 +2448,7 @@ void knh_loadSystemKLRCode(Ctx *ctx)
 	KNH_SETv(ctx, lsfp[0].o, ia);
 	KNH_SETv(ctx, lsfp[1].o, ib);
 	KNH_SETv(ctx, lsfp[2].o, ic);
-	KNH_SETv(ctx, lsfp[3].o, ic);
-
+	KNH_SETv(ctx, lsfp[3].o, id);
 	knh_BasicBlock_add(ctx, ia, THCODE);
 	knh_BasicBlock_add(ctx, ia, TRY, NULL/*lb*/, (-3));
 	ia->nextNC = ib;
