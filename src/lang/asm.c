@@ -55,7 +55,8 @@ static void knh_Stmt_asmBLOCK(Ctx *ctx, knh_Stmt_t *stmtH, knh_type_t reqt);
 static knh_BasicBlock_t* new_BasicBlockLABEL(Ctx *ctx)
 {
 	knh_BasicBlock_t *bb = new_(BasicBlock);
-	DP(bb)->id = knh_Array_size(DP(ctx->gma)->insts);
+	bb->listNC = DP(ctx->gma)->insts;
+	DP(bb)->id = knh_Array_size(bb->listNC);
 	knh_Array_add(ctx, DP(ctx->gma)->insts, bb);
 	return bb;
 }
@@ -91,7 +92,6 @@ static knh_BasicBlock_t* new_BasicBlockLABEL(Ctx *ctx)
 static void knh_BasicBlock_expand(Ctx *ctx, knh_BasicBlock_t *bb, size_t newsize)
 {
 	knh_opline_t* newbuf = (knh_opline_t*)KNH_MALLOC(ctx, sizeof(knh_opline_t) * newsize);
-	//DBG_ASSERT(DP(bb)->size == DP(bb)->capacity);
 	knh_memcpy(newbuf, DP(bb)->opbuf, DP(bb)->capacity * sizeof(knh_opline_t));
 	KNH_FREE(ctx, DP(bb)->opbuf, DP(bb)->capacity * sizeof(knh_opline_t));
 	DP(bb)->opbuf = newbuf;
@@ -132,31 +132,29 @@ static void knh_Gamma_asm(Ctx *ctx, knh_opline_t *op)
 {
 	knh_BasicBlock_t *bb = DP(ctx->gma)->bbNC;
 	DBG_ASSERT(op->opcode != OPCODE_JMPF);
+	if(op->opcode == OPCODE_iADDn) {
+		klr_iADDn_t *opN = (klr_iADDn_t*)op;
+		if(opN->a == opN->c && opN->n == 1) {
+			op->opcode = OPCODE_iINC;
+		}
+	}
+	if(op->opcode == OPCODE_iSUBn) {
+		klr_iSUBn_t *opN = (klr_iSUBn_t*)op;
+		if(opN->a == opN->c && opN->n == 1) {
+			op->opcode = OPCODE_iDEC;
+		}
+	}
 	if(DP(bb)->size > 0) {
 		knh_opline_t *opP = DP(bb)->opbuf + (DP(bb)->size - 1);
 		if(op->opcode == opP->opcode) {
 			size_t i, size = knh_opcode_size(op->opcode);
 			for(i = 0; i < size; i++) {
-				if(op->data[i] != opP->data[i]) goto L_REPLACE_INSTRUCTION;
+				if(op->data[i] != opP->data[i]) goto L_SUPER_INSTRUCTION;
 			}
 			DBG_P("PEEPHOLE: removed same one");
 			return;
 		}
-		L_REPLACE_INSTRUCTION:;
-//#ifdef OPCODE_iINC
-//		if(op->opcode == OPCODE_iADDn) {
-//			klr_iADDn_t *opN = (klr_iADDn_t*)op;
-//			if(opN->a == opN->c && opN->n == 1) {
-//				opN->opcode = OPCODE_iINC;
-//			}
-//		}
-//		if(op->opcode == OPCODE_iSUBn) {
-//			klr_iSUBn_t *opN = (klr_iSUBn_t*)op;
-//			if(opN->a == opN->c && opN->n == 1) {
-//				opN->opcode = OPCODE_iDEC;
-//			}
-//		}
-//#endif/*OPCODE_iDEC*/
+		L_SUPER_INSTRUCTION:;
 		if(op->opcode == OPCODE_NMOV) {
 			if(opP->opcode == OPCODE_NMOV) {
 				klr_NNMOV_t *opMOV = (klr_NNMOV_t*)opP;
@@ -315,22 +313,22 @@ static void knh_BasicBlock_strip0(Ctx *ctx, knh_BasicBlock_t *bb)
 	}
 	L_NEXT:;
 	if(bb->nextNC != NULL) {
-//		knh_BasicBlock_t *bbN = bb->nextNC;
-//		if(DP(bbN)->size == 0 && bbN->nextNC != NULL && bbN->jumpNC == NULL) {
-//			DBG_P("DIRECT NEXT id=%d to id=%d", DP(bbN)->id, DP(bbN->nextNC)->id);
-//			DP(bbN)->incoming -= 1;
-//			bb->nextNC = bbN->nextNC;
-//			DP(bb->nextNC)->incoming += 1;
-//			goto L_NEXT;
-//		}
-//		if(DP(bbN)->size == 0 && bbN->nextNC == NULL && bbN->jumpNC != NULL) {
-//			DBG_P("DIRECT NEXT id=%d to JUMP id=%d", DP(bbN)->id, DP(bbN->jumpNC)->id);
-//			DP(bbN)->incoming -= 1;
-//			bb->nextNC = NULL;
-//			bb->jumpNC = bbN->jumpNC;
-//			DP(bb->jumpNC)->incoming += 1;
-//			goto L_JUMP;
-//		}
+		knh_BasicBlock_t *bbN = bb->nextNC;
+		if(DP(bbN)->size == 0 && bbN->nextNC != NULL && bbN->jumpNC == NULL) {
+			DBG_P("DIRECT NEXT id=%d to NEXT id=%d", DP(bbN)->id, DP(bbN->nextNC)->id);
+			DP(bbN)->incoming -= 1;
+			bb->nextNC = bbN->nextNC;
+			DP(bb->nextNC)->incoming += 1;
+			goto L_NEXT;
+		}
+		if(DP(bbN)->size == 0 && bbN->nextNC == NULL && bbN->jumpNC != NULL) {
+			DBG_P("DIRECT NEXT id=%d to JUMP id=%d", DP(bbN)->id, DP(bbN->jumpNC)->id);
+			DP(bbN)->incoming -= 1;
+			bb->nextNC = NULL;
+			bb->jumpNC = bbN->jumpNC;
+			DP(bb->jumpNC)->incoming += 1;
+			goto L_JUMP;
+		}
 		bb = bb->nextNC;
 		goto L_TAIL;
 	}
@@ -422,7 +420,6 @@ static size_t knh_BasicBlock_size(Ctx *ctx, knh_BasicBlock_t *bb, size_t c)
 		knh_BasicBlock_t *bb2 = new_BasicBlockLABEL(ctx);
 		bb2->jumpNC = bb->nextNC;
 		bb->nextNC = bb2;
-		DBG_P("************** TODO ****************");
 	}
 	c = DP(bb)->size + c;
 	bb = bb->nextNC;
@@ -431,19 +428,23 @@ static size_t knh_BasicBlock_size(Ctx *ctx, knh_BasicBlock_t *bb, size_t c)
 
 static knh_opline_t* knh_BasicBlock_copy(Ctx *ctx, knh_opline_t *dst, knh_BasicBlock_t *bb, knh_BasicBlock_t **prev)
 {
-	if(bb == NULL || DP(bb)->code != NULL) return dst;
 	knh_BasicBlock_setVisited(bb, 0);
+	DBG_ASSERT(!knh_BasicBlock_isVisited(bb));
+	if(DP(bb)->code != NULL) return dst;
 	if(prev[0] != NULL && prev[0]->nextNC == NULL && prev[0]->jumpNC == bb) {
-		DBG_P("REMOVE NUNECESSARY JMP");
 		dst -= 1;
+		DBG_P("REMOVE unnecessary JMP/(?%s)", knh_opcode_tochar(dst->opcode));
+		DBG_ASSERT(dst->opcode == OPCODE_JMP || dst->opcode == OPCODE_JMP_);
+		prev[0]->jumpNC = NULL;
+		prev[0]->nextNC = bb;
 	}
 	DP(bb)->code = dst;
 	if(DP(bb)->size > 0) {
 		size_t i;
-		DBG_P("asm bb=%d, %p, %s", DP(bb)->id, dst, BB(bb));
 		knh_memcpy(dst, DP(bb)->opbuf, sizeof(knh_opline_t) * DP(bb)->size);
 		if(bb->jumpNC != NULL) {
 			DP(bb)->opjmp = (dst + (DP(bb)->size - 1));
+			DBG_ASSERT(knh_opcode_hasjump(DP(bb)->opjmp->opcode));
 		}
 		for(i = 0; i < DP(bb)->size; i++) {
 			knh_opline_t *op = DP(bb)->opbuf + i;
@@ -459,27 +460,33 @@ static knh_opline_t* knh_BasicBlock_copy(Ctx *ctx, knh_opline_t *dst, knh_BasicB
 		dst = dst + DP(bb)->size;
 		knh_BasicBlock_freebuf(ctx, bb);
 		prev[0] = bb;
+		DBG_P("asm bb=%d, %p, %s nextNC=%p", DP(bb)->id, dst, BB(bb), bb->nextNC);
 	}
-	dst = knh_BasicBlock_copy(ctx, dst, bb->nextNC, prev);
-	dst = knh_BasicBlock_copy(ctx, dst, bb->jumpNC, prev);
+	if(bb->nextNC != NULL) {
+		dst = knh_BasicBlock_copy(ctx, dst, bb->nextNC, prev);
+	}
+	if(bb->jumpNC != NULL) {
+		dst = knh_BasicBlock_copy(ctx, dst, bb->jumpNC, prev);
+	}
 	return dst;
 }
 
 static void knh_BasicBlock_setjump(knh_BasicBlock_t *bb)
 {
-	L_TAIL:;
-	if(bb == NULL || knh_BasicBlock_isVisited(bb)) return;
-	knh_BasicBlock_setVisited(bb, 1);
-	if(bb->jumpNC != NULL) {
-		knh_BasicBlock_t *bbJ = bb->jumpNC;
-		klr_JMP_t *j = (klr_JMP_t*)DP(bb)->opjmp;
-		j->jumppc = DP(bbJ)->code;
-		DBG_P("jump from id=%d to id=%d %s jumppc=%p", DP(bb)->id, DP(bbJ)->id, knh_opcode_tochar(j->opcode), DP(bbJ)->code);
-		bb->jumpNC = NULL;
-		knh_BasicBlock_setjump(bbJ);
+	while(bb != NULL) {
+		knh_BasicBlock_setVisited(bb, 1);
+		if(bb->jumpNC != NULL) {
+			knh_BasicBlock_t *bbJ = bb->jumpNC;
+			klr_JMP_t *j = (klr_JMP_t*)DP(bb)->opjmp;
+			j->jumppc = DP(bbJ)->code;
+			DBG_P("jump from id=%d to id=%d %s jumppc=%p", DP(bb)->id, DP(bbJ)->id, knh_opcode_tochar(j->opcode), DP(bbJ)->code);
+			bb->jumpNC = NULL;
+			if(!knh_BasicBlock_isVisited(bbJ)) {
+				knh_BasicBlock_setjump(bbJ);
+			}
+		}
+		bb = bb->nextNC;
 	}
-	bb = bb->nextNC;
-	goto L_TAIL;
 }
 
 static knh_KLRCode_t* knh_BasicBlock_link(Ctx *ctx, knh_BasicBlock_t *bb, knh_BasicBlock_t *bbRET)
@@ -1933,6 +1940,7 @@ static void knh_StmtFOR_asm(Ctx *ctx, knh_Stmt_t *stmt)
 	/* i++ part */
 	KNH_ASM_LABEL(ctx, lbC); /* CONTINUE */
 	TERMs_asmBLOCK(ctx, stmt, 2, TYPE_void);
+	KNH_ASM_JMP(ctx, lbREDO); // wakamori
 	/* i < 10 part */
 	KNH_ASM_LABEL(ctx, lbREDO);
 	if(!TERMs_isTRUE(stmt, 1)) {
