@@ -47,15 +47,17 @@ static knh_Term_t *knh_Stmt_typing(Ctx *ctx, knh_Stmt_t *stmtITR, knh_type_t req
 static knh_Term_t *knh_StmtCALL_typing(Ctx *ctx, knh_Stmt_t *stmtITR, knh_class_t reqt);
 static int TERMs_typing(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_type_t reqt, knh_flag_t modeflag);
 
-#define BEGIN_BLOCK(x) \
-	size_t x = DP(ctx->gma)->espidx;\
-	DBG_ASSERT(DP(ctx->gma)->gf[x].fn == FN_NONAME);\
+#define BEGIN_BLOCK(X) \
+	size_t X = DP(ctx->gma)->espidx;\
+	DBG_ASSERT(DP(ctx->gma)->gf[X].fn == FN_NONAME);\
 
-#define END_BLOCK(x) \
-	if(DP(ctx->gma)->gf[x].fn != FN_NONAME) {\
+#define END_BLOCK(X) \
+	DBG_P("ESP %s start=%d, end=%d, stmt->espidx=%d", TT_tochar(STT_(stmt)), X, DP(ctx->gma)->espidx, DP(stmt)->espidx);\
+	DBG_ASSERT(DP(ctx->gma)->gf[DP(ctx->gma)->espidx].fn == FN_NONAME);\
+	if(X != DP(ctx->gma)->espidx) {\
 		DP(stmt)->espidx = DP(ctx->gma)->espidx; \
-		DBG_P("*** stt=%s release espidx=%d ***", TT_tochar(STT_(stmt)), (int)x);\
-		knh_Gamma_clear(ctx, x);\
+		DBG_P("*** stt=%s release espidx=%d ***", TT_tochar(STT_(stmt)), (int)X);\
+		knh_Gamma_clear(ctx, X);\
 	}\
 
 #define CONSTPOOL(v)   knh_getConstPools(ctx, v)
@@ -997,11 +999,6 @@ static knh_Term_t *knh_StmtDECL_typing(Ctx *ctx, knh_Stmt_t *stmt, size_t offset
 	if(scope == SCOPE_LOCAL) {
 		CHECK_INDEX(knh_Gamma_addLocal(ctx, decl, 0));
 	}
-//	else if(scope == SCOPE_FOREACH) {
-//		CHECK_INDEX(knh_Gamma_addLocal(ctx, decl, 0));
-//		SP(tkT)->type = decl->type;
-//		return knh_Stmt_typed(ctx, stmt, TYPE_void);
-//	}
 	else if(scope == SCOPE_PARAM) {
 		if(decl->value == NULL && TT_(tkV) != TT_NULL) {
 			knh_Gamma_perror(ctx, KERR_DWARN, _("default value must be constant: %N"), decl->fn);
@@ -2567,6 +2564,7 @@ static knh_Token_t *TERMs_it(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_type_t ty
 		KNH_ASSERT(idx != -1);
 		knh_Token_toTYPED(ctx, tkIT, TT_LOCAL, type, idx);
 	}
+	DBG_P("******** %s index=%d", TYPEN(type), DP(tkIT)->index);
 	return tkIT;
 }
 
