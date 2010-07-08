@@ -205,9 +205,9 @@ knh_bool_t knh_cwb_isfile(Ctx *ctx, knh_cwb_t *cwb)
 	if(stat(pathname, &buf) == -1) res = 0;
 	else res = S_ISREG(buf.st_mode);
 #elif defined(K_USING_BTRON)
-	FILE* fp = fopen(pathname,"r");
-	if(fp == NULL)  res = 0;
-	else fclose(fp);
+	FILE* in = fopen(pathname,"r");
+	if(in == NULL)  res = 0;
+	else fclose(in);
 #else
 	(void)pathname;
 	return 0;

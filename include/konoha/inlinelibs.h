@@ -322,13 +322,13 @@ static FILE* knh_fopen(Ctx *ctx, char *filename, char *mode, int isPERROR)
 	return NULL;
 #elif defined(K_USING_STDC) || defined(K_USING_POSIX)
 #ifndef KONOHA_ON_WINDOWS
-	FILE *fp = fopen(filename, mode);
+	FILE *in = fopen(filename, mode);
 #else
-	FILE *fp;
-	fopen_s(&fp, filename, mode);
+	FILE *in;
+	fopen_s(&in, filename, mode);
 #endif
-	KNH_PERROR_IF(ctx, NULL, (fp == NULL && isPERROR), "fopen");
-	return fp;
+	KNH_PERROR_IF(ctx, NULL, (in == NULL && isPERROR), "fopen");
+	return in;
 #else
 	return NULL;
 #endif
@@ -336,12 +336,12 @@ static FILE* knh_fopen(Ctx *ctx, char *filename, char *mode, int isPERROR)
 #endif
 
 #ifdef USE_fgetc
-static int knh_fgetc(Ctx *ctx, FILE *fp)
+static int knh_fgetc(Ctx *ctx, FILE *in)
 {
 #if defined(K_USING_NOFILE)
 	return -1;
 #elif defined(K_USING_STDC) || defined(K_USING_POSIX)
-	return fgetc(fp);
+	return fgetc(in);
 #else
 	return -1;
 #endif
@@ -349,12 +349,12 @@ static int knh_fgetc(Ctx *ctx, FILE *fp)
 #endif
 
 #ifdef USE_fread
-static size_t knh_fread(Ctx *ctx, void *ptr, size_t size, FILE *fp)
+static size_t knh_fread(Ctx *ctx, void *ptr, size_t size, FILE *in)
 {
 #if defined(K_USING_NOFILE)
 	return 0;
 #elif defined(K_USING_STDC) || defined(K_USING_POSIX)
-	return fread(ptr, 1, size, fp);
+	return fread(ptr, 1, size, in);
 #else
 	return 0;
 #endif
@@ -362,12 +362,12 @@ static size_t knh_fread(Ctx *ctx, void *ptr, size_t size, FILE *fp)
 #endif
 
 #ifdef USE_fwrite
-static size_t knh_fwrite(Ctx *ctx, void *ptr, size_t size, FILE *fp)
+static size_t knh_fwrite(Ctx *ctx, void *ptr, size_t size, FILE *in)
 {
 #if defined(K_USING_NOFILE)
 	return 0;
 #elif defined(K_USING_STDC) || defined(K_USING_POSIX)
-	return fwrite(ptr, 1, size, fp);
+	return fwrite(ptr, 1, size, in);
 #else
 	return 0;
 #endif
@@ -375,12 +375,12 @@ static size_t knh_fwrite(Ctx *ctx, void *ptr, size_t size, FILE *fp)
 #endif
 
 #ifdef USE_fflush
-static int knh_fflush(Ctx *ctx, FILE *fp)
+static int knh_fflush(Ctx *ctx, FILE *in)
 {
 #if defined(K_USING_NOFILE)
 	return 0;
 #elif defined(K_USING_STDC) || defined(K_USING_POSIX)
-	return fflush(fp);
+	return fflush(in);
 #else
 	return 0;
 #endif
@@ -388,12 +388,12 @@ static int knh_fflush(Ctx *ctx, FILE *fp)
 #endif
 
 #ifdef USE_fclose
-static int knh_fclose(Ctx *ctx, FILE *fp)
+static int knh_fclose(Ctx *ctx, FILE *in)
 {
 #if defined(K_USING_NOFILE)
 	return 1;
 #elif defined(K_USING_STDC) || defined(K_USING_POSIX)
-	return fclose(fp);
+	return fclose(in);
 #else
 	return 1;
 #endif

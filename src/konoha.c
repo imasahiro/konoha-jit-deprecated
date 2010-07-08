@@ -44,6 +44,9 @@ int main(int argc, char **argv)
 	if(argc - n == 0) {
 		konoha_shell(konoha, NULL);
 	}
+	else if(knh_isTestMode()) {
+		konoha_runTest(konoha, argc - n, args + n);
+	}
 	else {
 		int isCompileOnly = knh_Context_isCompiling(konoha.ctx);
 		if(konoha_load(konoha, B(args[n]), isCompileOnly) != -1) {
