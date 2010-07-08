@@ -5,6 +5,7 @@
 >>> int ans = 0;
 0
 >>> for (int i = 0; i < 100; i++) {
+...   ans = i;
 ...   if (i == 50) break;
 ... }
 >>> ans
