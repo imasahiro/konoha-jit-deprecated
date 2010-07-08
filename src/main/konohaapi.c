@@ -33,7 +33,6 @@
 #define USE_bytes_parseint  1
 #define USE_cwb_open      1
 #define USE_cwb_tobytes   1
-#define USE_cwb_size      1
 
 
 /* ************************************************************************ */
