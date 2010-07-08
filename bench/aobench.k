@@ -44,7 +44,7 @@ class RayIntersection {
     double distance;
     Vec    hitPosition;
     Vec    normal;
-    Boolean    isHit;
+    Boolean  hit;
 }
 
 class Sphere {
@@ -57,11 +57,7 @@ class Sphere {
 }
 
 void interSectsSphere(Sphere s, RayIntersection isect) {
-    Vec rs = new Vec(
-		     isect.rayPosition.x - s.center.x,
-		     isect.rayPosition.y - s.center.y,
-		     isect.rayPosition.z - s.center.z);
-
+    Vec rs = new Vec(isect.rayPosition.x - s.center.x, isect.rayPosition.y - s.center.y, isect.rayPosition.z - s.center.z);
     double b = dot(rs, isect.rayDirection);
     double c = dot(rs, rs) - s.radius * s.radius;
     double d = b * b - c;
@@ -70,7 +66,7 @@ void interSectsSphere(Sphere s, RayIntersection isect) {
 	double t = -b - Math.sqrt(d);
 	if ((t > 0.0) && (t < isect.distance)) {
 	    isect.distance = t;
-	    isect.isHit = true;
+	    isect.hit = true;
 	    
 	    isect.hitPosition.x = isect.rayPosition.x + isect.rayDirection.x * t;
 	    isect.hitPosition.y = isect.rayPosition.y + isect.rayDirection.y * t;			
@@ -90,6 +86,10 @@ class Plane {
     Vec normal;
 }
 
+Sphere[] spheres ;
+Plane plane;
+
+
 void interSectsPlane(Plane plane, RayIntersection isect)
 {
     double d = -1.0 *dot(plane.position, plane.normal);
@@ -100,7 +100,7 @@ void interSectsPlane(Plane plane, RayIntersection isect)
 	
 	if ((t > 0.0) && (t < isect.distance)) {
 	    isect.distance = t;
-	    isect.isHit = true;
+	    isect.hit = true;
 	    isect.hitPosition.x = isect.rayPosition.x + isect.rayDirection.x * t;
 	    isect.hitPosition.y = isect.rayPosition.y + isect.rayDirection.y * t;
 	    isect.hitPosition.z = isect.rayPosition.z + isect.rayDirection.z * t;
@@ -110,9 +110,6 @@ void interSectsPlane(Plane plane, RayIntersection isect)
 	}
     }
 }
-
-Sphere[] spheres ;
-Plane plane;
 
 void getOrthoBasis (Vec normal, Vec[] orthoBasis) {
     orthoBasis[0] = new Vec(0.0, 0.0, 0.0);
@@ -174,14 +171,14 @@ void getAmbientOcclusion(RayIntersection isect, Vec ambientOcclusion)
 	  occlsect.rayDirection.y = x * basis[0].y + y * basis[1].y + z * basis[2].y;
   	  occlsect.rayDirection.z = x * basis[0].z + y * basis[1].z + z * basis[2].z;
 	  occlsect.distance = 100000000000;
-	  occlsect.isHit = false;
+	  occlsect.hit = false;
 
 	  interSectsSphere(spheres[0], occlsect);
 	  interSectsSphere(spheres[1], occlsect);
 	  interSectsSphere(spheres[2], occlsect);
 	  interSectsPlane(plane,occlsect);
 
-	  if (occlsect.isHit == true) {
+	  if (occlsect.hit) {
 		hitCount++;
 	  }
 	} 
@@ -217,14 +214,14 @@ void render(int[] byteImage, int width, int height, int numberOfSubSamples)
 		  isect.rayDirection.y = -(y + (v / (double)numberOfSubSamples) - (height / 2.0)) / (height / 2.0);
 		  isect.rayDirection.z = -1.0;
 		  isect.distance = 1000000000;
-		  isect.isHit = false;
+		  isect.hit = false;
 		  normalize(isect.rayDirection);
 		  interSectsSphere(spheres[0], isect);
 		  interSectsSphere(spheres[1], isect);
 		  interSectsSphere(spheres[2], isect);
 		  interSectsPlane(plane, isect);
 		  
-		  if (isect.isHit == true) {
+		  if (isect.hit == true) {
 		      Vec! ambientOcclusion = new Vec(0.0, 0.0, 0.0);
 		      getAmbientOcclusion(isect, ambientOcclusion);
 

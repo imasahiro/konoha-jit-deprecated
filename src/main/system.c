@@ -276,19 +276,19 @@ knh_methodn_t knh_getmn(Ctx *ctx, knh_bytes_t tname, knh_methodn_t def)
 	knh_fieldn_t mask = 0;
 	if(tname.buf[0] == '%') {
 		tname = knh_bytes_skipFMTOPT(tname);
-		if(def != MN_NONAME) mask = K_FLAG_MN_FMT;
+		if(def != MN_NONAME) mask |= K_FLAG_MN_FMT;
 	}
 	else if(tname.buf[0] == 'i' && tname.buf[1] == 's') { /* is => get */
 		tname = knh_bytes_last(tname, 2);
-		if(def != MN_NONAME) mask = K_FLAG_MN_ISBOOL;
+		if(def != MN_NONAME) mask |= K_FLAG_MN_ISBOOL;
 	}
 	else if(tname.buf[0] == 'g' && tname.buf[1] == 'e' && tname.buf[2] == 't') {
 		tname = knh_bytes_last(tname, 3);
-		if(def != MN_NONAME) mask = K_FLAG_MN_GETTER;
+		if(def != MN_NONAME) mask |= K_FLAG_MN_GETTER;
 	}
 	else if(tname.buf[0] == 's' && tname.buf[1] == 'e' && tname.buf[2] == 't') {
 		tname = knh_bytes_last(tname, 3);
-		if(def != MN_NONAME) mask = K_FLAG_MN_SETTER;
+		if(def != MN_NONAME) mask |= K_FLAG_MN_SETTER;
 	}
 	return knh_getname(ctx, tname, def) | mask;
 }

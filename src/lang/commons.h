@@ -23,7 +23,6 @@ char* TT_tochar(knh_term_t tt);
 #define TK_tobytes(tk)           S_tobytes(DP(tk)->text)
 
 #define TK_typing(tk, tt0, type0, index0) { \
-		DBG_ASSERT(type0 != TYPE_var);\
 		TT_(tk) = tt0;\
 		SP(tk)->type = type0;\
 		DP(tk)->index = index0;\
@@ -47,11 +46,16 @@ char* TT_tochar(knh_term_t tt);
 
 #define isSINGLEFOREACH(stmt)   (DP(stmt)->size == 3)
 
+#define TERMs(stmt, n)         DP(stmt)->terms[n]
+#define TERMs__(stmt, n)       TT_tochar(TT_(DP(stmt)->terms[n]))
+#define TT_TERMs(stmt, n)       TT_(DP(stmt)->terms[n])
 #define TERMs_isCONST(stmt,n)   (TT_(DP(stmt)->terms[n]) == TT_CONST)
 #define TERMs_isASIS(stmt,n)    (TT_(DP(stmt)->terms[n]) == TT_ASIS)
 #define TERMs_isCID(stmt,n)     (TT_(DP(stmt)->terms[n]) == TT_CID)
 #define TERMs_const(stmt, n)    DP(DP(stmt)->tokens[n])->data
-#define TERMs_isNULL(stmt, n)   (TERMs_isCONST(stmt, n) && IS_NULL(TERMs_const(stmt, n)))
+//#define TERMs_isNULL(stmt, n)   (TERMs_isCONST(stmt, n) && IS_NULL(TERMs_const(stmt, n)))
+#define TERMs_isNULL(stmt, n)   (TT_TERMs(stmt, n) == TT_NULL)
+
 #define TERMs_isTRUE(stmt, n)   (TERMs_isCONST(stmt, n) && IS_TRUE(TERMs_const(stmt, n)))
 #define TERMs_isFALSE(stmt, n)  (TERMs_isCONST(stmt, n) && IS_FALSE(TERMs_const(stmt, n)))
 #define TERMs_gettype(stmt, n)  SP(DP(stmt)->terms[n])->type
@@ -75,10 +79,10 @@ knh_bool_t knh_StmtMETA_is(Ctx *ctx, knh_Stmt_t *stmt, knh_bytes_t name); /* typ
 knh_Term_t* knh_Token_toTYPED(Ctx *ctx, knh_Token_t *tk, knh_term_t tt, knh_type_t type, knh_short_t nn);
 knh_Token_t* new_TokenTYPED(Ctx *ctx, knh_term_t tt, knh_type_t type, knh_short_t nn);
 
-knh_uintptr_t UnitTest_newId(void);
-void UnitTest_print(Ctx *ctx, knh_uintptr_t unitid, knh_bytes_t msg, int result);
-void UnitTestToken(Ctx *ctx, char *stmt, int size, ...);
-void TestToken(Ctx *ctx);
+//knh_uintptr_t UnitTest_newId(void);
+//void UnitTest_print(Ctx *ctx, knh_uintptr_t unitid, knh_bytes_t msg, int result);
+//void UnitTestToken(Ctx *ctx, char *stmt, int size, ...);
+//void TestToken(Ctx *ctx);
 
 /* ======================================================================== */
 

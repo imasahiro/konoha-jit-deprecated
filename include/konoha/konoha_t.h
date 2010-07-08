@@ -379,11 +379,11 @@ typedef knh_ushort_t          knh_methodn_t;
 #define K_FLAG_MN_ISBOOL       K_FLAG_T0
 #define K_FLAG_MN_GETTER       K_FLAG_T1
 #define K_FLAG_MN_SETTER       K_FLAG_T2
-#define K_FLAG_MN_FMT         (K_FLAG_T1|K_FLAG_T1|K_FLAG_T2)
+#define K_FLAG_MN_FMT         (K_FLAG_T0|K_FLAG_T1|K_FLAG_T2)
 #define K_FLAG_MN_FIELDN       (~K_FLAG_MN_FMT)
 
 #define MN_isISBOOL(mn)   ((mn & K_FLAG_MN_FMT) == K_FLAG_MN_ISBOOL)
-#define MN_toISBOOL(mn)   (mn | K_FLAG_MN_GETTER)
+#define MN_toISBOOL(mn)   (mn | K_FLAG_MN_ISBOOL)
 #define MN_isGETTER(mn)   ((mn & K_FLAG_MN_FMT) == K_FLAG_MN_GETTER)
 #define MN_toGETTER(mn)   (mn | K_FLAG_MN_GETTER)
 #define MN_isSETTER(mn)   ((mn & K_FLAG_MN_FMT) == K_FLAG_MN_SETTER)

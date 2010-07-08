@@ -232,6 +232,9 @@ static knh_methodn_t knh_Token_getmn(Ctx *ctx, knh_Token_t *tk)
 	if(TT_(tk) == TT_FUNCNAME || TT_(tk) == TT_NAME || TT_(tk) == TT_UNAME) {
 		TT_(tk) = TT_MN;
 		DP(tk)->mn = knh_getmn(ctx, TK_tobytes(tk), MN_NEWID);
+		DBG_P("******** %s mn=%d, isBOOL=%d, isGETTER=%d, isSETTER=%d",
+			TK_tobytes(tk).str, DP(tk)->mn,
+			MN_isISBOOL(DP(tk)->mn), MN_isGETTER(DP(tk)->mn), MN_isSETTER(DP(tk)->mn));
 	}
 	if(TT_(tk) == TT_NEW) {
 		TT_(tk) = TT_MN;
@@ -1964,11 +1967,17 @@ static knh_Term_t *knh_StmtOP_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt
 		TYPING(ctx, stmt, i, mtd_cid, 0);
 	}
 	if(mn == MN_opEQ || mn == MN_opNOTEQ) {
-		if(TERMs_isNULL(stmt, 1)) {
+		knh_term_t tt = TT_TERMs(stmt, 1);
+		DBG_P("****** tm1=%s, tm2=%s", TERMs__(stmt, 1), TERMs__(stmt, 2));
+		if(tt == TT_NULL || tt == TT_TRUE || tt == TT_FALSE || tt == TT_CONST) {
 			knh_Stmt_swap(ctx, stmt, 1, 2);
 		}
 		if(TERMs_isNULL(stmt, 2)) { /* o == null, o != null */
+			knh_class_t cid = TERMs_getcid(stmt, 1);
 			mn = (mn == MN_opEQ) ? MN_isNull : MN_isNotNull;
+			if(IS_Tunbox(cid)) {
+				knh_Gamma_perror(ctx, KERR_DWARN, "%C doesn't take null", cid);
+			}
 			mtd_cid = CLASS_Object;
 			knh_Stmt_trimToSize(ctx, stmt, 2);
 			goto L_LOOKUPMETHOD;
@@ -2000,17 +2009,15 @@ static knh_Term_t *knh_StmtOP_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt
 		}
 		if((TERMs_isTRUE(stmt, 2) && (mn == MN_opEQ)) /* b == true */
 		|| (TERMs_isFALSE(stmt, 2) && (mn == MN_opNOTEQ))) {  /* b != false */
-			if(TERMs_gettype(stmt, 1) == TYPE_Boolean) {
-				return DP(stmt)->terms[1];
-			}
+			TYPING(ctx, stmt, 1, TYPE_Boolean, 0);
+			return DP(stmt)->terms[1];
 		}
 		if((TERMs_isTRUE(stmt, 2) && (mn == MN_opNOTEQ)) /* b != true */
 		|| (TERMs_isFALSE(stmt, 2) && (mn == MN_opEQ))) {  /* b == false */
-			if(TERMs_gettype(stmt, 1) == TYPE_Boolean) {
-				mn = MN_opNOT; mtd_cid = CLASS_Boolean;
-				knh_Stmt_trimToSize(ctx, stmt, 2);
-				goto L_LOOKUPMETHOD;
-			}
+			TYPING(ctx, stmt, 1, TYPE_Boolean, 0);
+			mn = MN_opNOT; mtd_cid = CLASS_Boolean;
+			knh_Stmt_trimToSize(ctx, stmt, 2);
+			goto L_LOOKUPMETHOD;
 		}
 		mtd_cid = knh_StmtopEQ_basecid(ctx, stmt);
 		goto L_LOOKUPMETHOD;

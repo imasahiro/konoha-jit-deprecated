@@ -449,7 +449,7 @@ static knh_opline_t* knh_BasicBlock_copy(Ctx *ctx, knh_opline_t *dst, knh_BasicB
 			DBG_ASSERT(knh_opcode_hasjump(DP(bb)->opjmp->opcode));
 		}
 		for(i = 0; i < DP(bb)->size; i++) {
-			knh_opline_t *op = DP(bb)->opbuf + i;
+			knh_opline_t *op = dst + i;
 			if(op->opcode == OPCODE_VCALL) {
 				if(knh_BasicBlock_isStackChecked(bb)) {
 					op->opcode = OPCODE_VCALL_;
@@ -465,9 +465,15 @@ static knh_opline_t* knh_BasicBlock_copy(Ctx *ctx, knh_opline_t *dst, knh_BasicB
 		DBG_P("asm bb=%d, %p, %s nextNC=%p", DP(bb)->id, dst, BB(bb), bb->nextNC);
 	}
 	if(bb->nextNC != NULL) {
+		if(knh_BasicBlock_isStackChecked(bb) && DP(bb->nextNC)->incoming == 1) {
+			knh_BasicBlock_setStackChecked(bb->nextNC, 1);
+		}
 		dst = knh_BasicBlock_copy(ctx, dst, bb->nextNC, prev);
 	}
 	if(bb->jumpNC != NULL) {
+		if(knh_BasicBlock_isStackChecked(bb) && DP(bb->jumpNC)->incoming == 1) {
+			knh_BasicBlock_setStackChecked(bb->jumpNC, 1);
+		}
 		dst = knh_BasicBlock_copy(ctx, dst, bb->jumpNC, prev);
 	}
 	return dst;
