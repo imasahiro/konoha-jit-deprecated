@@ -241,6 +241,7 @@ static int knh_Gamma_asmJMPF(Ctx *ctx, klr_JMPF_t *op)
 			opP->opcode = OPCODE_fJEQn + ((opP)->opcode - OPCODE_fEQn);
 			return swap;
 		}
+		break;
 	}
 	knh_BasicBlock_add_(ctx, bb, SP(ctx->gma)->line, (knh_opline_t*)op);
 	return swap;
