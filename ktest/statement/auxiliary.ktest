@@ -1,5 +1,5 @@
-### this is a test code
-### written by Takuma Wakamori
+// this is a test code
+// written by Takuma Wakamori
 
 ### test break
 >>> int ans = 0;
