@@ -1,0 +1,22 @@
+### this is a test code
+### written by Takuma Wakamori
+
+### test for
+>>> int ans = 0;
+0
+>>> for (int i = 0; i < 10; i++) {
+...   ans += i;
+... }
+>>> ans
+45
+
+### test for blank
+>>> int i = 0;
+0
+>>> int ans = 0;
+0
+>>> for (;i < 10; i++) {
+...   ans += i;
+... }
+>>> ans
+45

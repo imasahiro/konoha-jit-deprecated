@@ -1,0 +1,26 @@
+### this is a test code
+### written by Takuma Wakamori
+
+### test while
+>>> int i = 5;
+5
+>>> int ans = 0;
+0
+>>> while (i > 0) {
+...   ans++;
+...   i--;
+... }
+>>> ans
+5
+
+### test do-while
+>>> int i = 1;
+1
+>>> int j = 0;
+0
+>>> do {
+...   i = i + j;
+...   j++;
+... } while (j <= 10);
+>>> i
+55

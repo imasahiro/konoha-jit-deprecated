@@ -1,0 +1,24 @@
+### this is a test code
+### written by Takuma Wakamori
+
+### test break
+>>> int ans = 0;
+0
+>>> for (int i = 0; i < 100; i++) {
+...   if (i == 50) break;
+... }
+>>> ans
+50
+
+### test continue break
+>>> int ans = 0;
+0
+>>> for (int i = 0; ; i++) {
+...   if (i < 10) {
+...     ans += i;
+...     continue;
+...   }
+...   break;
+... }
+>>> ans
+45

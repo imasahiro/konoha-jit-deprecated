@@ -1,0 +1,39 @@
+### this is a test code
+### written by Takuma Wakamori
+
+### test if
+>>> boolean b = true;
+true
+>>> if (true) b = false;
+>>> b
+false
+
+### test ifelse
+>>> boolean b = false;
+false
+>>> if (b) {
+... s = "true";
+... } else {
+... s =  "false";
+... }
+>>> s
+"false"
+
+### test multiple branch
+>>> boolean b = true;
+true
+>>> boolean c = false;
+false
+>>> string s = "";
+""
+>>> if (b) {
+...   if (c) {
+...     s = "failed";
+...   } else {
+...     s = "OK";
+...   }
+... } else {
+...   s = "failed";
+... }
+>>> s
+"OK"

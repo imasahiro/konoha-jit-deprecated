@@ -1,0 +1,16 @@
+### this is a test code
+### written by Takuma Wakamori
+
+### test case
+>>> char c = 'A';
+65
+>>> switch (c) {
+... case 'A':
+...   s = "OK";
+...   break;
+... default:
+... s = "failed";
+... break;
+... }
+>>> s
+"OK"
