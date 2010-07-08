@@ -35,6 +35,17 @@
 #define USE_cwb_tobytes   1
 #define USE_cwb_size      1
 
+
+/* ************************************************************************ */
+// added by nakata
+#define USE_cwb_write 1
+#define USE_bytes_endsWith 1
+#define K_PERROR_LIBNAME "stdc"
+#define USE_fopen 1
+
+
+/* ************************************************************************ */
+
 #include"commons.h"
 
 /* ************************************************************************ */
@@ -42,6 +53,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 
 /* ======================================================================== */
 /* [ctxkey] */
@@ -182,12 +194,23 @@ static void knh_setOptimizationMode(Ctx *ctx, int mode, const char *optstr)
 	}
 }
 
+/* ************************************************************************ */
+
+static void knh_shell(Ctx *ctx, char *optstr, const knh_ShellSPI_t *spi, const knh_ShellAPI_t *api);
+static const knh_ShellSPI_t testSPI;
+
 static void knh_setTestFile(Ctx *ctx, int mode, const char *optstr)
 {
+    // moded by nakata;
 	DBG_P("TESTMODE: %s", optstr);
-
-	KNH_TODO("test");
+	if (!knh_bytes_endsWith(B(optstr), B(".ktest"))) {
+		fprintf(stderr, "[KTESTINFO]invalid test file:'%s'\n", optstr);
+		return;
+	}
+	knh_shell(ctx, (char*)optstr, &testSPI, NULL);
 }
+
+/* ************************************************************************ */
 
 static void knh_setSyncURL(Ctx *ctx, int mode, const char *optstr)
 {
@@ -505,6 +528,8 @@ static const knh_ShellSPI_t shellSPI = {
 	shell_cleanup,
 };
 
+
+
 static void knh_shell(Ctx *ctx, char *optstr, const knh_ShellSPI_t *spi, const knh_ShellAPI_t *api)
 {
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
@@ -593,6 +618,253 @@ KNHAPI(void) konoha_shell(konoha_t konoha, char *optstr)
 	knh_shell(ctx, optstr, ctx->share->shellSPI, NULL);
 	KONOHA_END(ctx);
 }
+
+/* ------------------------------------------------------------------------ */
+/* [ktest lang] */
+// the following is added by nakata 
+
+#define KTEST_LINE_MAX 1024
+
+typedef struct _kt_stmt_t {
+  knh_bytes_t testBody;
+  knh_bytes_t testResult;
+  knh_uint_t  isFail;
+  struct _kt_stmt_t *next;
+} kt_stmt_t;
+
+typedef struct _kt_unit_t {
+  knh_bytes_t testTitle;
+  knh_uint_t stmtsize;
+  kt_stmt_t *shead;
+  kt_stmt_t *current;
+  struct _kt_unit_t *next;
+} kt_unit_t;
+
+typedef struct _kt_status_t{
+  FILE *fp;
+  knh_bytes_t filename;
+  size_t unitsize;
+  kt_unit_t *uhead;
+  kt_unit_t *current;
+} kt_status_t ;
+
+#define IS_D(L, ch) (L[0] == ch && L[1] == ch)
+#define IS_T(L, ch) (L[0] == ch && L[1] == ch && L[2] == ch && L[3] == ' ')
+
+char *kt_fgets(Ctx *ctx, kt_status_t *kt, char *line, int max)
+{
+  char *ret;
+  if ((ret = fgets(line, max - 1, kt->fp)) != NULL) {
+	line[strlen(line) - 1] = '\0';
+  }
+  return ret;
+}
+
+static kt_unit_t* new_kt_unit (Ctx *ctx, char* title)
+{
+  kt_unit_t* ret = (kt_unit_t*)KNH_MALLOC(ctx, sizeof(kt_unit_t));
+  size_t len = knh_strlen(title);
+  ret->testTitle.str = (char *)KNH_MALLOC(ctx, len + 1);
+  snprintf(ret->testTitle.str, len + 1, "%s", title);
+  ret->testTitle.len = len;
+  ret->shead = NULL;
+  ret->current = NULL;
+  ret->stmtsize = 0;
+  ret->next = NULL;
+  return ret;
+}
+
+static kt_stmt_t* new_kt_stmt(Ctx *ctx, char *body)
+{
+  kt_stmt_t *ret = (kt_stmt_t *)KNH_MALLOC(ctx, sizeof(kt_stmt_t));
+  size_t len = knh_strlen(body);
+  ret->testBody.str = (char *)KNH_MALLOC(ctx, len + 1);
+  snprintf(ret->testBody.str, len + 1, "%s", body);
+  ret->testBody.len = len;
+  ret->isFail = 0;
+  ret->next = NULL;
+  return ret;
+}
+
+static void* test_init(Ctx *ctx, char *msg, char *optstr)
+{
+  FILE *fp = knh_fopen(ctx, optstr, "r", 0);
+  if (fp == NULL) {
+	  fprintf(stderr, "[KTESTINFO]opening testfile:'%s' is failed\n", optstr);
+	  return NULL;
+  }
+  kt_status_t *kt = (kt_status_t*)KNH_MALLOC(ctx, sizeof(kt_status_t));
+  kt->fp = fp;
+  size_t len = knh_strlen(optstr);
+  kt->filename.str = (char*)KNH_MALLOC(ctx, len+1);
+  snprintf(kt->filename.str, len + 1, "%s", optstr);
+  kt->filename.len = len;
+  kt->current = NULL;
+  kt->uhead = NULL;
+  kt->unitsize = 0;
+  return kt;
+}
+
+static void add_kt_stmt_body(Ctx *ctx, kt_stmt_t* ks, char *body)
+{
+  // realloc
+  size_t len = knh_strlen(body);
+  DBG_ASSERT(len > 0);
+  char *tmp = (char*)KNH_MALLOC(ctx, ks->testBody.len + len + 1);
+  knh_memcpy(tmp, ks->testBody.str, ks->testBody.len);
+  knh_memcpy(tmp + ks->testBody.len, body, len);
+  tmp[ks->testBody.len + len] = '\0';
+  KNH_FREE(ctx, ks->testBody.str, ks->testBody.len + 1);
+  ks->testBody.str = tmp;
+  ks->testBody.len += len;
+}
+
+static void add_kt_stmt_result(Ctx *ctx, kt_stmt_t *ks, char *result)
+{
+  size_t len = knh_strlen(result);
+  DBG_ASSERT(len > 0);
+  ks->testResult.str = (char *)KNH_MALLOC(ctx, len + 1);
+  snprintf(ks->testResult.str, len + 1, "%s", result);
+  ks->testResult.len = len;
+}
+
+
+static char* test_readstmt(Ctx *ctx, void *status, knh_cwb_t *cwb, const knh_ShellAPI_t *api)
+{
+  kt_status_t *kt = (kt_status_t*)status;
+  kt_unit_t *ku = NULL;
+  kt_stmt_t *ks = NULL;
+  if (kt == NULL) return NULL;
+  if (kt->unitsize != 0) ku = kt->current;
+  if (ku != NULL && ku->stmtsize != 0) ks = ku->current;
+  char line[KTEST_LINE_MAX];
+  int isMultiline = 0;
+  while(kt_fgets(ctx, kt, line, KTEST_LINE_MAX) != NULL) {
+	if (IS_D(line, '/')) continue;
+	if(IS_T(line, '#')) {
+	  isMultiline = 0;
+	  if (kt->unitsize == 0) {
+		kt->unitsize++;
+		kt->uhead = new_kt_unit(ctx, line + 4);
+		ku = kt->uhead;
+	  } else {
+		kt->unitsize++;
+		ku->next = new_kt_unit(ctx, line + 4);
+		ku = ku->next;
+	  }
+	  kt->current = ku;
+	  continue;
+	}
+	if(IS_T(line, '>') || IS_T(line, '.')) {
+	  if (isMultiline) {
+		add_kt_stmt_body(ctx, ks, line + 4);
+	  } else {
+		if (ku->stmtsize == 0) {
+		  ku->stmtsize++;
+		  ku->shead = new_kt_stmt(ctx, line + 4);
+		  ks = ku->shead;
+		} else {
+		  ku->stmtsize++;
+		  ks->next = new_kt_stmt(ctx, line + 4);
+		  ks = ks->next;
+		}
+		ku->current = ks;
+	  }
+	  int check;
+	  if ((check = api->checkstmt(ks->testBody)) == 0) {
+		knh_cwb_write(ctx, cwb, ks->testBody);
+		continue;
+	  }
+	  if (check < 0) {
+		fprintf(stderr, "[KTESTINFO] invalid statements..\n");
+		knh_cwb_clear(cwb, 0);
+		continue;
+	  } else {
+		isMultiline = 1;
+		continue;
+	  }
+	}
+	add_kt_stmt_result(ctx, ks, line);
+	return (char*)1;
+  }
+  // to finish shell mode, we return NULL.
+  // if we continue reading statements
+  return NULL;
+  //	return knh_cwb_tochar(ctx, cwb);
+}
+
+static void test_display(Ctx *ctx, void *status, char* result, const knh_ShellAPI_t *api)
+{
+  kt_status_t *kt = (kt_status_t*)status;
+  if (kt == NULL) return;
+  kt_unit_t *ku = kt->current;
+  kt_stmt_t *ks = ku->current;
+  char *charResult = ks->testResult.str;
+  size_t len = ks->testResult.len;
+  if (strncmp(charResult, result, len) == 0) {
+	ks->isFail = 0;
+  } else {
+	ks->isFail = 1;
+  }
+  return;
+}
+
+static void test_cleanup(Ctx *ctx, void *status)
+{
+  kt_status_t *kt = (kt_status_t*)status;
+  if (kt == NULL) return;
+  fclose(kt->fp);
+  /* print results */
+  kt_unit_t *ku = kt->uhead, *clean_ku;
+  kt_stmt_t *ks = ku->shead, *clean_ks;
+  int i, j;
+  char *msg[] = {"PASSED!", "FAIL!"};
+  /* traverse test result, and sum up */
+  int result = 0, line = 0;
+  for (i = 1; i <= kt->unitsize; i++) {
+	for (j = 1; j <= ku->stmtsize; j++) {
+	  if (ks->isFail == 1) {
+		line = j;
+	  }
+	  result |= ks->isFail;
+	  clean_ks = ks;
+	  if (j < ku->stmtsize) {
+		ks = ks->next;
+	  }
+	  // cleanup ks
+	  KNH_FREE(ctx, clean_ks->testBody.str, clean_ks->testBody.len + 1);
+	  if (clean_ks->testResult.len != 0) 
+		KNH_FREE(ctx, clean_ks->testResult.str, clean_ks->testResult.len + 1);
+	  KNH_FREE(ctx, clean_ks, sizeof(kt_stmt_t));
+	}
+	if (result == 0) {
+	  fprintf(stderr, "[%s]:%s\n", ku->testTitle.str, msg[result]);
+	} else {
+	  fprintf(stderr, "[%s:%d]:%s\n", ku->testTitle.str, line,msg[result]);
+	}
+	result = 0;
+	clean_ku = ku;
+	if (i < kt->unitsize) {
+	  ku = ku->next;
+	  ks = ku->shead;
+	}
+	// clean up ku
+	KNH_FREE(ctx, clean_ku->testTitle.str, clean_ku->testTitle.len + 1);
+	KNH_FREE(ctx, clean_ku, sizeof(kt_unit_t));
+  }
+  // clean up kt
+  KNH_FREE(ctx, kt->filename.str, kt->filename.len + 1);
+  KNH_FREE(ctx, kt, sizeof(kt_status_t));
+  knh_Context_setInteractive(ctx, 0);
+}
+
+static const knh_ShellSPI_t testSPI = {
+		"konoha testshell mode",
+		test_init,
+		test_readstmt,
+		test_display,
+		test_cleanup,
+};
 
 /* ------------------------------------------------------------------------ */
 
