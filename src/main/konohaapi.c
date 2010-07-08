@@ -617,6 +617,7 @@ KNHAPI(void) konoha_shell(konoha_t konoha, char *optstr)
 /* ------------------------------------------------------------------------ */
 /* [ktest lang] */
 // the following is added by nakata 
+// modified by kimio
 
 #define KTEST_LINE_MAX 1024
 #define IS_D(L, ch) (L[0] == ch && L[1] == ch)
@@ -661,7 +662,7 @@ static kt_unit_t* new_kt_unit(Ctx *ctx, char* title)
 	kt_unit_t* ret = (kt_unit_t*)KNH_MALLOC(ctx, sizeof(kt_unit_t));
 	size_t len = knh_strlen(title);
 	ret->testTitle.str = (char *)KNH_MALLOC(ctx, len + 1);
-	snprintf(ret->testTitle.str, len + 1, "%s", title);
+	knh_memcpy(ret->testTitle.str, title, len + 1);
 	ret->testTitle.len = len;
 	ret->shead = NULL;
 	ret->current = NULL;
@@ -675,8 +676,7 @@ static kt_stmt_t* new_kt_stmt(Ctx *ctx, char *body)
 	kt_stmt_t *ret = (kt_stmt_t *)KNH_MALLOC(ctx, sizeof(kt_stmt_t));
 	size_t len = knh_strlen(body);
 	ret->testBody.str = (char *)KNH_MALLOC(ctx, len + 1);
-	// FIXME: use knh_memcpy
-	snprintf(ret->testBody.str, len + 1, "%s", body);
+	knh_memcpy(ret->testBody.str, body, len+1);
 	ret->testBody.len = len;
 	ret->isFailed = 0;
 	ret->next = NULL;
@@ -687,7 +687,6 @@ static void* test_init(Ctx *ctx, char *msg, char *filename)
 {
 	FILE *fp = fopen(filename, "r");
 	if (fp == NULL) {
-//		fprintf(stderr, "[KTESTINFO]opening testfile:'%s' is failed\n", optstr);
 		KNH_SYSLOG(ctx, LOG_ERR, "TestFile", "cannot open: %s", filename);
 		return NULL;
 	}
@@ -696,10 +695,8 @@ static void* test_init(Ctx *ctx, char *msg, char *filename)
 		kt_status_t *kt = (kt_status_t*)KNH_MALLOC(ctx, sizeof(kt_status_t));
 		kt->in = fp;
 		kt->filename.str = (char*)KNH_MALLOC(ctx, len+1);
-		// FIXME: use knh_memcpy
-		snprintf(kt->filename.str, len + 1, "%s", filename);
+		knh_memcpy(kt->filename.str, filename, len + 1);
 		kt->filename.len = len;
-
 		kt->current = NULL;
 		kt->uhead = NULL;
 		kt->unitsize = 0;
@@ -728,11 +725,10 @@ static void add_kt_stmt_result(Ctx *ctx, kt_stmt_t *ks, char *result)
 	size_t len = knh_strlen(result);
 	DBG_ASSERT(len > 0);
 	ks->testResult.str = (char *)KNH_MALLOC(ctx, len + 1);
-	snprintf(ks->testResult.str, len + 1, "%s", result);
+	knh_memcpy(ks->testResult.str, result, len + 1);
 	ks->testResult.len = len;
 }
 
-//static char* test_readstmt(Ctx *ctx, void *status, knh_cwb_t *cwb, const knh_ShellAPI_t *api)
 static knh_bool_t test_readstmt(Ctx *ctx, void *status, knh_cwb_t *cwb, const knh_ShellAPI_t *api)
 {
 	kt_status_t *kt = (kt_status_t*)status;
@@ -742,12 +738,17 @@ static knh_bool_t test_readstmt(Ctx *ctx, void *status, knh_cwb_t *cwb, const kn
 	if (kt->unitsize != 0) ku = kt->current;
 	if (ku != NULL && ku->stmtsize != 0) ks = ku->current;
 	char line[KTEST_LINE_MAX];
-	int isMultiline = 0;
+	int isMultiline = 0, isTestStarted = 0;
 	while(kt_fgets(ctx, kt, line, KTEST_LINE_MAX) != NULL) {
 		kt->lineno += 1;  // added by kimio
 		if (IS_D(line, '/')) continue;
 		if(IS_T(line, '#')) {
 			isMultiline = 0;
+			if (isTestStarted == 1) {
+				// there were no result line.
+				add_kt_stmt_result(ctx, ks, "");
+				return 1;
+			}
 			if (kt->unitsize == 0) {
 				kt->unitsize++;
 				kt->uhead = new_kt_unit(ctx, line + 4);
@@ -757,6 +758,7 @@ static knh_bool_t test_readstmt(Ctx *ctx, void *status, knh_cwb_t *cwb, const kn
 				ku->next = new_kt_unit(ctx, line + 4);
 				ku = ku->next;
 			}
+			isTestStarted = 1;
 			kt->current = ku;
 			continue;
 		}
@@ -789,7 +791,10 @@ static knh_bool_t test_readstmt(Ctx *ctx, void *status, knh_cwb_t *cwb, const kn
 				continue;
 			}
 		}
-		add_kt_stmt_result(ctx, ks, line);
+		if (isTestStarted) {
+			add_kt_stmt_result(ctx, ks, line);
+			return 1;
+		}
 		return 1;
 	}
 	return 0;
@@ -820,11 +825,12 @@ static void test_cleanup(Ctx *ctx, void *status)
 	if (kt == NULL) return;
 	fclose(kt->in);
 	/* print results */
+	if (kt->unitsize == 0)  goto CLEANUP_KT; // there is no test.
 	kt_unit_t *ku = kt->uhead, *clean_ku;
 	kt_stmt_t *ks = ku->shead, *clean_ks;
 	int i, j;
 	/* traverse test result, and sum up */
-	int result = 0, line = 0;
+	size_t unit_passed = 0, result = 0, line = 0;
 	for (i = 1; i <= kt->unitsize; i++) {
 		for (j = 1; j <= ku->stmtsize; j++) {
 			if (ks->isFailed == 1) {
@@ -841,12 +847,7 @@ static void test_cleanup(Ctx *ctx, void *status)
 				KNH_FREE(ctx, clean_ks->testResult.str, clean_ks->testResult.len + 1);
 			KNH_FREE(ctx, clean_ks, sizeof(kt_stmt_t));
 		}
-//		if program crashed in the middle of testing, we cannot receive nothing.
-//		if (result == 0) {
-//			fprintf(stderr, "[%s]:%s\n", ku->testTitle.str, msg[result]);
-//		} else {
-//			fprintf(stderr, "[%s:%d]:%s\n", ku->testTitle.str, line, msg[result]);
-//		}
+		if (result == 0) unit_passed++;
 		result = 0;
 		clean_ku = ku;
 		if (i < kt->unitsize) {
@@ -861,6 +862,8 @@ static void test_cleanup(Ctx *ctx, void *status)
 		fclose(kt->out);
 	}
 	// clean up kt
+CLEANUP_KT:
+	fprintf(kt->out, "TEST result : %d/%d has passed test\n", (int)unit_passed, (int)kt->unitsize);
 	KNH_FREE(ctx, kt->filename.str, kt->filename.len + 1);
 	KNH_FREE(ctx, kt, sizeof(kt_status_t));
 }

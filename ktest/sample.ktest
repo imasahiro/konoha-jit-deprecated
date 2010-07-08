@@ -1,0 +1,18 @@
+### test simpletest
+>>> 1
+1
+
+### test simpletest2
+>>> 2
+3
+
+### test simpletest3
+>>> "hoge".indexOf(
+... "o");
+1
+
+### test simpletest4
+>>> str = "hoge";
+"hoge"
+>>> |str|;
+4
