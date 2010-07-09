@@ -707,7 +707,7 @@ static knh_bool_t knh_Stmt_eval(Ctx *ctx, knh_Stmt_t *stmtITR, knh_type_t reqt, 
 			}
 			if(resultsNULL != NULL) {
 				DP(mtd)->uri = SP(stmt)->uri;
-				KNH_SETv(ctx, lsfp[1].o, DP(mtd)->kcode);
+				KNH_SETv(ctx, lsfp[1].o, DP(mtd)->kcode);  // put KCode to avoid GC
 				klr_setcallmtd(ctx, lsfp[2], mtd);
 				KNH_SETv(ctx, lsfp[3].o, scr);
 				klr_setesp(ctx, lsfp + 4);

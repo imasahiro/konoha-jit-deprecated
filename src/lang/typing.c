@@ -2583,7 +2583,7 @@ static knh_Term_t *knh_StmtSWITCH_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t 
 	int c = 0;
 	TYPING(ctx, stmt, 0, TYPE_Any, _NOTCHECK);
 	stmtCASE = DP(stmt)->stmts[1];
-	while(IS_Stmt(stmtCASE)) {
+	while(stmtCASE != NULL) {
 		if(SP(stmtCASE)->stt == STT_CASE) {
 			knh_Stmt_setESPIDX(ctx, stmtCASE);
 			if(TERMs_isASIS(stmtCASE, 0)) {

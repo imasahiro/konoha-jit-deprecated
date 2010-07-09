@@ -1796,17 +1796,10 @@ static void knh_Gamma_popLABEL(Ctx *ctx)
 /* ======================================================================== */
 /* [IF, WHILE, DO, FOR, FOREACH]  */
 
-//static int TERMs_isDONE(knh_Stmt_t *stmt, size_t n)
-//{
-//	knh_Stmt_t *cur = DP(stmt)->stmts[n];
-//	return (IS_Stmt(cur) && SP(cur)->stt == STT_DONE);
-//}
-
-static knh_Token_t *knh_Stmt_getLOCAL(knh_Stmt_t *stmt, size_t n)
+static knh_Token_t *TERMs_it(knh_Stmt_t *stmt, size_t n)
 {
 	DBG_ASSERT(n < DP(stmt)->size);
 	knh_Token_t *tkIT = DP(stmt)->tokens[n];
-	DBG_ASSERT(IS_Token(tkIT));
 	DBG_ASSERT(TT_(tkIT) == TT_LOCAL);
 	return tkIT;
 }
@@ -1836,36 +1829,42 @@ static void knh_StmtIF_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
 static void knh_StmtSWITCH_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
 {
 	knh_Stmt_t *stmtCASE;
-	knh_Token_t *tkIT = knh_Stmt_getLOCAL(stmt, 2);
-	knh_BasicBlock_t* lbC = new_BasicBlockLABEL(ctx);
-	knh_BasicBlock_t* lbB = new_BasicBlockLABEL(ctx);
-	knh_Gamma_pushLABEL(ctx, stmt, lbC, lbB);
-	KNH_ASM_LABEL(ctx, lbC);
+	knh_Token_t *tkIT = TERMs_it(stmt, 2);
+	knh_BasicBlock_t* lbCONTINUE = new_BasicBlockLABEL(ctx);
+	knh_BasicBlock_t* lbBREAK = new_BasicBlockLABEL(ctx);
+	knh_BasicBlock_t *lbNEXT = NULL;
+	knh_Gamma_pushLABEL(ctx, stmt, lbCONTINUE, lbBREAK);
+	KNH_ASM_LABEL(ctx, lbCONTINUE);
+	//switch(it)
 	TERMs_asm(ctx, stmt, 0, SP(tkIT)->type, (DP(tkIT)->index));
 	stmtCASE = DP(stmt)->stmts[1];
 	while(stmtCASE != NULL) {
-		if(SP(stmtCASE)->stt == STT_CASE) {
-			if(!TERMs_isASIS(stmtCASE, 0)) {
-				knh_BasicBlock_t*  lbEND = new_BasicBlockLABEL(ctx);
-				DP(ctx->gma)->espidx = DP(stmtCASE)->espidx;
-				DBG_P("it=%d, esp=%d, stmtCASE->esp=%d", DP(tkIT)->index, DP(ctx->gma)->espidx, DP(stmtCASE)->espidx);
-				TERMs_JMPIF(ctx, stmtCASE, 0, 0/*FALSE*/, lbEND, DP(ctx->gma)->espidx);
-				TERMs_asmBLOCK(ctx, stmtCASE, 1, reqt);
-				KNH_ASM_LABEL(ctx, lbEND);
+		// case 'a' :
+		if(STT_(stmtCASE) == STT_CASE && !TERMs_isASIS(stmtCASE, 0)) {
+			knh_BasicBlock_t *lbEND = new_BasicBlockLABEL(ctx);
+			DP(ctx->gma)->espidx = DP(stmtCASE)->espidx;
+			TERMs_JMPIF(ctx, stmtCASE, 0, 0/*FALSE*/, lbEND, DP(ctx->gma)->espidx);
+			if(lbNEXT != NULL) {
+				KNH_ASM_LABEL(ctx, lbNEXT); lbNEXT = NULL;
 			}
+			TERMs_asmBLOCK(ctx, stmtCASE, 1, reqt);
+			lbNEXT = new_BasicBlockLABEL(ctx);
+			KNH_ASM_JMP(ctx, lbNEXT);
+			KNH_ASM_LABEL(ctx, lbEND);
 		}
 		stmtCASE = DP(stmtCASE)->nextNULL;
+	}
+	if(lbNEXT != NULL) {
+		KNH_ASM_LABEL(ctx, lbNEXT); lbNEXT = NULL;
 	}
 	stmtCASE = DP(stmt)->stmts[1];
 	while(stmtCASE !=NULL) {
-		if(SP(stmtCASE)->stt == STT_CASE) {
-			if(TERMs_isASIS(stmtCASE, 0)) {
-				TERMs_asmBLOCK(ctx, stmtCASE, 1, reqt);
-			}
+		if(STT_(stmtCASE) == STT_CASE && TERMs_isASIS(stmtCASE, 0)) {
+			TERMs_asmBLOCK(ctx, stmtCASE, 1, reqt);
 		}
 		stmtCASE = DP(stmtCASE)->nextNULL;
 	}
-	KNH_ASM_LABEL(ctx, lbB);
+	KNH_ASM_LABEL(ctx, lbBREAK);
 	knh_Gamma_popLABEL(ctx);
 }
 
@@ -1912,53 +1911,52 @@ static void knh_StmtBREAK_asm(Ctx *ctx, knh_Stmt_t *stmt)
 
 static void knh_StmtWHILE_asm(Ctx *ctx, knh_Stmt_t *stmt)
 {
-	knh_BasicBlock_t* lbC = new_BasicBlockLABEL(ctx);
-	knh_BasicBlock_t* lbB = new_BasicBlockLABEL(ctx);
-	knh_Gamma_pushLABEL(ctx, stmt, lbC, lbB);
-	KNH_ASM_LABEL(ctx, lbC);
+	knh_BasicBlock_t* lbCONTINUE = new_BasicBlockLABEL(ctx);
+	knh_BasicBlock_t* lbBREAK = new_BasicBlockLABEL(ctx);
+	knh_Gamma_pushLABEL(ctx, stmt, lbCONTINUE, lbBREAK);
+	KNH_ASM_LABEL(ctx, lbCONTINUE);
 	if(!TERMs_isTRUE(stmt, 0)) {
-		TERMs_JMPIF(ctx, stmt, 0, 0/*FALSE*/, lbB, DP(ctx->gma)->espidx);
+		TERMs_JMPIF(ctx, stmt, 0, 0/*FALSE*/, lbBREAK, DP(ctx->gma)->espidx);
 	}
 	TERMs_asmBLOCK(ctx, stmt, 1, TYPE_void);
-	KNH_ASM_JMP(ctx, lbC);
-	KNH_ASM_LABEL(ctx, lbB);
+	KNH_ASM_JMP(ctx, lbCONTINUE);
+	KNH_ASM_LABEL(ctx, lbBREAK);
 	knh_Gamma_popLABEL(ctx);
 }
 
 static void knh_StmtDO_asm(Ctx *ctx, knh_Stmt_t *stmt)
 {
-	knh_BasicBlock_t* lbC = new_BasicBlockLABEL(ctx);
-	knh_BasicBlock_t* lbB = new_BasicBlockLABEL(ctx);
-	knh_Gamma_pushLABEL(ctx, stmt, lbC, lbB);
-	KNH_ASM_LABEL(ctx, lbC);
+	knh_BasicBlock_t* lbCONTINUE = new_BasicBlockLABEL(ctx);
+	knh_BasicBlock_t* lbBREAK = new_BasicBlockLABEL(ctx);
+	knh_Gamma_pushLABEL(ctx, stmt, lbCONTINUE, lbBREAK);
+	KNH_ASM_LABEL(ctx, lbCONTINUE);
 	TERMs_asmBLOCK(ctx, stmt, 0, TYPE_void);
-	TERMs_JMPIF(ctx, stmt, 1, 0/*FALSE*/, lbB, DP(ctx->gma)->espidx);
-	KNH_ASM_JMP(ctx, lbC);
-	KNH_ASM_LABEL(ctx, lbB);
+	TERMs_JMPIF(ctx, stmt, 1, 0/*FALSE*/, lbBREAK, DP(ctx->gma)->espidx);
+	KNH_ASM_JMP(ctx, lbCONTINUE);
+	KNH_ASM_LABEL(ctx, lbBREAK);
 	knh_Gamma_popLABEL(ctx);
 }
 
 static void knh_StmtFOR_asm(Ctx *ctx, knh_Stmt_t *stmt)
 {
-	knh_BasicBlock_t* lbC = new_BasicBlockLABEL(ctx);
-	knh_BasicBlock_t* lbB = new_BasicBlockLABEL(ctx);
+	knh_BasicBlock_t* lbCONTINUE = new_BasicBlockLABEL(ctx);
+	knh_BasicBlock_t* lbBREAK = new_BasicBlockLABEL(ctx);
 	knh_BasicBlock_t* lbREDO = new_BasicBlockLABEL(ctx);
-	knh_Gamma_pushLABEL(ctx, stmt, lbC, lbB);
+	knh_Gamma_pushLABEL(ctx, stmt, lbCONTINUE, lbBREAK);
 	/* i = 1 part */
 	TERMs_asmBLOCK(ctx, stmt, 0, TYPE_void);
 	KNH_ASM_JMP(ctx, lbREDO);
 	/* i++ part */
-	KNH_ASM_LABEL(ctx, lbC); /* CONTINUE */
+	KNH_ASM_LABEL(ctx, lbCONTINUE); /* CONTINUE */
 	TERMs_asmBLOCK(ctx, stmt, 2, TYPE_void);
-	//KNH_ASM_JMP(ctx, lbREDO); // added by wakamori
 	/* i < 10 part */
 	KNH_ASM_LABEL(ctx, lbREDO);
 	if(!TERMs_isTRUE(stmt, 1)) {
-		TERMs_JMPIF(ctx, stmt, 1, 0/*FALSE*/, lbB, DP(ctx->gma)->espidx);
+		TERMs_JMPIF(ctx, stmt, 1, 0/*FALSE*/, lbBREAK, DP(ctx->gma)->espidx);
 	}
 	TERMs_asmBLOCK(ctx, stmt, 3, TYPE_void);
-	KNH_ASM_JMP(ctx, lbC);
-	KNH_ASM_LABEL(ctx, lbB);
+	KNH_ASM_JMP(ctx, lbCONTINUE);
+	KNH_ASM_LABEL(ctx, lbBREAK);
 	knh_Gamma_popLABEL(ctx);
 }
 
@@ -2057,7 +2055,7 @@ static void knh_StmtTRY_asm(Ctx *ctx, knh_Stmt_t *stmt)
 {
 	knh_BasicBlock_t*  lbCATCH   = new_BasicBlockLABEL(ctx);
 	knh_BasicBlock_t*  lbFINALLY = new_BasicBlockLABEL(ctx);
-	knh_Token_t *tkIT = knh_Stmt_getLOCAL(stmt, 3/*HDR*/);
+	knh_Token_t *tkIT = TERMs_it(stmt, 3/*HDR*/);
 	knh_Gamma_setFinallyStmt(ctx, DP(stmt)->stmts[2/*finally*/]);
 
 	/* try { */
@@ -2070,7 +2068,7 @@ static void knh_StmtTRY_asm(Ctx *ctx, knh_Stmt_t *stmt)
 	/* catch */
 	KNH_ASM_LABEL(ctx, lbCATCH);
 	knh_Stmt_t *stmtCATCH = DP(stmt)->stmts[1/*catch*/];
-	KNH_ASSERT(IS_Stmt(stmtCATCH));
+	DBG_ASSERT(IS_Stmt(stmtCATCH));
 	while(stmtCATCH != NULL) {
 		if(SP(stmtCATCH)->stt == STT_CATCH) {
 			knh_String_t *emsg = DP(DP(stmtCATCH)->tokens[0])->text;
