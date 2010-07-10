@@ -40,7 +40,6 @@
 
 #define USE_cwb_open      1
 #define USE_cwb_tobytes   1
-#define USE_cwb_size      1
 #define USE_cwb_write     1
 
 #include"commons.h"
@@ -752,11 +751,10 @@ knh_bool_t knh_eval(Ctx *ctx, knh_InputStream_t *in, knh_type_t reqt, knh_Array_
 
 /* ------------------------------------------------------------------------ */
 
-static int knh_cwb_isempty(knh_cwb_t *cwb)
+static int knh_bytes_isempty(knh_bytes_t t)
 {
-	knh_bytes_t t = knh_cwb_tobytes(cwb);
 	size_t i;
-	for(i=0; i < t.len; i++) {
+	for(i = 0; i < t.len; i++) {
 		if(!isspace(t.buf[i])) return 0;
 	}
 	return 1;
@@ -791,7 +789,7 @@ static knh_InputStream_t* knh_openPathNULL(Ctx *ctx, knh_bytes_t path)
 	knh_StreamDSPI_t *sdspi = knh_getStreamDSPI(ctx, path);
 	knh_io_t fd = sdspi->fopen(ctx, path, "r");
 	if(fd == IO_NULL) {
-		knh_Gamma_perror(ctx, KERR_ERR, _("cannot open: path='%B'"), path);
+		KNH_SYSLOG(ctx, LOG_ERR, "ScriptNotFound", "path='%B'", path);
 		return NULL;
 	}
 	else {
@@ -809,32 +807,39 @@ static knh_InputStream_t* knh_openPathNULL(Ctx *ctx, knh_bytes_t path)
 
 knh_bool_t knh_load(Ctx *ctx, knh_bytes_t path, knh_type_t reqt, knh_Array_t *resultsNULL)
 {
-	knh_InputStream_t *in = knh_openPathNULL(ctx, path);
-	if(in == NULL) return 0;
-	BEGIN_LOCAL(ctx, lsfp, 1);
-	KNH_SETv(ctx, lsfp[0].o, in);
+	knh_bool_t res = 0;
 	long linenum = 1;
-	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 	void *dlhdrSTACK = DP(ctx->gma)->dlhdr;
 	DP(ctx->gma)->dlhdr = NULL;
+
+	knh_InputStream_t *in = knh_openPathNULL(ctx, path);
+	if(in == NULL) {
+		goto L_RETURN;
+	}
+
+	BEGIN_LOCAL(ctx, lsfp, 2);
+	KNH_SETv(ctx, lsfp[0].o, in);
+	LOCAL_NEW(ctx, lsfp, 1, knh_InputStream_t *, bin, new_BytesInputStream(ctx, new_Bytes(ctx, K_PAGESIZE)));
+	knh_Bytes_t *ba = DP(bin)->ba;
+
 	L_READLINE:;
-	knh_cwb_clear(cwb, 0);
+	knh_Bytes_clear(ba, 0);
 	if(!knh_InputStream_isClosed(ctx, in)) {
 		int ch;
 		int isBLOCK = 0, prev = 0;
 		linenum = DP(in)->line;
 		while((ch = knh_InputStream_getc(ctx, in)) != EOF) {
 			if(ch == '\r') continue;
-			knh_Bytes_putc(ctx, cwb->ba, ch);
+			knh_Bytes_putc(ctx, ba, ch);
 			if(isBLOCK && (ch == '}' || ch == ']') && prev == 0) {
 				isBLOCK = 0;
 			}
 			if(prev == '/' && ch == '*') {
-				knh_Bytes_addCOMMENT(ctx, cwb->ba, in);
+				knh_Bytes_addCOMMENT(ctx, ba, in);
 				continue;
 			}
 			if(ch == '\'' || ch == '"' || ch == '`') {
-				knh_Bytes_addQUOTE(ctx, cwb->ba, in, ch);
+				knh_Bytes_addQUOTE(ctx, ba, in, ch);
 				continue;
 			}
 			if(ch == '\n') {
@@ -851,19 +856,20 @@ knh_bool_t knh_load(Ctx *ctx, knh_bytes_t path, knh_type_t reqt, knh_Array_t *re
 		}
 	}
 	L_PARSE:;
-	if(!knh_cwb_isempty(cwb)) {
-		knh_InputStream_t *bin = new_BytesInputStream(ctx, cwb->ba, cwb->pos, BA_size(cwb->ba));
+	if(!knh_bytes_isempty(ba->bu)) {
+		knh_BytesInputStream_setpos(ctx, bin, 0, BA_size(ba));
 		DP(bin)->uri = DP(in)->uri;
 		DP(bin)->line = linenum;
 		//knh_InputStream_setCharset(ctx, bin, DP(in)->enc);
 		DBG_(if(knh_isSystemVerbose()) {
 			fprintf(stderr, "\n>>>--------------------------------\n");
-			fprintf(stderr, "%s<<<--------------------------------\n", knh_cwb_tochar(ctx, cwb));
+			fprintf(stderr, "%s<<<--------------------------------\n", knh_Bytes_ensureZero(ctx, ba));
 		});
-		if(!knh_eval(ctx, bin, reqt, resultsNULL)) goto L_RETURN;
+		res = knh_eval(ctx, bin, reqt, resultsNULL);
+		if(res == 0) goto L_RETURN;
 		goto L_READLINE;
 	}
-	if(knh_cwb_size(cwb) > 0) {
+	if(BA_size(ba) > 0) {
 		goto L_READLINE;
 	}
 	L_RETURN:;
@@ -874,7 +880,7 @@ knh_bool_t knh_load(Ctx *ctx, knh_bytes_t path, knh_type_t reqt, knh_Array_t *re
 	}
 	DP(ctx->gma)->dlhdr = dlhdrSTACK;
 	END_LOCAL(ctx, lsfp);
-	return 1;
+	return res;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -898,73 +904,6 @@ KNHAPI(int) konoha_load(konoha_t konoha, knh_bytes_t path, int isCompileOnly)
 	KONOHA_END(ctx);
 	return isCONTINUE;
 }
-
-/* ------------------------------------------------------------------------ */
-/* [konoha] */
-/* ------------------------------------------------------------------------ */
-
-//static int knh_Script_eval(Ctx *ctx, knh_Script_t *script, knh_bytes_t data)
-//{
-//	int res;
-//	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-//	knh_Bytes_write(ctx, cwb->ba, data);
-//	knh_Bytes_putc(ctx, cwb->ba, '\n');
-//	{
-//		knh_InputStream_t *in = new_BytesInputStream(ctx, cwb->ba, cwb->pos, BA_size(cwb->ba));
-//		DP(in)->uri = URI_EVAL;
-//		DP(in)->line = 0;
-//		res = knh_Script_loadStream(ctx, script, in, NULL, TYPE_void);
-//	}
-//	knh_cwb_close(cwb);
-//	return res;
-//}
-//
-///* ------------------------------------------------------------------------ */
-//
-//static int knh_Script_load(Ctx *ctx, knh_Script_t *script, knh_bytes_t path)
-//{
-//	int res = 0;
-//	BEGIN_LOCAL(ctx, lsfp, 1);
-//	knh_InputStream_t *in = new_ScriptInputStream(ctx, path, NULL, 0/*isThrowable*/);
-////	knh_NameSpace_t *gamma_ns = DP(gamma)->ns;
-////	KNH_SETv(ctx, DP(gamma)->ns, new_NameSpace(ctx, NULL));
-//	KNH_SETv(ctx, lsfp[0].o, in);
-//	res = knh_Script_loadStream(ctx, script, in, NULL, TYPE_void);
-////	KNH_SETv(ctx, DP(gamma)->ns, gamma_ns);
-//	END_LOCAL(ctx, lsfp);
-//	return res;
-//}
-//
-///* ------------------------------------------------------------------------ */
-//
-//KNHAPI(int) konoha_eval(konoha_t konoha, char *script)
-//{
-//	KONOHA_CHECK(konoha, 0);
-//	Ctx *ctx = KONOHA_BEGIN(konoha.ctx);
-//	int res = knh_Script_eval(ctx, ctx->script, B(script));
-//	KONOHA_END(ctx);
-//	return res;
-//}
-//
-///* ------------------------------------------------------------------------ */
-////## @Hidden @Static method Boolean Script.eval(String script);
-//
-//METHOD Script_eval(Ctx *ctx, knh_sfp_t *sfp, long rix)
-//{
-//	
-//	int res = knh_Script_eval(ctx, (knh_Script_t*)sfp[0].o, S_tobytes(sfp[1].s));
-//	RETURNb_(res);
-//}
-//
-///* ------------------------------------------------------------------------ */
-////## @Hidden @Static method Boolean Script.load(String path);
-//
-//METHOD Script_load(Ctx *ctx, knh_sfp_t *sfp, long rix)
-//{
-//	
-//	int res = knh_Script_load(ctx, (knh_Script_t*)sfp[0].o, S_tobytes(sfp[1].s));
-//	RETURNb_(res);
-//}
 
 /* ------------------------------------------------------------------------ */
 

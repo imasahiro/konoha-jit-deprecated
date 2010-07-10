@@ -177,40 +177,42 @@ static ssize_t script_read (struct file* filp, char __user *user_buf,
 static ssize_t script_write(struct file *filp,const char __user *user_buf,
 		size_t count,loff_t *offset)
 {
-	printk("%s at %d\n",__FUNCTION__,__LINE__);
-	knh_device_t *dev = filp->private_data;
-	knh_Object_t *self = dev->self;
-
-	Ctx *ctx = knh_getCurrentContext();
-	knh_sfp_t *sfp = KNH_LOCAL(ctx);
-	knh_Method_t *mtd = dev->write;
-	//knh_bytes_t fname = B("write");
-	//knh_methodn_t mn = knh_getmn(ctx, fname, METHODN_NONAME);
-	//knh_Method_t *mtd = knh_lookupMethod(ctx, knh_Object_cid(self), mn);
+	// Don't use cwb->ba for new_BytesInputStream (by kimio)
 	
-	printk(KERN_DEBUG "[%s:%d][mtd='%p',%d]\n",__func__ ,__LINE__ ,mtd, IS_Method(mtd));
-	if (IS_Method(mtd)) {
-		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-		size_t len = copy_from_user(cwb->ba->buf,user_buf,count);
-		cwb->ba->size += count;
-		KNH_MOV(ctx, sfp[0].o, new_ExceptionHandler(ctx));
-		KNH_TRY(ctx, L_CATCH, sfp, 0);
-		knh_InputStream_t *o = new_BytesInputStream(ctx, cwb->ba, 0, knh_cwb_size(cwb));
-		KNH_MOV(ctx, sfp[1].o, self);
-		KNH_MOV(ctx, sfp[2].o, o);
-		KNH_SCALL(ctx, sfp, 0, mtd, 1);
-		{
-		printk(KERN_DEBUG "[%s:%d][out='%s']\n",__func__ ,__LINE__ ,(ctx)->out->b->ba->buf);
-		printk(KERN_DEBUG "[%s:%d][err='%s']\n",__func__ ,__LINE__ ,(ctx)->err->b->ba->buf);
-		knh_cwb_close(cwb);
-		knh_Context_clearstack(ctx);
-		return count;
-		}
-		/* catch */
-		L_CATCH:;
-		KNH_PRINT_STACKTRACE(ctx, sfp, 0);
-	}
-	return count;
+//	printk("%s at %d\n",__FUNCTION__,__LINE__);
+//	knh_device_t *dev = filp->private_data;
+//	knh_Object_t *self = dev->self;
+//
+//	Ctx *ctx = knh_getCurrentContext();
+//	knh_sfp_t *sfp = KNH_LOCAL(ctx);
+//	knh_Method_t *mtd = dev->write;
+//	//knh_bytes_t fname = B("write");
+//	//knh_methodn_t mn = knh_getmn(ctx, fname, METHODN_NONAME);
+//	//knh_Method_t *mtd = knh_lookupMethod(ctx, knh_Object_cid(self), mn);
+//
+//	printk(KERN_DEBUG "[%s:%d][mtd='%p',%d]\n",__func__ ,__LINE__ ,mtd, IS_Method(mtd));
+//	if (IS_Method(mtd)) {
+//		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
+//		size_t len = copy_from_user(cwb->ba->buf,user_buf,count);
+//		cwb->ba->size += count;
+//		KNH_MOV(ctx, sfp[0].o, new_ExceptionHandler(ctx));
+//		KNH_TRY(ctx, L_CATCH, sfp, 0);
+//		knh_InputStream_t *o = new_BytesInputStream(ctx, cwb->ba, 0, knh_cwb_size(cwb));
+//		KNH_MOV(ctx, sfp[1].o, self);
+//		KNH_MOV(ctx, sfp[2].o, o);
+//		KNH_SCALL(ctx, sfp, 0, mtd, 1);
+//		{
+//		printk(KERN_DEBUG "[%s:%d][out='%s']\n",__func__ ,__LINE__ ,(ctx)->out->b->ba->buf);
+//		printk(KERN_DEBUG "[%s:%d][err='%s']\n",__func__ ,__LINE__ ,(ctx)->err->b->ba->buf);
+//		knh_cwb_close(cwb);
+//		knh_Context_clearstack(ctx);
+//		return count;
+//		}
+//		/* catch */
+//		L_CATCH:;
+//		KNH_PRINT_STACKTRACE(ctx, sfp, 0);
+//	}
+//	return count;
 }
 
 

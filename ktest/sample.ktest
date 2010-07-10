@@ -10,6 +10,11 @@
 >>> 2
 3
 
+### "hello,world"
+>>> print "hello,world";
+[(eval):1] hello,world
+
+
 ### statement block
 >>> "hoge".indexOf(
 ... "o");

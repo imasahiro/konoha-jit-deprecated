@@ -155,13 +155,14 @@ KNHAPI(void) knh_Bytes_ensureSize(Ctx *ctx, knh_Bytes_t *ba, size_t len)
 
 /* ------------------------------------------------------------------------ */
 
-void knh_Bytes_ensureZero(Ctx *ctx, knh_Bytes_t *ba)
+char *knh_Bytes_ensureZero(Ctx *ctx, knh_Bytes_t *ba)
 {
 	DBG_ASSERT(!knh_Bytes_isStatic(ba));
 	if(BA_size(ba) == ba->capacity) {
 		knh_Bytes_expands(ctx, ba, ba->capacity * 2);
 	}
 	ba->bu.buf[BA_size(ba)] = 0;
+	return ba->bu.str;
 }
 
 /* ------------------------------------------------------------------------ */

@@ -529,8 +529,8 @@ static void knh_shell(Ctx *ctx, char *filename, const knh_ShellSPI_t *spi, const
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 	void *shell_status = NULL;
 	BEGIN_LOCAL(ctx, lsfp, 2);
-	knh_Array_t *results = new_Array0(ctx, 0);
-	KNH_SETv(ctx, lsfp[0].o, results);
+	LOCAL_NEW(ctx, lsfp, 0, knh_Array_t *, results, new_Array0(ctx, 0));
+	LOCAL_NEW(ctx, lsfp, 1, knh_InputStream_t *, bin, new_BytesInputStream(ctx, new_Bytes(ctx, K_PAGESIZE)));
 	if(spi == NULL) spi = &shellSPI;
 	if(api == NULL) api = &shellAPI;
 	knh_showWelcome(ctx, cwb->w);
@@ -538,16 +538,16 @@ static void knh_shell(Ctx *ctx, char *filename, const knh_ShellSPI_t *spi, const
 	knh_cwb_clear(cwb, 0);
 	while(spi->shell_readstmt(ctx, shell_status, cwb, api)) {
 		size_t i;
-		knh_InputStream_t *in = new_BytesInputStream(ctx, cwb->ba, cwb->pos, BA_size(cwb->ba));
-		KNH_SETv(ctx, lsfp[1].o, in);
-		DP(in)->uri = URI_EVAL;
-		DP(in)->line = 1; // always line1
-		knh_eval(ctx, in, TYPE_Any, results);
+		knh_Bytes_clear(DP(bin)->ba, 0);
+		knh_Bytes_write(ctx, DP(bin)->ba, knh_cwb_tobytes(cwb));
+		knh_BytesInputStream_setpos(ctx, bin, 0, BA_size(DP(bin)->ba));
 		knh_cwb_clear(cwb, 0);
+		DP(bin)->uri = URI_EVAL;
+		DP(bin)->line = 1; // always line1
+		knh_eval(ctx, bin, TYPE_Any, results);
 		knh_OutputStream_flush(ctx, ctx->out);
 		if(ctx->out != DP(ctx->sys)->out) {
 			knh_Bytes_t *outbuf = DP(ctx->out)->ba;
-			DBG_P("outbuf->size=%d, %s", outbuf->bu.len, outbuf->bu.str);
 			knh_write(ctx, cwb->w, outbuf->bu);
 			knh_Bytes_clear(outbuf, 0);
 		}

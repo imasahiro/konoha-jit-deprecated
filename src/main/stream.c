@@ -66,25 +66,32 @@ knh_InputStream_t* new_InputStreamDSPI(Ctx *ctx, knh_io_t fd, const knh_StreamDS
 	return in;
 }
 
-/* ------------------------------------------------------------------------ */
-
-KNHAPI(knh_InputStream_t*) new_BytesInputStream(Ctx *ctx, knh_Bytes_t *ba, size_t s, size_t e)
+knh_InputStream_t* new_BytesInputStream(Ctx *ctx, knh_Bytes_t *ba)
 {
-	knh_InputStream_t* o = new_(InputStream);
-	DP(o)->fd = IO_NULL;
-	KNH_SETv(ctx, DP(o)->ba, ba);
-	DP(o)->buf = (char*)(ba)->bu.buf;
-	DP(o)->bufsiz = (ba)->bu.len;
-	DBG_ASSERT(e <= BA_size(ba));
-	DBG_ASSERT(s <= e);
-	DP(o)->bufpos   = s;
-	DP(o)->bufend   = e;
-	return o;
+	knh_InputStream_t* in = new_(InputStream);
+	DBG_ASSERT(ba != ctx->bufa);
+	DP(in)->fd = IO_NULL;
+	KNH_SETv(ctx, DP(in)->ba, ba);
+	DP(in)->buf = (ba)->bu.str;
+	DP(in)->bufsiz = BA_size(ba);
+	DP(in)->bufpos   = 0;
+	DP(in)->bufend   = BA_size(ba);
+	return in;
 }
 
-/* ------------------------------------------------------------------------ */
+void knh_BytesInputStream_setpos(Ctx *ctx, knh_InputStream_t *in, size_t s, size_t e)
+{
+	knh_Bytes_t *ba = DP(in)->ba;
+	DBG_ASSERT(DP(in)->fd == IO_NULL);
+	DP(in)->buf = (ba)->bu.str;
+	DP(in)->bufsiz = (ba)->bu.len;
+	DBG_ASSERT(e <= BA_size(ba));
+	DBG_ASSERT(s <= e);
+	DP(in)->bufpos   = s;
+	DP(in)->bufend   = e;
+}
 
-KNHAPI(knh_InputStream_t*) new_StringInputStream(Ctx *ctx, knh_String_t *str, size_t s, size_t e)
+knh_InputStream_t* new_StringInputStream(Ctx *ctx, knh_String_t *str, size_t s, size_t e)
 {
 	knh_InputStream_t* o = new_(InputStream);
 	DP(o)->fd = IO_NULL;

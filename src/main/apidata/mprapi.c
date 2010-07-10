@@ -170,7 +170,7 @@ static TCAST Iterator_Array(Ctx *ctx, knh_sfp_t *sfp, long rix)
 static TCAST Bytes_InputStream(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
 	knh_Bytes_t *ba = (knh_Bytes_t*)sfp[K_TRLIDX].o;
-	RETURN_(new_BytesInputStream(ctx, ba, 0, BA_size(ba)));
+	RETURN_(new_BytesInputStream(ctx, ba));
 }
 
 /* ------------------------------------------------------------------------ */

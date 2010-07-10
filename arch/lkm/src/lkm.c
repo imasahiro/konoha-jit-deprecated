@@ -118,17 +118,19 @@ static ssize_t knh_dev_write(struct file *filp,const char __user *user_buf,
 
 void Ctx_evalScript(Ctx *ctx, char *data)
 {
-	knh_sfp_t *lsfp = KNH_LOCAL(ctx);
-	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-	knh_cwb_write(ctx, cwb, B(data));
-	knh_cwb_putc(ctx, cwb, '\n');
-	knh_InputStream_t *in = new_BytesInputStream(ctx, cwb->ba, cwb->pos, knh_Bytes_size(cwb->ba));
-	KNH_LPUSH(ctx, in);
-	DP(in)->uri = URI_EVAL;
-	DP(in)->line = 0;
-	knh_NameSpace_load(ctx, ctx->share->mainns, in, 1/*isEval*/,0/*isThrowable*/);
-	knh_cwb_close(cwb);
-	KNH_LOCALBACK(ctx, lsfp);
+	// Don't use cwb->ba for new_BytesInputStream (by kimio)
+
+//	knh_sfp_t *lsfp = KNH_LOCAL(ctx);
+//	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
+//	knh_cwb_write(ctx, cwb, B(data));
+//	knh_cwb_putc(ctx, cwb, '\n');
+//	knh_InputStream_t *in = new_BytesInputStream(ctx, cwb->ba, cwb->pos, knh_Bytes_size(cwb->ba));
+//	KNH_LPUSH(ctx, in);
+//	DP(in)->uri = URI_EVAL;
+//	DP(in)->line = 0;
+//	knh_NameSpace_load(ctx, ctx->share->mainns, in, 1/*isEval*/,0/*isThrowable*/);
+//	knh_cwb_close(cwb);
+//	KNH_LOCALBACK(ctx, lsfp);
 }
 EXPORT_SYMBOL(Ctx_evalScript);
 
