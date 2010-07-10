@@ -1,0 +1,89 @@
+// Boolean Test
+
+### boolean literal
+>>> true
+true
+>>> false
+false
+
+### boolean variables
+>>> Boolean b0;
+>>> b0
+false
+
+>>> Boolean b1 = true;
+>>> b1
+false
+
+>>> b = false
+false
+
+// NOTE: These variables b0, b1, b are available below.
+// However, for readability, you SHOULD assign them again. 
+
+### boolean assignment by relation operator
+>>> a = 1
+1
+>>> b = (a == 1)
+true
+>>> b = (a != 1)
+false
+
+### boolean ! operator
+>>> a = 1
+>>> b = true
+>>> !b
+false
+>>> not b
+false
+>>> !(a == 1)
+false
+>>> !(a == 2)
+true
+>>> !(!b)
+true
+>>> not !b
+true
+
+
+
+### boolean: and operator (true and true)
+>>> a = 1
+>>> b = true
+>>> true and true
+true
+>>> b and true
+true
+>>> true and b
+true
+>>> (a == 1) and b
+true
+>>> b and (a == 1)
+true
+
+### boolean && operator (true and false)
+>>> a = 1
+>>> b = true
+>>> true and false
+false
+>>> b and false
+false
+>>> false and b
+false
+>>> (a == 1) and false
+false
+>>> true and !(a == 1)
+false
+>>> (a == 1) and !b
+false
+>>> b and !(a == 1)
+false
+
+### boolean && opeator (false and true)
+
+
+
+
+ 
+
+

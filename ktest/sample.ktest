@@ -1,18 +1,24 @@
-### test simpletest
+// Konoha minitest DSL sample
+// created by shinpei nakata
+// added by kimio kuramitsu
+
+### passed case
 >>> 1
 1
 
-### test simpletest2
+### failed case (not necessary)
 >>> 2
 3
 
-### test simpletest3
+### statement block
 >>> "hoge".indexOf(
 ... "o");
 1
 
-### test simpletest4
+### multi block
 >>> str = "hoge";
 "hoge"
 >>> |str|;
 4
+
+### 
