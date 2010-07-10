@@ -674,12 +674,17 @@ static kt_stmt_t* new_kt_stmt(Ctx *ctx, char *body)
 {
 	kt_stmt_t *ret = (kt_stmt_t *)KNH_MALLOC(ctx, sizeof(kt_stmt_t));
 	size_t len = knh_strlen(body);
-	ret->testBody.str = (char *)KNH_MALLOC(ctx, len + 1);
-	knh_memcpy(ret->testBody.str, body, len+1);
+	if (len > 0) {
+		ret->testBody.str = (char *)KNH_MALLOC(ctx, len + 1);
+		knh_memcpy(ret->testBody.str, body, len+1);
+	}
 	ret->testBody.len = len;
+	ret->testResult.str = NULL;
+	ret->testResult.len = 0;
 	ret->isFailed = 0;
 	ret->next = NULL;
 	return ret;
+
 }
 
 static void* test_init(Ctx *ctx, char *msg, char *filename)
@@ -723,9 +728,15 @@ static void add_kt_stmt_result(Ctx *ctx, kt_stmt_t *ks, char *result)
 {
 	size_t len = knh_strlen(result);
 	DBG_ASSERT(len > 0);
-	ks->testResult.str = (char *)KNH_MALLOC(ctx, len + 1);
-	knh_memcpy(ks->testResult.str, result, len + 1);
-	ks->testResult.len = len;
+	if (ks != NULL) {
+		ks->testResult.str = (char *)KNH_MALLOC(ctx, len + 1);
+		knh_memcpy(ks->testResult.str, result, len + 1);
+		ks->testResult.len = len;
+	} else {
+		// adding result before ks instance created.
+		// invalid syntax.
+		KNH_SYSLOG(ctx, LOG_ERR, "TestFile", "please add '>>> ' statement before writing result : '%s", result);
+	}
 }
 
 static knh_bool_t test_readstmt(Ctx *ctx, void *status, knh_cwb_t *cwb, const knh_ShellAPI_t *api)
@@ -804,9 +815,11 @@ static void test_display(Ctx *ctx, void *status, char* result, const knh_ShellAP
 	kt_status_t *kt = (kt_status_t*)status;
 	if (kt == NULL) return;
 	kt_unit_t *ku = kt->current;
+	if (ku == NULL) return;
 	kt_stmt_t *ks = ku->current;
-	char *charResult = ks->testResult.str;
 	size_t len = ks->testResult.len;
+	if (len == 0) return;
+	char *charResult = ks->testResult.str;
 	if (strncmp(charResult, result, len) == 0) {
 		ks->isFailed = 0;
 		// always print out: modified by kimio
@@ -840,8 +853,9 @@ static void test_cleanup(Ctx *ctx, void *status)
 				ks = ks->next;
 			}
 			// cleanup ks
-			KNH_FREE(ctx, clean_ks->testBody.str, clean_ks->testBody.len + 1);
-			if (clean_ks->testResult.len != 0)
+			if (clean_ks->testBody.len > 0)
+				KNH_FREE(ctx, clean_ks->testBody.str, clean_ks->testBody.len + 1);
+			if (clean_ks->testResult.len  > 0)
 				KNH_FREE(ctx, clean_ks->testResult.str, clean_ks->testResult.len + 1);
 			KNH_FREE(ctx, clean_ks, sizeof(kt_stmt_t));
 		}
@@ -860,8 +874,9 @@ static void test_cleanup(Ctx *ctx, void *status)
 		fclose(kt->out);
 	}
 CLEANUP_KT:
-	// modified by kimio
-	fprintf(kt->out, "%s: %d of %d tests have been passed\n", kt->filename, (int)unit_passed, (int)kt->unitsize);
+	// modified by kimio // FIXME: if we concat %s and %d, it won't work.
+	fprintf(kt->out, "%s:", kt->filename);
+	fprintf(kt->out, "%d/%d tests have been passed\n", unit_passed, kt->unitsize);
 	KNH_FREE(ctx, kt->filename.str, kt->filename.len + 1);
 	KNH_FREE(ctx, kt, sizeof(kt_status_t));
 }
