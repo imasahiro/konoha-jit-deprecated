@@ -809,9 +809,8 @@ static void test_display(Ctx *ctx, void *status, char* result, const knh_ShellAP
 	size_t len = ks->testResult.len;
 	if (strncmp(charResult, result, len) == 0) {
 		ks->isFailed = 0;
-		if(knh_isSystemVerbose()) {
-			fprintf(kt->out, "[PASSED] %s\n", ku->testTitle.str);
-		}
+		// always print out: modified by kimio
+		fprintf(kt->out, "[PASSED] %s\n", ku->testTitle.str);
 	} else {
 		ks->isFailed = 1;
 		fprintf(kt->out, "[FAILED] %s\n", ku->testTitle.str);
@@ -860,9 +859,9 @@ static void test_cleanup(Ctx *ctx, void *status)
 	if(kt->out != stderr && kt->out != stdout) {
 		fclose(kt->out);
 	}
-	// clean up kt
 CLEANUP_KT:
-	fprintf(kt->out, "TEST result : %d/%d has passed test\n", (int)unit_passed, (int)kt->unitsize);
+	// modified by kimio
+	fprintf(kt->out, "%s: %d of %d tests have been passed\n", kt->filename, (int)unit_passed, (int)kt->unitsize);
 	KNH_FREE(ctx, kt->filename.str, kt->filename.len + 1);
 	KNH_FREE(ctx, kt, sizeof(kt_status_t));
 }
