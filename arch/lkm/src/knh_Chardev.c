@@ -146,24 +146,25 @@ static ssize_t script_read (struct file* filp, char __user *user_buf,
 		KNH_TRY(ctx, L_CATCH, sfp, 0);
 		{
 			knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-			knh_OutputStream_t *o = new_BytesOutputStream(ctx, cwb->ba);
-			KNH_MOV(ctx, sfp[1].o, self);
-			//KNH_MOV(ctx, sfp[2].o, f);
-			KNH_MOV(ctx, sfp[2].o, KNH_NULL);
-			KNH_MOV(ctx, sfp[3].o, o);
-			KNH_SCALL(ctx, sfp, 0, mtd, 2);
-			{
-				size_t len  = knh_cwb_size(cwb);
-				char   *buf = knh_cwb_tochar(ctx, cwb);
-				if(copy_to_user(user_buf,buf,len)){
-					printk(KERN_ALERT "%s: copy_to_user failed\n",__func__);
-					return -EFAULT;
-				}
-				knh_cwb_close(cwb);
-				knh_Context_clearstack(ctx);
-				*offset += len;
-				return len;
-			}
+			// THIS IS DANGEROUS. DON'T USED by KIMIO
+//			knh_OutputStream_t *o = new_BytesOutputStream(ctx, cwb->ba);
+//			KNH_MOV(ctx, sfp[1].o, self);
+//			//KNH_MOV(ctx, sfp[2].o, f);
+//			KNH_MOV(ctx, sfp[2].o, KNH_NULL);
+//			KNH_MOV(ctx, sfp[3].o, o);
+//			KNH_SCALL(ctx, sfp, 0, mtd, 2);
+//			{
+//				size_t len  = knh_cwb_size(cwb);
+//				char   *buf = knh_cwb_tochar(ctx, cwb);
+//				if(copy_to_user(user_buf,buf,len)){
+//					printk(KERN_ALERT "%s: copy_to_user failed\n",__func__);
+//					return -EFAULT;
+//				}
+//				knh_cwb_close(cwb);
+//				knh_Context_clearstack(ctx);
+//				*offset += len;
+//				return len;
+//			}
 		}
 		/* catch */
 		L_CATCH:;

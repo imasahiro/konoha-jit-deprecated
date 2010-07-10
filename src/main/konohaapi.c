@@ -544,6 +544,13 @@ static void knh_shell(Ctx *ctx, char *filename, const knh_ShellSPI_t *spi, const
 		DP(in)->line = 1; // always line1
 		knh_eval(ctx, in, TYPE_Any, results);
 		knh_cwb_clear(cwb, 0);
+		knh_OutputStream_flush(ctx, ctx->out);
+		if(ctx->out != DP(ctx->sys)->out) {
+			knh_Bytes_t *outbuf = DP(ctx->out)->ba;
+			DBG_P("outbuf->size=%d, %s", outbuf->bu.len, outbuf->bu.str);
+			knh_write(ctx, cwb->w, outbuf->bu);
+			knh_Bytes_clear(outbuf, 0);
+		}
 		for(i = 0; i < knh_Array_size(results); i++) {
 			knh_Object_t *o = results->list[i];
 			knh_Method_t *mtdf = knh_lookupFormatter(ctx, knh_Object_cid(o), MN__k);
@@ -553,6 +560,7 @@ static void knh_shell(Ctx *ctx, char *filename, const knh_ShellSPI_t *spi, const
 			knh_cwb_clear(cwb, 0);
 		}
 		knh_Array_clear(ctx, results, 0);
+		knh_cwb_clear(cwb, 0);
 	}
 	spi->shell_cleanup(ctx, shell_status);
 	knh_cwb_close(cwb);
@@ -572,7 +580,7 @@ static void knh_askSecurityAlert(Ctx *ctx)
 		fprintf(stdout,
 "IMPORTANT: For improving Konoha experience and delivering security updates,\n"
 "Konoha development team is collecting the following information:\n"
-"\tversion: version=%s distributuon=%s revision=%d\n"
+"\tversion: version=%s distribution=%s revision=%d\n"
 "\tsystem: %s %dbits LANG=%s\n"
 "DO YOU ALLOW? [y/N]: ", K_VERSION, K_DIST, (int)K_REVISION, K_PLATFORM, (int)(sizeof(void*) * 8), knh_getenv("LANG"));
 		if(fgets(buf, sizeof(80), stdin) != NULL) {
@@ -894,13 +902,15 @@ void konoha_runTest(konoha_t konoha, int argc, char **argv)
 	KONOHA_CHECK_(konoha);
 	Ctx *ctx = KONOHA_BEGIN(konoha.ctx);
 	int i = 0;
+#ifndef K_USING_DEBUG
+	KNH_SETv(ctx, ((knh_Context_t*)ctx)->out, new_BytesOutputStream(ctx, new_Bytes(ctx, K_PAGESIZE)));
+	KNH_SETv(ctx, ((knh_Context_t*)ctx)->err, ctx->out);
+#endif
 	for(i = 0; i < argc; i++) {
-		//	if (!knh_bytes_endsWith(B(optstr), B(".ktest"))) {
-		//		fprintf(stderr, "[KTESTINFO]invalid test file:'%s'\n", optstr);
-		//		return;
-		//	}
 		knh_shell(ctx, argv[i], &testSPI, NULL);
 	}
+	KNH_SETv(ctx, ((knh_Context_t*)ctx)->out, DP(ctx->sys)->out);
+	KNH_SETv(ctx, ((knh_Context_t*)ctx)->err, DP(ctx->sys)->err);
 	KONOHA_END(ctx);
 }
 
