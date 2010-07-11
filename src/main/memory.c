@@ -40,6 +40,19 @@
 extern "C" {
 #endif
 
+#ifdef K_USING_DEBUG
+static int canFree = 1;
+#define DBG_ENABLE_FREE()     canFree = 1
+#define DBG_DISABLE_FREE()    canFree = 0
+#define DBG_ASSERT_FREE()     KNH_ASSERT(canFree)
+#else
+#define DBG_ENABLE_FREE()
+#define DBG_DISABLE_FREE()
+#define DBG_ASSERT_FREE()
+#endif
+
+//#define GC_DEBUG 
+
 /* ======================================================================== */
 /* [malloc] */
 
@@ -105,10 +118,10 @@ void knh_vfree(Ctx *ctx, void *block, size_t size)
 	if(unlikely(size > K_PAGESIZE)) {
 		SYSLOG_FreeLargeMemory(ctx, block, size);
 	}
-#if defined(HAVE_MMAP)
-	munmap(block, size);
-#elif defined(K_USING_WINDOWS)
+#if defined(K_USING_WINDOWS)
 	VirtualFree(block, 0, MEM_RELEASE);
+//#elif defined(HAVE_MMAP)
+//	munmap(block, size);
 #else
 	free(block);
 #endif
@@ -261,41 +274,63 @@ static knh_Object_t *new_UnusedObject(Ctx *ctx)
 		DBG_ASSERT(c == t->slot_size);
 		DBG_ASSERT(ctx->unusedObjectSize == 0);
 		((knh_Context_t*)ctx)->unusedObjectSize = t->slot_size;
-		KNH_SYSLOG(ctx, LOG_INFO, "NEW_Arena", "*id=%d region=(%p-%p), %d objects", (int)pageindex, t->head, t->bottom, (int)t->slot_size);
+		KNH_SYSLOG(ctx, LOG_INFO, "NEW_Arena", "*id=%zd region=(%p-%p), %zd objects", pageindex, t->head, t->bottom, t->slot_size);
 	}
 	return ctx->unusedObject;
 }
 
 /* ------------------------------------------------------------------------ */
+/* [bitop] */
+
+/* added by ide */
+#define UINTPTR8 (sizeof(knh_uintptr_t) * 8)
+#define INDEX2OFFSET(index_) (index_ / UINTPTR8)
+#define INDEX2MASK(n) (((knh_uintptr_t)1) << (n % UINTPTR8))
+
+static int bit_test(knh_uintptr_t *b, int offset)
+{
+	int x = INDEX2OFFSET(offset);
+	knh_uintptr_t mask = INDEX2MASK(offset);
+	return ((b[x] & mask) == mask);
+}
+static void bit_set(knh_uintptr_t *b, int offset)
+{
+	int x = INDEX2OFFSET(offset);
+	knh_uintptr_t mask = INDEX2MASK(offset);
+	DBG_ASSERT((b[x] & mask) != mask);
+	b[x] = b[x] | mask;
+}
+static void bit_unset(knh_uintptr_t *b, int offset)
+{
+	int x = INDEX2OFFSET(offset);
+	knh_uintptr_t mask = INDEX2MASK(offset);
+	DBG_ASSERT((b[x] & mask) == mask);
+	b[x] = b[x] & ~(mask);
+}
+
+/* ------------------------------------------------------------------------ */
 /* [fastmalloc] */
 
-//static int knh_isFastMallocMemory(void *p)
-//{
-//	knh_uintptr_t *b = (knh_uintptr_t*)((((knh_uintptr_t)p) / K_PAGESIZE) * K_PAGESIZE);
-//	int n = ((Object*)p - (Object*)b);
-//	int x = n / (sizeof(knh_uintptr_t)*8);
-//	knh_uintptr_t mask = ((knh_uintptr_t)1) << (n % (sizeof(knh_uintptr_t)*8));
-//	return ((b[x] & mask) == mask);
-//}
+/* fixed by ide */
+static int knh_isFastMallocMemory(void *p)
+{
+	knh_uintptr_t *b = (knh_uintptr_t*) knh_Object_getArena(p);
+	int n = ((Object*)p - (Object*)b);
+	return bit_test(b, n);
+}
 
 static void knh_setFastMallocMemory(void *p)
 {
-	knh_uintptr_t *b = (knh_uintptr_t*)((((knh_uintptr_t)p) / K_PAGESIZE) * K_PAGESIZE);
+	knh_uintptr_t *b = (knh_uintptr_t*) knh_Object_getArena(p);
 	int n = ((Object*)p - (Object*)b);
-	int x = n / (sizeof(knh_uintptr_t)*8);
-	knh_uintptr_t mask = ((knh_uintptr_t)1) << (n % (sizeof(knh_uintptr_t)*8));
-	DBG_ASSERT((b[x] & mask) != mask);
-	b[x] = b[x] | mask;
+	bit_set(b, n);
 }
 
 static void knh_unsetFastMallocMemory(void *p)
 {
-	knh_uintptr_t *b = (knh_uintptr_t*)((((knh_uintptr_t)p) / K_PAGESIZE) * K_PAGESIZE);
+	knh_uintptr_t *b = (knh_uintptr_t*) knh_Object_getArena(p);
 	int n = ((Object*)p - (Object*)b);
-	int x = n / (sizeof(knh_uintptr_t)*8);
-	knh_uintptr_t mask = ((knh_uintptr_t)1) << (n % (sizeof(knh_uintptr_t)*8));
-	DBG_ASSERT((b[x] & mask) == mask);
-	b[x] = b[x] & ~(mask);
+	bit_unset(b, n);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -447,7 +482,10 @@ FASTAPI(void) knh_Object_free(Ctx *ctx, knh_Object_t *o)
 	o->h.magic = 0;
 	{
 		knh_ClassTable_t *t = pClassTable(ctx, o->h.cid);
+#ifdef K_USING_RCGC
+		/* fixed by ide */
 		t->cspi->traverse(ctx, o, knh_Object_sweep);
+#endif
 		t->cspi->free(ctx, o);
 		KNH_OBJECT_REUSE(ctx, o);
 		knh_unuseObject(ctx, 1);
@@ -458,50 +496,70 @@ FASTAPI(void) knh_Object_free(Ctx *ctx, knh_Object_t *o)
 }
 
 /* ------------------------------------------------------------------------ */
-
-//void knh_Object_traverse(Ctx *ctx, knh_Object_t *o, knh_Ftraverse ftr)
-//{
-//	if(IS_SWEEP(ftr)) {
-//		knh_Object_free(ctx, o);
-//	}
-//	else {
-//		ClassTable(o->h.bcid).cspi->traverse(ctx, o, knh_Object_sweep);
-//	}
-//}
+/* added by ide */
+static void knh_Object_traverse(Ctx *ctx, knh_Object_t *o, knh_Ftraverse ftr)
+{
+	ClassTable(o->h.bcid).cspi->traverse(ctx, o, ftr);
+}
 
 /* ========================================================================= */
-
 #define BSHIFT ((K_PAGESIZE / sizeof(knh_Object_t)) / (sizeof(knh_uintptr_t) * 8))
 
-volatile static size_t markedObjectSize = 0;
+static volatile size_t markedObjectSize = 0;
+
+/* added by ide */
+static void GC_DBG(Ctx *ctx, knh_Object_t *o, const char *msg) {
+#if defined(GC_DEBUG)
+	knh_class_t _cid = knh_Object_cid(o);
+	knh_uintptr_t *b = (knh_uintptr_t*)knh_Object_getArena(o);
+		int n = (o - (Object*)b);
+		int x = INDEX2OFFSET(n);
+	DBG_P("%s %p(%d,%d), cid=%s(%d)", msg, o, x, n % (sizeof(knh_uintptr_t)*8), CLASSN(_cid), _cid);
+#else
+	(void)ctx;(void)o;(void)msg;
+#endif
+}
 
 /* ------------------------------------------------------------------------ */
 
-//static void knh_Object_mark1(Ctx *ctx, Object *o)
-//{
-//	if(IS_Context(o)) {
-//		//DBG_P("marked %p, cid=%d,%s", o, knh_Object_cid(o), CLASSN(knh_Object_cid(o)));
-//		TODO();
-//		knh_Context_traverse(ctx, (knh_Context_t*)o, knh_Object_mark1);
-//	}
-//	else {
-//		DBG_ASSERT(o->h.magic == K_OBJECT_MAGIC);
-//		DBG_ASSERT(!knh_isFastMallocMemory((void*)o));
-//		knh_uintptr_t *b = (knh_uintptr_t*)((((knh_uintptr_t)o) / K_PAGESIZE) * K_PAGESIZE);
-//		int n = (o - (Object*)b);
-//		b = b + BSHIFT;
-//		DBG_ASSERT(n < K_PAGESIZE / sizeof(knh_Object_t));
-//		int x = n / (sizeof(knh_uintptr_t)*8);
-//		knh_uintptr_t mask = ((knh_uintptr_t)1) << (n % (sizeof(knh_uintptr_t)*8));
-//		if(!((b[x] & mask) == mask)) {
-//			//DBG_P("marking %p(%d,%d), cid=%d, %s", o, x, n % (sizeof(knh_uintptr_t)*8), knh_Object_cid(o), CLASSN(knh_Object_cid(o)));
-//			markedObjectSize++;
-//			b[x] = b[x] | mask;
-//			knh_Object_traverse(ctx, o, knh_Object_mark1);
-//		}
-//	}
-//}
+/* added by ide */
+static void knh_Object_mark1(Ctx *ctx, Object *o)
+{
+	if(IS_Context(o)) {
+		TODO();
+		knh_Context_traverse(ctx, (knh_Context_t*)o, knh_Object_mark1);
+	}
+	else {
+		DBG_ASSERT(o->h.magic == K_OBJECT_MAGIC);
+		DBG_ASSERT(!knh_isFastMallocMemory((void*)o));
+		knh_uintptr_t *b = (knh_uintptr_t*)knh_Object_getArena(o);
+		int n = (o - (Object*)b);
+		b = b + BSHIFT;
+		DBG_ASSERT(n < K_PAGESIZE / sizeof(knh_Object_t));
+		if(!(bit_test(b, n))) {
+			bit_set(b, n);
+			GC_DBG(ctx, o,"marking");
+			markedObjectSize++;
+			knh_Object_traverse(ctx, o, knh_Object_mark1);
+		}
+	}
+}
 
+#if defined(K_USING_DEBUG) && defined(GC_DEBUG)
+/* added by ide */
+static int knh_Object_isMarked(Ctx *ctx, Object *o)
+{
+	if(!IS_Context(o)) {
+		knh_uintptr_t *b = (knh_uintptr_t*)knh_Object_getArena(o);
+		int n = (o - (Object*)b);
+		b = b + BSHIFT;
+		if (bit_test(b, n)) {
+			return 1;
+		}
+	}
+	return 0;
+}
+#endif
 
 /* ------------------------------------------------------------------------ */
 
@@ -514,78 +572,94 @@ void knh_showMemoryStat(Ctx *ctx)
 //		knh_ClassTable_t *t = pClassTable(ctx, i);
 //		if(t->total > 2) {
 //			KNH_SYSLOG(ctx, LOG_INFO,
-//				"ClassCounter", "*name=%s cid=%d count=%ld total=%ld", S_tochar(t->sname), i, t->count, t->total);
+//				"ClassCounter", "*name=%s cid=%d count=%ld total=%ld",
+//				S_tochar(t->sname), i, t->count, t->total);
 //		}
 //	}
 //#endif
 	KNH_SYSLOG(ctx, LOG_DEBUG, "MemoryUsage", "*memory usage=%ld/%ld, object usage=%ld/%ld",
 		stat->usedMemorySize, stat->maxMemoryUsage, stat->usedObjectSize, stat->maxObjectUsage);
 	KNH_SYSLOG(ctx, LOG_DEBUG, "MemoryUsage", "*object generation=%ld", stat->countObjectGeneration);
-	KNH_SYSLOG(ctx, LOG_DEBUG, "MemoryUsage", "*memory counter x1=%ld, x2=%ld, x4=%ld, x8=%ld, large=%ld",
-		stat->countMemorySize1, stat->countMemorySize2, stat->countMemorySize4,
-		stat->countMemorySize8, stat->countMemorySizeN);
+	KNH_SYSLOG(ctx, LOG_DEBUG, "MemoryUsage",
+			"*memory counter x1=%ld, x2=%ld, x4=%ld, x8=%ld, large=%ld",
+			stat->countMemorySize1, stat->countMemorySize2, stat->countMemorySize4,
+			stat->countMemorySize8, stat->countMemorySizeN);
 }
 
 /* ------------------------------------------------------------------------ */
 
+/* added by ide */
+#define Object_isFreed(o) (((knh_Object_t*)(o))->h.magic == 0)
+#define CHECK_ALIGN(ptr, size) \
+	if((knh_uintptr_t)(ptr) % (size) != 0) {\
+		TODO();\
+		/*	ptr = (char*)((((knh_uintptr_t)ptr / size) + 1) * size);*/\
+		KNH_ASSERT((knh_uintptr_t)(ptr) % (size) == 0);\
+	}\
+
+static int Object_free_(Ctx *ctx, knh_Object_t *o)
+{
+	DBG_ASSERT(!knh_isFastMallocMemory((void*)o));
+	if (Object_isFreed(o)) return 0;
+	GC_DBG(ctx, o, "freeing");
+	knh_Object_RCset(o, 0);
+	knh_Object_free(ctx, o);
+	return 1;
+}
+
+/* added by ide */
+#define BITMAP_SIZE ((BSHIFT) * sizeof(knh_uintptr_t))
+
+/* ------------------------------------------------------------------------ */
 void knh_System_gc(Ctx *ctx)
 {
+	/* added by ide */
 	knh_showMemoryStat(ctx);
-//	int tindex, size = (int)(ctx->share->ArenaSetSize);
-//	DBG_P("** GC - Starting (used %d Kb) ***", (int)ctx->stat->usedMemorySize/1024);
-//
-//	for(tindex = 0; tindex < size; tindex++) {
-//		char *t = ctx->share->ArenaSet[tindex].opage;
-//		if((knh_uintptr_t)t % K_PAGESIZE != 0) {
-//			t = (char*)((((knh_uintptr_t)t / K_PAGESIZE) + 1) * K_PAGESIZE);
-//			KNH_ASSERT((knh_uintptr_t)t % K_PAGESIZE == 0);
-//		}
-//		char *max = ctx->share->ArenaSet[tindex].opage + K_ARENASIZE;
-//		while(t + K_PAGESIZE < max) {
-//			knh_memcpy(t + ((BSHIFT) * sizeof(knh_uintptr_t)), t, (BSHIFT) * sizeof(knh_uintptr_t));
-//			//knh_bzero(t + ((BSHIFT) * sizeof(knh_uintptr_t)), (BSHIFT) * sizeof(knh_uintptr_t));
-//			t += K_PAGESIZE;
-//		}
-//	}
-//
-//	DBG_DISABLE_FREE();
-//	markedObjectSize = 0;
-//	knh_traverseAll(ctx, knh_Object_mark1);
-//	DBG_ENABLE_FREE();
-//
-//	DBG_P("** GC - Marked %d/%d object(s)", (int)markedObjectSize, (int)ctx->stat->usedObjectSize);
-//
-//	size_t cnt = 0;
-//	knh_Ftraverse fsweep = ctx->fsweep;
-//	((knh_Context_t*)ctx)->fsweep = knh_Object_finalSweep;
-//	for(tindex = 0; tindex < size; tindex++) {
-//		char *t = ctx->share->ArenaSet[tindex].opage;
-//
-//		if((knh_uintptr_t)t % K_PAGESIZE != 0) {
-//			t = (char*)((((knh_uintptr_t)t / K_PAGESIZE) + 1) * K_PAGESIZE);
-//			KNH_ASSERT((knh_uintptr_t)t % K_PAGESIZE == 0);
-//		}
-//		char *max = ctx->share->ArenaSet[tindex].opage + K_ARENASIZE;
-//		while(t + K_PAGESIZE < max) {
-//			knh_uintptr_t *b = ((knh_uintptr_t*)t) + BSHIFT;
-//			int i;
-//			for(i = 1; i < (K_PAGESIZE / sizeof(knh_Object_t)); i++) {
-//				int x = i / (sizeof(knh_uintptr_t)*8);
-//				knh_uintptr_t mask = ((knh_uintptr_t)1) << (i % (sizeof(knh_uintptr_t)*8));
-//				if((b[x] & mask) == mask) continue;
-//				knh_Object_t *o = ((Object*)t) + i;
-//				DBG_ASSERT(!knh_isFastMallocMemory((void*)o));
-//				if(o->h.magic == 0) continue;   // knh_Object_free
-//				DBG_P("%p(%d,%d), magic=%d, cid=%s(%d)", o, i, x, o->h.magic, CLASSN(o->h.bcid), o->h.bcid);
-//				knh_Object_RCset(o, 0);
-//				knh_Object_free(ctx, o);
-//				cnt++;
-//			}
-//			t += K_PAGESIZE;
-//		}
-//	}
-//	((knh_Context_t*)ctx)->fsweep = fsweep;
-//	DBG_P("** GC - Collected %d/%d object(s) used=%d Kbytes", (int)cnt, (int)ctx->stat->usedObjectSize, (int)ctx->stat->usedMemorySize/1024);
+	knh_share_t *share = (knh_share_t *) ctx->share;
+	int tindex, size = share->ArenaSetSize;
+	DBG_P("** GC - Starting (used %zd Kb) ***",
+			ctx->stat->usedMemorySize/1024);
+
+	KNH_SYSLOG(ctx, LOG_DEBUG, "GC", "GC_ArenaSize=%d", size);
+
+	for(tindex = 0; tindex < size; tindex++) {
+		char *t   = (char*) share->ArenaSet[tindex].oslot;
+		char *max = (char*) share->ArenaSet[tindex].oslot + K_ARENASIZE;
+		CHECK_ALIGN(t, K_PAGESIZE);
+		while(t + K_PAGESIZE <= max) {
+			knh_memcpy(t + BITMAP_SIZE, t, BITMAP_SIZE);
+			t += K_PAGESIZE;
+		}
+	}
+	DBG_DISABLE_FREE();
+	markedObjectSize = 0;
+	knh_traverseAll(ctx, knh_Object_mark1);
+	DBG_ENABLE_FREE();
+
+	DBG_P("** GC - Marked %zd/%zd object(s)", markedObjectSize,
+			ctx->stat->usedObjectSize);
+	size_t cnt = 0;
+	knh_Ftraverse fsweep = ctx->fsweep;
+	((knh_Context_t*)ctx)->fsweep = knh_Object_finalSweep;
+	for(tindex = 0; tindex < size; tindex++) {
+		char *t   = (char*) share->ArenaSet[tindex].oslot;
+		char *max = (char*) share->ArenaSet[tindex].oslot + K_ARENASIZE;
+		CHECK_ALIGN(t, K_PAGESIZE);
+		while(t + K_PAGESIZE <= max) {
+			knh_uintptr_t *b = ((knh_uintptr_t*)t) + BSHIFT;
+			int i;
+			for(i = 1; i < (K_PAGESIZE / sizeof(knh_Object_t)); i++) {
+				if (!bit_test(b, i)) {
+					knh_Object_t *o = ((Object*)t) + i;
+					cnt += Object_free_(ctx, o);
+				}
+			}
+			t += K_PAGESIZE;
+		}
+	}
+	((knh_Context_t*)ctx)->fsweep = fsweep;
+	DBG_P("** GC - Collected %zd/%zd object(s) used=%zd Kbytes",
+			cnt, ctx->stat->usedObjectSize, ctx->stat->usedMemorySize/1024);
 }
 
 /* ------------------------------------------------------------------------ */

@@ -1,5 +1,5 @@
 #!/usr/local/bin/konoha
-include "walk.k"
+import "walk.k"
 /*
  * gen_test.k
  * masahiro@ynu 2009
@@ -39,9 +39,9 @@ String escape(String func) {
 
 void OutputStream.konohaTest(String func) {
 		this << %("""
-test "%s{0}" {
-%s{0}
-}
+### %s{0};
+>>>
+false
 
 """,func);
 }

@@ -773,7 +773,7 @@ static void KNH_ASM_MOVL(Ctx *ctx, knh_type_t reqt, int sfpidx, knh_type_t ltype
 #if defined(K_USING_RCGC)
 			KNH_ASM(SWAP, (sfpidx), (local));
 #else
-			KNH_ASM(MOV, (sfpidx), (local));
+			KNH_ASM(OMOV, (sfpidx), (local));
 #endif
 		}
 	}

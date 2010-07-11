@@ -198,6 +198,7 @@ void *knh_generateCallBackFunc(Ctx *ctx, void *func, knh_Func_t *c);
 void *knh_copyCallbackfunc(Ctx* ctx, void *func, void *target,knh_Func_t *cc);
 knh_class_t new_ClassId(Ctx *ctx);
 void knh_expandExptTable(Ctx *ctx);
+void knh_Object_finalSweep(Ctx *ctx, Object *o);
 void knh_Context_traverse(Ctx *ctx, knh_Context_t *o, knh_Ftraverse ftr);
 void knh_Context_free(Ctx *ctx, knh_Context_t* ctxo);
 void knh_traverseAll(Ctx* ctx, knh_Ftraverse ftr);

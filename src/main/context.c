@@ -366,8 +366,7 @@ static void knh_ObjectArenaSet_free(Ctx *ctx, knh_ArenaSet_t *t)
 			Object *o = oslot->slots + i;
 			if(o->h.magic != K_OBJECT_MAGIC) continue;
 #ifdef KNH_HOBJECT_REFC
-			DBG_(
-			{
+			DBG_({
 				fprintf(stderr, "async object %p cid=%s(%d), ref=%d ", o, STRUCTN(o->h.bcid), (int)o->h.cid, (int)o->h.refc);
 				switch(o->h.bcid) {
 				case CLASS_Class:
@@ -390,7 +389,7 @@ static void knh_ObjectArenaSet_free(Ctx *ctx, knh_ArenaSet_t *t)
 				default:
 					fprintf(stderr, "\n");
 				}
-			} );
+			});
 			o->h.refc = 0;
 #endif
 			knh_Object_free(ctx, o);
@@ -400,7 +399,7 @@ static void knh_ObjectArenaSet_free(Ctx *ctx, knh_ArenaSet_t *t)
 }
 
 
-static void knh_Object_finalSweep(Ctx *ctx, Object *o)
+void knh_Object_finalSweep(Ctx *ctx, Object *o)
 {
 
 }
