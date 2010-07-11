@@ -143,7 +143,7 @@ extern "C" {
 #endif/*_MSC_VER*/
 
 #define KNH_FINALv(ctx, v) {\
-		knh_Object_DRCsweep(ctx, UP(v)); \
+		knh_Object_DRCsweep(ctx, UPCAST(v)); \
 		v = NULL; \
 	}\
 

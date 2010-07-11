@@ -27,7 +27,6 @@
 
 /* ************************************************************************ */
 
-#define USE_STEXT 1
 #define USE_bytes_strcasecmp    1
 #define USE_cwb_open      1
 
@@ -79,9 +78,10 @@ knh_bool_t knh_ResultSet_next(Ctx *ctx, knh_ResultSet_t *o)
 			return 1;
 		}
 		else {
+			knh_bytes_t t = {{""}, 0};
 			DP(o)->qcurfree(DP(o)->qcur);
 			DP(o)->qcur = NULL;
-			DP(o)->qcurfree = knh_getQueryDSPI(ctx, K_DEFAULT_DSPI)->qcurfree;
+			DP(o)->qcurfree = knh_getQueryDSPI(ctx, t)->qcurfree;
 		}
 	}
 	return 0;
@@ -92,9 +92,10 @@ knh_bool_t knh_ResultSet_next(Ctx *ctx, knh_ResultSet_t *o)
 void knh_ResultSet_close(Ctx *ctx, knh_ResultSet_t *o)
 {
 	if(DP(o)->qcur != NULL) {
+		knh_bytes_t t = {{""}, 0};
 		DP(o)->qcurfree(DP(o)->qcur);
 		DP(o)->qcur = NULL;
-		DP(o)->qcurfree = knh_getQueryDSPI(ctx, K_DEFAULT_DSPI)->qcurfree;
+		DP(o)->qcurfree = knh_getQueryDSPI(ctx, t)->qcurfree;
 	}
 	KNH_SETv(ctx, DP(o)->conn, KNH_NULL);
 }
@@ -156,7 +157,7 @@ knh_String_t *knh_ResultSet_getName(Ctx *ctx, knh_ResultSet_t *o, size_t n)
 
 int knh_ResultSet_findColumn(Ctx *ctx, knh_ResultSet_t *o, knh_bytes_t name)
 {
-	int i = 0;
+	size_t i = 0;
 	for(i = 0; i < DP(o)->column_size; i++) {
 		if(knh_bytes_strcasecmp(S_tobytes(DP(o)->column[i].name), name) == 0) return i;
 	}
@@ -174,41 +175,41 @@ knh_type_t knh_ResultSet_get_type(Ctx *ctx, knh_ResultSet_t *o, size_t n)
 /* ======================================================================== */
 /* [set] */
 
-KNHAPI(void) knh_ResultSet_initData(Ctx *ctx, knh_ResultSet_t *o)
+void knh_ResultSet_initData(Ctx *ctx, knh_ResultSet_t *rs)
 {
-	int i = 0;
-	for(i = 0; i < DP(o)->column_size; i++) {
-		DP(o)->column[i].ctype = 0;
-		DP(o)->column[i].start = 0;
-		DP(o)->column[i].len = 0;
+	size_t i = 0;
+	for(i = 0; i < DP(rs)->column_size; i++) {
+		DP(rs)->column[i].ctype = 0;
+		DP(rs)->column[i].start = 0;
+		DP(rs)->column[i].len = 0;
 	}
-	knh_Bytes_clear(DP(o)->databuf, 0);
+	knh_Bytes_clear(DP(rs)->databuf, 0);
 }
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(void) knh_ResultSet_setInt(Ctx *ctx, knh_ResultSet_t *o, size_t n, knh_int_t value)
+KNHAPI(void) knh_ResultSet_setInt(Ctx *ctx, knh_ResultSet_t *rs, size_t n, knh_int_t value)
 {
-	KNH_ASSERT(n < DP(o)->column_size);
-	knh_bytes_t t = {{(knh_uchar_t*)(&value)}, sizeof(knh_int_t)};
-	DP(o)->column[n].ctype = knh_ResultSet_CTYPE__integer;
-	DP(o)->column[n].start = BA_size(DP(o)->databuf);
-	DP(o)->column[n].len = sizeof(knh_int_t);
-	knh_Bytes_write(ctx, DP(o)->databuf, t);
+	KNH_ASSERT(n < DP(rs)->column_size);
+	knh_bytes_t t = {{(const char*)(&value)}, sizeof(knh_int_t)};
+	DP(rs)->column[n].ctype = knh_ResultSet_CTYPE__integer;
+	DP(rs)->column[n].start = BA_size(DP(rs)->databuf);
+	DP(rs)->column[n].len = sizeof(knh_int_t);
+	knh_Bytes_write(ctx, DP(rs)->databuf, t);
 }
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(void) knh_ResultSet_setFloat(Ctx *ctx, knh_ResultSet_t *o, size_t n, knh_float_t value)
+KNHAPI(void) knh_ResultSet_setFloat(Ctx *ctx, knh_ResultSet_t *rs, size_t n, knh_float_t value)
 {
-	KNH_ASSERT(n < DP(o)->column_size);
-	knh_bytes_t t = {{(knh_uchar_t*)(&value)}, sizeof(knh_float_t)};
-	DP(o)->column[n].ctype = knh_ResultSet_CTYPE__float;
-	DP(o)->column[n].start = BA_size(DP(o)->databuf);
-	DP(o)->column[n].len = sizeof(knh_float_t);
-	knh_Bytes_write(ctx, DP(o)->databuf, t);
+	KNH_ASSERT(n < DP(rs)->column_size);
+	knh_bytes_t t = {{(const char*)(&value)}, sizeof(knh_float_t)};
+	DP(rs)->column[n].ctype = knh_ResultSet_CTYPE__float;
+	DP(rs)->column[n].start = BA_size(DP(rs)->databuf);
+	DP(rs)->column[n].len = sizeof(knh_float_t);
+	knh_Bytes_write(ctx, DP(rs)->databuf, t);
 	int i, c = t.len % sizeof(void*);
-	for(i = 0; i < c; i++) knh_Bytes_putc(ctx, DP(o)->databuf, 0);    /* zero */
+	for(i = 0; i < c; i++) knh_Bytes_putc(ctx, DP(rs)->databuf, 0);    /* zero */
 }
 
 /* ------------------------------------------------------------------------ */
@@ -252,7 +253,7 @@ KNHAPI(void) knh_ResultSet_setNULL(Ctx *ctx, knh_ResultSet_t *o, size_t n)
 knh_int_t knh_ResultSet_getInt(Ctx *ctx, knh_ResultSet_t *o, size_t n)
 {
 	KNH_ASSERT(n < DP(o)->column_size);
-	char *p = BA_tochar(DP(o)->databuf) + DP(o)->column[n].start;
+	const char *p = BA_tochar(DP(o)->databuf) + DP(o)->column[n].start;
 	switch(DP(o)->column[n].ctype) {
 	case knh_ResultSet_CTYPE__null :
 		return 0;
@@ -272,10 +273,10 @@ knh_int_t knh_ResultSet_getInt(Ctx *ctx, knh_ResultSet_t *o, size_t n)
 knh_float_t knh_ResultSet_getFloat(Ctx *ctx, knh_ResultSet_t *o, size_t n)
 {
 	KNH_ASSERT(n < DP(o)->column_size);
-	char *p = BA_tochar(DP(o)->databuf) + DP(o)->column[n].start;
+	const char *p = BA_tochar(DP(o)->databuf) + DP(o)->column[n].start;
 	switch(DP(o)->column[n].ctype) {
 	case knh_ResultSet_CTYPE__null :
-		return 0.0;
+		return K_FLOAT_ZERO;
 	case knh_ResultSet_CTYPE__integer :
 		return (knh_float_t)(*((knh_int_t*)p));
 	case knh_ResultSet_CTYPE__float :
@@ -284,7 +285,7 @@ knh_float_t knh_ResultSet_getFloat(Ctx *ctx, knh_ResultSet_t *o, size_t n)
 		TODO();
 //		return knh_bytes_tofloat(B2(p, DP(o)->column[n].len));
 	}
-	return 0.0;
+	return K_FLOAT_ZERO;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -308,18 +309,20 @@ static knh_String_t *new_String__float(Ctx *ctx, knh_float_t n)
 knh_String_t* knh_ResultSet_getString(Ctx *ctx, knh_ResultSet_t *o, size_t n)
 {
 	KNH_ASSERT(n < DP(o)->column_size);
-	char *p = BA_tochar(DP(o)->databuf) + DP(o)->column[n].start;
+	const char *p = BA_tochar(DP(o)->databuf) + DP(o)->column[n].start;
 	switch(DP(o)->column[n].ctype) {
-	case knh_ResultSet_CTYPE__null :
-		return (knh_String_t*)KNH_NULL;
 	case knh_ResultSet_CTYPE__integer :
 		return new_String__int(ctx, (knh_int_t)(*((knh_int_t*)p)));
 	case knh_ResultSet_CTYPE__float :
 		return new_String__float(ctx, (knh_float_t)(*((knh_float_t*)p)));
-	case knh_ResultSet_CTYPE__text :
-		return new_S(ctx, B2(p, DP(o)->column[n].len));
+	case knh_ResultSet_CTYPE__text : {
+		knh_bytes_t t = {{p}, DP(o)->column[n].len};
+		return new_S(ctx, t);
+		}
+	case knh_ResultSet_CTYPE__null :
+		break;
 	}
-	return (knh_String_t*)KNH_NULL;
+	return KNH_TNULL(String);
 }
 
 /* ------------------------------------------------------------------------ */

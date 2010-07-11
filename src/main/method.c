@@ -515,7 +515,7 @@ knh_Method_t* knh_findMethodNULL(Ctx *ctx, knh_class_t this_cid, knh_methodn_t m
 			else {
 				knh_Method_t *mtd = new_SetterMethod(ctx, this_cid, mn, cf->type, idx);
 				knh_Array_t *methods = ClassTable(this_cid).methods;
-				knh_Array_add_(ctx, methods, UP(mtd));
+				knh_Array_add_(ctx, methods, UPCAST(mtd));
 				return mtd;
 			}
 		}
@@ -627,7 +627,7 @@ knh_Method_t *knh_lookupFormatter(Ctx *ctx, knh_class_t cid, knh_methodn_t mn)
 
 /* ------------------------------------------------------------------------ */
 
-char *knh_Method_file(Ctx *ctx, knh_Method_t *mtd)
+const char *knh_Method_file(Ctx *ctx, knh_Method_t *mtd)
 {
 	if(knh_Method_isObjectCode(mtd) && IS_KLRCode(DP(mtd)->kcode)) {
 		knh_KLRCode_t *kcode = DP(mtd)->kcode;

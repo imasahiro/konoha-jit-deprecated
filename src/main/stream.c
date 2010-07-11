@@ -49,14 +49,12 @@ extern "C" {
 knh_InputStream_t* new_InputStreamDSPI(Ctx *ctx, knh_io_t fd, const knh_StreamDSPI_t *dspi)
 {
 	knh_InputStream_t* in = new_(InputStream);
-//	KNH_SETv(ctx, DP(in)->urn, knh_getURN(ctx, uri));
-//	DP(in)->uri = uri;
 	DP(in)->fd = fd;
 	SP(in)->dspi = dspi;
 	DP(in)->bufsiz = dspi->bufsiz;
 	if(DP(in)->bufsiz > 0) {
 		KNH_SETv(ctx, DP(in)->ba, new_Bytes(ctx, DP(in)->bufsiz));
-		DP(in)->buf = (char*)(DP(in)->ba)->bu.buf;
+		DP(in)->buf = (char*)(DP(in)->ba)->bu.ubuf;
 	}
 	else {
 		knh_InputStream_setFILE(in, 1);
@@ -72,7 +70,7 @@ knh_InputStream_t* new_BytesInputStream(Ctx *ctx, knh_Bytes_t *ba)
 	DBG_ASSERT(ba != ctx->bufa);
 	DP(in)->fd = IO_NULL;
 	KNH_SETv(ctx, DP(in)->ba, ba);
-	DP(in)->buf = (ba)->bu.str;
+	DP(in)->buf = (char*)(ba)->bu.ubuf;
 	DP(in)->bufsiz = BA_size(ba);
 	DP(in)->bufpos   = 0;
 	DP(in)->bufend   = BA_size(ba);
@@ -83,7 +81,7 @@ void knh_BytesInputStream_setpos(Ctx *ctx, knh_InputStream_t *in, size_t s, size
 {
 	knh_Bytes_t *ba = DP(in)->ba;
 	DBG_ASSERT(DP(in)->fd == IO_NULL);
-	DP(in)->buf = (ba)->bu.str;
+	DP(in)->buf = (char*)(ba)->bu.ubuf;
 	DP(in)->bufsiz = (ba)->bu.len;
 	DBG_ASSERT(e <= BA_size(ba));
 	DBG_ASSERT(s <= e);
@@ -97,7 +95,7 @@ knh_InputStream_t* new_StringInputStream(Ctx *ctx, knh_String_t *str, size_t s, 
 	DP(o)->fd = IO_NULL;
 	DBG_ASSERT(IS_String(str));
 	KNH_SETv(ctx, DP(o)->str, str);
-	DP(o)->buf = S_tochar(str);
+	DP(o)->buf = (char*)S_tochar(str);
 	DP(o)->bufsiz = S_size(str);
 	DBG_ASSERT(e <= S_size(str));
 	DBG_ASSERT(s <= e);
@@ -280,7 +278,7 @@ KNHAPI(void) knh_OutputStream_putc(Ctx *ctx, knh_OutputStream_t *w, int ch)
 	DBG_ASSERT(IS_Bytes(ba));
 	knh_Bytes_putc(ctx, ba, ch);
 	if(!knh_OutputStream_isStoringBuffer(w) && BA_size(ba) > SP(w)->dspi->bufsiz) {
-		SP(w)->dspi->fwrite(ctx, DP(w)->fd, (char*)(ba)->bu.buf, (ba)->bu.len);
+		SP(w)->dspi->fwrite(ctx, DP(w)->fd, (ba)->bu.text, (ba)->bu.len);
 		knh_Bytes_clear(ba, 0);
 	}
 	DP(w)->size++;
@@ -294,7 +292,7 @@ KNHAPI(void) knh_OutputStream_write(Ctx *ctx, knh_OutputStream_t *w, knh_bytes_t
 	DBG_ASSERT(IS_Bytes(ba));
 	knh_Bytes_write(ctx, ba, buf);
 	if(!knh_OutputStream_isStoringBuffer(w) && BA_size(ba) > SP(w)->dspi->bufsiz) {
-		SP(w)->dspi->fwrite(ctx, DP(w)->fd, (char*)(ba)->bu.buf, (ba)->bu.len);
+		SP(w)->dspi->fwrite(ctx, DP(w)->fd, (ba)->bu.text, (ba)->bu.len);
 		knh_Bytes_clear(ba, 0);
 	}
 	DP(w)->size += buf.len;
@@ -306,7 +304,7 @@ KNHAPI(void) knh_OutputStream_flush(Ctx *ctx, knh_OutputStream_t *w)
 {
 	if(!knh_OutputStream_isStoringBuffer(w)) {
 		knh_Bytes_t *ba = DP(w)->ba;
-		SP(w)->dspi->fwrite(ctx, DP(w)->fd, (char*)(ba)->bu.buf, (ba)->bu.len);
+		SP(w)->dspi->fwrite(ctx, DP(w)->fd, (ba)->bu.text, (ba)->bu.len);
 		knh_Bytes_clear(ba, 0);
 	}
 }
@@ -356,14 +354,14 @@ static knh_bool_t knh_bytes_isASCII(knh_bytes_t t)
 {
 	size_t i;
 	for(i = 0; i < t.len; i++) {
-		if(!(t.buf[i] < 127)) return 0;
+		if(!(t.ustr[i] < 127)) return 0;
 	}
 	return 1;
 }
 
 static knh_bool_t knh_bytes_in(knh_bytes_t t, knh_uchar_t *p)
 {
-	return (t.buf <= p && p < t.buf+t.len);
+	return (t.ubuf <= p && p < t.ubuf + t.len);
 }
 
 KNHAPI(void) knh_OutputStream_writeLine(Ctx *ctx, knh_OutputStream_t *w, knh_bytes_t t, knh_bool_t isNEWLINE)
@@ -373,7 +371,7 @@ KNHAPI(void) knh_OutputStream_writeLine(Ctx *ctx, knh_OutputStream_t *w, knh_byt
 	}
 	if(t.len > 0) {
 		if(DP(w)->encNULL != NULL && !knh_bytes_isASCII(t)) {
-			if(knh_bytes_in(ctx->bufa->bu, t.buf)) {
+			if(knh_bytes_in(ctx->bufa->bu, t.ubuf)) {
 				KNH_TODO("write cwb->buf with encoding");
 			}
 			else {
@@ -472,7 +470,7 @@ void knh_write__p(Ctx *ctx, knh_OutputStream_t *w, void *ptr)
 
 /* ------------------------------------------------------------------------ */
 
-void knh_write_dfmt(Ctx *ctx, knh_OutputStream_t *w, char *fmt, knh_intptr_t n)
+void knh_write_dfmt(Ctx *ctx, knh_OutputStream_t *w, const char *fmt, knh_intptr_t n)
 {
 	char buf[K_INT_FMTSIZ];
 	knh_snprintf(buf, sizeof(buf), fmt, n);
@@ -481,7 +479,7 @@ void knh_write_dfmt(Ctx *ctx, knh_OutputStream_t *w, char *fmt, knh_intptr_t n)
 
 /* ------------------------------------------------------------------------ */
 
-void knh_write_ifmt(Ctx *ctx, knh_OutputStream_t *w, char *fmt, knh_int_t n)
+void knh_write_ifmt(Ctx *ctx, knh_OutputStream_t *w, const char *fmt, knh_int_t n)
 {
 	char buf[K_INT_FMTSIZ];
 	knh_snprintf(buf, sizeof(buf), fmt, n);
@@ -490,11 +488,20 @@ void knh_write_ifmt(Ctx *ctx, knh_OutputStream_t *w, char *fmt, knh_int_t n)
 
 /* ------------------------------------------------------------------------ */
 
-void knh_write_ffmt(Ctx *ctx, knh_OutputStream_t *w, char *fmt, knh_float_t n)
+void knh_write_ffmt(Ctx *ctx, knh_OutputStream_t *w, const char *fmt, knh_float_t n)
 {
 	char buf[K_FLOAT_FMTSIZ];
 	knh_snprintf(buf, sizeof(buf), fmt, n);
 	knh_write(ctx, w, B(buf));
+}
+
+/* ------------------------------------------------------------------------ */
+
+void knh_write_text(Ctx *ctx, knh_OutputStream_t *w, const char *text)
+{
+	knh_bytes_t t;
+	t.text = text; t.len = knh_strlen(text);
+	knh_write(ctx, w, t);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -519,9 +526,9 @@ void knh_write_flag(Ctx *ctx, knh_OutputStream_t *w, knh_flag_t flag)
 
 void knh_write_cap(Ctx *ctx, knh_OutputStream_t *w, knh_bytes_t t)
 {
-	if(islower(t.buf[0])) {
-		knh_putc(ctx, w, toupper(t.buf[0]));
-		t.buf = t.buf+1; t.len = t.len -1;
+	if(islower(t.ustr[0])) {
+		knh_putc(ctx, w, toupper(t.ustr[0]));
+		t.ustr = t.ustr+1; t.len = t.len -1;
 	}
 	knh_write(ctx, w, t);
 }
@@ -565,9 +572,9 @@ KNHAPI(void) knh_write_Object(Ctx *ctx, knh_OutputStream_t *w, knh_sfp_t *esp, k
 /* ======================================================================== */
 /* [printf] */
 
-static char* knh_vprintf_parseindex(char *p, int *index)
+static const char* knh_vprintf_parseindex(const char *p, int *index)
 {
-    char *ptr = p+1;
+	const char *ptr = p+1;
 	if(ptr[0] == '{' && isdigit(ptr[1]) && ptr[2] == '}') {
 		*index = ptr[1] - '0';
 		ptr += 3;
@@ -613,10 +620,10 @@ typedef struct {
 
 /* ------------------------------------------------------------------------ */
 
-void knh_vprintf(Ctx *ctx, knh_OutputStream_t *w, char *fmt, va_list ap)
+void knh_vprintf(Ctx *ctx, knh_OutputStream_t *w, const char *fmt, va_list ap)
 {
 	knh_valist_t args[10];
-	char *c = fmt;
+	const char *c = fmt;
 	int i, ch, bindex = 0, bindex_max = 10;
 	for(i = 0; i < bindex_max; i++) args[i].atype = 0;
 	while((ch = *c) != '\0') {
@@ -713,7 +720,7 @@ void knh_vprintf(Ctx *ctx, knh_OutputStream_t *w, char *fmt, va_list ap)
 		knh_sfp_t *esp = ctx->esp;
 		c = fmt;
 		bindex = 0;
-		b.buf = (knh_uchar_t*)c;
+		b.text = c;
 		b.len = 0;
 		while((ch = *c) != '\0') {
 			c++;
@@ -730,7 +737,7 @@ void knh_vprintf(Ctx *ctx, knh_OutputStream_t *w, char *fmt, va_list ap)
 						knh_putc(ctx, w, '\\');
 						knh_putc(ctx, w, ch);
 				}
-				b.buf = (knh_uchar_t*)c;
+				b.text = c;
 				b.len = 0;
 			}
 			else if(ch == '%') {
@@ -741,7 +748,7 @@ void knh_vprintf(Ctx *ctx, knh_OutputStream_t *w, char *fmt, va_list ap)
 				if(ch == '%') {
 					knh_putc(ctx, w, '%');
 					c++;
-					b.buf = (knh_uchar_t*)c;
+					b.text = c;
 					b.len = 0;
 					continue;
 				}
@@ -796,7 +803,7 @@ void knh_vprintf(Ctx *ctx, knh_OutputStream_t *w, char *fmt, va_list ap)
 						break;
 					case 'N': case 'F':
 						DBG_ASSERT(args[index].atype == VA_FIELDN);
-						knh_write_char(ctx, w, FN_tochar(args[index].fn));
+						knh_write_text(ctx, w, FN_tochar(args[index].fn));
 						break;
 					case 'M':
 						DBG_ASSERT(args[index].atype == VA_METHODN);
@@ -821,7 +828,7 @@ void knh_vprintf(Ctx *ctx, knh_OutputStream_t *w, char *fmt, va_list ap)
 						//knh_putc(ctx, w, '%');
 						knh_putc(ctx, w, ch);
 				}
-				b.buf = (knh_uchar_t*)c;
+				b.text = c;
 				b.len = 0;
 				if(!(bindex <= bindex_max)) {
 					DBG_ASSERT(bindex <= bindex_max);
@@ -840,7 +847,7 @@ void knh_vprintf(Ctx *ctx, knh_OutputStream_t *w, char *fmt, va_list ap)
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(void) knh_printf(Ctx *ctx, knh_OutputStream_t *w, char *fmt, ...)
+KNHAPI(void) knh_printf(Ctx *ctx, knh_OutputStream_t *w, const char *fmt, ...)
 {
 	va_list ap;
 	va_start(ap , fmt);

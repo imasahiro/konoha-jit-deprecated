@@ -165,7 +165,7 @@ static knh_bool_t CHARSET_exists(Ctx *ctx, knh_bytes_t path, knh_intptr_t *id)
 		((knh_share_t*)ctx->share)->iconvDSPI = knh_getConvTODSPINULL(ctx, STEXT("iconv"));
 	}
 	if(ctx->share->iconvDSPI != NULL) {
-		knh_conv_t *conv = ctx->share->iconvDSPI->open(ctx, (const char*)t.buf, K_ENCODING);
+		knh_conv_t *conv = ctx->share->iconvDSPI->open(ctx, t.text, K_ENCODING);
 		return (conv != 0);
 	}
 	return (B_equals(t, K_ENCODING));
@@ -244,7 +244,7 @@ static knh_Object_t* CLASS_newObjectNULL(Ctx *ctx, knh_class_t cid, knh_String_t
 {
 	cid = knh_NameSpace_getcid(ctx, knh_getGammaNameSpace(ctx), knh_bytes_path(S_tobytes(s)));
 	DBG_ASSERT(cid != CLASS_unknown);
-	return UP(new_Type(ctx, cid));
+	return UPCAST(new_Type(ctx, cid));
 }
 
 static knh_PathDSPI_t CLASSPATH_DSPI = {
@@ -334,7 +334,7 @@ static knh_Object_t* DIR_newObjectNULL(Ctx *ctx, knh_class_t cid, knh_String_t *
 			knh_Array_t *a = (cid == CLASS_StringARRAY)
 				? new_Array(ctx, CLASS_String, 0) : new_Array0(ctx, 0);
 #if defined(K_USING_POSIX)
-			char *dirname = knh_cwb_tochar(ctx, cwb);
+			const char *dirname = knh_cwb_tochar(ctx, cwb);
 			DIR *dirptr = opendir(dirname);
 			KNH_PERROR_IF(ctx, NULL, (dirptr == NULL), "opendir");
 			if (dirptr != NULL) {
@@ -392,7 +392,7 @@ static knh_bool_t LIB_exists(Ctx *ctx, knh_bytes_t path, knh_intptr_t *id)
 	if(p != NULL) {
 		res = 1;
 		if(funcname.len != 0) {
-			void *f = knh_dlsym(ctx, p, (char*)funcname.buf, 0/*isPERROR*/);
+			void *f = knh_dlsym(ctx, p, funcname.text, 0/*isPERROR*/);
 			res = (f != NULL);
 		}
 		knh_dlclose(ctx, p);
@@ -431,7 +431,7 @@ knh_ConverterDSPI_t *knh_getConvFROMDSPINULL(Ctx *ctx, knh_bytes_t path)
 /* ======================================================================== */
 /* K_STREAM_DSPI */
 
-static knh_io_t NOFILE_open(Ctx *ctx, knh_bytes_t n, char *mode)
+static knh_io_t NOFILE_open(Ctx *ctx, knh_bytes_t n, const char *mode)
 {
 	return IO_NULL;
 }
@@ -439,7 +439,7 @@ static knh_intptr_t NOFILE_read(Ctx *ctx, knh_io_t fd, char *buf, size_t bufsiz)
 {
 	return 0;
 }
-static knh_intptr_t NOFILE_write(Ctx *ctx, knh_io_t fd, char *buf, size_t bufsiz)
+static knh_intptr_t NOFILE_write(Ctx *ctx, knh_io_t fd, const char *buf, size_t bufsiz)
 {
 	return bufsiz;
 }
@@ -463,7 +463,7 @@ static knh_StreamDSPI_t NOFILE_DSPI = {
 
 /* ------------------------------------------------------------------------ */
 
-static knh_io_t FILE_open(Ctx *ctx, knh_bytes_t path, char *mode)
+static knh_io_t FILE_open(Ctx *ctx, knh_bytes_t path, const char *mode)
 {
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_openinit(ctx, &cwbbuf, knh_bytes_path(path));
 	knh_cwb_ospath(ctx, cwb);
@@ -471,7 +471,7 @@ static knh_io_t FILE_open(Ctx *ctx, knh_bytes_t path, char *mode)
 	knh_cwb_close(cwb);
 	return (knh_io_t)fp;
 }
-static knh_io_t NOFILE_wopen(Ctx *ctx, knh_bytes_t n, char *mode)
+static knh_io_t NOFILE_wopen(Ctx *ctx, knh_bytes_t n, const char *mode)
 {
 	KNH_SYSLOG(ctx, LOG_ALERT, "ReadOnlyFile", "path=%B, mode='%s'", n, mode);
 	return IO_NULL;
@@ -481,7 +481,7 @@ static knh_intptr_t FILE_read(Ctx *ctx, knh_io_t fd, char *buf, size_t bufsiz)
 	return knh_fread(ctx, buf, bufsiz, (FILE*)fd);
 }
 
-static knh_intptr_t FILE_write(Ctx *ctx, knh_io_t fd, char *buf, size_t bufsiz)
+static knh_intptr_t FILE_write(Ctx *ctx, knh_io_t fd, const char *buf, size_t bufsiz)
 {
 	size_t ssize = knh_fwrite(ctx, buf, bufsiz, (FILE*)fd);
 	knh_fflush(ctx, (FILE*)fd);
@@ -593,7 +593,7 @@ static knh_PathDSPI_t TOOLPATH_DSPI = {
 	TOOL_exists, NULL,
 };
 
-static knh_io_t TOOL_open(Ctx *ctx, knh_bytes_t path, char *mode)
+static knh_io_t TOOL_open(Ctx *ctx, knh_bytes_t path, const char *mode)
 {
 	FILE *fp = NULL;
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
@@ -663,7 +663,7 @@ static knh_bool_t PKG_exists(Ctx *ctx, knh_bytes_t path, knh_intptr_t *id)
 	return res;
 }
 
-static knh_io_t PKG_open(Ctx *ctx, knh_bytes_t path, char *mode)
+static knh_io_t PKG_open(Ctx *ctx, knh_bytes_t path, const char *mode)
 {
 	FILE *fp = NULL;
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
@@ -690,7 +690,7 @@ static knh_StreamDSPI_t PKGFILE_DSPI = {
 static void knh_cwb_writeSCRIPT(Ctx *ctx, knh_cwb_t *cwb, knh_bytes_t path)
 {
 	knh_bytes_t t = S_tobytes(knh_getURN(ctx, SP(ctx->gma)->uri));
-	if(t.buf[0] != '(') {  /* NOT (eval) */
+	if(t.ustr[0] != '(') {  /* NOT (eval) */
 		knh_cwb_write(ctx, cwb, t);
 		knh_bool_t ret = knh_cwb_parentpath(ctx, cwb, NULL);
 		if (ret) {
@@ -700,11 +700,11 @@ static void knh_cwb_writeSCRIPT(Ctx *ctx, knh_cwb_t *cwb, knh_bytes_t path)
 	{
 		size_t i;
 		for(i = 0; i < path.len; i++) {
-			if(path.buf[i] == '.' && path.buf[i+1] == '.'
-				&& (path.buf[i+2] == '/' || path.buf[i+2] == '\\')) {
+			if(path.ustr[i] == '.' && path.ustr[i+1] == '.'
+				&& (path.ustr[i+2] == '/' || path.ustr[i+2] == '\\')) {
 				i += 2; continue;
 			}
-			knh_Bytes_putc(ctx, cwb->ba, path.buf[i]);
+			knh_Bytes_putc(ctx, cwb->ba, path.ustr[i]);
 		}
 	}
 	knh_cwb_ospath(ctx, cwb);
@@ -722,7 +722,7 @@ static knh_bool_t SCRIPT_exists(Ctx *ctx, knh_bytes_t path, knh_intptr_t *id)
 	return res;
 }
 
-static knh_io_t SCRIPT_open(Ctx *ctx, knh_bytes_t path, char *mode)
+static knh_io_t SCRIPT_open(Ctx *ctx, knh_bytes_t path, const char *mode)
 {
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 	knh_cwb_writeSCRIPT(ctx, cwb, knh_bytes_path(path));
@@ -938,11 +938,11 @@ static knh_bool_t tolowercase(Ctx *ctx, knh_conv_t *cv, knh_bytes_t t, knh_Bytes
 {
 	size_t i, s = BA_size(tobuf);
 	knh_Bytes_write(ctx, tobuf, t);
-	knh_bytes_t tt = {{tobuf->bu.buf + s}, BA_size(tobuf) - s};
+	knh_bytes_t tt = {{tobuf->bu.text + s}, BA_size(tobuf) - s};
 	for(i = 0; i < tt.len; i++) {
-		int ch = tt.buf[i];
+		int ch = tt.ustr[i];
 		if('A' <= ch && ch <= 'Z') {
-			tt.buf[i] = ch - 'A' + 'a';
+			tt.ubuf[i] = ch - 'A' + 'a';
 		}
 	}
 	return 1;
@@ -952,11 +952,11 @@ static knh_bool_t touppercase(Ctx *ctx, knh_conv_t *cv, knh_bytes_t t, knh_Bytes
 {
 	size_t i, s = BA_size(tobuf);
 	knh_Bytes_write(ctx, tobuf, t);
-	knh_bytes_t tt = {{tobuf->bu.buf + s}, BA_size(tobuf) - s};
+	knh_bytes_t tt = {{tobuf->bu.text + s}, BA_size(tobuf) - s};
 	for(i = 0; i < tt.len; i++) {
-		int ch = tt.buf[i];
+		int ch = tt.ustr[i];
 		if('a' <= ch && ch <= 'z') {
-			tt.buf[i] = ch - 'a' + 'A';
+			tt.ubuf[i] = ch - 'a' + 'A';
 		}
 	}
 	return 1;

@@ -14,7 +14,7 @@ extern "C" {
 #define TT_CODE TT_EOT
 
 #define knh_stmt_isExpr(stt)   (STT_LET <= stt && stt <= STT_CALL1)
-char* TT_tochar(knh_term_t tt);
+const char* TT_tochar(knh_term_t tt);
 
 #define knh_Term_setLine(tm, tm2) \
 	((knh_Term_t*)tm)->line = ((knh_Term_t*)tm2)->line;\

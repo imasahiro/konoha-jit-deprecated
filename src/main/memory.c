@@ -312,12 +312,14 @@ static void bit_unset(knh_uintptr_t *b, int offset)
 /* [fastmalloc] */
 
 /* fixed by ide */
+#ifdef K_USING_DEBUG
 static int knh_isFastMallocMemory(void *p)
 {
 	knh_uintptr_t *b = (knh_uintptr_t*) knh_Object_getArena(p);
 	int n = ((Object*)p - (Object*)b);
 	return bit_test(b, n);
 }
+#endif
 
 static void knh_setFastMallocMemory(void *p)
 {
@@ -467,7 +469,7 @@ KNHAPI(Object*) new_Object_boxing(Ctx *ctx, knh_class_t cid, knh_sfp_t *sfp)
 	t->count += 1;
 	t->total += 1;
 #endif
-	return UP(o);
+	return UPCAST(o);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -647,7 +649,7 @@ void knh_System_gc(Ctx *ctx)
 		CHECK_ALIGN(t, K_PAGESIZE);
 		while(t + K_PAGESIZE <= max) {
 			knh_uintptr_t *b = ((knh_uintptr_t*)t) + BSHIFT;
-			int i;
+			size_t i;
 			for(i = 1; i < (K_PAGESIZE / sizeof(knh_Object_t)); i++) {
 				if (!bit_test(b, i)) {
 					knh_Object_t *o = ((Object*)t) + i;

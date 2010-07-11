@@ -42,7 +42,7 @@ extern "C" {
 /* ======================================================================== */
 /* [ClassTable] */
 
-char *knh_getStructName(Ctx *ctx, knh_class_t bcid)
+const char *knh_getStructName(Ctx *ctx, knh_class_t bcid)
 {
 	if(bcid < ctx->share->ClassTableSize) {
 		return ClassTable(bcid).cspi->name;
@@ -176,7 +176,7 @@ knh_class_t knh_getcid(Ctx *ctx, knh_bytes_t lname)
 
 /* ------------------------------------------------------------------------ */
 
-char* knh_Context_CLASSN(Ctx *ctx, knh_class_t cid)
+const char* knh_Context_CLASSN(Ctx *ctx, knh_class_t cid)
 {
 	DBG_ASSERT_cid(cid);
 	knh_String_t *name = ClassTable(cid).lname;
@@ -192,7 +192,7 @@ char* knh_Context_CLASSN(Ctx *ctx, knh_class_t cid)
 	}
 }
 
-char *knh_ClassTable_CLASSN(Ctx *ctx, knh_class_t cid)
+const char *knh_ClassTable_CLASSN(Ctx *ctx, knh_class_t cid)
 {
 	if(cid == CLASS_unknown) {
 		return "unknown";
@@ -348,7 +348,7 @@ static knh_Array_t* knh_Class_domain(Ctx *ctx)
 	size_t cid = 0;
 	for(cid = 0; cid < ctx->share->ClassTableSize; cid++) {
 		if(knh_class_isPrivate(cid) || knh_class_isTypeVariable(cid)) continue;
-		knh_Array_add_(ctx, a, UP(new_Type(ctx, cid)));
+		knh_Array_add_(ctx, a, UPCAST(new_Type(ctx, cid)));
 	}
 	return a;
 }
@@ -365,7 +365,7 @@ static knh_Array_t* knh_Method_domain(Ctx *ctx)
 		for(i = 0; i < knh_Array_size(ma); i++) {
 			knh_Method_t *mtd = (knh_Method_t*)knh_Array_n(ma, i);
 			if(DP(mtd)->cid == cid) {
-				knh_Array_add_(ctx, a, UP(mtd));
+				knh_Array_add_(ctx, a, UPCAST(mtd));
 			}
 		}
 	}
@@ -457,7 +457,7 @@ void knh_write_typeF(Ctx *ctx, knh_OutputStream_t *w, knh_type_t type, knh_Fwrit
 	if(cid < ctx->share->ClassTableSize) {
 		knh_class_t bcid = knh_class_bcid(cid);
 		if(knh_class_isGenerics(ctx, cid) && cid != bcid) {
-			int i;
+			size_t i;
 			knh_ParamArray_t *pa = ClassTable(cid).cparam;
 			f(ctx, w, bcid);
 			knh_putc(ctx, w, '<');
@@ -609,14 +609,7 @@ knh_class_t knh_type_tocid(Ctx *ctx, knh_type_t ptype, knh_class_t this_cid)
 
 /* ------------------------------------------------------------------------ */
 
-char *TYPEQ(knh_type_t type)
-{
-	return "";
-}
-
-/* ------------------------------------------------------------------------ */
-
-char *knh_TYPEN(Ctx *ctx, knh_type_t type)
+const char *knh_TYPEN(Ctx *ctx, knh_type_t type)
 {
 	if(type == TYPE_void) return "void";
 	if(type == TYPE_var)  return "var";

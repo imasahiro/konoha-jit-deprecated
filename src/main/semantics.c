@@ -471,7 +471,7 @@ KNHAPI(knh_Semantics_t*) new_Vocab(Ctx *ctx, char *tag, knh_bytes_t urn, int bas
 		knh_Array_t *a = new_Array0(ctx, 0);
 		while(*terms != NULL) {
 			knh_String_t *s = new_T(*terms);
-			knh_Array_add_(ctx, a, UP(s));
+			knh_Array_add_(ctx, a, UPCAST(s));
 			s->h.cid = cid;
 			terms++;
 		}
@@ -571,7 +571,7 @@ knh_bytes_t knh_getURNAlias(Ctx *ctx, knh_bytes_t aurn)
 //			KNH_SYSLOG(ctx, LOG_WARNING, "Overriding %s %s", __tochar(alias), __tochar(s));
 //		}
 //	}
-//	knh_DictMap_set(ctx, DP(ctx->sys)->URNAliasDictMap, alias, UP(urn));
+//	knh_DictMap_set(ctx, DP(ctx->sys)->URNAliasDictMap, alias, UPCAST(urn));
 //}
 
 /* ------------------------------------------------------------------------ */
@@ -590,7 +590,7 @@ KNHAPI(void) knh_loadURNAliasData(Ctx *ctx, knh_StringData_t *data)
 	d = data;
 	while(d->name != NULL) {
 		knh_String_t *n = new_T(d->name);
-		knh_DictMap_append(ctx, map, n, UP(new_T(d->value)));
+		knh_DictMap_append(ctx, map, n, UPCAST(new_T(d->value)));
 		d++;
 	}
 }
@@ -654,7 +654,7 @@ static
 Object *knh_ClassTable_fdefault__ISPEC(Ctx *ctx, knh_class_t cid)
 {
 	knh_Semantics_t *u = knh_getSemantics(ctx, cid);
-	return UP(DP(u)->ivalue);
+	return UPCAST(DP(u)->ivalue);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -663,7 +663,7 @@ static
 Object *knh_ClassTable_fdefault__FSPEC(Ctx *ctx, knh_class_t cid)
 {
 	knh_Semantics_t *u = knh_getSemantics(ctx, cid);
-	return UP(DP(u)->fvalue);
+	return UPCAST(DP(u)->fvalue);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -672,7 +672,7 @@ static
 Object *knh_ClassTable_fdefault__SSPEC(Ctx *ctx, knh_class_t cid)
 {
 	knh_Semantics_t *u = knh_getSemantics(ctx, cid);
-	return UP(DP(u)->svalue);
+	return UPCAST(DP(u)->svalue);
 }
 
 /* ------------------------------------------------------------------------ */

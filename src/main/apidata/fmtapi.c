@@ -101,7 +101,7 @@ static METHOD Object__s(Ctx *ctx, knh_sfp_t *sfp, long rix)
 		knh_write(ctx, sfp[1].w, STEXT("null"));
 	}
 	else {
-		knh_write_char(ctx, sfp[1].w, CLASSN(knh_Object_cid(sfp[0].o)));
+		knh_write_text(ctx, sfp[1].w, CLASSN(knh_Object_cid(sfp[0].o)));
 		knh_putc(ctx, sfp[1].w, ':');
 		knh_write__p(ctx, sfp[1].w, (void*)sfp[0].o);
 	}
@@ -142,9 +142,9 @@ static void knh_write_quote(Ctx *ctx, knh_OutputStream_t *w, knh_bytes_t t, int 
 	size_t i, s = 0;
 	knh_putc(ctx, w, quote);
 	for(i = 0; i < t.len; i++) {
-		int ch = t.buf[i];
+		int ch = t.ustr[i];
 		if(ch == '\t' || ch == '\n' || ch == '\r' || ch == '\\' || ch == quote) {
-			sub.buf = t.buf + s;
+			sub.ustr = t.ustr + s;
 			sub.len = i - s;
 			knh_print(ctx, w, sub); s = i + 1;
 			knh_putc(ctx, w, '\\');
@@ -163,7 +163,7 @@ static void knh_write_quote(Ctx *ctx, knh_OutputStream_t *w, knh_bytes_t t, int 
 		}
 	}
 	if (s < t.len) {
-		sub.buf = t.buf + s;
+		sub.ustr = t.ustr + s;
 		sub.len = t.len - s;
 		knh_print(ctx, w, sub);
 	}
@@ -217,8 +217,8 @@ static METHOD Method__s(Ctx *ctx, knh_sfp_t *sfp, long rix)
 
 static METHOD Exception__s(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-	knh_write_char(ctx, sfp[1].w, EXPTN(DP(sfp[0].e)->eid));
-	knh_write_char(ctx, sfp[1].w, "!!");
+	knh_write_text(ctx, sfp[1].w, EXPTN(DP(sfp[0].e)->eid));
+	knh_write_text(ctx, sfp[1].w, "!!");
 }
 
 /* ======================================================================== */
@@ -609,7 +609,7 @@ static METHOD Bytes__dump(Ctx *ctx, knh_sfp_t *sfp, long rix)
 		for(i = 0; i < 16; i++) {
 			n = j * 16 + i;
 			if(n < ba->bu.len) {
-				knh_snprintf(buf, sizeof(buf), " %2x", (int)ba->bu.buf[n]);
+				knh_snprintf(buf, sizeof(buf), " %2x", (int)ba->bu.ustr[n]);
 				knh_write(ctx, w, B(buf));
 			}
 			else {
@@ -619,8 +619,8 @@ static METHOD Bytes__dump(Ctx *ctx, knh_sfp_t *sfp, long rix)
 		knh_write(ctx, w, STEXT("    "));
 		for(i = 0; i < 16; i++) {
 			n = j * 16 + i;
-			if(n < ba->bu.len && isprint(ba->bu.buf[n])) {
-				knh_snprintf(buf, sizeof(buf), "%c", (int)ba->bu.buf[n]);
+			if(n < ba->bu.len && isprint(ba->bu.ustr[n])) {
+				knh_snprintf(buf, sizeof(buf), "%c", (int)ba->bu.ustr[n]);
 				knh_write(ctx, w, B(buf));
 			}
 			else {
@@ -1169,12 +1169,12 @@ static METHOD Int__c(Ctx *ctx, knh_sfp_t *sfp, long rix)
 /* ======================================================================== */
 /* [number] */
 
-static char *knh_format_newFMT(char *buf, size_t bufsiz, knh_bytes_t t, int dot, char *fmt)
+static char *knh_format_newFMT(char *buf, size_t bufsiz, knh_bytes_t t, int dot, const char *fmt)
 {
 	size_t i = 0, j = 1;
 	buf[0] = '%';
 	for(j = 1; j < bufsiz; j++) {
-		if(t.buf[i] == '.') {
+		if(t.ustr[i] == '.') {
 			i++;
 			if(dot == 1) {
 				buf[j] = '.';
@@ -1185,7 +1185,7 @@ static char *knh_format_newFMT(char *buf, size_t bufsiz, knh_bytes_t t, int dot,
 			}
 			continue;
 		}
-		if(!isdigit(t.buf[i])) {
+		if(!isdigit(t.ustr[i])) {
 			i = (fmt[0] == '%') ? 1 : 0;
 			for(;fmt[i] != 0; i++) {
 				buf[j] = fmt[i]; j++;
@@ -1195,7 +1195,7 @@ static char *knh_format_newFMT(char *buf, size_t bufsiz, knh_bytes_t t, int dot,
 			return buf;
 		}
 		if(dot >= 0) {
-			buf[j] = t.buf[i];
+			buf[j] = t.ustr[i];
 		}
 		i++;
 	}

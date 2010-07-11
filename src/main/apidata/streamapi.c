@@ -47,9 +47,9 @@ static METHOD InputStream_new(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	knh_InputStream_t *in = sfp[0].in;
 	knh_bytes_t path = S_tobytes(sfp[1].s);
 	knh_index_t loc = knh_bytes_index(path, ':');
-	char *mode = IS_NULL(sfp[2].s) ? (char*)"r" : S_tochar(sfp[2].s);
+	const char *mode = IS_NULL(sfp[2].s) ? "r" : S_tochar(sfp[2].s);
 	knh_uri_t uri = 0;
-	if(loc == -1 || (loc == 1 && isalpha(path.buf[0]))) {  /* 'C:/' */
+	if(loc == -1 || (loc == 1 && isalpha(path.ustr[0]))) {  /* 'C:/' */
 		SP(in)->dspi = knh_getStreamDSPI(ctx, STEXT("file"));
 	}
 	else {
@@ -62,7 +62,7 @@ static METHOD InputStream_new(Ctx *ctx, knh_sfp_t *sfp, long rix)
 		DP(in)->bufsiz = SP(in)->dspi->bufsiz;
 		if(DP(in)->bufsiz > 0) {
 			KNH_SETv(ctx, DP(in)->ba, new_Bytes(ctx, DP(in)->bufsiz));
-			DP(in)->buf = (char*)(DP(in)->ba)->bu.buf;
+			DP(in)->buf = (char*)(DP(in)->ba)->bu.ubuf;
 		}
 		else {
 			knh_InputStream_setFILE(in, 1);
@@ -102,7 +102,7 @@ static METHOD InputStream_read(Ctx *ctx, knh_sfp_t *sfp, long rix)
 		knh_Bytes_ensureSize(ctx, ba, offset + len);
 		buf.len = len;
 	}
-	RETURNi_(knh_InputStream_read(ctx, sfp[0].in, buf.str, buf.len));
+	RETURNi_(knh_InputStream_read(ctx, sfp[0].in, (char*)buf.ubuf, buf.len));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -190,9 +190,9 @@ static METHOD OutputStream_new(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	knh_OutputStream_t *w = sfp[0].w;
 	knh_bytes_t path = S_tobytes(sfp[1].s);
 	knh_index_t loc = knh_bytes_index(path, ':');
-	char *mode = IS_NULL(sfp[2].s) ? (char*)"w" : S_tochar(sfp[2].s);
+	const char *mode = IS_NULL(sfp[2].s) ? "w" : S_tochar(sfp[2].s);
 	knh_uri_t uri = 0;
-	if(loc == -1 || (loc == 1 && isalpha(path.buf[0]))) {  /* 'C:/' */
+	if(loc == -1 || (loc == 1 && isalpha(path.ustr[0]))) {  /* 'C:/' */
 		SP(w)->dspi = knh_getStreamDSPI(ctx, STEXT("file"));
 	}
 	else {
@@ -220,7 +220,7 @@ static METHOD OutputStream_writeChar(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	KNH_ASSERT(IS_Bytes(ba));
 	knh_Bytes_putc(ctx, ba, (int)(sfp[1].ivalue));
 	if(!knh_OutputStream_isStoringBuffer(sfp[0].w) && BA_size(ba) > SP(sfp[0].w)->dspi->bufsiz) {
-		SP(sfp[0].w)->dspi->fwrite(ctx, DP(sfp[0].w)->fd, (char*)(ba)->bu.buf, (ba)->bu.len);
+		SP(sfp[0].w)->dspi->fwrite(ctx, DP(sfp[0].w)->fd, (ba)->bu.text, (ba)->bu.len);
 		knh_Bytes_clear(ba, 0);
 	}
 	DP(sfp[0].w)->size++;
@@ -236,7 +236,7 @@ static METHOD OutputStream_write(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	size_t offset = (sfp[2].ivalue == 0) ? 0 : knh_array_index(ctx, Int_to(size_t, sfp[2]), t.len);
 	size_t len = (sfp[3].ivalue == 0) ? (t.len - offset) : Int_to(size_t, sfp[3]);
 	if(offset + len > t.len) len = t.len - offset;
-	t.buf = &(t.buf[offset]);
+	t.ustr = &(t.ustr[offset]);
 	t.len = len;
 	knh_OutputStream_write(ctx, sfp[0].w, t);
 	RETURNvoid_();

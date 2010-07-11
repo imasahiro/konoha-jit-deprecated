@@ -239,7 +239,7 @@ extern "C" {
 //	KNH_INITv((cc)->base, sfp[0].o);
 //	{
 //		knh_class_t cid = knh_Method_gencid(ctx, sfp[K_MTDIDX].callmtd, knh_Object_cid(sfp[0].o));
-//		knh_Iterator_t *it = new_Iterator(ctx, cid, UP(cc), knh_Generator_fnext);
+//		knh_Iterator_t *it = new_Iterator(ctx, cid, UPCAST(cc), knh_Generator_fnext);
 //		knh_code_t *pc = (sfp[K_MTDIDX].callmtd)->pc_start;
 //		KNH_ASSERT(((klr_CHKESP_t*)pc)->opcode == OPCODE_CHKESP);
 //		size_t stacksize = 1 + ((klr_CHKESP_t*)pc)->a1;

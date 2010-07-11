@@ -436,7 +436,7 @@ static knh_NumberCSPI_t FloatSPI = {
 static FASTAPI(void) knh_String_init(Ctx *ctx, Object *o)
 {
 	knh_String_t *s = (knh_String_t*)o;
-	s->str.buf = (knh_uchar_t*)"";
+	s->str.text = "";
 	s->str.len = 0;
 	s->memoNULL = NULL;
 	knh_String_setTextSgm(s, 1);
@@ -454,7 +454,7 @@ static FASTAPI(void) knh_String_free(Ctx *ctx, knh_Object_t *o)
 {
 	knh_String_t *s = (knh_String_t*)o;
 	if(!s->memoNULL && !knh_String_isTextSgm(s)) {
-		KNH_FREE(ctx, s->str.buf, KNH_SIZE(S_size(s) + 1));
+		KNH_FREE(ctx, s->str.ubuf, KNH_SIZE(S_size(s) + 1));
 	}
 }
 
@@ -488,7 +488,7 @@ static FASTAPI(void*) knh_String_hashkey(Ctx *ctx, knh_sfp_t *sfp, int opt)
 	else {
 		knh_String_t *s = (sfp[0].s);
 		knh_hashcode_t h = S_size(s);
-		return (void*) knh_uchar_hcode(h, s->str.buf, S_size(s));
+		return (void*) knh_ustr_hcode(h, s->str.ustr, S_size(s));
 	}
 }
 
@@ -507,7 +507,7 @@ static FASTAPI(void) knh_Bytes_init(Ctx *ctx, Object *o)
 {
 	knh_Bytes_t *ba = (knh_Bytes_t*)o;
 	ba->bu.len = 0;
-	ba->bu.buf = (knh_uchar_t*)NULL;
+	ba->bu.ubuf = NULL;
 	ba->capacity = 0;
 }
 
@@ -515,7 +515,7 @@ static FASTAPI(void) knh_Bytes_free(Ctx *ctx, Object *o)
 {
 	knh_Bytes_t *ba = (knh_Bytes_t*)o;
 	if(ba->capacity > 0) {
-		KNH_FREE(ctx, ba->bu.buf, ba->capacity);
+		KNH_FREE(ctx, ba->bu.ubuf, ba->capacity);
 	}
 }
 
@@ -1155,15 +1155,15 @@ static knh_regex_t* knh_strregex_malloc(Ctx *ctx, knh_String_t *pattern)
 {
 	return (knh_regex_t*)pattern;
 }
-static int knh_strregex_parsecflags(Ctx *ctx, char *opt)
+static int knh_strregex_parsecflags(Ctx *ctx, const char *opt)
 {
 	return 0;
 }
-static int knh_strregex_parseeflags(Ctx *ctx, char *opt)
+static int knh_strregex_parseeflags(Ctx *ctx, const char *opt)
 {
 	return 0;
 }
-static int knh_strregex_regcomp(Ctx *ctx, knh_regex_t *reg, char *pattern, int cflags)
+static int knh_strregex_regcomp(Ctx *ctx, knh_regex_t *reg, const char *pattern, int cflags)
 {
 	return 0;
 }
@@ -1172,22 +1172,22 @@ static size_t knh_strregex_regerror(int errcode, knh_regex_t *reg, char *ebuf, s
 	ebuf[0] = 0;
 	return 0;
 }
-static int knh_strregex_regexec(Ctx *ctx, knh_regex_t *reg, char *str, size_t nmatch, knh_regmatch_t p[], int flags)
+static int knh_strregex_regexec(Ctx *ctx, knh_regex_t *reg, const char *str, size_t nmatch, knh_regmatch_t p[], int flags)
 {
 	size_t e = 0;
 	knh_String_t *ptn = (knh_String_t*)reg;
-	char *po = strstr(str, S_tochar(ptn));
+	const char *po = strstr(str, S_tochar(ptn));
 	if(po != NULL) {
 		p[e].rm_so = po - str;
 		p[e].rm_eo = p[e].rm_so + knh_strlen(str);
-		p[e].rm_name.buf = NULL;
+		p[e].rm_name.ubuf = NULL;
 		p[e].rm_name.len = 0;
 		e++;
 	}
 	DBG_ASSERT(e < nmatch);
 	p[e].rm_so = -1;
 	p[e].rm_eo = -1;
-	p[e].rm_name.buf = NULL;
+	p[e].rm_name.ubuf = NULL;
 	p[e].rm_name.len = 0;
 	return 0;
 }
@@ -1452,7 +1452,7 @@ static FASTAPI(void) knh_InputStream_init(Ctx *ctx, Object *o)
 	SP(in)->dspi = knh_getStreamDSPI(ctx, K_DEFAULT_DSPI);
 	b->fd = -1;
 	KNH_INITv(b->ba, KNH_NULL);
-	b->buf = "";
+	b->buf = NULL;
 	b->bufpos = 0;
 	b->bufend = 0;
 	b->bufsiz = 0;
@@ -2234,12 +2234,12 @@ static knh_ObjectCSPI_t KLRCodeSPI = {
 /* @data*/
 
 typedef struct {
-	char                  *name;
-	int                    index;
+	const char   *name;
+	int           index;
 } knh_StringData0_t ;
 
 typedef struct {
-	char *name;
+	const char *name;
 	knh_fieldn_t fn;
 } knh_FieldNameData0_t ;
 
@@ -2282,7 +2282,7 @@ static Object *knh_Context_fdefault(Ctx *ctx, knh_class_t cid)
 }
 static Object *knh_NameSpace_fdefault(Ctx *ctx, knh_class_t cid)
 {
-	return UP(ctx->share->mainns);
+	return UPCAST(ctx->share->mainns);
 }
 static void knh_setDefaultValues(Ctx *ctx)
 {
@@ -2303,7 +2303,7 @@ static void knh_setDefaultValues(Ctx *ctx)
 //	knh_loadDefaultChannelDriver(ctx);
 	knh_setClassDefaultValue(ctx, CLASS_Context, KNH_NULL, knh_Context_fdefault);
 	knh_setClassDefaultValue(ctx, CLASS_NameSpace, KNH_NULL, knh_NameSpace_fdefault);
-	knh_setClassDefaultValue(ctx, CLASS_System, UP(ctx->sys), NULL);
+	knh_setClassDefaultValue(ctx, CLASS_System, UPCAST(ctx->sys), NULL);
 }
 
 static void knh_loadFieldNameData0(Ctx *ctx, knh_FieldNameData0_t *data)
@@ -2367,7 +2367,7 @@ void knh_loadSystemStructData(Ctx *ctx, const knh_PackageLoaderAPI_t *kapi)
 
 void knh_loadSystemString(Ctx *ctx)
 {
-	char **data = StringData0;
+	const char **data = StringData0;
 	size_t i = 0;
 	for(i = 0; *data != NULL; i++) {
 		DBG_ASSERT(ctx->share->tString[i] == NULL);

@@ -120,12 +120,12 @@ static knh_Iterator_t *new_RangeIterator(Ctx *ctx, knh_Range_t *rng)
 {
 	knh_class_t p1 = knh_Object_p1(rng);
 	if(ClassTable(p1).bcid == CLASS_Int) {
-		knh_Iterator_t *itr = new_Iterator(ctx, p1, UP(rng), knh_Range_isInclusive(rng) ? knh_Range_inextInclusive : knh_Range_inext);
+		knh_Iterator_t *itr = new_Iterator(ctx, p1, UPCAST(rng), knh_Range_isInclusive(rng) ? knh_Range_inextInclusive : knh_Range_inext);
 		DP(itr)->pos = N_toint(rng->start);
 		return itr;
 	}
 	else if(ClassTable(p1).bcid == CLASS_Float) {
-		knh_Iterator_t *itr = new_Iterator(ctx, p1, UP(rng), knh_Range_isInclusive(rng) ? knh_Range_fnextInclusive : knh_Range_fnext);
+		knh_Iterator_t *itr = new_Iterator(ctx, p1, UPCAST(rng), knh_Range_isInclusive(rng) ? knh_Range_fnextInclusive : knh_Range_fnext);
 		knh_float_t s = N_tofloat((rng)->start);
 		DP(itr)->pos = (knh_int_t)s;
 		if((knh_float_t)DP(itr)->pos < s) DP(itr)->pos += 1;
@@ -196,7 +196,7 @@ static TCAST Array_Iterator(Ctx *ctx, knh_sfp_t *sfp, long rix)
 //
 //static void knh_fadd_dictkey(Ctx *ctx, knh_Array_t *a, knh_String_t *key, Object *value)
 //{
-//	knh_Array_add_(ctx, a, UP(key));
+//	knh_Array_add_(ctx, a, UPCAST(key));
 //}
 
 //static void knh_fadd_dictentry(Ctx *ctx, knh_Array_t *a, knh_String_t *key, Object *value)
@@ -205,7 +205,7 @@ static TCAST Array_Iterator(Ctx *ctx, knh_sfp_t *sfp, long rix)
 //	knh_Pair_t *p = (knh_Pair_t*)new_H(ctx, FLAG_Pair, CLASS_Pair, knh_Object_p1(a));
 //	KNH_INITv(p->first, key);
 //	KNH_INITv(p->second, value);
-//	knh_Array_add_(ctx, a, UP(p));
+//	knh_Array_add_(ctx, a, UPCAST(p));
 //}
 
 /* ------------------------------------------------------------------------ */

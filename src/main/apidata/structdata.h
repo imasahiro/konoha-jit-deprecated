@@ -238,7 +238,7 @@ static METHOD Context_isInteractive(Ctx *ctx, knh_sfp_t *sfp, long rix)
 /* ======================================================================== */
 /* data */
 
-static char * StringData0[] = {
+static const char * StringData0[] = {
 	"", /* TS_EMPTY */
 	"\t", /* TS_TAB */
 	"1", /* TS_ONE */

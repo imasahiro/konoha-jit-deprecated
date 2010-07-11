@@ -58,36 +58,35 @@ static void knh_cwb_clearAPI(knh_cwb_t *cwb, size_t n)
 	knh_Bytes_clear(cwb->ba, cwb->pos + n);
 }
 
-static char *knh_cwb_tocharAPI(Ctx *ctx, knh_cwb_t *cwb)
+static const char *knh_cwb_tocharAPI(Ctx *ctx, knh_cwb_t *cwb)
 {
-	knh_bytes_t t = {{(cwb->ba)->bu.buf + cwb->pos}, (cwb->ba)->bu.len - cwb->pos};
-	knh_Bytes_ensureZero(ctx, cwb->ba);
-	return (char*)t.buf;
+	return knh_Bytes_ensureZero(ctx, cwb->ba);
 }
 
 
-static knh_String_t *new_StringAPI(Ctx *ctx, char *str)
+static knh_String_t *new_StringAPI(Ctx *ctx, const char *str)
 {
 	if(str == NULL) {
 		return TS_EMPTY;
 	}
 	else {
-		return new_String_(ctx, CLASS_String, B(str), NULL);
+		knh_bytes_t t = {{str}, knh_strlen(str)};
+		return new_String_(ctx, CLASS_String, t, NULL);
 	}
 }
 
-static char* knh_String_text(Ctx *ctx, knh_String_t *s)
+static const char* knh_String_text(Ctx *ctx, knh_String_t *s)
 {
-	if(s->str.buf[s->str.len] != '\0') {
+	if(s->str.ustr[s->str.len] != '\0') {
 		knh_uchar_t *newstr = (knh_uchar_t*)KNH_MALLOC(ctx, KNH_SIZE(s->str.len+1));
-		knh_memcpy(newstr, s->str.buf, s->str.len);
+		knh_memcpy(newstr, s->str.ustr, s->str.len);
 		newstr[s->str.len] = '\0';
-		s->str.buf = newstr;
+		s->str.ubuf = newstr;
 		DBG_ASSERT(s->memoNULL != NULL);
 		KNH_FINALv(ctx, s->memoNULL);
 		s->memoNULL = NULL;
 	}
-	return (char*)s->str.buf;
+	return s->str.text;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -113,7 +112,7 @@ static knh_RawPtr_t* new_RawPtr(Ctx *ctx, void *ptr, knh_FfreeRawPtr pfree, knh_
 {
 	knh_RawPtr_t *p = new_(RawPtr);
 	if(knh_class_bcid(cid) != CLASS_Any) {
-		knh_bytes_t t = {{(knh_uchar_t*)lname}, knh_strlen(lname)};
+		knh_bytes_t t = {{lname}, knh_strlen(lname)};
 		cid = knh_getcid(ctx, t);
 		if(cid == CLASS_unknown) {
 			KNH_SYSLOG(ctx, LOG_WARNING, "UnknownRawPtrClass", "name=%s", lname);
@@ -125,7 +124,7 @@ static knh_RawPtr_t* new_RawPtr(Ctx *ctx, void *ptr, knh_FfreeRawPtr pfree, knh_
 	return p;
 }
 
-static knh_InputStream_t *new_InputStreamNULL(Ctx *ctx, knh_String_t *s, char *mode)
+static knh_InputStream_t *new_InputStreamNULL(Ctx *ctx, knh_String_t *s, const char *mode)
 {
 	knh_bytes_t path = S_tobytes(s);
 	knh_StreamDSPI_t *dspi = knh_getStreamDSPI(ctx, path);
@@ -138,7 +137,7 @@ static knh_InputStream_t *new_InputStreamNULL(Ctx *ctx, knh_String_t *s, char *m
 	return NULL;
 }
 
-static knh_OutputStream_t *new_OutputStreamNULL(Ctx *ctx, knh_String_t *s, char *mode)
+static knh_OutputStream_t *new_OutputStreamNULL(Ctx *ctx, knh_String_t *s, const char *mode)
 {
 	knh_bytes_t path = S_tobytes(s);
 	knh_StreamDSPI_t *dspi = knh_getStreamDSPI(ctx, path);
@@ -167,10 +166,10 @@ static void _putc(Ctx *ctx, void *p, int ch)
 	}
 }
 
-static void _write(Ctx *ctx, void *p, char *buf, size_t i)
+static void _write(Ctx *ctx, void *p, const char *buf, size_t i)
 {
 	knh_Bytes_t *ba = (knh_Bytes_t*)p;
-	knh_bytes_t t = {{(knh_uchar_t*)buf}, i};
+	knh_bytes_t t = {{buf}, i};
 	if(p == ctx->bufw) {
 		ba = ctx->bufa;
 	}
@@ -201,14 +200,14 @@ const knh_ExportsAPI_t *knh_getExportsAPI(void)
 /* ------------------------------------------------------------------------ */
 /* [CONST/PROPERTY DATA] */
 
-static void knh_addConstData(Ctx *ctx, char *dname, Object *value)
+static void knh_addConstData(Ctx *ctx, const char *dname, Object *value)
 {
 	if(dname[0] == '$') {
 		knh_String_t *n = new_T(dname + 1);
 		knh_DictMap_set_(ctx, DP(ctx->sys)->props, n, value);
 	}
 	else {
-		knh_bytes_t n = B(dname);
+		knh_bytes_t n = {{dname}, knh_strlen(dname)};
 		knh_index_t loc = knh_bytes_rindex(n, '.');
 		knh_String_t *name = new_T(dname + (loc+1));
 		knh_class_t cid = CLASS_Any;
@@ -231,7 +230,7 @@ static void knh_addConstData(Ctx *ctx, char *dname, Object *value)
 static void knh_loadIntData(Ctx *ctx, knh_IntData_t *data)
 {
 	while(data->name != NULL) {
-		Object *value = UP(new_Int(ctx, CLASS_Int, data->ivalue));
+		Object *value = UPCAST(new_Int(ctx, CLASS_Int, data->ivalue));
 		knh_addConstData(ctx, data->name, value);
 		data++;
 	}
@@ -240,7 +239,7 @@ static void knh_loadIntData(Ctx *ctx, knh_IntData_t *data)
 static void knh_loadFloatData(Ctx *ctx, knh_FloatData_t *data)
 {
 	while(data->name != NULL) {
-		Object *value = UP(new_Float(ctx, CLASS_Float, data->fvalue));
+		Object *value = UPCAST(new_Float(ctx, CLASS_Float, data->fvalue));
 		knh_addConstData(ctx, data->name, value);
 		data++;
 	}
@@ -249,7 +248,7 @@ static void knh_loadFloatData(Ctx *ctx, knh_FloatData_t *data)
 static void knh_loadStringData(Ctx *ctx, knh_StringData_t *data)
 {
 	while(data->name != NULL) {
-		Object *value = UP(new_T(data->value));
+		Object *value = UPCAST(new_T(data->value));
 		knh_addConstData(ctx, data->name, value);
 		data++;
 	}
@@ -429,22 +428,22 @@ static void knh_setEbiSPI(Ctx *ctx, const knh_EvidenceSPI_t *spi, int isOVERRIDE
 	((knh_share_t*)ctx->share)->ebiSPI = spi;
 }
 
-static void knh_addPathDSPI(Ctx *ctx, char *scheme, const knh_PathDSPI_t *d, int isOVERIDE)
+static void knh_addPathDSPI(Ctx *ctx, const char *scheme, const knh_PathDSPI_t *d, int isOVERIDE)
 {
 	knh_addDriverSPI(ctx, scheme, (knh_DriverSPI_t*)d);
 }
 
-static void knh_addStreamDSPI(Ctx *ctx, char *scheme, const knh_StreamDSPI_t *d, int isOVERRIDE)
+static void knh_addStreamDSPI(Ctx *ctx, const char *scheme, const knh_StreamDSPI_t *d, int isOVERRIDE)
 {
 	knh_addDriverSPI(ctx, scheme, (knh_DriverSPI_t*)d);
 }
 
-static void knh_addQueryDSPI(Ctx *ctx, char *scheme, const knh_QueryDSPI_t *d, int isOVERRIDE)
+static void knh_addQueryDSPI(Ctx *ctx, const char *scheme, const knh_QueryDSPI_t *d, int isOVERRIDE)
 {
 	knh_addDriverSPI(ctx, scheme, (knh_DriverSPI_t*)d);
 }
 
-static void knh_addConverterDSPI(Ctx *ctx, char *scheme, const knh_ConverterDSPI_t *d, int isOVERRIDE)
+static void knh_addConverterDSPI(Ctx *ctx, const char *scheme, const knh_ConverterDSPI_t *d, int isOVERRIDE)
 {
 	knh_addDriverSPI(ctx, scheme, (knh_DriverSPI_t*)d);
 }

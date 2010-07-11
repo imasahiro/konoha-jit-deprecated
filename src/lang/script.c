@@ -135,10 +135,10 @@ knh_class_t knh_NameSpace_getFuncClass(Ctx *ctx, knh_NameSpace_t *ns, knh_method
 
 knh_type_t knh_NameSpace_gettype(Ctx *ctx, knh_NameSpace_t *ns, knh_bytes_t name)
 {
-	if(name.buf[0] == 'v') {
-		if(name.len == 4 && name.buf[1] == 'o' &&
-				name.buf[2] == 'i' && name.buf[3] == 'd') return TYPE_void;
-		if(name.len == 3 && name.buf[1] == 'a' && name.buf[2] == 'r') {
+	if(name.ustr[0] == 'v') {
+		if(name.len == 4 && name.ustr[1] == 'o' &&
+				name.ustr[2] == 'i' && name.ustr[3] == 'd') return TYPE_void;
+		if(name.len == 3 && name.ustr[1] == 'a' && name.ustr[2] == 'r') {
 			return TYPE_var;
 		}
 	}
@@ -168,7 +168,7 @@ static knh_bool_t knh_StmtINCLUDE_eval(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t re
 	knh_String_t *pathS = DP(DP(stmt)->tokens[0])->text;
 	if(S_equals(pathS, STEXT("objectlink"))) {
 		knh_bytes_t path = S_tobytes(knh_getURN(ctx, SP(stmt)->uri));
-		if(path.buf[0] != '(' && !knh_bytes_startsWith(path, STEXT("http://"))) {
+		if(path.ustr[0] != '(' && !knh_bytes_startsWith(path, STEXT("http://"))) {
 			knh_index_t idx = knh_bytes_rindex(path, '.'); //'.'
 			if(idx > 0) path = knh_bytes_first(path, idx);
 			knh_cwb_write(ctx, cwb, path);
@@ -304,7 +304,7 @@ static int knh_StmtUSINGCLASS_eval(Ctx *ctx, knh_Stmt_t *stmt, size_t n)
 				if(knh_class_isPrivate(cid) && knh_class_isGenerics(ctx, cid)) continue;
 				knh_bytes_t cname = S_tobytes(ClassTable(cid).lname);
 				if(knh_bytes_startsWith(cname, pkgname)
-						&& cname.buf[pkgname.len] == '.' && isupper(cname.buf[pkgname.len+1])) {
+						&& cname.ustr[pkgname.len] == '.' && isupper(cname.ustr[pkgname.len+1])) {
 					knh_NameSpace_setcid(ctx, ns, ClassTable(cid).sname, (knh_class_t)cid, isOVERRIDE);
 				}
 			}
@@ -372,7 +372,7 @@ static int knh_StmtUSINGCLASS_eval(Ctx *ctx, knh_Stmt_t *stmt, size_t n)
 ////	knh_index_t loc = knh_bytes_index(n, ':');
 ////	if(loc != -1) {
 ////		n = knh_bytes_last(n, loc+1);
-////		if(isupper(n.buf[0])) {
+////		if(isupper(n.ustr[0])) {
 ////			knh_DictSet_set(ctx, DP(o)->name2cidDictSet, new_String(ctx, n, name), (knh_uintptr_t)(cid+1));
 ////		}
 ////	}
@@ -755,7 +755,7 @@ static int knh_bytes_isempty(knh_bytes_t t)
 {
 	size_t i;
 	for(i = 0; i < t.len; i++) {
-		if(!isspace(t.buf[i])) return 0;
+		if(!isspace(t.ustr[i])) return 0;
 	}
 	return 1;
 }
@@ -810,17 +810,17 @@ knh_bool_t knh_load(Ctx *ctx, knh_bytes_t path, knh_type_t reqt, knh_Array_t *re
 	knh_bool_t res = 0;
 	long linenum = 1;
 	void *dlhdrSTACK = DP(ctx->gma)->dlhdr;
+	BEGIN_LOCAL(ctx, lsfp, 2);
 	DP(ctx->gma)->dlhdr = NULL;
 
 	knh_InputStream_t *in = knh_openPathNULL(ctx, path);
-	if(in == NULL) {
-		goto L_RETURN;
-	}
-
-	BEGIN_LOCAL(ctx, lsfp, 2);
 	KNH_SETv(ctx, lsfp[0].o, in);
 	LOCAL_NEW(ctx, lsfp, 1, knh_InputStream_t *, bin, new_BytesInputStream(ctx, new_Bytes(ctx, K_PAGESIZE)));
 	knh_Bytes_t *ba = DP(bin)->ba;
+
+	if(in == NULL) {
+		goto L_RETURN;
+	}
 
 	L_READLINE:;
 	knh_Bytes_clear(ba, 0);
@@ -893,10 +893,10 @@ KNHAPI(int) konoha_load(konoha_t konoha, knh_bytes_t path, int isCompileOnly)
 	char buf[256];
 	knh_Array_t *resultsNULL = isCompileOnly ? NULL : KNH_TNULL(Array);
 	if(B_endsWith(path, ".k")) {
-		knh_snprintf(buf, sizeof(buf), "file:%s", (char*)path.buf);
+		knh_snprintf(buf, sizeof(buf), "file:%s", path.text);
 	}
 	else {
-		knh_snprintf(buf, sizeof(buf), "tool:%s", (char*)path.buf);
+		knh_snprintf(buf, sizeof(buf), "tool:%s", path.text);
 	}
 	isCONTINUE = knh_load(ctx, B(buf), TYPE_void, resultsNULL);
 	if(resultsNULL != NULL) knh_Array_clear(ctx, resultsNULL, 0);

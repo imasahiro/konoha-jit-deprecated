@@ -476,21 +476,21 @@ static METHOD String_opSUB(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
 	knh_bytes_t base = S_tobytes(sfp[0].s);
 	knh_bytes_t t = S_tobytes(sfp[1].s);
-	knh_uchar_t c = t.buf[0];
+	knh_uchar_t c = t.ustr[0];
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 	size_t i;
 	for(i = 0; i < base.len; i++) {
-		if(base.buf[i] == c) {
+		if(base.ustr[i] == c) {
 			size_t j;
 			for(j = 1; j < t.len; j++) {
-				if(base.buf[i+j] != t.buf[j]) break;
+				if(base.ustr[i+j] != t.ustr[j]) break;
 			}
 			if(j == t.len) {
 				i += t.len - 1;
 				continue;
 			}
 		}
-		knh_Bytes_putc(ctx, cwb->ba, base.buf[i]);
+		knh_Bytes_putc(ctx, cwb->ba, base.ustr[i]);
 	}
 	if(base.len == knh_cwb_size(cwb)) {
 		knh_cwb_close(cwb);
@@ -700,7 +700,7 @@ static METHOD Bytes_get(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
 	knh_Bytes_t *ba = sfp[0].ba;
 	size_t n2 = knh_array_index(ctx, Int_to(size_t, sfp[1]), ba->bu.len);
-	RETURNi_(ba->bu.buf[n2]);
+	RETURNi_(ba->bu.ustr[n2]);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -710,8 +710,8 @@ static METHOD Bytes_set(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
 	knh_Bytes_t *ba = sfp[0].ba;
 	size_t n2 = knh_array_index(ctx, Int_to(size_t, sfp[1]), ba->bu.len);
-	ba->bu.buf[n2] = Int_to(knh_uchar_t, sfp[2]);
-	RETURNi_(ba->bu.buf[n2]);
+	ba->bu.ubuf[n2] = Int_to(knh_uchar_t, sfp[2]);
+	RETURNi_(ba->bu.ustr[n2]);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -722,7 +722,7 @@ static METHOD Bytes_setAll(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	knh_Bytes_t *ba = sfp[0].ba;
 	size_t i, n = Int_to(size_t, sfp[1]);
 	for(i = 0; i < ba->bu.len; i++) {
-		ba->bu.buf[i] = n;
+		ba->bu.ubuf[i] = n;
 	}
 	RETURNvoid_();
 }
@@ -736,7 +736,7 @@ static METHOD String_get(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	knh_String_t *s;
 	if(knh_String_isASCII(sfp[0].s)) {
 		size_t n = knh_array_index(ctx, Int_to(size_t, sfp[1]), S_size(sfp[0].s));
-		base.buf = base.buf + n;
+		base.ustr = base.ustr + n;
 		base.len = 1;
 		s = new_String_(ctx, CLASS_String, base, sfp[0].s);
 	}
@@ -800,12 +800,12 @@ static knh_Bytes_t *new_Bytes__range(Ctx *ctx, knh_Bytes_t *ba, size_t s, size_t
 		size_t capacity = newsize;
 		if(newsize > 0) {
 			if(capacity < 256) capacity = 256;
-			newa->bu.buf = (knh_uchar_t*)KNH_MALLOC(ctx, capacity);
-			knh_bzero(newa->bu.buf, capacity);
-			knh_memcpy(newa->bu.buf, &ba->bu.buf[s], newsize);
+			newa->bu.ubuf = (knh_uchar_t*)KNH_MALLOC(ctx, capacity);
+			knh_bzero(newa->bu.ubuf, capacity);
+			knh_memcpy(newa->bu.ubuf, ba->bu.ustr + s, newsize);
 		}
 		else {
-			newa->bu.buf = (knh_uchar_t*)"";
+			newa->bu.ubuf = NULL;
 		}
 		newa->capacity = capacity;
 		newa->bu.len = newsize;

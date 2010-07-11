@@ -89,9 +89,9 @@ static METHOD DictMap_remove(Ctx *ctx, knh_sfp_t *sfp, long rix)
 //	knh_Array_t *a = new_Array(ctx, CLASS_String, o->size);
 //	size_t i;
 //	for(i=0; i < o->size; i++) {
-//		knh_Array_add_(ctx, a, UP(o->list[i].key));
+//		knh_Array_add_(ctx, a, UPCAST(o->list[i].key));
 //	}
-//	RETURN_(UP(a));
+//	RETURN_(UPCAST(a));
 //}
 
 ///* ------------------------------------------------------------------------ */
@@ -103,9 +103,9 @@ static METHOD DictMap_remove(Ctx *ctx, knh_sfp_t *sfp, long rix)
 //	knh_Array_t *a = new_Array0(ctx, o->size);
 //	size_t i;
 //	for(i=0; i < o->size; i++) {
-//		knh_Array_add_(ctx, a, UP(o->list[i].value));
+//		knh_Array_add_(ctx, a, UPCAST(o->list[i].value));
 //	}
-//	RETURN_(UP(a));
+//	RETURN_(UPCAST(a));
 //}
 
 /* ------------------------------------------------------------------------ */

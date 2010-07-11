@@ -54,7 +54,7 @@ static int TERMs_typing(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_type_t reqt, k
 #define END_BLOCK(X) \
 	DBG_P("ESP %s start=%d, end=%d, stmt->espidx=%d", TT_tochar(STT_(stmt)), X, DP(ctx->gma)->espidx, DP(stmt)->espidx);\
 	DBG_ASSERT(DP(ctx->gma)->gf[DP(ctx->gma)->espidx].fn == FN_NONAME);\
-	if(X != DP(ctx->gma)->espidx) {\
+	if(X != (size_t)DP(ctx->gma)->espidx) {\
 		DP(stmt)->espidx = DP(ctx->gma)->espidx; \
 		DBG_P("*** stt=%s release espidx=%d ***", TT_tochar(STT_(stmt)), (int)X);\
 		knh_Gamma_clear(ctx, X);\
@@ -77,7 +77,7 @@ static void knh_Stmt_toSTT(knh_Stmt_t *stmt, knh_term_t stt)
 
 /* ------------------------------------------------------------------------ */
 
-void knh_Gamma_perror(Ctx *ctx, int pe, char *fmt, ...)
+void knh_Gamma_perror(Ctx *ctx, int pe, const char *fmt, ...)
 {
 	va_list ap;
 	va_start(ap, fmt);
@@ -339,7 +339,7 @@ static int knh_Token_toSYSVAL(Ctx *ctx, knh_Token_t *tk)
 		knh_Token_setCONST(ctx, tk, knh_getURN(ctx, SP(tk)->uri));
 	}
 	else if(IS_SYSVAL(t, "__method__") || IS_SYSVAL(t, "__function__")) {
-		knh_Token_setCONST(ctx, tk, knh_Object_getkey(ctx, UP(DP(ctx->gma)->mtd)));
+		knh_Token_setCONST(ctx, tk, knh_Object_getkey(ctx, UPCAST(DP(ctx->gma)->mtd)));
 	}
 	else if(IS_SYSVAL(t, "__namespace__") || IS_SYSVAL(t, "__ns__")) {
 		knh_NameSpace_t *ns = knh_getGammaNameSpace(ctx);
@@ -613,14 +613,14 @@ knh_class_t knh_Token_tagcNUM(Ctx *ctx, knh_Token_t *tk, knh_class_t reqc, knh_N
 	knh_bytes_t t = TK_tobytes(ctx, tk), tag = STEXT("");
 	size_t i = 1;
 	int ishex = 0;
-	if(t.buf[0] == '0' && (t.buf[1] == 'x' || t.buf[1] == 'b')) {
+	if(t.ustr[0] == '0' && (t.ustr[1] == 'x' || t.ustr[1] == 'b')) {
 		i = 2;
 		ishex = 1;
 		knh_style(ctx, 1);
 	}
 	for(; i < t.len; i++) {
-		if(isdigit(t.buf[i]) || t.buf[i] == '_' || t.buf[i] == '.') continue;
-		if(t.buf[i] == '[') {
+		if(isdigit(t.ustr[i]) || t.ustr[i] == '_' || t.ustr[i] == '.') continue;
+		if(t.ustr[i] == '[') {
 			int loc;
 			tag.buf = t.buf + i + 1;
 			tag.len = t.len - (i + 1);
@@ -630,14 +630,14 @@ knh_class_t knh_Token_tagcNUM(Ctx *ctx, knh_Token_t *tk, knh_class_t reqc, knh_N
 			}
 			break;
 		}
-		else if(t.buf[i] == ':') {
+		else if(t.ustr[i] == ':') {
 			tag.buf = t.buf + i + 1;
 			tag.len = t.len - (i + 1);
 			break;
 		}
 		else {
-			if((t.buf[i] == 'E' || t.buf[i] == 'e')) {
-				if(isdigit(t.buf[i+1]) || t.buf[i+1] == '-' || t.buf[i+1] == '+') {
+			if((t.ustr[i] == 'E' || t.ustr[i] == 'e')) {
+				if(isdigit(t.ustr[i+1]) || t.ustr[i+1] == '-' || t.ustr[i+1] == '+') {
 					i++;
 					continue;
 				}
@@ -667,19 +667,19 @@ knh_class_t knh_Token_tagcNUM(Ctx *ctx, knh_Token_t *tk, knh_class_t reqc, knh_N
 static knh_class_t knh_bytes_guessNUMcid(Ctx *ctx, knh_bytes_t t)
 {
 	size_t i;
-	if(t.buf[0] == 0 && (t.buf[1] == 'x' || t.buf[1]=='b')) {
+	if(t.ustr[0] == 0 && (t.ustr[1] == 'x' || t.ustr[1]=='b')) {
 		return CLASS_Int;
 	}
 	for(i = 1; i < t.len; i++) {
-		if(t.buf[i] == '_') {
+		if(t.ustr[i] == '_') {
 #ifdef CLASS_Decimal
 			return CLASS_Decimal;
 #endif
 		}
-		else if(t.buf[i] == '.') {
+		else if(t.ustr[i] == '.') {
 			return CLASS_Float;
 		}
-		if(!isdigit(t.buf[i])) break;
+		if(!isdigit(t.ustr[i])) break;
 	}
 	return CLASS_Int;
 }
@@ -691,7 +691,7 @@ static knh_Term_t *knh_TokenNUM_typing(Ctx *ctx, knh_Token_t *tk, knh_class_t re
 	knh_bytes_t t = TK_tobytes(tk);
 	knh_class_t breqc = knh_class_bcid(reqt);
 	if(reqt == CLASS_Boolean) {
-		if(t.buf[0] == '0') {
+		if(t.ustr[0] == '0') {
 			knh_Gamma_perror(ctx, KERR_ERRATA, _("false is better than: %B"), t);
 			return knh_Token_setCONST(ctx, tk, KNH_FALSE);
 		}
@@ -722,10 +722,10 @@ static knh_Term_t *knh_TokenNUM_typing(Ctx *ctx, knh_Token_t *tk, knh_class_t re
 		knh_Semantics_t *u = knh_getSemantics(ctx, tagc);
 		if(!DP(u)->ffchk(u, n)) {
 			knh_Gamma_perror(ctx, KERR_ERRATA, _("%C: out of range: %B ==> %O"), tagc, t, DP(u)->fvalue);
-			return knh_Token_setCONST(ctx, tk, UP(DP(u)->fvalue));
+			return knh_Token_setCONST(ctx, tk, UPCAST(DP(u)->fvalue));
 		}
 		else {
-			return knh_Token_setCONST(ctx, tk, UP(new_FloatX(ctx, tagc, n)));
+			return knh_Token_setCONST(ctx, tk, UPCAST(new_FloatX(ctx, tagc, n)));
 		}
 #else
 		return knh_Token_setCONST(ctx, tk, CONSTPOOL(new_Float(ctx, CLASS_Float, n)));
@@ -741,10 +741,10 @@ static knh_Term_t *knh_TokenNUM_typing(Ctx *ctx, knh_Token_t *tk, knh_class_t re
 		knh_Semantics_t *u = knh_getSemantics(ctx, tagc);
 		if(!DP(u)->fichk(u, n)) {
 			knh_Gamma_perror(ctx, KERR_ERRATA, _("%C: out of range: %B ==> %O"), tagc, t, DP(u)->ivalue);
-			return knh_Token_setCONST(ctx, tk, UP(DP(u)->ivalue));
+			return knh_Token_setCONST(ctx, tk, UPCAST(DP(u)->ivalue));
 		}
 		else {
-			return knh_Token_setCONST(ctx, tk, UP(new_IntX(ctx, tagc, n)));
+			return knh_Token_setCONST(ctx, tk, UPCAST(new_IntX(ctx, tagc, n)));
 		}
 #else
 		return knh_Token_setCONST(ctx, tk, CONSTPOOL(new_Int(ctx, CLASS_Int, n)));
@@ -758,7 +758,7 @@ static knh_Term_t* knh_TokenTSTR_typing(Ctx *ctx, knh_Token_t *tk, knh_class_t r
 	if(CLASS_type(reqt) != CLASS_String && knh_bytes_mlen(t) == 1) {
 		/* 'A' ==> int if not String */
 		knh_bytes_t sub = knh_bytes_mofflen(t, 0, 1);
-		return knh_Token_setCONST(ctx, tk, new_Int(ctx, CLASS_Int, knh_uchar_toucs4(&sub.buf[0])));
+		return knh_Token_setCONST(ctx, tk, new_Int(ctx, CLASS_Int, knh_uchar_toucs4(&sub.ustr[0])));
 	}
 	return knh_Token_toCONST(ctx, tk);
 }
@@ -1055,7 +1055,7 @@ static int knh_methodn_isNEW(Ctx *ctx, knh_methodn_t mn)
 {
 	if(mn == MN_new) return 1;
 	if(!MN_isFMT(mn) && !MN_isGETTER(mn) && !MN_isSETTER(mn)) {
-		char *n = MN_tochar(mn);
+		const char *n = MN_tochar(mn);
 		if(n[0] == 'n' && n[1] == 'e' && n[2] == 'w' && n[3] == ':') {
 			return 1;
 		}
@@ -1066,7 +1066,7 @@ static int knh_methodn_isNEW(Ctx *ctx, knh_methodn_t mn)
 static knh_Term_t *knh_StmtLET_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int scope)
 {
 	knh_Token_t *tkN = DP(stmt)->tokens[1];
-	char * emsg = _("illegal assignment: %L");
+	const char * emsg = _("illegal assignment: %L");
 	if(TT_(tkN) == TT_UNAME) {
 		if(!IS_SCRIPTLEVEL(ctx)) {
 			emsg = _("wrong place to define %L"); goto L_ERROR;
@@ -1315,7 +1315,7 @@ static void KNH_UNBOX(Ctx *ctx, knh_sfp_t *sfp)
 static knh_Term_t *knh_StmtCALL_toCONST(Ctx *ctx, knh_Stmt_t *stmt, knh_Method_t *mtd)
 {
 	if(knh_Method_isConst(mtd)) {
-		int i;
+		size_t i;
 		BEGIN_LOCAL(ctx, lsfp, DP(stmt)->size + 1);
 		for(i = 1; i < DP(stmt)->size; i++) {
 			knh_Token_t *tk = DP(stmt)->tokens[i];
@@ -1359,19 +1359,6 @@ static knh_Term_t* knh_StmtLIKELY_typing(Ctx *ctx, knh_Stmt_t *stmt)
 	return NULL;
 }
 
-//static knh_Term_t* knh_StmtFFORMAT_typing(Ctx *ctx, knh_Stmt_t *stmt)
-//{
-//	int i;
-//	for(i = 1; i < DP(stmt)->size-1; i++) {
-//		KNH_SETv(ctx, DP(stmt)->terms[i], DP(stmt)->terms[i+1]);
-//	}
-//	DP(stmt)->size -= 1;
-//	if(!TERMs_typing(ctx, stmt, 1, CLASS_String, _NOTCAST)) {
-//		return NULL;
-//	}
-//	return TM(stmt);
-//}
-
 static knh_Term_t* knh_StmtDOMAIN_typing(Ctx *ctx, knh_Stmt_t *stmt)
 {
 //	if(TERMs_typing(ctx, stmt, 2, CLASS_Any, TCHECK_)) {
@@ -1383,7 +1370,7 @@ static knh_Term_t* knh_StmtDOMAIN_typing(Ctx *ctx, knh_Stmt_t *stmt)
 //			cid = TERMs_getcid(stmt, 2);
 //		}
 //		DBG_ASSERT_cid(cid);
-//		knh_Token_setCONST(ctx, DP(stmt)->tokens[1], UP(new_Type(ctx, cid)));
+//		knh_Token_setCONST(ctx, DP(stmt)->tokens[1], UPCAST(new_Type(ctx, cid)));
 //		DP(stmt)->size = 2;
 //		knh_Token_toMTD(ctx, DP(stmt)->tokens[0], MN_domain, knh_getMethodNULL(ctx, CLASS_Class, MN_domain));
 //		return knh_Stmt_typed(ctx, stmt, TYPE_cid(knh_class_Generics(ctx, CLASS_Array, cid, CLASS_Any)));
@@ -2203,53 +2190,6 @@ static knh_Term_t *knh_StmtTCAST_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t r
 /* ======================================================================== */
 /* [MT,AND,OR,] */
 
-//static void knh_Formatter_expand(Ctx *ctx, knh_Formatter_t *mtf)
-//{
-//	size_t newsize = mtf->capacity * 2;
-//	knh_format_t *newfmt;
-//	if(mtf->capacity == 0) newsize = K_FASTMALLOC_SIZE / sizeof(knh_format_t);
-//	newfmt = KNH_MALLOC(ctx, newsize * sizeof(knh_format_t));
-//	if(mtf->capacity > 0) {
-//		knh_memcpy(newfmt, mtf->fmt, mtf->capacity * sizeof(knh_format_t));
-//		KNH_FREE(ctx, mtf->fmt, sizeof(knh_format_t) * mtf->capacity);
-//		mtf->fmt = newfmt;
-//		mtf->capacity = newsize;
-//	}
-//}
-
-//static void knh_Formatter_addText(Ctx *ctx, knh_Formatter_t *mtf, knh_String_t *text)
-//{
-//	size_t n = mtf->size;
-//	if(mtf->capacity == n) {
-//		knh_Formatter_expand(ctx, mtf);
-//	}
-//	mtf->fmt[n].idx = 0;
-//	mtf->fmt[n].mn = MN_NONAME;
-//	KNH_INITv(mtf->fmt[n].text, text);
-//	mtf->size = n + 1;
-//}
-//
-//static void knh_Formatter_addFMT(Ctx *ctx, knh_Formatter_t *mtf, knh_String_t *fmt, knh_class_t cid, knh_short_t idx)
-//{
-//	size_t n = mtf->size;
-//	knh_bytes_t fmtopt = S_tobytes(fmt);
-//	if(mtf->capacity == n) {
-//		knh_Formatter_expand(ctx, mtf);
-//	}
-//	mtf->fmt[n].idx = idx;
-//	mtf->fmt[n].mn = knh_getmn(ctx, fmtopt, MN_NEWID);
-//	if(isalnum(fmtopt.buf[1])) {
-//		knh_Method_t *mtd = knh_getMethodNULL(ctx, cid, mtf->fmt[n].mn);
-//		if(mtd == NULL) {
-//			mtd = knh_lookupFormatter(ctx, CLASS_Tvoid, mtf->fmt[n].mn);
-//		}
-//		KNH_INITv(mtf->fmt[n].mtd, mtd);
-//	}
-//	else {
-//		KNH_INITv(mtf->fmt[n].text, fmt);
-//	}
-//	mtf->size = n + 1;
-//}
 
 static knh_Term_t *knh_StmtFMT_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
 {
@@ -2842,7 +2782,7 @@ static knh_Term_t *knh_StmtASSERT_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t 
 static knh_Stmt_t *knh_Gamma_register(Ctx *ctx, knh_Stmt_t *stmt)
 {
 	knh_type_t type = SP(stmt)->type;
-	knh_fields_t decl = {FLAG_GAMMA_Register, type, FN_/*register*/, 0, UP(stmt)};
+	knh_fields_t decl = {FLAG_GAMMA_Register, type, FN_/*register*/, 0, UPCAST(stmt)};
 	knh_index_t idx = knh_Gamma_addLocal(ctx, &decl, 0);
 	knh_Stmt_t *stmtLET = new_Stmt2(ctx, STT_LET, NULL);
 	knh_Token_t *tkN = new_TokenTYPED(ctx, TT_LOCAL, type, idx);
@@ -3091,7 +3031,7 @@ static knh_Fmethod knh_Gamma_loadMethodFunc(Ctx *ctx, knh_class_t cid, knh_metho
 {
 	DBG_ASSERT_cid(cid);
 	char buf[80];
-	char *cname = S_tochar(ClassTable(cid).sname);
+	const char *cname = S_tochar(ClassTable(cid).sname);
 	if(MN_isFMT(mn)) {
 		knh_snprintf(buf, sizeof(buf), "%s__%s", cname, FN_tochar(MN_toFN(mn)));
 	}
@@ -3292,8 +3232,8 @@ static void knh_Gamma_declareClassField(Ctx *ctx, knh_class_t cid)
 		}
 		else {
 			of->fields = (knh_Object_t**)KNH_MALLOC(ctx, sizeof(Object*) * of->bsize);
-			//ClassTable(CLASS_ObjectField).cspi->init(ctx, UP(of));
-			t->cspi->init(ctx, UP(of));
+			//ClassTable(CLASS_ObjectField).cspi->init(ctx, UPCAST(of));
+			t->cspi->init(ctx, UPCAST(of));
 		}
 	}
 }

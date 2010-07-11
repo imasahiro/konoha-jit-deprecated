@@ -1,4 +1,6 @@
 
+#ifdef K_USING_TENTEN
+
 #define USE_STEXT 1
 #define USE_B     1
 
@@ -59,4 +61,6 @@ void knh_check_update(Ctx *ctx)
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif

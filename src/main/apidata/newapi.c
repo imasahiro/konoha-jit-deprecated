@@ -128,8 +128,8 @@ static METHOD Bytes_new(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	else if(init < K_SMALLPAGESIZE) {
 		init = K_SMALLPAGESIZE;
 	}
-	ba->bu.buf = (knh_uchar_t*)KNH_MALLOC(ctx, init);
-	knh_bzero(ba->bu.buf, init);
+	ba->bu.ubuf = (knh_uchar_t*)KNH_MALLOC(ctx, init);
+	knh_bzero(ba->bu.ubuf, init);
 	ba->capacity = init;
 	RETURN_(ba);
 }
@@ -168,8 +168,8 @@ static METHOD String_new(Ctx *ctx, knh_sfp_t *sfp, long rix)
 static METHOD Regex_new(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
 	knh_Regex_t *re = (knh_Regex_t*)sfp[0].o;
-	char *ptn = ctx->api->tochar(ctx, sfp[1].s);
-	char *opt = IS_NULL(sfp[2].o) ? (char*) "" : ctx->api->tochar(ctx, sfp[2].s);
+	const char *ptn = ctx->api->tochar(ctx, sfp[1].s);
+	const char *opt = IS_NULL(sfp[2].o) ? "" : ctx->api->tochar(ctx, sfp[2].s);
 	KNH_SETv(ctx, re->pattern, sfp[1].s);
 	re->spi = DP(sfp[2].ns)->regexSPI;
 	re->reg = re->spi->regmalloc(ctx, sfp[1].s);
@@ -184,7 +184,7 @@ static METHOD Regex_new(Ctx *ctx, knh_sfp_t *sfp, long rix)
 static METHOD String_Regex(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
 	knh_Regex_t *re = new_(Regex);
-	char *ptn = ctx->api->tochar(ctx, sfp[0].s);
+	const char *ptn = ctx->api->tochar(ctx, sfp[0].s);
 	KNH_SETv(ctx, re->pattern, sfp[0].s);
 	re->reg = re->spi->regmalloc(ctx, sfp[0].s);
 	re->spi->regcomp(ctx, re->reg, ptn, 0);

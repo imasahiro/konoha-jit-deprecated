@@ -100,16 +100,16 @@ static void knh_Bytes_expands(Ctx *ctx, knh_Bytes_t *ba, size_t newsize)
 {
 	if(ba->capacity == 0) {
 		newsize = knh_good_size(newsize);
-		ba->bu.buf = (knh_uchar_t*)KNH_MALLOC(ctx, newsize);
+		ba->bu.ubuf = (knh_uchar_t*)KNH_MALLOC(ctx, newsize);
 		ba->capacity = newsize;
 	}
 	else {
-		knh_uchar_t *buf = ba->bu.buf;
+		knh_uchar_t *buf = ba->bu.ubuf;
 		size_t capacity = ba->capacity;
 		knh_uchar_t *newa = (knh_uchar_t*)KNH_MALLOC(ctx, newsize);
 		knh_memcpy(newa, buf, capacity);
 		knh_bzero(&newa[capacity], newsize - capacity);
-		ba->bu.buf = newa;
+		ba->bu.ubuf = newa;
 		ba->capacity = newsize;
 		if(unlikely(ctx->bufa == ba)) {
 			KNH_SYSLOG(ctx, LOG_INFO, "ExtendedContextBuffer", "*newsize=%ld, pointer=(%p => %p)", newsize, buf, newa);
@@ -137,7 +137,7 @@ KNHAPI(void) knh_Bytes_clear(knh_Bytes_t *ba, size_t pos)
 {
 	DBG_ASSERT(!knh_Bytes_isStatic(ba));
 	if(pos < BA_size(ba)) {
-		knh_bzero(ba->bu.buf + pos, BA_size(ba) - pos);
+		knh_bzero(ba->bu.ubuf + pos, BA_size(ba) - pos);
 		BA_size(ba) = pos;
 	}
 }
@@ -155,14 +155,14 @@ KNHAPI(void) knh_Bytes_ensureSize(Ctx *ctx, knh_Bytes_t *ba, size_t len)
 
 /* ------------------------------------------------------------------------ */
 
-char *knh_Bytes_ensureZero(Ctx *ctx, knh_Bytes_t *ba)
+const char *knh_Bytes_ensureZero(Ctx *ctx, knh_Bytes_t *ba)
 {
 	DBG_ASSERT(!knh_Bytes_isStatic(ba));
 	if(BA_size(ba) == ba->capacity) {
 		knh_Bytes_expands(ctx, ba, ba->capacity * 2);
 	}
-	ba->bu.buf[BA_size(ba)] = 0;
-	return ba->bu.str;
+	ba->bu.ubuf[BA_size(ba)] = 0;
+	return ba->bu.text;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -172,7 +172,7 @@ KNHAPI(void) knh_Bytes_putc(Ctx *ctx, knh_Bytes_t *ba, int ch)
 	if(BA_size(ba) == ba->capacity) {
 		knh_Bytes_expands(ctx, ba, ba->capacity * 2);
 	}
-	ba->bu.buf[BA_size(ba)] = ch;
+	ba->bu.ubuf[BA_size(ba)] = ch;
 	BA_size(ba) += 1;
 }
 
@@ -182,22 +182,22 @@ void knh_Bytes_unputc(knh_Bytes_t *ba)
 {
 	if(BA_size(ba) > 0) {
 		BA_size(ba) -= 1;
-		ba->bu.buf[BA_size(ba)] = '\0';
+		ba->bu.ubuf[BA_size(ba)] = '\0';
 	}
 }
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(void) knh_Bytes_write(Ctx *ctx, knh_Bytes_t *ba, knh_bytes_t v)
+void knh_Bytes_write(Ctx *ctx, knh_Bytes_t *ba, knh_bytes_t t)
 {
-	if(v.len == 0) return ;
-	if(BA_size(ba) + v.len >= ba->capacity) {
+	if(t.len == 0) return ;
+	if(BA_size(ba) + t.len >= ba->capacity) {
 		size_t newsize = ba->capacity * 2;
-		if(newsize < BA_size(ba) + v.len) newsize = knh_good_size(BA_size(ba) + v.len);
+		if(newsize < BA_size(ba) + t.len) newsize = knh_good_size(BA_size(ba) + t.len);
 		knh_Bytes_expands(ctx, ba, newsize);
 	}
-	knh_memcpy(&ba->bu.buf[BA_size(ba)], v.buf, v.len);
-	BA_size(ba) += v.len;
+	knh_memcpy(ba->bu.ubuf + BA_size(ba), t.ustr, t.len);
+	BA_size(ba) += t.len;
 }
 
 /* ======================================================================== */
@@ -257,12 +257,12 @@ knh_String_t *knh_cwb_newString(Ctx *ctx, knh_cwb_t *cwb)
 
 KNHAPI(knh_bool_t) knh_bytes_matchWildCard(knh_bytes_t t, knh_bytes_t p)
 {
-	if(p.buf[0] == '*') {
-		p.buf = p.buf + 1;
+	if(p.ustr[0] == '*') {
+		p.ustr = p.ustr + 1;
 		p.len = p.len - 1;
 		return knh_bytes_endsWith(t, p);
 	}
-	else if(p.buf[p.len-1] == '*') {
+	else if(p.ustr[p.len-1] == '*') {
 		p.len -= 1;
 		return knh_bytes_startsWith(t, p);
 	}
@@ -282,12 +282,12 @@ KNHAPI(knh_bool_t) knh_bytes_matchWildCard(knh_bytes_t t, knh_bytes_t p)
 
 knh_bytes_t knh_bytes_trim(knh_bytes_t t)
 {
-	while(isspace(t.buf[0])) {
-		t.buf++;
+	while(isspace(t.ustr[0])) {
+		t.ustr++;
 		t.len--;
 	}
 	if(t.len == 0) return t;
-	while(isspace(t.buf[t.len-1])) {
+	while(isspace(t.ustr[t.len-1])) {
 		t.len--;
 		if(t.len == 0) return t;
 	}

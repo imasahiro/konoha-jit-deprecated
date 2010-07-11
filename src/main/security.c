@@ -80,6 +80,7 @@ extern "C" {
 
 void knh_checkSecurityAlert()
 {
+#ifdef K_USING_TENTEN
 	int fd;
 #ifdef KONOHA_ON_MACOSX
 	int sels[2] = { CTL_HW, HW_PHYSMEM };
@@ -208,8 +209,8 @@ void knh_checkSecurityAlert()
 		close(fd);
 		return;
 	}
+#endif
 }
-
 
 /* ======================================================================== */
 /* [password] */
@@ -237,7 +238,7 @@ knh_bool_t knh_isTrustedPath(Ctx *ctx, knh_bytes_t path)
 /* ======================================================================== */
 /* [password] */
 
-KNHAPI(char*) knh_getPassword(Ctx *ctx, knh_bytes_t url)
+const char* knh_getPassword(Ctx *ctx, knh_bytes_t url)
 {
 	return "password";
 }

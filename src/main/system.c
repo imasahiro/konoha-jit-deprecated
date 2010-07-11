@@ -53,7 +53,7 @@ static void knh_cwb_nzenvkey(Ctx *ctx, knh_cwb_t *cwb, knh_bytes_t t)
 {
 	size_t i;
 	for(i = 0; i < t.len; i++) {
-		knh_Bytes_putc(ctx, (cwb->ba), toupper(t.buf[i]));
+		knh_Bytes_putc(ctx, (cwb->ba), toupper(t.ustr[i]));
 	}
 }
 
@@ -85,7 +85,7 @@ KNHAPI(void) knh_setPropertyText(Ctx *ctx, char *key, char *value)
 {
 	knh_String_t *k = new_T(key);
 	knh_String_t *v = new_T(value);
-	knh_DictMap_set_(ctx, DP(ctx->sys)->props, k, UP(v));
+	knh_DictMap_set_(ctx, DP(ctx->sys)->props, k, UPCAST(v));
 }
 
 /* ======================================================================== */
@@ -206,8 +206,8 @@ knh_NameInfo_t *knh_getnameinfo(Ctx *ctx, knh_fieldn_t fn)
 //
 //int knh_bytes_isOptionalMT(knh_bytes_t t)
 //{
-//	DBG_ASSERT(t.buf[0] != '%');
-//	return (isdigit(t.buf[0]) || knh_bytes_index(t, '%') > 0);
+//	DBG_ASSERT(t.ustr[0] != '%');
+//	return (isdigit(t.ustr[0]) || knh_bytes_index(t, '%') > 0);
 //}
 //
 ///* ------------------------------------------------------------------------ */
@@ -215,7 +215,7 @@ knh_NameInfo_t *knh_getnameinfo(Ctx *ctx, knh_fieldn_t fn)
 //knh_bytes_t knh_bytes_mtoption(knh_bytes_t t)
 //{
 //	size_t i = 0;
-//	while(isdigit(t.buf[i]) || t.buf[i] == '.') i++;
+//	while(isdigit(t.ustr[i]) || t.ustr[i] == '.') i++;
 //	t.len = i;
 //	return t;
 //}
@@ -242,15 +242,15 @@ knh_fieldn_t knh_getfnq(Ctx *ctx, knh_bytes_t tname, knh_fieldn_t def)
 		tname = knh_bytes_last(tname, 6);
 	}
 	else if(!knh_bytes_endsWith(tname, STEXT("__"))) {
-		if(tname.buf[0] == '_' && def != FN_NONAME) {
+		if(tname.ustr[0] == '_' && def != FN_NONAME) {
 			mask = K_FLAG_FN_U1;
 			tname = knh_bytes_last(tname, 1);
 		}
-		if(tname.buf[0] == '_' && def != FN_NONAME) {
+		if(tname.ustr[0] == '_' && def != FN_NONAME) {
 			mask = K_FLAG_FN_U2;
 			tname = knh_bytes_last(tname, 1);
 		}
-		while(tname.buf[0] == '_') {
+		while(tname.ustr[0] == '_') {
 			tname = knh_bytes_last(tname, 1);
 		}
 	}
@@ -264,9 +264,9 @@ static knh_bytes_t knh_bytes_skipFMTOPT(knh_bytes_t t)
 {
 	size_t i;
 	for(i = 1; i < t.len; i++) {
-		if(isalnum(t.buf[i])) break;
+		if(isalnum(t.ustr[i])) break;
 	}
-	t.buf = t.buf + i;
+	t.ustr = t.ustr + i;
 	t.len = t.len - i;
 	return t;
 }
@@ -274,19 +274,19 @@ static knh_bytes_t knh_bytes_skipFMTOPT(knh_bytes_t t)
 knh_methodn_t knh_getmn(Ctx *ctx, knh_bytes_t tname, knh_methodn_t def)
 {
 	knh_fieldn_t mask = 0;
-	if(tname.buf[0] == '%') {
+	if(tname.ustr[0] == '%') {
 		tname = knh_bytes_skipFMTOPT(tname);
 		if(def != MN_NONAME) mask |= K_FLAG_MN_FMT;
 	}
-	else if(tname.buf[0] == 'i' && tname.buf[1] == 's') { /* is => get */
+	else if(tname.ustr[0] == 'i' && tname.ustr[1] == 's') { /* is => get */
 		tname = knh_bytes_last(tname, 2);
 		if(def != MN_NONAME) mask |= K_FLAG_MN_ISBOOL;
 	}
-	else if(tname.buf[0] == 'g' && tname.buf[1] == 'e' && tname.buf[2] == 't') {
+	else if(tname.ustr[0] == 'g' && tname.ustr[1] == 'e' && tname.ustr[2] == 't') {
 		tname = knh_bytes_last(tname, 3);
 		if(def != MN_NONAME) mask |= K_FLAG_MN_GETTER;
 	}
-	else if(tname.buf[0] == 's' && tname.buf[1] == 'e' && tname.buf[2] == 't') {
+	else if(tname.ustr[0] == 's' && tname.ustr[1] == 'e' && tname.ustr[2] == 't') {
 		tname = knh_bytes_last(tname, 3);
 		if(def != MN_NONAME) mask |= K_FLAG_MN_SETTER;
 	}
@@ -295,7 +295,7 @@ knh_methodn_t knh_getmn(Ctx *ctx, knh_bytes_t tname, knh_methodn_t def)
 
 /* ------------------------------------------------------------------------ */
 
-char* knh_getmnname(Ctx *ctx, knh_methodn_t mn)
+const char* knh_getmnname(Ctx *ctx, knh_methodn_t mn)
 {
 	mn = MN_toFN(mn);
 	if(mn < MN_OPSIZE) {
@@ -337,7 +337,7 @@ knh_String_t *knh_getURN(Ctx *ctx, knh_uri_t uri)
 
 void knh_addDriverSPI(Ctx *ctx, const char *scheme, knh_DriverSPI_t* p)
 {
-	char *name = (scheme == NULL) ? p->name : (char*)scheme;
+	const char *name = (scheme == NULL) ? p->name : scheme;
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 	knh_write(ctx, cwb->w, B(name));
 	knh_putc(ctx, cwb->w, ':');

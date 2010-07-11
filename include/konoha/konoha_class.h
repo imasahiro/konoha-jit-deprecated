@@ -142,7 +142,7 @@ typedef struct knh_String_t {
 #define new_S(ctx, msg)     new_String_(ctx, CLASS_String, msg, NULL)
 
 #define S_tobytes(s)          ((s)->str)
-#define S_tochar(s)           (char*)((s)->str.buf)
+#define S_tochar(s)           ((s)->str.text)
 #define S_size(s)             ((s)->str.len)
 #define S_equals(s, b)        knh_bytes_equals(S_tobytes(s), b)
 #define S_startsWith(s, b)    knh_bytes_startsWith(S_tobytes(s), b)
@@ -168,7 +168,7 @@ typedef struct knh_Bytes_t {
 
 #define BA_tobytes(o)   (o)->bu
 #define BA_size(o)      (o)->bu.len
-#define BA_tochar(o)    ((char*)(o)->bu.buf)
+#define BA_tochar(o)    (o)->bu.text
 
 #define B_equals(b, t)        (knh_bytes_strcmp(b, STEXT(t)) == 0)
 #define B_startsWith(b, t)    knh_bytes_startsWith(b, STEXT(t))
@@ -285,7 +285,7 @@ typedef struct knh_Array_t {
 #define knh_Array_n(a,n)      (a)->list[(n)]
 #define knh_Array_size(a)     (a)->size
 #define knh_Array_trimSize(ctx, a, newsize)  knh_Array_clear(ctx, a, newsize)
-#define knh_Array_add(ctx, a, o)    knh_Array_add_(ctx, a, UP(o))
+#define knh_Array_add(ctx, a, o)    knh_Array_add_(ctx, a, UPCAST(o))
 
 #define knh_TOKENs_n(a, n)    ((knh_Token_t*)(a)->list[(n)])
 
@@ -370,8 +370,8 @@ typedef struct knh_DictCaseMap_t {
 
 #define knh_DictMap_size(m)    ((m)->dmap)->size
 #define knh_DictCaseMap_size(m)    ((m)->dmap)->size
-#define knh_DictMap_set(ctx, m, k, v)      knh_DictMap_set_(ctx, m, k, UP(v))
-#define knh_DictCaseMap_set(ctx, m, k, v)  knh_DictCaseMap_set_(ctx, m, k, UP(v))
+#define knh_DictMap_set(ctx, m, k, v)      knh_DictMap_set_(ctx, m, k, UPCAST(v))
+#define knh_DictCaseMap_set(ctx, m, k, v)  knh_DictCaseMap_set_(ctx, m, k, UPCAST(v))
 
 typedef struct knh_DictSet_t {
 	knh_hObject_t h;
@@ -603,8 +603,8 @@ typedef struct {
 	knh_String_t* msg;
 	Object* bag;
 	knh_Array_t* traces;
-	char*     file;
-	char*     Cfile;
+	const char*     file;
+	const char*     Cfile;
 	int       line;
 	int       Cline;
 } knh_ExceptionEX_t;
@@ -773,7 +773,7 @@ typedef struct knh_Semantics_t {
 //## flag InputStream FILE 1 - is set * *;
 
 typedef knh_intptr_t knh_io_t;
-#define IO_NULL   ((knh_io_t)NULL)
+#define IO_NULL   ((knh_io_t)0)
 
 typedef struct {
 	union {
@@ -840,7 +840,7 @@ typedef struct knh_OutputStream_t {
 #define knh_print(ctx, w, s)    knh_OutputStream_writeLine(ctx, w, s, 0)
 #define knh_println(ctx, w, s)  knh_OutputStream_writeLine(ctx, w, s, 1)
 
-#define knh_write_char(ctx, w, s) knh_write(ctx, w, B(s))
+//#define knh_write_char(ctx, w, s) knh_write(ctx, w, B(s))
 
 #define knh_write_delim(ctx, w)    knh_write(ctx, w, STEXT(", "))
 #define knh_write_dots(ctx, w)     knh_write(ctx, w, STEXT("..."))
@@ -1107,9 +1107,9 @@ typedef struct knh_Token_t {
 } knh_Token_t;
 
 #define knh_Token_isTyped(o)    (SP(o)->type != TYPE_var)
-#define new_TokenCONST(ctx, d)  new_TokenCONST_(ctx, UP(d))
-#define new_TermCONST(ctx, d)   TM(new_TokenCONST_(ctx, UP(d)))
-#define knh_Token_setCONST(ctx, tk, d) knh_Token_setCONST_(ctx, tk, UP(d))
+#define new_TokenCONST(ctx, d)  new_TokenCONST_(ctx, UPCAST(d))
+#define new_TermCONST(ctx, d)   TM(new_TokenCONST_(ctx, UPCAST(d)))
+#define knh_Token_setCONST(ctx, tk, d) knh_Token_setCONST_(ctx, tk, UPCAST(d))
 
 /* ------------------------------------------------------------------------ */
 //## @Struct class Stmt Term;

@@ -247,22 +247,23 @@ typedef double                    knh_float_t;
 
 typedef unsigned char           knh_uchar_t;    /* byte */
 typedef const char              knh_text_t;
+typedef const unsigned char     knh_ustr_t;
 
 typedef struct {
 	union {
-		knh_uchar_t *buf;
+//		char *c_buf;
 		const char *text;
-		char *str;
+		const unsigned char *ustr;
+		knh_uchar_t *ubuf;
 	};
 	size_t       len;
 } knh_bytes_t;
 
 #define ismulti(c)             (((knh_uchar_t)c)>127)
 
-#define B(c)     new_bytes(c)
-#define B2(c,n)   new_bytes2(c,n)
+#define B(c)      new_bytes((char*)c)
 #define STEXT(c)  new_bytes2(c,sizeof(c)-1)
-#define ISB(t,c) (t.len == (sizeof(c)-1) && knh_strncmp((char*)t.buf,c,t.len) == 0)
+#define ISB(t,c) (t.len == (sizeof(c)-1) && knh_strncmp(t.text, c, t.len) == 0)
 
 /* ------------------------------------------------------------------------ */
 /* knh_flag_t */
@@ -397,9 +398,9 @@ typedef knh_ushort_t          knh_methodn_t;
 
 #define FN_tochar(fn) S_tochar(knh_getFieldName(ctx, fn))
 
-#define MN_tochar(mn) knh_getmnname(ctx, mn)
+#define MN_tochar(mn)   knh_getmnname(ctx, mn)
 #define MN_tobytes(mn)  S_tobytes(knh_getmnname(ctx, mn))
-char *knh_getopname(knh_methodn_t mn);
+const char *knh_getopname(knh_methodn_t mn);
 
 /* ------------------------------------------------------------------------ */
 /* Object */
@@ -461,9 +462,9 @@ typedef struct knh_Object_t {
 #define This            knh_Object_t
 #define T1              knh_Object_t
 #define T2              knh_Object_t
-#define UP(o)           (Object*)(o)
+#define UPCAST(o)       (Object*)(o)
 
-#define knh_Object_toNULL(ctx, o)   knh_Object_toNULL_(ctx, UP(o))
+#define knh_Object_toNULL(ctx, o)   knh_Object_toNULL_(ctx, UPCAST(o))
 
 /* ------------------------------------------------------------------------ */
 /* Common Object Structure */
@@ -568,8 +569,8 @@ typedef struct knh_sfp_t {
 /* [ObjectFunc] */
 
 typedef void (*knh_Ftraverse)(Ctx *ctx, Object *);
-#define KNH_FTR(ctx, ftr, p)       ftr(ctx, UP(p))
-#define KNH_NULLFTR(ctx, ftr, p)   if(p != NULL) ftr(ctx, UP(p))
+#define KNH_FTR(ctx, ftr, p)       ftr(ctx, UPCAST(p))
+#define KNH_NULLFTR(ctx, ftr, p)   if(p != NULL) ftr(ctx, UPCAST(p))
 
 //typedef int (*knh_Fscriptinit)(Ctx *);
 
@@ -589,7 +590,7 @@ typedef FASTAPI(void*) (*knh_Fstack_hashkey)(Ctx *, knh_sfp_t *, int);
 typedef struct  knh_Translator_t* (*knh_Fgenmap)(Ctx *, knh_class_t, knh_class_t);
 
 typedef struct {
-	char                   *name;
+	const char             *name;
 	knh_ushort_t            size;
 	knh_flag_t              cflag;
 	knh_Fobject_init        init;
@@ -829,7 +830,7 @@ typedef struct {
 #define ExptTable(eid)    ctx->share->ExptTable[eid]
 #define pExptTable(eid)   (knh_ExptTable_t*)(ctx->share->ExptTable + (eid))
 
-#define knh_setClassDefaultValue(ctx, cid, v, f) knh_setClassDefaultValue_(ctx, cid, UP(v), f)
+#define knh_setClassDefaultValue(ctx, cid, v, f) knh_setClassDefaultValue_(ctx, cid, UPCAST(v), f)
 
 /* ------------------------------------------------------------------------ */
 

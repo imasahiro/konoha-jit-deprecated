@@ -356,7 +356,7 @@ def write_file(f):
 #ifdef K_USING_LOADDATA
 
 typedef struct {
-	char *name;
+	const char *name;
 	knh_uintptr_t tt;
 } knh_TokenData_t;
 
@@ -379,8 +379,8 @@ static void knh_loadTokenData(Ctx *ctx)
 }
 
 typedef struct {
-	char *name;
-	char *alias;
+	const char *name;
+	const char *alias;
 } knh_AliasData_t;
 
 static knh_AliasData_t knh_AliasData[] = {''')
@@ -397,7 +397,7 @@ static void knh_loadAliasTokenData(Ctx *ctx)
 	knh_DictMap_t *dm = new_DictMap0(ctx, 0);
 	KNH_INITv(DP(ctx->share->mainns)->aliasDictMapNULL, dm);
 	while(data->name != NULL) {
-		knh_DictMap_set(ctx, dm, new_T(data->name), UP(new_T(data->alias)));
+		knh_DictMap_set(ctx, dm, new_T(data->name), UPCAST(new_T(data->alias)));
 		data++;
 	}
 }
@@ -428,7 +428,7 @@ static int knh_bytes_isKeyword(Ctx *ctx, knh_bytes_t t)
 ********************************************/
 
 #ifndef K_USING_SMALLFOOTPRINT
-static char* knh_tokens[] = {''')
+static const char* knh_tokens[] = {''')
 	for tt in DTT_LIST:
 		f.write('''
 	%s''' % (tt))
@@ -438,7 +438,7 @@ static char* knh_tokens[] = {''')
 #endif/*SMALLFOOTPRINT*/
 
 #ifndef K_USING_SMALLFOOTPRINT
-static char* knh_stmts[] = {''')
+static const char* knh_stmts[] = {''')
 	for stt in DSTT_LIST:
 		f.write('''
 	%s''' % (stt))
@@ -447,7 +447,7 @@ static char* knh_stmts[] = {''')
 };
 #endif/*SMALLFOOTPRINT*/
 
-char *TT_tochar(knh_term_t tt)
+const char *TT_tochar(knh_term_t tt)
 {
 	if(tt < K_TOKEN_MAXSIZ) {
 #ifdef K_USING_SMALLFOOTPRINT
@@ -466,7 +466,7 @@ char *TT_tochar(knh_term_t tt)
 }
 
 typedef struct { 
-	char *opname;
+	const char *opname;
 	int priority;
 } knh_opdata_t;
 
@@ -489,7 +489,7 @@ static int knh_term_getOPRpriority(knh_term_t tt)
 	return 0;
 }
 
-char* knh_getopname(knh_methodn_t mn)
+const char* knh_getopname(knh_methodn_t mn)
 {
 	DBG_ASSERT(mn + TT_LET <= TT_TSUB);
 	return knh_opdata[mn].opname;

@@ -315,12 +315,12 @@ def write_data_c(f):
 	f.write('''
 
 typedef struct {
-	char *name;
+	const char *name;
 	size_t size;
 	knh_ushort_t types[6];
 } knh_OPDATA_t;
 
-static knh_OPDATA_t OPDATA[] = {''')
+static const knh_OPDATA_t OPDATA[] = {''')
 	for kc in KCODE_LIST:
 		n = kc.name
 		if n.endswith("_"): n = n[:-1]
@@ -363,7 +363,7 @@ void knh_opcode_count(Ctx *ctx, knh_opline_t *c)
 #endif
 /* ------------------------------------------------------------------------ */
 
-char *knh_opcode_tochar(knh_opcode_t opcode)
+const char *knh_opcode_tochar(knh_opcode_t opcode)
 {
 	if(opcode < OPCODE_MAX) {
 		return OPDATA[opcode].name;
@@ -392,7 +392,7 @@ void knh_opline_traverse(Ctx *ctx, knh_opline_t *c, knh_Ftraverse ftr)
 	for(i = 0; i < size; i++) {
 		knh_ushort_t vtype = OPDATA[c->opcode].types[i];
 		if(vtype == VMT_OBJECT || vtype == VMT_STRING) {
-			KNH_FTR(ctx, ftr, UP(c->p[i]));
+			KNH_FTR(ctx, ftr, UPCAST(c->p[i]));
 		}
 	}
 }
@@ -400,7 +400,7 @@ void knh_opline_traverse(Ctx *ctx, knh_opline_t *c, knh_Ftraverse ftr)
 void knh_opcode_dump(Ctx *ctx, knh_opline_t *c, knh_OutputStream_t *w, knh_opline_t *pc_start)
 {
 	size_t i, size = OPDATA[c->opcode].size;
-	knh_ushort_t *vmt = OPDATA[c->opcode].types;
+	const knh_ushort_t *vmt = OPDATA[c->opcode].types;
 	if(pc_start == NULL) {
 		knh_printf(ctx, w, "[%p:%d] %s(%d)", c, c->line, knh_opcode_tochar(c->opcode), (knh_intptr_t)c->opcode);
 	}
@@ -438,7 +438,7 @@ void knh_opcode_dump(Ctx *ctx, knh_opline_t *c, knh_OutputStream_t *w, knh_oplin
 		case VMT_OBJECT:
 		case VMT_STRING: {
 			knh_Method_t *mtd = knh_lookupFormatter(ctx, CLASS_String, MN__k);
-			knh_write_Object(ctx, w, ctx->esp, &mtd, UP(c->p[i]));
+			knh_write_Object(ctx, w, ctx->esp, &mtd, UPCAST(c->p[i]));
 			break;
 		}
 		case VMT_INT: {
@@ -456,7 +456,7 @@ void knh_opcode_dump(Ctx *ctx, knh_opline_t *c, knh_OutputStream_t *w, knh_oplin
 void knh_opcode_idxshift(knh_opline_t *c, int idxshift)
 {
 	size_t i, size = OPDATA[c->opcode].size;
-	knh_ushort_t *vmt = OPDATA[c->opcode].types;
+	const knh_ushort_t *vmt = OPDATA[c->opcode].types;
 	for(i = 0; i < size; i++) {
 		switch(vmt[i]) {
 			case VMT_SFPIDX:
@@ -575,13 +575,13 @@ knh_opline_t* knh_VirtualMachine_run(Ctx *ctx, knh_sfp_t *sfp, knh_opline_t *pc)
 	for kc in KCODE_LIST:
 		LB = ''
 		LE = ''
-		if len(kc.tokens) == 1: 
-			LB = 'TC('
-			LE = ')'
+#		if len(kc.tokens) == 1: 
+#			LB = 'TC('
+#			LE = ')'
 # DBG_P("%%p %%s", pc-1, knh_opcode_tochar((pc-1)->opcode));
 		f.write('''
 	CASE(%s) {
-		%s/*const*/ %s *op = (%s*)pc;%s; VMCOUNT(pc); pc++;
+		%s%s *op = (%s*)pc;%s; (void)op; VMCOUNT(pc); pc++;
 		%s;  goto NEXT_OP;
 	} ''' % (kc.name, LB, kc.ctype, kc.ctype, LE, getmacro(kc, 'JUMP')))
 	f.write('''

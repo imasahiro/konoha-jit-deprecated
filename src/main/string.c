@@ -37,7 +37,7 @@ extern "C" {
 
 /* ======================================================================== */
 
-knh_hashcode_t knh_uchar_hcode(knh_hashcode_t h, knh_uchar_t *buf, size_t len)
+knh_hashcode_t knh_ustr_hcode(knh_hashcode_t h, knh_ustr_t *buf, size_t len)
 {
 	size_t i;
 	for(i = 0; i < len; i++) {
@@ -102,7 +102,7 @@ knh_bool_t knh_bytes_checkENCODING(knh_bytes_t s)
 	knh_uchar_t ch;
 	size_t bytes = 0;
 	for (i=0; i < s.len; i++) {
-		ch = s.buf[i];
+		ch = s.ustr[i];
 		/* UTF8 must be in
 		 * single: 0x00 - 0x7f
 		 * lead: 0xC0 - 0xFD (actually, 0xC2-0xF4)
@@ -115,7 +115,7 @@ knh_bool_t knh_bytes_checkENCODING(knh_bytes_t s)
 			bytes = knh_utf8_getBytes(ch);
 			for (j=1;j<bytes;j++)
 			{
-				ch = s.buf[i+j];
+				ch = s.ustr[i+j];
 				if (!knh_utf8_isTrail(ch)) {
 					DBG_P("invalid UTF!");
 					return 0;
@@ -137,9 +137,9 @@ size_t knh_bytes_mlen(knh_bytes_t s)
 #ifdef K_USING_UTF8
 	size_t i, len = 0, ulen = 0;
 	for (i = 0; i < s.len; i++) {
-		if (knh_utf8_isLead(s.buf[i]))
+		if (knh_utf8_isLead(s.ustr[i]))
 			ulen++;
-		else if (knh_utf8_isSingleton(s.buf[i]))
+		else if (knh_utf8_isSingleton(s.ustr[i]))
 			len++;
 	}
 	return ulen + len;
@@ -163,22 +163,22 @@ knh_bytes_t knh_bytes_mofflen(knh_bytes_t m, size_t moff, size_t mlen)
 	}
 
 	for (i = 0; i < m.len; i++) {
-		if (knh_utf8_isLead(m.buf[i])) ulen++;
-		else if (knh_utf8_isSingleton(m.buf[i])) len++;
+		if (knh_utf8_isLead(m.ustr[i])) ulen++;
+		else if (knh_utf8_isSingleton(m.ustr[i])) len++;
 		if (ulen + len == moff+1) {
 			s = i;
 			break;
 		}
 	}
 	if (!(s < m.len)) {
-		m.buf = (knh_uchar_t*)"";
+		m.text = "";
 		m.len = 0;
 		return m;
 	}
 
-	m.buf = m.buf + s;
+	m.ustr = m.ustr + s;
 	for(i = 0; i < mlen; i++) {
-		ch = m.buf[bytes];
+		ch = m.ustr[bytes];
 		if (knh_utf8_isSingleton(ch)) {
 			bytes += 1;
 		} else {
@@ -194,7 +194,7 @@ knh_bytes_t knh_bytes_mofflen(knh_bytes_t m, size_t moff, size_t mlen)
 
 /* ------------------------------------------------------------------------ */
 
-knh_int_t knh_uchar_toucs4(knh_uchar_t *utf8)   /* utf8 -> ucs4 */
+knh_int_t knh_uchar_toucs4(knh_ustr_t *utf8)   /* utf8 -> ucs4 */
 {
 #if defined(K_USING_UTF8)
 	/* BOM bigendinan */
@@ -290,7 +290,7 @@ char *knh_format_utf8(char *buf, size_t bufsiz, knh_uint_t ucs4)
 
 static void knh_String_checkASCII(knh_String_t *o)
 {
-	knh_uchar_t *p = o->str.buf;
+	knh_ustr_t *p = o->str.ustr;
 	size_t i;
 	for(i = 0; i < o->str.len; i++) {
 		if(p[i] > 127) return;
@@ -304,25 +304,25 @@ KNHAPI(knh_String_t*) new_String_(Ctx *ctx, knh_class_t cid, knh_bytes_t t, knh_
 {
 	knh_String_t *o = (knh_String_t*)new_hObject_(ctx, FLAG_String, CLASS_String, cid);
 	if(t.len + 1 < sizeof(void*) * 2) {
-		o->str.buf = (knh_uchar_t*)(&(o->memoNULL));
+		o->str.ubuf = (knh_uchar_t*)(&(o->memoNULL));
 		o->str.len = t.len;
-		knh_memcpy(o->str.buf, t.buf, t.len);
-		o->str.buf[o->str.len] = '\0';
+		knh_memcpy(o->str.ubuf, t.ustr, t.len);
+		o->str.ubuf[o->str.len] = '\0';
 		knh_String_checkASCII(o);
 		knh_String_setTextSgm(o, 1);
 		//DBG_P("INLINE STRING ** t.len=%d, '%s'", t.len, o->str.buf);
 	}
 	else if(memoNULL == NULL) {
 		o->str.len = t.len;
-		o->str.buf = (knh_uchar_t*)KNH_MALLOC(ctx, KNH_SIZE(o->str.len+1));
-		knh_memcpy(o->str.buf, t.buf, t.len);
-		o->str.buf[o->str.len] = '\0';
+		o->str.ubuf = (knh_uchar_t*)KNH_MALLOC(ctx, KNH_SIZE(o->str.len+1));
+		knh_memcpy(o->str.ubuf, t.ustr, t.len);
+		o->str.ubuf[o->str.len] = '\0';
 		o->memoNULL = NULL;
 		knh_String_checkASCII(o);
 	}else {
 		DBG_ASSERT(IS_bString(memoNULL));
 		o->str.len = t.len;
-		o->str.buf = t.buf;
+		o->str.ustr = t.ustr;
 		if(memoNULL->memoNULL == NULL) {
 			KNH_INITv(o->memoNULL, memoNULL);
 		}
@@ -345,66 +345,13 @@ KNHAPI(knh_String_t*) new_String_(Ctx *ctx, knh_class_t cid, knh_bytes_t t, knh_
 knh_String_t *new_TEXT(Ctx *ctx, knh_class_t cid, knh_TEXT_t text)
 {
 	knh_String_t *o = (knh_String_t*)new_hObject_(ctx, FLAG_String, CLASS_String, cid);
-	o->str.buf = (knh_uchar_t*)text;
+	o->str.text = text;
 	o->str.len = knh_strlen(text);
 	o->memoNULL = NULL;
 	knh_String_setTextSgm(o, 1);
 	knh_String_checkASCII(o);
 	return o;
 }
-
-
-
-/* ======================================================================== */
-/* [String] */
-
-//knh_String_t *new_String__bconv(Ctx *ctx, knh_bytes_t t, knh_StringEncoder_t *bc)
-//{
-//	KNH_ASSERT(IS_StringEncoder(bc));
-//	if(t.len == 0) return TS_EMPTY;
-//	knh_Bytes_t *ba = knh_Context_openBConvBuf(ctx);
-//	knh_String_t *s;
-//	bc->fbconv(ctx, bc, t, ba);
-//	s = new_S(ctx, BA_tobytes(ba));
-//	knh_Context_closeBConvBuf(ctx, ba);
-//	return s;
-//}
-//
-//
-///* ------------------------------------------------------------------------ */
-//
-//KNHAPI(knh_String_t*) new_String__fbcnv(Ctx *ctx, knh_String_t *s, knh_Fbyteconv fbcnv, knh_StringEncoder_t *bc)
-//{
-//	knh_bytes_t base = S_tobytes(s);
-//	knh_Bytes_t *ba = knh_Context_openBConvBuf(ctx);
-//	fbcnv(ctx, bc, base, ba);
-//	if(knh_strncmp((char*)(base.buf), (char*)(ba->bu.buf), base.len) != 0) {
-//		s = new_S(ctx, BA_tobytes(ba));
-//	}
-//	knh_Context_closeBConvBuf(ctx, ba);
-//	return s;
-//}
-
-///* ------------------------------------------------------------------------ */
-//
-//knh_String_t *new_String__cwbconv(Ctx *ctx, knh_cwb_t *cwb, knh_StringEncoder_t *bc)
-//{
-//	if(knh_cwb_size(cwb) == 0) {
-//		return TS_EMPTY;
-//	}
-//	else if(IS_NULL(bc)) {
-//		knh_String_t *s = new_S(ctx, knh_cwb_tobytes(cwb));
-//		knh_cwb_close(cwb);
-//		return s;
-//	}else {
-//		knh_Bytes_t *ba = knh_Context_openBConvBuf(ctx);
-//		bc->fbconv(ctx, bc, knh_cwb_tobytes(cwb), ba);
-//		knh_String_t *s = new_S(ctx, BA_tobytes(ba));
-//		knh_Context_closeBConvBuf(ctx, ba);
-//		knh_cwb_close(cwb);
-//		return s;
-//	}
-//}
 
 /* ------------------------------------------------------------------------ */
 
@@ -420,17 +367,6 @@ knh_String_t *knh_cwb_newStringDECODE(Ctx *ctx, knh_cwb_t *cwb, knh_StringDecode
 	END_LOCAL(ctx, lsfp);
 	return s;
 }
-
-/* ------------------------------------------------------------------------ */
-
-//void knh_OutputStream_write__bconv(Ctx *ctx, knh_OutputStream_t *w, knh_bytes_t t)
-//{
-//	knh_Bytes_t *ba = knh_Context_openBConvBuf(ctx);
-//	knh_StringEncoder_conv(ctx, DP(w)->bconv, t, ba);
-//	knh_OutputStream_write(ctx, w, BA_tobytes(ba));
-//	knh_Context_closeBConvBuf(ctx, ba);
-//	knh_OutputStream_write(ctx, w, t);
-//}
 
 /* ------------------------------------------------------------------------ */
 

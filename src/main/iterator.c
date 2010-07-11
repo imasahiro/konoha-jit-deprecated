@@ -124,7 +124,7 @@ KNHAPI(knh_Iterator_t*) new_ArrayIterator(Ctx *ctx, knh_Array_t *a)
 {
 	knh_class_t cid = knh_Object_p1(a);
 	knh_Fitrnext fnext = knh_Array_isNDATA(a) ? knh_Array_nextN : knh_Array_nextO;
-	return new_Iterator(ctx, cid, UP(a), fnext);
+	return new_Iterator(ctx, cid, UPCAST(a), fnext);
 }
 
 /* ------------------------------------------------------------------------ */

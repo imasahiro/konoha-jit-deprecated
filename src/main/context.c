@@ -432,7 +432,7 @@ static void knh_share_free(Ctx *ctx, knh_share_t *share)
 	share->ClassTable = NULL;
 	DBG_ASSERT(share->ArenaSet != NULL);
 
-	for(i = 0; i < (int)(share->ArenaSetSize); i++) {
+	for(i = 0; i < share->ArenaSetSize; i++) {
 		knh_ArenaSet_t *t = share->ArenaSet + i;
 		KNH_VFREE(ctx, t->head, t->arena_size);
 	}

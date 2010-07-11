@@ -27,7 +27,7 @@
 
 /* ************************************************************************ */
 
-#define USE_B             1
+//#define USE_B             1
 #define USE_bytes_rindex  1
 #define USE_cwb_open      1
 
@@ -57,15 +57,16 @@ extern "C" {
 /* ------------------------------------------------------------------------ */
 /* [file] */
 
-char* knh_sfile(char *file)
+const char* knh_sfile(const char *file)
 {
 	if(file != NULL) {
-		knh_bytes_t t = B(file);
+		knh_bytes_t t;
+		t.text = file; t.len = knh_strlen(file);
 		int loc = knh_bytes_rindex(t, '/');
 		if(loc == -1) {
 			return file;
 		}
-		return (char*)t.buf + loc + 1;
+		return t.text + loc + 1;
 	}
 	return "(unknown)";
 }
@@ -107,7 +108,7 @@ void todo_p(const char *file, const char *func, int line, const char *fmt, ...)
 void knh_write_cline(Ctx *ctx, knh_OutputStream_t *w, char *file, long line)
 {
 	knh_putc(ctx, w, '[');
-	knh_write_char(ctx, w, knh_sfile(file));
+	knh_write_text(ctx, w, knh_sfile(file));
 	knh_putc(ctx, w, ':');
 	knh_write_dfmt(ctx, w, KNH_INTPTR_FMT, line);
 	knh_putc(ctx, w, ']'); knh_putc(ctx, w, ' ');
@@ -118,7 +119,7 @@ void knh_write_cline(Ctx *ctx, knh_OutputStream_t *w, char *file, long line)
 void knh_write_uline(Ctx *ctx, knh_OutputStream_t *w, knh_uri_t uri, long line)
 {
 	knh_putc(ctx, w, '[');
-	knh_write_char(ctx, w, FILEN(uri));
+	knh_write_text(ctx, w, FILEN(uri));
 	knh_putc(ctx, w, ':');
 	knh_write_dfmt(ctx, w, KNH_INTPTR_FMT, line);
 	knh_putc(ctx, w, ']'); knh_putc(ctx, w, ' ');
@@ -126,7 +127,7 @@ void knh_write_uline(Ctx *ctx, knh_OutputStream_t *w, knh_uri_t uri, long line)
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(char*) LOG_tochar(int p)
+const char* LOG_tochar(int p)
 {
 	switch(p) {
 	case LOG_EMERG:   return "PANIC";
@@ -145,7 +146,7 @@ KNHAPI(char*) LOG_tochar(int p)
 /* ------------------------------------------------------------------------ */
 /* [syslog] */
 
-static void knh_vsyslog(Ctx *ctx, int p, char *fmt, va_list ap)
+static void knh_vsyslog(Ctx *ctx, int p, const char *fmt, va_list ap)
 {
 	if(p > LOG_WARNING && !knh_isSystemVerbose()) return;
 #ifdef KONOHA_ON_LKM
@@ -160,20 +161,12 @@ static void knh_vsyslog(Ctx *ctx, int p, char *fmt, va_list ap)
 	else {
 		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 		knh_printf(ctx, cwb->w, "konoha[%s] ", LOG_tochar(p));
-		knh_vprintf(ctx, cwb->w, (char*)fmt, ap);
+		knh_vprintf(ctx, cwb->w, fmt, ap);
 		fprintf(stderr, "%s\n", knh_cwb_tochar(ctx, cwb));
 		knh_cwb_clear(cwb, 0);
 	}
 #endif
 }
-
-//void knh_syslog(Ctx *ctx, int p, char *fmt, ...)
-//{
-//	va_list ap;
-//	va_start(ap , fmt);
-//	knh_vsyslog(ctx, p, fmt, ap);
-//	va_end(ap);
-//}
 
 #define K_EVENT_FORMAT "[%s:%s] "
 
@@ -225,7 +218,7 @@ void knh_foundKonohaStyle(Ctx *ctx, size_t score)
 /* ------------------------------------------------------------------------ */
 /* @data */
 
-static char* KERR_tochar(int p)
+static const char* KERR_tochar(int p)
 {
 	switch(p) {
 	case LOG_EMERG:
@@ -243,7 +236,7 @@ static char* KERR_tochar(int p)
 
 /* ------------------------------------------------------------------------ */
 
-void knh_vperror(Ctx *ctx, knh_uri_t uri, int line, int pe, char *fmt, va_list ap)
+void knh_vperror(Ctx *ctx, knh_uri_t uri, int line, int pe, const char *fmt, va_list ap)
 {
 	DBG_ASSERT(pe <= LOG_DEBUG);
 	if(knh_Gamma_isQuiet(ctx->gma)) {
@@ -275,7 +268,7 @@ void knh_vperror(Ctx *ctx, knh_uri_t uri, int line, int pe, char *fmt, va_list a
 
 /* ------------------------------------------------------------------------ */
 
-void knh_perror(Ctx *ctx, knh_uri_t uri, int line, int pe, char *fmt, ...)
+void knh_perror(Ctx *ctx, knh_uri_t uri, int line, int pe, const char *fmt, ...)
 {
 	va_list ap;
 	va_start(ap, fmt);

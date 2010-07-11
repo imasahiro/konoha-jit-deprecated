@@ -796,7 +796,7 @@ def write_Data(f, data):
         fmt = '''
 \t"%s", /* TS_%s */''' % (s, n)
         dlist0.append(fmt)
-    write_data(f, 'char *', 'StringData0', dlist0, 'NULL')
+    write_data(f, 'const char *', 'StringData0', dlist0, 'NULL')
     dlist0 = []
     dlist = []
     for c in data.STRUCT_LIST :

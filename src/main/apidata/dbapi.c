@@ -158,7 +158,7 @@ static METHOD ResultSet_getInt(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	knh_int_t res = 0;
 	if(n >= 0) {
 		knh_ResultSet_t *o = (knh_ResultSet_t*)sfp[0].o;
-		char *p = BA_tochar(DP(o)->databuf) + DP(o)->column[n].start;
+		const char *p = BA_tochar(DP(o)->databuf) + DP(o)->column[n].start;
 		switch(DP(o)->column[n].ctype) {
 		case knh_ResultSet_CTYPE__integer :
 			res = *((knh_int_t*)p); break;
@@ -182,7 +182,7 @@ static METHOD ResultSet_getFloat(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	knh_float_t res = K_FLOAT_ZERO;
 	if(n >= 0) {
 		knh_ResultSet_t *o = (knh_ResultSet_t*)sfp[0].o;
-		char *p = BA_tochar(DP(o)->databuf) + DP(o)->column[n].start;
+		const char *p = BA_tochar(DP(o)->databuf) + DP(o)->column[n].start;
 		switch(DP(o)->column[n].ctype) {
 		case knh_ResultSet_CTYPE__integer :
 			res = (knh_float_t)(*((knh_int_t*)p)); break;
@@ -205,7 +205,7 @@ static METHOD ResultSet_getString(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	int n = knh_ResultSet_indexof_(ctx, sfp);
 	Object *v = KNH_NULL;
 	if(n >= 0) {
-		v = UP(knh_ResultSet_getString(ctx, (knh_ResultSet_t*)sfp[0].o, n));
+		v = UPCAST(knh_ResultSet_getString(ctx, (knh_ResultSet_t*)sfp[0].o, n));
 	}
 	RETURN_(v);
 }
@@ -220,7 +220,7 @@ static METHOD ResultSet_get(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	Object *v = KNH_NULL;
 	if(n >= 0) {
 		knh_ResultSet_t *o = (knh_ResultSet_t*)sfp[0].o;
-		char *p = BA_tochar(DP(o)->databuf) + DP(o)->column[n].start;
+		const char *p = BA_tochar(DP(o)->databuf) + DP(o)->column[n].start;
 		switch(DP(o)->column[n].ctype) {
 		case knh_ResultSet_CTYPE__integer :
 			KNH_SETv(ctx, sfp[rix].o, KNH_INT0);
@@ -228,14 +228,17 @@ static METHOD ResultSet_get(Ctx *ctx, knh_sfp_t *sfp, long rix)
 		case knh_ResultSet_CTYPE__float :
 			KNH_SETv(ctx, sfp[rix].o, KNH_FLOAT0);
 			RETURNf_((*((knh_float_t*)p)));
-		case knh_ResultSet_CTYPE__text :
-			v = UP(new_S(ctx, B2(BA_tochar(DP(o)->databuf) + DP(o)->column[n].start, DP(o)->column[n].len)));
+		case knh_ResultSet_CTYPE__text : {
+			knh_bytes_t t = {{BA_tochar(DP(o)->databuf) + DP(o)->column[n].start}, DP(o)->column[n].len};
+			v = UPCAST(new_S(ctx, t));
 			break;
+		}
 		case knh_ResultSet_CTYPE__bytes :
 			{
 				knh_Bytes_t *ba = new_Bytes(ctx, DP(o)->column[n].len);
-				knh_Bytes_write(ctx, ba, B2(BA_tochar(DP(o)->databuf) + DP(o)->column[n].start, DP(o)->column[n].len));
-				v = UP(ba);
+				knh_bytes_t t = {{BA_tochar(DP(o)->databuf) + DP(o)->column[n].start}, DP(o)->column[n].len};
+				knh_Bytes_write(ctx, ba, t);
+				v = UPCAST(ba);
 			}
 			break;
 		default:

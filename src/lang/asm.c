@@ -108,7 +108,7 @@ static void knh_ftraverse_inc(Ctx* ctx, Object *o)
 static void knh_BasicBlock_add_(Ctx *ctx, knh_BasicBlock_t *bb, int line, knh_opline_t *op)
 {
 	if(DP(bb)->capacity == 0) {
-		DP(bb)->opbuf = KNH_MALLOC(ctx, sizeof(knh_opline_t));
+		DP(bb)->opbuf = (knh_opline_t*)KNH_MALLOC(ctx, sizeof(knh_opline_t));
 		DP(bb)->capacity = 1;
 	}
 	else if(DP(bb)->capacity == 1) {
@@ -258,7 +258,7 @@ static knh_opcode_t knh_BasicBlock_opcode(knh_BasicBlock_t *bb)
 
 #define BB(bb)   knh_opcode_tochar(knh_BasicBlock_opcode(bb))
 
-static void dumpBB(knh_BasicBlock_t *bb, char *indent)
+static void dumpBB(knh_BasicBlock_t *bb, const char *indent)
 {
 	size_t i;
 	DBG_P("%sid=%i, size=%d", indent, DP(bb)->id, DP(bb)->size);
@@ -273,6 +273,7 @@ static void dumpBB(knh_BasicBlock_t *bb, char *indent)
 	for(i = 0; i < DP(bb)->size; i++) {
 		knh_opline_t *op = DP(bb)->opbuf + i;
 		DBG_P("%s\t opcode=%s", indent, knh_opcode_tochar(op->opcode));
+		(void)op;
 	}
 }
 
@@ -538,7 +539,7 @@ static void knh_Method_threadCode(Ctx *ctx, knh_Method_t *mtd, knh_KLRCode_t *kc
 	(mtd)->pc_start = knh_VirtualMachine_run(ctx, ctx->esp + 1, SP(kcode)->code);
 	if(knh_isSystemVerbose()) {
 		knh_Method_t *mtdf = knh_lookupFormatter(ctx, CLASS_Method, MN__dump);
-		knh_write_Object(ctx, KNH_STDOUT, ctx->esp, &mtdf, UP(mtd));
+		knh_write_Object(ctx, KNH_STDOUT, ctx->esp, &mtdf, UPCAST(mtd));
 		knh_write_EOL(ctx, KNH_STDOUT);
 	}
 }
@@ -1782,8 +1783,8 @@ void knh_Gamma_pushLABEL(Ctx *ctx, knh_Stmt_t *stmt, knh_BasicBlock_t *lbC, knh_
 		tkL = KNH_NULVAL(CLASS_Any);
 	}
 	knh_Array_add_(ctx, DP(ctx->gma)->lstacks, tkL);
-	knh_Array_add_(ctx, DP(ctx->gma)->lstacks, UP(lbC));
-	knh_Array_add_(ctx, DP(ctx->gma)->lstacks, UP(lbB));
+	knh_Array_add_(ctx, DP(ctx->gma)->lstacks, UPCAST(lbC));
+	knh_Array_add_(ctx, DP(ctx->gma)->lstacks, UPCAST(lbB));
 }
 
 static void knh_Gamma_popLABEL(Ctx *ctx)
@@ -2153,7 +2154,7 @@ static void knh_StmtERR_asm(Ctx *ctx, knh_Stmt_t *stmt)
 			DP(stmt)->nextNULL = NULL;
 		}
 	}
-	KNH_ASM(OSET, espidx, UP(DP(stmt)->errMsg));
+	KNH_ASM(OSET, espidx, UPCAST(DP(stmt)->errMsg));
 	KNH_ASM(TR, espidx, espidx, CLASS_Exception, _ERR);
 	KNH_ASM(THROW, start);
 }
@@ -2228,7 +2229,7 @@ static void knh_StmtPRINT_asm(Ctx *ctx, knh_Stmt_t *stmt)
 	if(DP(stmt)->size == 0) return ;
 	knh_flag_t flag = knh_StmtPRINT_flag(ctx, stmt);
 	knh_BasicBlock_t*  lbskip = new_BasicBlockLABEL(ctx);
-	int i;
+	size_t i;
 	KNH_ASM_SKIP(ctx, lbskip);
 	if(!knh_Context_isInteractive(ctx)) {
 		flag = flag | K_FLAG_PF_BOL | K_FLAG_PF_LINE;
@@ -2279,7 +2280,7 @@ static void knh_StmtASSERT_asm(Ctx *ctx, knh_Stmt_t *stmt)
 	TERMs_JMPIF(ctx, stmt, 0, 1, lbskip, DP(ctx->gma)->espidx);
 	/*then*/
 	TERMs_asmBLOCK(ctx, stmt, 1, TYPE_void);
-	KNH_ASM(OSET, espidx, UP(TS_AssertionException));
+	KNH_ASM(OSET, espidx, UPCAST(TS_AssertionException));
 	KNH_ASM(TR, espidx, espidx, CLASS_Exception, _ERR);
 	KNH_ASM(THROW, start);
 	KNH_ASM_LABEL(ctx, lbskip);
@@ -2431,7 +2432,7 @@ void knh_Method_asm(Ctx *ctx, knh_Method_t *mtd, knh_Stmt_t *stmtP, knh_Stmt_t *
 //	knh_Exception_t *e = DP(sfp[n].hdr)->caught;
 //	DBG_ASSERT(IS_ExceptionHandler(sfp[-3].hdr));
 //	DBG_ASSERT(IS_Exception(e));
-//	knh_write_Object(ctx, KNH_STDERR, MN__dump, UP(e), KNH_NULL);
+//	knh_write_Object(ctx, KNH_STDERR, MN__dump, UPCAST(e), KNH_NULL);
 //}
 
 static knh_opline_t* knh_code_findOPCODE(Ctx *ctx, knh_opline_t *op, knh_opcode_t opcode)

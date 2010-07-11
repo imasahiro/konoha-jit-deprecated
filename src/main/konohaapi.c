@@ -217,7 +217,7 @@ static void knh_setSyncURL(Ctx *ctx, int mode, const char *optstr)
 void knh_loadPackageList(Ctx *ctx, const char *pkglist)
 {
 	if(pkglist != NULL) {
-		knh_bytes_t t = {{(knh_uchar_t*)pkglist}, knh_strlen(pkglist)+1};
+		knh_bytes_t t = {{pkglist}, knh_strlen(pkglist)};
 		char buf[256];
 		size_t i = 0;
 		int isExists = 0;
@@ -228,7 +228,7 @@ void knh_loadPackageList(Ctx *ctx, const char *pkglist)
 			buf[0] = 'p'; buf[1] = 'a'; buf[2] = 'c'; buf[3] = 'k';
 			buf[4] = 'a'; buf[5] = 'g'; buf[6] = 'e'; buf[7] = ':';
 			while(i < t.len) {
-				int ch = t.buf[i];
+				int ch = t.ubuf[i];
 				i++;
 				if(ch ==':' || ch == ';' || ch == ',' || ch == 0) {
 					*c = 0;
@@ -401,19 +401,19 @@ static void knh_showWelcome(Ctx *ctx, knh_OutputStream_t *w)
 	knh_printf(ctx, w, "Konoha %s(%s) %s (rev:%d, %s %s)\n",
 		K_VERSION, K_CODENAME, K_DIST, ((knh_intptr_t)K_REVISION), __DATE__, __TIME__);
 	knh_printf(ctx, w, "[%s] on %s (%d, %s)\n", K_CC, K_PLATFORM, (knh_intptr_t)(sizeof(void*) * 8), knh_getSystemEncoding());
-	knh_write_char(ctx, w, "Options:");
+	knh_write_text(ctx, w, "Options:");
 
 #ifdef KNH_FASTMODE
-	knh_write_char(ctx, w, " fastmode");
+	knh_write_text(ctx, w, " fastmode");
 #endif
 #ifdef K_USING_INT32
-	knh_write_char(ctx, w, " int32");
+	knh_write_text(ctx, w, " int32");
 #endif
 #ifdef K_USING_RCGC
-	knh_write_char(ctx, w, " rcgc");
+	knh_write_text(ctx, w, " rcgc");
 #endif
 #ifdef K_USING_THREAD
-	knh_write_char(ctx, w, " thread");
+	knh_write_text(ctx, w, " thread");
 #endif
 	knh_printf(ctx, w, " used_memory:%d kb\n", (knh_intptr_t)(ctx->stat->usedMemorySize / 1024));
 #ifdef K_PREVIEW
@@ -428,7 +428,7 @@ static int shell_checkstmt(knh_bytes_t t)
 	int ch, quote = 0, nest = 0;
 	L_NORMAL:
 	for(; i < t.len; i++) {
-		ch = t.buf[i];
+		ch = t.ubuf[i];
 		if(ch == '{' || ch == '[' || ch == '(') nest++;
 		if(ch == '}' || ch == ']' || ch == ')') nest--;
 		if(ch == '\'' || ch == '"' || ch == '`' || ch == '/') {
@@ -440,8 +440,8 @@ static int shell_checkstmt(knh_bytes_t t)
 	L_QUOTE:
 	DBG_ASSERT(i > 0);
 	for(; i < t.len; i++) {
-		ch = t.buf[i];
-		if(t.buf[i-1] != '\\' && ch == quote) {
+		ch = t.ubuf[i];
+		if(t.ubuf[i-1] != '\\' && ch == quote) {
 			i++;
 			goto L_NORMAL;
 		}
@@ -467,7 +467,7 @@ static const knh_ShellAPI_t shellAPI = {
 /* ------------------------------------------------------------------------ */
 /* standard shell api */
 
-static void* shell_init(Ctx *ctx, char *msg, char *optstr)
+static void* shell_init(Ctx *ctx, const char *msg, const char *optstr)
 {
 	fputs(msg, stdout);
 	knh_Context_setInteractive(ctx, 1);
@@ -505,7 +505,7 @@ static knh_bool_t shell_readstmt(Ctx *ctx, void *status, knh_cwb_t *cwb, const k
 	return api->command(ctx, cwb);
 }
 
-static void shell_display(Ctx *ctx, void *status, char *msg, const knh_ShellAPI_t *api)
+static void shell_display(Ctx *ctx, void *status, const char *msg, const knh_ShellAPI_t *api)
 {
 	fputs(msg, stdout);
 }
@@ -597,9 +597,10 @@ static void knh_askSecurityAlert(Ctx *ctx)
 	}
 	L_CHECK:;
 	knh_cwb_close(cwb);
-	knh_thread_t th;
-	knh_thread_create(ctx, &th, NULL, knh_checkSecurityAlert, (void*)ctx);
-	knh_thread_detach(ctx, th);
+//  USE knh_checkSecurityAlert();
+//	knh_thread_t th;
+//	knh_thread_create(ctx, &th, NULL, knh_checkSecurityAlert, (void*)ctx);
+//	knh_thread_detach(ctx, th);
 //	knh_checkSecurityAlert();
 }
 #endif
@@ -628,6 +629,8 @@ KNHAPI(void) konoha_shell(konoha_t konoha, char *optstr)
 /* [ktest lang] */
 // the following is added by nakata 
 // modified by kimio
+
+#ifdef K_USING_NAKATA
 
 #define KTEST_LINE_MAX 1024
 #define IS_D(L, ch) (L[0] == ch && L[1] == ch)
@@ -900,6 +903,8 @@ static const knh_ShellSPI_t testSPI = {
 		test_cleanup,
 };
 
+#endif
+
 void konoha_runTest(konoha_t konoha, int argc, char **argv)
 {
 	KONOHA_CHECK_(konoha);
@@ -910,7 +915,7 @@ void konoha_runTest(konoha_t konoha, int argc, char **argv)
 	KNH_SETv(ctx, ((knh_Context_t*)ctx)->err, ctx->out);
 #endif
 	for(i = 0; i < argc; i++) {
-		knh_shell(ctx, argv[i], &testSPI, NULL);
+//		knh_shell(ctx, argv[i], &testSPI, NULL);
 	}
 	KNH_SETv(ctx, ((knh_Context_t*)ctx)->out, DP(ctx->sys)->out);
 	KNH_SETv(ctx, ((knh_Context_t*)ctx)->err, DP(ctx->sys)->err);

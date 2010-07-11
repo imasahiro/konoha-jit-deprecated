@@ -9,23 +9,23 @@ extern "C" {
 /* [bytes] */
 
 #if defined(USE_new_bytes) || defined(USE_B)
-static knh_bytes_t new_bytes(char *c)
+static knh_bytes_t new_bytes(char *c_buf)
 {
-	knh_bytes_t v;
 	DBG_ASSERT(c != NULL);
-	v.buf = (knh_uchar_t*)c;
-	v.len = knh_strlen(c);
-	return v;
+	knh_bytes_t t;
+	t.ubuf = (knh_uchar_t*)c_buf;
+	t.len = knh_strlen(t.text);
+	return t;
 }
 #endif
 
 /* ------------------------------------------------------------------------ */
 
 #if defined(USE_new_bytes2) || defined(USE_STEXT)
-static knh_bytes_t new_bytes2(char *buf, size_t len)
+static knh_bytes_t new_bytes2(const char *text, size_t len)
 {
 	knh_bytes_t v;
-	v.buf = (knh_uchar_t*)buf;
+	v.text = text;
 	v.len = len;
 	return v;
 }
@@ -41,7 +41,7 @@ static knh_index_t knh_bytes_indexOf(knh_bytes_t base, knh_bytes_t delim)
 	}
 	for (i = 0; i <= base.len - delim.len; i++) {
 		j = 0;
-		while ((j < delim.len) && (base.buf[i+j] == delim.buf[j])) {
+		while ((j < delim.len) && (base.ustr[i+j] == delim.ustr[j])) {
 			j++;
 		}
 		if (j == delim.len) return i;
@@ -55,15 +55,15 @@ static int knh_bytes_strcmp(knh_bytes_t v1, knh_bytes_t v2)
 {
 	int res1;
 	if(v1.len < v2.len) {
-		int res = knh_strncmp(v1.buf, v2.buf, v1.len);
+		int res = knh_strncmp(v1.text, v2.text, v1.len);
 		res1 = (res == 0) ? -1 : res;
 	}
 	else if(v1.len > v2.len) {
-		int res = knh_strncmp(v1.buf, v2.buf, v2.len);
+		int res = knh_strncmp(v1.text, v2.text, v2.len);
 		res1 = (res == 0) ? 1 : res;
 	}
 	else {
-		res1 = knh_strncmp(v1.buf, v2.buf, v1.len);
+		res1 = knh_strncmp(v1.text, v2.text, v1.len);
 	}
 	return res1;
 }
@@ -75,15 +75,15 @@ static int knh_bytes_strcmp(knh_bytes_t v1, knh_bytes_t v2)
 static int knh_bytes_strcasecmp(knh_bytes_t v1, knh_bytes_t v2)
 {
 	if(v1.len < v2.len) {
-		int res = knh_strncasecmp(v1.buf, v2.buf, v1.len);
+		int res = knh_strncasecmp(v1.text, v2.text, v1.len);
 		return (res == 0) ? -1 : res;
 	}
 	else if(v1.len > v2.len) {
-		int res = knh_strncasecmp(v1.buf, v2.buf, v2.len);
+		int res = knh_strncasecmp(v1.text, v2.text, v2.len);
 		return (res == 0) ? 1 : res;
 	}
 	else {
-		return knh_strncasecmp(v1.buf, v2.buf, v1.len);
+		return knh_strncasecmp(v1.text, v2.text, v1.len);
 	}
 }
 #endif
@@ -91,14 +91,14 @@ static int knh_bytes_strcasecmp(knh_bytes_t v1, knh_bytes_t v2)
 #ifdef USE_bytes_equals
 static knh_bool_t knh_bytes_equals(knh_bytes_t v1, knh_bytes_t v2)
 {
-	return (v1.len == v2.len && knh_strncmp(v1.buf, v2.buf, v1.len) == 0);
+	return (v1.len == v2.len && knh_strncmp(v1.text, v2.text, v1.len) == 0);
 }
 #endif
 
 #ifdef USE_bytes_equalsIgnoreCase
 static  knh_bool_t knh_bytes_equalsIgnoreCase(knh_bytes_t v1, knh_bytes_t v2)
 {
-	return (v1.len == v2.len && knh_strncasecmp(v1.buf, v2.buf, v1.len) == 0);
+	return (v1.len == v2.len && knh_strncasecmp(v1.text, v2.text, v1.len) == 0);
 }
 #endif
 
@@ -107,7 +107,7 @@ static  knh_bool_t knh_bytes_equalsIgnoreCase(knh_bytes_t v1, knh_bytes_t v2)
 static int knh_bytes_startsWith(knh_bytes_t v1, knh_bytes_t v2)
 {
 	if(v1.len < v2.len) return 0;
-	return (knh_strncmp(v1.buf, v2.buf, v2.len) == 0);
+	return (knh_strncmp(v1.text, v2.text, v2.len) == 0);
 }
 #endif
 
@@ -115,8 +115,8 @@ static int knh_bytes_startsWith(knh_bytes_t v1, knh_bytes_t v2)
 static knh_bool_t knh_bytes_endsWith(knh_bytes_t v1, knh_bytes_t v2)
 {
 	if(v1.len < v2.len) return 0;
-	knh_uchar_t *p = v1.buf + (v1.len-v2.len);
-	return (knh_strncmp(p, v2.buf, v2.len) == 0);
+	knh_text_t *p = v1.text + (v1.len-v2.len);
+	return (knh_strncmp(p, v2.text, v2.len) == 0);
 }
 #endif
 
@@ -125,7 +125,7 @@ static knh_index_t knh_bytes_index(knh_bytes_t v, int ch)
 {
 	size_t i;
 	for(i = 0; i < v.len; i++) {
-		if(v.buf[i] == ch) return (knh_index_t)i;
+		if(v.ustr[i] == ch) return (knh_index_t)i;
 	}
 	return -1;
 }
@@ -136,7 +136,7 @@ static knh_index_t knh_bytes_rindex(knh_bytes_t v, int ch)
 {
 	knh_index_t i;
 	for(i = v.len - 1; i >= 0; i--) {
-		if(v.buf[i] == ch) return i;
+		if(v.ustr[i] == ch) return i;
 	}
 	return -1;
 }
@@ -147,7 +147,7 @@ static knh_index_t knh_bytes_rindex(knh_bytes_t v, int ch)
 static knh_bytes_t knh_bytes_first(knh_bytes_t t, knh_intptr_t loc)
 {
 	knh_bytes_t t2;
-	t2.buf = t.buf;
+	t2.ustr = t.ustr;
 	t2.len = loc;
 	return t2;
 }
@@ -157,7 +157,7 @@ static knh_bytes_t knh_bytes_first(knh_bytes_t t, knh_intptr_t loc)
 static knh_bytes_t knh_bytes_last(knh_bytes_t t, knh_intptr_t loc)
 {
 	knh_bytes_t t2;
-	t2.buf = t.buf + loc;
+	t2.ustr = t.ustr + loc;
 	t2.len = t.len - loc;
 	return t2;
 }
@@ -167,7 +167,7 @@ static knh_bytes_t knh_bytes_last(knh_bytes_t t, knh_intptr_t loc)
 static knh_bytes_t knh_bytes_slice(knh_bytes_t t, size_t s, size_t e)
 {
 	knh_bytes_t t2;
-	t2.buf = t.buf + s;
+	t2.ustr = t.ustr + s;
 	t2.len = e - s;
 	DBG_ASSERT(s + t2.len <= t.len);
 	return t2;
@@ -178,7 +178,7 @@ static knh_bytes_t knh_bytes_slice(knh_bytes_t t, size_t s, size_t e)
 static knh_bytes_t knh_bytes_subbytes(knh_bytes_t t, size_t off, size_t len)
 {
 	knh_bytes_t t2;
-	t2.buf = t.buf + off;
+	t2.ustr = t.ustr + off;
 	t2.len = len;
 	DBG_ASSERT(off + len <= t.len);
 	return t2;
@@ -191,19 +191,19 @@ static int knh_bytes_parseint(knh_bytes_t t, knh_int_t *value)
 	knh_uint_t n = 0, prev = 0, base = 10;
 	size_t i = 0;
 	if(t.len > 1) {
-		if(t.buf[0] == '0') {
-			if(t.buf[1] == 'x') {
+		if(t.ustr[0] == '0') {
+			if(t.ustr[1] == 'x') {
 				base = 16; i = 2;
 			}
-			else if(t.buf[1] == 'b') {
+			else if(t.ustr[1] == 'b') {
 				base = 2;  i = 2;
 			}
-		}else if(t.buf[0] == '-') {
+		}else if(t.ustr[0] == '-') {
 			base = 10; i = 1;
 		}
 	}
 	for(;i < t.len; i++) {
-		int c = t.buf[i];
+		int c = t.ustr[i];
 		if('0' <= c && c <= '9') {
 			prev = n;
 			n = n * base + (c - '0');
@@ -227,7 +227,7 @@ static int knh_bytes_parseint(knh_bytes_t t, knh_int_t *value)
 			return 0;
 		}
 	}
-	if(t.buf[0] == '-') n = -((knh_int_t)n);
+	if(t.ustr[0] == '-') n = -((knh_int_t)n);
 	*value = n;
 	return 1;
 }
@@ -246,11 +246,11 @@ static int knh_bytes_parsefloat(knh_bytes_t t, knh_float_t *value)
 		*value = (knh_float_t)v;
 	}
 #elif defined(K_USING_LONGDOUBLE)
-	*value = strtold((char*)t.buf, NULL);
+	*value = strtold(t.text, NULL);
 #elif defined(K_USING_FLOAT)
-	*value = strtof((char*)t.buf, NULL);
+	*value = strtof(t.text, NULL);
 #else
-	*value = strtod((char*)t.buf, NULL);
+	*value = strtod(t.text, NULL);
 #endif
 	return 1;
 }
@@ -275,7 +275,7 @@ static knh_cwb_t *knh_cwb_openinit(Ctx* ctx, knh_cwb_t *cwb, knh_bytes_t t)
 	cwb->ba = ctx->bufa;
 	cwb->w  = ctx->bufw;
 	cwb->pos = BA_size(ctx->bufa);
-	KNH_ASSERT(!(cwb->ba->bu.buf <= t.buf && t.buf < (cwb->ba->bu.buf + cwb->pos)));
+	KNH_ASSERT(!(cwb->ba->bu.ustr <= t.ustr && t.ustr < (cwb->ba->bu.ustr + cwb->pos)));
 	knh_Bytes_write(ctx, (cwb->ba), t);
 	return cwb;
 }
@@ -291,7 +291,7 @@ static void knh_cwb_putc(Ctx *ctx, knh_cwb_t *cwb, int ch)
 #if defined(USE_cwb_write)
 static void knh_cwb_write(Ctx *ctx, knh_cwb_t *cwb, knh_bytes_t t)
 {
-	KNH_ASSERT(!(cwb->ba->bu.buf <= t.buf && t.buf < (cwb->ba->bu.buf + cwb->pos)));
+	KNH_ASSERT(!(cwb->ba->bu.ustr <= t.ustr && t.ustr < (cwb->ba->bu.ustr + cwb->pos)));
 	knh_Bytes_write(ctx, (cwb->ba), t);
 }
 #endif
@@ -306,7 +306,9 @@ static size_t knh_cwb_size(knh_cwb_t *cwb)
 #if defined(USE_cwb_tobytes)
 static knh_bytes_t knh_cwb_tobytes(knh_cwb_t *cwb)
 {
-	knh_bytes_t t = {{(cwb->ba)->bu.buf + cwb->pos}, (cwb->ba)->bu.len - cwb->pos};
+	knh_bytes_t t;
+	t.text = (cwb->ba)->bu.text + cwb->pos;
+	t.len =  (cwb->ba)->bu.len - cwb->pos;
 	return t;
 }
 #endif
@@ -316,7 +318,7 @@ static knh_bytes_t knh_cwb_tobytes(knh_cwb_t *cwb)
 /* [FILE] */
 
 #ifdef USE_fopen
-static FILE* knh_fopen(Ctx *ctx, char *filename, char *mode, int isPERROR)
+static FILE* knh_fopen(Ctx *ctx, const char *filename, const char *mode, int isPERROR)
 {
 #if defined(K_USING_NOFILE)
 	return NULL;
@@ -362,7 +364,7 @@ static size_t knh_fread(Ctx *ctx, void *ptr, size_t size, FILE *in)
 #endif
 
 #ifdef USE_fwrite
-static size_t knh_fwrite(Ctx *ctx, void *ptr, size_t size, FILE *in)
+static size_t knh_fwrite(Ctx *ctx, const void *ptr, size_t size, FILE *in)
 {
 #if defined(K_USING_NOFILE)
 	return 0;
