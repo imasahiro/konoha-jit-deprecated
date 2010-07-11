@@ -597,7 +597,10 @@ static void knh_askSecurityAlert(Ctx *ctx)
 	}
 	L_CHECK:;
 	knh_cwb_close(cwb);
-	knh_checkSecurityAlert();
+	knh_thread_t th;
+	knh_thread_create(ctx, &th, NULL, knh_checkSecurityAlert, (void*)ctx);
+	knh_thread_detach(ctx, th);
+//	knh_checkSecurityAlert();
 }
 #endif
 
