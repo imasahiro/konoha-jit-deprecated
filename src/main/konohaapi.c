@@ -857,10 +857,10 @@ static void test_display(Ctx *ctx, void *status, const char* result, const knh_S
 	if (strncmp((char*)charResult, result, len) == 0) {
 		ks->isPassed = 1;
 		// always print out: modified by kimio
-		fprintf(kt->out, "[PASSED] %s\n", ku->testTitle.ubuf);
+		fprintf(kt->out, "[PASSED] %s\n", ku->testTitle.text);
 	} else {
 		ks->isPassed = 0;
-		fprintf(kt->out, "[FAILED] %s\n", ku->testTitle.ubuf);
+		fprintf(kt->out, "[FAILED] %s\nTESTED:\n%s\nMUST BE:\n%s\nRESULTS:\n%s\n", ku->testTitle.text, ks->testBody.text,  ks->testResult.text, result);
 	}
 }
 
@@ -909,8 +909,7 @@ static void test_cleanup(Ctx *ctx, void *status)
 	}
 CLEANUP_KT:
 	// modified by kimio // FIXME: if we concat %s and %d, it won't work.
-	fprintf(kt->out, "%s:", kt->filename.text);
-	fprintf(kt->out, "%d of %d tests have passed\n", (int)unit_passed, (int)kt->unitsize);
+	fprintf(kt->out, "%s: %d of %d tests have been passed\n",kt->filename.text, (int)unit_passed, (int)kt->unitsize);
 	KNH_FREE(ctx, kt->filename.ubuf, kt->filename.len + 1);
 	KNH_FREE(ctx, kt, sizeof(kt_status_t));
 }

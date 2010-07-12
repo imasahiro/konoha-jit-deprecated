@@ -13,7 +13,7 @@ false
 
 >>> Boolean b1 = true;
 >>> b1
-false
+true
 
 >>> b = false
 false
