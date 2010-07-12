@@ -106,7 +106,7 @@ static METHOD Object_new__MAP(Ctx *ctx, knh_sfp_t *sfp, long rix)
 			knh_fields_t *cf = knh_Class_fieldAt(ctx, cid, idx);
 			knh_type_t type = knh_type_tocid(ctx, cf->type, cid);
 			if(type == TYPE_void) continue;
-			DBG_P("[%d] %s%s %s", (int)(idx), TYPEQN(type), S_tochar(v[i].s));
+			DBG_P("[%d] %s %s", (int)(idx), TYPEN(type), S_tochar(v[i].s));
 			knh_ObjectField_setValue(ctx, of, idx, type, v[i+1].o);
 		}
 	}

@@ -386,7 +386,7 @@ void knh_System_initPath(Ctx *ctx, knh_System_t *o)
 	home = STEXT("/konoha");
 	knh_DictMap_set_(ctx, sys->props, new_T("konoha.path"), UPCAST(new_T("/konoha")));
 #endif
-	KNH_ASSERT(home. buf != NULL);
+	KNH_ASSERT(home.ubuf != NULL);
 	/* $konoha.package.path {$konoha.path}/package */
 	knh_cwb_clear(cwb, 0);
 	knh_cwb_write(ctx, cwb, home);

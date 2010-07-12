@@ -174,7 +174,7 @@ static void knh_ClassField_initField(Ctx *ctx, knh_ClassTable_t *t, knh_class_t 
 		if(FLAG_is(cf[i].flag, FLAG_Field_Property)) {
 			value = knh_getPropertyNULL(ctx, S_tobytes(value));
 			DBG_ASSERT(value != NULL);
-			DBG_P("type=%s%s object=%s", TYPEQN(cf[i].type), CLASSNo(value));
+			DBG_P("type=%s object=%s", TYPEN(cf[i].type), CLASSNo(value));
 		}
 		if(type == TYPE_void) {
 			continue;

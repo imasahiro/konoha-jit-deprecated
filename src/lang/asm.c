@@ -2391,7 +2391,7 @@ void knh_Method_asm(Ctx *ctx, knh_Method_t *mtd, knh_Stmt_t *stmtP, knh_Stmt_t *
 			DBG_(
 			knh_type_t ztype = knh_ParamArray_getptype(DP(mtd)->mp, i - 1);
 			knh_type_t ptype = DP(ctx->gma)->gf[xi].type;
-			DBG_P("PARAM TYPE %s%s (%s%s) i=%ld, xi=%ld %s value=%p", TYPEQN(ztype), TYPEQN(ptype), i, xi, FN_tochar(DP(ctx->gma)->gf[xi].fn), value);
+			DBG_P("PARAM TYPE %s (%s) i=%ld, xi=%ld %s value=%p", TYPEN(ztype), TYPEN(ptype), i, xi, FN_tochar(DP(ctx->gma)->gf[xi].fn), value);
 			DBG_ASSERT(CLASS_type(ztype) == CLASS_type(ptype));
 			);
 			if(value == NULL) {

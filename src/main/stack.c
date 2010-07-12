@@ -438,7 +438,7 @@ knh_expt_t knh_geteid(Ctx *ctx, knh_bytes_t msg, knh_expt_t def)
 		KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
 		eid = (knh_expt_t)knh_DictCaseSet_get(ctx, DP(ctx->sys)->EventDictCaseSet, msg);
 		KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
-		DBG_P("'%s', eid=%d", msg.buf, eid);
+		DBG_P("'%s', eid=%d", msg.text, eid);
 		if(eid != 0) return eid;
 		if(def == EXPT_newid) {
 			return knh_addException(ctx, 0, EXPT_newid, new_S(ctx, msg), EXPT_Exception);

@@ -11,7 +11,7 @@ extern "C" {
 #if defined(USE_new_bytes) || defined(USE_B)
 static knh_bytes_t new_bytes(char *c_buf)
 {
-	DBG_ASSERT(c != NULL);
+	DBG_ASSERT(c_buf != NULL);
 	knh_bytes_t t;
 	t.ubuf = (knh_uchar_t*)c_buf;
 	t.len = knh_strlen(t.text);

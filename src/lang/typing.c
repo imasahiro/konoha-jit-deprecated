@@ -232,9 +232,6 @@ static knh_methodn_t knh_Token_getmn(Ctx *ctx, knh_Token_t *tk)
 	if(TT_(tk) == TT_FUNCNAME || TT_(tk) == TT_NAME || TT_(tk) == TT_UNAME) {
 		TT_(tk) = TT_MN;
 		DP(tk)->mn = knh_getmn(ctx, TK_tobytes(tk), MN_NEWID);
-		DBG_P("******** %s mn=%d, isBOOL=%d, isGETTER=%d, isSETTER=%d",
-			TK_tobytes(tk).str, DP(tk)->mn,
-			MN_isISBOOL(DP(tk)->mn), MN_isGETTER(DP(tk)->mn), MN_isSETTER(DP(tk)->mn));
 	}
 	if(TT_(tk) == TT_NEW) {
 		TT_(tk) = TT_MN;
@@ -2424,7 +2421,7 @@ static int TERMs_typing(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_type_t reqt, k
 				goto L_RETURN;
 			}
 		}
-		DBG_P("stt=%s n=%d, reqt=%s%s, vart=%s%s", TT_tochar(SP(stmt)->stt), (int)n, TYPEQN(reqt), TYPEQN(vart));
+		DBG_P("stt=%s n=%d, reqt=%s, vart=%s", TT_tochar(SP(stmt)->stt), (int)n, TYPEN(reqt), TYPEN(vart));
 	}
 
 	L_PERROR:;
@@ -3070,11 +3067,11 @@ static knh_Term_t* knh_StmtMETHOD_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t 
 		DBG_P("mp->psize=%d, rsize=%d", mp->psize, mp->rsize);
 		for(i = 0; i < mp->psize; i++) {
 			knh_param_t *p = knh_ParamArray_get(mp, i);
-			DBG_P("param type=%s%s fn=%s", TYPEQN(p->type), FN_tochar(p->fn));
+			DBG_P("param type=%s fn=%s", TYPEN(p->type), FN_tochar(p->fn));
 		}
 		for(i = 0; i < mp->rsize; i++) {
 			knh_param_t *p = knh_ParamArray_rget(mp, i);
-			DBG_P("return type=%s%s, idx=%d", TYPEQN(p->type), p->fn);
+			DBG_P("return type=%s, idx=%d", TYPEN(p->type), p->fn);
 		}
 	});
 

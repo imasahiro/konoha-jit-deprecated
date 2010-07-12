@@ -972,7 +972,6 @@ static knh_ConverterDSPI_t TO_upper = {
 	NULL, touppercase, touppercase, touppercase, touppercase, NULL, NULL,
 };
 
-
 void knh_loadDriver(Ctx *ctx)
 {
 	const knh_PackageLoaderAPI_t *api = knh_getPackageAPI();
