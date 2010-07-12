@@ -580,7 +580,7 @@ void knh_ParamArray_tocid(Ctx *ctx, knh_ParamArray_t *pa, knh_class_t this_cid, 
 
 knh_class_t knh_type_tocid(Ctx *ctx, knh_type_t ptype, knh_class_t this_cid)
 {
-	long t = ptype - TYPE_T1;
+	long t = (long)ptype - (long)TYPE_T1;
 	if(t == -1) {
 		DBG_ASSERT_cid(this_cid);
 		return this_cid;
