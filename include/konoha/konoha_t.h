@@ -231,8 +231,8 @@ typedef double                    knh_float_t;
 /* ------------------------------------------------------------------------ */
 
 typedef unsigned char           knh_uchar_t;    /* byte */
-//typedef const char              knh_text_t;
-//typedef const unsigned char     knh_ustr_t;
+typedef const char              knh_text_t;
+typedef const unsigned char     knh_ustr_t;
 
 typedef struct {
 	union {
