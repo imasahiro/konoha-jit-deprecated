@@ -107,7 +107,7 @@ knh_float_t knh_float_rand(void)
 
 knh_bool_t knh_Object_isNumber(Ctx *ctx, knh_Object_t *o)
 {
-	knh_NumberCSPI_t *cspi = (knh_NumberCSPI_t*)ClassTable(knh_Object_cid(o)).cspi;
+	knh_NumberCSPI_t *cspi = (knh_NumberCSPI_t*)ClassTBL(knh_Object_cid(o)).cspi;
 	return (cspi->magic == K_NUMBERCSPI_MAGIC);
 }
 
@@ -115,7 +115,7 @@ knh_bool_t knh_Object_isNumber(Ctx *ctx, knh_Object_t *o)
 
 FASTAPI(knh_int_t) knh_stack0_toint(Ctx *ctx, knh_sfp_t *sfp)
 {
-	knh_NumberCSPI_t *cspi = (knh_NumberCSPI_t*)ClassTable(knh_Object_cid(sfp[0].o)).cspi;
+	knh_NumberCSPI_t *cspi = (knh_NumberCSPI_t*)ClassTBL(knh_Object_cid(sfp[0].o)).cspi;
 	DBG_ASSERT(cspi->magic == K_NUMBERCSPI_MAGIC);
 	return cspi->to_int(ctx, sfp);
 }
@@ -124,7 +124,7 @@ FASTAPI(knh_int_t) knh_stack0_toint(Ctx *ctx, knh_sfp_t *sfp)
 
 FASTAPI(knh_float_t) knh_stack0_tofloat(Ctx *ctx, knh_sfp_t *sfp)
 {
-	knh_NumberCSPI_t *cspi = (knh_NumberCSPI_t*)ClassTable(knh_Object_cid(sfp[0].o)).cspi;
+	knh_NumberCSPI_t *cspi = (knh_NumberCSPI_t*)ClassTBL(knh_Object_cid(sfp[0].o)).cspi;
 	DBG_ASSERT(cspi->magic == K_NUMBERCSPI_MAGIC);
 	return cspi->to_float(ctx, sfp);
 }
@@ -227,9 +227,9 @@ KNHAPI(knh_Float_t*) new_Float(Ctx *ctx, knh_class_t cid, knh_float_t value)
 //void KNH_TAFFINE(Ctx *ctx, knh_class_t scid, knh_class_t tcid, knh_float_t scale, knh_float_t shift)
 //{
 //	knh_Translator_t *mpr = new_Translator(ctx, FLAG_Translator_Affine, scid, tcid,
-//			knh_Ftranslator_affine(ctx->share->ClassTable[scid].bcid, ctx->share->ClassTable[tcid].bcid),
+//			knh_Ftranslator_affine(ctx->share->ClassTBL[scid].bcid, ctx->share->ClassTBL[tcid].bcid),
 //			(Object*)new_AffineConv(ctx, scale, shift));
-//	knh_ClassMap_add(ctx, ctx->share->ClassTable[scid].cmap, mpr);
+//	knh_ClassMap_add(ctx, ctx->share->ClassTBL[scid].cmap, mpr);
 //}
 //
 ///* ------------------------------------------------------------------------ */
@@ -237,7 +237,7 @@ KNHAPI(knh_Float_t*) new_Float(Ctx *ctx, knh_class_t cid, knh_float_t value)
 //KNHAPI(void) knh_addAffineTranslator(Ctx *ctx, knh_class_t scid, char *text, knh_float_t scale, knh_float_t shift)
 //{
 //	knh_class_t tcid = knh_getcid(ctx, B(text));
-//	if(tcid != CLASS_unknown && ClassTable(tcid).bcid != tcid) {
+//	if(tcid != CLASS_unknown && ClassTBL(tcid).bcid != tcid) {
 //		KNH_TAFFINE(ctx, scid, tcid, scale, shift);
 //		if(scale != K_FLOAT_ZERO) {
 //			KNH_TAFFINE(ctx, tcid, scid, K_FLOAT_ONE / scale, -(shift/scale));

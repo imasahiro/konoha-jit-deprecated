@@ -150,7 +150,7 @@ knh_type_t knh_NameSpace_gettype(Ctx *ctx, knh_NameSpace_t *ns, knh_bytes_t name
 knh_type_t knh_NameSpace_tagcid(Ctx *ctx, knh_NameSpace_t *o, knh_class_t cid, knh_bytes_t tag)
 {
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-	knh_class_t bcid = ClassTable(cid).bcid;
+	knh_class_t bcid = ClassTBL(cid).bcid;
 	knh_printf(ctx, cwb->w, "%C:%B", bcid, tag);
 	cid = knh_NameSpace_getcid(ctx, o, knh_cwb_tobytes(cwb));
 	knh_cwb_close(cwb);
@@ -268,7 +268,7 @@ static void knh_NameSpace_setcid(Ctx *ctx, knh_NameSpace_t *ns, knh_String_t *na
 	else {
 		knh_class_t oldcid = knh_NameSpace_getcid(ctx, ns, S_tobytes(name));
 		if(oldcid != CLASS_unknown && cid != oldcid) {
-			knh_Gamma_perror(ctx, KERR_DWARN, _("renaming.. %s => %s"), CLASSN(oldcid), CLASSN(cid));
+			knh_Gamma_perror(ctx, KERR_DWARN, _("renaming.. %s => %s"), CLASS__(oldcid), CLASS__(cid));
 			if(!isOVERRIDE) return;
 		}
 	}
@@ -299,13 +299,13 @@ static int knh_StmtUSINGCLASS_eval(Ctx *ctx, knh_Stmt_t *stmt, size_t n)
 		if(TT_(tkN) == TT_MUL) {
 			knh_bytes_t pkgname = knh_bytes_last(S_tobytes(DP(tkPKG)->text), 8);
 			size_t cid;
-			for(cid = 0; cid < ctx->share->ClassTableSize; cid++) {
-				if(ClassTable(cid).lname == NULL) continue;
+			for(cid = 0; cid < ctx->share->ClassTBLSize; cid++) {
+				if(ClassTBL(cid).lname == NULL) continue;
 				if(knh_class_isPrivate(cid) && knh_class_isGenerics(ctx, cid)) continue;
-				knh_bytes_t cname = S_tobytes(ClassTable(cid).lname);
+				knh_bytes_t cname = S_tobytes(ClassTBL(cid).lname);
 				if(knh_bytes_startsWith(cname, pkgname)
 						&& cname.ustr[pkgname.len] == '.' && isupper(cname.ustr[pkgname.len+1])) {
-					knh_NameSpace_setcid(ctx, ns, ClassTable(cid).sname, (knh_class_t)cid, isOVERRIDE);
+					knh_NameSpace_setcid(ctx, ns, ClassTBL(cid).sname, (knh_class_t)cid, isOVERRIDE);
 				}
 			}
 		}
@@ -356,7 +356,7 @@ static int knh_StmtUSINGCLASS_eval(Ctx *ctx, knh_Stmt_t *stmt, size_t n)
 //static
 //char *knh_format_classurn(Ctx *ctx, char *buf, size_t bufsiz, knh_class_t bcid, knh_bytes_t urn)
 //{
-//	knh_snprintf(buf, bufsiz, KNH_SEMANTICS_FMT, CLASSN(bcid), urn.buf);
+//	knh_snprintf(buf, bufsiz, KNH_SEMANTICS_FMT, CLASS__(bcid), urn.buf);
 //	return buf;
 //}
 //
@@ -387,7 +387,7 @@ static int knh_StmtUSINGCLASS_eval(Ctx *ctx, knh_Stmt_t *stmt, size_t n)
 //	knh_Token_t *tkclassn = DP(stmt)->tokens[0];
 //	knh_Token_t *tkurn = DP(stmt)->tokens[1];
 //
-//	char bufcu[CLASSNAME_BUFSIZ];
+//	char bufcu[CLASS__AME_BUFSIZ];
 //	knh_format_classurn(ctx, bufcu, sizeof(bufcu), bcid, knh_getURNAlias(ctx, knh_Token_tobytes(ctx, tkurn)));
 //
 //	knh_class_t cid = knh_findcid(ctx, B(bufcu));
@@ -457,7 +457,7 @@ static int knh_StmtUSINGCLASS_eval(Ctx *ctx, knh_Stmt_t *stmt, size_t n)
 //		}
 //		else {
 //			DBG_ASSERT_cid(cid);
-//			knh_Array_t *a = ClassTable(cid).methods;
+//			knh_Array_t *a = ClassTBL(cid).methods;
 //			size_t i;
 //			for(i = 0; i < knh_Array_size(a); i++) {
 //				knh_Method_t *mtd = (knh_Method_t*)knh_Array_n(a, i);
@@ -528,7 +528,7 @@ static int knh_StmtCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt)
 	knh_class_t cid;
 	knh_Token_t *tkC = DP(stmt)->tokens[0/*CNAME*/];
 	knh_Token_t *tkE = DP(stmt)->tokens[2/*extends D*/];
-	knh_ClassTable_t *t = NULL;
+	knh_ClassTBL_t *t = NULL;
 	knh_NameSpace_t *ns = knh_getGammaNameSpace(ctx);
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 	knh_Bytes_write(ctx, cwb->ba, S_tobytes(DP(ns)->nsname));
@@ -537,11 +537,11 @@ static int knh_StmtCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt)
 	cid = knh_getcid(ctx, knh_cwb_tobytes(cwb));
 	if(cid == CLASS_unknown) {
 		cid = new_ClassId(ctx);
-		t = pClassTable(ctx, cid);
+		t = pClassTBL(ctx, cid);
 	}
 	else {
 		knh_cwb_close(cwb);
-		t = pClassTable(ctx, cid);
+		t = pClassTBL(ctx, cid);
 		if(!(t->bcid == CLASS_Object && t->fields == NULL)) {
 			knh_Gamma_perror(ctx, KERR_ERR, _("re-definition of %B(%d)"), S_tobytes(DP(tkC)->text), cid);
 			goto L_ERROR;
@@ -556,7 +556,7 @@ static int knh_StmtCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt)
 			goto L_ERROR;
 		}
 		t->offset = 0; /* will be extended in CLASS_typing */
-		t->keyidx = ClassTable(t->supcid).keyidx;
+		t->keyidx = ClassTBL(t->supcid).keyidx;
 	}
 	if(t->lname == NULL) {
 		t->cflag  = knh_StmtCLASS_flag(ctx, stmt);
@@ -573,7 +573,7 @@ static int knh_StmtCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt)
 				}
 				else {
 					t->bcid = CLASS_RawPtr;
-					t->cspi = ClassTable(CLASS_RawPtr).cspi;
+					t->cspi = ClassTBL(CLASS_RawPtr).cspi;
 				}
 				if(csetup->fdefault != NULL) {
 					knh_setClassDefaultValue(ctx, cid, NULL, csetup->fdefault);
@@ -587,7 +587,7 @@ static int knh_StmtCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt)
 			}
 		}
 		t->bcid = CLASS_Object;
-		t->cspi = ClassTable(CLASS_Object).cspi;
+		t->cspi = ClassTBL(CLASS_Object).cspi;
 		knh_setClassDefaultValue(ctx, cid, new_hObject_(ctx, t->oflag | FLAG_Object_NullObject, t->bcid, cid), NULL);
 		DBG_ASSERT(t->fields == NULL);
 		DBG_ASSERT(t->fsize  == 0);
@@ -598,7 +598,7 @@ static int knh_StmtCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt)
 		KNH_INITv(t->methods, KNH_EMPTYLIST);
 		KNH_INITv(t->tmaps, KNH_EMPTYLIST);
 		knh_NameSpace_setcid(ctx, ns, DP(tkC)->text, cid, 1);
-		KNH_SYSLOG(ctx, LOG_NOTICE, "NEW_CLASS", "*cid=%d, name='%s'", cid, CLASSN(cid));
+		KNH_SYSLOG(ctx, LOG_NOTICE, "NEW_CLASS", "*cid=%d, name='%s'", cid, CLASS__(cid));
 	}
 	if(DP(stmt)->size == 5) {
 		knh_Stmt_done(ctx, stmt);
@@ -713,7 +713,7 @@ static knh_bool_t knh_Stmt_eval(Ctx *ctx, knh_Stmt_t *stmtITR, knh_type_t reqt, 
 				if(knh_VirtualMachine_run(ctx, lsfp + 3, CODE_LAUNCH) == NULL) {
 					int rtnidx=4;
 					knh_class_t cid = knh_Object_cid(lsfp[rtnidx].o);
-					//DBG_P("returning sfpidx=%d, rtnidx=%d, %s %lld %ld %f", sfpidx_, sfpidx_ + rtnidx, CLASSNo(lsfp[rtnidx].o), lsfp[rtnidx].ivalue, lsfp[rtnidx].bvalue, lsfp[rtnidx].fvalue);
+					//DBG_P("returning sfpidx=%d, rtnidx=%d, %s %lld %ld %f", sfpidx_, sfpidx_ + rtnidx, O__(lsfp[rtnidx].o), lsfp[rtnidx].ivalue, lsfp[rtnidx].bvalue, lsfp[rtnidx].fvalue);
 					if(isExpr && SP(stmt)->type != TYPE_void) {
 						if(cid == reqt || reqt == TYPE_Any || knh_class_instanceof(ctx, cid, reqt)) {
 							knh_Array_add(ctx, resultsNULL, lsfp[rtnidx].o);

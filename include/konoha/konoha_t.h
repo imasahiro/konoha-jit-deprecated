@@ -65,11 +65,11 @@ typedef intptr_t          knh_intptr_t;
 typedef uintptr_t         knh_uintptr_t;
 typedef knh_intptr_t      knh_index_t;
 
-#define K_INTPTR_FMT               "%"PRIdPTR
-#define K_INTPTR_UFMT              "%"PRIuPTR
+#define K_INTPTR_FMT      "%"PRIdPTR
+#define K_INTPTR_UFMT     "%"PRIuPTR
 
 
-#if defined(__LP64__)
+#if defined(__LP64__) || defined(__WIN64__)
 typedef int32_t           knh_short_t;
 typedef uint32_t          knh_ushort_t;
 #ifndef K_USING_NOFLOAT
@@ -283,19 +283,18 @@ typedef knh_ushort_t              knh_flag_t;    /* flag field */
 struct knh_Context_t;
 typedef const struct knh_Context_t    Ctx;
 
-typedef knh_ushort_t       knh_class_t;   /* class id */
-typedef knh_ushort_t       knh_type_t;    /* extended knh_type_t */
-typedef knh_ushort_t       knh_expt_t;    /* knh_expt_t */
+typedef knh_ushort_t       knh_class_t;  /* class id */
+typedef knh_ushort_t       knh_type_t;   /* extended knh_type_t */
+typedef knh_ushort_t       knh_ebi_t;    /* knh_ebi_t */
 
 /* knh_class_t */
 #define CLASS_newid                ((knh_class_t)-1)
 #define CLASS_unknown              ((knh_class_t)-2)
 
-#define DBG_ASSERT_cid(cid)        DBG_ASSERT(cid < ctx->share->ClassTableSize)
-#define CLASSN(cid)                knh_ClassTable_CLASSN(ctx, cid)
-#define STRUCTN(bcid)              knh_getStructName(ctx, bcid)
-#define CLASSNo(o)                 knh_ClassTable_CLASSN(ctx, knh_Object_cid(o))
-#define CTXCLASSN(cid)             knh_Context_CLASSN(ctx,cid)
+#define DBG_ASSERT_cid(cid)        DBG_ASSERT(cid < ctx->share->ClassTBLSize)
+#define CLASS__(cid)               knh_ClassTBL_CLASS__(ctx, cid)
+#define bcid__(bcid)               knh_getStructName(ctx, bcid)
+#define O__(o)                     knh_ClassTBL_CLASS__(ctx, knh_Object_cid(o))
 
 /* knh_type_t */
 #define TYPE_var            CLASS_Tvar
@@ -311,23 +310,23 @@ typedef knh_ushort_t       knh_expt_t;    /* knh_expt_t */
 #define CLASS_type(t)       (((t) > TYPE_T0) ? TYPE_var : (t))
 #define TYPE_cid(t)         (t)
 
-#define IS_Tint(t)        (t == CLASS_Int || ClassTable(CLASS_type(t)).bcid == CLASS_Int)
-#define IS_Tfloat(t)      (t == CLASS_Float || ClassTable(CLASS_type(t)).bcid == CLASS_Float)
+#define IS_Tint(t)        (t == CLASS_Int || ClassTBL(CLASS_type(t)).bcid == CLASS_Int)
+#define IS_Tfloat(t)      (t == CLASS_Float || ClassTBL(CLASS_type(t)).bcid == CLASS_Float)
 #define IS_Tbool(t)       (TYPE_Boolean == t)
 #define IS_Tunbox(t)      (IS_Tint(t) || IS_Tfloat(t) || IS_Tbool(t))
-#define IS_Tfunc(t)       (ClassTable(CLASS_type(t)).bcid == CLASS_Func)
-#define IS_Tstr(t)        (t == CLASS_String || ClassTable(CLASS_type(t)).bcid == CLASS_String)
+#define IS_Tfunc(t)       (ClassTBL(CLASS_type(t)).bcid == CLASS_Func)
+#define IS_Tstr(t)        (t == CLASS_String || ClassTBL(CLASS_type(t)).bcid == CLASS_String)
 
 #define knh_Method_isPoly(mtd, T) \
 	(DP(mtd)->cid == T || knh_class_bcid(T) == DP(mtd)->cid || knh_class_instanceof(ctx, cid, DP(mtd)->cid))
 
-#define TYPEN(type)                   knh_TYPEN(ctx,type)
+#define TYPE__(type)      knh_TYPE__(ctx,type)
 
-/* knh_expt_t */
-#define EXPT_unknown  ((knh_expt_t)-1)
-#define EXPT_newid    ((knh_expt_t)0)
-#define KNH_ASSERT_eid(eid)    DBG_ASSERT(eid < ctx->share->ExptTableSize + 1)
-#define EXPTN(eid)   S_tochar(knh_getExptName(ctx, eid))
+/* knh_ebi_t */
+#define EBI_unknown            ((knh_ebi_t)-1)
+#define EBI_newid              ((knh_ebi_t)0)
+#define ASSERT_ebi(eid)        DBG_ASSERT(eid < ctx->share->EventTBLSize + 1)
+#define EBI__(eid)             S_tochar(knh_getExptName(ctx, eid))
 
 /* ------------------------------------------------------------------------ */
 
@@ -376,11 +375,9 @@ typedef knh_ushort_t          knh_methodn_t;
 
 #define MN_LAMBDA          FN_
 
-#define FN_tochar(fn)      S_tochar(knh_getFieldName(ctx, fn))
-
-#define MN_tochar(mn)      knh_getmnname(ctx, mn)
-#define MN_tobytes(mn)  S_tobytes(knh_getmnname(ctx, mn))
 const char *knh_getopname(knh_methodn_t mn);
+#define FN__(fn)          S_tochar(knh_getFieldName(ctx, fn))
+#define MN__(mn)          knh_getmnname(ctx, mn)
 
 /* ------------------------------------------------------------------------ */
 /* Object */
@@ -391,8 +388,6 @@ const char *knh_getopname(knh_methodn_t mn);
 #ifdef K_USING_RCGC
 #define KNH_HOBJECT_REFC      1
 #endif
-
-typedef knh_ushort_t knh_lock_t;
 
 #ifdef K_OBJECT_MAGIC
 	#define DBG_ASSERT_ISOBJECT(o)        DBG_ASSERT((o)->h.magic == K_OBJECT_MAGIC)
@@ -417,6 +412,8 @@ typedef struct knh_Object_t {
 	void *ref3_unused;
 	void *ref4_unused;
 } knh_Object_t ;
+
+#define K_FASTMALLOC_SIZE     sizeof(knh_Object_t)
 
 #define SP(o)               (o)
 #define DP(o)               ((o)->b)
@@ -444,26 +441,25 @@ typedef struct knh_Object_t {
 #define UPCAST(o)       (Object*)(o)
 
 #define knh_Object_toNULL(ctx, o)   knh_Object_toNULL_(ctx, UPCAST(o))
+#define knh_Object_data(o)       (((knh_Int_t*)(o))->n.data)
 
 /* ------------------------------------------------------------------------ */
 /* Common Object Structure */
 
 typedef knh_ushort_t              knh_uri_t;
-#define K_FLAG_URI_UNTRUSTED    K_FLAG_T0
+#define URI_EVAL                  ((knh_uri_t)0)
+#define URI_UNMASK(uri)           (uri)
 
-#define URI_UNMASK(uri)           (uri & (~(K_FLAG_URI_UNTRUSTED)))
-#define URI_TRUSTED(uri)          (uri & (~(K_FLAG_URI_UNTRUSTED)))
-#define URI_UNTRUSTED(uri)        (uri | K_FLAG_URI_UNTRUSTED)
-#define URI_ISTRUSTED(uri)        ((uri & K_FLAG_URI_UNTRUSTED) == 0)
-#define URI_EVAL                  URI_UNTRUSTED((knh_uri_t)0)
+//#define K_FLAG_URI_UNTRUSTED      K_FLAG_T0
+//#define URI_UNMASK(uri)           (uri & (~(K_FLAG_URI_UNTRUSTED)))
+//#define URI_TRUSTED(uri)          (uri & (~(K_FLAG_URI_UNTRUSTED)))
+//#define URI_UNTRUSTED(uri)        (uri | K_FLAG_URI_UNTRUSTED)
+//#define URI_ISTRUSTED(uri)        ((uri & K_FLAG_URI_UNTRUSTED) == 0)
+//#define NSN_main           0
+//#define FILENAME___unknown      0
 
-#define NSN_main           0
-#define FILEN_unknown      0
-
-#define URIDN(uri) S_tochar(knh_getURN(ctx, uri))
-#define FILEN(uri) knh_sfile(URIDN(uri))
-
-#define knh_Object_data(o)       (((knh_Int_t*)(o))->n.data)
+#define URI__(uri) S_tochar(knh_getURN(ctx, uri))
+#define FILENAME__(uri) knh_sfile(URI__(uri))
 
 /* ------------------------------------------------------------------------ */
 /* Thread */
@@ -489,8 +485,8 @@ typedef void *(*knh_Fthread)(void *);
 #define LOCK_MEMORY       ((knh_lock_t)1)
 #define LOCK_SYSTBL       ((knh_lock_t)2)
 #define LOCK_UNUSED       3
-#define KNH_LOCK(ctx, lockid, o)
-#define KNH_UNLOCK(ctx, lockid, o)
+#define OLD_LOCK(ctx, lockid, o)
+#define OLD_UNLOCK(ctx, lockid, o)
 
 /* ------------------------------------------------------------------------ */
 /* Stack Frame Pointer */
@@ -540,18 +536,12 @@ typedef struct knh_sfp_t {
 /* [Context] */
 /* ------------------------------------------------------------------------ */
 
-#define K_FASTMALLOC_SIZE  sizeof(knh_Object_t)
-#define KNH_FASTMALLOC_BSIZE (K_FASTMALLOC_SIZE/sizeof(knh_Object_t*))
-#define KNH_SMALLMALLOC_SIZE 80
-
 /* ------------------------------------------------------------------------ */
 /* [ObjectFunc] */
 
 typedef void (*knh_Ftraverse)(Ctx *ctx, Object *);
 #define KNH_FTR(ctx, ftr, p)       ftr(ctx, UPCAST(p))
 #define KNH_NULLFTR(ctx, ftr, p)   if(p != NULL) ftr(ctx, UPCAST(p))
-
-//typedef int (*knh_Fscriptinit)(Ctx *);
 
 typedef knh_uintptr_t                knh_hashcode_t;  /* knh_hashcode_t */
 #define knh_hcode_join(s1,s2)	   ((knh_hashcode_t)s1 << (sizeof(knh_short_t)*8)) + s2;
@@ -596,7 +586,7 @@ typedef struct {
 /* ------------------------------------------------------------------------ */
 
 #define K_CLASSTABLE_INIT 128
-#define SIZEOF_TCLASS(n)  ((n) * sizeof(knh_ClassTable_t))
+#define SIZEOF_TCLASS(n)  ((n) * sizeof(knh_ClassTBL_t))
 typedef knh_Object_t* (*knh_Fdefnull)(Ctx *ctx, knh_class_t cid);
 
 typedef struct {
@@ -641,25 +631,25 @@ typedef struct {
 	size_t count;
 	size_t total;
 #endif
-} knh_ClassTable_t;
+} knh_ClassTBL_t;
 
-#define knh_class_bcid(c)   ClassTable(c).bcid
+#define knh_class_bcid(c)   ClassTBL(c).bcid
 #define knh_class_p1(c)     knh_class_p(ctx, c, 0)
 #define knh_class_p2(c)     knh_class_p(ctx, c, 1)
 
 /* ------------------------------------------------------------------------ */
 
-#ifndef KNH_EXPTTABLE_INIT
-#define KNH_EXPTTABLE_INIT 64
+#ifndef K_EVENTTBL_INIT
+#define K_EVENTTBL_INIT 64
 #endif
 
-#define SIZEOF_TEXPT(n)  (n * sizeof(knh_ExptTable_t))
+#define SIZEOF_TEXPT(n)  (n * sizeof(knh_EventTBL_t))
 
 typedef struct {
 	knh_flag_t   flag;
-	knh_expt_t   parent;
+	knh_ebi_t   parent;
 	struct knh_String_t     *name;
-} knh_ExptTable_t;
+} knh_EventTBL_t;
 
 /* ------------------------------------------------------------------------ */
 /* [SystemStat] */
@@ -730,7 +720,6 @@ typedef struct {
 	knh_uintptr_t bitmap[sizeof(knh_Object_t)/(sizeof(knh_uintptr_t))];
 } knh_hOArena_t;
 
-// HELP!! bit masking is much better
 #define knh_Object_getArena(o)  (knh_hOArena_t*)((((knh_uintptr_t)(o)) / K_PAGESIZE) * K_PAGESIZE)
 
 typedef struct {
@@ -759,7 +748,6 @@ typedef struct {
 } knh_ArenaSet_t ;
 
 #define K_ARENASET_INITSIZE     (K_PAGESIZE / sizeof(knh_ArenaSet_t))
-//#define K_OPAGE_SIZE            4096
 #define K_ARENASIZE             (sizeof(knh_Object_t) * 4096)
 
 typedef struct {
@@ -767,12 +755,12 @@ typedef struct {
 	knh_ArenaSet_t           *ArenaSet;
 	size_t ArenaSetSize;
 	size_t ArenaSetMax;
-	const knh_ClassTable_t   *ClassTable;
-	size_t ClassTableSize;
-	size_t ClassTableMax;
-	const knh_ExptTable_t    *ExptTable;
-	size_t ExptTableSize;
-	size_t ExptTableMax;
+	const knh_ClassTBL_t   *ClassTBL;
+	size_t ClassTBLSize;
+	size_t ClassTBLMax;
+	const knh_EventTBL_t    *EventTBL;
+	size_t EventTBLSize;
+	size_t EventTBLMax;
 
 	/* system shared const */
 	knh_Object_t         *constNull;
@@ -785,29 +773,29 @@ typedef struct {
 	struct knh_Context_t     *ctx0;
 	struct knh_NameSpace_t   *mainns;
 	struct knh_Script_t      *script;
-	struct knh_opline_t *PC_LAUNCH;
-	struct knh_opline_t *PC_FUNCCALL;
-	struct knh_opline_t *PC_VEXEC;
-	struct knh_opline_t *PC_ABSTRACT;
+	struct knh_opline_t      *PC_LAUNCH;
+	struct knh_opline_t      *PC_FUNCCALL;
+	struct knh_opline_t      *PC_VEXEC;
+	struct knh_opline_t      *PC_ABSTRACT;
 
 	/* spi */
 	const struct knh_ShellSPI_t       *shellSPI;
 	const struct knh_ConverterDSPI_t  *iconvDSPI;
-	const struct knh_EvidenceSPI_t  *ebiSPI;
+	const struct knh_EvidenceSPI_t    *ebiSPI;
+	const struct knh_CompilerSPI_t    *jitSPI;
+	const struct knh_SyncSPI_t      *syncSPI;
 
 	/* thread */
 	size_t              contextCounter;
 	size_t              threadCounter;
-//	knh_LockTable_t    *LockTable;
-//	knh_LockTable_t    *unusedLockTable;
 } knh_share_t ;
 
 #define KNH_ASSERT_CTX0(ctx)   KNH_ASSERT((ctx)->ctxid == 0)
 
-#define ClassTable(cid)   ctx->share->ClassTable[cid]
-#define pClassTable(ctx, cid)  (knh_ClassTable_t*)((ctx)->share->ClassTable + (cid))
-#define ExptTable(eid)    ctx->share->ExptTable[eid]
-#define pExptTable(eid)   (knh_ExptTable_t*)(ctx->share->ExptTable + (eid))
+#define ClassTBL(cid)   ctx->share->ClassTBL[cid]
+#define pClassTBL(ctx, cid)  (knh_ClassTBL_t*)((ctx)->share->ClassTBL + (cid))
+#define EventTBL(eid)    ctx->share->EventTBL[eid]
+#define pEventTBL(eid)   (knh_EventTBL_t*)(ctx->share->EventTBL + (eid))
 
 #define knh_setClassDefaultValue(ctx, cid, v, f) knh_setClassDefaultValue_(ctx, cid, UPCAST(v), f)
 
@@ -836,26 +824,27 @@ typedef struct knh_Context_t {
 	/* shared table */
 	const knh_share_t           *share;
 	knh_stat_t                  *stat;
-
-	knh_flag_t                   flag;
-	knh_ushort_t                 ctxid;
-	const struct knh_Context_t   *parent;
-	knh_mutex_t                  *ctxlock;
-//	const struct knh_Context_t   *unusedContext;
-
 	struct knh_System_t*         sys;
-	struct knh_Gamma_t          *gma;
 	struct knh_Script_t*         script;
+
 	struct knh_String_t*         enc;
 	struct knh_InputStream_t*    in;
 	struct knh_OutputStream_t*   out;
 	struct knh_OutputStream_t*   err;
 	struct knh_Bytes_t*          bufa;
 	struct knh_OutputStream_t*   bufw;
+	struct knh_Gamma_t          *gma;
+
+	knh_flag_t                   flag;
+	knh_ushort_t                 ctxid;
+	const struct knh_Context_t   *parent;
+	knh_mutex_t                  *ctxlock;
 
 	const struct knh_ExportsAPI_t *api;
 } knh_Context_t ;
 
+
+/* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
 #define KONOHA_MAGIC        314159
@@ -900,6 +889,7 @@ typedef struct {
 #define knh_cwb_clear(cwb,len)        knh_Bytes_clear(cwb->ba, cwb->pos+len)
 #define knh_cwb_close(cwb)            knh_Bytes_clear(cwb->ba, cwb->pos)
 #endif
+
 /* ------------------------------------------------------------------------ */
 /* Functions */
 /* ------------------------------------------------------------------------ */

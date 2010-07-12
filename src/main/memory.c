@@ -130,7 +130,7 @@ void knh_vfree(Ctx *ctx, void *block, size_t size)
 
 #if defined(K_USING_TRACEMALLOC)
 
-void *TRACE_malloc(Ctx *ctx, size_t size TRACEARG)
+void *TRACE_malloc(Ctx *ctx, size_t size TRACEARG0)
 {
 	DBG_ASSERT(size != 0);
 	size_t *block = (size_t*)malloc(size + sizeof(size_t));
@@ -142,7 +142,7 @@ void *TRACE_malloc(Ctx *ctx, size_t size TRACEARG)
 	return (void*)(block + 1);
 }
 
-void TRACE_free(Ctx *ctx, void *p, size_t size TRACEARG)
+void TRACE_free(Ctx *ctx, void *p, size_t size TRACEARG0)
 {
 	DBG_ASSERT_FREE();
 	DBG_ASSERT(size != 0);
@@ -198,7 +198,7 @@ KNHAPI(knh_bool_t) knh_isObject(Ctx *ctx, void *p)
 	return 0;
 }
 
-static void DBG_checkOnArena(Ctx *ctx, void *used TRACEARG)
+static void DBG_checkOnArena(Ctx *ctx, void *used TRACEARG0)
 {
 	size_t i, size = ctx->share->ArenaSetSize;
 	knh_ArenaSet_t *t = ctx->share->ArenaSet;
@@ -223,14 +223,14 @@ static void knh_extendArenaSet(Ctx *ctx, knh_share_t *ctxshare)
 
 static knh_Object_t *new_UnusedObject(Ctx *ctx)
 {
-	KNH_LOCK(ctx, LOCK_MEMORY, NULL);
+	OLD_LOCK(ctx, LOCK_MEMORY, NULL);
 	knh_share_t *ctxshare = (knh_share_t*)ctx->share;
 	size_t pageindex = ctxshare->ArenaSetSize;
 	if(unlikely(!(pageindex < ctxshare->ArenaSetMax))) {
 		knh_extendArenaSet(ctx, ctxshare);
 	}
 	ctxshare->ArenaSetSize += 1;
-	KNH_UNLOCK(ctx, LOCK_MEMORY, NULL);
+	OLD_UNLOCK(ctx, LOCK_MEMORY, NULL);
 	{
 		long cnt = 0;
 		int c = 0;
@@ -414,7 +414,7 @@ knh_Object_t *new_hObject_(Ctx *ctx, knh_flag_t flag, knh_class_t bcid, knh_clas
 	o->h.cid  = cid;
 #if defined(K_USING_STATCLASS)
 	{
-		knh_ClassTable_t *t = pClassTable(ctx, cid);
+		knh_ClassTBL_t *t = pClassTBL(ctx, cid);
 		t->count += 1; t->total += 1;
 	}
 #endif
@@ -426,7 +426,7 @@ knh_Object_t *new_hObject_(Ctx *ctx, knh_flag_t flag, knh_class_t bcid, knh_clas
 knh_Object_t *new_Object_init2(Ctx *ctx, knh_flag_t flag, knh_class_t bcid, knh_class_t cid)
 {
 	knh_Object_t *o = NULL;
-	knh_ClassTable_t *t = NULL;
+	knh_ClassTBL_t *t = NULL;
 	DBG_ASSERT(cid != CLASS_Context);
 	KNH_CHECK_UNUSED_OBJECT(ctx);
 	o = ctx->unusedObject;
@@ -435,7 +435,7 @@ knh_Object_t *new_Object_init2(Ctx *ctx, knh_flag_t flag, knh_class_t bcid, knh_
 	knh_useObject(ctx, 1);
 	o->h.magic = K_OBJECT_MAGIC;
 	knh_Object_RCset(o, K_RCGC_INIT);
-	t = pClassTable(ctx, cid);
+	t = pClassTBL(ctx, cid);
 	o->h.bcid = bcid;
 	o->h.flag = t->oflag | flag;
 	o->h.cid  = cid;
@@ -453,7 +453,7 @@ knh_Object_t *new_Object_init2(Ctx *ctx, knh_flag_t flag, knh_class_t bcid, knh_
 KNHAPI(Object*) new_Object_boxing(Ctx *ctx, knh_class_t cid, knh_sfp_t *sfp)
 {
 	knh_Float_t *o = NULL;
-	knh_ClassTable_t *t = pClassTable(ctx, cid);
+	knh_ClassTBL_t *t = pClassTBL(ctx, cid);
 	KNH_CHECK_UNUSED_OBJECT(ctx);
 	o = (knh_Float_t*)ctx->unusedObject;
 	((knh_Context_t*)ctx)->unusedObject = (knh_Object_t*)((knh_Object_t*)o)->ref;
@@ -484,7 +484,7 @@ FASTAPI(void) knh_Object_free(Ctx *ctx, knh_Object_t *o)
 	if(unlikely(o->h.bcid == CLASS_Context)) return;
 	o->h.magic = 0;
 	{
-		knh_ClassTable_t *t = pClassTable(ctx, o->h.cid);
+		knh_ClassTBL_t *t = pClassTBL(ctx, o->h.cid);
 #ifdef K_USING_RCGC
 		/* fixed by ide */
 		t->cspi->traverse(ctx, o, knh_Object_sweep);
@@ -502,7 +502,7 @@ FASTAPI(void) knh_Object_free(Ctx *ctx, knh_Object_t *o)
 /* added by ide */
 static void knh_Object_traverse(Ctx *ctx, knh_Object_t *o, knh_Ftraverse ftr)
 {
-	ClassTable(o->h.bcid).cspi->traverse(ctx, o, ftr);
+	ClassTBL(o->h.bcid).cspi->traverse(ctx, o, ftr);
 }
 
 /* ========================================================================= */
@@ -517,7 +517,7 @@ static void GC_DBG(Ctx *ctx, knh_Object_t *o, const char *msg) {
 	knh_uintptr_t *b = (knh_uintptr_t*)knh_Object_getArena(o);
 		int n = (o - (Object*)b);
 		int x = INDEX2OFFSET(n);
-	DBG_P("%s %p(%d,%d), cid=%s(%d)", msg, o, x, n % (sizeof(knh_uintptr_t)*8), CLASSN(_cid), _cid);
+	DBG_P("%s %p(%d,%d), cid=%s(%d)", msg, o, x, n % (sizeof(knh_uintptr_t)*8), CLASS__(_cid), _cid);
 #else
 	(void)ctx;(void)o;(void)msg;
 #endif
@@ -571,8 +571,8 @@ void knh_showMemoryStat(Ctx *ctx)
 	knh_stat_t *stat = ctx->stat;
 //#if defined(K_USING_STATCLASS)
 //	size_t i;
-//	for(i = 0; i < ctx->share->ClassTableSize; i++) {
-//		knh_ClassTable_t *t = pClassTable(ctx, i);
+//	for(i = 0; i < ctx->share->ClassTBLSize; i++) {
+//		knh_ClassTBL_t *t = pClassTBL(ctx, i);
 //		if(t->total > 2) {
 //			KNH_SYSLOG(ctx, LOG_INFO,
 //				"ClassCounter", "*name=%s cid=%d count=%ld total=%ld",

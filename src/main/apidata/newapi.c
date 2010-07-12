@@ -45,7 +45,7 @@ extern "C" {
 static METHOD Object_new(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
 	
-	DBG_P("DEFAULT CONSTRUCTOR? %s", CLASSNo(sfp[0].o));
+	DBG_P("DEFAULT CONSTRUCTOR? %s", O__(sfp[0].o));
 	RETURN_(sfp[0].o);
 }
 
@@ -60,7 +60,7 @@ static void knh_ObjectField_setValue(Ctx *ctx, knh_ObjectField_t *of, knh_index_
 	if(scid == tcid || knh_class_instanceof(ctx, scid, tcid)) {
 		goto L_SETVAL;
 	}
-	DBG_P("COERCION %s -> %s", CLASSN(scid), CLASSN(tcid));
+	DBG_P("COERCION %s -> %s", CLASS__(scid), CLASS__(tcid));
 	TODO();
 //		BEGIN_LOCAL(ctx, lsfp);
 //		KNH_LPUSH(ctx, o);
@@ -106,7 +106,7 @@ static METHOD Object_new__MAP(Ctx *ctx, knh_sfp_t *sfp, long rix)
 			knh_fields_t *cf = knh_Class_fieldAt(ctx, cid, idx);
 			knh_type_t type = knh_type_tocid(ctx, cf->type, cid);
 			if(type == TYPE_void) continue;
-			DBG_P("[%d] %s %s", (int)(idx), TYPEN(type), S_tochar(v[i].s));
+			DBG_P("[%d] %s %s", (int)(idx), TYPE__(type), S_tochar(v[i].s));
 			knh_ObjectField_setValue(ctx, of, idx, type, v[i+1].o);
 		}
 	}
@@ -344,8 +344,8 @@ static METHOD Exception_new(Ctx *ctx, knh_sfp_t *sfp, long rix)
 //
 //	
 //	knh_Exception_t *o = sfp[0].e;
-//	DP(o)->eid  = EXPT_Exception;
-//	DP(o)->flag = ctx->share->ExptTable[EXPT_Exception].flag;
+//	DP(o)->eid  = EBI_Exception;
+//	DP(o)->flag = ctx->share->EventTBL[EBI_Exception].flag;
 //
 //	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 //	knh_write_char(ctx, cwb->w, "Exception!!");

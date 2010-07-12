@@ -559,7 +559,7 @@ KNHAPI(void) knh_write_Object(Ctx *ctx, knh_OutputStream_t *w, knh_sfp_t *esp, k
 	knh_class_t cid = knh_Object_cid(o);
 	knh_Method_t *mtd = mtdP[0];
 	if(!knh_Method_isPoly(mtd, cid)) {
-		//DBG_P("LOOKUP FORMATTER cid=%s, DP(mtd)->cid=%s", CLASSN(cid), CLASSN(DP(mtd)->cid));
+		//DBG_P("LOOKUP FORMATTER cid=%s, DP(mtd)->cid=%s", CLASS__(cid), CLASS__(DP(mtd)->cid));
 		mtd = knh_lookupFormatter(ctx, cid, DP(mtd)->mn);
 		mtdP[0] = mtd;
 	}
@@ -803,7 +803,7 @@ void knh_vprintf(Ctx *ctx, knh_OutputStream_t *w, const char *fmt, va_list ap)
 						break;
 					case 'N': case 'F':
 						DBG_ASSERT(args[index].atype == VA_FIELDN);
-						knh_write_text(ctx, w, FN_tochar(args[index].fn));
+						knh_write_text(ctx, w, FN__(args[index].fn));
 						break;
 					case 'M':
 						DBG_ASSERT(args[index].atype == VA_METHODN);

@@ -95,7 +95,7 @@ KNHFASTAPI(void) DEFAULT_init(Ctx *ctx, Object *o)
 
 KNHFASTAPI(void) ABSTRACT_init(Ctx *ctx, Object *o)
 {
-	DBG_P("ABSTRACT CLASS? %s", CLASSNo(o));
+	DBG_P("ABSTRACT CLASS? %s", O__(o));
 	KNH_ABORT();
 }
 
@@ -116,9 +116,9 @@ KNHFASTAPI(void) DEFAULT_traverse(Ctx *ctx, Object *o, knh_Ftraverse ftr)
 
 KNHFASTAPI(void) DEFAULT_free(Ctx *ctx, Object *o)
 {
-	knh_ClassTable_t *t = pClassTable(ctx, o->h.cid);
+	knh_ClassTBL_t *t = pClassTBL(ctx, o->h.cid);
 	if(t->size > 0) {
-		DBG_P("FREE? %s", CLASSNo(o));
+		DBG_P("FREE? %s", O__(o));
 		KNH_FREE(ctx, o->ref, t->size);
 	}
 }
@@ -164,7 +164,7 @@ KNHAPI(knh_Translator_t*) DEFAULT_genmap(Ctx *ctx, knh_class_t scid, knh_class_t
 /* ======================================================================== */
 /* Object */
 
-static void knh_ClassField_initField(Ctx *ctx, knh_ClassTable_t *t, knh_class_t self_cid, Object **v)
+static void knh_ClassField_initField(Ctx *ctx, knh_ClassTBL_t *t, knh_class_t self_cid, Object **v)
 {
 	size_t i;
 	knh_fields_t *cf = t->fields;
@@ -174,7 +174,7 @@ static void knh_ClassField_initField(Ctx *ctx, knh_ClassTable_t *t, knh_class_t 
 		if(FLAG_is(cf[i].flag, FLAG_Field_Property)) {
 			value = knh_getPropertyNULL(ctx, S_tobytes(value));
 			DBG_ASSERT(value != NULL);
-			DBG_P("type=%s object=%s", TYPEN(cf[i].type), CLASSNo(value));
+			DBG_P("type=%s object=%s", TYPE__(cf[i].type), O__(value));
 		}
 		if(type == TYPE_void) {
 			continue;
@@ -208,16 +208,16 @@ static FASTAPI(void) knh_ObjectField_init(Ctx *ctx, Object *o)
 {
 	knh_ObjectField_t *of = (knh_ObjectField_t*)o;
 	knh_class_t cid = of->h.cid;
-	size_t size = ClassTable(cid).size;
+	size_t size = ClassTBL(cid).size;
 	if(size > 0) {
 		Object **v = (Object**)KNH_MALLOC(ctx, size);
 		size_t offset;
-		while((offset = ClassTable(cid).offset) != 0) {
-			knh_ClassField_initField(ctx, pClassTable(ctx, cid), of->h.cid, v + offset);
-			cid = ClassTable(cid).supcid;
+		while((offset = ClassTBL(cid).offset) != 0) {
+			knh_ClassField_initField(ctx, pClassTBL(ctx, cid), of->h.cid, v + offset);
+			cid = ClassTBL(cid).supcid;
 			DBG_ASSERT_cid(cid);
 		}
-		knh_ClassField_initField(ctx, pClassTable(ctx, cid), of->h.cid, v + offset);
+		knh_ClassField_initField(ctx, pClassTBL(ctx, cid), of->h.cid, v + offset);
 		of->fields = v;
 		of->bsize = size / sizeof(Object*);
 	}
@@ -232,11 +232,11 @@ static FASTAPI(void) knh_ObjectField_traverse(Ctx *ctx, Object *o, knh_Ftraverse
 	knh_ObjectField_t *of = (knh_ObjectField_t*)o;
 	knh_class_t cid = knh_Object_cid(of);
 	while(cid != CLASS_Object) {
-		knh_ClassTable_t *t = pClassTable(ctx, cid);
-		size_t i, offset = ClassTable(cid).offset;
+		knh_ClassTBL_t *t = pClassTBL(ctx, cid);
+		size_t i, offset = ClassTBL(cid).offset;
 		for(i = 0; i < t->fsize; i++) {
 			knh_type_t type = t->fields[i].type;
-			//DBG_P("i=%d, fn=%s, type=%s%s", i, FN_tochar(cs->fields[i].fn), TYPEQN(type));
+			//DBG_P("i=%d, fn=%s, type=%s%s", i, FN__(cs->fields[i].fn), TYPEQN(type));
 			if(IS_Tunbox(type) || type == TYPE_void) {
 				continue;
 			}
@@ -244,7 +244,7 @@ static FASTAPI(void) knh_ObjectField_traverse(Ctx *ctx, Object *o, knh_Ftraverse
 			if(t->fields[i].fn == FN_/*register*/) continue;
 			KNH_FTR(ctx, ftr, of->fields[i + offset]);
 		}
-		cid = ClassTable(cid).supcid;
+		cid = ClassTBL(cid).supcid;
 	}
 }
 
@@ -264,7 +264,7 @@ static int knh_ObjectField_compareTo(Ctx *ctx, Object *o, Object *o2)
 static FASTAPI(void*) knh_ObjectField_hashkey(Ctx *ctx, knh_sfp_t *sfp, int opt)
 {
 	if(opt == KNH_FOBJECT_KEY) {
-		int keyidx = ClassTable(knh_Object_cid(sfp[0].o)).keyidx;
+		int keyidx = ClassTBL(knh_Object_cid(sfp[0].o)).keyidx;
 		if(keyidx != -1) {
 			knh_ObjectField_t *of = (knh_ObjectField_t*)sfp[0].o;
 			DBG_ASSERT(IS_bString(of->fields[keyidx]));
@@ -831,7 +831,7 @@ static int knh_Class_compareTo(Ctx *ctx, knh_Object_t *o, knh_Object_t *o2)
 {
 	knh_Class_t *c = (knh_Class_t*)o;
 	knh_Class_t *c2 = (knh_Class_t*)o2;
-	return knh_strcmp(CLASSN(c->cid), CLASSN(c2->cid));
+	return knh_strcmp(CLASS__(c->cid), CLASS__(c2->cid));
 }
 
 static FASTAPI(void*) knh_Class_hashkey(Ctx *ctx,knh_sfp_t *sfp, int opt)
@@ -840,7 +840,7 @@ static FASTAPI(void*) knh_Class_hashkey(Ctx *ctx,knh_sfp_t *sfp, int opt)
 	knh_intptr_t cid = c->cid;
 	if(opt == KNH_FOBJECT_KEY) {
 		DBG_ASSERT_cid(cid);
-		return (void*)(ClassTable(cid).lname);
+		return (void*)(ClassTBL(cid).lname);
 	}
 	else {
 		return (void*)cid;
@@ -1003,7 +1003,7 @@ static METHOD knh_Fmethod_funcRTYPE(Ctx *ctx, knh_sfp_t *sfp, long rix)
 static FASTAPI(void) knh_Func_init(Ctx *ctx, Object *o)
 {
 	knh_Func_t *fo = (knh_Func_t*)o;
-	knh_ClassTable_t *t = pClassTable(ctx, knh_Object_cid(o));
+	knh_ClassTBL_t *t = pClassTBL(ctx, knh_Object_cid(o));
 	knh_Method_t *mtd;
 	if(t->defnull == NULL) {
 		mtd = new_Method(ctx, 0, knh_Object_cid(o), MN_LAMBDA, knh_Fmethod_funcRTYPE);
@@ -1674,7 +1674,7 @@ static FASTAPI(void) knh_Script_init(Ctx *ctx, Object *o)
 {
 	knh_Script_t *scr = (knh_Script_t*)o;
 	knh_class_t cid = new_ClassId(ctx);
-	knh_ClassTable_t *t = pClassTable(ctx, cid);
+	knh_ClassTBL_t *t = pClassTBL(ctx, cid);
 	scr->h.cid = cid;
 	DBG_ASSERT(t->cspi == NULL);
 	t->cflag  = CFLAG_Script;
@@ -1682,10 +1682,10 @@ static FASTAPI(void) knh_Script_init(Ctx *ctx, Object *o)
 	t->bcid   = CLASS_Script;
 	t->supcid = CLASS_Script;
 	t->offset = 0;
-	t->cspi = ClassTable(CLASS_Script).cspi;
+	t->cspi = ClassTBL(CLASS_Script).cspi;
 	KNH_INITv(t->methods, KNH_EMPTYLIST);
 	KNH_INITv(t->tmaps, KNH_EMPTYLIST);
-	knh_setClassName(ctx, cid, ClassTable(CLASS_Script).sname, ClassTable(CLASS_Script).sname);
+	knh_setClassName(ctx, cid, ClassTBL(CLASS_Script).sname, ClassTBL(CLASS_Script).sname);
 	DBG_ASSERT(t->defnull == NULL);
 	scr->fields = NULL;
 	scr->fsizeUSED = 0;
@@ -1694,9 +1694,9 @@ static FASTAPI(void) knh_Script_init(Ctx *ctx, Object *o)
 
 static FASTAPI(void) knh_Script_free(Ctx *ctx, Object *o)
 {
-	knh_ClassTable_t *t = pClassTable(ctx, o->h.cid);
+	knh_ClassTBL_t *t = pClassTBL(ctx, o->h.cid);
 	if(t->size > 0) {
-		DBG_P("Freeing Script %s, size=%d", CLASSNo(o), (int)t->size);
+		DBG_P("Freeing Script %s, size=%d", O__(o), (int)t->size);
 		KNH_FREE(ctx, o->ref, t->size);
 	}
 }

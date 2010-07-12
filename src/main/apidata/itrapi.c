@@ -119,12 +119,12 @@ static ITRNEXT knh_Range_fnextInclusive(Ctx *ctx, knh_sfp_t *sfp, long rtnidx)
 static knh_Iterator_t *new_RangeIterator(Ctx *ctx, knh_Range_t *rng)
 {
 	knh_class_t p1 = knh_Object_p1(rng);
-	if(ClassTable(p1).bcid == CLASS_Int) {
+	if(ClassTBL(p1).bcid == CLASS_Int) {
 		knh_Iterator_t *itr = new_Iterator(ctx, p1, UPCAST(rng), knh_Range_isInclusive(rng) ? knh_Range_inextInclusive : knh_Range_inext);
 		DP(itr)->pos = N_toint(rng->start);
 		return itr;
 	}
-	else if(ClassTable(p1).bcid == CLASS_Float) {
+	else if(ClassTBL(p1).bcid == CLASS_Float) {
 		knh_Iterator_t *itr = new_Iterator(ctx, p1, UPCAST(rng), knh_Range_isInclusive(rng) ? knh_Range_fnextInclusive : knh_Range_fnext);
 		knh_float_t s = N_tofloat((rng)->start);
 		DP(itr)->pos = (knh_int_t)s;

@@ -288,7 +288,7 @@ static knh_ParamArray_t *knh_loadParamArray(Ctx *ctx, knh_data_t **d, knh_flag_t
 }
 
 #define _CID(d)  (d < _MAX) ? (knh_class_t)(d) : knh_NameSpace_getcid(ctx, knh_getGammaNameSpace(ctx), knh_data_tobytes(d))
-#define _EXPTID(d)  (d < _MAX) ? (knh_expt_t)(d) : knh_geteid(ctx, knh_data_tobytes(d), EXPT_newid)
+#define _EXPTID(d)  (d < _MAX) ? (knh_ebi_t)(d) : knh_geteid(ctx, knh_data_tobytes(d), EBI_newid)
 
 static void knh_loadData(Ctx *ctx, knh_data_t *data, knh_ParamArray_t **buf)
 {
@@ -300,7 +300,7 @@ static void knh_loadData(Ctx *ctx, knh_data_t *data, knh_ParamArray_t **buf)
 		case DATA_STRUCT: {
 			knh_class_t cid = _CID(data[0]);
 			knh_ObjectCSPI_t *cspi = (knh_ObjectCSPI_t*)data[1];
-			knh_ClassTable_t *t = pClassTable(ctx, cid);
+			knh_ClassTBL_t *t = pClassTBL(ctx, cid);
 			t->cspi = cspi;
 			t->cflag = (knh_flag_t)data[2];
 			t->oflag = FLAG_oflag(t->cflag);
@@ -312,13 +312,13 @@ static void knh_loadData(Ctx *ctx, knh_data_t *data, knh_ParamArray_t **buf)
 		case DATA_CLASS: {
 			char *name = (char*)data[0];
 			knh_class_t cid = new_ClassId(ctx);
-			knh_ClassTable_t *t = pClassTable(ctx, cid);
+			knh_ClassTBL_t *t = pClassTBL(ctx, cid);
 			t->cflag = (knh_flag_t)data[1];
 			t->oflag = FLAG_oflag(t->cflag);
 			t->bcid = _CID(data[2]);
 			if(cid != t->bcid) {
-				t->cspi = ClassTable(t->bcid).cspi;
-				t->size =  ClassTable(t->bcid).size;
+				t->cspi = ClassTBL(t->bcid).cspi;
+				t->size =  ClassTBL(t->bcid).size;
 			}
 			t->supcid = _CID(data[3]);
 			t->offset = 0;
@@ -338,7 +338,7 @@ static void knh_loadData(Ctx *ctx, knh_data_t *data, knh_ParamArray_t **buf)
 		}
 		case DATA_CPARAM: {
 			knh_class_t cid = _CID(data[0]);
-			knh_ClassTable_t *t = pClassTable(ctx, cid);
+			knh_ClassTBL_t *t = pClassTBL(ctx, cid);
 			knh_ParamArray_t *mp = knh_loadParamArray(ctx, &data, 0/*hflag*/, +1);
 			KNH_ASSERT(t->cparam == NULL);
 			KNH_INITv(t->cparam, mp);
@@ -353,8 +353,8 @@ static void knh_loadData(Ctx *ctx, knh_data_t *data, knh_ParamArray_t **buf)
 		case DATA_EXPT: {
 			char *name = (char*)data[0];
 			knh_flag_t flag = (knh_flag_t)data[1];
-			knh_expt_t eid = _EXPTID(data[2]);
-			knh_expt_t pid = _EXPTID(data[3]);
+			knh_ebi_t eid = _EXPTID(data[2]);
+			knh_ebi_t pid = _EXPTID(data[3]);
 			knh_addException(ctx, flag, eid, new_T(name), pid);
 			data += 4;
 			break;
@@ -373,7 +373,7 @@ static void knh_loadData(Ctx *ctx, knh_data_t *data, knh_ParamArray_t **buf)
 				flag = flag | FLAG_Method_Static;
 			}
 			mtd = new_Method(ctx, flag, cid, mn, func);
-			knh_Array_add(ctx, ClassTable(cid).methods, mtd);
+			knh_Array_add(ctx, ClassTBL(cid).methods, mtd);
 			data += 4;
 			if(datatype == DATA_METHOD0) {
 				KNH_SETv(ctx, DP(mtd)->mp, buf[data[0]]);

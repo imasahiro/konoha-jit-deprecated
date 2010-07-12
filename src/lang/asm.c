@@ -744,11 +744,11 @@ static KLRAPI(int) klr_isskip(Ctx *ctx, knh_sfp_t *sfp, int a)
 static void KNH_ASM_BOX(Ctx *ctx, knh_type_t reqt, knh_type_t atype, int a)
 {
 	knh_class_t cid = CLASS_type(atype);
-	knh_class_t bcid = ClassTable(cid).bcid;
+	knh_class_t bcid = ClassTBL(cid).bcid;
 	if(bcid == CLASS_Boolean || bcid == CLASS_Int || bcid == CLASS_Float) {
-		knh_class_t rcid = ClassTable(CLASS_type(reqt)).bcid;
+		knh_class_t rcid = ClassTBL(CLASS_type(reqt)).bcid;
 		if(rcid != bcid && reqt != TYPE_void) {
-			//DBG_P("reqt=%s, atype=%s", TYPEN(reqt), TYPEN(atype));
+			//DBG_P("reqt=%s, atype=%s", TYPE__(reqt), TYPE__(atype));
 			KNH_ASM(TR, a, a, cid, _BOX);
 		}
 	}
@@ -817,7 +817,7 @@ static void KNH_ASM_SMOV(Ctx *ctx, knh_type_t atype, int a, knh_Token_t *tkb)
 		case TT_NULL/*DEFVAL*/: {
 			knh_class_t cid = DP(tkb)->cid;
 			knh_Object_t *v = KNH_NULVAL(cid);
-			if(v != ClassTable(cid).defnull) {
+			if(v != ClassTBL(cid).defnull) {
 				KNH_ASM(TR, a, a, cid, _NULVAL);
 				break;
 			}
@@ -936,7 +936,7 @@ static void KNH_ASM_XMOV(Ctx *ctx, knh_type_t atype, int a, size_t an, knh_Token
 		case TT_NULL/*DEFVAL*/: {
 			knh_class_t cid = DP(tkb)->cid;
 			knh_Object_t *v = KNH_NULVAL(cid);
-			if(v != ClassTable(cid).defnull) {
+			if(v != ClassTBL(cid).defnull) {
 				espidx = DP(ctx->gma)->espidx;
 				KNH_ASM(TR, espidx, espidx, cid, _NULVAL);
 				break;
@@ -1252,7 +1252,7 @@ static knh_type_t TERMs_ptype(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_class_t 
 		}
 		DBG_(
 		if(cid != DP(mtd)->cid) {
-			DBG_P("** WATCH OUT ** mtd_cid=%s, DP(mtd)->cid=%s", CLASSN(cid), CLASSN(DP(mtd)->cid));
+			DBG_P("** WATCH OUT ** mtd_cid=%s, DP(mtd)->cid=%s", CLASS__(cid), CLASS__(DP(mtd)->cid));
 		});
 		return cid;
 	}
@@ -1389,9 +1389,9 @@ static void KNH_ASM_CALL(Ctx *ctx, knh_type_t reqt, int sfpidx, knh_Method_t *mt
 
 static knh_Method_t* knh_lookupDynamicMethod(Ctx *ctx, knh_methodn_t mn)
 {
-	size_t cid, i, size = ctx->share->ClassTableSize;
+	size_t cid, i, size = ctx->share->ClassTBLSize;
 	for(cid = 0; cid < size; cid++) {
-		knh_Array_t *a = ClassTable(cid).methods;
+		knh_Array_t *a = ClassTBL(cid).methods;
 		for(i = 0; i < knh_Array_size(a); i++) {
 			if(DP(a->methods[i])->mn == mn) return a->methods[i];
 		}
@@ -1436,7 +1436,7 @@ static void knh_StmtCALL_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sf
 #endif/*OPCODE_OEVAL*/
 	if(mtd_cid == CLASS_Array) {
 		knh_class_t p1 = knh_class_p1(cid);
-		DBG_P("*************** cid=%s, p1=%s", CLASSN(cid), CLASSN(p1));
+		DBG_P("*************** cid=%s, p1=%s", CLASS__(cid), CLASS__(p1));
 		if(mtd_mn == MN_get) {
 			int a = TERMs_put(ctx, stmt, 1, cid, local + 1);
 			if(TERMs_isCONST(stmt, 2)) {
@@ -1555,7 +1555,7 @@ static void knh_StmtFUNC_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sf
 	int local = ASML(sfpidx);
 	knh_Method_t *mtd = DP(DP(stmt)->tokens[0])->mtd;
 	knh_class_t cid = TERMs_getcid(stmt, 1);
-	knh_ParamArray_t *pa = ClassTable(cid).cparam;
+	knh_ParamArray_t *pa = ClassTBL(cid).cparam;
 	size_t i;
 	for(i = 0; i < pa->psize; i++) {
 		knh_param_t *p = knh_ParamArray_get(pa, i);
@@ -2147,7 +2147,7 @@ static void knh_StmtERR_asm(Ctx *ctx, knh_Stmt_t *stmt)
 	}
 	if(!IS_bString(DP(stmt)->errMsg)) {
 		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-		knh_printf(ctx, cwb->w, "Script!!: konoha -c %s at %d for debugging", FILEN(SP(stmt)->uri), SP(stmt)->line);
+		knh_printf(ctx, cwb->w, "Script!!: konoha -c %s at %d for debugging", FILENAME__(SP(stmt)->uri), SP(stmt)->line);
 		KNH_SETv(ctx, DP(stmt)->errMsg, knh_cwb_newString(ctx, cwb));
 		if(DP(stmt)->nextNULL != NULL) {
 			KNH_FINALv(ctx, DP(stmt)->nextNULL);
@@ -2320,7 +2320,7 @@ static void knh_Stmt_asmBLOCK(Ctx *ctx, knh_Stmt_t *stmtH, knh_type_t reqt)
 		knh_type_t etype = (_isLast(stmt)) ? reqt : TYPE_void;
 		knh_Gamma_setLine(ctx, SP(stmt)->line);
 		DP(ctx->gma)->espidx = DP(stmt)->espidx;
-		DBG_P("ASM %s %p etype=%s,%s, espidx=%d", TT_tochar(STT_(stmt)), stmt, TYPEN(etype), TYPEN(stmt->type), DP(ctx->gma)->espidx);
+		DBG_P("ASM %s %p etype=%s,%s, espidx=%d", TT_tochar(STT_(stmt)), stmt, TYPE__(etype), TYPE__(stmt->type), DP(ctx->gma)->espidx);
 		switch(STT_(stmt)) {
 		case STT_BLOCK:
 			knh_Stmt_asmBLOCK(ctx, DP(stmt)->stmts[0], etype);
@@ -2367,7 +2367,7 @@ void knh_Method_asm(Ctx *ctx, knh_Method_t *mtd, knh_Stmt_t *stmtP, knh_Stmt_t *
 	knh_class_t prev_cid = DP(ctx->gma)->this_cid;
 	if(STT_(stmtB) == STT_ERR) return ;
 	knh_Method_typing(ctx, mtd, stmtP, stmtB, reqt);
-	DBG_P("****** %s TYPE=%s, NEXT=%p", TT_tochar(STT_(stmtB)), TYPEN(stmtB->type), DP(stmtB)->nextNULL);
+	DBG_P("****** %s TYPE=%s, NEXT=%p", TT_tochar(STT_(stmtB)), TYPE__(stmtB->type), DP(stmtB)->nextNULL);
 	if(STT_(stmtB) == STT_ERR) return ;
 	DBG_ASSERT(knh_Array_size(DP(ctx->gma)->insts) == 0);
 	{
@@ -2391,7 +2391,7 @@ void knh_Method_asm(Ctx *ctx, knh_Method_t *mtd, knh_Stmt_t *stmtP, knh_Stmt_t *
 			DBG_(
 			knh_type_t ztype = knh_ParamArray_getptype(DP(mtd)->mp, i - 1);
 			knh_type_t ptype = DP(ctx->gma)->gf[xi].type;
-			DBG_P("PARAM TYPE %s (%s) i=%ld, xi=%ld %s value=%p", TYPEN(ztype), TYPEN(ptype), i, xi, FN_tochar(DP(ctx->gma)->gf[xi].fn), value);
+			DBG_P("PARAM TYPE %s (%s) i=%ld, xi=%ld %s value=%p", TYPE__(ztype), TYPE__(ptype), i, xi, FN__(DP(ctx->gma)->gf[xi].fn), value);
 			DBG_ASSERT(CLASS_type(ztype) == CLASS_type(ptype));
 			);
 			if(value == NULL) {

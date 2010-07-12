@@ -191,8 +191,8 @@ extern "C" {
 //	knh_type_t rtype = knh_type_tocid(ctx, knh_Method_rztype(mtd), cid);
 //	cid = CLASS_type(rtype);
 //	DBG_ASSERT_cid(cid);
-//	KNH_ASSERT(ClassTable(cid).bcid == CLASS_Iterator);
-//	return ClassTable(cid).p1;
+//	KNH_ASSERT(ClassTBL(cid).bcid == CLASS_Iterator);
+//	return ClassTBL(cid).p1;
 //}
 //
 ///* ------------------------------------------------------------------------ */
@@ -282,31 +282,31 @@ extern "C" {
 
 //static knh_class_t knh_addThunkClass(Ctx *ctx, knh_class_t cid, knh_String_t *name, knh_type_t rtype)
 //{
-//	knh_ClassTable_t *t = NULL;
+//	knh_ClassTBL_t *t = NULL;
 //	knh_flag_t mask = 0;
 //	if(cid == CLASS_newid) {
 //		cid = new_ClassId(ctx);
 //	}
 //
-//	/* knh_ClassTable_t */ t = pClassTable(ctx, cid);
-//	KNH_ASSERT(ClassTable(cid).sname == NULL);
+//	/* knh_ClassTBL_t */ t = pClassTBL(ctx, cid);
+//	KNH_ASSERT(ClassTBL(cid).sname == NULL);
 //	if(knh_class_isTypeVariable(CLASS_type(rtype))) {
 //		mask = FLAG_Class_TypeVariable;
 //		DBG_P("TypeVarable: %s", S_tochar(name));
 //	}
 //	knh_setClassName(ctx, cid, name);
-//	t->cflag  = ClassTable(CLASS_Thunk).cflag | mask;
-//	t->oflag  = ClassTable(CLASS_Thunk).oflag;
-//	t->cspi  = ClassTable(CLASS_Thunk).cspi;
+//	t->cflag  = ClassTBL(CLASS_Thunk).cflag | mask;
+//	t->oflag  = ClassTBL(CLASS_Thunk).oflag;
+//	t->cspi  = ClassTBL(CLASS_Thunk).cspi;
 //
 //	t->bcid   = CLASS_Thunk;
-//	t->supcid = ClassTable(CLASS_Thunk).supcid;
-//	t->offset = ClassTable(CLASS_Thunk).offset;
+//	t->supcid = ClassTBL(CLASS_Thunk).supcid;
+//	t->offset = ClassTBL(CLASS_Thunk).offset;
 //
-//	t->size = ClassTable(CLASS_Thunk).size;
-//	t->bsize  = ClassTable(CLASS_Thunk).bsize;
+//	t->size = ClassTBL(CLASS_Thunk).size;
+//	t->bsize  = ClassTBL(CLASS_Thunk).bsize;
 //
-//	KNH_INITv(t->methods, ClassTable(CLASS_Thunk).methods);
+//	KNH_INITv(t->methods, ClassTBL(CLASS_Thunk).methods);
 //	KNH_INITv(t->tmaps, KNH_EMPTYLIST);
 //	t->p1 = rtype;
 //	t->p2 = CLASS_Tvoid;

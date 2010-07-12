@@ -171,7 +171,7 @@ knh_type_t knh_ParamArray_rtype(knh_ParamArray_t *pa)
 
 void knh_write_mn(Ctx *ctx, knh_OutputStream_t *w, knh_methodn_t mn)
 {
-	knh_bytes_t t = B(MN_tochar(mn));
+	knh_bytes_t t = B(MN__(mn));
 	if(MN_isFMT(mn)) {
 		knh_putc(ctx, w, '%');
 		knh_write(ctx, w, t);
@@ -288,9 +288,9 @@ void knh_Class_addMethod(Ctx *ctx, knh_class_t cid, knh_Method_t *mtd)
 	DBG_ASSERT(IS_Method(mtd));
 	DBG_ASSERT(cid == DP(mtd)->cid);
 	size_t i;
-	knh_Array_t *a = ClassTable(cid).methods;
+	knh_Array_t *a = ClassTBL(cid).methods;
 	if(unlikely(a == KNH_EMPTYLIST)) {
-		knh_ClassTable_t *t = pClassTable(ctx, cid);
+		knh_ClassTBL_t *t = pClassTBL(ctx, cid);
 		KNH_ASSERT(knh_Array_size(a) == 0);
 		a = new_Array0(ctx, 1);
 		KNH_SETv(ctx, t->methods, a);
@@ -467,7 +467,7 @@ knh_Method_t* knh_findMethodNULL(Ctx *ctx, knh_class_t this_cid, knh_methodn_t m
 	DBG_ASSERT_cid(cid);
 	while (1) {
 		size_t i;
-		knh_Array_t *a = ClassTable(cid).methods;
+		knh_Array_t *a = ClassTBL(cid).methods;
 		for(i = 0; i < knh_Array_size(a); i++) {
 			knh_Method_t *mtd = a->methods[i];
 			if(DP(mtd)->mn == mn) return mtd;
@@ -476,7 +476,7 @@ knh_Method_t* knh_findMethodNULL(Ctx *ctx, knh_class_t this_cid, knh_methodn_t m
 			cid = this_cid;
 			goto L_GenerateField;
 		}
-		cid = ClassTable(cid).supcid;
+		cid = ClassTBL(cid).supcid;
 	}
 
 	L_GenerateField:;
@@ -496,7 +496,7 @@ knh_Method_t* knh_findMethodNULL(Ctx *ctx, knh_class_t this_cid, knh_methodn_t m
 			}
 			else {
 				knh_Method_t *mtd = new_GetterMethod(ctx, this_cid, mn, cf->type, idx);
-				knh_Array_t *methods = ClassTable(this_cid).methods;
+				knh_Array_t *methods = ClassTBL(this_cid).methods;
 				knh_Array_add(ctx, methods, mtd);
 				return mtd;
 			}
@@ -514,7 +514,7 @@ knh_Method_t* knh_findMethodNULL(Ctx *ctx, knh_class_t this_cid, knh_methodn_t m
 			}
 			else {
 				knh_Method_t *mtd = new_SetterMethod(ctx, this_cid, mn, cf->type, idx);
-				knh_Array_t *methods = ClassTable(this_cid).methods;
+				knh_Array_t *methods = ClassTBL(this_cid).methods;
 				knh_Array_add_(ctx, methods, UPCAST(mtd));
 				return mtd;
 			}
@@ -523,7 +523,7 @@ knh_Method_t* knh_findMethodNULL(Ctx *ctx, knh_class_t this_cid, knh_methodn_t m
 //	else if(!MN_isFMT(mn)) {
 //		knh_methodn_t mnbase = knh_methodn_base(ctx, mn);
 //		if(mnbase != mn) {
-//			DBG_P("searching again %s, %s", FN_tochar(MN_toFN(mn)), FN_tochar(MN_toFN(mnbase)));
+//			DBG_P("searching again %s, %s", FN__(MN_toFN(mn)), FN__(MN_toFN(mnbase)));
 //			mn = mnbase;
 //			goto TAIL_RECURSION;
 //		}
@@ -532,12 +532,12 @@ knh_Method_t* knh_findMethodNULL(Ctx *ctx, knh_class_t this_cid, knh_methodn_t m
 	L_NoSuchMethod:;
 	if(isGEN) {
 		if(MN_isFMT(mn)) {
-			DBG_P("Generating %%empty: cid=%s mn=%%%s", CLASSN(cid), MN_tochar(mn));
+			DBG_P("Generating %%empty: cid=%s mn=%%%s", CLASS__(cid), MN__(mn));
 			return knh_getMethodNULL(ctx, cid, MN__empty);
 		}
 		else {
 			knh_Method_t *mtd = new_Method__NoSuchMethod(ctx, cid, mn);
-			knh_Array_t *methods = ClassTable(this_cid).methods;
+			knh_Array_t *methods = ClassTBL(this_cid).methods;
 			knh_Array_add(ctx, methods, mtd);
 			return mtd;
 		}
@@ -562,7 +562,7 @@ knh_Method_t *knh_lookupMethod(Ctx *ctx, knh_class_t cid, knh_methodn_t mn)
 			}
 		}
 		knh_stat_mtdCacheMiss(ctx);
-		DBG_P("Cache missed[%ld]. looking up %s.%s", h, CLASSN(cid), MN_tochar(mn));
+		DBG_P("Cache missed[%ld]. looking up %s.%s", h, CLASS__(cid), MN__(mn));
 	}
 	mtd = knh_findMethod(ctx, cid, mn);
 	ctx->mtdCache[h] = mtd;
@@ -584,7 +584,7 @@ knh_Method_t *knh_lookupFormatter(Ctx *ctx, knh_class_t cid, knh_methodn_t mn)
 			}
 		}
 		knh_stat_fmtCacheMiss(ctx);
-		DBG_P("Cache[%ld] missed. looking up %s.%%%s <%s>", h, CLASSN(cid), MN_tochar(mn), CLASSN(DP(mtd)->cid));
+		DBG_P("Cache[%ld] missed. looking up %s.%%%s <%s>", h, CLASS__(cid), MN__(mn), CLASS__(DP(mtd)->cid));
 	}
 	mtd = knh_findMethod(ctx, cid, mn);
 	ctx->fmtCache[h] = mtd;
@@ -631,7 +631,7 @@ const char *knh_Method_file(Ctx *ctx, knh_Method_t *mtd)
 {
 	if(knh_Method_isObjectCode(mtd) && IS_KLRCode(DP(mtd)->kcode)) {
 		knh_KLRCode_t *kcode = DP(mtd)->kcode;
-		return FILEN(kcode->uri);
+		return FILENAME__(kcode->uri);
 	}
 	return "(naitive)";
 }

@@ -230,13 +230,27 @@ typedef struct knh_EvidenceSPI_t {
 } knh_EvidenceSPI_t;
 
 /* ------------------------------------------------------------------------ */
-/* JIT_SPI */
+/* CompilerSPI */
 
 typedef struct knh_CompilerSPI_t {
 	const char *name;
-	knh_bool_t (*isSuported)(Ctx *ctx, knh_opcode_t opcode);
+	knh_bool_t (*isOPCODE)(knh_opcode_t opcode);
 	knh_Fmethod (*compile)(Ctx *ctx, knh_opline_t* line);
 } knh_CompilerSPI_t;
+
+/* ------------------------------------------------------------------------ */
+/* SyncSPI */
+
+typedef struct knh_SyncSPI_t {
+	const char *name;
+#ifdef K_USING_DEBUG
+	int (*lock)(knh_mutex_t *m, const char *_file, const char* _func, int _line);
+	int (*unlock)(knh_mutex_t *m, const char *_file, const char* _func, int _line);
+#else
+	int (*lock)(knh_mutex_t *m);
+	int (*unlock)(knh_mutex_t *m);
+#endif
+} knh_SyncSPI_t;
 
 /* ------------------------------------------------------------------------ */
 /* ConstData  */

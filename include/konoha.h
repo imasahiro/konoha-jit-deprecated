@@ -60,10 +60,10 @@
 
 /* functionality */
 
+#include"konoha/konoha_debug.h"
 #include"konoha/konoha_glue.h"
 #include"konoha/konoha_gc.h"
 #include"konoha/konoha_vm.h"
-#include"konoha/konoha_debug.h"
 
 /* konohaapi, prototypes */
 

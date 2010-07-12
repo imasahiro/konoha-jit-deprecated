@@ -119,7 +119,7 @@ void knh_write_cline(Ctx *ctx, knh_OutputStream_t *w, char *file, long line)
 void knh_write_uline(Ctx *ctx, knh_OutputStream_t *w, knh_uri_t uri, long line)
 {
 	knh_putc(ctx, w, '[');
-	knh_write_text(ctx, w, FILEN(uri));
+	knh_write_text(ctx, w, FILENAME__(uri));
 	knh_putc(ctx, w, ':');
 	knh_write_dfmt(ctx, w, K_INTPTR_FMT, line);
 	knh_putc(ctx, w, ']'); knh_putc(ctx, w, ' ');
@@ -257,7 +257,7 @@ void knh_vperror(Ctx *ctx, knh_uri_t uri, int line, int pe, const char *fmt, va_
 	L_PRINT:;
 	if(line > 0) {
 		knh_OutputStream_t *w = KNH_STDERR;
-		knh_printf(ctx, w, " - [%s:%d]:%s ", FILEN(uri), (knh_intptr_t)line, KERR_tochar(pe));
+		knh_printf(ctx, w, " - [%s:%d]:%s ", FILENAME__(uri), (knh_intptr_t)line, KERR_tochar(pe));
 		knh_vprintf(ctx, w, fmt, ap);
 		knh_write_EOL(ctx, w);
 	}

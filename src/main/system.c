@@ -94,15 +94,15 @@ KNHAPI(void) knh_setPropertyText(Ctx *ctx, char *key, char *value)
 Object *knh_getClassConstNULL(Ctx *ctx, knh_class_t cid, knh_bytes_t name)
 {
 	DBG_ASSERT_cid(cid);
-	if(ClassTable(cid).constDictCaseMapNULL == NULL) return NULL;
-	knh_DictCaseMap_t *cmap = ClassTable(cid).constDictCaseMapNULL;
+	if(ClassTBL(cid).constDictCaseMapNULL == NULL) return NULL;
+	knh_DictCaseMap_t *cmap = ClassTBL(cid).constDictCaseMapNULL;
 	Object *value = NULL;
-	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
+	OLD_LOCK(ctx, LOCK_SYSTBL, NULL);
 	int res = knh_DictCaseMap_index(cmap, name);
 	if(res != -1) {
 		value = knh_DictCaseMap_valueAt(cmap, res);
 	}
-	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
+	OLD_UNLOCK(ctx, LOCK_SYSTBL, NULL);
 	return value;
 }
 
@@ -111,15 +111,15 @@ Object *knh_getClassConstNULL(Ctx *ctx, knh_class_t cid, knh_bytes_t name)
 int knh_addClassConst(Ctx *ctx, knh_class_t cid, knh_String_t* name, Object *value)
 {
 	int ret;
-	knh_DictCaseMap_t *cmap = ClassTable(cid).constDictCaseMapNULL;
+	knh_DictCaseMap_t *cmap = ClassTBL(cid).constDictCaseMapNULL;
 	DBG_ASSERT_cid(cid);
 	if(cmap == NULL) {
-		knh_ClassTable_t *t = pClassTable(ctx, cid);
+		knh_ClassTBL_t *t = pClassTBL(ctx, cid);
 		cmap = new_DictCaseMap0(ctx, 0);
 		KNH_INITv(t->constDictCaseMapNULL, cmap);
 	}
 	DBG_ASSERT(IS_Map(cmap));
-	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
+	OLD_LOCK(ctx, LOCK_SYSTBL, NULL);
 	int idx = knh_DictCaseMap_index(cmap, S_tobytes(name));
 	if(idx != -1) {
 		ret =  0;
@@ -129,7 +129,7 @@ int knh_addClassConst(Ctx *ctx, knh_class_t cid, knh_String_t* name, Object *val
 	ret = 1;
 
 	L_UNLOCK:
-	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
+	OLD_UNLOCK(ctx, LOCK_SYSTBL, NULL);
 	return ret;
 }
 
@@ -175,7 +175,7 @@ knh_fieldn_t knh_addname(Ctx *ctx, knh_String_t *s, knh_Fdictset f)
 
 static knh_fieldn_t knh_getname(Ctx *ctx, knh_bytes_t n, knh_fieldn_t def)
 {
-	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
+	OLD_LOCK(ctx, LOCK_SYSTBL, NULL);
 	knh_index_t idx = knh_DictCaseSet_index(DP(ctx->sys)->nameDictCaseSet, n);
 	if(idx == -1) {
 		if(def == FN_NEWID) {
@@ -188,7 +188,7 @@ static knh_fieldn_t knh_getname(Ctx *ctx, knh_bytes_t n, knh_fieldn_t def)
 	else {
 		idx = knh_DictCaseSet_valueAt(DP(ctx->sys)->nameDictCaseSet, idx) - 1;
 	}
-	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
+	OLD_UNLOCK(ctx, LOCK_SYSTBL, NULL);
 	return (knh_fieldn_t)idx + MN_OPSIZE;
 }
 
@@ -309,7 +309,7 @@ const char* knh_getmnname(Ctx *ctx, knh_methodn_t mn)
 
 knh_uri_t knh_getURI(Ctx *ctx, knh_bytes_t t)
 {
-	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
+	OLD_LOCK(ctx, LOCK_SYSTBL, NULL);
 	knh_index_t idx = knh_DictSet_index(DP(ctx->sys)->urnDictSet, t);
 	if(idx == -1) {
 		knh_String_t *s = new_S(ctx, t);
@@ -318,7 +318,7 @@ knh_uri_t knh_getURI(Ctx *ctx, knh_bytes_t t)
 		knh_Array_add(ctx, DP(ctx->sys)->urns, s);
 		KNH_SYSLOG(ctx, LOG_INFO, "NEW_URI", "URI=%d, URN=%s", idx, S_tobytes(s));
 	}
-	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
+	OLD_UNLOCK(ctx, LOCK_SYSTBL, NULL);
 	return (knh_uri_t)idx;
 }
 
@@ -342,9 +342,9 @@ void knh_addDriverSPI(Ctx *ctx, const char *scheme, knh_DriverSPI_t* p)
 	knh_write(ctx, cwb->w, B(name));
 	knh_putc(ctx, cwb->w, ':');
 	knh_write_ifmt(ctx, cwb->w, K_INT_FMT, p->type);
-	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
+	OLD_LOCK(ctx, LOCK_SYSTBL, NULL);
 	knh_DictSet_set(ctx, DP(ctx->sys)->dspiDictSet, knh_cwb_newString(ctx, cwb), (knh_uintptr_t)p);
-	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
+	OLD_UNLOCK(ctx, LOCK_SYSTBL, NULL);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -361,9 +361,9 @@ knh_DriverSPI_t *knh_getDriverSPI(Ctx *ctx, int type, knh_bytes_t path)
 	}
 	knh_putc(ctx, cwb->w, ':');
 	knh_write_ifmt(ctx, cwb->w, K_INT_FMT, type);
-	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
+	OLD_LOCK(ctx, LOCK_SYSTBL, NULL);
 	knh_DriverSPI_t *p = (knh_DriverSPI_t*)knh_DictSet_get(ctx, DP(ctx->sys)->dspiDictSet, knh_cwb_tobytes(cwb));
-	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
+	OLD_UNLOCK(ctx, LOCK_SYSTBL, NULL);
 	knh_cwb_close(cwb);
 	return p;
 }

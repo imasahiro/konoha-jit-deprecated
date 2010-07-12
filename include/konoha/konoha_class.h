@@ -399,16 +399,16 @@ typedef void (*knh_Fdictset)(Ctx *, knh_DictCaseSet_t*, knh_String_t *k, knh_uin
 
 /* ------------------------------------------------------------------------ */
 //## @Immutable class Class Object;
-//## flag Class Release!Debug  0 (pClassTable(ctx,%s))->cflag is * is *;
-//## flag Class Immutable      1 (pClassTable(ctx,%s))->cflag is * is *;
-//## flag Class Cyclic         2 (pClassTable(ctx,%s))->cflag is set * *;
-//## flag Class MetaClass      3 (pClassTable(ctx,%s))->cflag is * is *;
-//## flag Class Private!Public 4 (pClassTable(ctx,%s))->cflag is * is *;
-//## flag Class Final          5 (pClassTable(ctx,%s))->cflag  is * is *;
-//## flag Class Singleton      6 (pClassTable(ctx,%s))->cflag  is * is *;
-//## flag Class Unique         7 (pClassTable(ctx,%s))->cflag  is * is *;
-//## flag Class Interface      8 (pClassTable(ctx,%s))->cflag  is * is *;
-//## flag Class TypeVariable   9 (pClassTable(ctx,%s))->cflag  is set * *;
+//## flag Class Release!Debug  0 (pClassTBL(ctx,%s))->cflag is * is *;
+//## flag Class Immutable      1 (pClassTBL(ctx,%s))->cflag is * is *;
+//## flag Class Cyclic         2 (pClassTBL(ctx,%s))->cflag is set * *;
+//## flag Class MetaClass      3 (pClassTBL(ctx,%s))->cflag is * is *;
+//## flag Class Private!Public 4 (pClassTBL(ctx,%s))->cflag is * is *;
+//## flag Class Final          5 (pClassTBL(ctx,%s))->cflag  is * is *;
+//## flag Class Singleton      6 (pClassTBL(ctx,%s))->cflag  is * is *;
+//## flag Class Unique         7 (pClassTBL(ctx,%s))->cflag  is * is *;
+//## flag Class Interface      8 (pClassTBL(ctx,%s))->cflag  is * is *;
+//## flag Class TypeVariable   9 (pClassTBL(ctx,%s))->cflag  is set * *;
 
 #define FLAG_Field_Hidden          (knh_flag_t)(1<<0)
 #define FLAG_Field_Protected       (knh_flag_t)(1<<1)
@@ -599,7 +599,7 @@ typedef struct knh_Thunk_t {
 
 typedef struct {
 	knh_flag_t flag;
-	knh_expt_t eid;
+	knh_ebi_t eid;
 	knh_String_t* msg;
 	Object* bag;
 	knh_Array_t* traces;
@@ -844,7 +844,7 @@ typedef struct knh_OutputStream_t {
 
 #define knh_write_delim(ctx, w)    knh_write(ctx, w, STEXT(", "))
 #define knh_write_dots(ctx, w)     knh_write(ctx, w, STEXT("..."))
-#define knh_write_fn(ctx, w, fn)   knh_write(ctx, w, B(FN_tochar(fn)))
+#define knh_write_fn(ctx, w, fn)   knh_write(ctx, w, B(FN__(fn)))
 #define knh_write_type(ctx, w, type)   knh_write_cid(ctx, w, type)
 #define knh_write_ltype(ctx, w, type)  knh_write_cid(ctx, w, type)
 #define knh_write__O(ctx, w, o)    knh_write_Object(ctx, w, MN__k, o)

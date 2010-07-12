@@ -60,7 +60,7 @@ const char* TT_tochar(knh_term_t tt);
 #define TERMs_isFALSE(stmt, n)  (TERMs_isCONST(stmt, n) && IS_FALSE(TERMs_const(stmt, n)))
 #define TERMs_gettype(stmt, n)  SP(DP(stmt)->terms[n])->type
 #define TERMs_getcid(stmt, n)   CLASS_type(TERMs_gettype(stmt, n))
-#define TERMs_getbcid(stmt, n)  ctx->share->ClassTable[TERMs_getcid(stmt,n)].bcid
+#define TERMs_getbcid(stmt, n)  ctx->share->ClassTBL[TERMs_getcid(stmt,n)].bcid
 
 #define knh_Gamma_setURI(ctx, uri)  SP(ctx->gma)->uri  = uri
 #define knh_Gamma_setLine(ctx, n)   SP(ctx->gma)->line = n

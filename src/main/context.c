@@ -110,9 +110,7 @@ static void knh_CommonContext_init(Ctx *ctx, knh_Context_t *o)
 	KNH_INITv(o->in,  DP(ctx->sys)->in);
 	KNH_INITv(o->out, DP(ctx->sys)->out);
 	KNH_INITv(o->err, DP(ctx->sys)->err);
-	o->ctxlock = (knh_mutex_t*)KNH_MALLOC(ctx, sizeof(knh_mutex_t));
-	knh_bzero(o->ctxlock, sizeof(knh_mutex_t));
-	knh_mutex_init(o->ctxlock);
+	o->ctxlock = knh_mutex_malloc(ctx);
 }
 
 static void knh_CommonContext_traverse(Ctx *ctx, knh_Context_t *ctxo, knh_Ftraverse ftr)
@@ -145,9 +143,7 @@ static void knh_CommonContext_free(Ctx *ctx, knh_Context_t *ctxo)
 	ctxo->mtdCache = NULL;
 	ctxo->fmtCache = NULL;
 	ctxo->trlCache = NULL;
-	//
-	knh_mutex_destroy(ctxo->ctxlock);
-	KNH_FREE(ctx, ctxo->ctxlock, sizeof(knh_mutex_t));
+	knh_mutex_free(ctxo, ctxo->ctxlock);
 	ctxo->ctxlock = NULL;
 	ctxo->bufa = NULL;
 }
@@ -171,15 +167,46 @@ static void _syslog(int p, const char *fmt, ...)
 	va_end(ap);
 }
 
-static knh_EvidenceSPI_t EBISPI = {
-	"stderr",
-	_syslog, _vsyslog,
+static const knh_EvidenceSPI_t EBISPI = {
+	"stderr", _syslog, _vsyslog,
 };
+
+static knh_bool_t _isOPCODE(knh_opcode_t op)
+{
+	return 1;
+}
+
+static knh_Fmethod _compile(Ctx *ctx, knh_opline_t *op)
+{
+	return NULL;
+}
+
+static const knh_CompilerSPI_t JITSPI = {
+	"Unsupported", _isOPCODE, _compile,
+};
+
+static int _lock(knh_mutex_t *m DBG_TRACE)
+{
+	TRACE_P("UNLOCK mutex=%p", m);
+};
+
+
+static int _unlock(knh_mutex_t *m DBG_TRACE)
+{
+	TRACE_P("UNLOCK mutex=%p", m);
+};
+
+
+static const knh_SyncSPI_t SYNCSPI = {
+	"Synchronized(NO Thread)",
+	_lock, _unlock,
+};
+
 
 /* ------------------------------------------------------------------------ */
 /* [RootContext] */
 
-static void knh_initClassTable(knh_ClassTable_t *t, size_t s, size_t e)
+static void knh_initClassTBL(knh_ClassTBL_t *t, size_t s, size_t e)
 {
 	size_t i;
 	knh_bzero(&t[s], SIZEOF_TCLASS(e-s));
@@ -188,40 +215,40 @@ static void knh_initClassTable(knh_ClassTable_t *t, size_t s, size_t e)
 	}
 }
 
-static void knh_expandClassTable(Ctx *ctx)
+static void knh_expandClassTBL(Ctx *ctx)
 {
-	size_t s = ctx->share->ClassTableSize, max = ctx->share->ClassTableMax * 2;
-	knh_ClassTable_t *newt = (knh_ClassTable_t*)KNH_MALLOC(ctx, SIZEOF_TCLASS(max));
-	knh_memcpy(newt, ctx->share->ClassTable, SIZEOF_TCLASS(s));
-	knh_initClassTable(newt, s, max);
-	((knh_share_t*)ctx->share)->ClassTable = newt;
-	((knh_share_t*)ctx->share)->ClassTableMax = max;
-	KNH_SYSLOG(ctx, LOG_NOTICE, "ExtendedClassTable", "*size=%ld", max);
+	size_t s = ctx->share->ClassTBLSize, max = ctx->share->ClassTBLMax * 2;
+	knh_ClassTBL_t *newt = (knh_ClassTBL_t*)KNH_MALLOC(ctx, SIZEOF_TCLASS(max));
+	knh_memcpy(newt, ctx->share->ClassTBL, SIZEOF_TCLASS(s));
+	knh_initClassTBL(newt, s, max);
+	((knh_share_t*)ctx->share)->ClassTBL = newt;
+	((knh_share_t*)ctx->share)->ClassTBLMax = max;
+	KNH_SYSLOG(ctx, LOG_NOTICE, "ExtendedClassTBL", "*size=%ld", max);
 }
 
 /* ------------------------------------------------------------------------ */
 
 knh_class_t new_ClassId(Ctx *ctx)
 {
-	knh_class_t newid = ctx->share->ClassTableSize;
+	knh_class_t newid = ctx->share->ClassTBLSize;
 	KNH_ASSERT_CTX0(ctx);
-	if(ctx->share->ClassTableSize == ctx->share->ClassTableMax) {
-		knh_expandClassTable(ctx);
+	if(ctx->share->ClassTBLSize == ctx->share->ClassTBLMax) {
+		knh_expandClassTBL(ctx);
 	}
-	((knh_share_t*)ctx->share)->ClassTableSize = newid + 1;
+	((knh_share_t*)ctx->share)->ClassTBLSize = newid + 1;
 	return newid;
 }
 
 /* ------------------------------------------------------------------------ */
 
-void knh_expandExptTable(Ctx *ctx)
+void knh_expandEventTBL(Ctx *ctx)
 {
-	size_t s = ctx->share->ExptTableSize, max = ctx->share->ExptTableMax * 2;
-	knh_ExptTable_t *newt = (knh_ExptTable_t*)KNH_MALLOC(ctx, SIZEOF_TEXPT(max));
+	size_t s = ctx->share->EventTBLSize, max = ctx->share->EventTBLMax * 2;
+	knh_EventTBL_t *newt = (knh_EventTBL_t*)KNH_MALLOC(ctx, SIZEOF_TEXPT(max));
 	knh_bzero(newt, SIZEOF_TEXPT(max));
-	knh_memcpy(newt, ctx->share->ExptTable, SIZEOF_TEXPT(s));
-	((knh_share_t*)ctx->share)->ExptTable = newt;
-	((knh_share_t*)ctx->share)->ExptTableMax = max;
+	knh_memcpy(newt, ctx->share->EventTBL, SIZEOF_TEXPT(s));
+	((knh_share_t*)ctx->share)->EventTBL = newt;
+	((knh_share_t*)ctx->share)->EventTBLMax = max;
 }
 
 #ifndef HMEM_SAFEZERO
@@ -239,22 +266,24 @@ static Ctx* new_RootContext(void)
 	share->threadCounter = 1;
 	ctx->stat = (knh_stat_t*)((share+1));
 
-	share->ebiSPI = &EBISPI;
+	share->ebiSPI  = &EBISPI;
+	share->jitSPI  = &JITSPI;
+	share->syncSPI = &SYNCSPI;
 
 	share->ArenaSet = (knh_ArenaSet_t*)KNH_MALLOC(ctx, K_ARENASET_INITSIZE * sizeof(knh_ArenaSet_t));
 	knh_bzero(share->ArenaSet, K_ARENASET_INITSIZE * sizeof(knh_ArenaSet_t));
 	share->ArenaSetSize = 0;
 	share->ArenaSetMax = K_ARENASET_INITSIZE;
 
-	share->ClassTable = (knh_ClassTable_t*)KNH_MALLOC((Ctx*)ctx, SIZEOF_TCLASS(K_CLASSTABLE_INIT));
-	knh_initClassTable((knh_ClassTable_t*)share->ClassTable, 0, K_CLASSTABLE_INIT);
-	share->ClassTableSize = 0;
-	share->ClassTableMax  = K_CLASSTABLE_INIT;
+	share->ClassTBL = (knh_ClassTBL_t*)KNH_MALLOC((Ctx*)ctx, SIZEOF_TCLASS(K_CLASSTABLE_INIT));
+	knh_initClassTBL((knh_ClassTBL_t*)share->ClassTBL, 0, K_CLASSTABLE_INIT);
+	share->ClassTBLSize = 0;
+	share->ClassTBLMax  = K_CLASSTABLE_INIT;
 
-	share->ExptTable = (knh_ExptTable_t*)KNH_MALLOC(ctx, SIZEOF_TEXPT(KNH_EXPTTABLE_INIT));
-	knh_bzero((void*)share->ExptTable, SIZEOF_TEXPT(KNH_EXPTTABLE_INIT));
-	share->ExptTableSize = 0;
-	share->ExptTableMax  = KNH_EXPTTABLE_INIT;
+	share->EventTBL = (knh_EventTBL_t*)KNH_MALLOC(ctx, SIZEOF_TEXPT(K_EVENTTBL_INIT));
+	knh_bzero((void*)share->EventTBL, SIZEOF_TEXPT(K_EVENTTBL_INIT));
+	share->EventTBLSize = 0;
+	share->EventTBLMax  = K_EVENTTBL_INIT;
 	knh_loadSystemStructData(ctx, kapi);
 	{
 		knh_RawPtr_t *p = (knh_RawPtr_t*)new_hObject_(ctx, FLAG_Object_Immutable|FLAG_Object_NullObject, CLASS_Any, CLASS_Any);
@@ -331,14 +360,14 @@ static void knh_share_traverse(Ctx *ctx, knh_share_t *share, knh_Ftraverse ftr)
 	for(i = 0; i < K_TSTRING_SIZE; i++) {
 		KNH_FTR(ctx, ftr, (share->tString[i]));
 	}
-	for(i = 0; i < share->ExptTableSize; i++) {
-		if(ExptTable(i).name != NULL) {
-			KNH_FTR(ctx, ftr, (ExptTable(i).name));
+	for(i = 0; i < share->EventTBLSize; i++) {
+		if(EventTBL(i).name != NULL) {
+			KNH_FTR(ctx, ftr, (EventTBL(i).name));
 		}
 	}
 	/* tclass */
-	for(i = 0; i < share->ClassTableSize; i++) {
-		knh_ClassTable_t *t = pClassTable(ctx, i);
+	for(i = 0; i < share->ClassTBLSize; i++) {
+		knh_ClassTBL_t *t = pClassTBL(ctx, i);
 		DBG_ASSERT(t->lname != NULL);
 		KNH_NULLFTR(ctx, ftr, (t->typeNULL));
 		KNH_FTR(ctx, ftr, (t->methods));
@@ -367,7 +396,7 @@ static void knh_ObjectArenaSet_free(Ctx *ctx, knh_ArenaSet_t *t)
 			if(o->h.magic != K_OBJECT_MAGIC) continue;
 #ifdef KNH_HOBJECT_REFC
 			DBG_({
-				fprintf(stderr, "async object %p cid=%s(%d), ref=%d ", o, STRUCTN(o->h.bcid), (int)o->h.cid, (int)o->h.refc);
+				fprintf(stderr, "async object %p cid=%s(%d), ref=%d ", o, bcid__(o->h.bcid), (int)o->h.cid, (int)o->h.refc);
 				switch(o->h.bcid) {
 				case CLASS_Class:
 					fprintf(stderr, "o->cid=%d\n", (int)((knh_Class_t*)o)->cid);
@@ -380,7 +409,7 @@ static void knh_ObjectArenaSet_free(Ctx *ctx, knh_ArenaSet_t *t)
 				break;
 				case CLASS_Method: {
 					knh_Method_t *mtd = (knh_Method_t*)o;
-					fprintf(stderr, "DP(mtd)->cid=%s, DP(mtd)->mn=%d\n", STRUCTN(DP(mtd)->cid), DP(mtd)->mn);
+					fprintf(stderr, "DP(mtd)->cid=%s, DP(mtd)->mn=%d\n", bcid__(DP(mtd)->cid), DP(mtd)->mn);
 					break;
 				}
 				case CLASS_Stmt:
@@ -408,8 +437,8 @@ static void knh_share_free(Ctx *ctx, knh_share_t *share)
 {
 	size_t i;
 
-	KNH_FREE(ctx, (void*)share->ExptTable, SIZEOF_TEXPT(ctx->share->ExptTableMax));
-	share->ExptTable = NULL;
+	KNH_FREE(ctx, (void*)share->EventTBL, SIZEOF_TEXPT(ctx->share->EventTBLMax));
+	share->EventTBL = NULL;
 	KNH_FREE(ctx, share->tString, SIZEOF_TSTRING);
 	share->tString = NULL;
 	((knh_Context_t*)ctx)->fsweep = knh_Object_finalSweep;
@@ -421,15 +450,15 @@ static void knh_share_free(Ctx *ctx, knh_share_t *share)
 			knh_ObjectArenaSet_free(ctx, share->ArenaSet + i);
 		}
 	}
-	for(i = 0; i < share->ClassTableSize; i++) {
-		knh_ClassTable_t *t = pClassTable(ctx, i);
+	for(i = 0; i < share->ClassTBLSize; i++) {
+		knh_ClassTBL_t *t = pClassTBL(ctx, i);
 		if(t->fields != NULL) {
 			KNH_FREE(ctx, t->fields, sizeof(knh_fields_t) * t->fsize);
 			t->fields = NULL;
 		}
 	}
-	KNH_FREE(ctx, (void*)share->ClassTable, SIZEOF_TCLASS(share->ClassTableMax));
-	share->ClassTable = NULL;
+	KNH_FREE(ctx, (void*)share->ClassTBL, SIZEOF_TCLASS(share->ClassTBLMax));
+	share->ClassTBL = NULL;
 	DBG_ASSERT(share->ArenaSet != NULL);
 
 	for(i = 0; i < share->ArenaSetSize; i++) {
@@ -454,18 +483,6 @@ static void knh_share_free(Ctx *ctx, knh_share_t *share)
 	free(share);
 }
 
-//static void knh_traverseUnusedContext(Ctx *ctx, Ctx *o, knh_Ftraverse ftr)
-//{
-//	if(o->unusedContext != NULL) {
-//		knh_traverseUnusedContext(o, o->unusedContext, ftr);
-//	}
-//	knh_CommonContext_traverse(o, (knh_Context_t*)o, ftr);
-//	if(IS_SWEEP(ftr)) {
-//		knh_bzero((void*)o, sizeof(knh_Context_t));
-//		knh_free(ctx, (void*)o, sizeof(knh_Context_t));
-//	}
-//}
-
 /* ------------------------------------------------------------------------ */
 
 static Ctx *knh_getRootContext(Ctx *ctx)
@@ -487,8 +504,8 @@ void knh_Context_free(Ctx *ctx, knh_Context_t* ctxo)
 	knh_CommonContext_free(ctx, ctxo);
 	if(knh_getRootContext(ctx) == (Ctx*)ctxo) {
 		size_t i, j;
-		for(i = 0; i < ctxo->share->ClassTableSize; i++) {
-			knh_ClassTable_t *t = pClassTable(ctx, i);
+		for(i = 0; i < ctxo->share->ClassTBLSize; i++) {
+			knh_ClassTBL_t *t = pClassTBL(ctx, i);
 			knh_Array_t *a = t->methods;
 			for(j = 0; j < knh_Array_size(a); j++) {
 				knh_Method_toAbstract(ctx, a->methods[j]);

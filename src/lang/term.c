@@ -100,7 +100,7 @@ void knh_Stmt_toERR(Ctx *ctx, knh_Stmt_t *stmt, knh_Term_t *tm)
 	{
 		char buf[256];
 		knh_snprintf(buf, sizeof(buf), _("Script!!: you'll have to fix bugs at %s:%d"),
-			FILEN(SP(stmt)->uri), SP(stmt)->line);
+			FILENAME__(SP(stmt)->uri), SP(stmt)->line);
 		KNH_SETv(ctx, DP(stmt)->errMsg, new_S(ctx, B(buf)));
 		if(DP(stmt)->nextNULL != NULL) {
 			KNH_FINALv(ctx, DP(stmt)->nextNULL);
@@ -384,7 +384,7 @@ knh_Token_t *new_TokenCID(Ctx *ctx, knh_class_t cid)
 	knh_Token_t *tk = new_(Token);
 	TT_(tk) = TT_CID;
 	DP(tk)->cid = cid;
-	KNH_SETv(ctx, DP(tk)->text, ClassTable(cid).sname);
+	KNH_SETv(ctx, DP(tk)->text, ClassTBL(cid).sname);
 	return tk;
 }
 
@@ -549,13 +549,13 @@ static void knh_Token_add(Ctx *ctx, knh_Token_t *tk, knh_Token_t *tkc)
 	if(TT_(tkPREV) == TT_BYTE) {
 		TT_(tkPREV) = TT_UNAME;
 		if(TT_(tkc) == TT_BRANCET) {
-			KNH_SETv(ctx, DP(tkPREV)->text, ClassTable(CLASS_Bytes).sname);
+			KNH_SETv(ctx, DP(tkPREV)->text, ClassTBL(CLASS_Bytes).sname);
 			if(IS_NULL(DP(tkc)->data)) { // byte[] => Bytes
 				knh_Array_trimSize(ctx, a, prev+1);
 			}
 		}
 		else{
-			KNH_SETv(ctx, DP(tkPREV)->text, ClassTable(CLASS_Int).sname);
+			KNH_SETv(ctx, DP(tkPREV)->text, ClassTBL(CLASS_Int).sname);
 		}
 	}
 }
@@ -2631,7 +2631,7 @@ static void _LABEL(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 	knh_Stmt_tadd(ctx, stmt, itr, isLABEL, NULL);
 }
 
-static int isEXPTN(knh_Token_t *tk)
+static int isEBI__(knh_Token_t *tk)
 {
 	if(knh_Token_isExceptionType(tk)) return 1;
 	return 0;
@@ -2666,7 +2666,7 @@ static void _CATCH(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 		if(ITR_is(itr, TT_PARENTHESIS)) {
 			tkitr_t pbuf, *pitr = ITR_new(ITR_nextTK(itr), &pbuf);
 			knh_Stmt_t *stmtCATCH = new_Stmt2(ctx, STT_CATCH, NULL);
-			knh_Stmt_tadd(ctx, stmtCATCH, pitr, isEXPTN, _("not exception: %s"));
+			knh_Stmt_tadd(ctx, stmtCATCH, pitr, isEBI__, _("not exception: %s"));
 			knh_Stmt_tadd(ctx, stmtCATCH, pitr, isVARN, _("not variable: %s"));
 			_STMT1(ctx, stmtCATCH, itr);
 			stmtHEAD = knh_StmtNULL_append(ctx, stmtHEAD, stmtCATCH);
@@ -2706,7 +2706,7 @@ static void _USING(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 	_ASIS(ctx, stmt, itr);
 }
 
-static int isCLASSNAME(knh_Token_t* tk)
+static int isCLASS__AME(knh_Token_t* tk)
 {
 	if(TT_(tk) == TT_UNAME) {
 		knh_bytes_t t = S_tobytes(DP(tk)->text);
@@ -2720,11 +2720,11 @@ static int isCLASSNAME(knh_Token_t* tk)
 
 static void _CLASS(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 {	// CNAME:0 CPARAM:1 EXTENDS:2 IMPLEMENTS:3 STMT:4
-	knh_Stmt_tadd(ctx, stmt, itr, isCLASSNAME, _("not class: %s")); /*0*/
+	knh_Stmt_tadd(ctx, stmt, itr, isCLASS__AME, _("not class: %s")); /*0*/
 	_ASIS(ctx, stmt, itr); /* Generics for future : 1*/
 	if(ITR_is(itr, TT_EXTENDS)) {
 		ITR_next(itr);
-		knh_Stmt_tadd(ctx, stmt, itr, isCLASSNAME, _("not class: %s")); /*2*/
+		knh_Stmt_tadd(ctx, stmt, itr, isCLASS__AME, _("not class: %s")); /*2*/
 	}
 	else { /* Object */
 		knh_Stmt_add(ctx, stmt, new_TokenCID(ctx, CLASS_Object));
@@ -2755,7 +2755,7 @@ static void _METHOD(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 	knh_Stmt_add(ctx, stmt, tkT);
 	if(TT_(tkT) == TT_FUNCTION) TT_(tkT) = TT_ASIS;
 	if(ITR_is(itr, TT_UNAME)) {
-		knh_Stmt_tadd(ctx, stmt, itr, isCLASSNAME, _("not class: %s"));
+		knh_Stmt_tadd(ctx, stmt, itr, isCLASS__AME, _("not class: %s"));
 	}
 	else {
 		_ASIS(ctx, stmt, itr);
@@ -2779,7 +2779,7 @@ static void _CONSTRUCTOR(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 {
 	knh_Token_t *tkT = ITR_tk(itr);
 	TT_(tkT) = TT_UNAME;
-	knh_Stmt_tadd(ctx, stmt, itr, isCLASSNAME, _("not class: %s"));
+	knh_Stmt_tadd(ctx, stmt, itr, isCLASS__AME, _("not class: %s"));
 	_ASIS(ctx, stmt, itr);
 	knh_Stmt_add(ctx, stmt, new_TokenMN(ctx, MN_new));
 	ADD(stmt, _PARAM(ctx, stmt, itr));

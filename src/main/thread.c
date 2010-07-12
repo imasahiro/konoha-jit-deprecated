@@ -196,6 +196,7 @@ typedef struct knh_threadcc_t {
 /* ======================================================================== */
 /* [mutex] */
 
+
 //create mutex 	pthread_mutex_init 	CreateMutex
 //remove mutex lock 	pthread_mutex_lock 	WaitForSingleObject
 //release mutex lock 	pthread_mutex_unlock 	ReleaseMutex
@@ -204,9 +205,7 @@ typedef struct knh_threadcc_t {
 int knh_mutex_init(knh_mutex_t *m)
 {
 #if defined(K_USING_PTHREAD)
-	int res = pthread_mutex_init((pthread_mutex_t*)m, NULL);
-	DBG_P("initializing %p, res=%d", m, res);
-	return res;
+	return pthread_mutex_init((pthread_mutex_t*)m, NULL);
 #elif defined(K_USING_BTRON)
 	W sem = b_cre_sem(1, SEM_EXCL|DELEXIT);
 	if (sem < 0) {
@@ -218,7 +217,7 @@ int knh_mutex_init(knh_mutex_t *m)
 	mutex_init((struct mutex *)m);
 	return 0;
 #else
-	return -1;
+	return 0;
 #endif
 }
 
@@ -240,7 +239,7 @@ int knh_mutex_lock(knh_mutex_t *m)
 	mutex_lock((struct mutex *) m);
 	return 0;
 #else
-	return -1;
+	return 0;
 #endif
 }
 
@@ -254,7 +253,7 @@ int knh_mutex_trylock(knh_mutex_t *m)
 #elif defined(KONOHA_ON_LKM)
 	return mutex_trylock((struct mutex *) m);
 #else
-	return -1;
+	return 0;
 #endif
 }
 
@@ -276,7 +275,7 @@ int knh_mutex_unlock(knh_mutex_t *m)
 	mutex_unlock((struct mutex *) m);
 	return 0;
 #else
-	return -1;
+	return 0;
 #endif
 }
 
@@ -296,8 +295,27 @@ int knh_mutex_destroy(knh_mutex_t *m)
 #elif defined(KONOHA_ON_LKM)
 	return 0;
 #else
-	return -1;
+	return 0;
 #endif
+}
+
+
+knh_mutex_t *knh_mutex_malloc(Ctx *ctx)
+{
+	knh_mutex_t *m = (knh_mutex_t*)KNH_MALLOC(ctx, sizeof(knh_mutex_t));
+	knh_bzero(m, sizeof(knh_mutex_t));
+	if(knh_mutex_init(m) != 0) {
+		KNH_SYSLOG(ctx, LOG_CRIT, "Thread", "*uninitialized_mutex=%p", m);
+	}
+	return m;
+}
+
+void knh_mutex_free(Ctx *ctx, knh_mutex_t *m)
+{
+	if(knh_mutex_destroy(m) != 0) {
+		KNH_SYSLOG(ctx, LOG_WARNING, "Thread", "*unlocked_mutex=%p", m);
+	}
+	KNH_FREE(ctx, m, sizeof(knh_mutex_t));
 }
 
 /* ======================================================================== */

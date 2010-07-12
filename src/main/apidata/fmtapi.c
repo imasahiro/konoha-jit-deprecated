@@ -86,7 +86,7 @@ void knh_write_ObjectField(Ctx *ctx, knh_OutputStream_t *w, Object **v, size_t i
 static METHOD Object__empty(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
 	if(knh_Context_isDebug(ctx)) {
-		knh_printf(ctx, sfp[1].w, "@Debug %%empty(%s)", CLASSNo(sfp[0].o));
+		knh_printf(ctx, sfp[1].w, "@Debug %%empty(%s)", O__(sfp[0].o));
 	}
 }
 
@@ -101,7 +101,7 @@ static METHOD Object__s(Ctx *ctx, knh_sfp_t *sfp, long rix)
 		knh_write(ctx, sfp[1].w, STEXT("null"));
 	}
 	else {
-		knh_write_text(ctx, sfp[1].w, CLASSN(knh_Object_cid(sfp[0].o)));
+		knh_write_text(ctx, sfp[1].w, CLASS__(knh_Object_cid(sfp[0].o)));
 		knh_putc(ctx, sfp[1].w, ':');
 		knh_write__p(ctx, sfp[1].w, (void*)sfp[0].o);
 	}
@@ -217,7 +217,7 @@ static METHOD Method__s(Ctx *ctx, knh_sfp_t *sfp, long rix)
 
 static METHOD Exception__s(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-	knh_write_text(ctx, sfp[1].w, EXPTN(DP(sfp[0].e)->eid));
+	knh_write_text(ctx, sfp[1].w, EBI__(DP(sfp[0].e)->eid));
 	knh_write_text(ctx, sfp[1].w, "!!");
 }
 
@@ -241,7 +241,7 @@ static METHOD Object__k(Ctx *ctx, knh_sfp_t *sfp, long rix)
 		knh_write_dots(ctx, w);
 	}
 	else {
-		size_t bsize = ClassTable(o->h.cid).size / sizeof(Object*);
+		size_t bsize = ClassTBL(o->h.cid).size / sizeof(Object*);
 		knh_write_sname(ctx, w, o->h.cid);
 		if(bsize > 0) {
 			size_t i;
@@ -308,7 +308,7 @@ static METHOD Iterator__k(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
 	knh_Iterator_t *it = sfp[0].it;
 	knh_OutputStream_t *w = sfp[1].w;
-	knh_ParamArray_t *pa = ClassTable(knh_Object_cid(it)).cparam;
+	knh_ParamArray_t *pa = ClassTBL(knh_Object_cid(it)).cparam;
 	knh_class_t p1 = knh_Object_p1(it);
 	knh_Method_t *mtdf = knh_lookupFormatter(ctx, p1, MN__k);
 	if(pa->psize > 1) {
@@ -491,7 +491,7 @@ static METHOD Method__k(Ctx *ctx, knh_sfp_t *sfp, long rix)
 		knh_write_type(ctx, w, p->type);
 		if(!isInline) {
 			knh_putc(ctx, w, ' ');
-			knh_write(ctx, w, B(FN_tochar(p->fn)));
+			knh_write(ctx, w, B(FN__(p->fn)));
 		}
 	}
 	if(knh_ParamArray_isVARGs(DP(o)->mp)) {
@@ -558,7 +558,7 @@ static METHOD Script__k(Ctx *ctx, knh_sfp_t *sfp, long rix)
 			if(cf->fn == FN_NONAME) break;
 			{
 				knh_type_t type = knh_type_tocid(ctx, cf->type, knh_Object_cid(o));
-				knh_printf(ctx, w, "[%d] %T %s=", i, type, FN_tochar(cf->fn));
+				knh_printf(ctx, w, "[%d] %T %s=", i, type, FN__(cf->fn));
 				knh_write_ObjectField(ctx, w, (Object**)o->fields, i, cf->type, MN__k);
 				knh_println(ctx, w, STEXT(""));
 			}
@@ -701,7 +701,7 @@ static METHOD Exception__dump(Ctx *ctx, knh_sfp_t *sfp, long rix)
 static int knh_Object_isFieldObject(Ctx *ctx, Object *o)
 {
 	return knh_Object_bcid(o) == CLASS_Script
-		|| ClassTable(knh_Object_cid(o)).cspi == ClassTable(CLASS_Object).cspi;
+		|| ClassTBL(knh_Object_cid(o)).cspi == ClassTBL(CLASS_Object).cspi;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -718,7 +718,7 @@ static METHOD Object__data(Ctx *ctx, knh_sfp_t *sfp, long rix)
 		knh_intptr_t i;
 		knh_class_t cid = knh_Object_cid(o);
 		Object **v = (Object**)o->ref;
-		knh_intptr_t bsize = ClassTable(cid).size / sizeof(Object*);
+		knh_intptr_t bsize = ClassTBL(cid).size / sizeof(Object*);
 		knh_write_sname(ctx, w, cid);
 		knh_putc(ctx, w, ' ');
 		knh_write_begin(ctx, w, '{');
@@ -728,7 +728,7 @@ static METHOD Object__data(Ctx *ctx, knh_sfp_t *sfp, long rix)
 			if(cf->fn == FN_NONAME
 					|| FLAG_is(cf->flag, FLAG_Field_Volatile)) continue;
 			knh_write_BOL(ctx, w);
-			knh_printf(ctx, w, "\"%s\": ", FN_tochar(cf->fn));
+			knh_printf(ctx, w, "\"%s\": ", FN__(cf->fn));
 			knh_write_ObjectField(ctx, w, v, i, cf->type, MN__data);
 			knh_putc(ctx, w, ',');
 		}
@@ -891,8 +891,8 @@ static METHOD Func__data(Ctx *ctx, knh_sfp_t *sfp, long rix)
 //	knh_write_ltype(ctx, w, cid);
 //	knh_write_EOL(ctx, w);
 //
-//	while(ClassTable(cid).supcid != CLASS_Object) {
-//		cid = ClassTable(cid).supcid;
+//	while(ClassTBL(cid).supcid != CLASS_Object) {
+//		cid = ClassTBL(cid).supcid;
 //		knh_write_TAB(ctx, w);
 //		knh_write(ctx, w, STEXT("extends "));
 //		knh_write_ltype(ctx, w, cid);
@@ -903,10 +903,10 @@ static METHOD Func__data(Ctx *ctx, knh_sfp_t *sfp, long rix)
 //static void knh_ClassCONST__man(Ctx *ctx, knh_class_t cid, knh_OutputStream_t *w)
 //{
 //	DBG_ASSERT_cid(cid);
-//	if(ClassTable(cid).constDictMap == NULL) return ;
-//	knh_DictMap_t *tcmap = ClassTable(cid).constDictMap;
+//	if(ClassTBL(cid).constDictMap == NULL) return ;
+//	knh_DictMap_t *tcmap = ClassTBL(cid).constDictMap;
 //	size_t i, size = knh_DictMap_size(tcmap);
-//	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
+//	OLD_LOCK(ctx, LOCK_SYSTBL, NULL);
 //	int hasCaption = 0;
 //	for(i = 0; i < size; i++) {
 //		if(!hasCaption) {
@@ -914,11 +914,11 @@ static METHOD Func__data(Ctx *ctx, knh_sfp_t *sfp, long rix)
 //			knh_write_EOL(ctx, w);
 //			hasCaption = 1;
 //		}
-//		knh_printf(ctx, w, "\t%s.%s: %O\n", CLASSN(cid),
+//		knh_printf(ctx, w, "\t%s.%s: %O\n", CLASS__(cid),
 //				S_tochar(knh_DictMap_keyAt(tcmap, i)),
 //				knh_DictMap_valueAt(tcmap, i));
 //	}
-//	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
+//	OLD_UNLOCK(ctx, LOCK_SYSTBL, NULL);
 //}
 //
 //
@@ -937,7 +937,7 @@ static METHOD Func__data(Ctx *ctx, knh_sfp_t *sfp, long rix)
 //	knh_putc(ctx, w, ' ');
 //
 //	if(knh_Method_isStatic(o)) {
-//		knh_write_char(ctx, w, CTXCLASSN(cid));
+//		knh_write_char(ctx, w, CTXCLASS__(cid));
 //		knh_putc(ctx, w, '.');
 //	}
 //	knh_write_mn(ctx, w, DP(o)->mn);
@@ -951,7 +951,7 @@ static METHOD Func__data(Ctx *ctx, knh_sfp_t *sfp, long rix)
 //		}
 //		knh_write_type(ctx, w, knh_type_tocid(ctx, p->type, cid));
 //		knh_putc(ctx, w, ' ');
-//		knh_write(ctx, w, B(FN_tochar(p->fn)));
+//		knh_write(ctx, w, B(FN__(p->fn)));
 //	}
 //	if(knh_ParamArray_isVARGs(DP(o)->mp)) {
 //		knh_write_delim(ctx, w);
@@ -988,9 +988,9 @@ static METHOD Func__data(Ctx *ctx, knh_sfp_t *sfp, long rix)
 //		knh_write_sname(ctx, w, SP(mpr)->tcid);
 //		knh_write_EOL(ctx, w);
 //	}
-//	if(ClassTable(cid).supcid != CLASS_Object) {
-//		cid = ClassTable(cid).supcid;
-//		tmaps = ClassTable(cid).tmaps;
+//	if(ClassTBL(cid).supcid != CLASS_Object) {
+//		cid = ClassTBL(cid).supcid;
+//		tmaps = ClassTBL(cid).tmaps;
 //		from = 0;
 //		goto L_TAIL;
 //	}
@@ -1020,7 +1020,7 @@ static METHOD Class__man(Ctx *ctx, knh_sfp_t *sfp, long rix)
 //	cid = this_cid;
 //	while(1) {
 //		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-//		knh_Array_t *a = ClassTable(cid).methods;
+//		knh_Array_t *a = ClassTBL(cid).methods;
 //		for(i = 0; i < knh_Array_size(a); i++) {
 //			knh_Method_t *mtd = (knh_Method_t*)knh_Array_n(a, i);
 //			char *op = knh_methodop__tochar(DP(mtd)->mn);
@@ -1042,7 +1042,7 @@ static METHOD Class__man(Ctx *ctx, knh_sfp_t *sfp, long rix)
 //			knh_cwb_close(cwb);
 //			break;
 //		}
-//		cid = ClassTable(cid).supcid;
+//		cid = ClassTBL(cid).supcid;
 //		END_LOCAL(ctx, lsfp);
 //	}
 //
@@ -1134,7 +1134,7 @@ static METHOD Class__man(Ctx *ctx, knh_sfp_t *sfp, long rix)
 //		}
 //	}
 //	knh_write_EOL(ctx, w);
-//	knh_ClassMap__man(ctx, ClassTable(this_cid).tmaps, w, this_cid);
+//	knh_ClassMap__man(ctx, ClassTBL(this_cid).tmaps, w, this_cid);
 }
 
 /* ------------------------------------------------------------------------ */

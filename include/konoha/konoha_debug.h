@@ -92,14 +92,14 @@
 /* ======================================================================== */
 /* [DBGMODE] */
 
-#define TRACEARG          ,char *_file, int _line, char *_func
-#define TRACEDATA         ,(char*)__FILE__, (int)__LINE__, (char*)__FUNCTION__
+#define TRACEARG0          ,const char *_file, int _line, const char *_func
+#define TRACEDATA         ,__FILE__, (int)__LINE__, __FUNCTION__
 
 #ifdef K_USING_DEBUG0
 #undef K_USING_DEBUG
 #define KNH_ASSERT(c)
 #define KNH_ABORT() {\
-		KNH_SYSLOG(ctx, LOG_ERR, "Emergency Exit at %s", (char*)__FUNCTION__);\
+		KNH_SYSLOG(ctx, LOG_ERR, "Emergency Exit at %s", __FUNCTION__);\
 		exit(1); \
 	} \
 
@@ -142,8 +142,6 @@
 #define KNH_VALLOC(ctx, size)        knh_valloc(ctx, size)
 #define KNH_VFREE(ctx, p, size)      knh_vfree(ctx, p, size)
 
-
-
 /* error */
 #define KERR_ERR       LOG_CRIT
 #define KERR_TERROR    LOG_ERR
@@ -163,13 +161,23 @@
 
 #else/*K_EXPORTS*/
 #ifdef K_USING_DEBUG
+#define DBG_TRACE   ,const char* _file, const char* _func, int _line
 #define DBG_P(fmt, ...)  dbg_p(__FILE__, __FUNCTION__, __LINE__, fmt, ## __VA_ARGS__)
-#define TRACE_P(fmt, ...)  dbg_p(_file, _func, _line, fmt, ## __VA_ARGS__)
+#define TRACE_P(fmt, ...) dbg_p(_file, _func, _line, fmt, ## __VA_ARGS__)
 #define TODO_P(fmt, ...) todo_p(__FILE__, __FUNCTION__, __LINE__, fmt, ## __VA_ARGS__)
+
+#define KNH_LOCK(ctx, m)    ctx->share->syncSPI->lock(m, __FILE__, __FUNCTION__, __LINE__)
+#define KNH_UNLOCK(ctx, m)  ctx->share->syncSPI->unlock(m, __FILE__, __FUNCTION__, __LINE__)
+
 #else
+#define DBG_TRACE
 #define DBG_P(fmt, ...)
 #define TRACE_P(fmt, ...)
 #define TODO_P(fmt, ...)
+
+#define KNH_LOCK(ctx, m)    ctx->share->syncSPI->lock(m)
+#define KNH_UNLOCK(ctx, m)  ctx->share->syncSPI->unlock(m)
+
 #endif
 #endif/*K_EXPORTS*/
 

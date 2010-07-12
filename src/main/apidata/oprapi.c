@@ -60,7 +60,7 @@ static METHOD Object_opADDR(Ctx *ctx, knh_sfp_t *sfp, long rix)
 
 static METHOD Object_opOF(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-	DBG_P("cid=%s", CLASSNo(sfp[0].o));
+	DBG_P("cid=%s", O__(sfp[0].o));
 	RETURNb_(knh_class_instanceof(ctx, knh_Object_cid(sfp[0].o), Class_tocid(sfp[1])));
 }
 
@@ -348,7 +348,7 @@ static METHOD Object_opIS(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
 //	knh_class_t scid = knh_Object_cid(sfp[0].o);
 //	knh_class_t tcid = knh_Object_cid(sfp[1].o);
-//	DBG_P("Semantic Matching %s === %s", CLASSN(scid), CLASSN(tcid));
+//	DBG_P("Semantic Matching %s === %s", CLASS__(scid), CLASS__(tcid));
 //	if(scid == tcid) {
 //		Object_opEQ(ctx, sfp. rix);
 //	}

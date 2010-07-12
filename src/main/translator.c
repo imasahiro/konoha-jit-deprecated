@@ -41,11 +41,11 @@ extern "C" {
 static void knh_readyTransMapList(Ctx *ctx, knh_class_t cid)
 {
 	DBG_ASSERT_cid(cid);
-	knh_ClassTable_t *t = pClassTable(ctx, cid);
+	knh_ClassTBL_t *t = pClassTBL(ctx, cid);
 	if(t->tmaps == KNH_EMPTYLIST) {
 		KNH_ASSERT(knh_Array_size(t->tmaps) == 0);
 		KNH_SETv(ctx, t->tmaps, new_Array0(ctx, 1));
-		//KNH_SYSLOG(ctx, LOG_INFO, "[NEW_TMAPLIST] cid=%s", CLASSN(cid));
+		//KNH_SYSLOG(ctx, LOG_INFO, "[NEW_TMAPLIST] cid=%s", CLASS__(cid));
 	}
 }
 
@@ -55,7 +55,7 @@ KNHAPI(void) knh_addTranslator(Ctx *ctx, knh_Translator_t *trl)
 {
 	knh_class_t cid = SP(trl)->scid;
 	knh_readyTransMapList(ctx, cid);
-	knh_Array_add(ctx, ClassTable(cid).tmaps, trl);
+	knh_Array_add(ctx, ClassTBL(cid).tmaps, trl);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -65,7 +65,7 @@ void knh_addTranslatorFunc(Ctx *ctx, knh_flag_t flag, knh_type_t stype, knh_type
 	knh_class_t cid = CLASS_type(stype);
 	DBG_ASSERT_cid(cid);
 	knh_readyTransMapList(ctx, cid);
-	knh_Array_add(ctx, ClassTable(cid).tmaps,
+	knh_Array_add(ctx, ClassTBL(cid).tmaps,
 		new_Translator(ctx, flag, CLASS_type(stype), CLASS_type(ttype), ftcast));
 }
 
@@ -75,7 +75,7 @@ static TCAST knh_Ftranslator_null(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
 	DBG_(
 	knh_Translator_t *trl = sfp[0].casttrl;
-	DBG_P("trl: %s ==> %s", CLASSN(SP(trl)->scid), CLASSN(SP(trl)->tcid));
+	DBG_P("trl: %s ==> %s", CLASS__(SP(trl)->scid), CLASS__(SP(trl)->tcid));
 	);
 	KNH_THROW__T(ctx, "ClassCast!!");
 }
@@ -210,13 +210,13 @@ knh_Translator_t *knh_findTranslatorNULL(Ctx *ctx, knh_class_t scid, knh_class_t
 {
 	knh_Translator_t *trl = knh_getTranslatorCacheNULL(ctx, scid, tcid);
 	if(trl != NULL) return trl;
-	DBG_P("finding.. %s ==> %s",CLASSN(scid), CLASSN(tcid));
+	DBG_P("finding.. %s ==> %s",CLASS__(scid), CLASS__(tcid));
 	DBG_ASSERT_cid(scid); DBG_ASSERT_cid(tcid);
 	{
 		knh_class_t sbcid = scid;
 		while(1) {
 			size_t i;
-			knh_Array_t *a = ClassTable(sbcid).tmaps;
+			knh_Array_t *a = ClassTBL(sbcid).tmaps;
 			for(i = 0; i < (a)->size; i++) {
 				trl = (a)->trans[i];
 				if(SP(trl)->tcid == tcid) {
@@ -235,10 +235,10 @@ knh_Translator_t *knh_findTranslatorNULL(Ctx *ctx, knh_class_t scid, knh_class_t
 				knh_class_t mcid = SP((a)->trans[i])->tcid;
 				DBG_ASSERT_cid(mcid);
 				if(mcid <= CLASS_String) {
-					DBG_P("forbid lowlevel transitivity %s", CLASSN(mcid));
+					DBG_P("forbid lowlevel transitivity %s", CLASS__(mcid));
 					continue;   /* Stop lowlevel inference */
 				}
-				knh_Array_t *a2 = ClassTable(mcid).tmaps;
+				knh_Array_t *a2 = ClassTBL(mcid).tmaps;
 				for(j = 0; j < (a2)->size; j++) {
 					trl = (a2)->trans[j];
 					if(SP(trl)->tcid == tcid) {
@@ -254,11 +254,11 @@ knh_Translator_t *knh_findTranslatorNULL(Ctx *ctx, knh_class_t scid, knh_class_t
 					}
 				}
 			}
-			if(knh_class_isGenerics(ctx, sbcid) && ClassTable(sbcid).bcid != sbcid) {
-				sbcid = ClassTable(sbcid).bcid;
+			if(knh_class_isGenerics(ctx, sbcid) && ClassTBL(sbcid).bcid != sbcid) {
+				sbcid = ClassTBL(sbcid).bcid;
 			}
 			else {
-				sbcid = ClassTable(sbcid).supcid;
+				sbcid = ClassTBL(sbcid).supcid;
 			}
 		}
 	}
@@ -268,7 +268,7 @@ knh_Translator_t *knh_findTranslatorNULL(Ctx *ctx, knh_class_t scid, knh_class_t
 		goto L_ADDTRL;
 	}
 
-	trl = ClassTable(scid).cspi->genmap(ctx, scid, tcid);
+	trl = ClassTBL(scid).cspi->genmap(ctx, scid, tcid);
 	if(trl != NULL) {
 		goto L_ADDTRL;
 	}

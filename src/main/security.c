@@ -357,7 +357,7 @@ KNHAPI(void) knh_stack_checkSecurityManager(Ctx *ctx, knh_sfp_t *sfp)
 //		if(IS_Method(sp[0].mtd)) {
 //			if(!URI_ISTRUSTED(DP(sp[0].mtd)->uri)) {
 //				char buf[FILEPATH_BUFSIZ];
-//				knh_snprintf(buf, sizeof(buf), "Security!!: untrusted domain='%s'", URIDN(DP(sp[0].mtd)->uri));
+//				knh_snprintf(buf, sizeof(buf), "Security!!: untrusted domain='%s'", URI__(DP(sp[0].mtd)->uri));
 //				KNH_THROW__T(ctx, buf);
 //			}
 //		}
@@ -370,10 +370,10 @@ KNHAPI(void) knh_stack_checkSecurityManager(Ctx *ctx, knh_sfp_t *sfp)
 //knh_bool_t knh_isTrustedHost(Ctx *ctx, knh_bytes_t host)
 //{
 //	TODO();
-//	KNH_LOCK(ctx, LOCK_SYSTBL, NULL);
+//	OLD_LOCK(ctx, LOCK_SYSTBL, NULL);
 //	int res = knh_DictMap_index__b(DP(ctx->sys)->trustedHostDictMap, host);
 //	if(res != -1) return 1;
-//	KNH_UNLOCK(ctx, LOCK_SYSTBL, NULL);
+//	OLD_UNLOCK(ctx, LOCK_SYSTBL, NULL);
 //	return 0;
 //}
 

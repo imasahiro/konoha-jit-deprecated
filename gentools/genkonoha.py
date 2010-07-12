@@ -78,7 +78,7 @@ def STRUCT_(cname): return 'STRUCT_%s' % cname
 def CLASS_(cname): return 'CLASS_%s' % cname
 def FN_(fn):   return 'FN_%s' % fn.replace(':', '__')
 def MN_(mn):  return 'MN_%s' % mn.replace('%', '_').replace(':', '__')
-def EXPT_(cname):  return 'EXPT_%s' % cname.replace('!!', '')
+def EBI_(cname):  return 'EBI_%s' % cname.replace('!!', '')
 
 def TYPE_(type):
     p = ''
@@ -225,7 +225,7 @@ class Expt:
 
     def ExptData(self):
         fmt = '''
-\tDATA_EXPT, _DATA("%s"), 0, %s, %s, ''' % (self.cname, EXPT_(self.cname), EXPT_(self.parent))
+\tDATA_EXPT, _DATA("%s"), 0, %s, %s, ''' % (self.cname, EBI_(self.cname), EBI_(self.parent))
         return fmt
 
 def parse_Expt(meta, tokens, data):
@@ -469,7 +469,7 @@ class Data:
         self.CPARAM_LIST = []
         self.PTYPE_LIST = []
         self.EXPT = {}
-        self.EXPT_LIST = []
+        self.EBI_LIST = []
         self.FLAG_LIST = []
         self.METHODFIELD = {"void": 0}
         self.METHODFIELD_LIST = []
@@ -601,7 +601,7 @@ class Data:
     def add_Expt(self, expt):
         if not self.EXPT.has_key(expt.cname):
             self.EXPT[expt.cname] = expt
-            self.EXPT_LIST.append(expt)
+            self.EBI_LIST.append(expt)
         else:
             perror('duplicated', expt.cname)
     
@@ -759,8 +759,8 @@ def write_name_h(f, data):
 
     write_chapter(f, 'EXPT')
     cid = 1
-    for c in data.EXPT_LIST :
-        write_define(f, EXPT_(c.cname), '%d' % cid, 32)
+    for c in data.EBI_LIST :
+        write_define(f, EBI_(c.cname), '%d' % cid, 32)
         cid += 1
         
     write_chapter(f, 'FIELDN')
@@ -817,7 +817,7 @@ def write_Data(f, data):
     for c in data.PTYPE_LIST :
         dlist.append(c.ClassData())
     #dlist=[]
-    for c in data.EXPT_LIST :
+    for c in data.EBI_LIST :
         dlist.append(c.ExptData())
     write_data(f, 'knh_data_t', 'ClassData0', dlist, '0')
     #

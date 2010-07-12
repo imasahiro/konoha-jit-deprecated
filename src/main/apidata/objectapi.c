@@ -51,7 +51,7 @@ static METHOD Object_getClass(Ctx *ctx, knh_sfp_t *sfp, long rix)
 static METHOD Object_hashCode(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
 	knh_hashcode_t h =
-		(knh_hashcode_t)ClassTable(knh_Object_bcid(sfp[0].o)).cspi->hashkey(ctx, sfp, KNH_FOBJECT_HASH);
+		(knh_hashcode_t)ClassTBL(knh_Object_bcid(sfp[0].o)).cspi->hashkey(ctx, sfp, KNH_FOBJECT_HASH);
 	RETURNi_(h);
 }
 
@@ -77,7 +77,7 @@ static METHOD Object_isNotNull(Ctx *ctx, knh_sfp_t *sfp, long rix)
 static METHOD Object_getKey(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
 	knh_String_t *s =
-		(knh_String_t*)ClassTable(knh_Object_bcid(sfp[0].o)).cspi->hashkey(ctx, sfp, KNH_FOBJECT_KEY);
+		(knh_String_t*)ClassTBL(knh_Object_bcid(sfp[0].o)).cspi->hashkey(ctx, sfp, KNH_FOBJECT_KEY);
 	KNH_ASSERT(IS_String(s));
 	RETURN_(s);
 }

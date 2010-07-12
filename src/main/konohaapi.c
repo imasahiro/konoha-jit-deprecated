@@ -856,11 +856,10 @@ static void test_display(Ctx *ctx, void *status, const char* result, const knh_S
 	knh_uchar_t *charResult = ks->testResult.ubuf;
 	if (strncmp((char*)charResult, result, len) == 0) {
 		ks->isPassed = 1;
-		// always print out: modified by kimio
 		fprintf(kt->out, "[PASSED] %s\n", ku->testTitle.text);
 	} else {
 		ks->isPassed = 0;
-		fprintf(kt->out, "[FAILED] %s\nTESTED:\n%s\nMUST BE:\n%s\nRESULTS:\n%s\n", ku->testTitle.text, ks->testBody.text,  ks->testResult.text, result);
+		fprintf(kt->out, "[FAILED] %s\nTESTED:\n>>> %s\n...\n%s\nRESULTS:\n%s\n", ku->testTitle.text, ks->testBody.text,  ks->testResult.text, result);
 	}
 }
 
@@ -869,8 +868,7 @@ static void test_cleanup(Ctx *ctx, void *status)
 	kt_status_t *kt = (kt_status_t*)status;
 	if (kt == NULL) return;
 	fclose(kt->in);
-	/* print results */
-	if (kt->unitsize == 0)  {
+	if (kt->unitsize == 0)  {  // removed goto, by kimio
 		kt_unit_t *ku = kt->uhead, *clean_ku;
 		kt_stmt_t *ks = ku->shead, *clean_ks;
 		int i, j;
@@ -909,7 +907,6 @@ static void test_cleanup(Ctx *ctx, void *status)
 		}
 		fprintf(kt->out, "%s: %d of %d tests have been passed\n",kt->filename.text, (int)unit_passed, (int)kt->unitsize);
 	}
-	// modified by kimio // FIXME: if we concat %s and %d, it won't work.
 	KNH_FREE(ctx, kt->filename.ubuf, kt->filename.len + 1);
 	KNH_FREE(ctx, kt, sizeof(kt_status_t));
 }

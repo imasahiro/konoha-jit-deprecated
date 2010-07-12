@@ -62,7 +62,7 @@ knh_Map_t *new_Map(Ctx *ctx, size_t init, char *path, const knh_MapDSPI_t *dspi)
 
 static knh_hashcode_t knh_sfp_hashCode(Ctx *ctx, knh_sfp_t *sfp)
 {
-	return (knh_hashcode_t)ClassTable(knh_Object_bcid(sfp[0].o)).cspi->hashkey(ctx, sfp, KNH_FOBJECT_HASH);
+	return (knh_hashcode_t)ClassTBL(knh_Object_bcid(sfp[0].o)).cspi->hashkey(ctx, sfp, KNH_FOBJECT_HASH);
 }
 
 static knh_map_t *hmap_init(Ctx *ctx, size_t init, char *path, void *option)
