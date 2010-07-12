@@ -639,7 +639,7 @@ KNHAPI(void) konoha_shell(konoha_t konoha, char *optstr)
 typedef struct _kt_stmt_t {
 	knh_bytes_t testBody;
 	knh_bytes_t testResult;
-	knh_uint_t  isFailed;   // by kimio isFail => isFailed
+	knh_uint_t  isPassed;   // by kimio isFail => isFailed
 	struct _kt_stmt_t *next;
 } kt_stmt_t;
 
@@ -674,8 +674,8 @@ static kt_unit_t* new_kt_unit(Ctx *ctx, char* title)
 {
 	kt_unit_t* ret = (kt_unit_t*)KNH_MALLOC(ctx, sizeof(kt_unit_t));
 	size_t len = knh_strlen(title);
-	ret->testTitle.str = (char *)KNH_MALLOC(ctx, len + 1);
-	knh_memcpy(ret->testTitle.str, title, len + 1);
+	ret->testTitle.ubuf = (knh_uchar_t *)KNH_MALLOC(ctx, len + 1);
+	knh_memcpy(ret->testTitle.ubuf, title, len + 1);
 	ret->testTitle.len = len;
 	ret->shead = NULL;
 	ret->current = NULL;
@@ -689,19 +689,19 @@ static kt_stmt_t* new_kt_stmt(Ctx *ctx, char *body)
 	kt_stmt_t *ret = (kt_stmt_t *)KNH_MALLOC(ctx, sizeof(kt_stmt_t));
 	size_t len = knh_strlen(body);
 	if (len > 0) {
-		ret->testBody.str = (char *)KNH_MALLOC(ctx, len + 1);
-		knh_memcpy(ret->testBody.str, body, len+1);
+		ret->testBody.ubuf = (knh_uchar_t *)KNH_MALLOC(ctx, len + 1);
+		knh_memcpy(ret->testBody.ubuf, body, len+1);
 	}
 	ret->testBody.len = len;
-	ret->testResult.str = NULL;
+	ret->testResult.ubuf = NULL;
 	ret->testResult.len = 0;
-	ret->isFailed = 0;
+	ret->isPassed = 0;
 	ret->next = NULL;
 	return ret;
 
 }
 
-static void* test_init(Ctx *ctx, char *msg, char *filename)
+static void* test_init(Ctx *ctx, const char *msg, const char *filename)
 {
 	FILE *fp = fopen(filename, "r");
 	if (fp == NULL) {
@@ -712,8 +712,8 @@ static void* test_init(Ctx *ctx, char *msg, char *filename)
 		size_t len = knh_strlen(filename);
 		kt_status_t *kt = (kt_status_t*)KNH_MALLOC(ctx, sizeof(kt_status_t));
 		kt->in = fp;
-		kt->filename.str = (char*)KNH_MALLOC(ctx, len+1);
-		knh_memcpy(kt->filename.str, filename, len + 1);
+		kt->filename.ubuf = (knh_uchar_t *)KNH_MALLOC(ctx, len+1);
+		knh_memcpy(kt->filename.ubuf, filename, len + 1);
 		kt->filename.len = len;
 		kt->current = NULL;
 		kt->uhead = NULL;
@@ -729,12 +729,12 @@ static void add_kt_stmt_body(Ctx *ctx, kt_stmt_t* ks, char *body)
 	// realloc
 	size_t len = knh_strlen(body);
 	DBG_ASSERT(len > 0);
-	char *tmp = (char*)KNH_MALLOC(ctx, ks->testBody.len + len + 1);
-	knh_memcpy(tmp, ks->testBody.str, ks->testBody.len);
+	knh_uchar_t *tmp = (knh_uchar_t*)KNH_MALLOC(ctx, ks->testBody.len + len + 1);
+	knh_memcpy(tmp, ks->testBody.ubuf, ks->testBody.len);
 	knh_memcpy(tmp + ks->testBody.len, body, len);
 	tmp[ks->testBody.len + len] = '\0';
-	KNH_FREE(ctx, ks->testBody.str, ks->testBody.len + 1);
-	ks->testBody.str = tmp;
+	KNH_FREE(ctx, ks->testBody.ubuf, ks->testBody.len + 1);
+	ks->testBody.ubuf = tmp;
 	ks->testBody.len += len;
 }
 
@@ -743,8 +743,8 @@ static void add_kt_stmt_result(Ctx *ctx, kt_stmt_t *ks, char *result)
 	size_t len = knh_strlen(result);
 	DBG_ASSERT(len > 0);
 	if (ks != NULL) {
-		ks->testResult.str = (char *)KNH_MALLOC(ctx, len + 1);
-		knh_memcpy(ks->testResult.str, result, len + 1);
+		ks->testResult.ubuf = (knh_uchar_t *)KNH_MALLOC(ctx, len + 1);
+		knh_memcpy(ks->testResult.ubuf, result, len + 1);
 		ks->testResult.len = len;
 	} else {
 		// adding result before ks instance created.
@@ -762,7 +762,7 @@ static knh_bool_t test_readstmt(Ctx *ctx, void *status, knh_cwb_t *cwb, const kn
 	if (kt->unitsize != 0) ku = kt->current;
 	if (ku != NULL && ku->stmtsize != 0) ks = ku->current;
 	char line[KTEST_LINE_MAX];
-	int isMultiline = 0, isTestStarted = 0;
+	int isMultiline = 0, isTestStarted = 0, isSecondStmt=0;
 	while(kt_fgets(ctx, kt, line, KTEST_LINE_MAX) != NULL) {
 		kt->lineno += 1;  // added by kimio
 		if (IS_D(line, '/')) continue;
@@ -789,7 +789,18 @@ static knh_bool_t test_readstmt(Ctx *ctx, void *status, knh_cwb_t *cwb, const kn
 		if(IS_T(line, '>') || IS_T(line, '.')) {
 			if (isMultiline) {
 				add_kt_stmt_body(ctx, ks, line + 4);
+			} else if (isSecondStmt == 1) {
+				// this is for no result stmt.
+				// there are two situations.
+				// 1) originally, no result. such as 'if (1) str = "hoge"'
+				// 2) ignore its result. such as  str = "hoge";
+				// in situation 1), we need to set result here.
+				long len = (long)knh_strlen(line);
+				fseek(kt->in, -(len+1), SEEK_CUR); //rewind
+				ku->current->isPassed = 1;
+				return 1;
 			} else {
+				isTestStarted = 1;
 				if (ku->stmtsize == 0) {
 					ku->stmtsize++;
 					ku->shead = new_kt_stmt(ctx, line + 4);
@@ -802,8 +813,11 @@ static knh_bool_t test_readstmt(Ctx *ctx, void *status, knh_cwb_t *cwb, const kn
 				ku->current = ks;
 			}
 			int check;
+//			fprintf(stderr, "%p->%p:%s\n", ku, ks, line);
 			if ((check = api->checkstmt(ks->testBody)) == 0) {
 				knh_cwb_write(ctx, cwb, ks->testBody);
+				isSecondStmt=1;
+				isMultiline = 0;
 				continue;
 			}
 			if (check < 0) {
@@ -824,7 +838,7 @@ static knh_bool_t test_readstmt(Ctx *ctx, void *status, knh_cwb_t *cwb, const kn
 	return 0;
 }
 
-static void test_display(Ctx *ctx, void *status, char* result, const knh_ShellAPI_t *api)
+static void test_display(Ctx *ctx, void *status, const char* result, const knh_ShellAPI_t *api)
 {
 	kt_status_t *kt = (kt_status_t*)status;
 	if (kt == NULL) return;
@@ -832,15 +846,19 @@ static void test_display(Ctx *ctx, void *status, char* result, const knh_ShellAP
 	if (ku == NULL) return;
 	kt_stmt_t *ks = ku->current;
 	size_t len = ks->testResult.len;
-	if (len == 0) return;
-	char *charResult = ks->testResult.str;
-	if (strncmp(charResult, result, len) == 0) {
-		ks->isFailed = 0;
+	if (len == 0) {
+		// ignoring result. we suppose this stmt is correct
+		ks->isPassed = 1;
+		return;
+	}
+	knh_uchar_t *charResult = ks->testResult.ubuf;
+	if (strncmp((char*)charResult, result, len) == 0) {
+		ks->isPassed = 1;
 		// always print out: modified by kimio
-		fprintf(kt->out, "[PASSED] %s\n", ku->testTitle.str);
+		fprintf(kt->out, "[PASSED] %s\n", ku->testTitle.ubuf);
 	} else {
-		ks->isFailed = 1;
-		fprintf(kt->out, "[FAILED] %s\n", ku->testTitle.str);
+		ks->isPassed = 0;
+		fprintf(kt->out, "[FAILED] %s\n", ku->testTitle.ubuf);
 	}
 }
 
@@ -855,33 +873,33 @@ static void test_cleanup(Ctx *ctx, void *status)
 	kt_stmt_t *ks = ku->shead, *clean_ks;
 	int i, j;
 	/* traverse test result, and sum up */
-	size_t unit_passed = 0, result = 0, line = 0;
+	size_t unit_passed = 0, isAllPassed = 1, line = 0;
 	for (i = 1; i <= kt->unitsize; i++) {
 		for (j = 1; j <= ku->stmtsize; j++) {
-			if (ks->isFailed == 1) {
+			if (ks->isPassed == 0 /*failed*/) {
 				line = j;
+				isAllPassed = 0;
 			}
-			result |= ks->isFailed;
 			clean_ks = ks;
 			if (j < ku->stmtsize) {
 				ks = ks->next;
 			}
 			// cleanup ks
 			if (clean_ks->testBody.len > 0)
-				KNH_FREE(ctx, clean_ks->testBody.str, clean_ks->testBody.len + 1);
+				KNH_FREE(ctx, clean_ks->testBody.ubuf, clean_ks->testBody.len + 1);
 			if (clean_ks->testResult.len  > 0)
-				KNH_FREE(ctx, clean_ks->testResult.str, clean_ks->testResult.len + 1);
+				KNH_FREE(ctx, clean_ks->testResult.ubuf, clean_ks->testResult.len + 1);
 			KNH_FREE(ctx, clean_ks, sizeof(kt_stmt_t));
 		}
-		if (result == 0) unit_passed++;
-		result = 0;
+		if (isAllPassed == 1 /* all passed*/ ) unit_passed++;
+		isAllPassed = 1;
 		clean_ku = ku;
 		if (i < kt->unitsize) {
 			ku = ku->next;
 			ks = ku->shead;
 		}
 		// clean up ku
-		KNH_FREE(ctx, clean_ku->testTitle.str, clean_ku->testTitle.len + 1);
+		KNH_FREE(ctx, clean_ku->testTitle.ubuf, clean_ku->testTitle.len + 1);
 		KNH_FREE(ctx, clean_ku, sizeof(kt_unit_t));
 	}
 	if(kt->out != stderr && kt->out != stdout) {
@@ -889,9 +907,9 @@ static void test_cleanup(Ctx *ctx, void *status)
 	}
 CLEANUP_KT:
 	// modified by kimio // FIXME: if we concat %s and %d, it won't work.
-	fprintf(kt->out, "%s:", kt->filename);
-	fprintf(kt->out, "%d/%d tests have been passed\n", unit_passed, kt->unitsize);
-	KNH_FREE(ctx, kt->filename.str, kt->filename.len + 1);
+	fprintf(kt->out, "%s:", kt->filename.ubuf);
+	fprintf(kt->out, "%d of %d tests have been passed\n", (int)unit_passed, (int)kt->unitsize);
+	KNH_FREE(ctx, kt->filename.ubuf, kt->filename.len + 1);
 	KNH_FREE(ctx, kt, sizeof(kt_status_t));
 }
 
@@ -915,7 +933,9 @@ void konoha_runTest(konoha_t konoha, int argc, char **argv)
 	KNH_SETv(ctx, ((knh_Context_t*)ctx)->err, ctx->out);
 #endif
 	for(i = 0; i < argc; i++) {
-//		knh_shell(ctx, argv[i], &testSPI, NULL);
+#ifdef K_USING_NAKATA
+		knh_shell(ctx, argv[i], &testSPI, NULL);
+#endif
 	}
 	KNH_SETv(ctx, ((knh_Context_t*)ctx)->out, DP(ctx->sys)->out);
 	KNH_SETv(ctx, ((knh_Context_t*)ctx)->err, DP(ctx->sys)->err);
