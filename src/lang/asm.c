@@ -45,10 +45,7 @@ extern "C" {
 
 #define K_INLINECODE    (10)
 
-//static int knh_Gamma_inTry(Ctx *ctx);
-//static knh_BasicBlock_t *new_BasicBlockLABEL(Ctx *ctx);
 static void TERMs_asm(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_type_t reqt, int local);
-//static void knh_Gamma_asm(Ctx *ctx, knh_opline_t *op);
 static void knh_Stmt_asmBLOCK(Ctx *ctx, knh_Stmt_t *stmtH, knh_type_t reqt);
 #define knh_GammaLabel(ctx, n)   (knh_BasicBlock_t*)knh_Array_n(DP(ctx->gma)->lstacks, n)
 
@@ -201,6 +198,9 @@ static int knh_Gamma_asmJMPF(Ctx *ctx, klr_JMPF_t *op)
 	while(DP(bb)->size > 0) {
 		knh_opline_t *opP = DP(bb)->opbuf + (DP(bb)->size - 1);
 		if(opP->opcode == OPCODE_bNOT) {
+			klr_bNOT_t *opN = (klr_bNOT_t*)opP;
+			DBG_P("REWRITE JMPF index %d => %d", op->a, opN->a);
+			op->a = opN->a;
 			swap = (swap == 0) ? 1 : 0;
 			DP(bb)->size -= 1;
 			continue;
@@ -389,7 +389,7 @@ static void knh_BasicBlock_strip1(Ctx *ctx, knh_BasicBlock_t *bb)
 	}
 	if(bb->nextNC != NULL) {
 		knh_BasicBlock_t *bbN = bb->nextNC;
-		if(DP(bbN)->incoming == 1) {
+		if(DP(bbN)->incoming == 1 && knh_BasicBlock_opcode(bbN) != OPCODE_RET) {
 			knh_BasicBlock_join(ctx, bb, bbN);
 			knh_BasicBlock_setVisited(bb, 1);
 			goto L_TAIL;
@@ -568,7 +568,7 @@ static void knh_Gamma_compile(Ctx *ctx, knh_BasicBlock_t *bb, knh_BasicBlock_t *
 	knh_Gamma_gc(ctx);
 }
 
-static void KNH_ASM_LABEL(Ctx *ctx, knh_BasicBlock_t *label)
+static void KNH_LABEL(Ctx *ctx, knh_BasicBlock_t *label)
 {
 	if(label != NULL) {
 		knh_BasicBlock_t *bb = DP(ctx->gma)->bbNC;
@@ -591,24 +591,24 @@ static void KNH_ASM_JMP(Ctx *ctx, knh_BasicBlock_t *label)
 	DP(ctx->gma)->bbNC = NULL; /*KNH_TNULL(BasicBlock);*/
 }
 
-static knh_BasicBlock_t* KNH_ASM_JMPF(Ctx *ctx, int sfpidx, knh_BasicBlock_t *label)
+static knh_BasicBlock_t* KNH_ASM_JMPF(Ctx *ctx, int sfpidx, knh_BasicBlock_t *lbJUMP)
 {
 	knh_BasicBlock_t *bb = DP(ctx->gma)->bbNC;
-	knh_BasicBlock_t *newbb = new_BasicBlockLABEL(ctx);
+	knh_BasicBlock_t *lbNEXT = new_BasicBlockLABEL(ctx);
 	klr_JMPF_t op = {TADDR, OPCODE_JMPF, ASMLINE, NULL, sfpidx};
 	if(knh_Gamma_asmJMPF(ctx, &op)) {
 		DBG_P("*******swap********");
-		bb->jumpNC = newbb;
-		bb->nextNC = label;
+		bb->jumpNC = lbNEXT;
+		bb->nextNC = lbJUMP;
 	}
 	else {
-		bb->jumpNC = label;
-		bb->nextNC = newbb;
+		bb->jumpNC = lbJUMP;
+		bb->nextNC = lbNEXT;
 	}
-	DP(label)->incoming += 1;
-	DP(newbb)->incoming += 1;
-	DP(ctx->gma)->bbNC = newbb;
-	return label;
+	DP(lbJUMP)->incoming += 1;
+	DP(lbNEXT)->incoming += 1;
+	DP(ctx->gma)->bbNC = lbNEXT;
+	return lbJUMP;
 }
 
 static void KNH_ASM_BRANCH_(Ctx *ctx, knh_BasicBlock_t *jump, knh_opline_t *op)
@@ -749,7 +749,12 @@ static void KNH_ASM_BOX(Ctx *ctx, knh_type_t reqt, knh_type_t atype, int a)
 		knh_class_t rcid = ClassTBL(CLASS_type(reqt)).bcid;
 		if(rcid != bcid && reqt != TYPE_void) {
 			//DBG_P("reqt=%s, atype=%s", TYPE__(reqt), TYPE__(atype));
-			KNH_ASM(TR, a, a, cid, _BOX);
+			if(cid == CLASS_Boolean) {
+				KNH_ASM(TR, a, a, cid, _bBOX);
+			}
+			else {
+				KNH_ASM(TR, a, a, cid, _BOX);
+			}
 		}
 	}
 }
@@ -1050,7 +1055,7 @@ static knh_BasicBlock_t* TERMs_JMPIF(Ctx *ctx, knh_Stmt_t *stmt, size_t n, int i
 		if(isTRUE) {
 			KNH_ASM(bNOT, DP(tk)->index, DP(tk)->index);
 		}
-		return KNH_ASM_JMPF(ctx, local, label);
+		return KNH_ASM_JMPF(ctx, DP(tk)->index, label);
 	}
 	else {
 		TERMs_asm(ctx, stmt, n, TYPE_Boolean, local);
@@ -1176,6 +1181,7 @@ static int knh_StmtOP_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpid
 	knh_opcode_t opcode;
 	if(cid == CLASS_Boolean && mn == MN_opNOT) {
 		int a = TERMs_put(ctx, stmt, 1, TYPE_Boolean, local + 1);
+		DBG_P("sfpidx=%d, local=%d, a=%d", sfpidx, local, a);
 		KNH_ASM(bNOT, (sfpidx), (a));
 		return 1;
 	}
@@ -1651,27 +1657,35 @@ static void knh_StmtALT_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfp
 static void knh_StmtOR_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 {
 	int local = ASML(sfpidx);
-	knh_BasicBlock_t*  label = new_BasicBlockLABEL(ctx);
 	int i, size = DP(stmt)->size;
+	knh_BasicBlock_t*  lbTRUE = new_BasicBlockLABEL(ctx);
+	knh_BasicBlock_t*  lbFALSE = new_BasicBlockLABEL(ctx);
 	for(i = 0; i < size; i++) {
-		//TERMs_asm(ctx, stmt, i, TYPE_Boolean, local);
-		TERMs_JMPIF(ctx, stmt, i, 1/*TRUE*/, label, local);
+		TERMs_JMPIF(ctx, stmt, i, 1/*TRUE*/, lbTRUE, local);
 	}
-	KNH_ASM_LABEL(ctx, label);
-	KNH_ASM_MOVL(ctx, TYPE_Boolean, sfpidx, SP(stmt)->type, local);
+	KNH_ASM(NSET, sfpidx, knh_Object_data(KNH_FALSE));
+	KNH_ASM_JMP(ctx, lbFALSE);
+	KNH_LABEL(ctx, lbTRUE);
+	KNH_ASM(NSET, sfpidx, knh_Object_data(KNH_TRUE));
+	KNH_LABEL(ctx, lbFALSE); // false
+	//KNH_ASM_MOVL(ctx, TYPE_Boolean, sfpidx, SP(stmt)->type, local);
 }
 
 static void knh_StmtAND_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 {
 	int local = ASML(sfpidx);
-	knh_BasicBlock_t*  label = new_BasicBlockLABEL(ctx);
 	int i, size = DP(stmt)->size;
+	knh_BasicBlock_t*  lbTRUE = new_BasicBlockLABEL(ctx);
+	knh_BasicBlock_t*  lbFALSE = new_BasicBlockLABEL(ctx);
 	for(i = 0; i < size; i++) {
-		//TERMs_asm(ctx, stmt, i, TYPE_Boolean, local);
-		TERMs_JMPIF(ctx, stmt, i, 0/*FALSE*/, label, local);
+		TERMs_JMPIF(ctx, stmt, i, 0/*FALSE*/, lbFALSE, local);
 	}
-	KNH_ASM_LABEL(ctx, label);
-	KNH_ASM_MOVL(ctx, TYPE_Boolean, sfpidx, SP(stmt)->type, local);
+	KNH_ASM(NSET, sfpidx, knh_Object_data(KNH_TRUE));
+	KNH_ASM_JMP(ctx, lbTRUE);
+	KNH_LABEL(ctx, lbFALSE); // false
+	KNH_ASM(NSET, sfpidx, knh_Object_data(KNH_FALSE));
+	KNH_LABEL(ctx, lbTRUE);   // TRUE
+	//KNH_ASM_MOVL(ctx, TYPE_Boolean, sfpidx, SP(stmt)->type, local);
 }
 
 static void knh_StmtTRI_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
@@ -1684,9 +1698,9 @@ static void knh_StmtTRI_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfp
 	TERMs_asm(ctx, stmt, 1, reqt, local);
 	KNH_ASM_JMP(ctx, lbend);
 	/* else */
-	KNH_ASM_LABEL(ctx, lbelse);
+	KNH_LABEL(ctx, lbelse);
 	TERMs_asm(ctx, stmt, 2, reqt, local);
-	KNH_ASM_LABEL(ctx, lbend);
+	KNH_LABEL(ctx, lbend);
 	KNH_ASM_MOVL(ctx, reqt, sfpidx, SP(stmt)->type, local);
 }
 
@@ -1821,10 +1835,10 @@ static void knh_StmtIF_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
 	TERMs_asmBLOCK(ctx, stmt, 1, reqt);
 	KNH_ASM_JMP(ctx, lbEND);
 	/* else */
-	KNH_ASM_LABEL(ctx, lbELSE);
+	KNH_LABEL(ctx, lbELSE);
 	TERMs_asmBLOCK(ctx, stmt, 2, reqt);
 	/* endif */
-	KNH_ASM_LABEL(ctx, lbEND);
+	KNH_LABEL(ctx, lbEND);
 }
 
 static void knh_StmtSWITCH_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
@@ -1835,7 +1849,7 @@ static void knh_StmtSWITCH_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
 	knh_BasicBlock_t* lbBREAK = new_BasicBlockLABEL(ctx);
 	knh_BasicBlock_t *lbNEXT = NULL;
 	knh_Gamma_pushLABEL(ctx, stmt, lbCONTINUE, lbBREAK);
-	KNH_ASM_LABEL(ctx, lbCONTINUE);
+	KNH_LABEL(ctx, lbCONTINUE);
 	//switch(it)
 	TERMs_asm(ctx, stmt, 0, SP(tkIT)->type, (DP(tkIT)->index));
 	stmtCASE = DP(stmt)->stmts[1];
@@ -1846,17 +1860,17 @@ static void knh_StmtSWITCH_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
 			DP(ctx->gma)->espidx = DP(stmtCASE)->espidx;
 			TERMs_JMPIF(ctx, stmtCASE, 0, 0/*FALSE*/, lbEND, DP(ctx->gma)->espidx);
 			if(lbNEXT != NULL) {
-				KNH_ASM_LABEL(ctx, lbNEXT); lbNEXT = NULL;
+				KNH_LABEL(ctx, lbNEXT); lbNEXT = NULL;
 			}
 			TERMs_asmBLOCK(ctx, stmtCASE, 1, reqt);
 			lbNEXT = new_BasicBlockLABEL(ctx);
 			KNH_ASM_JMP(ctx, lbNEXT);
-			KNH_ASM_LABEL(ctx, lbEND);
+			KNH_LABEL(ctx, lbEND);
 		}
 		stmtCASE = DP(stmtCASE)->nextNULL;
 	}
 	if(lbNEXT != NULL) {
-		KNH_ASM_LABEL(ctx, lbNEXT); lbNEXT = NULL;
+		KNH_LABEL(ctx, lbNEXT); lbNEXT = NULL;
 	}
 	stmtCASE = DP(stmt)->stmts[1];
 	while(stmtCASE !=NULL) {
@@ -1865,7 +1879,7 @@ static void knh_StmtSWITCH_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
 		}
 		stmtCASE = DP(stmtCASE)->nextNULL;
 	}
-	KNH_ASM_LABEL(ctx, lbBREAK);
+	KNH_LABEL(ctx, lbBREAK);
 	knh_Gamma_popLABEL(ctx);
 }
 
@@ -1915,13 +1929,13 @@ static void knh_StmtWHILE_asm(Ctx *ctx, knh_Stmt_t *stmt)
 	knh_BasicBlock_t* lbCONTINUE = new_BasicBlockLABEL(ctx);
 	knh_BasicBlock_t* lbBREAK = new_BasicBlockLABEL(ctx);
 	knh_Gamma_pushLABEL(ctx, stmt, lbCONTINUE, lbBREAK);
-	KNH_ASM_LABEL(ctx, lbCONTINUE);
+	KNH_LABEL(ctx, lbCONTINUE);
 	if(!TERMs_isTRUE(stmt, 0)) {
 		TERMs_JMPIF(ctx, stmt, 0, 0/*FALSE*/, lbBREAK, DP(ctx->gma)->espidx);
 	}
 	TERMs_asmBLOCK(ctx, stmt, 1, TYPE_void);
 	KNH_ASM_JMP(ctx, lbCONTINUE);
-	KNH_ASM_LABEL(ctx, lbBREAK);
+	KNH_LABEL(ctx, lbBREAK);
 	knh_Gamma_popLABEL(ctx);
 }
 
@@ -1930,11 +1944,11 @@ static void knh_StmtDO_asm(Ctx *ctx, knh_Stmt_t *stmt)
 	knh_BasicBlock_t* lbCONTINUE = new_BasicBlockLABEL(ctx);
 	knh_BasicBlock_t* lbBREAK = new_BasicBlockLABEL(ctx);
 	knh_Gamma_pushLABEL(ctx, stmt, lbCONTINUE, lbBREAK);
-	KNH_ASM_LABEL(ctx, lbCONTINUE);
+	KNH_LABEL(ctx, lbCONTINUE);
 	TERMs_asmBLOCK(ctx, stmt, 0, TYPE_void);
 	TERMs_JMPIF(ctx, stmt, 1, 0/*FALSE*/, lbBREAK, DP(ctx->gma)->espidx);
 	KNH_ASM_JMP(ctx, lbCONTINUE);
-	KNH_ASM_LABEL(ctx, lbBREAK);
+	KNH_LABEL(ctx, lbBREAK);
 	knh_Gamma_popLABEL(ctx);
 }
 
@@ -1948,16 +1962,16 @@ static void knh_StmtFOR_asm(Ctx *ctx, knh_Stmt_t *stmt)
 	TERMs_asmBLOCK(ctx, stmt, 0, TYPE_void);
 	KNH_ASM_JMP(ctx, lbREDO);
 	/* i++ part */
-	KNH_ASM_LABEL(ctx, lbCONTINUE); /* CONTINUE */
+	KNH_LABEL(ctx, lbCONTINUE); /* CONTINUE */
 	TERMs_asmBLOCK(ctx, stmt, 2, TYPE_void);
 	/* i < 10 part */
-	KNH_ASM_LABEL(ctx, lbREDO);
+	KNH_LABEL(ctx, lbREDO);
 	if(!TERMs_isTRUE(stmt, 1)) {
 		TERMs_JMPIF(ctx, stmt, 1, 0/*FALSE*/, lbBREAK, DP(ctx->gma)->espidx);
 	}
 	TERMs_asmBLOCK(ctx, stmt, 3, TYPE_void);
 	KNH_ASM_JMP(ctx, lbCONTINUE);
-	KNH_ASM_LABEL(ctx, lbBREAK);
+	KNH_LABEL(ctx, lbBREAK);
 	knh_Gamma_popLABEL(ctx);
 }
 
@@ -2009,7 +2023,7 @@ static void knh_StmtFOREACH_asm(Ctx *ctx, knh_Stmt_t *stmt)
 	if(isSINGLEFOREACH(stmtDECL)) {
 		knh_Token_t *tkN = DP(stmtDECL)->tokens[1];
 		TERMs_asm(ctx, stmt, 1, TYPE_Iterator, itridx);
-		KNH_ASM_LABEL(ctx, lbC);
+		KNH_LABEL(ctx, lbC);
 		DBG_P("variable=%d, iterator=%d", (DP(tkN)->index), itridx);
 		KNH_ASM_BRANCH(NEXT, lbB, DP(tkN)->index, itridx);
 	}
@@ -2019,7 +2033,7 @@ static void knh_StmtFOREACH_asm(Ctx *ctx, knh_Stmt_t *stmt)
 	TERMs_asmBLOCK(ctx, stmt, 2, TYPE_void);
 	KNH_ASM_JMP(ctx, lbC);
 	/* end */
-	KNH_ASM_LABEL(ctx, lbB);
+	KNH_LABEL(ctx, lbB);
 	knh_Gamma_popLABEL(ctx);
 }
 
@@ -2067,7 +2081,7 @@ static void knh_StmtTRY_asm(Ctx *ctx, knh_Stmt_t *stmt)
 	knh_Gamma_setFinallyStmt(ctx, (knh_Stmt_t*)KNH_NULL); // InTry
 
 	/* catch */
-	KNH_ASM_LABEL(ctx, lbCATCH);
+	KNH_LABEL(ctx, lbCATCH);
 	knh_Stmt_t *stmtCATCH = DP(stmt)->stmts[1/*catch*/];
 	DBG_ASSERT(IS_Stmt(stmtCATCH));
 	while(stmtCATCH != NULL) {
@@ -2080,11 +2094,11 @@ static void knh_StmtTRY_asm(Ctx *ctx, knh_Stmt_t *stmt)
 			KNH_ASM_BRANCH(CATCH, lbCATCH, (DP(tkn)->index), emsg);
 			TERMs_asmBLOCK(ctx, stmtCATCH, 2, TYPE_void);
 			KNH_ASM_JMP(ctx, lbFINALLY);  /* GOTO FINALLY */
-			KNH_ASM_LABEL(ctx, lbCATCH); /* _CATCH_NEXT_ */
+			KNH_LABEL(ctx, lbCATCH); /* _CATCH_NEXT_ */
 		}
 		stmtCATCH = DP(stmtCATCH)->nextNULL;
 	}
-	KNH_ASM_LABEL(ctx, lbFINALLY); /* FINALLY */
+	KNH_LABEL(ctx, lbFINALLY); /* FINALLY */
 	TERMs_asmBLOCK(ctx, stmt, 2/*finally*/, TYPE_void);
 	KNH_ASM(THROW, (DP(tkIT)->index));
 	KNH_ASM(OSET, (DP(tkIT)->index), KNH_NULL);
@@ -2257,7 +2271,7 @@ static void knh_StmtPRINT_asm(Ctx *ctx, knh_Stmt_t *stmt)
 			KNH_ASM(P, _PRINT, flag | mask, msg, mtd, espidx); flag=0;
 		}
 	}
-	KNH_ASM_LABEL(ctx, lbskip);
+	KNH_LABEL(ctx, lbskip);
 }
 
 static void knh_StmtASSERT_asm(Ctx *ctx, knh_Stmt_t *stmt)
@@ -2283,7 +2297,7 @@ static void knh_StmtASSERT_asm(Ctx *ctx, knh_Stmt_t *stmt)
 	KNH_ASM(OSET, espidx, UPCAST(TS_AssertionException));
 	KNH_ASM(TR, espidx, espidx, CLASS_Exception, _ERR);
 	KNH_ASM(THROW, start);
-	KNH_ASM_LABEL(ctx, lbskip);
+	KNH_LABEL(ctx, lbskip);
 //	}
 //	else {
 //		int esp = DP(ctx->gma)->espidx;
@@ -2384,7 +2398,7 @@ void knh_Method_asm(Ctx *ctx, knh_Method_t *mtd, knh_Stmt_t *stmtP, knh_Stmt_t *
 		if(knh_Method_isStatic(mtd) && knh_Gamma_hasFIELD(ctx->gma)) {
 			KNH_ASM(TR, 0, 0, DP(ctx->gma)->this_cid, _NULVAL);
 		}
-		KNH_ASM_LABEL(ctx, lbBEGIN);
+		KNH_LABEL(ctx, lbBEGIN);
 		for(i = 1;i < (size_t)(knh_Method_psize(mtd) + 1); i++) {
 			xi = i + DP(ctx->gma)->goffset;
 			Object *value = DP(ctx->gma)->gf[xi].value;
@@ -2414,7 +2428,7 @@ void knh_Method_asm(Ctx *ctx, knh_Method_t *mtd, knh_Stmt_t *stmtP, knh_Stmt_t *
 			KNH_ASM(TR, i, i, cid, _VARGS);// i++;
 		}
 		knh_Stmt_asmBLOCK(ctx, stmtB, knh_ParamArray_rtype(DP(mtd)->mp));
-		KNH_ASM_LABEL(ctx, lbEND);
+		KNH_LABEL(ctx, lbEND);
 		KNH_ASM(RET);
 		knh_Gamma_popLABEL(ctx);
 		DBG_ASSERT(knh_Array_size(DP(ctx->gma)->lstacks) == 0);

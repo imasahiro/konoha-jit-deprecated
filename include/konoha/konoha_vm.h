@@ -573,6 +573,7 @@ typedef KLRAPI(void) (*klr_Fprobe)(Ctx *, knh_sfp_t*, knh_sfpidx_t n, knh_opline
 #define KLR_iGTEn(ctx, c, a, n)  REGb(c) = (SFi(a) >= n);
 
 #define BR_(EXPR, PC, JUMP) if(EXPR) {} else {KLR_JMP(ctx, PC, JUMP); }
+
 #define KLR3_bJNOT(ctx, PC, JUMP, a)     BR_(!REGb(a), PC, JUMP)
 #define KLR3_iJEQ(ctx, PC, JUMP, a, b)   BR_((SFi(a) == SFi(b)), PC, JUMP)
 #define KLR3_iJEQn(ctx, PC, JUMP, a, n)  BR_((SFi(a) == n), PC, JUMP)

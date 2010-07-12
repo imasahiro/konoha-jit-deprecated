@@ -5,6 +5,10 @@
 true
 >>> false
 false
+>>> !true
+false
+>>> !false
+true
 
 ### boolean variables
 >>> Boolean b0;
@@ -25,7 +29,11 @@ false
 >>> a = 1
 >>> b = (a == 1)
 true
->>> b = (a != 1)
+>>> b = !(a == 0)
+true
+>>> b = (a == 0)
+false
+>>> b = !(a == 1)
 false
 
 ### boolean ! operator
@@ -44,44 +52,95 @@ true
 >>> not !b
 true
 
-
-
-### boolean: and operator (true and true)
+### boolean true and true
 >>> a = 1
->>> b = true
+>>> b1 = true
+>>> b0 = false
 >>> true and true
 true
->>> b and true
+>>> b1 and true
 true
->>> true and b
+>>> true and b1
 true
->>> (a == 1) and b
+>>> (a == 1) and b1
 true
->>> b and (a == 1)
+>>> b1 and (a == 1)
+true
+>>> !(a == 0) and b1
+true
+>>> b1 and !(a == 0)
+true
+>>> (a == 1) and !b0
+true
+>>> b = (a == 1) and !b0
 true
 
-### boolean && operator (true and false)
+### why? same test
+>>> (a == 1) and !b0
+true
+
+>>> !b0 and (a == 1)
+true
+
+### boolean and operator true and false
 >>> a = 1
->>> b = true
+>>> b0 = false
+>>> b1 = true
 >>> true and false
 false
->>> b and false
+>>> b1 and b0
 false
->>> false and b
+>>> b1 and false
 false
 >>> (a == 1) and false
 false
 >>> true and !(a == 1)
 false
->>> (a == 1) and !b
+>>> (a == 1) and !b1
 false
->>> b and !(a == 1)
+>>> b1 and !(a == 1)
 false
 
-### boolean && opeator (false and true)
+### boolean and opeator (false and true)
+>>> a = 1
+>>> b0 = false
+>>> b1 = true
+>>> false and true
+false
+>>> b0 and b1
+false
+>>> false and b1
+false
+>>> b0 and true
+false
+
+>>> (a == 0) and true
+false
+>>> false and (a == 1)
+false
+>>> (a == 0) and b1
+false
+>>> b0 and !(a == 0)
+false
 
 
-
+### WHY??
+>>> a = 1
+>>> b0 = false
+>>> (a == 1) and !b0
+true
+>>> (a == 1) and !b0
+true
+>>> (a == 1) and !b0
+true
+>>> (a == 1) and !b0
+true
+>>> (a == 1) and !b0
+true
+>>> (a == 1) and !b0
+true
+>>> (a == 1) and !b0
+true
 
  
 
