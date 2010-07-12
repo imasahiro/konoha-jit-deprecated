@@ -568,6 +568,8 @@ static void knh_shell(Ctx *ctx, char *filename, const knh_ShellSPI_t *spi, const
 	END_LOCAL(ctx, lsfp);
 }
 
+
+
 #ifdef K_USING_SECURITY_ALERT
 static void knh_askSecurityAlert(Ctx *ctx)
 {
@@ -582,10 +584,10 @@ static void knh_askSecurityAlert(Ctx *ctx)
 "Konoha development team is collecting the following information:\n"
 "\tversion: version=%s distribution=%s revision=%d\n"
 "\tsystem: %s %dbits LANG=%s\n"
-"DO YOU ALLOW? [y/N]: ", K_VERSION, K_DIST, (int)K_REVISION, K_PLATFORM, (int)(sizeof(void*) * 8), knh_getenv("LANG"));
+"DO YOU ALLOW? [y/N]: ",
+		K_VERSION, K_DIST, (int)K_REVISION, K_PLATFORM, (int)(sizeof(void*) * 8), knh_getenv("LANG"));
 		if(fgets(buf, sizeof(80), stdin) != NULL) {
 			if((buf[0] == 'y' || buf[0] == 'Y') && (buf[1] == 0 || buf[1] == '\n' || buf[1] == '\r')) {
-				DBG_P("file: '%s'", knh_cwb_tochar(ctx, cwb));
 				FILE *fp = fopen(knh_cwb_tochar(ctx, cwb), "a");
 				if(fp != NULL) {
 					fclose(fp);
@@ -631,8 +633,6 @@ KNHAPI(void) konoha_shell(konoha_t konoha, char *optstr)
 /* [ktest lang] */
 // the following is added by nakata 
 // modified by kimio
-
-#ifdef K_USING_NAKATA
 
 #define KTEST_LINE_MAX 1024
 #define IS_D(L, ch) (L[0] == ch && L[1] == ch)
@@ -909,8 +909,8 @@ static void test_cleanup(Ctx *ctx, void *status)
 	}
 CLEANUP_KT:
 	// modified by kimio // FIXME: if we concat %s and %d, it won't work.
-	fprintf(kt->out, "%s:", kt->filename.ubuf);
-	fprintf(kt->out, "%d of %d tests have been passed\n", (int)unit_passed, (int)kt->unitsize);
+	fprintf(kt->out, "%s:", kt->filename.text);
+	fprintf(kt->out, "%d of %d tests have passed\n", (int)unit_passed, (int)kt->unitsize);
 	KNH_FREE(ctx, kt->filename.ubuf, kt->filename.len + 1);
 	KNH_FREE(ctx, kt, sizeof(kt_status_t));
 }
@@ -923,8 +923,6 @@ static const knh_ShellSPI_t testSPI = {
 		test_cleanup,
 };
 
-#endif
-
 void konoha_runTest(konoha_t konoha, int argc, char **argv)
 {
 	KONOHA_CHECK_(konoha);
@@ -935,9 +933,7 @@ void konoha_runTest(konoha_t konoha, int argc, char **argv)
 	KNH_SETv(ctx, ((knh_Context_t*)ctx)->err, ctx->out);
 #endif
 	for(i = 0; i < argc; i++) {
-#ifdef K_USING_NAKATA
 		knh_shell(ctx, argv[i], &testSPI, NULL);
-#endif
 	}
 	KNH_SETv(ctx, ((knh_Context_t*)ctx)->out, DP(ctx->sys)->out);
 	KNH_SETv(ctx, ((knh_Context_t*)ctx)->err, DP(ctx->sys)->err);
