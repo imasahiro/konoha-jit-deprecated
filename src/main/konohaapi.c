@@ -870,46 +870,46 @@ static void test_cleanup(Ctx *ctx, void *status)
 	if (kt == NULL) return;
 	fclose(kt->in);
 	/* print results */
-	if (kt->unitsize == 0)  goto CLEANUP_KT; // there is no test.
-	kt_unit_t *ku = kt->uhead, *clean_ku;
-	kt_stmt_t *ks = ku->shead, *clean_ks;
-	int i, j;
-	/* traverse test result, and sum up */
-	size_t unit_passed = 0, isAllPassed = 1, line = 0;
-	for (i = 1; i <= kt->unitsize; i++) {
-		for (j = 1; j <= ku->stmtsize; j++) {
-			if (ks->isPassed == 0 /*failed*/) {
-				line = j;
-				isAllPassed = 0;
+	if (kt->unitsize == 0)  {
+		kt_unit_t *ku = kt->uhead, *clean_ku;
+		kt_stmt_t *ks = ku->shead, *clean_ks;
+		int i, j;
+		/* traverse test result, and sum up */
+		size_t unit_passed = 0, isAllPassed = 1, line = 0;
+		for (i = 1; i <= kt->unitsize; i++) {
+			for (j = 1; j <= ku->stmtsize; j++) {
+				if (ks->isPassed == 0 /*failed*/) {
+					line = j;
+					isAllPassed = 0;
+				}
+				clean_ks = ks;
+				if (j < ku->stmtsize) {
+					ks = ks->next;
+				}
+				// cleanup ks
+				if (clean_ks->testBody.len > 0)
+					KNH_FREE(ctx, clean_ks->testBody.ubuf, clean_ks->testBody.len + 1);
+				if (clean_ks->testResult.len  > 0)
+					KNH_FREE(ctx, clean_ks->testResult.ubuf, clean_ks->testResult.len + 1);
+				KNH_FREE(ctx, clean_ks, sizeof(kt_stmt_t));
 			}
-			clean_ks = ks;
-			if (j < ku->stmtsize) {
-				ks = ks->next;
+			if (isAllPassed == 1 /* all passed*/ ) unit_passed++;
+			isAllPassed = 1;
+			clean_ku = ku;
+			if (i < kt->unitsize) {
+				ku = ku->next;
+				ks = ku->shead;
 			}
-			// cleanup ks
-			if (clean_ks->testBody.len > 0)
-				KNH_FREE(ctx, clean_ks->testBody.ubuf, clean_ks->testBody.len + 1);
-			if (clean_ks->testResult.len  > 0)
-				KNH_FREE(ctx, clean_ks->testResult.ubuf, clean_ks->testResult.len + 1);
-			KNH_FREE(ctx, clean_ks, sizeof(kt_stmt_t));
+			// clean up ku
+			KNH_FREE(ctx, clean_ku->testTitle.ubuf, clean_ku->testTitle.len + 1);
+			KNH_FREE(ctx, clean_ku, sizeof(kt_unit_t));
 		}
-		if (isAllPassed == 1 /* all passed*/ ) unit_passed++;
-		isAllPassed = 1;
-		clean_ku = ku;
-		if (i < kt->unitsize) {
-			ku = ku->next;
-			ks = ku->shead;
+		if(kt->out != stderr && kt->out != stdout) {
+			fclose(kt->out);
 		}
-		// clean up ku
-		KNH_FREE(ctx, clean_ku->testTitle.ubuf, clean_ku->testTitle.len + 1);
-		KNH_FREE(ctx, clean_ku, sizeof(kt_unit_t));
+		fprintf(kt->out, "%s: %d of %d tests have been passed\n",kt->filename.text, (int)unit_passed, (int)kt->unitsize);
 	}
-	if(kt->out != stderr && kt->out != stdout) {
-		fclose(kt->out);
-	}
-CLEANUP_KT:
 	// modified by kimio // FIXME: if we concat %s and %d, it won't work.
-	fprintf(kt->out, "%s: %d of %d tests have been passed\n",kt->filename.text, (int)unit_passed, (int)kt->unitsize);
 	KNH_FREE(ctx, kt->filename.ubuf, kt->filename.len + 1);
 	KNH_FREE(ctx, kt, sizeof(kt_status_t));
 }
