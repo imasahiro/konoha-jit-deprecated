@@ -423,7 +423,7 @@ void knh_opcode_dump(Ctx *ctx, knh_opline_t *c, knh_OutputStream_t *w, knh_oplin
 		case VMT_SFX:
 			knh_printf(ctx, w, "sfx[%d]+%d", c->data[i], c->data[i+1]); break;
 		case VMT_U:
-			knh_write_dfmt(ctx, w, KNH_INTPTR_FMT, c->data[i]); break;
+			knh_write_dfmt(ctx, w, K_INTPTR_FMT, c->data[i]); break;
 		case VMT_F:
 			knh_write_vmfunc(ctx, w, c->p[i]); break;
 		case VMT_CID:

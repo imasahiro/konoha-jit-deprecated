@@ -759,11 +759,11 @@ void knh_vprintf(Ctx *ctx, knh_OutputStream_t *w, const char *fmt, va_list ap)
 					case '\0' : return ;
 					case 'd':
 						DBG_ASSERT(args[index].atype == VA_DIGIT);
-						knh_write_dfmt(ctx, w, KNH_INTPTR_FMT, args[index].dvalue);
+						knh_write_dfmt(ctx, w, K_INTPTR_FMT, args[index].dvalue);
 						break;
 					case 'u':
 						DBG_ASSERT(args[index].atype == VA_DIGIT);
-						knh_write_dfmt(ctx, w, KNH_INTPTR_UFMT, args[index].uvalue);
+						knh_write_dfmt(ctx, w, K_INTPTR_UFMT, args[index].uvalue);
 						break;
 					case 'l': case 'i' :
 						DBG_ASSERT(args[index].atype == VA_LONG);

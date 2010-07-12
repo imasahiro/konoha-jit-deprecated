@@ -587,7 +587,9 @@ static void knh_askSecurityAlert(Ctx *ctx)
 			if((buf[0] == 'y' || buf[0] == 'Y') && (buf[1] == 0 || buf[1] == '\n' || buf[1] == '\r')) {
 				DBG_P("file: '%s'", knh_cwb_tochar(ctx, cwb));
 				FILE *fp = fopen(knh_cwb_tochar(ctx, cwb), "a");
-				fclose(fp);
+				if(fp != NULL) {
+					fclose(fp);
+				}
 				fprintf(stdout, "Thank you for using Konoha!!\n");
 				goto L_CHECK;
 			}

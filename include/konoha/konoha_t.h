@@ -52,13 +52,7 @@ extern "C" {
 
 /* ------------------------------------------------------------------------ */
 
-#ifdef K_USING_THREAD
-#define KNH_MT_VOLATILE    volatile
-#else
-#define KNH_MT_VOLATILE
-#endif
-
-#define KONOHA_SYSTEM_BIT  (sizeof(void*) * CHAR_BIT)
+#define K_SYSTEMBIT       (sizeof(void*) * CHAR_BIT)
 
 typedef int16_t           knh_int16_t;
 typedef uint16_t          knh_uint16_t;
@@ -71,19 +65,38 @@ typedef intptr_t          knh_intptr_t;
 typedef uintptr_t         knh_uintptr_t;
 typedef knh_intptr_t      knh_index_t;
 
+#define K_INTPTR_FMT               "%"PRIdPTR
+#define K_INTPTR_UFMT              "%"PRIuPTR
+
+
 #if defined(__LP64__)
 typedef int32_t           knh_short_t;
 typedef uint32_t          knh_ushort_t;
 #ifndef K_USING_NOFLOAT
 typedef double            knh_floatptr_t;
 #endif
-#else
+
+/* virtual machine */
+#define VMTX_INT
+#define VMTSIZE_int 0
+#define VMTX_FLOAT
+#define VMTSIZE_float 0
+
+#else/*not defined(__LP64__)*/
+
 typedef int16_t           knh_short_t;
 typedef uint16_t          knh_ushort_t;
 #ifndef K_USING_NOFLOAT
 typedef float             knh_floatptr_t;
 #endif
-#endif
+
+/*virtual machine*/
+#define VMTX_INT  ,VMT_VOID
+#define VMTSIZE_int 1
+#define VMTX_FLOAT  ,VMT_VOID
+#define VMTSIZE_float 1
+
+#endif/* defined(__LP64__) */
 
 /* ------------------------------------------------------------------------ */
 /* Bool(ean), knh_bool_t */
@@ -93,18 +106,10 @@ typedef knh_intptr_t      knh_bool_t;
 typedef knh_intptr_t      knh_boolean_t;
 
 /* ------------------------------------------------------------------------ */
-/* Int, knh_int_t */
-/* ------------------------------------------------------------------------ */
-
-#define KNH_INTPTR_FMT               "%"PRIdPTR
-#define KNH_INTPTR_UFMT              "%"PRIuPTR
-
-/* ------------------------------------------------------------------------ */
 /* Integer, knh_int_t */
 /* ------------------------------------------------------------------------ */
 
 #ifdef K_USING_INT32
-
 typedef long                knh_int_t;
 typedef unsigned long       knh_uint_t;
 
@@ -144,21 +149,9 @@ typedef knh_uint64_t       knh_uint_t;
 #define K_UINT_FMT              "%llu"
 #define knh_abs(n)              llabs(n)
 
-#if defined(__LP64__)
-#define VMTX_INT
-#define VMTSIZE_int 0
-#else
-#define VMTX_INT  ,VMT_VOID
-#define VMTSIZE_int 1
-#endif
-
 #endif/*K_USING_INT32*/
 
 #define K_INT_FMTSIZ            40
-
-/* case */
-typedef knh_uint64_t       knh_case_t;
-#define K_CASE_FMT                "%llu"
 
 /* ------------------------------------------------------------------------ */
 /* Float, knh_float_t */
@@ -233,28 +226,19 @@ typedef double                    knh_float_t;
 #define K_FLOAT_FMTSIZ          80
 #endif /*K_FLOAT_NAN*/
 
-#if defined(__LP64__)
-#define VMTX_FLOAT
-#define VMTSIZE_float 0
-#else
-#define VMTX_FLOAT  ,VMT_VOID
-#define VMTSIZE_float 1
-#endif
-
 /* ------------------------------------------------------------------------ */
 /* String, knh_uchar_t */
 /* ------------------------------------------------------------------------ */
 
 typedef unsigned char           knh_uchar_t;    /* byte */
-typedef const char              knh_text_t;
-typedef const unsigned char     knh_ustr_t;
+//typedef const char              knh_text_t;
+//typedef const unsigned char     knh_ustr_t;
 
 typedef struct {
 	union {
-//		char *c_buf;
 		const char *text;
 		const unsigned char *ustr;
-		knh_uchar_t *ubuf;
+		knh_uchar_t *ubuf;    // deprecated in the future
 	};
 	size_t       len;
 } knh_bytes_t;
@@ -299,9 +283,9 @@ typedef knh_ushort_t              knh_flag_t;    /* flag field */
 struct knh_Context_t;
 typedef const struct knh_Context_t    Ctx;
 
-typedef knh_uint16_t       knh_class_t;   /* class id */
-typedef knh_uint16_t       knh_type_t;    /* extended knh_type_t */
-typedef knh_uint16_t       knh_expt_t;    /* knh_expt_t */
+typedef knh_ushort_t       knh_class_t;   /* class id */
+typedef knh_ushort_t       knh_type_t;    /* extended knh_type_t */
+typedef knh_ushort_t       knh_expt_t;    /* knh_expt_t */
 
 /* knh_class_t */
 #define CLASS_newid                ((knh_class_t)-1)
@@ -337,17 +321,13 @@ typedef knh_uint16_t       knh_expt_t;    /* knh_expt_t */
 #define knh_Method_isPoly(mtd, T) \
 	(DP(mtd)->cid == T || knh_class_bcid(T) == DP(mtd)->cid || knh_class_instanceof(ctx, cid, DP(mtd)->cid))
 
-// @NOUSE
 #define TYPEN(type)                   knh_TYPEN(ctx,type)
-#define TYPEQN(t)                     TYPEN(t), TYPEQ(t)
-
 
 /* knh_expt_t */
 #define EXPT_unknown  ((knh_expt_t)-1)
 #define EXPT_newid    ((knh_expt_t)0)
 #define KNH_ASSERT_eid(eid)    DBG_ASSERT(eid < ctx->share->ExptTableSize + 1)
 #define EXPTN(eid)   S_tochar(knh_getExptName(ctx, eid))
-
 
 /* ------------------------------------------------------------------------ */
 
@@ -371,17 +351,17 @@ typedef knh_ushort_t          knh_methodn_t;
 #define K_FLAG_FN_U2         K_FLAG_T1
 #define K_FLAG_FN_SUPER      (K_FLAG_T0|K_FLAG_T1)
 
-#define FN_isSUPER(fnq)       ((fnq & K_FLAG_FN_SUPER) == K_FLAG_FN_SUPER)
-#define FN_isU1(fnq)          ((fnq & K_FLAG_FN_U1) == K_FLAG_FN_U1)
-#define FN_isU2(fnq)          ((fnq & K_FLAG_FN_U2) == K_FLAG_FN_U2)
+#define FN_isSUPER(fnq)      ((fnq & K_FLAG_FN_SUPER) == K_FLAG_FN_SUPER)
+#define FN_isU1(fnq)         ((fnq & K_FLAG_FN_U1) == K_FLAG_FN_U1)
+#define FN_isU2(fnq)         ((fnq & K_FLAG_FN_U2) == K_FLAG_FN_U2)
 
-#define FN_UNMASK(fnq)         (fnq & (~(K_FLAG_FN_SUPER|K_FLAG_FN_U1|K_FLAG_FN_U2)))
+#define FN_UNMASK(fnq)       (fnq & (~(K_FLAG_FN_SUPER|K_FLAG_FN_U1|K_FLAG_FN_U2)))
 
-#define K_FLAG_MN_ISBOOL       K_FLAG_T0
-#define K_FLAG_MN_GETTER       K_FLAG_T1
-#define K_FLAG_MN_SETTER       K_FLAG_T2
-#define K_FLAG_MN_FMT         (K_FLAG_T0|K_FLAG_T1|K_FLAG_T2)
-#define K_FLAG_MN_FIELDN       (~K_FLAG_MN_FMT)
+#define K_FLAG_MN_ISBOOL     K_FLAG_T0
+#define K_FLAG_MN_GETTER     K_FLAG_T1
+#define K_FLAG_MN_SETTER     K_FLAG_T2
+#define K_FLAG_MN_FMT        (K_FLAG_T0|K_FLAG_T1|K_FLAG_T2)
+#define K_FLAG_MN_FIELDN     (~K_FLAG_MN_FMT)
 
 #define MN_isISBOOL(mn)   ((mn & K_FLAG_MN_FMT) == K_FLAG_MN_ISBOOL)
 #define MN_toISBOOL(mn)   (mn | K_FLAG_MN_ISBOOL)
@@ -396,9 +376,9 @@ typedef knh_ushort_t          knh_methodn_t;
 
 #define MN_LAMBDA          FN_
 
-#define FN_tochar(fn) S_tochar(knh_getFieldName(ctx, fn))
+#define FN_tochar(fn)      S_tochar(knh_getFieldName(ctx, fn))
 
-#define MN_tochar(mn)   knh_getmnname(ctx, mn)
+#define MN_tochar(mn)      knh_getmnname(ctx, mn)
 #define MN_tobytes(mn)  S_tobytes(knh_getmnname(ctx, mn))
 const char *knh_getopname(knh_methodn_t mn);
 
@@ -423,9 +403,8 @@ typedef knh_ushort_t knh_lock_t;
 typedef struct knh_hObject_t {
 	knh_flag_t  flag;   knh_ushort_t magic;
 	knh_class_t  bcid;  knh_class_t cid;
-//	knh_ushort_t ctxid; knh_lock_t  lock;
 	union {
-		KNH_MT_VOLATILE knh_uintptr_t refc;
+		knh_uintptr_t refc;
 		void *gcinfo;
 	};
 	void *meta;   // reserved for traits

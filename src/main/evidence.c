@@ -110,7 +110,7 @@ void knh_write_cline(Ctx *ctx, knh_OutputStream_t *w, char *file, long line)
 	knh_putc(ctx, w, '[');
 	knh_write_text(ctx, w, knh_sfile(file));
 	knh_putc(ctx, w, ':');
-	knh_write_dfmt(ctx, w, KNH_INTPTR_FMT, line);
+	knh_write_dfmt(ctx, w, K_INTPTR_FMT, line);
 	knh_putc(ctx, w, ']'); knh_putc(ctx, w, ' ');
 }
 
@@ -121,7 +121,7 @@ void knh_write_uline(Ctx *ctx, knh_OutputStream_t *w, knh_uri_t uri, long line)
 	knh_putc(ctx, w, '[');
 	knh_write_text(ctx, w, FILEN(uri));
 	knh_putc(ctx, w, ':');
-	knh_write_dfmt(ctx, w, KNH_INTPTR_FMT, line);
+	knh_write_dfmt(ctx, w, K_INTPTR_FMT, line);
 	knh_putc(ctx, w, ']'); knh_putc(ctx, w, ' ');
 }
 

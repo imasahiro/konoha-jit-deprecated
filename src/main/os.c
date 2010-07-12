@@ -318,7 +318,6 @@ void knh_System_initPath(Ctx *ctx, knh_System_t *o)
 #if defined(KNH_PREFIX)
 	if(homepath == NULL) {
 		homepath = KNH_PREFIX "/konoha";
-		DBG_P("homepath='%s'", homepath);
 	}
 #endif
 	if(homepath != NULL) {
@@ -386,7 +385,8 @@ void knh_System_initPath(Ctx *ctx, knh_System_t *o)
 	home = STEXT("/konoha");
 	knh_DictMap_set_(ctx, sys->props, new_T("konoha.path"), UPCAST(new_T("/konoha")));
 #endif
-	KNH_ASSERT(home.ubuf != NULL);
+	DBG_ASSERT(home.ustr != NULL);
+
 	/* $konoha.package.path {$konoha.path}/package */
 	knh_cwb_clear(cwb, 0);
 	knh_cwb_write(ctx, cwb, home);
@@ -431,6 +431,10 @@ void knh_System_initPath(Ctx *ctx, knh_System_t *o)
 #endif
 		knh_DictMap_set_(ctx, sys->props, new_T("konoha.temp.path"), UPCAST(knh_cwb_newString(ctx, cwb)));
 	}
+	knh_cwb_close(cwb);
+	// Generating Directory
+	knh_mkdir(ctx, S_tobytes(knh_getPropertyNULL(ctx, STEXT("user.path"))));
+	//knh_mkdir(ctx, S_tobytes(knh_getPropertyNULL(ctx, STEXT("konoha.temp.path"))));
 }
 
 /* ======================================================================== */

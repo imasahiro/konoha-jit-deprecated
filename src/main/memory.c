@@ -312,6 +312,7 @@ static void bit_unset(knh_uintptr_t *b, int offset)
 /* [fastmalloc] */
 
 /* fixed by ide */
+
 #ifdef K_USING_DEBUG
 static int knh_isFastMallocMemory(void *p)
 {
@@ -619,8 +620,7 @@ void knh_System_gc(Ctx *ctx)
 	knh_showMemoryStat(ctx);
 	knh_share_t *share = (knh_share_t *) ctx->share;
 	int tindex, size = share->ArenaSetSize;
-	DBG_P("** GC - Starting (used %zd Kb) ***",
-			ctx->stat->usedMemorySize/1024);
+	DBG_P("** GC - Starting (used %zd Kb) ***", ctx->stat->usedMemorySize/1024);
 
 	KNH_SYSLOG(ctx, LOG_DEBUG, "GC", "GC_ArenaSize=%d", size);
 
@@ -638,8 +638,7 @@ void knh_System_gc(Ctx *ctx)
 	knh_traverseAll(ctx, knh_Object_mark1);
 	DBG_ENABLE_FREE();
 
-	DBG_P("** GC - Marked %zd/%zd object(s)", markedObjectSize,
-			ctx->stat->usedObjectSize);
+	DBG_P("** GC - Marked %zd/%zd object(s)", markedObjectSize, ctx->stat->usedObjectSize);
 	size_t cnt = 0;
 	knh_Ftraverse fsweep = ctx->fsweep;
 	((knh_Context_t*)ctx)->fsweep = knh_Object_finalSweep;
@@ -660,8 +659,7 @@ void knh_System_gc(Ctx *ctx)
 		}
 	}
 	((knh_Context_t*)ctx)->fsweep = fsweep;
-	DBG_P("** GC - Collected %zd/%zd object(s) used=%zd Kbytes",
-			cnt, ctx->stat->usedObjectSize, ctx->stat->usedMemorySize/1024);
+	DBG_P("** GC - Collected %zd/%zd object(s) used=%zd Kbytes", cnt, ctx->stat->usedObjectSize, ctx->stat->usedMemorySize/1024);
 }
 
 /* ------------------------------------------------------------------------ */
