@@ -431,7 +431,7 @@ static int shell_checkstmt(knh_bytes_t t)
 		ch = t.ubuf[i];
 		if(ch == '{' || ch == '[' || ch == '(') nest++;
 		if(ch == '}' || ch == ']' || ch == ')') nest--;
-		if(ch == '\'' || ch == '"' || ch == '`' || ch == '/') {
+		if(ch == '\'' || ch == '"' || ch == '`') {
 			quote = ch; i++;
 			goto L_QUOTE;
 		}

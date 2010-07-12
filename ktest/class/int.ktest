@@ -1,0 +1,10 @@
+// Int Test
+
+### int single division 
+>>> 100 / 10
+10
+
+### int multiple division 
+>>> 100 / 10 / 10
+1
+
