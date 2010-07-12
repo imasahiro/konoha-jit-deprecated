@@ -45,6 +45,7 @@
 #define K_USING_UTF8         1
 #define K_USING_RCGC         1
 #define K_USING_FASTMALLOC   1
+#define K_USING_SQLITE3      1
 
 //#define K_USING_VMCOUNT    1
 

@@ -798,7 +798,7 @@ static knh_QueryDSPI_t NOP_DSPI = {
 
 static void knh_sqlite3_perror(Ctx *ctx, sqlite3 *db, int r)
 {
-	char *msg = "sqlite3";
+	const char *msg = "sqlite3";
 	if(r == SQLITE_PERM || r == SQLITE_AUTH) {
 		msg = "Security";
 	}
@@ -809,7 +809,7 @@ static knh_qconn_t *SQLITE3_qopen(Ctx *ctx, knh_bytes_t url)
 {
 	sqlite3 *db = NULL;
 	url = knh_bytes_path(url);
-	int r = sqlite3_open((char*)url.buf, &db);
+	int r = sqlite3_open(url.text, &db);
 	if (r != SQLITE_OK) {
 		return NULL;
 	}
@@ -835,12 +835,12 @@ static int SQLITE3_qnext(Ctx *ctx, knh_qcur_t *qcur, struct knh_ResultSet_t *rs)
 					break;
 				}
 				case SQLITE_TEXT: {
-					knh_bytes_t t = {{(knh_uchar_t*)sqlite3_column_text(stmt,i)}, sqlite3_column_bytes(stmt, i)};
+					knh_bytes_t t = {{(const char*)sqlite3_column_text(stmt,i)}, sqlite3_column_bytes(stmt, i)};
 					knh_ResultSet_setText(ctx, rs, i, t);
 					break;
 				}
 				case SQLITE_BLOB: {
-					knh_bytes_t t = {{(knh_uchar_t*)sqlite3_column_blob(stmt,i)}, sqlite3_column_bytes(stmt, i)};
+					knh_bytes_t t = {{(const char*)sqlite3_column_blob(stmt,i)}, sqlite3_column_bytes(stmt, i)};
 					knh_ResultSet_setBlob(ctx, rs, i, t);
 					break;
 				}
@@ -861,7 +861,7 @@ static int SQLITE3_qnext(Ctx *ctx, knh_qcur_t *qcur, struct knh_ResultSet_t *rs)
 static knh_qcur_t *SQLITE3_query(Ctx *ctx, knh_qconn_t *hdr, knh_bytes_t sql, knh_ResultSet_t *rs)
 {
 	if(rs == NULL) {
-		int r = sqlite3_exec((sqlite3*)hdr, (const char*)sql.buf, NULL, NULL, NULL);
+		int r = sqlite3_exec((sqlite3*)hdr, sql.text, NULL, NULL, NULL);
 		if(r != SQLITE_OK) {
 			knh_sqlite3_perror(ctx, (sqlite3*)hdr, r);
 		}
@@ -869,7 +869,7 @@ static knh_qcur_t *SQLITE3_query(Ctx *ctx, knh_qconn_t *hdr, knh_bytes_t sql, kn
 	}
 	else {
 		sqlite3_stmt *stmt = NULL;
-		sqlite3_prepare((sqlite3*)hdr, (char*)sql.buf, sql.len, &stmt, NULL);
+		sqlite3_prepare((sqlite3*)hdr, sql.text, sql.len, &stmt, NULL);
 //	if (r != SQLITE_OK) {
 //		sqlite3_finalize(stmt);
 //		DBG_P("msg='%s', sqlite3_errmsg((sqlite3)hdr));
