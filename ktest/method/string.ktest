@@ -1,0 +1,153 @@
+
+### konoha.String
+>>> String s = "konoha";
+>>> typeof(s);
+konoha.String
+
+### String.opAdd/concat
+>>> s + "test";
+"konohatest"
+>>> s + 7;
+"konoha7"
+>>> s + true;
+"konohatrue"
+>>> s.concat("test");
+"konohatest"
+
+### String.opSub
+>>> s - "o";
+"knha"
+>>> s - "z";
+"konoha"
+
+### String.getSize
+>>> s.getSize();
+6
+>>> |s|;
+6
+
+### String.get
+>>> s.get(3);
+"o"
+>>> s[3];
+"o"
+
+### String.opHas
+>>> s.opHas("on");
+true
+>>> s.opHas("off");
+false
+
+### String.subString
+>>> s.subString(2, 2);
+"no"
+
+### String.opUntil
+>>> s[1 until 3];
+"on"
+>>> s[until 3];
+"kon"
+>>> s[1 until];
+"onoha"
+>>> s[3 until 3];
+""
+>>> s[1 until -2];
+"ono"
+>>> s[3 until -4];
+""
+
+### String.opTo
+>>> s[1 to 3];
+"ono"
+>>> s[to 3];
+"kono"
+>>> s[1 to];
+"onoha"
+>>> s[3 to 3];
+"o"
+>>> s[1 to -2];
+"onoh"
+>>> s[3 to -5];
+""
+
+### String.equals
+>>> s.equals("konoha");
+true
+>>> s.equals("kohoha");
+false
+>>> s == "konoha";
+true
+
+### String.startsWith
+>>> s.startsWith("kon");
+true
+>>> s.startsWith("kno");
+false
+>>> s.startsWith("");
+true
+
+### String.endsWith
+>>> s.endsWith("oha");
+true
+>>> s.endsWith("hoa");
+false
+>>> s.endsWith("");
+true
+
+### String.trim
+>>> "   konoha   ".trim();
+"konoha"
+
+### String.isASCII
+>>> s.isASCII();
+true
+>>> "%c"(128).isASCII();
+false
+
+// Regex mixed
+
+### String.indexOf
+>>> s.indexOf("o");
+1
+>>> s.indexOf("z");
+-1
+>>> s.indexOf("");
+0
+
+### String.lastIndexOf
+>>> s.lastIndexOf("o");
+4
+>>> s.lastIndexOf("z");
+-1
+>>> s.lastIndexOf("");
+6
+
+### String.replace
+>>> s.replace("noh", "al");
+"koala"
+
+### String.split
+>>> s.split("o");
+["k", "n", "h"]
+>>> s.split("");
+["k", "o", "n", "o", "h", "a"]
+>>> s.split("z");
+["konoha"]
+
+// Regex
+
+// ### String.opCase
+// >>> s =~ /konoha/;
+// true
+// >>> s =~ /kohoha/;
+// false
+
+// StringConverter
+
+// ### String.encode
+// >>> b = s.encode();
+// >>> new String(b);
+//
+// ### String.convert
+// >>> s.convert(String m);
+
