@@ -1,0 +1,29 @@
+//Class Test
+
+### Class definition
+>>> class A {
+... int x;
+... }
+>>> a = new A()
+A{x: 0}
+
+### Class re-definition
+>>> class A {
+... String x;
+... }
+ - [(eval):1]:(error) re-definition of A(55)
+
+### set method
+>>> a.x = 3
+3
+
+### get method
+>>> a.x
+3
+
+### Nothing Class extends
+>>> class B extends B {
+... int x;
+... }
+ - [(shell):1]:(errata) unknown class: B ==> Object
+
