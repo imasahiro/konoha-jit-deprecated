@@ -71,20 +71,19 @@ esac],
 
 if test $enable_rcgc = yes; then
   AC_DEFINE_UNQUOTED([K_USING_RCGC], [1], Enable referencing counting mode)
+else
+  AC_DEFINE_UNQUOTED([K_USING_MSGC], [1], Enable mark & sweep mode)
 fi
 
 AC_ARG_ENABLE(debug,
 AC_HELP_STRING([--enable-debug], [debug mode [[default=no]]]),
 [case $enableval in
-yes|1|2|no) ;;
-*) AC_MSG_ERROR([bad value $withval for --enable-debug, need yes/no/2]) ;;
+yes|no) ;;
+*) AC_MSG_ERROR([bad value $withval for --enable-debug, need yes/no]) ;;
 esac],
 [enable_debug=no])
 
 if test $enable_debug = yes; then
-  AC_DEFINE_UNQUOTED([K_USING_DEBUG], [1], Enable debug mode)
-fi
-if test $enable_debug = 1; then
   AC_DEFINE_UNQUOTED([K_USING_DEBUG], [1], Enable debug mode)
 fi
 
@@ -261,14 +260,33 @@ esac],
 use_sqlite3=$with_sqlite3
 if test $with_sqlite3 = detect; then
   use_sqlite3=no
-  AC_CHECK_LIB(sqlite3, sqlite3_open, use_sqlite3=yes)
+  AC_CHECK_LIB(sqlite3, sqlite3_open, use_sqlite3=yes ,[])
   AC_MSG_CHECKING(sqlite3 detected)
   AC_MSG_RESULT($use_sqlite3)
 fi
+
 if test $use_sqlite3 = yes; then
   AC_DEFINE_UNQUOTED([K_USING_SQLITE3], [1], Using sqlite3)
   AC_SUBST(LIBSQLITE3, -lsqlite3)
-  LIBS="$LIBS -lsqlite3"
+  AC_CHECK_HEADER([sqlite3.h], [], [
+          AC_MSG_ERROR([
+              Cannot compile without sqlite3.h .
+              Pleate install "sqlite3" & "sqlite3-dev" or "sqlite3-devel" packages.
+              ])
+          ])
+  AC_CHECK_LIB(sqlite3, sqlite3_open, [],
+          [AC_MSG_ERROR([
+              Cannot compile without sqlite3.h .
+              Pleate install "sqlite3" & "sqlite3-dev" or "sqlite3-devel" packages.
+              ])
+          ])
+fi
+
+if test $use_sqlite3 = no; then
+    AC_MSG_WARN([
+            We recommend enable --with-sqlite3 and installing "sqlite3" & 
+            "sqlite3-dev" or "sqlite3-devel" packages in your system.
+            ])
 fi
 
 # ADDED for thread ###########################################################
@@ -348,11 +366,7 @@ Konoha ${PACKAGE_VERSION} is now configured for ${host_os}.
   C compiler:           $CC $CFLAGS $CPPFLAGS
   Linker:               $CC $LIBS $LDFLAGS
   Debug Mode            $enable_debug
-  iconv    support      $use_iconv
-  readline support      $use_readline
   sqlite3  support      $use_sqlite3
-  thread   support      $use_thread
-  socket   support      $use_socket
 
 Now run 'make' to build everything, and 'make test' to 
 test builded software. 'make install' install this 

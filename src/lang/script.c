@@ -814,13 +814,13 @@ knh_bool_t knh_load(Ctx *ctx, knh_bytes_t path, knh_type_t reqt, knh_Array_t *re
 	DP(ctx->gma)->dlhdr = NULL;
 
 	knh_InputStream_t *in = knh_openPathNULL(ctx, path);
-	KNH_SETv(ctx, lsfp[0].o, in);
-	LOCAL_NEW(ctx, lsfp, 1, knh_InputStream_t *, bin, new_BytesInputStream(ctx, new_Bytes(ctx, K_PAGESIZE)));
-	knh_Bytes_t *ba = DP(bin)->ba;
-
 	if(in == NULL) {
 		goto L_RETURN;
 	}
+
+	KNH_SETv(ctx, lsfp[0].o, in);
+	LOCAL_NEW(ctx, lsfp, 1, knh_InputStream_t *, bin, new_BytesInputStream(ctx, new_Bytes(ctx, K_PAGESIZE)));
+	knh_Bytes_t *ba = DP(bin)->ba;
 
 	L_READLINE:;
 	knh_Bytes_clear(ba, 0);

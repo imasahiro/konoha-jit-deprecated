@@ -350,12 +350,12 @@ void knh_System_initPath(Ctx *ctx, knh_System_t *o)
 		char buf[FILEPATH_BUFSIZ];
 		int bufsiz = FILEPATH_BUFSIZ;
 		size_t size = readlink("/proc/self/exe", buf, bufsiz);
-		knh_cwb_write(ctx, cwb, B2(buf, size));
+		knh_cwb_write(ctx, cwb, new_bytes2(buf, size));
 		knh_DictMap_set_(ctx, sys->props,
 			new_T("konoha.bin.path"), UPCAST(knh_cwb_newString(ctx, cwb)));
 		if(homepath == NULL) {
 			size = readlink("/proc/self/exe", buf, bufsiz);
-			knh_cwb_write(ctx, cwb, B2(buf, size));
+			knh_cwb_write(ctx, cwb, new_bytes2(buf, size));
 			knh_cwb_parentpath(ctx, cwb, NULL);
 			knh_cwb_parentpath(ctx, cwb, NULL);
 			shome = knh_cwb_newString(ctx, cwb);

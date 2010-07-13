@@ -188,12 +188,14 @@ static const knh_CompilerSPI_t JITSPI = {
 static int _lock(knh_mutex_t *m DBG_TRACE)
 {
 	TRACE_P("UNLOCK mutex=%p", m);
+	return 0;
 };
 
 
 static int _unlock(knh_mutex_t *m DBG_TRACE)
 {
 	TRACE_P("UNLOCK mutex=%p", m);
+	return 0;
 };
 
 

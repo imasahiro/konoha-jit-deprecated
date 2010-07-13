@@ -11395,13 +11395,19 @@ cat >>confdefs.h <<_ACEOF
 #define K_USING_RCGC 1
 _ACEOF
 
+else
+
+cat >>confdefs.h <<_ACEOF
+#define K_USING_MSGC 1
+_ACEOF
+
 fi
 
 # Check whether --enable-debug was given.
 if test "${enable_debug+set}" = set; then :
   enableval=$enable_debug; case $enableval in
-yes|1|2|no) ;;
-*) as_fn_error "bad value $withval for --enable-debug, need yes/no/2" "$LINENO" 5 ;;
+yes|no) ;;
+*) as_fn_error "bad value $withval for --enable-debug, need yes/no" "$LINENO" 5 ;;
 esac
 else
   enable_debug=no
@@ -11409,13 +11415,6 @@ fi
 
 
 if test $enable_debug = yes; then
-
-cat >>confdefs.h <<_ACEOF
-#define K_USING_DEBUG 1
-_ACEOF
-
-fi
-if test $enable_debug = 1; then
 
 cat >>confdefs.h <<_ACEOF
 #define K_USING_DEBUG 1
@@ -11657,6 +11656,7 @@ $as_echo_n "checking sqlite3 detected... " >&6; }
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: $use_sqlite3" >&5
 $as_echo "$use_sqlite3" >&6; }
 fi
+
 if test $use_sqlite3 = yes; then
 
 cat >>confdefs.h <<_ACEOF
@@ -11665,7 +11665,81 @@ _ACEOF
 
   LIBSQLITE3=-lsqlite3
 
-  LIBS="$LIBS -lsqlite3"
+  ac_fn_c_check_header_mongrel "$LINENO" "sqlite3.h" "ac_cv_header_sqlite3_h" "$ac_includes_default"
+if test "x$ac_cv_header_sqlite3_h" = x""yes; then :
+
+else
+
+          as_fn_error "
+              Cannot compile without sqlite3.h .
+              Pleate install \"sqlite3\" & \"sqlite3-dev\" or \"sqlite3-devel\" packages.
+              " "$LINENO" 5
+
+fi
+
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for sqlite3_open in -lsqlite3" >&5
+$as_echo_n "checking for sqlite3_open in -lsqlite3... " >&6; }
+if test "${ac_cv_lib_sqlite3_sqlite3_open+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lsqlite3  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char sqlite3_open ();
+int
+main ()
+{
+return sqlite3_open ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_sqlite3_sqlite3_open=yes
+else
+  ac_cv_lib_sqlite3_sqlite3_open=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_sqlite3_sqlite3_open" >&5
+$as_echo "$ac_cv_lib_sqlite3_sqlite3_open" >&6; }
+if test "x$ac_cv_lib_sqlite3_sqlite3_open" = x""yes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBSQLITE3 1
+_ACEOF
+
+  LIBS="-lsqlite3 $LIBS"
+
+else
+  as_fn_error "
+              Cannot compile without sqlite3.h .
+              Pleate install \"sqlite3\" & \"sqlite3-dev\" or \"sqlite3-devel\" packages.
+              " "$LINENO" 5
+
+fi
+
+fi
+
+if test $use_sqlite3 = no; then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING:
+            We recommend enable --with-sqlite3 and installing \"sqlite3\" &
+            \"sqlite3-dev\" or \"sqlite3-devel\" packages in your system.
+            " >&5
+$as_echo "$as_me: WARNING:
+            We recommend enable --with-sqlite3 and installing \"sqlite3\" &
+            \"sqlite3-dev\" or \"sqlite3-devel\" packages in your system.
+            " >&2;}
 fi
 
 # ADDED for thread ###########################################################
@@ -14159,11 +14233,7 @@ Konoha ${PACKAGE_VERSION} is now configured for ${host_os}.
   C compiler:           $CC $CFLAGS $CPPFLAGS
   Linker:               $CC $LIBS $LDFLAGS
   Debug Mode            $enable_debug
-  iconv    support      $use_iconv
-  readline support      $use_readline
   sqlite3  support      $use_sqlite3
-  thread   support      $use_thread
-  socket   support      $use_socket
 
 Now run 'make' to build everything, and 'make test' to
 test builded software. 'make install' install this
@@ -14177,11 +14247,7 @@ Konoha ${PACKAGE_VERSION} is now configured for ${host_os}.
   C compiler:           $CC $CFLAGS $CPPFLAGS
   Linker:               $CC $LIBS $LDFLAGS
   Debug Mode            $enable_debug
-  iconv    support      $use_iconv
-  readline support      $use_readline
   sqlite3  support      $use_sqlite3
-  thread   support      $use_thread
-  socket   support      $use_socket
 
 Now run 'make' to build everything, and 'make test' to
 test builded software. 'make install' install this
