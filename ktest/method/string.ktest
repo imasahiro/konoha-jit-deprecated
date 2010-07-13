@@ -114,13 +114,13 @@ false
 >>> s.indexOf("");
 0
 
-### String.lastIndexOf
->>> s.lastIndexOf("o");
-4
->>> s.lastIndexOf("z");
--1
->>> s.lastIndexOf("");
-6
+// ### String.lastIndexOf
+// >>> s.lastIndexOf("o");
+// 4
+// >>> s.lastIndexOf("z");
+// -1
+// >>> s.lastIndexOf("");
+// 6
 
 ### String.replace
 >>> s.replace("noh", "al");
@@ -128,7 +128,7 @@ false
 
 ### String.split
 >>> s.split("o");
-["k", "n", "h"]
+["k", "n", "ha"]
 >>> s.split("");
 ["k", "o", "n", "o", "h", "a"]
 >>> s.split("z");

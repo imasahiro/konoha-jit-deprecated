@@ -106,9 +106,9 @@ true
 >>> s.indexOf("ｏ");
 1
 
-### String.lastIndexOf
->>> s.lastIndexOf("ｏ");
-3
+// ### String.lastIndexOf
+// >>> s.lastIndexOf("ｏ");
+// 3
 
 ### String.replace
 >>> s.replace("ｎｏｈ", "ａｌ");
