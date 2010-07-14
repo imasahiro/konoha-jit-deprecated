@@ -282,13 +282,6 @@ if test $use_sqlite3 = yes; then
           ])
 fi
 
-if test $use_sqlite3 = no; then
-    AC_MSG_WARN([
-            We recommend enable --with-sqlite3 and installing "sqlite3" & 
-            "sqlite3-dev" or "sqlite3-devel" packages in your system.
-            ])
-fi
-
 # ADDED for thread ###########################################################
 # Kimio Kuramitsu
 
@@ -373,3 +366,10 @@ test builded software. 'make install' install this
 software on your system. To remove the installed software
 at a later time use the 'make uninstall' command.
 ])
+
+if test "$use_sqlite3" = no; then
+	echo "We recommend enable --with-sqlite3 and installing 'sqlite3' & "
+	echo "'sqlite3-dev' or 'sqlite3-devel' packages in your system."
+fi
+
+
