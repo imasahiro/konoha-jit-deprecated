@@ -72,15 +72,6 @@ true
 true
 >>> (a == 1) and !b0
 true
->>> b = (a == 1) and !b0
-true
-
-### why? same test
->>> (a == 1) and !b0
-true
-
->>> !b0 and (a == 1)
-true
 
 ### boolean and operator true and false
 >>> a = 1
@@ -122,25 +113,6 @@ false
 false
 >>> b0 and !(a == 0)
 false
-
-
-### WHY??
->>> a = 1
->>> b0 = false
->>> (a == 1) and !b0
-true
->>> (a == 1) and !b0
-true
->>> (a == 1) and !b0
-true
->>> (a == 1) and !b0
-true
->>> (a == 1) and !b0
-true
->>> (a == 1) and !b0
-true
->>> (a == 1) and !b0
-true
 
  
 

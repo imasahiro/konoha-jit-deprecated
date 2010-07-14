@@ -87,7 +87,7 @@ KNHAPI(Ctx*) knh_beginContext(Ctx *ctx, Ctx **bottom)
 {
 	((knh_Context_t*)ctx)->cstack_bottom = (void**)bottom;
 #ifdef K_USING_THREAD
-	knh_mutex_init(ctx->ctxlock);
+	knh_mutex_lock(ctx->ctxlock);
 	knh_thread_setspecific(ctxkey, ctx);
 	curctx = ctx;
 #else
@@ -102,7 +102,7 @@ KNHAPI(void) knh_endContext(Ctx *ctx)
 {
 #ifdef K_USING_THREAD
 	knh_thread_setspecific(ctxkey, NULL);
-	knh_mutex_destroy(ctx->ctxlock);
+	knh_mutex_unlock(ctx->ctxlock);
 	curctx = NULL;
 #else
 	curctx = NULL;
