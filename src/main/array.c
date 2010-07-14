@@ -27,6 +27,8 @@
 
 /* ************************************************************************ */
 
+#define USE_array_index  1
+
 #include"commons.h"
 
 /* ************************************************************************ */
@@ -283,23 +285,14 @@ KNHAPI(void) knh_Array_add_(Ctx *ctx, knh_Array_t *a, Any *value)
 //	}
 //}
 
-/* ------------------------------------------------------------------------ */
-
-size_t knh_array_index0(Ctx *ctx, knh_intptr_t n, size_t size)
-{
-	size_t idx = (size_t)n;
-	if(!(idx < size)) KNH_THROW_OUTOFINDEX(ctx, n, size);
-	return idx;
-}
-
-/* ------------------------------------------------------------------------ */
-
-size_t knh_array_index(Ctx *ctx, knh_intptr_t n, size_t size)
-{
-	size_t idx = (n < 0) ? size + n : n;
-	if(!(idx < size)) KNH_THROW_OUTOFINDEX(ctx, n, size);
-	return idx;
-}
+///* ------------------------------------------------------------------------ */
+//
+//size_t knh_array_index0(Ctx *ctx, knh_intptr_t n, size_t size)
+//{
+//	size_t idx = (size_t)n;
+//	if(!(idx < size)) KNH_THROW_OUTOFINDEX(ctx, n, size);
+//	return idx;
+//}
 
 /* ------------------------------------------------------------------------ */
 

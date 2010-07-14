@@ -1708,9 +1708,12 @@ static knh_index_t ITR_indexTOUNTIL(tkitr_t *itr)
 	knh_index_t i;
 	for(i = itr->c; i < itr->e; i++) {
 		knh_term_t tt = TT_(itr->ts[i]);
-		if(tt == TT_TO || tt == TT_UNTIL) {
+		if(tt == TT_TO || tt == TT_UNTIL) return i;
+		if(tt == TT_COLON) {
+			TT_(itr->ts[i]) = TT_UNTIL;
 			return i;
 		}
+
 	}
 	return -1;
 }
@@ -2305,7 +2308,7 @@ static void _EXPR(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 			_EXPRs(ctx, stmt, pitr);
 		}
 		else {
-			knh_methodn_t mn = (TT_(itr->ts[idx]) == TT_TO) ? MN_opTO : MN_opUNTIL;
+			knh_methodn_t mn = (TT_(pitr->ts[idx]) == TT_TO) ? MN_opTO : MN_opUNTIL;
 			stmt = knh_Stmt_addMN(ctx, stmt, mn);
 			TT_((pitr)->ts[idx]) = TT_COMMA;
 			_ASISEXPRs(ctx, stmt, pitr);
@@ -2509,16 +2512,6 @@ static void _ELSE(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 	}
 	else {
 		knh_Stmt_add(ctx, stmt, new_Stmt2(ctx, STT_DONE, NULL));
-	}
-}
-
-static void _WHILE(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
-{
-	if(ITR_is(itr, TT_WHILE)) {
-		ITR_next(itr);
-	}
-	else {
-		ITR_perror(ctx, itr, stmt, _("needs while"));
 	}
 }
 

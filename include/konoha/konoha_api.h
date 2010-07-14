@@ -155,8 +155,6 @@ void knh_Array_grow(Ctx *ctx, knh_Array_t *a, size_t newsize, size_t reqsize);
 void knh_Array_initAPI(Ctx *ctx, knh_Array_t *a);
 knh_Array_t* new_Array0(Ctx *ctx, size_t capacity);
 void knh_Array_clear(Ctx *ctx, knh_Array_t *a, size_t n);
-size_t knh_array_index0(Ctx *ctx, knh_intptr_t n, size_t size);
-size_t knh_array_index(Ctx *ctx, knh_intptr_t n, size_t size);
 size_t knh_good_size(size_t ss);
 const char *knh_Bytes_ensureZero(Ctx *ctx, knh_Bytes_t *ba);
 void knh_Bytes_unputc(knh_Bytes_t *ba);

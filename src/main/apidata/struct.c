@@ -48,6 +48,8 @@
 #define USE_cwb_putc      1
 #define USE_cwb_size      1
 
+#define USE_array_index   1
+
 #define K_PERROR_LIBNAME   "stdc"
 #define USE_fopen   1
 #define USE_fclose  1
@@ -96,7 +98,7 @@ KNHFASTAPI(void) DEFAULT_init(Ctx *ctx, Object *o)
 KNHFASTAPI(void) ABSTRACT_init(Ctx *ctx, Object *o)
 {
 	DBG_P("ABSTRACT CLASS? %s", O__(o));
-	KNH_ABORT();
+	DBG_ASSERT(knh_Object_isNullObject(o));
 }
 
 /* ------------------------------------------------------------------------ */

@@ -852,6 +852,20 @@ static knh_bool_t test_readstmt(Ctx *ctx, void *status, knh_cwb_t *cwb, const kn
 	return 0;
 }
 
+static void test_dump(FILE *fp, const char *linehead, const char *body, const char *foot)
+{
+	const char *p = body;
+	while(*p != 0) {
+		int ch = *p;
+		fputc(ch, fp);
+		if(ch == '\n') {
+			fputs(linehead, fp);
+		}
+		p++;
+	}
+	fputs(foot, fp);
+}
+
 static void test_display(Ctx *ctx, void *status, const char* result, const knh_ShellAPI_t *api)
 {
 	kt_status_t *kt = (kt_status_t*)status;
@@ -873,7 +887,10 @@ static void test_display(Ctx *ctx, void *status, const char* result, const knh_S
 	} else {
 		ks->isPassed = 0;
 		kt->sumOfFailed++;
-		fprintf(kt->out, "[FAILED] %s\nTESTED:\n>>> %s\n...\n%s\nRESULTS:\n%s\n", ku->testTitle.text, ks->testBody.text,  ks->testResult.text, result);
+		fprintf(kt->out, "[FAILED] %s\nTESTED:\n>>> ", ku->testTitle.text);
+		test_dump(kt->out, "... ", ks->testBody.text, "\n\t");
+		test_dump(kt->out, "\t", ks->testResult.text, "\nRESULTS:\n\t");
+		test_dump(kt->out, "\t", result, "\n");
 	}
 }
 

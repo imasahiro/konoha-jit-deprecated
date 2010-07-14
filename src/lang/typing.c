@@ -1311,9 +1311,9 @@ static void KNH_UNBOX(Ctx *ctx, knh_sfp_t *sfp)
 
 static knh_Term_t *knh_StmtCALL_toCONST(Ctx *ctx, knh_Stmt_t *stmt, knh_Method_t *mtd)
 {
+	BEGIN_LOCAL(ctx, lsfp, DP(stmt)->size + 1);
 	if(knh_Method_isConst(mtd)) {
 		size_t i;
-		BEGIN_LOCAL(ctx, lsfp, DP(stmt)->size + 1);
 		for(i = 1; i < DP(stmt)->size; i++) {
 			knh_Token_t *tk = DP(stmt)->tokens[i];
 			if(TT_(tk) != TT_CONST) goto L_NONSTATIC;
@@ -1322,12 +1322,14 @@ static knh_Term_t *knh_StmtCALL_toCONST(Ctx *ctx, knh_Stmt_t *stmt, knh_Method_t
 		}
 		KNH_SCALL(ctx, lsfp, 0, mtd, (DP(stmt)->size - 2));
 		KNH_BOX(ctx, &lsfp[0], knh_ParamArray_rtype(DP(mtd)->mp));
+		DBG_P("STMT = %s TURNED INTO CONST", TT_tochar(STT_(stmt)));
 		END_LOCAL(ctx, lsfp);
 		return ((DP(mtd)->mp)->rsize == 0) ?
 			knh_Stmt_done(ctx, stmt) :
 			knh_Token_setCONST(ctx, DP(stmt)->tokens[0], lsfp[0].o);
 	}
 	L_NONSTATIC:;
+	END_LOCAL(ctx, lsfp);
 	return TM(stmt);
 }
 
@@ -2044,12 +2046,13 @@ static knh_Term_t *knh_StmtOP_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt
 		knh_class_t cid = CLASS_type((tkC)->type);
 		mtd_cid = TERMs_getcid(stmt, 1);
 		if(TT_(tkC) == TT_CID) cid = DP(tkC)->cid;
-		if(mtd_cid == cid && cid == CLASS_Any) {
-			knh_Gamma_perror(ctx, KERR_ERRATA, _("always true: %C instanceof %C"), mtd_cid, cid);
+		//DBG_P("%s instanceof %s true? %d", TYPE__(mtd_cid), TYPE__(cid), knh_class_instanceof(ctx, mtd_cid, cid));
+		if(mtd_cid == cid || cid == CLASS_Any) {
+			//knh_Gamma_perror(ctx, KERR_DWARN, _("always true: %C instanceof %C"), mtd_cid, cid);
 			return knh_Token_setCONST(ctx, tkC, KNH_TRUE);
 		}
-		if(mtd_cid != CLASS_Any && !knh_class_instanceof(ctx, mtd_cid, cid)) {
-			knh_Gamma_perror(ctx, KERR_ERRATA, _("always false: %C instanceof %C"), mtd_cid, cid);
+		if(!knh_class_instanceof(ctx, cid, mtd_cid)) {
+			//knh_Gamma_perror(ctx, KERR_DWARN, _("always false: %C instanceof %C"), mtd_cid, cid);
 			return knh_Token_setCONST(ctx, tkC, KNH_FALSE);
 		}
 		goto L_LOOKUPMETHOD;
