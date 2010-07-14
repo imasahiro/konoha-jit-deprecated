@@ -36,6 +36,25 @@ false
 >>> b = !(a == 1)
 false
 
+### boolean instanceof Boolean
+>>> b1 = true
+>>> true instanceof Boolean
+true
+>>> b1 instanceof Boolean
+true
+
+### boolean comparator
+>>> b1 = true
+>>> b0 = false
+>>> b1 == true
+true
+>>> b1 == false
+false
+>>> b0 != true
+true
+>>> b0 != false
+false
+
 ### boolean ! operator
 >>> a = 1
 >>> b = true

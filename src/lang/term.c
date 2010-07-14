@@ -2229,7 +2229,7 @@ static void _EXPR(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 		case TT_TRUE:
 		case TT_FALSE:
 			knh_Stmt_add(ctx, stmt, tkCUR);
-			ITR_ignore(ctx, itr, 1); return;
+			break;
 		case TT_PARENTHESIS: {
 			tkitr_t pbuf, *pitr = ITR_new(tkCUR, &pbuf);
 			int c = ITR_count(pitr, TT_COMMA);
@@ -2284,8 +2284,7 @@ static void _EXPR(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 		case TT_ESTR:
 		case TT_NUM:
 		case TT_URN:
-			knh_Stmt_add(ctx, stmt, tkCUR);
-			break;
+			knh_Stmt_add(ctx, stmt, tkCUR); break;
 		case TT_ERR: goto L_ERROR;
 		default:
 			knh_Token_perror(ctx, tkCUR, KERR_ERR, _("unknown token: %L"), tkCUR);
@@ -2295,7 +2294,6 @@ static void _EXPR(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 
 	L_FUNC:;
 	if(!ITR_hasNext(itr)) return;
-	//DBG_P("ADD CALL stt=%s, size=%d", TT_tochar(STT_(stmt)), DP(stmt)->size);
 	if(ITR_isDOTNAME(itr, 0)) {
 		stmt = knh_Stmt_addFUNC(ctx, stmt, ITR_nextTK(itr));
 	}
@@ -2315,9 +2313,12 @@ static void _EXPR(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 		goto L_FUNC;
 	}
 	else {
+		if(TT_(tkCUR) == TT_NAME) {
+
+		}
 		tkCUR = ITR_tk(itr);
 		DBG_P("** Unexpected funcname %s **", TT_tochar(TT_(tkCUR)));
-		knh_Token_perror(ctx, tkCUR, KERR_ERR, _("not callable %L"), tkCUR);
+		knh_Token_perror(ctx, tkCUR, KERR_ERR, _("syntax error: function? %L"), tkCUR);
 		goto L_ERROR;
 	}
 
@@ -2521,6 +2522,22 @@ static void _WHILE(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 	}
 }
 
+static void _DOWHILE(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
+{
+	if(ITR_is(itr, TT_BLOCK)) {
+		knh_Token_toBLOCK(ctx, ITR_tk(itr));
+	}
+	if(ITR_is(itr, TT_BRACE)) {
+		tkitr_t stmtbuf, *stmtitr = ITR_new(ITR_nextTK(itr), &stmtbuf);
+		_STMTs(ctx, stmt, stmtitr);
+		if(ITR_is(itr, TT_WHILE)) {
+			ITR_next(itr);
+		}
+		return;
+	}
+	ITR_perror(ctx, itr, stmt, _("do must take {} while"));
+}
+
 static void _CASEEXPR(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 {
 	int idx = ITR_indexTT(itr, TT_COLON, -1);
@@ -2631,7 +2648,7 @@ static void _LABEL(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 	knh_Stmt_tadd(ctx, stmt, itr, isLABEL, NULL);
 }
 
-static int isEBI__(knh_Token_t *tk)
+static int isEVENT(knh_Token_t *tk)
 {
 	if(knh_Token_isExceptionType(tk)) return 1;
 	return 0;
@@ -2666,7 +2683,7 @@ static void _CATCH(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 		if(ITR_is(itr, TT_PARENTHESIS)) {
 			tkitr_t pbuf, *pitr = ITR_new(ITR_nextTK(itr), &pbuf);
 			knh_Stmt_t *stmtCATCH = new_Stmt2(ctx, STT_CATCH, NULL);
-			knh_Stmt_tadd(ctx, stmtCATCH, pitr, isEBI__, _("not exception: %s"));
+			knh_Stmt_tadd(ctx, stmtCATCH, pitr, isEVENT, _("not exception: %s"));
 			knh_Stmt_tadd(ctx, stmtCATCH, pitr, isVARN, _("not variable: %s"));
 			_STMT1(ctx, stmtCATCH, itr);
 			stmtHEAD = knh_StmtNULL_append(ctx, stmtHEAD, stmtCATCH);
@@ -2706,7 +2723,7 @@ static void _USING(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 	_ASIS(ctx, stmt, itr);
 }
 
-static int isCLASS__AME(knh_Token_t* tk)
+static int isCLASSAME(knh_Token_t* tk)
 {
 	if(TT_(tk) == TT_UNAME) {
 		knh_bytes_t t = S_tobytes(DP(tk)->text);
@@ -2720,11 +2737,11 @@ static int isCLASS__AME(knh_Token_t* tk)
 
 static void _CLASS(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 {	// CNAME:0 CPARAM:1 EXTENDS:2 IMPLEMENTS:3 STMT:4
-	knh_Stmt_tadd(ctx, stmt, itr, isCLASS__AME, _("not class: %s")); /*0*/
+	knh_Stmt_tadd(ctx, stmt, itr, isCLASSAME, _("not class: %s")); /*0*/
 	_ASIS(ctx, stmt, itr); /* Generics for future : 1*/
 	if(ITR_is(itr, TT_EXTENDS)) {
 		ITR_next(itr);
-		knh_Stmt_tadd(ctx, stmt, itr, isCLASS__AME, _("not class: %s")); /*2*/
+		knh_Stmt_tadd(ctx, stmt, itr, isCLASSAME, _("not class: %s")); /*2*/
 	}
 	else { /* Object */
 		knh_Stmt_add(ctx, stmt, new_TokenCID(ctx, CLASS_Object));
@@ -2755,7 +2772,7 @@ static void _METHOD(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 	knh_Stmt_add(ctx, stmt, tkT);
 	if(TT_(tkT) == TT_FUNCTION) TT_(tkT) = TT_ASIS;
 	if(ITR_is(itr, TT_UNAME)) {
-		knh_Stmt_tadd(ctx, stmt, itr, isCLASS__AME, _("not class: %s"));
+		knh_Stmt_tadd(ctx, stmt, itr, isCLASSAME, _("not class: %s"));
 	}
 	else {
 		_ASIS(ctx, stmt, itr);
@@ -2779,7 +2796,7 @@ static void _CONSTRUCTOR(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 {
 	knh_Token_t *tkT = ITR_tk(itr);
 	TT_(tkT) = TT_UNAME;
-	knh_Stmt_tadd(ctx, stmt, itr, isCLASS__AME, _("not class: %s"));
+	knh_Stmt_tadd(ctx, stmt, itr, isCLASSAME, _("not class: %s"));
 	_ASIS(ctx, stmt, itr);
 	knh_Stmt_add(ctx, stmt, new_TokenMN(ctx, MN_new));
 	ADD(stmt, _PARAM(ctx, stmt, itr));
@@ -2909,7 +2926,7 @@ static knh_Stmt_t *new_StmtSTMT1(Ctx *ctx, tkitr_t *itr)
 		CASE_(SWITCH, _PEXPR, _STMT1, _ASIS);  /* it */
 		CASE_(CASE, _CASEEXPR, _CASESTMT);
 		CASE_(WHILE, _PEXPR, _STMT1);
-		CASE_(DO, _STMT1, _WHILE);
+		CASE_(DO, _DOWHILE, _PEXPR, _SEMICOLON);
 		CASE_(FOR, _PSTMT3, _STMT1);
 		CASE_(FOREACH, _PEACH, _STMT1, _ASIS);  /* it */
 		CASE_(TRY, _STMT1, _CATCH, _ASIS);  /* it */
