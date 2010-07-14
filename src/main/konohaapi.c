@@ -669,6 +669,8 @@ typedef struct _kt_status_t {
 	kt_unit_t *uhead;
 	kt_unit_t *current;
 	size_t     lineno;
+	size_t     sumOfPassed;
+	size_t     sumOfFailed;
 } kt_status_t ;
 
 static char *kt_fgets(Ctx *ctx, kt_status_t *kt, char *line, int max)
@@ -730,6 +732,8 @@ static void* test_init(Ctx *ctx, const char *msg, const char *filename)
 		kt->unitsize = 0;
 		kt->lineno = 0;
 		kt->out = stdout;
+		kt->sumOfPassed = 0;
+		kt->sumOfFailed = 0;
 		return kt;
 	}
 }
@@ -864,9 +868,11 @@ static void test_display(Ctx *ctx, void *status, const char* result, const knh_S
 	knh_uchar_t *charResult = ks->testResult.ubuf;
 	if (strncmp((char*)charResult, result, len) == 0) {
 		ks->isPassed = 1;
+		kt->sumOfPassed++;
 		fprintf(kt->out, "[PASSED] %s\n", ku->testTitle.text);
 	} else {
 		ks->isPassed = 0;
+		kt->sumOfFailed++;
 		fprintf(kt->out, "[FAILED] %s\nTESTED:\n>>> %s\n...\n%s\nRESULTS:\n%s\n", ku->testTitle.text, ks->testBody.text,  ks->testResult.text, result);
 	}
 }
@@ -876,7 +882,7 @@ static void test_cleanup(Ctx *ctx, void *status)
 	kt_status_t *kt = (kt_status_t*)status;
 	if (kt == NULL) return;
 	fclose(kt->in);
-	if (kt->unitsize == 0)  {  // removed goto, by kimio
+	if (kt->unitsize != 0)  {  // removed goto, by kimio
 		kt_unit_t *ku = kt->uhead, *clean_ku;
 		kt_stmt_t *ks = ku->shead, *clean_ks;
 		int i, j;
@@ -913,7 +919,9 @@ static void test_cleanup(Ctx *ctx, void *status)
 		if(kt->out != stderr && kt->out != stdout) {
 			fclose(kt->out);
 		}
-		fprintf(kt->out, "%s: %d of %d tests have been passed\n",kt->filename.text, (int)unit_passed, (int)kt->unitsize);
+		fprintf(kt->out, "%s: %d of %d tests, %d of %d statements have been passed\n",
+				kt->filename.text, (int)unit_passed, (int)kt->unitsize,
+				(int)kt->sumOfPassed, (int)(kt->sumOfPassed + kt->sumOfFailed));
 	}
 	KNH_FREE(ctx, kt->filename.ubuf, kt->filename.len + 1);
 	KNH_FREE(ctx, kt, sizeof(kt_status_t));
