@@ -1,0 +1,3 @@
+### String.indexOf() : empty arguments
+>>> "konoha".indexOf();
+0

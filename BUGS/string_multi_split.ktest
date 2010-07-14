@@ -1,0 +1,3 @@
+### String.split() : empty arguments
+>>> "ｋｏｎｏｈａ".split();
+["ｋ", "ｏ", "ｎ", "ｏ", "ｈ", "ａ"]

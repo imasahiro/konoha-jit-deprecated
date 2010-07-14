@@ -1,0 +1,3 @@
+### String.trim() : two-bytes space included
+>>> "　ｋｏｎｏｈａ　".trim();
+"ｋｏｎｏｈａ"
