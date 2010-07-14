@@ -895,16 +895,16 @@ typedef struct {
 /* ------------------------------------------------------------------------ */
 
 #ifdef KONOHA_ON_WINDOWS
-#define METHOD  void KNH_CC_FASTCALL
+#define METHOD  void CC_FASTCALL
 #define TCAST   METHOD
-#define ITRNEXT int   KNH_CC_FASTCALL
-typedef void (KNH_CC_FASTCALL *knh_Fmethod)(Ctx *, knh_sfp_t*, long rix);
-typedef void (KNH_CC_FASTCALL *knh_Ftranslator)(Ctx *, knh_sfp_t *, long rix);
-typedef int  (KNH_CC_FASTCALL *knh_Fitrnext)(Ctx *, knh_sfp_t *, long rtnidx);
+#define ITRNEXT int   CC_FASTCALL
+typedef void (CC_FASTCALL *knh_Fmethod)(Ctx *, knh_sfp_t*, long rix);
+typedef void (CC_FASTCALL *knh_Ftranslator)(Ctx *, knh_sfp_t *, long rix);
+typedef int  (CC_FASTCALL *knh_Fitrnext)(Ctx *, knh_sfp_t *, long rtnidx);
 #else
-#define METHOD  void  KNH_CC_FASTCALL
+#define METHOD  void  CC_FASTCALL
 #define TCAST   METHOD
-#define ITRNEXT int   KNH_CC_FASTCALL
+#define ITRNEXT int   CC_FASTCALL
 typedef METHOD (*knh_Fmethod)(Ctx*, knh_sfp_t*, long rix);
 typedef TCAST (*knh_Ftranslator)(Ctx *, knh_sfp_t *, long rix);
 typedef ITRNEXT (*knh_Fitrnext)(Ctx *, knh_sfp_t *, long rtnidx);

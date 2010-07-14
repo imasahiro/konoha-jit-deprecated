@@ -154,18 +154,18 @@
 #define 	K_USING_WINDOWS  1
 #define     K_USING_MATH     1
 #define 	KONOHA_OS_LINEFEED "\r\n"
-#define     KNH_CC_EXPORT __declspec(dllexport)
-#define     KNH_CC_IMPORT __declspec(dllimport)
+#define     CC_EXPORT __declspec(dllexport)
+#define     CC_IMPORT __declspec(dllimport)
 #ifdef KNHAPI_IMPORTS
-#define 	KNHAPI(T__)      KNH_CC_IMPORT T__ __cdecl
+#define 	KNHAPI(T__)      CC_IMPORT T__ __cdecl
 #define     FASTAPI(T__)     T__
-#define 	KNHFASTAPI(T__)  KNH_CC_IMPORT T__
+#define 	KNHFASTAPI(T__)  CC_IMPORT T__
 #else
-#define 	KNHAPI(T__)      KNH_CC_EXPORT  T__ __cdecl
+#define 	KNHAPI(T__)      CC_EXPORT  T__ __cdecl
 #define     FASTAPI(T__)     T__
-#define 	KNHFASTAPI(T__)  KNH_CC_EXPORT T__ KNH_CC_FASTCALL
+#define 	KNHFASTAPI(T__)  CC_EXPORT T__ CC_FASTCALL
 #endif
-#define 	KNH_EXPORTS(T__)  KNH_CC_EXPORT T__ __cdecl
+#define 	KNH_EXPORTS(T__)  CC_EXPORT T__ __cdecl
 
 #define 	K_OSDLLEXT ".dll"
 #define		K_FILESEPARATOR '\\'
@@ -188,14 +188,14 @@
 /* ======================================================================== */
 /* [KNHAPI] */
 
-#ifndef KNH_CC_EXPORT
-#define KNH_CC_EXPORT
+#ifndef CC_EXPORT
+#define CC_EXPORT
 #endif
 
 #ifndef KNHAPI
 #define KNHAPI(T)         T
-#define FASTAPI(T)        T  KNH_CC_FASTCALL
-#define KNHFASTAPI(T)     T  KNH_CC_FASTCALL
+#define FASTAPI(T)        T  CC_FASTCALL
+#define KNHFASTAPI(T)     T  CC_FASTCALL
 #define KNH_EXPORTS(T)    T
 #endif
 
@@ -207,7 +207,7 @@
 #define KONOHA_FOLDER ".konoha"
 #endif
 
-#ifdef KNH_CC_LABELPTR
+#ifdef CC_LABELPTR
 #define K_USING_THREADEDCODE 1
 #else
 #undef K_USING_THREADEDCODE

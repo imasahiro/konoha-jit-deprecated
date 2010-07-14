@@ -39,7 +39,7 @@ extern "C" {
 /* ======================================================================== */
 
 #ifndef KLRAPI
-#define KLRAPI(T)         T  KNH_CC_FASTCALL
+#define KLRAPI(T)         T  CC_FASTCALL
 #endif
 
 #define SFi(x)   sfp[x].ivalue

@@ -57,8 +57,12 @@ extern "C" {
 /* [ctxkey] */
 
 #ifdef K_USING_THREAD
+#ifdef CC_TLS
+static CC_TLS  Ctx *curctx = NULL;
+#else
 static volatile knh_thread_key_t ctxkey;
 static volatile Ctx *curctx = NULL;
+#endif
 #else
 static volatile Ctx *curctx = NULL;
 #endif
@@ -72,7 +76,7 @@ void konoha_init(void)
 	static int isInit = 0;
 	if(isInit==0) {
 		knh_opcode_check();
-#ifdef K_USING_THREAD
+#if defined(K_USING_THREAD) && !defined(CC_TLS)
 		knh_thread_key_create((knh_thread_key_t*)&ctxkey);
 #endif
 		knh_srand(0);
@@ -87,8 +91,10 @@ KNHAPI(Ctx*) knh_beginContext(Ctx *ctx, Ctx **bottom)
 {
 	((knh_Context_t*)ctx)->cstack_bottom = (void**)bottom;
 #ifdef K_USING_THREAD
-	knh_mutex_lock(ctx->ctxlock);
+	knh_mutex_lock(ctx->ctxlock);  // by yoan
+#if !defined(CC_TLS)
 	knh_thread_setspecific(ctxkey, ctx);
+#endif
 	curctx = ctx;
 #else
 	curctx = ctx;
@@ -101,8 +107,10 @@ KNHAPI(Ctx*) knh_beginContext(Ctx *ctx, Ctx **bottom)
 KNHAPI(void) knh_endContext(Ctx *ctx)
 {
 #ifdef K_USING_THREAD
+#if !defined(CC_TLS)
 	knh_thread_setspecific(ctxkey, NULL);
-	knh_mutex_unlock(ctx->ctxlock);
+#endif
+	knh_mutex_unlock(ctx->ctxlock);  // by yoan
 	curctx = NULL;
 #else
 	curctx = NULL;
@@ -114,7 +122,7 @@ KNHAPI(void) knh_endContext(Ctx *ctx)
 
 KNHAPI(Ctx*) knh_getCurrentContext(void)
 {
-#ifdef K_USING_THREAD
+#if defined(K_USING_THREAD) && !defined(CC_TLS)
 	Ctx *ctx = (Ctx*)knh_thread_getspecific(ctxkey);
 	if(ctx == NULL) {
 		ctx = (Ctx*)curctx;
