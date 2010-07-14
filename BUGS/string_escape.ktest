@@ -1,0 +1,7 @@
+### string backslash bug (appears only '\' is at the beginning of the string)
+>>> s0 = "ab\n";
+"ab\n"
+>>> s1 = "a\nb";
+"a\nb"
+>>> s2 = "\nab";
+"\nab"
