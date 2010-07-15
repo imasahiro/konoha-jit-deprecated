@@ -1082,14 +1082,13 @@
 #define FN_vargs        (MN_OPSIZE+138)
 #define FN_verbose      (MN_OPSIZE+139)
 #define FN_virtual      (MN_OPSIZE+140)
-#define FN_w            (MN_OPSIZE+141)
-#define FN_write        (MN_OPSIZE+142)
-#define FN_writeChar    (MN_OPSIZE+143)
-#define FN_writechar    (MN_OPSIZE+143)
-#define FN_writeData    (MN_OPSIZE+144)
-#define FN_writedata    (MN_OPSIZE+144)
-#define FN_x            (MN_OPSIZE+145)
-#define K_TFIELD_SIZE   146
+#define FN_write        (MN_OPSIZE+141)
+#define FN_writeChar    (MN_OPSIZE+142)
+#define FN_writechar    (MN_OPSIZE+142)
+#define FN_writeData    (MN_OPSIZE+143)
+#define FN_writedata    (MN_OPSIZE+143)
+#define FN_x            (MN_OPSIZE+144)
+#define K_TFIELD_SIZE   145
 
 /* ======================================================================== */
 /* METHODN */

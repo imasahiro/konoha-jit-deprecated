@@ -562,9 +562,9 @@ KNHAPI(void) knh_write_Object(Ctx *ctx, knh_OutputStream_t *w, knh_sfp_t *esp, k
 		mtd = knh_lookupFormatter(ctx, cid, DP(mtd)->mn);
 		mtdP[0] = mtd;
 	}
-	KNH_SETv(ctx, esp[K_CALLDELTA].o, o);
-	esp[K_CALLDELTA].data = knh_Object_data(o); // this is necessary
-	KNH_SETv(ctx, esp[K_CALLDELTA+1].o, w);
+	KNH_SETv(ctx, esp[K_CALLDELTA].o, w);
+	KNH_SETv(ctx, esp[K_CALLDELTA+1].o, o);
+	esp[K_CALLDELTA+1].data = knh_Object_data(o); // this is necessary
 	KNH_SCALL(ctx, esp, 0, mtd, 1);
 }
 
