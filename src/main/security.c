@@ -29,47 +29,29 @@
 
 #include"commons.h"
 
-#ifdef KONOHA_ON_MACOSX
-#include <sys/sysctl.h>
-#endif
-
-
 #ifdef KONOHA_ON_WINDOWS
-
 #include <winsock2.h>
-#define UPDATE_PATH "/cgi-bin/security-alert/update_server?dist=%s&ver=%s&arch=%s(%s)&rev=%d&clock=%ld&mem=%lu"
 #define _WIN32_DCOM
 #include <comdef.h>
 #include <Wbemidl.h>
+#include "atlstr.h"
 #pragma comment(lib, "wbemuuid.lib")
-
 #else
-
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
 #include <netinet/in.h>
-#include <sys/param.h> //
+#include <sys/param.h>
 #include <sys/uio.h>
 #include <sys/sysctl.h>
 #include <unistd.h>
-#define UPDATE_PATH "/cgi-bin/security-alert/update_server?dist=%s&ver=%s&arch=%s(%s)&rev=%d&clock=%ld&mem=%ld"
 #endif
-
-#define CHANGE_COLOR(color) fprintf(stderr, "\x1b[%dm", color)
-
-enum {
-  BLACK = 30,
-  RED,
-  GREEN,
-  YELLOW,
-  BLUE,
-  MAGENTA,
-  SYAN,
-  GRAY,
-  DEFAULT,
-  WHITE,
-};
+#ifdef KONOHA_ON_MACOSX
+#include <sys/sysctl.h>
+#endif
+#ifdef KONOHA_ON_LINUX
+#include <sys/sysinfo.h>
+#endif
 
 #if defined(__x86_64__) || defined(_M_X64)
 #define CPU_NAME "x86_64"
@@ -80,8 +62,10 @@ enum {
 #else
 #define CPU_NAME "unknown"
 #endif
-#define UPDATE_HOST "192.168.59.5"     //"localhost"
 
+#define UPDATE_HOST "localhost"//"192.168.59.5"
+#define UPDATE_PATH "/cgi-bin/security-alert/update_server?dist=%s&ver=%s&arch=%s(%s)&rev=%d&clock=%d&mem=%d&ncpu=%d"
+#define PORT 80
 #define BUF_LEN 512
 
 /* ************************************************************************ */
@@ -93,224 +77,242 @@ extern "C" {
 /* ======================================================================== */
 /* [security alert] */
 
-static void getpath(char* path)
+static void getmesseage(int fd, char* path);
+static void serverconnect(char *path)
 {
-#ifdef KONOHA_ON_MACOSX
-	long mem, clock = 0;
-	int sels[2] = { CTL_HW, HW_PHYSMEM };
-	size_t length = sizeof(mem);
-	sysctl(sels, 2, &mem, &length, NULL, 0);
-	mem = mem / 1024 / 1024;
-	//fprintf(stderr, "mem %ld\n", mem);
-	sels[0] = CTL_HW;
-	sels[1] = HW_CPU_FREQ;
-	size_t len = sizeof(clock);
-	sysctl(sels, 2, &clock, &len, NULL, 0);
-	clock = clock / 1000 / 1000;
-	//fprintf(stderr, "clock %ld\n", clock);
-
-#elif defined(KONOHA_ON_WINDOWS)
-	int clock;
-	HRESULT hres;
-	hres = CoInitializeEx(0, COINIT_MULTITHREADED);
-	hres =  CoInitializeSecurity(
-        NULL, 
-        -1,                          // COM authentication
-        NULL,                        // Authentication services
-        NULL,                        // Reserved
-        RPC_C_AUTHN_LEVEL_DEFAULT,   // Default authentication 
-        RPC_C_IMP_LEVEL_IMPERSONATE, // Default Impersonation  
-        NULL,                        // Authentication info
-        EOAC_NONE,                   // Additional capabilities 
-        NULL                         // Reserved
-        );
-    IWbemLocator *pLoc = NULL;
-    hres = CoCreateInstance(
-        CLSID_WbemLocator,             
-        0, 
-        CLSCTX_INPROC_SERVER, 
-        IID_IWbemLocator, (LPVOID *) &pLoc);
-    IWbemServices *pSvc = NULL;
-    hres = pLoc->ConnectServer(
-         _bstr_t(L"ROOT\\CIMV2"), // Object path of WMI namespace
-         NULL,                    // User name. NULL = current user
-         NULL,                    // User password. NULL = current
-         0,                       // Locale. NULL indicates current
-         NULL,                    // Security flags.
-         0,                       // Authority (e.g. Kerberos)
-         0,                       // Context object 
-         &pSvc                    // pointer to IWbemServices proxy
-         );
-     hres = CoSetProxyBlanket(
-       pSvc,                        // Indicates the proxy to set
-       RPC_C_AUTHN_WINNT,           // RPC_C_AUTHN_xxx
-       RPC_C_AUTHZ_NONE,            // RPC_C_AUTHZ_xxx
-       NULL,                        // Server principal name 
-       RPC_C_AUTHN_LEVEL_CALL,      // RPC_C_AUTHN_LEVEL_xxx 
-       RPC_C_IMP_LEVEL_IMPERSONATE, // RPC_C_IMP_LEVEL_xxx
-       NULL,                        // client identity
-       EOAC_NONE                    // proxy capabilities 
-    );
-    IEnumWbemClassObject* pEnumerator = NULL;
-    hres = pSvc->ExecQuery(
-        bstr_t("WQL"), 
-        bstr_t("SELECT * FROM Win32_Processor"),
-        WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, 
-        NULL,
-        &pEnumerator);
-    IWbemClassObject *pclsObj;
-    ULONG uReturn = 0;
-	
-    while (pEnumerator)
-    {
-        HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, 
-									   &pclsObj, &uReturn);
-        if(0 == uReturn) break;
-        VARIANT vtProp;
-        // Get the value of the Name property
-        hr = pclsObj->Get(L"MaxClockSpeed", 0, &vtProp, 0, 0);
-        clock = (int)vtProp.bstrVal ;
-        VariantClear(&vtProp);
-        pclsObj->Release();
-    }
-
-    pSvc->Release();
-    pLoc->Release();
-    pEnumerator->Release();
-    CoUninitialize();
-
-	unsigned long mem = 0;
-	MEMORYSTATUSEX stat;
-	GlobalMemoryStatusEx(&stat);
-	mem = (unsigned long)stat.ullTotalPhys;
-	mem /= 1024*1024;
-#elif defined(KONOHA_ON_LINUX)
-	FILE *fp;
-	long mem = 0;
-	long clock = 0;
-	int n = 0, m = 0 ;
-	char buf[64] = {'\0'};
-	char cclock[64] = {'\0'};
-	char cmem[64] = {'\0'};
-	
-	size_t len = strlen("cpu MHz");
-	fp = fopen("/proc/cpuinfo","r");
-	while(fgets( buf, 64, fp ) != NULL){
-		if( strncmp(buf, "cpu MHz", len) == 0){
-			//fprintf(stderr,buf);
-			while( buf[n] != '\0'){
-				// fprintf(stderr, "%d,%c\n", buf[n], buf[n]);
-				while( '0' <= buf[n]  && buf[n] <= '9' ){
-					//fprintf(stdout, "%d\n",buf[n]);
-					cclock[m] = buf[n];			
-					n++;
-					m++;
-				}
-				n++;
-			}
-		}
-	}
-	n++;
-	cclock[n] = '\0';
-	clock = atoi(cclock) / 1000;
-	n =0, m =0;
-	len = strlen("MemTotal");
-	fp = fopen("/proc/meminfo","r");
-	while(fgets( buf, 64, fp ) != NULL){
-		if( strncmp(buf, "MemTotal", len) == 0){
-			//fprintf(stderr,buf);
-			while( buf[n] != '\0'){
-				// fprintf(stderr, "%d,%c\n", buf[n], buf[n]);
-				while( '0' <= buf[n]  && buf[n] <= '9' ){
-					//fprintf(stdout, "%d\n",buf[n]);
-					cmem[m] = buf[n];			
-					n++;
-					m++;
-				}
-				n++;
-			}
-		}
-	}
-	n++;
-	cmem[n] = '\0';
-	mem = atoi(cmem) / 1024;
-	fclose(fp);
-#endif	
-	knh_snprintf(path, 512, UPDATE_PATH,
-				 K_DIST, K_VERSION, K_PLATFORM,
-				 CPU_NAME, K_REVISION, clock, mem);
-
-}
-
-/* ------------------------------------------------------------------------ */
-void knh_checkSecurityAlert()
-{
-	int fd;
-	char path[BUF_LEN] = { '\0' };
-	getpath(path);
-	fprintf(stderr, "\n\n%s\n\n", path);
 	struct hostent *servhost;
-	struct sockaddr_in server;
-
-	char send_buf[BUF_LEN] = { '\0' };
-	char host[BUF_LEN] = UPDATE_HOST;
-	unsigned short port = 80;
+	struct sockaddr_in server = {0};
+	int fd;
 	
 #ifdef KONOHA_ON_WINDOWS
 	WSADATA data;
 	WSAStartup(MAKEWORD(2,0), &data);
-#endif /* Def: KONOHA_ON_WINDOWS */
+#endif
 
-	servhost = gethostbyname(host);
-	if ( servhost == NULL ){
-		//fprintf(stderr, "[%s] Failed to convert Name to IPAdress \n", host);
-		return ;
+	servhost = gethostbyname(UPDATE_HOST);
+	if (servhost == NULL) {
+		DBG_P("[%s] Failed to convert Name to IPAdress \n", UPDATE_HOST);
+		return;
 	}
-	
-	memset(&server, 0, sizeof(server));
 	
 	server.sin_family = AF_INET;
-	
 	memcpy(&server.sin_addr, servhost->h_addr,  servhost->h_length);
-	server.sin_port = htons(port);
+	server.sin_port = htons(PORT);
 	
-	if (( fd = socket(AF_INET, SOCK_STREAM, 0)) < 0){
-		//fprintf(stderr, "Failed to make Socket \n");
-		return ;
+	if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+		TODO(/* error message */);
+		return;
 	}
-	
-	if ( connect(fd, (struct sockaddr *)&server, sizeof(server)) == -1 ){
-		//fprintf(stderr, "Failed to connect \n");
-		return ;
+	if (connect(fd, (struct sockaddr *)&server, sizeof(server)) == -1) {
+		TODO(/* error message */);
+		return;
 	}
-	
-	knh_snprintf(send_buf, 256, "GET %s HTTP/1.0\r\n", path);
-	send(fd, send_buf, strlen(send_buf), 0);
-	knh_snprintf(send_buf, 256, "Host: %s:%d\r\n\r\n", host, port);
-	send(fd, send_buf, strlen(send_buf), 0);
-	if (fd != -1) {
-		char buf[BUF_LEN] =  {'\0'};
-		recv(fd, buf, BUF_LEN, 0);
-		//write(1, buf, BUF_LEN);
-		char *version_str;
-		if((version_str = strstr(buf, "\r\n\r\nMESSAGE:")) != 0 ){
-			version_str += sizeof("\r\n\r\nMESSAGE:");
-			//int n = 0;
-			CHANGE_COLOR(RED);
-			fprintf(stderr, "%s",version_str);
-			CHANGE_COLOR(WHITE);
-		}
+	getmesseage(fd, path);
 
 #ifdef KONOHA_ON_WINDOWS
 		closesocket(fd);
 		WSACleanup();
-#else 
-		close(fd);		
+#else
+		close(fd);
 #endif
+}
 
-		return;
+/* ------------------------------------------------------------------------ */
+#define CHANGE_COLOR(out, color) fprintf(out, "\x1b[%dm", color)
+
+enum {
+	BLACK = 30,
+	RED,
+	GREEN,
+	YELLOW,
+	BLUE,
+	MAGENTA,
+	SYAN,
+	GRAY,
+	DEFAULT,
+	WHITE,
+};
+
+static void getmesseage(int fd, char* path)
+{
+	char send_buf[BUF_LEN] = {'\0'};
+	knh_snprintf(send_buf, BUF_LEN, "GET %s HTTP/1.0\r\n", path);
+	send(fd, send_buf, strlen(send_buf), 0);
+	knh_snprintf(send_buf, BUF_LEN, "Host: %s:%d\r\n\r\n", UPDATE_HOST, PORT);
+	send(fd, send_buf, strlen(send_buf), 0);
+
+	if (fd != -1) {
+		char buf[BUF_LEN] = {'\0'};
+		recv(fd, buf, BUF_LEN, 0);
+		char *version_str;
+		if((version_str = strstr(buf, "\r\n\r\nMESSAGE:")) != 0 ){
+			version_str += strlen("\r\n\r\nMESSAGE:");
+			CHANGE_COLOR(stderr, RED);
+			fprintf(stderr, "%s", version_str);
+			CHANGE_COLOR(stderr, WHITE);
+		}
 	}
+}
 
+/* ------------------------------------------------------------------------ */
+
+static int getncpu(void)
+{
+	int ncpu;
+#ifdef KONOHA_ON_MACOSX
+	int mib[2] = { CTL_HW, HW_NCPU };
+	size_t len = sizeof(int);
+	if (sysctl(mib, 2, &ncpu, &len, NULL, 0) == -1) {
+		/* Error */ ncpu = 1;
+	}
+#elif defined(KONOHA_ON_WINDOWS)
+	CAtlString strMessage;
+	SYSTEM_INFO sysInfo;
+	GetNativeSystemInfo(&sysInfo);
+	ncpu = sysInfo.dwNumberOfProcessors;
+#elif defined(KONOHA_ON_LINUX)
+	ncpu = sysconf(_SC_NPROCESSORS_ONLN);
+#else
+	TODO();
+#endif
+	return ncpu;
+}
+
+/* ------------------------------------------------------------------------ */
+
+#define ONE_MB (1024 * 1024)
+static int getmem(void)
+{
+	int mem = 0;
+#ifdef KONOHA_ON_MACOSX
+	int mem_sels[2] = { CTL_HW, HW_PHYSMEM };
+	size_t length = sizeof(int);
+	sysctl(mem_sels, 2, &mem, &length, NULL, 0);
+	mem /= ONE_MB;
+#elif defined(KONOHA_ON_WINDOWS)
+	MEMORYSTATUSEX stat;
+	GlobalMemoryStatusEx(&stat);
+	mem = (int) stat.ullTotalPhys / ONE_MB;
+#elif defined(KONOHA_ON_LINUX)
+	mem = (int) getpagesize() * sysconf (_SC_PHYS_PAGES) / ONE_MB;
+#else
+	TODO();
+#endif
+	return mem;
+}
+
+/* ------------------------------------------------------------------------ */
+
+static int getclock(void)
+{
+	int clock;
+#ifdef KONOHA_ON_MACOSX
+	int cpu_sels[2] = { CTL_HW, HW_CPU_FREQ };
+	size_t len = sizeof(int);
+	sysctl(cpu_sels, 2, &clock, &len, NULL, 0);
+	clock = clock / (1000 * 1000);
+#elif defined(KONOHA_ON_WINDOWS)
+	HRESULT hres;
+	hres = CoInitializeEx(0, COINIT_MULTITHREADED);
+	hres = CoInitializeSecurity(
+		NULL,
+		-1,                          // COM authentication
+		NULL,                        // Authentication services
+		NULL,                        // Reserved
+		RPC_C_AUTHN_LEVEL_DEFAULT,   // Default authentication
+		RPC_C_IMP_LEVEL_IMPERSONATE, // Default Impersonation
+		NULL,                        // Authentication info
+		EOAC_NONE,                   // Additional capabilities
+		NULL                         // Reserved
+		);
+	IWbemLocator *pLoc = NULL;
+	hres = CoCreateInstance(
+		CLSID_WbemLocator,
+		0,
+		CLSCTX_INPROC_SERVER, 
+		IID_IWbemLocator, (LPVOID *) &pLoc);
+	IWbemServices *pSvc = NULL;
+	hres = pLoc->ConnectServer(
+		_bstr_t(L"ROOT\\CIMV2"), // Object path of WMI namespace
+		NULL,                    // User name. NULL = current user
+		NULL,                    // User password. NULL = current
+		0,                       // Locale. NULL indicates current
+		NULL,                    // Security flags.
+		0,                       // Authority (e.g. Kerberos)
+		0,                       // Context object
+		&pSvc                    // pointer to IWbemServices proxy
+		);
+	hres = CoSetProxyBlanket(
+		pSvc,                        // Indicates the proxy to set
+		RPC_C_AUTHN_WINNT,           // RPC_C_AUTHN_xxx
+		RPC_C_AUTHZ_NONE,            // RPC_C_AUTHZ_xxx
+		NULL,                        // Server principal name
+		RPC_C_AUTHN_LEVEL_CALL,      // RPC_C_AUTHN_LEVEL_xxx
+		RPC_C_IMP_LEVEL_IMPERSONATE, // RPC_C_IMP_LEVEL_xxx
+		NULL,                        // client identity
+		EOAC_NONE                    // proxy capabilities
+		);
+	IEnumWbemClassObject* pEnumerator = NULL;
+	hres = pSvc->ExecQuery(
+		bstr_t("WQL"),
+		bstr_t("SELECT * FROM Win32_Processor"),
+		WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY,
+		NULL,
+		&pEnumerator);
+	IWbemClassObject *pclsObj;
+	ULONG uReturn = 0;
+	
+	while (pEnumerator) {
+		HRESULT hr = pEnumerator->Next(
+			WBEM_INFINITE,
+			1,
+			&pclsObj,
+			&uReturn
+			);
+		if (uReturn == 0) { break; }
+		VARIANT vtProp;
+		hr = pclsObj->Get(L"MaxClockSpeed", 0, &vtProp, 0, 0);
+		clock = (int)vtProp.bstrVal;
+		VariantClear(&vtProp);
+		pclsObj->Release();
+	}
+	pSvc->Release();
+	pLoc->Release();
+	pEnumerator->Release();
+	CoUninitialize();
+#elif defined(KONOHA_ON_LINUX)
+	char buf[64] = {'\0'}, *data;
+	int n = 0, m = 0;
+	const char *cpumhz = "cpu MHz";
+	size_t len = strlen(cpumhz);
+	FILE *fp = fopen("/proc/cpuinfo","r");
+	while(fgets( buf, 64, fp ) != NULL){
+		if( strncmp(buf, cpumhz, len) == 0){
+			data = strstr(buf, cpumhz);
+			break;
+		}
+	}
+	clock = atoi(data) / 1000;
+	fclose(fp);
+#else 
+	TODO();
+#endif
+	return clock;
+}
+
+/* ------------------------------------------------------------------------ */
+
+void knh_checkSecurityAlert(void)
+{
+	char path[BUF_LEN] = {'\0'};
+	int clock = getmem();
+	int mem   = getclock();
+	int ncpu  = getncpu();
+	knh_snprintf(path, 512, UPDATE_PATH,
+				 K_DIST, K_VERSION, K_PLATFORM,
+				 CPU_NAME, K_REVISION, clock, mem, ncpu);
+	DBG_P("Path == [%s] \n", path);
+	serverconnect(path);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -349,8 +351,8 @@ void knh_checkSecurityAlert()
 /* ======================================================================== */
 /* [Trusted] */
 
-KNHAPI(void) knh_stack_checkSecurityManager(Ctx *ctx, knh_sfp_t *sfp)
-{
+	KNHAPI(void) knh_stack_checkSecurityManager(Ctx *ctx, knh_sfp_t *sfp)
+	{
 //	/* VERY SLOW */
 //	knh_sfp_t *sp = sfp - 2;
 //	while(ctx->stack < sp) {
@@ -363,7 +365,7 @@ KNHAPI(void) knh_stack_checkSecurityManager(Ctx *ctx, knh_sfp_t *sfp)
 //		}
 //		sp--;
 //	}
-}
+	}
 
 /* ------------------------------------------------------------------------ */
 
