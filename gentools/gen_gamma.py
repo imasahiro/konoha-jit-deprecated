@@ -201,6 +201,7 @@ tri     - @stmt  @expr
 alt     - @stmt  @expr
 and     - @stmt  @expr @keyword
 or      - @stmt  @expr @keyword
+w       - @stmt
 call1   - @stmt  @expr
 '''
 
@@ -218,9 +219,10 @@ NAME -
 UNAME - 
 FUNCNAME - 
 TYPE  - 
-MN - 
 CID - 
+MN - 
 FMT - 
+MT - 
 
 #Typed Token
 CONST -                 

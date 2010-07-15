@@ -419,23 +419,6 @@ static int ITR_findPTYPE(tkitr_t *itr)
 
 static void knh_Token_toStmtTYPEOF(Ctx *ctx, knh_Token_t *tk);
 
-static knh_methodn_t knh_bytes_parsemn(Ctx *ctx, knh_bytes_t t)
-{
-	if(t.ustr[0] == '%' && t.ustr[1] != '%') {
-		size_t i;
-		for(i = 1; i < t.len; i++) {
-			int ch = t.ustr[i];
-			if(isalnum(ch) || ch == ':' || ch == ' ') continue;
-			if(ch == '.' && !isalpha(t.ustr[i-1])) continue;
-			break;
-		}
-		if(i == t.len) {
-			return knh_getmn(ctx, t, MN_NEWID);
-		}
-	}
-	return MN_NONAME;
-}
-
 static void knh_Token_add(Ctx *ctx, knh_Token_t *tk, knh_Token_t *tkc)
 {
 	knh_Array_t *a;
@@ -542,7 +525,7 @@ static void knh_Token_add(Ctx *ctx, knh_Token_t *tk, knh_Token_t *tkc)
 			TT_(tkPREV) = TT_FUNCNAME;
 		}
 		else if(TT_(tkPREV) == TT_STR || TT_(tkPREV) == TT_TSTR) {
-			DP(tkPREV)->mn = knh_bytes_parsemn(ctx, S_tobytes(DP(tkPREV)->text));
+			//DP(tkPREV)->mn = knh_bytes_parsemn(ctx, S_tobytes(DP(tkPREV)->text));
 			TT_(tkPREV) = TT_FMT;
 		}
 	}
@@ -2196,7 +2179,8 @@ static void _EXPR(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 			stmt = new_StmtREUSE(ctx, stmt, STT_CALL);
 		}
 		switch(tt) {
-		case TT_FMT: STT_(stmt) = STT_FMT;
+		case TT_FMT:
+			STT_(stmt) = STT_FMT;
 		case TT_FUNCNAME: // f()
 		case TT_UNAME:
 		case TT_NAME:  // a .f .c
@@ -2343,9 +2327,6 @@ static void _EXPR(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 		tkitr_t pbuf, *pitr = ITR_new(ITR_nextTK(itr), &pbuf);
 		if(DP(stmt)->size == 1) _ASIS(ctx, stmt, itr);
 		_EXPRs(ctx, stmt, pitr);
-		if(STT_(stmt) == STT_FMT && DP(DP(stmt)->tokens[0])->mn == MN_NONAME) {
-			TODO();
-		}
 	}
 	else if(TT_isSTR(ITR_tt(itr))) {
 		if(DP(stmt)->size == 1) _ASIS(ctx, stmt, itr);
@@ -3137,25 +3118,22 @@ knh_bool_t knh_String_parseFMT(Ctx *ctx, knh_String_t *fmt, knh_Array_t *a, knh_
 	knh_bytes_t t = S_tobytes(fmt);
 	size_t i = 0, s = 0;
 	L_TEXT:;
-	for(;i < t.len - 1; i++) {
+	for(;i < t.len; i++) {
 		if(t.ustr[i] == '%') {
 			i++;
 			if(t.ustr[i] == '%') {
 				knh_Bytes_putc(ctx, cwb->ba, '%');
 				continue;
 			}
-			if(i < t.len - 1) {
-				goto L_FMT;
-			}
+			goto L_FMT;
 		}
 		if(t.ustr[i] == '\n') line++;
 		knh_Bytes_putc(ctx, cwb->ba, t.ustr[i]);
 	}
-	knh_Bytes_putc(ctx, cwb->ba, t.ustr[t.len-1]);
 	knh_Array_addTEXT(ctx, a, cwb);
 	return 1;
 	L_FMT:;
-	s = i;
+	s = i-1;
 	for(;i < t.len; i++) {
 		if(t.ustr[i] == '\n') line++;
 		if(t.ustr[i] == '{') {
@@ -3167,9 +3145,13 @@ knh_bool_t knh_String_parseFMT(Ctx *ctx, knh_String_t *fmt, knh_Array_t *a, knh_
 				if(!knh_Array_addEXPR(ctx, a, mt, knh_bytes_first(t2, loc), uri, line)) {
 					return 0;
 				}
-				i = loc + 1;
-				goto L_TEXT;
+				knh_cwb_close(cwb);
+				i = i + 1 + loc + 1; s = i;
+				//DBG_P("START='%c'", t.ustr[s]);
+				if(s < t.len) goto L_TEXT;
+				return 1;
 			}
+			break;
 		}
 	}
 	KNH_SYSLOG(ctx, LOG_WARNING, "BrokenFormatter", "'%B'", t);

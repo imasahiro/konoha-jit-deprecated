@@ -2,8 +2,8 @@
 
 /* ======================================================================== */
 /* MACROS */
-#define K_REVISION                      1657
-#define K_BUILDID                       946
+#define K_REVISION                      1678
+#define K_BUILDID                       948
 
 /* ======================================================================== */
 /* STRUCT */
@@ -968,9 +968,8 @@
 #define FN_floatToIntBits (MN_OPSIZE+43)
 #define FN_floattointbits (MN_OPSIZE+43)
 #define FN_flush        (MN_OPSIZE+44)
-#define FN_format       (MN_OPSIZE+45)
-#define FN_format__FINAL (MN_OPSIZE+46)
-#define FN_format__final (MN_OPSIZE+46)
+#define FN_fmt          (MN_OPSIZE+45)
+#define FN_format       (MN_OPSIZE+46)
 #define FN_gc           (MN_OPSIZE+47)
 #define FN_hashCode     (MN_OPSIZE+48)
 #define FN_hashcode     (MN_OPSIZE+48)
@@ -1168,7 +1167,6 @@
 #define MN_new__TUPLE   FN_new__tuple
 #define MN_invoke       FN_invoke
 #define MN_new__ARRAY   FN_new__array
-#define MN_format__FINAL FN_format__final
 #define MN_lastIndexOf  FN_lastindexof
 #define MN_isClosed     MN_toISBOOL(FN_closed)
 #define MN_setVerbose   MN_toSETTER(FN_verbose)

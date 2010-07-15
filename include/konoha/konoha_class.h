@@ -273,10 +273,11 @@ typedef struct knh_Array_t {
 		knh_int_t              *ilist;
 		knh_float_t            *flist;
 		struct knh_Object_t       **list;
+		struct knh_String_t       **strings;
 		struct knh_Method_t       **methods;
 		struct knh_Translator_t   **trans;
 		struct knh_Token_t        **tokens;
-		struct knh_KLRInst_t      **insts;
+		struct knh_Stmt_t        **stmts;
 	};
 	size_t size;
 	knh_ArrayAPI_t *api;
@@ -1130,7 +1131,9 @@ typedef struct knh_Token_t {
 #define knh_Stmt_isTAILRECURSION(s)       knh_Stmt_isMemo1(s)
 #define knh_Stmt_setTAILRECURSION(s,b)    knh_Stmt_setMemo1(s,b)
 
-/* ------------------------------------------------------------------------ */
+/* STT_WRITE */
+#define knh_Stmt_isCWB(s)       knh_Stmt_isMemo1(s)
+#define knh_Stmt_setCWB(s,b)    knh_Stmt_setMemo1(s,b)
 
 typedef struct {
 	knh_flag_t   flag0;
@@ -1147,6 +1150,7 @@ typedef struct {
 		struct knh_String_t*  errMsg;
 		struct knh_Stmt_t*    stmtPOST;
 	};
+	size_t wstart;
 	struct knh_Stmt_t* nextNULL;
 } knh_StmtEX_t;
 

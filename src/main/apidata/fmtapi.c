@@ -38,6 +38,84 @@ extern "C" {
 #ifdef K_USING_DEFAULTAPI
 
 /* ------------------------------------------------------------------------ */
+/* [format] */
+
+static const char *newfmt(char *buf, size_t bufsiz, knh_bytes_t fmt, const char *t)
+{
+	char *p = buf + (fmt.len - 1);
+	strncpy(buf, fmt.text, bufsiz);
+	strncpy(p, t, bufsiz - fmt.len);
+	DBG_P("FMT='%s'", buf);
+	return (const char*)buf;
+}
+
+/* ------------------------------------------------------------------------ */
+//## @Const @FastCall method String Int.format(String fmt);
+
+static METHOD Int_format(Ctx *ctx, knh_sfp_t *sfp, long rix)
+{
+	knh_sfp_t *arg = ctx->esp - 1;
+	DBG_ASSERT(arg == sfp+1);
+	knh_bytes_t fmt = S_tobytes(arg[0].s);
+	L_RETRY:;
+	int ch = fmt.ustr[fmt.len - 1];
+	if(fmt.ustr[0] == '%' && (ch == 'u' || ch == 'd' || ch == 'x')) {
+		char fmtbuf[40], buf[80];
+		const char *ifmt = (ch == 'd') ? K_INT_FMT : ((ch == 'x') ? K_INT_XFMT : K_UINT_FMT);
+		knh_snprintf(buf, sizeof(buf), newfmt(fmtbuf, sizeof(fmtbuf), fmt, ifmt + 1), sfp[0].ivalue);
+		RETURN_(new_S(ctx, B(buf)));
+	}
+	if(fmt.len != 0) {
+		KNH_SYSLOG(ctx, LOG_WARNING, "Format!!", "invalid format: %s", fmt.text);
+	}
+	fmt = STEXT("%d");
+	goto L_RETRY;
+}
+
+/* ------------------------------------------------------------------------ */
+//## @Const @FastCall method String Float.format(String fmt);
+
+static METHOD Float_format(Ctx *ctx, knh_sfp_t *sfp, long rix)
+{
+	knh_sfp_t *arg = ctx->esp - 1;
+	DBG_ASSERT(arg == sfp+1);
+	knh_bytes_t fmt = S_tobytes(arg[0].s);
+	L_RETRY:;
+	int ch = fmt.ustr[fmt.len - 1];
+	if(fmt.ustr[0] == '%' && (ch == 'f' || ch == 'e')) {
+		char buf[80];
+		const char *ifmt = (ch == 'f') ? K_FLOAT_FMT : K_FLOAT_FMTE;
+		knh_snprintf(buf, sizeof(buf), ifmt, sfp[0].fvalue);
+		RETURN_(new_S(ctx, B(buf)));
+	}
+	if(fmt.len != 0) {
+		KNH_SYSLOG(ctx, LOG_WARNING, "Format!!", "invalid format: %s", fmt.text);
+	}
+	fmt = STEXT("%f");
+	goto L_RETRY;
+}
+
+/* ------------------------------------------------------------------------ */
+//## @Const @FastCall method String String.format(String fmt);
+
+static METHOD String_format(Ctx *ctx, knh_sfp_t *sfp, long rix)
+{
+	knh_sfp_t *arg = ctx->esp - 1;
+	DBG_ASSERT(arg == sfp+1);
+	knh_bytes_t fmt = S_tobytes(arg[0].s);
+	if(fmt.ustr[0] == '%' && fmt.ustr[fmt.len-1] == 's') {
+		char buf[256];
+		knh_snprintf(buf, sizeof(buf), fmt.text, ctx->api->tochar(ctx, sfp[0].s));
+		RETURN_(new_S(ctx, B(buf)));
+	}
+	if(fmt.len != 0) {
+		KNH_SYSLOG(ctx, LOG_WARNING, "Format!!", "invalid format: %s", fmt.text);
+	}
+	RETURN_(sfp[0].s);
+}
+
+
+/* ------------------------------------------------------------------------ */
 /* [utils] */
 
 static knh_bool_t knh_stack_isRecuriveFormatting(Ctx *ctx, knh_sfp_t *sfp)
@@ -1169,53 +1247,13 @@ static METHOD Int__c(Ctx *ctx, knh_sfp_t *sfp, long rix)
 /* ======================================================================== */
 /* [number] */
 
-static char *knh_format_newFMT(char *buf, size_t bufsiz, knh_bytes_t t, int dot, const char *fmt)
-{
-	size_t i = 0, j = 1;
-	buf[0] = '%';
-	for(j = 1; j < bufsiz; j++) {
-		if(t.ustr[i] == '.') {
-			i++;
-			if(dot == 1) {
-				buf[j] = '.';
-				dot = 0;
-			}
-			else {
-				dot = -1;
-			}
-			continue;
-		}
-		if(!isdigit(t.ustr[i])) {
-			i = (fmt[0] == '%') ? 1 : 0;
-			for(;fmt[i] != 0; i++) {
-				buf[j] = fmt[i]; j++;
-			}
-			buf[j] = 0;
-			DBG_P("FMT='%s'", buf);
-			return buf;
-		}
-		if(dot >= 0) {
-			buf[j] = t.ustr[i];
-		}
-		i++;
-	}
-	buf[0] = 0;
-	return buf;
-}
 
 /* ------------------------------------------------------------------------ */
 //## method void Int.%d(OutputStream w);
 
 static METHOD Int__d(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-	if(IS_String(sfp[2].s)) {
-		char fmt[40];
-		knh_format_newFMT(fmt, sizeof(fmt), S_tobytes(sfp[2].s), 0, K_INT_FMT);
-		knh_write_ifmt(ctx, sfp[1].w, fmt, sfp[0].ivalue);
-	}
-	else {
-		knh_write_ifmt(ctx, sfp[1].w, K_INT_FMT, sfp[0].ivalue);
-	}
+	knh_write_ifmt(ctx, sfp[1].w, K_INT_FMT, sfp[0].ivalue);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1223,14 +1261,7 @@ static METHOD Int__d(Ctx *ctx, knh_sfp_t *sfp, long rix)
 
 static METHOD Int__u(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-	if(IS_String(sfp[2].s)) {
-		char fmt[40];
-		knh_format_newFMT(fmt, sizeof(fmt), S_tobytes(sfp[2].s), 0, K_UINT_FMT);
-		knh_write_ifmt(ctx, sfp[1].w, fmt, sfp[0].ivalue);
-	}
-	else {
-		knh_write_ifmt(ctx, sfp[1].w, K_UINT_FMT, sfp[0].ivalue);
-	}
+	knh_write_ifmt(ctx, sfp[1].w, K_UINT_FMT, sfp[0].ivalue);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1238,14 +1269,7 @@ static METHOD Int__u(Ctx *ctx, knh_sfp_t *sfp, long rix)
 
 static METHOD Int__f(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-	if(IS_String(sfp[2].s)) {
-		char fmt[40];
-		knh_format_newFMT(fmt, sizeof(fmt), S_tobytes(sfp[2].s), 1, K_FLOAT_FMT);
-		knh_write_ffmt(ctx, sfp[1].w, fmt, (knh_float_t)sfp[0].ivalue);
-	}
-	else {
-		knh_write_ffmt(ctx, sfp[1].w, K_FLOAT_FMT, (knh_float_t)sfp[0].ivalue);
-	}
+	knh_write_ffmt(ctx, sfp[1].w, K_FLOAT_FMT, (knh_float_t)sfp[0].ivalue);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1253,14 +1277,7 @@ static METHOD Int__f(Ctx *ctx, knh_sfp_t *sfp, long rix)
 
 static METHOD Int__x(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-	if(IS_String(sfp[2].s)) {
-		char fmt[40];
-		knh_format_newFMT(fmt, sizeof(fmt), S_tobytes(sfp[2].s), 1, K_INT_XFMT);
-		knh_write_ifmt(ctx, sfp[1].w, fmt, sfp[0].ivalue);
-	}
-	else {
-		knh_write_ifmt(ctx, sfp[1].w, K_INT_XFMT, sfp[0].ivalue);
-	}
+	knh_write_ifmt(ctx, sfp[1].w, K_INT_XFMT, sfp[0].ivalue);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1295,15 +1312,7 @@ static METHOD Int__bits(Ctx *ctx, knh_sfp_t *sfp, long rix)
 
 static METHOD Float__d(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-	if(IS_String(sfp[2].s)) {
-		char fmt[40];
-		knh_format_newFMT(fmt, sizeof(fmt), S_tobytes(sfp[2].s), 0, K_INT_FMT);
-		//DBG_P("fmt='%s'", fmt);
-		knh_write_ifmt(ctx, sfp[1].w, fmt, (knh_int_t)sfp[0].fvalue);
-	}
-	else {
-		knh_write_ifmt(ctx, sfp[1].w, K_INT_FMT, (knh_int_t)sfp[0].fvalue);
-	}
+	knh_write_ifmt(ctx, sfp[1].w, K_INT_FMT, (knh_int_t)sfp[0].fvalue);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1311,15 +1320,7 @@ static METHOD Float__d(Ctx *ctx, knh_sfp_t *sfp, long rix)
 
 static METHOD Float__f(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-	if(IS_String(sfp[2].s)) {
-		char fmt[40];
-		knh_format_newFMT(fmt, sizeof(fmt), S_tobytes(sfp[2].s), 1, K_FLOAT_FMT);
-		//DBG_P("fmt='%s'", fmt);
-		knh_write_ffmt(ctx, sfp[1].w, fmt, sfp[0].fvalue);
-	}
-	else {
-		knh_write_ffmt(ctx, sfp[1].w, K_FLOAT_FMT, sfp[0].fvalue);
-	}
+	knh_write_ffmt(ctx, sfp[1].w, K_FLOAT_FMT, sfp[0].fvalue);
 }
 
 /* ------------------------------------------------------------------------ */

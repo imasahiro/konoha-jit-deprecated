@@ -1316,7 +1316,7 @@ static knh_Term_t *knh_StmtCALL_toCONST(Ctx *ctx, knh_Stmt_t *stmt, knh_Method_t
 		size_t i;
 		for(i = 1; i < DP(stmt)->size; i++) {
 			knh_Token_t *tk = DP(stmt)->tokens[i];
-			if(TT_(tk) != TT_CONST) goto L_NONSTATIC;
+			if(TT_(tk) != TT_CONST && TT_(tk) != TT_NULL) goto L_NONSTATIC;
 			KNH_SETv(ctx, lsfp[i+2].o, DP(tk)->data);
 			KNH_UNBOX(ctx, &lsfp[i+2]);
 		}
@@ -1849,6 +1849,7 @@ static knh_class_t knh_StmtopEQ_basecid(Ctx *ctx, knh_Stmt_t *stmt)
 
 static knh_Term_t* knh_StmtSEND_typing(Ctx *ctx, knh_Stmt_t *stmt)
 {
+	KNH_TODO("<< is renovating");
 //	BEGIN_LOCAL(ctx, lsfp, 1);
 //	size_t i;
 //	LOCAL_NEW(ctx, lsfp, 0, knh_Stmt_t*, stmt2,
@@ -2190,31 +2191,198 @@ static knh_Term_t *knh_StmtTCAST_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t r
 /* ======================================================================== */
 /* [MT,AND,OR,] */
 
+static knh_bool_t knh_bytes_isFMT(knh_bytes_t t)
+{
+	size_t i = 0, size = t.len - 1;
+	if(t.len < 2) return 0;
+	L_AGAIN:;
+	for(i = 0; i < size; i++) {
+		if(t.ustr[i] == '%') {
+			int ch = t.ustr[i+1];
+			i++;
+			if(isdigit(ch) || ch == ' ' || ch == '.' || ch == '+' || ch == '-' || ch == '#') {
+				goto L_CFMT;
+			}
+			if(isalpha(ch)) goto L_KFMT;
+		}
+	}
+	return 0;
+	L_CFMT:;
+	for(; i < size; i++) {
+		int ch = t.ustr[i];
+		if(isalpha(ch) || t.ustr[i+1] == '{') return 1;
+		if(!isdigit(ch) && ch != '.') goto L_AGAIN;
+	}
+	return 0;
+	L_KFMT:;
+	for(; i < size; i++) {
+		int ch = t.ustr[i];
+		if(ch == '{') return 1;
+		if(!isalnum(ch) && ch != ':') goto L_AGAIN;
+	}
+	return 0;
+}
+
+static knh_class_t knh_bytes_CFMT(knh_bytes_t t)
+{
+	if(t.ustr[0] == '%' && (isdigit(t.ustr[1]) || t.ustr[1] == ' ' || t.ustr[1] == '.')) {
+		int ch = t.ustr[t.len - 1];
+		switch(ch) {
+		case 'd': case 'u': case 'x': return CLASS_Int;
+		case 'e': case 'f': return CLASS_Float;
+		case 's': return CLASS_String;
+		}
+	}
+	return CLASS_unknown;
+}
+
+static knh_methodn_t knh_bytes_parsemn(Ctx *ctx, knh_bytes_t t)
+{
+	if(t.ustr[0] == '%' && t.ustr[1] != '%') {
+		size_t i;
+		for(i = 1; i < t.len; i++) {
+			int ch = t.ustr[i];
+			if(isalnum(ch) || ch == ':' || ch == ' ') continue;
+			if(ch == '.' && !isalpha(t.ustr[i-1])) continue;
+			break;
+		}
+		if(i == t.len) {
+			return knh_getmn(ctx, t, MN_NEWID);
+		}
+	}
+	return MN_NONAME;
+}
+static knh_Term_t *knh_StmtEXPR_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_class_t reqt);
 
 static knh_Term_t *knh_StmtFMT_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
 {
-	size_t i = 0;
-	knh_Token_t *tkMT = DP(stmt)->tokens[0];
-	DBG_ASSERT(DP(tkMT)->mn != MN_NONAME);
-	if(DP(stmt)->size <= 2) {
-		knh_Gamma_perror(ctx, KERR_ERRATA, "nothing to format :=> empty string");
-		return knh_Token_setCONST(ctx, tkMT, TS_EMPTY);
-	}
-	TYPING(ctx, stmt, 2, TYPE_Any, _NOTCHECK);
-	{
-		knh_methodn_t mn = MN_format;
-		knh_class_t cid = TERMs_getcid(stmt, 2);
-		knh_Method_t *mtdf = knh_lookupFormatter(ctx, cid, DP(tkMT)->mn);
-		knh_Token_setCONST(ctx, DP(stmt)->tokens[1], mtdf);
-		if(knh_Method_isFinal(mtdf)) mn = MN_format__FINAL;
-		for(i = 3; i < DP(stmt)->size; i++) {
-			TYPING(ctx, stmt, i, TYPE_Any, _NOTCHECK);
-			if(cid != TERMs_getcid(stmt, i)) mn = MN_format;
+	knh_Token_t *tkFMT = DP(stmt)->tokens[0];
+	knh_bytes_t fmt = S_tobytes(DP(tkFMT)->text);
+	if(fmt.ustr[0] == '%') {
+		if(!knh_bytes_isFMT(fmt)) {
+			knh_class_t cid = knh_bytes_CFMT(fmt);
+			if(DP(stmt)->size == 2) {
+				knh_type_t type = (cid == CLASS_unknown) ? CLASS_String : cid;
+				knh_Stmt_add(ctx, stmt, new_TokenTYPED(ctx, TT_NULL/*DEFVAL*/, type, type));
+			}
+			if(DP(stmt)->size > 3) {
+				knh_Gamma_perror(ctx, KERR_DWARN, _("too many parameters of '%B'"), fmt);
+				knh_Stmt_trimSize(ctx, stmt, 3);
+			}
+			if(cid != CLASS_unknown) {
+				knh_Method_t *mtd = knh_getMethodNULL(ctx, cid, MN_format);
+				knh_Token_setCONST(ctx, DP(stmt)->tokens[1], DP(tkFMT)->data);
+				TYPING(ctx, stmt, 2, cid, _ICAST);
+				knh_Stmt_swap(ctx, stmt, 1, 2);
+				knh_Token_toMTD(ctx, tkFMT, MN_format, mtd);
+				STT_(stmt) = STT_CALL;
+				return knh_StmtPARAMs_typing(ctx, stmt, cid, mtd);
+			}
+			else if(fmt.ustr[0] == '%') { // "%bit" (a)
+				knh_methodn_t mn = knh_bytes_parsemn(ctx, fmt);
+				if(mn == MN_NONAME) {
+					knh_Gamma_perror(ctx, KERR_DWARN, "invalid formatter: '%s'", fmt.text);
+					return knh_Token_toCONST(ctx, tkFMT);
+				}
+				TYPING(ctx, stmt, 2, TYPE_Any, 0);
+				KNH_SETv(ctx, DP(tkFMT)->data, DP(stmt)->terms[2]);
+				KNH_SETv(ctx, DP(stmt)->terms[2], knh_Token_toTYPED(ctx, tkFMT, TT_MT, TYPE_String, mn));
+				DBG_ASSERT(TT_(DP(stmt)->terms[1]) == TT_ASIS);
+				DP(stmt)->wstart = 2;
+				goto L_TOWRITE;
+			}
 		}
-		knh_Token_toMTD(ctx, tkMT, mn, knh_getMethodNULL(ctx, CLASS_Method, mn));
-		STT_(stmt) = STT_CALL;
-		return knh_Stmt_typed(ctx, stmt, TYPE_String);
+		goto L_FMT;
 	}
+	else if(knh_bytes_isFMT(fmt)) {
+		goto L_FMT;
+	}
+	else {  // "foo"()
+		knh_Gamma_perror(ctx, KERR_DWARN, "nothing to format");
+		return knh_Token_toCONST(ctx, tkFMT);
+	}
+	L_FMT:;
+	{
+		size_t i, argc, size = DP(stmt)->size;
+		long min = LONG_MAX, max = 0;
+		BEGIN_LOCAL(ctx, lsfp, 2);
+		LOCAL_NEW(ctx, lsfp, 0, knh_Array_t*, a, new_Array0(ctx, 0));
+		KNH_SETv(ctx, lsfp[1].o, DP(stmt)->terms[1]); // backups
+		knh_String_parseFMT(ctx, DP(tkFMT)->text, a, SP(tkFMT)->uri, SP(tkFMT)->line);
+		knh_Method_t *mtd = knh_lookupFormatter(ctx, CLASS_Array, MN__k);
+		knh_write_Object(ctx, KNH_STDOUT, ctx->esp, &mtd, UPCAST(a));
+		for(i = 0; i < knh_Array_size(a); i+= 2) {
+			if(IS_String(a->list[i]) && IS_String(a->list[i+1])) {
+				knh_bytes_t mt = S_tobytes(a->strings[i]);
+				knh_bytes_t idx = S_tobytes(a->strings[i]);
+				if(mt.ubuf[0] == '%' && idx.ubuf[0] == '#') {
+					long n = strtol(idx.text+1, NULL, 10);
+					if(n > (long)size || n <= 0) {
+						knh_Gamma_perror(ctx, KERR_ERR, _("too large/small index for formatting: %d"), n);
+						return NULL;
+					}
+					if(n < LONG_MAX) min = n;
+					if(n > max) max = n;
+				}
+			}
+			if(IS_Stmt(a->list[i+1])) {
+				knh_Stmt_t *stmtINLINE = a->stmts[i+1];
+				if(knh_stmt_isExpr(STT_(stmtINLINE))) {
+					knh_Term_t *tm = knh_StmtEXPR_typing(ctx, stmtINLINE, TYPE_Any);
+					if(tm == NULL) return NULL;
+					KNH_SETv(ctx, a->list[i+1], tm);
+				}
+				else {
+					knh_Gamma_perror(ctx, KERR_ERR, _("%d of inline formating is not an expression"), (int)((i / 2) + 1));
+					return NULL;
+				}
+			}
+		}
+		if(min == LONG_MAX) {
+			argc = 0; min = 0; max = 0;
+		}
+		else {
+			argc = max - min + 1;
+		}
+		DBG_P("min=%ld max=%ld, argc=%d", min, max, argc);
+		if(size - 2 > argc) {
+			knh_Gamma_perror(ctx, KERR_DWARN, _("too many parameters of inline formating"));
+			knh_Stmt_trimSize(ctx, stmt, argc + 2);
+		}
+		for(i = size; i < argc + 2; i++) {
+			knh_Stmt_add(ctx, stmt, new_TokenTYPED(ctx, TT_NULL/*DEFVAL*/, CLASS_String, CLASS_String));
+		}
+		DP(stmt)->wstart = argc + 2;
+		DBG_ASSERT(DP(stmt)->size == DP(stmt)->wstart);
+//		for(i = 0; i < knh_Array_size(a); i+= 2) {
+//			if(IS_String(a->list[i]) && IS_String(a->list[i+1])) {
+//				knh_bytes_t mt = S_tobytes(a->strings[i]);
+//				knh_bytes_t idx = S_tobytes(a->strings[i]);
+//				if(mt.ubuf[0] == '%' && idx.ubuf[0] == '#') {
+//					long n = strtol(idx.text+1, NULL, 10);
+//				}
+//			}
+//			if(IS_Stmt(a->list[i+1])) {
+//				knh_Stmt_t *stmtINLINE = a->stmts[i+1];
+//				if(knh_stmt_isExpr(STT_(stmtINLINE))) {
+//					knh_Term_t *tm = knh_StmtEXPR_typing(ctx, stmtINLINE, TYPE_Any);
+//					if(tm == NULL) return NULL;
+//					KNH_SETv(ctx, a->list[i+1], tm);
+//				}
+//				else {
+//					knh_Gamma_perror(ctx, KERR_ERR, _("%d of inline formating is not an expression"), (int)((i / 2) + 1));
+//					return NULL;
+//				}
+//			}
+//		}
+
+		END_LOCAL(ctx, lsfp);
+	}
+	return NULL;
+	L_TOWRITE:;
+	STT_(stmt) = STT_W;
+	knh_Stmt_setCWB(stmt, 1);
+	return knh_Stmt_typed(ctx, stmt, TYPE_String);
 }
 
 static knh_Term_t *knh_StmtAND_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)

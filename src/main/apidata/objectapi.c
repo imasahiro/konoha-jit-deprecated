@@ -113,46 +113,46 @@ static METHOD Method_getName(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	RETURN_(knh_cwb_newString(ctx, cwb));
 }
 
-/* ------------------------------------------------------------------------ */
-//## @Const @Hidden method String Method.format(Any v, ...);
-
-static METHOD Method_format(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-	long ac = knh_stack_argc(ctx, sfp+1);
-	knh_Method_t *mtdf = sfp[0].mtdOBJ;
-	if(ac == 1) {
-		knh_class_t cid = knh_Object_cid(sfp[1].o);
-		if(cid != DP(mtdf)->cid) {
-			mtdf = knh_lookupFormatter(ctx, cid, DP(mtdf)->mn);
-		}
-		KNH_SETv(ctx, sfp[2].o, cwb->w);
-		KNH_SCALL(ctx, sfp, -2, mtdf, 1);
-	}
-	else {
-		TODO();
-	}
-	RETURN_(knh_cwb_newString(ctx, cwb));
-}
-
-/* ------------------------------------------------------------------------ */
-//## @Const @Hidden method String Method.format:FINAL(Object v, ...);
-
-static METHOD Method_format__FINAL(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-	long ac = knh_stack_argc(ctx, sfp+1);
-	knh_Method_t *mtdf = sfp[0].mtdOBJ;
-	if(ac == 1) {
-		KNH_SETv(ctx, sfp[2].o, cwb->w);
-		KNH_SCALL(ctx, sfp, -2, mtdf, 1);
-	}
-	else {
-		DBG_P("ac=%ld", ac);
-		TODO();
-	}
-	RETURN_(knh_cwb_newString(ctx, cwb));
-}
+///* ------------------------------------------------------------------------ */
+////## @Const @Hidden method String Method.format(Any v, ...);
+//
+//static METHOD Method_format(Ctx *ctx, knh_sfp_t *sfp, long rix)
+//{
+//	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
+//	long ac = knh_stack_argc(ctx, sfp+1);
+//	knh_Method_t *mtdf = sfp[0].mtdOBJ;
+//	if(ac == 1) {
+//		knh_class_t cid = knh_Object_cid(sfp[1].o);
+//		if(cid != DP(mtdf)->cid) {
+//			mtdf = knh_lookupFormatter(ctx, cid, DP(mtdf)->mn);
+//		}
+//		KNH_SETv(ctx, sfp[2].o, cwb->w);
+//		KNH_SCALL(ctx, sfp, -2, mtdf, 1);
+//	}
+//	else {
+//		TODO();
+//	}
+//	RETURN_(knh_cwb_newString(ctx, cwb));
+//}
+//
+///* ------------------------------------------------------------------------ */
+////## @Const @Hidden method String Method.format:FINAL(Object v, ...);
+//
+//static METHOD Method_format__FINAL(Ctx *ctx, knh_sfp_t *sfp, long rix)
+//{
+//	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
+//	long ac = knh_stack_argc(ctx, sfp+1);
+//	knh_Method_t *mtdf = sfp[0].mtdOBJ;
+//	if(ac == 1) {
+//		KNH_SETv(ctx, sfp[2].o, cwb->w);
+//		KNH_SCALL(ctx, sfp, -2, mtdf, 1);
+//	}
+//	else {
+//		DBG_P("ac=%ld", ac);
+//		TODO();
+//	}
+//	RETURN_(knh_cwb_newString(ctx, cwb));
+//}
 
 ///* ------------------------------------------------------------------------ */
 ////## @Const method void Method.setTrace(Int trace);

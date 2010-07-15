@@ -11539,7 +11539,7 @@ else
 
           as_fn_error "
               Cannot compile without sqlite3.h .
-              Pleate install \"sqlite3\" & \"sqlite3-dev\" or \"sqlite3-devel\" packages.
+              Please install \"sqlite3\" & \"sqlite3-dev\" or \"sqlite3-devel\" packages.
               " "$LINENO" 5
 
 fi
@@ -11591,7 +11591,7 @@ _ACEOF
 else
   as_fn_error "
               Cannot compile without sqlite3.h .
-              Pleate install \"sqlite3\" & \"sqlite3-dev\" or \"sqlite3-devel\" packages.
+              Please install \"sqlite3\" & \"sqlite3-dev\" or \"sqlite3-devel\" packages.
               " "$LINENO" 5
 
 fi

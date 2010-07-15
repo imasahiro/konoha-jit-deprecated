@@ -1750,6 +1750,28 @@ static void knh_StmtLET_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfp
 	}
 }
 
+static void knh_StmtW_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
+{
+//	size_t i, thisidx = sfpidx + K_CALLDELTA + DP(stmt)->wstart - 2;
+//	for(i = 2; i < DP(stmt)->wstart; i++) {
+//		TERMs_asm(ctx, stmt, 2, TYPE_Any, sfpidx + i - 1);
+//	}
+//	DBG_P("@@@@@@@ sfpidx=%d, wstart=%d, thisidx=%d", sfpidx, DP(stmt)->wstart, thisidx);
+//	if(TT_(DP(stmt)->terms[1]) == TT_ASIS) {
+//		KNH_ASM(TR, thisidx, thisidx, CLASS_OutputStream, _CWB);
+//		KNH_SETv(ctx, DP(stmt)->terms[1], knh_Token_toTYPED(ctx, tk, TT_LOCAL, TYPE_OutputStream, thisidx));
+//	}
+//	else {
+//		TERMs_asm(ctx, stmt, 2, TYPE_OutputStream, thisidx);
+//	}
+//	for(i = DP(stmt)->wstart; i < DP(stmt)->size; i++) {
+//		knh_Token_t *tk = DP(stmt)->tokens[i];
+//		if(TT_(tk) == TT_MT) {
+//			knh_Method_t *mtd = knh_lookupFormatter(ctx, )
+//		}
+//	}
+}
+
 /* ------------------------------------------------------------------------ */
 
 #define CASE_ASM(XX, ...) case STT_##XX : { \
@@ -1772,7 +1794,9 @@ static void knh_StmtEXPR_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sf
 	CASE_ASM(OR, reqt, sfpidx);
 	CASE_ASM(ALT, reqt, sfpidx);
 	CASE_ASM(TRI, reqt, sfpidx);
-	default: DBG_P("unknown stt=%s", TT_tochar(STT_(stmt)));
+	CASE_ASM(W, reqt, sfpidx);
+	default:
+		DBG_P("unknown stt=%s", TT_tochar(STT_(stmt)));
 	}
 	KNH_ASM_BOX(ctx, reqt, SP(stmt)->type, sfpidx);
 	if(sfpidx == K_RTNIDX) {
@@ -1791,7 +1815,9 @@ static void TERMs_asm(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_type_t reqt, int
 	}
 	if(IS_Token(DP(stmt)->tokens[n])) {
 		knh_Token_t *tk = DP(stmt)->tokens[n];
-		knh_Token_toTYPED(ctx, tk, TT_LOCAL, reqt, local);
+		if(TT_(tk) != TT_LOCAL) {
+			knh_Token_toTYPED(ctx, tk, TT_LOCAL, reqt, local);
+		}
 	}
 	else {
 		knh_Token_t *tk = new_TokenTYPED(ctx, TT_LOCAL, reqt, local);
