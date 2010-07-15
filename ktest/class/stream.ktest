@@ -1,0 +1,51 @@
+###
+>>> InputStream in = new InputStream("case.ktest","r");
+'case.ktest'
+
+###
+>>> in.readLine();
+"// this is a test code"
+
+###
+>>> in.getChar();
+47
+
+###
+>>> in.readLine();
+"// this is a test code"
+>>> in.close();
+>>> in.readLine();
+""
+
+###	
+>>> InputStream in = new InputStream("case.ktest","r");
+'case.ktest'
+>>> in 
+'case.ktest'
+>>> in.close();
+>>> in
+'case.ktest'
+
+###
+>>> OutputStream out = new OutputStream("temp.txt","w");
+'temp.txt'
+>>> out
+'temp.txt'
+
+###
+>>> out << "Hello World";
+>>> in = new InputStream("temp.txt","r");
+'temp.txt'
+>>> in.readLine();
+""
+
+###
+>>> out.isClosed();
+false
+>>> out.close();
+>>> out
+'temp.txt'
+>>> out.isClosed();
+true
+
+
