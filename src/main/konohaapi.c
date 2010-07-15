@@ -784,10 +784,12 @@ static knh_bool_t test_readstmt(Ctx *ctx, void *status, knh_cwb_t *cwb, const kn
 		kt->lineno += 1;  // added by kimio
 		if (IS_D(line, '/')) continue;
 		if (line[0] == '/' && line[1] == '*') {
+			fprintf(stderr, "hi:%s\n", line);
 			isInComment = 1;
 			continue;
 		}
 		if (isInComment) {
+			fprintf(stderr, "skipping:%s\n", line);
 			if (strnstr(line, "*/", KTEST_LINE_MAX) != NULL) {
 				isInComment = 0;
 			}
@@ -902,7 +904,7 @@ static void test_display(Ctx *ctx, void *status, const char* result, const knh_S
 		if (strncmp((char*)charResult, result, len) == 0) {
 			ks->isPassed = 1;
 			kt->sumOfPassed++;
-	//		fprintf(kt->out, "[PASSED] %s\n", ku->testTitle.text);
+			fprintf(kt->out, "[PASSED] %s\n", ku->testTitle.text);
 		} else {
 			ks->isPassed = 0;
 			kt->sumOfFailed++;
