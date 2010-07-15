@@ -829,6 +829,7 @@ static knh_bool_t test_readstmt(Ctx *ctx, void *status, knh_cwb_t *cwb, const kn
 				ku->current->isPassed = 1;
 				return 1;
 			} else {
+				if (ku == NULL) continue; // invalid test statement
 				isTestStarted = 1;
 				if (ku->stmtsize == 0) {
 					ku->stmtsize++;
