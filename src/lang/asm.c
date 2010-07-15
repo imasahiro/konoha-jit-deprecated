@@ -4,7 +4,6 @@
  * Copyright (c) 2006-2010, Kimio Kuramitsu <kimio at ynu.ac.jp>
  *           (c) 2008-      Konoha Team konohaken@googlegroups.com
  * All rights reserved.
- *
  * You may choose one of the following two licenses when you use konoha.
  * See www.konohaware.org/license.html for further information.
  *
@@ -48,6 +47,8 @@ extern "C" {
 static void TERMs_asm(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_type_t reqt, int local);
 static void knh_Stmt_asmBLOCK(Ctx *ctx, knh_Stmt_t *stmtH, knh_type_t reqt);
 #define knh_GammaLabel(ctx, n)   (knh_BasicBlock_t*)knh_Array_n(DP(ctx->gma)->lstacks, n)
+
+#define HAS_OPCODE(C)     ctx->share->jitSPI->isOPCODE(OPCODE_##C)
 
 static knh_BasicBlock_t* new_BasicBlockLABEL(Ctx *ctx)
 {
@@ -129,13 +130,13 @@ static void knh_Gamma_asm(Ctx *ctx, knh_opline_t *op)
 {
 	knh_BasicBlock_t *bb = DP(ctx->gma)->bbNC;
 	DBG_ASSERT(op->opcode != OPCODE_JMPF);
-	if(op->opcode == OPCODE_iADDn) {
+	if(op->opcode == OPCODE_iADDn && HAS_OPCODE(iINC)) {
 		klr_iADDn_t *opN = (klr_iADDn_t*)op;
 		if(opN->a == opN->c && opN->n == 1) {
 			op->opcode = OPCODE_iINC;
 		}
 	}
-	if(op->opcode == OPCODE_iSUBn) {
+	if(op->opcode == OPCODE_iSUBn && HAS_OPCODE(iDEC)) {
 		klr_iSUBn_t *opN = (klr_iSUBn_t*)op;
 		if(opN->a == opN->c && opN->n == 1) {
 			op->opcode = OPCODE_iDEC;
@@ -153,14 +154,14 @@ static void knh_Gamma_asm(Ctx *ctx, knh_opline_t *op)
 		}
 		L_SUPER_INSTRUCTION:;
 		if(op->opcode == OPCODE_NMOV) {
-			if(opP->opcode == OPCODE_NMOV) {
+			if(opP->opcode == OPCODE_NMOV && HAS_OPCODE(NNMOV)) {
 				klr_NNMOV_t *opMOV = (klr_NNMOV_t*)opP;
 				opMOV->c = ((klr_NMOV_t*)op)->a;
 				opMOV->d = ((klr_NMOV_t*)op)->b;
 				opP->opcode = OPCODE_NNMOV;
 				return;
 			}
-			if(opP->opcode == OPCODE_OMOV) {
+			if(opP->opcode == OPCODE_OMOV && HAS_OPCODE(ONMOV)) {
 				klr_ONMOV_t *opMOV = (klr_ONMOV_t *)opP;
 				opMOV->c = ((klr_NMOV_t*)op)->a;
 				opMOV->d = ((klr_NMOV_t*)op)->b;
@@ -169,14 +170,14 @@ static void knh_Gamma_asm(Ctx *ctx, knh_opline_t *op)
 			}
 		}
 		if(op->opcode == OPCODE_OMOV) {
-			if(opP->opcode == OPCODE_OMOV) {
+			if(opP->opcode == OPCODE_OMOV && HAS_OPCODE(OOMOV)) {
 				klr_OOMOV_t *opMOV = (klr_OOMOV_t*)opP;
 				opMOV->c = ((klr_OMOV_t*)op)->a;
 				opMOV->d = ((klr_OMOV_t*)op)->b;
 				opP->opcode = OPCODE_OOMOV;
 				return;
 			}
-			if(opP->opcode == OPCODE_OMOV) {
+			if(opP->opcode == OPCODE_OMOV && HAS_OPCODE(ONMOV)) {
 				klr_ONMOV_t *opMOV = (klr_ONMOV_t *)opP;
 				opMOV->c = opMOV->a;
 				opMOV->d = opMOV->b;
@@ -205,7 +206,7 @@ static int knh_Gamma_asmJMPF(Ctx *ctx, klr_JMPF_t *op)
 			DP(bb)->size -= 1;
 			continue;
 		}
-		if(OPCODE_iEQ <= opP->opcode && opP->opcode <= OPCODE_iGTE) {
+		if(OPCODE_iEQ <= opP->opcode && opP->opcode <= OPCODE_iGTE && HAS_OPCODE(iJEQ)) {
 			klr_iJEQ_t *opN = (klr_iJEQ_t*)opP;
 			knh_sfpidx_t a = ((klr_iEQ_t*)opP)->a;
 			knh_sfpidx_t b = ((klr_iEQ_t*)opP)->b;
@@ -214,7 +215,7 @@ static int knh_Gamma_asmJMPF(Ctx *ctx, klr_JMPF_t *op)
 			opP->opcode = OPCODE_iJEQ + ((opP)->opcode - OPCODE_iEQ);
 			return swap;
 		}
-		if(OPCODE_iEQn <= opP->opcode && opP->opcode <= OPCODE_iGTEn) {
+		if(OPCODE_iEQn <= opP->opcode && opP->opcode <= OPCODE_iGTEn && HAS_OPCODE(iJEQn)) {
 			klr_iJEQn_t *opN = (klr_iJEQn_t*)opP;
 			knh_sfpidx_t a = ((klr_iEQn_t*)opP)->a;
 			knh_int_t n = ((klr_iEQn_t*)opP)->n;
@@ -223,7 +224,7 @@ static int knh_Gamma_asmJMPF(Ctx *ctx, klr_JMPF_t *op)
 			opP->opcode = OPCODE_iJEQn + ((opP)->opcode - OPCODE_iEQn);
 			return swap;
 		}
-		if(OPCODE_fEQ <= opP->opcode && opP->opcode <= OPCODE_fGTE) {
+		if(OPCODE_fEQ <= opP->opcode && opP->opcode <= OPCODE_fGTE && HAS_OPCODE(fJEQ)) {
 			klr_fJEQ_t *opN = (klr_fJEQ_t*)opP;
 			knh_sfpidx_t a = ((klr_fEQ_t*)opP)->a;
 			knh_sfpidx_t b = ((klr_fEQ_t*)opP)->b;
@@ -232,7 +233,7 @@ static int knh_Gamma_asmJMPF(Ctx *ctx, klr_JMPF_t *op)
 			opP->opcode = OPCODE_fJEQ + ((opP)->opcode - OPCODE_fEQ);
 			return swap;
 		}
-		if(OPCODE_fEQn <= opP->opcode && opP->opcode <= OPCODE_fGTEn) {
+		if(OPCODE_fEQn <= opP->opcode && opP->opcode <= OPCODE_fGTEn && HAS_OPCODE(fJEQn)) {
 			klr_fJEQn_t *opN = (klr_fJEQn_t*)opP;
 			knh_sfpidx_t a = ((klr_fEQn_t*)opP)->a;
 			knh_float_t n = ((klr_fEQn_t*)opP)->n;
@@ -597,7 +598,6 @@ static knh_BasicBlock_t* KNH_ASM_JMPF(Ctx *ctx, int sfpidx, knh_BasicBlock_t *lb
 	knh_BasicBlock_t *lbNEXT = new_BasicBlockLABEL(ctx);
 	klr_JMPF_t op = {TADDR, OPCODE_JMPF, ASMLINE, NULL, sfpidx};
 	if(knh_Gamma_asmJMPF(ctx, &op)) {
-		DBG_P("*******swap********");
 		bb->jumpNC = lbNEXT;
 		bb->nextNC = lbJUMP;
 	}
@@ -664,6 +664,23 @@ static KLRAPI(void) _BOX(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t c
 	Object *v = new_Object_boxing(ctx, cid, sfp);
 	klr_mov(ctx, sfp[c].o, v);
 }
+static KLRAPI(void) _CWB(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid)
+{
+	size_t pos = BA_size(ctx->bufa);
+	klr_mov(ctx, sfp[c].o, ctx->bufw);
+	sfp[c].ivalue = pos;
+	DBG_P("sfpidx=%d, pos=%zd", (sfp + c) - ctx->stack, pos);
+}
+static KLRAPI(void) _TOSTR(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid)
+{
+	DBG_ASSERT(IS_OutputStream(sfp[0].w));
+	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
+	cwb->pos = (size_t)(sfp[0].ivalue); // reset
+	DBG_P("sfpidx=%d, pos=%zd", (sfp) - ctx->stack, cwb->pos);
+	knh_String_t *s = knh_cwb_newString(ctx, cwb);
+	klr_mov(ctx, sfp[c].o, s);
+}
+
 static KLRAPI(void) _ERR(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid)
 {
 	if(IS_bString(sfp[0].o)) {
@@ -2506,7 +2523,7 @@ typedef struct knh_funcname_t {
 
 static struct knh_funcname_t _FuncData[] = {
 	_FUNC(_PRINT, "PRINT"), _FUNC(_BOX, "BOX"), _FUNC(_NEW, "NEW"),
-	_FUNC(_NULVAL, "NULL"), _FUNC(_SYS, "SYS"),
+	_FUNC(_NULVAL, "NULL"), _FUNC(_SYS, "SYS"), _FUNC(_CWB, "CWB"), _FUNC(_TOSTR, "TOSTR"),
 	_FUNC(klr_setMethod, "setMethod"), _FUNC(klr_lookupMethod, "lookupMethod"),
 	_FUNC(_PROP, "PROP"), _FUNC(_bBOX, "bBOX"), _FUNC(_VARGS, "VARGS"),
 	_FUNC(_ERR, "ERR"), _FUNC(_CHKTYPE, "CHKTYPE"),

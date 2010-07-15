@@ -839,7 +839,7 @@ static int knh_Class_compareTo(Ctx *ctx, knh_Object_t *o, knh_Object_t *o2)
 static FASTAPI(void*) knh_Class_hashkey(Ctx *ctx,knh_sfp_t *sfp, int opt)
 {
 	knh_Class_t *c = (knh_Class_t*)sfp[0].o;
-	knh_intptr_t cid = c->cid;
+	knh_class_t cid = c->cid;
 	if(opt == KNH_FOBJECT_KEY) {
 		DBG_ASSERT_cid(cid);
 		return (void*)(ClassTBL(cid).lname);

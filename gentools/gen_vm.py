@@ -80,7 +80,6 @@ CATCH   addr:addr en:sfpidx msg:String
 #POP    sfpidx
 
 bNOT  c:sfpidx a:sfpidx
-
 iINC   a:sfpidx  @3
 iDEC   a:sfpidx  @3
 

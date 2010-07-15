@@ -752,7 +752,7 @@ static void add_kt_stmt_body(Ctx *ctx, kt_stmt_t* ks, char *body)
 	ks->testBody.len += len;
 }
 
-static void add_kt_stmt_result(Ctx *ctx, kt_stmt_t *ks, char *result)
+static void add_kt_stmt_result(Ctx *ctx, kt_stmt_t *ks, const char *result)
 {
 	size_t len = knh_strlen(result);
 	DBG_ASSERT(len > 0);
@@ -902,7 +902,7 @@ static void test_cleanup(Ctx *ctx, void *status)
 	if (kt->unitsize != 0)  {  // removed goto, by kimio
 		kt_unit_t *ku = kt->uhead, *clean_ku;
 		kt_stmt_t *ks = ku->shead, *clean_ks;
-		int i, j;
+		size_t i, j;
 		/* traverse test result, and sum up */
 		size_t unit_passed = 0, isAllPassed = 1, line = 0;
 		for (i = 1; i <= kt->unitsize; i++) {

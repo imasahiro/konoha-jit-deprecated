@@ -232,8 +232,7 @@ static knh_Object_t *new_UnusedObject(Ctx *ctx)
 	ctxshare->ArenaSetSize += 1;
 	OLD_UNLOCK(ctx, LOCK_MEMORY, NULL);
 	{
-		long cnt = 0;
-		int c = 0;
+		size_t c = 0, cnt = 0;
 		knh_ArenaSet_t *t = ctxshare->ArenaSet + pageindex;
 		knh_OArena_t *oslot = (knh_OArena_t*)KNH_VALLOC(ctx, K_ARENASIZE);
 		knh_bzero(oslot, K_ARENASIZE);
@@ -529,16 +528,16 @@ static void GC_DBG(Ctx *ctx, knh_Object_t *o, const char *msg) {
 static void knh_Object_mark1(Ctx *ctx, Object *o)
 {
 	if(IS_Context(o)) {
-		TODO();
+		KNH_SYSLOG(ctx, LOG_DEBUG, "GC", "*marking Context ctxid=%d", (int)ctx->ctxid);
 		knh_Context_traverse(ctx, (knh_Context_t*)o, knh_Object_mark1);
 	}
 	else {
 		DBG_ASSERT(o->h.magic == K_OBJECT_MAGIC);
 		DBG_ASSERT(!knh_isFastMallocMemory((void*)o));
 		knh_uintptr_t *b = (knh_uintptr_t*)knh_Object_getArena(o);
-		int n = (o - (Object*)b);
+		size_t n = (o - (Object*)b);
 		b = b + BSHIFT;
-		DBG_ASSERT(n < K_PAGESIZE / sizeof(knh_Object_t));
+		DBG_ASSERT(n < (K_PAGESIZE / sizeof(knh_Object_t)));
 		if(!(bit_test(b, n))) {
 			bit_set(b, n);
 			GC_DBG(ctx, o,"marking");

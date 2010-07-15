@@ -329,6 +329,22 @@ typedef KLRAPI(knh_Method_t*) (*klr_Fmethod)(Ctx *, knh_sfp_t *, int, knh_Method
 		klr_ncall(ctx, (mtd_)->fcall_1, sfp + thisidx_, K_RTNIDX); \
 	} \
 
+#define KLR3_FASTCALL(ctx, fcall, c, a) { \
+		fcall(ctx, sfp + a, c - a);\
+	} \
+
+#define KLR3_FASTCALLn(ctx, fcall, c, a, espshift, data) { \
+		klr_setesp(ctx, sfp + espshift);\
+		sfp[espshift-1].data = data;\
+		fcall(ctx, sfp + a, c - a);\
+	} \
+
+#define KLR3_FASTCALLo(ctx, fcall, c, a, espshift, obj) { \
+		klr_setesp(ctx, sfp + espshift);\
+		klr_mov(ctx, sfp[espshift-1].o, obj);\
+		fcall(ctx, sfp + a, c - a);\
+	} \
+
 #define KLR2_VCALL(ctx, rtnidx, espshift, mtdO) { \
 		knh_Method_t *mtd_ = mtdO;\
 		knh_intptr_t thisidx_ = rtnidx + K_CALLDELTA;\

@@ -809,6 +809,17 @@ static knh_bool_t knh_Bytes_isTupleQuote(knh_Bytes_t *ba, int quote)
 	return 0;
 }
 
+static void knh_Bytes_addEscapeSequence(Ctx *ctx, knh_Bytes_t *ba, knh_InputStream_t *in)
+{
+	int ch = knh_InputStream_getc(ctx, in);
+	if(ch == 'n') {
+		ch = '\n';
+	}else if(ch == 't') {
+		ch = '\t';
+	}
+	knh_Bytes_putc(ctx, ba, ch);
+}
+
 static void knh_Bytes_addQUOTE(Ctx *ctx, knh_Bytes_t *ba, knh_InputStream_t *in, int quote, int isRAW, int isTQUOTE)
 {
 	if(isRAW == 1) {
@@ -837,12 +848,8 @@ static void knh_Bytes_addQUOTE(Ctx *ctx, knh_Bytes_t *ba, knh_InputStream_t *in,
 				}
 			}
 			else if(ch == '\\') {
-				ch = knh_InputStream_getc(ctx, in);
-				if(ch == 'n') {
-					ch = '\n';
-				}else if(ch == 't') {
-					ch = '\t';
-				}
+				knh_Bytes_addEscapeSequence(ctx, ba, in);
+				continue;
 			}
 			knh_Bytes_putc(ctx, ba, ch);
 		}
@@ -876,7 +883,12 @@ static int knh_Token_addQUOTE(Ctx *ctx, knh_Token_t *tk, knh_cwb_t *cwb, knh_Inp
 		}
 	}
 	if(ch != quote) {
-		knh_Bytes_putc(ctx, cwb->ba, ch);
+		if(ch == '\\' && !isRAW) {
+			knh_Bytes_addEscapeSequence(ctx, cwb->ba, in);
+		}
+		else {
+			knh_Bytes_putc(ctx, cwb->ba, ch);
+		}
 		knh_Bytes_addQUOTE(ctx, cwb->ba, in, quote, isRAW, 0/*isTQUOTE*/);
 		ch = knh_InputStream_getc(ctx, in);
 		knh_Token_addBuf(ctx, tk, cwb, TT_ch(quote), ch);

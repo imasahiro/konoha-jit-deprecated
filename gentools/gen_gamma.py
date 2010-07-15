@@ -217,10 +217,10 @@ URN -
 NAME - 
 UNAME - 
 FUNCNAME - 
-FMT - 
 TYPE  - 
 MN - 
 CID - 
+FMT - 
 
 #Typed Token
 CONST -                 
