@@ -1,0 +1,594 @@
+/**
+ * test of konoha.String
+ * [literal, variables, operator, method]
+ */
+
+//*============================================*/
+// literal
+
+### string literal
+>>> "string"
+"string"
+>>> ""
+""
+>>> ''
+""
+>>> ``
+""
+>>> """ """
+" "
+>>> ''' '''
+" "
+>>> ``` ```
+" "
+>>> "''"
+"''"
+>>> '""'
+"\"\""
+>>> typeof("'") == String;
+true
+>>> typeof('"') == Int;
+true
+>>> typeof('a') == Int;
+true
+
+//*============================================*/
+// variables
+
+### string variables
+>>> String s0;
+>>> s0;
+""
+>>> String s1 = "konoha";
+>>> s1;
+"konoha"
+>>> s1 = "naruto";
+>>> s1;
+"naruto"
+>>> s2 = "konoha";
+>>> s2;
+"konoha"
+>>> String
+konoha.String
+
+//*============================================*/
+// operator
+
+// init samples
+>>> String emp;
+>>> String sml = "sss";
+>>> String str = "konoha";
+>>> String mid = "m"; for(int i=0;i< 8;i++) { mid += mid; }
+>>> String lng = "l"; for(int i=0;i<12;i++) { lng += lng; }
+>>> String m_sml = "ｓ";
+>>> String m_str = "ｋｏｎｏｈａ";
+
+
+### string size operator
+>>> |sml|;
+3
+>>> |str|;
+6
+>>> |mid|;
+256
+>>> |lng|;
+4096
+>>> |emp|;
+0
+>>> |sml + sml| == (|sml| + |sml|);
+true
+
+### string size operator : multi
+>>> |m_sml|;
+1
+>>> |m_str|;
+6
+
+
+### string get operator
+>>> str[0];
+"k"
+>>> lng[4092];
+"l"
+
+### string get operator : multi
+>>> m_sml[0];
+"ｓ"
+>>> m_str[3];
+"ｏ"
+
+
+### string + operator
+>>> str + str;
+"konohakonoha"
+>>> str + 7;
+"konoha7"
+>>> str + 7.0;
+"konoha7.000000"
+>>> str + true;
+"konohatrue"
+>>> emp + 7;
+"7"
+>>> emp + 7 + true + 1.23;
+"7true1.230000"
+>>> emp + emp;
+""
+>>> emp + sml;
+"sss"
+>>> emp + str;
+"konoha"
+>>> |emp + mid|;
+256
+>>> |emp + lng|;
+4096
+>>> sml + sml;
+"ssssss"
+>>> sml + str;
+"ssskonoha"
+>>> |sml + mid|;
+259
+>>> |sml + lng|;
+4099
+>>> |str + mid|;
+262
+>>> |str + lng|;
+4102
+>>> |mid + lng|;
+4352
+>>> |lng + lng|;
+8192
+
+### string + operator : multi
+>>> m_str + "ｔｅｓｔ";
+"ｋｏｎｏｈａｔｅｓｔ"
+>>> m_str + 7;
+"ｋｏｎｏｈａ7"
+>>> m_str + true;
+"ｋｏｎｏｈａtrue"
+>>> m_sml + sml;
+"ｓsss"
+>>> sml + m_sml;
+"sssｓ"
+>>> str + m_str;
+"konohaｋｏｎｏｈａ"
+>>> m_str + str;
+"ｋｏｎｏｈａkonoha"
+
+
+### string - operator
+>>> str - "o";
+"knha"
+>>> str - "z";
+"konoha"
+>>> str - emp;
+"konoha"
+>>> str - str;
+""
+>>> |lng - emp|;
+4096
+>>> lng - "l";
+""
+>>> lng - lng;
+""
+>>> emp - str;
+""
+>>> emp - emp - emp;
+""
+
+### string - operator : multi
+>>> m_str - "ｏ";
+"ｋｎｈａ"
+>>> m_str - str;
+"ｋｏｎｏｈａ"
+>>> m_str - emp;
+"ｋｏｎｏｈａ"
+>>> m_str - m_str;
+""
+>>> emp - m_str;
+""
+
+
+### string to operator
+>>> str[1 to 3];
+"ono"
+>>> str[to 3];
+"kono"
+>>> str[1 to];
+"onoha"
+>>> str[3 to 3];
+"o"
+>>> str[1 to -2];
+"onoh"
+>>> str[3 to -5];
+""
+>>> lng[4090 to 4095];
+"llllll"
+
+### string to operator : multi
+>>> m_str[1 to 3];
+"ｏｎｏ"
+>>> m_str[to 3];
+"ｋｏｎｏ"
+>>> m_str[1 to];
+"ｏｎｏｈａ"
+>>> m_str[3 to 3];
+"ｏ"
+>>> m_str[1 to -2];
+"ｏｎｏｈ"
+>>> m_str[3 to -5];
+""
+
+
+### string until operator
+>>> str[1 until 3];
+"on"
+>>> str[until 3];
+"kon"
+>>> str[1 until];
+"onoha"
+>>> str[3 until 3];
+""
+>>> str[1 until -2];
+"ono"
+>>> str[3 until -4];
+""
+>>> lng[4090 until 4095];
+"lllll"
+
+### string until operator : multi
+>>> m_str[1 until 3];
+"ｏｎ"
+>>> m_str[until 3];
+"ｋｏｎ"
+>>> m_str[1 until];
+"ｏｎｏｈａ"
+>>> m_str[3 until 3];
+""
+>>> m_str[1 until -2];
+"ｏｎｏ"
+>>> m_str[3 until -4];
+""
+
+
+### string comparator
+>>> "a" < "z";
+true
+>>> "0" < "9";
+true
+>>> "0" < "a";
+true
+>>> " " < "0";
+true
+>>> str < sml;
+true
+>>> lng < sml;
+true
+>>> sml == "sss";
+true
+>>> str == "konoha";
+true
+>>> emp == "";
+true
+>>> "a" != "A";
+true
+>>> emp != sml;
+true
+
+### string comparator : multi
+>>> "ａ" < "ｚ";
+true
+>>> "あ" < "お";
+true
+>>> "ａ" < "あ";
+false
+>>> sml < m_sml;
+true
+>>> str < m_str;
+true
+>>> m_sml == "ｓ";
+true
+>>> m_str == "ｋｏｎｏｈａ";
+true
+>>> "a" != "ａ";
+true
+>>> str != m_str;
+true
+
+//*============================================*/
+// method
+
+### String.getSize
+>>> str.getSize();
+6
+>>> emp.getSize();
+0
+
+### String.getSize : multi
+>>> m_str.getSize();
+6
+
+
+### String.get
+>>> str.get();
+"k"
+
+### String.get : multi
+>>> m_str.get();
+"ｋ"
+
+
+### String.concat
+>>> str.concat();
+"konoha"
+>>> emp.concat();
+""
+
+### String.concat : multi
+>>> m_str.concat();
+"ｋｏｎｏｈａ"
+
+
+### String.equals
+>>> str.equals();
+false
+>>> emp.equals();
+true
+
+### String.equals : multi
+>>> m_str.equals();
+false
+
+
+### String.subString
+>>> str.subString(2, 2);
+"no"
+>>> str.subString(2);
+"noha"
+>>> str.subString();
+"konoha"
+
+### String.subString : multi
+>>> m_str.subString(2, 2);
+"ｎｏ"
+>>> m_str.subString(2);
+"ｎｏｈａ"
+>>> m_str.subString();
+"ｋｏｎｏｈａ"
+
+
+### String.startsWith
+>>> str.startsWith("kon");
+true
+>>> str.startsWith("kno");
+false
+>>> str.startsWith(emp);
+true
+>>> str.startsWith();
+true
+>>> emp.startsWith();
+true
+
+### String.startsWith : multi
+>>> m_str.startsWith("ｋｏｎ");
+true
+>>> m_str.startsWith("ｋｎｏ");
+false
+>>> m_str.startsWith(emp);
+true
+>>> m_str.startsWith();
+true
+
+
+### String.endsWith
+>>> str.endsWith("oha");
+true
+>>> str.endsWith("hoa");
+false
+>>> str.endsWith(emp);
+true
+>>> str.endsWith();
+true
+>>> emp.endsWith();
+true
+
+### String.endsWith : multi
+>>> m_str.endsWith("ｏｈａ");
+true
+>>> m_str.endsWith("ｈｏａ");
+false
+>>> m_str.endsWith(emp);
+true
+>>> m_str.endsWith();
+true
+
+
+### String.trim
+>>> "   konoha   ".trim() == str;
+true
+>>> " ".trim() == emp;
+true
+
+### String.trim : multi
+>>> "　　ｋｏｎｏｈａ　　".trim() == m_str;
+false
+
+
+### String.isASCII
+>>> str.isASCII();
+true
+>>> emp.isASCII();
+false
+
+### String.isASCII : multi
+>>> m_str.isASCII();
+false
+
+
+### String.indexOf
+>>> str.indexOf("o");
+1
+>>> str.indexOf("z");
+-1
+
+>>> str.indexOf(emp);
+0
+>>> emp.indexOf(emp);
+0
+// >>> str.indexOf();
+// 0
+// >>> emp.indexOf();
+// 0
+
+### String.indexOf : multi
+>>> m_str.indexOf("ｏ");
+1
+>>> m_str.indexOf("ｚ");
+-1
+>>> m_str.indexOf(emp);
+0
+// >>> m_str.indexOf();
+// 0
+
+
+// ### String.lastIndexOf
+// >>> str.lastIndexOf("o");
+// 4
+// >>> str.lastIndexOf("z");
+// -1
+// >>> str.lastIndexOf(emp);
+// 6
+// >>> emp.lastIndexOf(emp);
+// 0
+// >>> str.lastIndexOf();
+// 6
+// >>> emp.lastIndexOf();
+// 0
+
+// ### String.lastIndexOf : multi
+// >>> m_str.lastIndexOf("ｏ");
+// 4
+// >>> m_str.lastIndexOf("ｚ");
+// -1
+// >>> m_str.lastIndexOf(emp);
+// 6
+// >>> m_str.lastIndexOf();
+// 6
+
+
+### String.replace
+>>> "a".replace("a", "b");
+"b"
+>>> "a".replace("", "b");
+"a"
+>>> str.replace("noh", "al");
+"koala"
+>>> str.replace("noh");
+"koa"
+>>> emp.replace("test");
+""
+>>> str.replace("", "test");
+"konoha"
+>>> emp.replace("", "test");
+""
+>>> str.replace();
+"konoha"
+>>> emp.replace();
+""
+
+### String.replace : multi
+>>> m_str.replace("ｎｏｈ", "ａｌ");
+"ｋｏａｌａ"
+>>> m_str.replace("ｎｏｈ");
+"ｋｏａ"
+>>> m_str.replace("", "ｔｅｓｔ");
+"ｋｏｎｏｈａ"
+>>> m_str.replace();
+"ｋｏｎｏｈａ"
+
+
+### String.split
+>>> "a".split("a");
+["", ""]
+>>> "a".split("");
+["a"]
+>>> str.split("o");
+["k", "n", "ha"]
+>>> str.split("z");
+["konoha"]
+>>> str.split(emp);
+["k", "o", "n", "o", "h", "a"]
+>>> str.split();
+["k", "o", "n", "o", "h", "a"]
+>>> emp.split();
+[""]
+
+### String.split : multi
+>>> m_str.split("ｏ");
+["ｋ", "ｎ", "ｈａ"]
+>>> m_str.split("ｚ");
+["ｋｏｎｏｈａ"]
+>>> m_str.split(emp);
+["ｋ", "ｏ", "ｎ", "ｏ", "ｈ", "ａ"]
+>>> m_str.split();
+["ｋ", "ｏ", "ｎ", "ｏ", "ｈ", "ａ"]
+
+
+//*============================================*/
+// converter
+
+### String.convert
+>>> str.convert();
+"konoha"
+>>> emp.convert();
+""
+
+### String.convert : multi
+>>> m_str.convert();
+"ｋｏｎｏｈａ"
+
+
+### string to:upper converter
+>>> "a".convert(to:upper);
+"A"
+>>> "A".convert(to:upper);
+"A"
+>>> "1".convert(to:upper);
+"1"
+>>> str.convert(to:upper);
+"KONOHA"
+>>> "this is KONOHA.".convert(to:upper);
+"THIS IS KONOHA."
+>>> emp.convert(to:upper);
+""
+
+### string to:upper converter : multi
+>>> "ａ".convert(to:upper);
+"Ａ"
+>>> "Ａ".convert(to:upper);
+"Ａ"
+>>> "あ".convert(to:upper);
+"あ"
+>>> m_str.convert(to:upper);
+"ＫＯＮＯＨＡ"
+
+
+### string to:lower converter
+>>> "a".convert(to:lower);
+"a"
+>>> "A".convert(to:lower);
+"a"
+>>> "1".convert(to:lower);
+"1"
+>>> "this is KONOHA.".convert(to:lower);
+"this is konoha."
+>>> emp.convert(to:lower);
+""
+
+### string to:lower converter : multi
+>>> "ａ".convert(to:lower);
+"ａ"
+>>> "Ａ".convert(to:lower);
+"ａ"
+>>> "あ".convert(to:lower);
+"あ"
+
