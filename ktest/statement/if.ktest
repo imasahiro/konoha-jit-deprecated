@@ -1,16 +1,13 @@
-// this is a test code
-// written by Takuma Wakamori
+// if test
 
-### test if
->>> boolean b = true;
-true
->>> if (true) b = false;
+### if branch
+>>> b = true;
+>>> if (b) b = false;
 >>> b
 false
 
-### test ifelse
->>> boolean b = false;
-false
+### if else branch
+>>> b = false;
 >>> if (b) {
 ... s = "true";
 ... } else {
@@ -18,22 +15,30 @@ false
 ... }
 >>> s
 "false"
-
-### test multiple branch
->>> boolean b = true;
-true
->>> boolean c = false;
-false
->>> string s = "";
-""
->>> if (b) {
-...   if (c) {
-...     s = "failed";
-...   } else {
-...     s = "OK";
-...   }
+>>> i = 40;
+>>> if (i < 0) {
+...   s = "i < 0";
+... } else if (i >= 0 && i < 50) {
+...   s = "0 <= i < 50";
+... } else if (i >= 50 && i < 100) {
+...   s = "50 <= i < 100";
 ... } else {
-...   s = "failed";
+...   s = "100 <= i";
 ... }
 >>> s
-"OK"
+"0 <= i < 50"
+
+### if nest branch
+>>> b0 = false;
+>>> b1 = true;
+>>> if (b1) {
+...   if (b0) {
+...     s = "false";
+...   } else {
+...     s = "true";
+...   }
+... } else {
+...   s = "false";
+... }
+>>> s
+"true"

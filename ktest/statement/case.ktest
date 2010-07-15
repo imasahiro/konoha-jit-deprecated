@@ -1,16 +1,107 @@
-// this is a test code
-// written by Takuma Wakamori
+// case test
 
-### test case
+### switch case char
 >>> char c = 'A';
-65
 >>> switch (c) {
 ... case 'A':
-...   s = "OK";
+...   res = "A";
 ...   break;
 ... default:
-... s = "failed";
+...   res = "not A";
+...   break;
+... }
+>>> res
+"A"
+
+### switch case byte
+>>> byte b = 3;
+>>> switch (b) {
+... case 3:
+...   res = "3";
+...   break;
+... default:
+...   res = "not 3";
+...   break;
+... }
+>>> res
+"3"
+
+### switch case short
+>>> short s = 10;
+>>> switch (s) {
+... case 10:
+...   res = "10";
+...   break;
+... default:
+...   res = "not 10";
+...   break;
+... }
+>>> res
+"10"
+
+### switch case int
+>>> int i = 1234;
+>>> switch (i) {
+... case 1234:
+...   res = "1234";
+...   break;
+... default:
+...   res = "not 1234";
+...   break;
+... }
+>>> res
+"1234"
+
+### switch case string
+>>> string s = "abc";
+>>> switch (s) {
+... case "abc":
+...   res = "abc";
+...   break;
+... default:
+...   res = "not abc";
+...   break;
+... }
+>>> res
+"abc"
+
+### switch multi case
+>>> c = 'A';
+>>> switch (c) {
+... case 'A':
+... case 'B':
+...   res = "A or B";
+...   break;
+... default:
+...   res = "not A or B";
+...   break;
+... }
+>>> res
+"A or B"
+>>> switch (c) {
+... case 'B':
+...   res = "B";
+...   break;
+... case 'A':
+... default:
+...   res = "not B";
+... }
+>>> res
+"not B"
+
+### switch nest
+>>> s = "ab";
+>>> switch (s[0]) {
+... case "a":
+...   switch (s[1]) {
+...   case "b":
+...     res = "ab";
+...   default:
+...     res = "not ab";
+...   }
+... default:
+...   res = "not ab";
 ... break;
 ... }
->>> s
-"OK"
+... res
+"ab"

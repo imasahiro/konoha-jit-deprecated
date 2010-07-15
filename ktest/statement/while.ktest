@@ -1,26 +1,45 @@
-// this is a test code
-// written by Takuma Wakamori
+// while test
 
-### test while
->>> int i = 5;
-5
->>> int ans = 0;
-0
+### while simple
+>>> i = 5;
 >>> while (i > 0) {
+...   i--;
+... }
+>>> i
+0
+
+### while break
+>>> i = 0;
+>>> while (true) {
+...   i++;
+...   if (i == 10) break;
+... }
+>>> i
+10
+
+### while do-while
+>>> i = 0;
+>>> do {
+...   i--;
+... } while (i > 0);
+>>> i
+-1
+
+### while nest
+>>> i = 10;
+>>> j = -10;
+>>> res = 0;
+>>> while (i > 0) {
+...   while (j < 0) {
+...     ans++;
+...     j++;
+...   }
 ...   ans++;
 ...   i--;
 ... }
->>> ans
-5
-
-### test do-while
->>> int i = 1;
-1
->>> int j = 0;
-0
->>> do {
-...   i = i + j;
-...   j++;
-... } while (j <= 10);
 >>> i
-55
+0
+>>> j
+0
+>>> ans
+20
