@@ -83,9 +83,26 @@ C{x: 2, y: 3.000000, z: "hello", x: 3, y: 5.000000, z: "world"}
 >>> c
 C{x: 2, y: 3.000000, z: "hello", x: 5, y: 7.000000, z: "hi"}
 
+/*
 ### Extends of not defined class
 >>> class C extends C {
 ... int x;
 ... }
  - [(shell):1]:(errata) unknown class: C ==> Object
 
+### Class definition with Method
+>>> class D {
+... void myPrint(String str) {
+... OUT << str << EOL;
+... }
+... }
+>>> D d = new D();
+D
+>>> d.myPrint("hello");
+hello
+*/
+
+### TEST
+>>> i = 3
+>>> i
+3
