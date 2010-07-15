@@ -788,7 +788,7 @@ static knh_bool_t test_readstmt(Ctx *ctx, void *status, knh_cwb_t *cwb, const kn
 			continue;
 		}
 		if (isInComment) {
-			if (strnstr(line, "*/", KTEST_LINE_MAX) != NULL) {
+			if (strstr(line, "*/") != NULL) {
 				isInComment = 0;
 			}
 			continue;
