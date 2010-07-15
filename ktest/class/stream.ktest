@@ -1,50 +1,40 @@
-###
->>> InputStream in = new InputStream("case.ktest","r");
-'case.ktest'
+### InputStream.new
+>>> InputStream in = new InputStream("stream.ktest","r");
+'stream.ktest'
 
-###
+### InputStream.readLine
 >>> in.readLine();
-"// this is a test code"
+"## InputStream.new"
 
-###
+### InputStream.getChar
 >>> in.getChar();
-47
+35
 
-###
->>> in.readLine();
-"// this is a test code"
+### InputStream.isClosed/close
+>>> in.isClosed();
+false
 >>> in.close();
->>> in.readLine();
-""
+>>> in.isClosed();
+true
 
-###	
->>> InputStream in = new InputStream("case.ktest","r");
-'case.ktest'
->>> in 
-'case.ktest'
->>> in.close();
->>> in
-'case.ktest'
 
-###
+### OutputStream.new
 >>> OutputStream out = new OutputStream("temp.txt","w");
 'temp.txt'
 >>> out
 'temp.txt'
 
-###
+### operator
 >>> out << "Hello World";
 >>> in = new InputStream("temp.txt","r");
 'temp.txt'
 >>> in.readLine();
-""
+"Hello World"
 
-###
+### OutputStream.isClosed/close
 >>> out.isClosed();
 false
 >>> out.close();
->>> out
-'temp.txt'
 >>> out.isClosed();
 true
 
