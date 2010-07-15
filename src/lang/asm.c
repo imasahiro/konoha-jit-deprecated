@@ -1752,24 +1752,67 @@ static void knh_StmtLET_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfp
 
 static void knh_StmtW_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 {
-//	size_t i, thisidx = sfpidx + K_CALLDELTA + DP(stmt)->wstart - 2;
-//	for(i = 2; i < DP(stmt)->wstart; i++) {
-//		TERMs_asm(ctx, stmt, 2, TYPE_Any, sfpidx + i - 1);
-//	}
-//	DBG_P("@@@@@@@ sfpidx=%d, wstart=%d, thisidx=%d", sfpidx, DP(stmt)->wstart, thisidx);
-//	if(TT_(DP(stmt)->terms[1]) == TT_ASIS) {
-//		KNH_ASM(TR, thisidx, thisidx, CLASS_OutputStream, _CWB);
-//		KNH_SETv(ctx, DP(stmt)->terms[1], knh_Token_toTYPED(ctx, tk, TT_LOCAL, TYPE_OutputStream, thisidx));
-//	}
-//	else {
-//		TERMs_asm(ctx, stmt, 2, TYPE_OutputStream, thisidx);
-//	}
-//	for(i = DP(stmt)->wstart; i < DP(stmt)->size; i++) {
-//		knh_Token_t *tk = DP(stmt)->tokens[i];
-//		if(TT_(tk) == TT_MT) {
-//			knh_Method_t *mtd = knh_lookupFormatter(ctx, )
-//		}
-//	}
+	int isCWB = 0;
+	size_t i, thisidx = sfpidx + K_CALLDELTA + DP(stmt)->wstart - 2;
+	for(i = 2; i < DP(stmt)->wstart; i++) {
+		TERMs_asm(ctx, stmt, 2, TYPE_Object, sfpidx + i - 1);
+	}
+	DBG_P("@@@@@@@ sfpidx=%d, wstart=%d, thisidx=%d", sfpidx, DP(stmt)->wstart, thisidx);
+	if(TT_(DP(stmt)->terms[1]) == TT_ASIS) {
+		KNH_ASM(TR, thisidx, thisidx, CLASS_OutputStream, _CWB);
+		KNH_SETv(ctx, DP(stmt)->terms[1], knh_Token_toTYPED(ctx, DP(stmt)->tokens[1], TT_LOCAL, TYPE_OutputStream, thisidx));
+		isCWB = 1;
+	}
+	else {
+		TERMs_asm(ctx, stmt, 1, TYPE_OutputStream, thisidx);
+	}
+	for(i = DP(stmt)->wstart; i < DP(stmt)->size; i++) {
+		knh_Token_t *tk = DP(stmt)->tokens[i];
+		knh_Method_t *mtd = NULL;
+		if(TT_(tk) == TT_MT) {
+			knh_Term_t *tm = (knh_Term_t*)DP(tk)->data;
+			DBG_ASSERT(IS_Stmt(tm) || IS_Token(tm));
+			mtd = knh_lookupFormatter(ctx, CLASS_type(tm->type), DP(tk)->mn);
+			KNH_SETv(ctx, DP(stmt)->terms[i], tm);
+			TERMs_asm(ctx, stmt, i, TYPE_Object, thisidx + 1);
+			KNH_ASM(SCALL, thisidx-K_CALLDELTA, ESP_((thisidx-K_CALLDELTA), 1), mtd);
+		}
+		else if(TT_(tk) == TT_CONST) {
+			KNH_ASM(OSET, thisidx + 1, DP(tk)->data);
+			if(IS_bString(DP(tk)->data)) {
+				knh_String_t *s = DP(tk)->text;
+				if(IS_Tstr(stmt->type) || knh_String_isASCII(s)) {
+					mtd = knh_getMethodNULL(ctx, CLASS_OutputStream, MN_write);
+				}
+				else {
+					mtd = knh_getMethodNULL(ctx, CLASS_OutputStream, MN_print);
+				}
+			}
+			else {
+				mtd = knh_lookupFormatter(ctx, knh_Object_cid(DP(tk)->data), MN__s);
+			}
+			KNH_ASM(SCALL, thisidx-K_CALLDELTA, ESP_((thisidx-K_CALLDELTA), 1), mtd);
+		}
+		else if(TT_(tk) == STT_W) {
+			knh_Stmt_t *stmtIN = (knh_Stmt_t*)tk;
+			DBG_ASSERT(stmtIN->type == TYPE_String);
+			knh_Token_toTYPED(ctx, DP(stmtIN)->tokens[1], TT_LOCAL, TYPE_OutputStream, thisidx);
+			knh_StmtW_asm(ctx, stmtIN, reqt, thisidx+1);
+		}
+		else {
+			TERMs_asm(ctx, stmt, i, TYPE_Object, thisidx + 1);
+			if(IS_Tstr(tk->type)) {
+				mtd = knh_getMethodNULL(ctx, CLASS_OutputStream, MN_print);
+			}
+			else {
+				mtd = knh_lookupFormatter(ctx, CLASS_type(tk->type), MN__s);
+			}
+			KNH_ASM(SCALL, thisidx-K_CALLDELTA, ESP_((thisidx-K_CALLDELTA), 1), mtd);
+		}
+	}
+	if(isCWB) {
+		KNH_ASM(TR, sfpidx, thisidx, CLASS_String, _TOSTR);
+	}
 }
 
 /* ------------------------------------------------------------------------ */
