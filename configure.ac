@@ -271,13 +271,13 @@ if test $use_sqlite3 = yes; then
   AC_CHECK_HEADER([sqlite3.h], [], [
           AC_MSG_ERROR([
               Cannot compile without sqlite3.h .
-              Pleate install "sqlite3" & "sqlite3-dev" or "sqlite3-devel" packages.
+              Please install "sqlite3" & "sqlite3-dev" or "sqlite3-devel" packages.
               ])
           ])
   AC_CHECK_LIB(sqlite3, sqlite3_open, [],
           [AC_MSG_ERROR([
               Cannot compile without sqlite3.h .
-              Pleate install "sqlite3" & "sqlite3-dev" or "sqlite3-devel" packages.
+              Please install "sqlite3" & "sqlite3-dev" or "sqlite3-devel" packages.
               ])
           ])
 fi

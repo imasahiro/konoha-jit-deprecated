@@ -1,0 +1,10 @@
+### Exception
+>>> {
+...     try {
+...         throw new IO!!();
+...     }
+...     catch(Exception e) {
+...         OUT << "hello" << EOL;
+...     }
+... }
+"hello"

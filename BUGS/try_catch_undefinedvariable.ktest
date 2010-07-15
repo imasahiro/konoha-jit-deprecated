@@ -1,0 +1,11 @@
+### undefined variable 
+>>> {
+...     try {
+...         throw new IO!!();
+...     }
+...     catch(IO!! e) {
+...         OUT << "hello" << EOL;
+...     }
+... }
+"hello"
+

@@ -1,0 +1,128 @@
+// try-catch-finally test
+
+### try-catch
+>>> int ans = 0;
+>>> try {
+...     throw new IO!!();
+... }
+... catch(IO!! e) {
+...     ans = 10;
+... }
+>>> ans
+10
+
+### try-catch-finally
+>>> int ans = 0;
+>>> try {
+...     throw new IO!!();
+... }
+... catch(Exception e) {
+...     ans = 10;
+... }
+... finally {
+...     ans += 10;
+... }
+>>> ans
+20
+
+### nested try-catch
+>>> int ans = 0;
+>>> try {
+...     throw new IO!!();
+...     try {
+...         throw new IO!!();
+...     }
+...     catch(Exception e) {
+...         ans = 20;
+...     }
+...     finally {
+...         ans += 20;
+...     }
+... }
+... catch(Exception e) {
+...     ans = 10;
+... }
+>>> ans
+40
+
+### nested try-catch2
+>>> int ans = 0;
+>>> try {
+...     throw new IO!!();
+...     try {
+...         throw new Exception();
+...     }
+...     catch(IO!! e) {
+...         ans = 20;
+...     }
+...     finally {
+...         ans += 20;
+...     }
+... }
+... catch(Exception e) {
+...     ans = 10;
+... }
+>>> ans
+10
+
+### nested try-catch3
+>>> int ans = 0;
+>>> void f() { throw new Exception(); }
+>>> try {
+...     f();
+...     try {
+...         throw new IO!!();
+...     }
+...     catch(IO!! e) {
+...         ans = 20;
+...     }
+...     finally {
+...         ans += 20;
+...     }
+... }
+... catch(Exception e) {
+...     ans = 10;
+... }
+>>> ans
+10
+
+### nested try-catch4
+>>> int ans = 0;
+>>> try {
+...     throw new IO!!();
+... }
+... catch(Exception e) {
+...     try {
+...         throw new Exception();
+...     }
+...     catch(Exception e) {
+...         ans = 20;
+...     }
+...     finally {
+...         ans += 20;
+...     }
+... }
+>>> ans
+40
+
+
+### nested try-catch5
+>>> int ans = 0;
+>>> try {
+...     throw new IO!!();
+... }
+... catch(Exception e) {
+... }
+... finally {
+...     try {
+...         throw new Exception();
+...     }
+...     catch(Exception e) {
+...         ans = 20;
+...     }
+...     finally {
+...         ans += 20;
+...     }
+... }
+>>> ans
+40
