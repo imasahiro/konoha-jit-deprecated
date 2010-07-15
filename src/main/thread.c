@@ -321,7 +321,7 @@ void knh_mutex_free(Ctx *ctx, knh_mutex_t *m)
 /* ======================================================================== */
 /* [TLS] */
 
-#ifndef CC_TLS
+#ifndef K_CC_TLS
 #if defined(K_USING_PTHREAD)
 static void destr(void *data)
 {

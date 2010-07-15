@@ -163,7 +163,7 @@
 #else
 #define 	KNHAPI(T__)      CC_EXPORT  T__ __cdecl
 #define     FASTAPI(T__)     T__
-#define 	KNHFASTAPI(T__)  CC_EXPORT T__ CC_FASTCALL
+#define 	KNHFASTAPI(T__)  CC_EXPORT T__ K_CC_FASTCALL
 #endif
 #define 	KNH_EXPORTS(T__)  CC_EXPORT T__ __cdecl
 
@@ -194,8 +194,8 @@
 
 #ifndef KNHAPI
 #define KNHAPI(T)         T
-#define FASTAPI(T)        T  CC_FASTCALL
-#define KNHFASTAPI(T)     T  CC_FASTCALL
+#define FASTAPI(T)        T  K_CC_FASTCALL
+#define KNHFASTAPI(T)     T  K_CC_FASTCALL
 #define KNH_EXPORTS(T)    T
 #endif
 
@@ -207,7 +207,7 @@
 #define KONOHA_FOLDER ".konoha"
 #endif
 
-#ifdef CC_LABELPTR
+#ifdef K_CC_LABELPTR
 #define K_USING_THREADEDCODE 1
 #else
 #undef K_USING_THREADEDCODE

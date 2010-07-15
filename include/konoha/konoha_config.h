@@ -143,18 +143,18 @@
 	#if defined(__i386__) || (defined(__x86_64__) && !defined(__amd64__))
 		#undef fastcall
 		#define fastcall __attribute__((fastcall))
-		#define CC_FASTCALL   fastcall
+		#define K_CC_FASTCALL   fastcall
 		#define likely(x)       __builtin_expect(!!(x), 1)
 		#define unlikely(x)     __builtin_expect(!!(x), 0)
 	#else
-		#define CC_FASTCALL   /* __attribute__((fastcall)) */
+		#define K_CC_FASTCALL   /* __attribute__((fastcall)) */
 	#endif
-	#define CC_LABELPTR   1
+	#define K_CC_LABELPTR   1
 	#ifndef KONOHA_OS
 		#ifdef __linux__
 			#define KONOHA_OS  "linux"
 			#define KONOHA_ON_LINUX       1
-			#define CC_TLS  __thread
+			#define K_CC_TLS  __thread
 		#endif
 		#ifdef __APPLE__
 			#define KONOHA_OS  "macosx"
@@ -215,7 +215,7 @@
 
 #ifdef _MSC_VER
 //#define K_USING_DEBUG
-#define CC_FASTCALL  /* __fastcall */
+#define K_CC_FASTCALL  /* __fastcall */
 #if _MSC_VER == 1500
 	#define K_CC "Microsoft Visual C++ 9.0 (1500)"
 #else
@@ -225,7 +225,7 @@
 		#define KONOHA_OS  "windows"
 		#define KONOHA_ON_WINDOWS
 	#endif
-#define CC_TLS   __declspec( thread )
+#define K_CC_TLS   __declspec( thread )
 #define _CRT_SECURE_NO_WARNINGS
 #endif  /* _MSC_VER */
 
