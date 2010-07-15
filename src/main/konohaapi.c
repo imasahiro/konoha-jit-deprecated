@@ -642,7 +642,7 @@ KNHAPI(void) konoha_shell(konoha_t konoha, char *optstr)
 // the following is added by nakata 
 // modified by kimio
 
-#define KTEST_LINE_MAX 1024
+#define KTEST_LINE_MAX 512
 #define IS_D(L, ch) (L[0] == ch && L[1] == ch)
 #define IS_T(L, ch) (L[0] == ch && L[1] == ch && L[2] == ch && L[3] == ' ')
 
@@ -668,6 +668,7 @@ typedef struct _kt_status_t {
 	size_t unitsize;
 	kt_unit_t *uhead;
 	kt_unit_t *current;
+	knh_int_t isForwarded;
 	size_t     lineno;
 	size_t     sumOfPassed;
 	size_t     sumOfFailed;
@@ -724,14 +725,15 @@ static void* test_init(Ctx *ctx, const char *msg, const char *filename)
 		size_t len = knh_strlen(filename);
 		kt_status_t *kt = (kt_status_t*)KNH_MALLOC(ctx, sizeof(kt_status_t));
 		kt->in = fp;
+		kt->out = stdout;
 		kt->filename.ubuf = (knh_uchar_t *)KNH_MALLOC(ctx, len+1);
 		knh_memcpy(kt->filename.ubuf, filename, len + 1);
 		kt->filename.len = len;
 		kt->current = NULL;
 		kt->uhead = NULL;
 		kt->unitsize = 0;
+		kt->isForwarded = 0;
 		kt->lineno = 0;
-		kt->out = stdout;
 		kt->sumOfPassed = 0;
 		kt->sumOfFailed = 0;
 		return kt;
@@ -776,10 +778,21 @@ static knh_bool_t test_readstmt(Ctx *ctx, void *status, knh_cwb_t *cwb, const kn
 	if (kt->unitsize != 0) ku = kt->current;
 	if (ku != NULL && ku->stmtsize != 0) ks = ku->current;
 	char line[KTEST_LINE_MAX];
-	int isMultiline = 0, isTestStarted = 0, isSecondStmt=0;
+	int isMultiline = 0, isTestStarted = 0, isSecondStmt = 0;
+	int isInComment = 0;
 	while(kt_fgets(ctx, kt, line, KTEST_LINE_MAX) != NULL) {
 		kt->lineno += 1;  // added by kimio
 		if (IS_D(line, '/')) continue;
+		if (line[0] == '/' && line[1] == '*') {
+			isInComment = 1;
+			continue;
+		}
+		if (isInComment) {
+			if (strnstr(line, "*/", KTEST_LINE_MAX) != NULL) {
+				isInComment = 0;
+			}
+			continue;
+		}
 		if(IS_T(line, '#')) {
 			isMultiline = 0;
 			if (isTestStarted == 1) {
@@ -789,10 +802,12 @@ static knh_bool_t test_readstmt(Ctx *ctx, void *status, knh_cwb_t *cwb, const kn
 			}
 			if (kt->unitsize == 0) {
 				kt->unitsize++;
+				kt->isForwarded = 1;
 				kt->uhead = new_kt_unit(ctx, line + 4);
 				ku = kt->uhead;
 			} else {
 				kt->unitsize++;
+				kt->isForwarded = 1;
 				ku->next = new_kt_unit(ctx, line + 4);
 				ku = ku->next;
 			}
@@ -869,29 +884,43 @@ static void test_dump(FILE *fp, const char *linehead, const char *body, const ch
 static void test_display(Ctx *ctx, void *status, const char* result, const knh_ShellAPI_t *api)
 {
 	kt_status_t *kt = (kt_status_t*)status;
+	kt_unit_t *ku;
+	kt_stmt_t *ks;
 	if (kt == NULL) return;
-	kt_unit_t *ku = kt->current;
-	if (ku == NULL) return;
-	kt_stmt_t *ks = ku->current;
-	size_t len = ks->testResult.len;
-	if (len == 0) {
-		// ignoring result. we suppose this stmt is correct
-		ks->isPassed = 1;
-		return;
-	}
-	knh_uchar_t *charResult = ks->testResult.ubuf;
-	if (strncmp((char*)charResult, result, len) == 0) {
-		ks->isPassed = 1;
-		kt->sumOfPassed++;
-		fprintf(kt->out, "[PASSED] %s\n", ku->testTitle.text);
-	} else {
-		ks->isPassed = 0;
-		kt->sumOfFailed++;
-		fprintf(kt->out, "[FAILED] %s\nTESTED:\n>>> ", ku->testTitle.text);
-		test_dump(kt->out, "... ", ks->testBody.text, "\n\t");
-		test_dump(kt->out, "\t", ks->testResult.text, "\nRESULTS:\n\t");
-		test_dump(kt->out, "\t", result, "\n");
-	}
+	//if (!kt->isForwarded) {
+		ku = kt->current;
+		if (ku == NULL) return;
+		ks = ku->current;
+		size_t len = ks->testResult.len;
+		if (len == 0) {
+			// ignoring result. we suppose this stmt is correct
+			ks->isPassed = 1;
+			return;
+		}
+		knh_uchar_t *charResult = ks->testResult.ubuf;
+		if (strncmp((char*)charResult, result, len) == 0) {
+			ks->isPassed = 1;
+			kt->sumOfPassed++;
+	//		fprintf(kt->out, "[PASSED] %s\n", ku->testTitle.text);
+		} else {
+			ks->isPassed = 0;
+			kt->sumOfFailed++;
+			fprintf(kt->out, "[FAILED] %s\nTESTED:\n>>> ", ku->testTitle.text);
+			test_dump(kt->out, "... ", ks->testBody.text, "\n\t");
+			test_dump(kt->out, "\t", ks->testResult.text, "\nRESULTS:\n\t");
+			test_dump(kt->out, "\t", result, "\n");
+		}
+//	} else {
+//		kt->isForwarded = 0;
+//		// check if its not the first test.
+//		if (kt->unitsize == 1) {
+//			//showResult(ctx, result, k);
+//			return;
+//		}
+//		int i = 0;
+//		ku = kt->current
+//		for (i = 0; i < kt->unitsize)
+//	}
 }
 
 static void test_cleanup(Ctx *ctx, void *status)
