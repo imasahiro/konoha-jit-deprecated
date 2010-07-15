@@ -14,19 +14,16 @@ true
 >>> Boolean b0;
 >>> b0
 false
-
 >>> Boolean b1 = true;
 >>> b1
 true
-
->>> b = false
+>>> b = false;
 false
-
 // NOTE: These variables b0, b1, b are available below.
 // However, for readability, you SHOULD assign them again. 
 
 ### boolean assignment by relation operator
->>> a = 1
+>>> a = 1;
 >>> b = (a == 1)
 true
 >>> b = !(a == 0)
@@ -37,15 +34,15 @@ false
 false
 
 ### boolean instanceof Boolean
->>> b1 = true
+>>> b1 = true;
 >>> true instanceof Boolean
 true
 >>> b1 instanceof Boolean
 true
 
 ### boolean comparator
->>> b1 = true
->>> b0 = false
+>>> b0 = false;
+>>> b1 = true;
 >>> b1 == true
 true
 >>> b1 == false
@@ -56,8 +53,8 @@ true
 false
 
 ### boolean ! operator
->>> a = 1
->>> b = true
+>>> a = 1;
+>>> b = true;
 >>> !b
 false
 >>> not b
@@ -71,11 +68,13 @@ true
 >>> not !b
 true
 
-### boolean true and true
->>> a = 1
->>> b1 = true
->>> b0 = false
+### boolean and operator (true and true)
+>>> a = 1;
+>>> b0 = false;
+>>> b1 = true;
 >>> true and true
+true
+>>> true && true
 true
 >>> b1 and true
 true
@@ -92,11 +91,13 @@ true
 >>> (a == 1) and !b0
 true
 
-### boolean and operator true and false
->>> a = 1
->>> b0 = false
->>> b1 = true
+### boolean and operator (true and false)
+>>> a = 1;
+>>> b0 = false;
+>>> b1 = true;
 >>> true and false
+false
+>>> true && false
 false
 >>> b1 and b0
 false
@@ -112,10 +113,12 @@ false
 false
 
 ### boolean and opeator (false and true)
->>> a = 1
->>> b0 = false
->>> b1 = true
+>>> a = 1;
+>>> b0 = false;
+>>> b1 = true;
 >>> false and true
+false
+>>> false && true
 false
 >>> b0 and b1
 false
@@ -123,7 +126,6 @@ false
 false
 >>> b0 and true
 false
-
 >>> (a == 0) and true
 false
 >>> false and (a == 1)
@@ -133,6 +135,147 @@ false
 >>> b0 and !(a == 0)
 false
 
- 
+### boolean and operator (false and false)
+>>> a = 1;
+>>> b0 = false;
+>>> b1 = true;
+>>> false and false
+false
+>>> false && false
+false
+>>> b0 and false
+false
+>>> false and b0
+false
+>>> (a == 0) and b0
+false
+>>> b0 and (a == 0)
+false
+>>> !(a == 1) and b0
+false
+>>> b0 and !(a == 1)
+false
+>>> (a == 0) and !b1
+false
 
+### boolean or operator (true and true)
+>>> a = 1;
+>>> b0 = false;
+>>> b1 = true;
+>>> true or true
+true
+>>> true || true
+true
+>>> b1 or true
+true
+>>> true or b1
+true
+>>> (a == 1) or b1
+true
+>>> b1 or (a == 1)
+true
+>>> !(a == 0) or b1
+true
+>>> b1 or !(a == 0)
+true
+>>> (a == 1) or !b0
+true
 
+### boolean or operator (true or false)
+>>> a = 1;
+>>> b0 = false;
+>>> b1 = true;
+>>> true or false
+true
+>>> true || false
+true
+>>> b1 or b0
+true
+>>> b1 or false
+true
+>>> (a == 1) or false
+true
+>>> true or !(a == 1)
+true
+>>> (a == 1) or !b1
+true
+>>> b1 or !(a == 1)
+true
+
+### boolean or opeator (false or true)
+>>> a = 1;
+>>> b0 = false;
+>>> b1 = true;
+>>> false or true
+true
+>>> false || true
+true
+>>> b0 or b1
+true
+>>> false or b1
+true
+>>> b0 or true
+true
+>>> (a == 0) or true
+true
+>>> false or (a == 1)
+true
+>>> (a == 0) or b1
+true
+>>> b0 or !(a == 0)
+true
+
+### boolean or operator (false or false)
+>>> a = 1;
+>>> b0 = false;
+>>> b1 = true;
+>>> false or false
+false
+>>> false || false
+false
+>>> b0 or false
+false
+>>> false or b0
+false
+>>> (a == 0) or b0
+false
+>>> b0 or (a == 0)
+false
+>>> !(a == 1) or b0
+false
+>>> b0 or !(a == 1)
+false
+>>> (a == 0) or !b1
+false
+
+### boolean object compare
+>>> s0 = "abc";
+>>> s1 = "abc";
+>>> s2 = "def";
+>>> s0 == s1;
+true
+>>> s0 == s2;
+false
+
+### boolean if function call
+>>> a = 1;
+>>> b0 = false;
+>>> b1 = true;
+>>> if (true or false) { print true } else { print false }
+[(eval):1]true
+>>> if (true || false) { print true } else { print false }
+[(eval):1]true
+>>> if (b1 or false) { print true } else { print false }
+[(eval):1]true
+>>> if (true or b0) { print true } else { print false }
+[(eval):1]true
+>>> if ((a == 1) or b0) { print true } else { print false }
+[(eval):1]true
+>>> if (b1 or (a == 0)) { print true } else { print false }
+[(eval):1]true
+>>> if (!(a == 0) or b0) { print true } else { print false }
+[(eval):1]true
+>>> if (b1 or !(a == 1)) { print true } else { print false }
+[(eval):1]true
+>>> if ((a == 1) or !b1) { print true } else { print false }
+[(eval):1]true
