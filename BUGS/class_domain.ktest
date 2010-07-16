@@ -1,0 +1,8 @@
+### Class definition
+>>> class A {
+... int x;
+... float y;
+... String z;
+... }
+>>> A
+main.A

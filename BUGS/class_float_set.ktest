@@ -1,0 +1,8 @@
+### Class definition with default value
+>>> class B {
+... int x = 2;
+... float y = 3.0;
+... String z = "hello";
+... }
+>>> B b = new B();
+B{x: 2, y: 3.00000, z: "hello"}

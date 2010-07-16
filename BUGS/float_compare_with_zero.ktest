@@ -1,0 +1,4 @@
+### Float.random()
+>>> float f = Float.random();
+>>> 0 < f && f < 1
+true

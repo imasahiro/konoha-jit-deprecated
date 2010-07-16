@@ -1,0 +1,5 @@
+### float Mapper [float => String]
+>>> float a = 2.0;
+>>> String str = (String)a;
+>>> str
+"2.00000"

@@ -17,7 +17,7 @@ main.A
 
 ### Create instance
 >>> A a = new A();
-A{x: 0, y: 0.000000, z: ""}
+A{x: 0, y: 0.00000, z: ""}
 
 ### Class definition with default value
 >>> class B {
@@ -26,17 +26,17 @@ A{x: 0, y: 0.000000, z: ""}
 ... String z = "hello";
 ... }
 >>> B b = new B();
-B{x: 2, y: 3.000000, z: "hello"}
+B{x: 2, y: 3.00000, z: "hello"}
 
 ### Setter
 >>> a.x = 3;
 3
 >>> a.y = 2.0;
-2.000000
+2.00000
 >>> a.z = "hello"
 "hello"
 >>> a
-A{x: 3, y: 2.000000, z: "hello"}
+A{x: 3, y: 2.00000, z: "hello"}
 
 ### set different type
 >>> a.x = "string"
@@ -50,7 +50,7 @@ A{x: 3, y: 2.000000, z: "hello"}
 >>> a.x
 3
 >>> a.y
-2.000000
+2.00000
 >>> a.z
 "hello"
 
@@ -63,13 +63,13 @@ A{x: 3, y: 2.000000, z: "hello"}
 
 ### Extends Class [Create instancd]
 >>> c = new C();
-C{x: 2, y: 3.000000, z: "hello", x: 3, y: 5.000000, z: "world"}
+C{x: 2, y: 3.00000, z: "hello", x: 3, y: 5.00000, z: "world"}
 
 ### Extends Class [Getter]
 >>> c.x
 3
 >>> c.y
-5.000000
+5.00000
 >>> c.z
 "world"
 
@@ -77,11 +77,11 @@ C{x: 2, y: 3.000000, z: "hello", x: 3, y: 5.000000, z: "world"}
 >>> c.x = 5;
 5
 >>> c.y = 7.0
-7.000000
+7.00000
 >>> c.z = "hi"
 "hi"
 >>> c
-C{x: 2, y: 3.000000, z: "hello", x: 5, y: 7.000000, z: "hi"}
+C{x: 2, y: 3.00000, z: "hello", x: 5, y: 7.00000, z: "hi"}
 
 /*
 ### Extends of not defined class
@@ -101,8 +101,13 @@ D
 >>> d.myPrint("hello");
 hello
 */
-
-### TEST
->>> i = 3
->>> i
-3
+/*
+### Extends [Virtual Method]
+>>> class V extends D {
+... void myPrint(String str) {
+... OUT << "Virtual:" << str << EOL;
+... }
+... }
+>>> v = new V();
+>>> v.myPrint("child");
+*/
