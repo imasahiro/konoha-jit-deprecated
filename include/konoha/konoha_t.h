@@ -208,7 +208,7 @@ typedef float                     knh_float_t;
 #endif
 
 #ifndef K_FLOAT_FMT
-typedef double                    knh_float_t;
+typedef double                  knh_float_t;
 #define K_FLOAT_MAX             DBL_MAX
 #define K_FLOAT_MIN             (-(DBL_MAX))
 #define K_FLOAT_STEP            DBL_MIN

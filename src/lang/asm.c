@@ -1198,7 +1198,6 @@ static int knh_StmtOP_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpid
 	knh_opcode_t opcode;
 	if(cid == CLASS_Boolean && mn == MN_opNOT) {
 		int a = TERMs_put(ctx, stmt, 1, TYPE_Boolean, local + 1);
-		DBG_P("sfpidx=%d, local=%d, a=%d", sfpidx, local, a);
 		KNH_ASM(bNOT, (sfpidx), (a));
 		return 1;
 	}
@@ -1207,6 +1206,7 @@ static int knh_StmtOP_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpid
 		if(mn == MN_opNEG) {
 			int a = TERMs_put(ctx, stmt, 1, TYPE_Int, local + 1);
 			KNH_ASM(iNEG, (sfpidx), (a));
+			return 1;
 		}
 		if(mn == MN_opSUB || mn == MN_opDIV || mn == MN_opMOD) swap = 0;
 		if(knh_StmtOP_checkConst(ctx, stmt, &mn, swap)) {

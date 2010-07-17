@@ -282,12 +282,12 @@ static METHOD OutputStream_print(Ctx *ctx, knh_sfp_t *sfp, long rix)
 }
 
 /* ------------------------------------------------------------------------ */
-//## method void OutputStream.opSEND(String s);
+//## method void OutputStream.opSEND(String s, ...);
 
 static METHOD OutputStream_opSEND(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
 	knh_OutputStream_t *w = sfp[0].w;
-	knh_sfp_t *v = sfp + 1, *esp = ctx->esp;
+	knh_sfp_t *v = sfp + 1;
 	size_t i, ac = knh_stack_argc(ctx, v);
 	if(ctx->bufw == w) {
 		for(i = 0; i < ac; i++) {
