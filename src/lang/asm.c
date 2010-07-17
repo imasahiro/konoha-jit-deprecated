@@ -168,6 +168,14 @@ static void knh_Gamma_asm(Ctx *ctx, knh_opline_t *op)
 				return;
 			}
 		}
+		if(opP->opcode == OPCODE_OSET && op->opcode == OPCODE_TR) {
+			klr_OSET_t *opOSET = (klr_OSET_t*)opP;
+			klr_TR_t *opTR = (klr_TR_t*)op;
+			if(opOSET->a == opTR->a && (opTR->tr == _OBOX || opTR->tr == _ifBOX || opTR->tr == _bBOX)) {
+				DBG_P("PEEPHOLE: removed unnecesarry BOX"); // is it ok?
+				return;
+			}
+		}
 		if(op->opcode == OPCODE_NMOV) {
 			if(opP->opcode == OPCODE_NMOV && HAS_OPCODE(NNMOV)) {
 				klr_NNMOV_t *opMOV = (klr_NNMOV_t*)opP;

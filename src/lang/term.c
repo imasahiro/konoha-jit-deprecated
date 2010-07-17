@@ -882,16 +882,18 @@ static int knh_Token_addQUOTE(Ctx *ctx, knh_Token_t *tk, knh_cwb_t *cwb, knh_Inp
 		knh_Token_addBuf(ctx, tk, cwb, TT_ch(quote), ch);
 	}
 	else { /* triple quote */
+		knh_term_t tt = TT_ch(quote);
+		if(tt == TT_TSTR) tt = TT_STR;
 		knh_Bytes_addQUOTE(ctx, cwb->ba, in, quote, isRAW, 1/*isTQUOTE*/);
 		ch = knh_InputStream_getc(ctx, in);
 		if(knh_cwb_tobytes(cwb).ustr[0] == '\n') {
 			cwb->pos += 1;
-			knh_Token_addBuf(ctx, tk, cwb, TT_ch(quote), ch);
+			knh_Token_addBuf(ctx, tk, cwb, tt, ch);
 			cwb->pos -= 1;
 			knh_cwb_clear(cwb, 0);
 		}
 		else {
-			knh_Token_addBuf(ctx, tk, cwb, TT_ch(quote), ch);
+			knh_Token_addBuf(ctx, tk, cwb, tt, ch);
 		}
 	}
 	return ch;

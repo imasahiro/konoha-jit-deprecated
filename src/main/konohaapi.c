@@ -429,7 +429,6 @@ static void knh_showWelcome(Ctx *ctx, knh_OutputStream_t *w)
 #endif
 }
 
-
 static int shell_checkstmt(knh_bytes_t t)
 {
 	size_t i = 0;
@@ -457,12 +456,33 @@ static int shell_checkstmt(knh_bytes_t t)
 	return 1;
 }
 
+static void shell_restart(Ctx *ctx)
+{
+	KNH_SETv(ctx, ((knh_share_t*)ctx->share)->mainns, new_NameSpace(ctx, NULL));
+	KNH_SETv(ctx, ((knh_Context_t*)ctx)->script, new_(Script));
+	{
+		knh_Gamma_t *kc = new_(Gamma);
+		KNH_SETv(ctx, ((knh_Context_t*)ctx)->gma, kc);
+		KNH_INITv(DP(kc)->symbolDictMap, new_DictMap0(ctx, 256));
+		KNH_INITv(DP(kc)->constPools, new_Array0(ctx, 0));
+		KNH_INITv(DP(kc)->script, ctx->script);
+	}
+}
+
 static knh_bool_t shell_command(Ctx *ctx, knh_cwb_t *cwb)
 {
 	knh_bytes_t t = knh_cwb_tobytes(cwb);
 	if(B_equals(t, "quit") || B_equals(t, "exit") || B_equals(t, "bye")) {
 		knh_cwb_clear(cwb, 0);
 		return 0;
+	}
+	if(B_equals(t, "restart")) {
+		knh_cwb_clear(cwb, 0);
+		fputs(
+"\n"
+"/* ------------------------------------------------------------------------ */"
+"\n\n\n\n\n", stdout);
+		shell_restart(ctx);
 	}
 	return 1;
 }
@@ -966,7 +986,7 @@ static void test_cleanup(Ctx *ctx, void *status)
 		if(kt->out != stderr && kt->out != stdout) {
 			fclose(kt->out);
 		}
-		fprintf(kt->out, "%s: %d of %d tests, %d of %d statements have been passed\n",
+		fprintf(kt->out, "%s: %d of %d units, %d of %d tests have been passed\n",
 				kt->filename.text, (int)unit_passed, (int)kt->unitsize,
 				(int)kt->sumOfPassed, (int)(kt->sumOfPassed + kt->sumOfFailed));
 	}
