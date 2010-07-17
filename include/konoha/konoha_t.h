@@ -675,6 +675,8 @@ typedef struct {
 	size_t fmtCacheMiss;
 	size_t trlCacheHit;
 	size_t trlCacheMiss;
+	size_t utestPassed;
+	size_t utestFailed;
 } knh_stat_t;
 
 #define knh_useMemory(ctx, n) \
@@ -698,6 +700,10 @@ typedef struct {
 #define knh_stat_fmtCacheMiss(ctx)  (ctx->stat)->fmtCacheMiss += 1
 #define knh_stat_trlCacheHit(ctx)   (ctx->stat)->trlCacheHit += 1
 #define knh_stat_trlCacheMiss(ctx)  (ctx->stat)->trlCacheMiss += 1
+
+#define knh_statUnitTest(ctx, passed, failed) \
+	(ctx->stat)->utestPassed += passed;\
+	(ctx->stat)->utestFailed += failed;\
 
 /* ------------------------------------------------------------------------ */
 /* [SystemShare] */

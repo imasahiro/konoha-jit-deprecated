@@ -662,6 +662,9 @@ KNHAPI(void) konoha_shell(konoha_t konoha, char *optstr)
 // the following is added by nakata 
 // modified by kimio
 
+static volatile knh_bool_t isTestVerbose = 0;
+
+
 #define KTEST_LINE_MAX 512
 #define IS_D(L, ch) (L[0] == ch && L[1] == ch)
 #define IS_T(L, ch) (L[0] == ch && L[1] == ch && L[2] == ch && L[3] == ' ')
@@ -922,7 +925,9 @@ static void test_display(Ctx *ctx, void *status, const char* result, const knh_S
 		if (strncmp((char*)charResult, result, len) == 0) {
 			ks->isPassed = 1;
 			kt->sumOfPassed++;
-			fprintf(kt->out, "[PASSED] %s\n", ku->testTitle.text);
+			if(isTestVerbose) {
+				fprintf(kt->out, "[PASSED] %s\n", ku->testTitle.text);
+			}
 		} else {
 			ks->isPassed = 0;
 			kt->sumOfFailed++;
@@ -986,9 +991,12 @@ static void test_cleanup(Ctx *ctx, void *status)
 		if(kt->out != stderr && kt->out != stdout) {
 			fclose(kt->out);
 		}
-		fprintf(kt->out, "%s: %d of %d units, %d of %d tests have been passed\n",
-				kt->filename.text, (int)unit_passed, (int)kt->unitsize,
-				(int)kt->sumOfPassed, (int)(kt->sumOfPassed + kt->sumOfFailed));
+		if(isTestVerbose) {
+			fprintf(kt->out, "%s: %d of %d units, %d of %d tests have been passed\n",
+					kt->filename.text, (int)unit_passed, (int)kt->unitsize,
+					(int)kt->sumOfPassed, (int)(kt->sumOfPassed + kt->sumOfFailed));
+		}
+		knh_statUnitTest(ctx, kt->sumOfPassed, kt->sumOfFailed);
 	}
 	KNH_FREE(ctx, kt->filename.ubuf, kt->filename.len + 1);
 	KNH_FREE(ctx, kt, sizeof(kt_status_t));
@@ -1011,15 +1019,22 @@ void konoha_runTest(konoha_t konoha, int argc, char **argv)
 	KNH_SETv(ctx, ((knh_Context_t*)ctx)->out, new_BytesOutputStream(ctx, new_Bytes(ctx, K_PAGESIZE)));
 	KNH_SETv(ctx, ((knh_Context_t*)ctx)->err, ctx->out);
 #endif
+	if(i + 1 == argc) isTestVerbose = 1;
 	for(i = 0; i < argc; i++) {
 		knh_shell(ctx, argv[i], &testSPI, NULL);
+		shell_restart(ctx);
 	}
 	KNH_SETv(ctx, ((knh_Context_t*)ctx)->out, DP(ctx->sys)->out);
 	KNH_SETv(ctx, ((knh_Context_t*)ctx)->err, DP(ctx->sys)->err);
+	{
+		size_t passed = ctx->stat->utestPassed;
+		size_t failed = ctx->stat->utestFailed;
+		if(failed != 0) {
+			KNH_SYSLOG(ctx, LOG_ERR, "MiniTest", "*%ld of %ld tests were failed", failed, passed + failed);
+		}
+	}
 	KONOHA_END(ctx);
 }
-
-/* ------------------------------------------------------------------------ */
 
 #ifdef __cplusplus
 }
