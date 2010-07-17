@@ -784,6 +784,17 @@ static void knh_Bytes_addCOMMENT(Ctx *ctx, knh_Bytes_t *ba, knh_InputStream_t *i
 	}
 }
 
+static void knh_Bytes_skipLCOMMENT(Ctx *ctx, knh_Bytes_t *ba, knh_InputStream_t *in)
+{
+	int ch;
+	while((ch = knh_InputStream_getc(ctx, in)) != EOF) {
+		if(ch == '\n') {
+			knh_Bytes_putc(ctx, ba, ch);
+			break;
+		}
+	}
+}
+
 static knh_InputStream_t* knh_openPathNULL(Ctx *ctx, knh_bytes_t path)
 {
 	knh_StreamDSPI_t *sdspi = knh_getStreamDSPI(ctx, path);
@@ -836,6 +847,10 @@ knh_bool_t knh_load(Ctx *ctx, knh_bytes_t path, knh_type_t reqt, knh_Array_t *re
 			}
 			if(prev == '/' && ch == '*') {
 				knh_Bytes_addCOMMENT(ctx, ba, in);
+				continue;
+			}
+			if(prev == '/' && ch == '/') {
+				knh_Bytes_skipLCOMMENT(ctx, ba, in);
 				continue;
 			}
 			if(ch == '\'' || ch == '"' || ch == '`') {
