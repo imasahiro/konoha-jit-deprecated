@@ -1142,90 +1142,58 @@ static knh_float_t TERMs_float(knh_Stmt_t *stmt, size_t n)
 	return (DP(tk)->num)->n.fvalue;
 }
 
-static knh_opcode_t OPCODE_imn(knh_methodn_t mn)
+static knh_opcode_t OPCODE_imn(knh_methodn_t mn, int diff)
 {
 	switch(mn) {
 	case MN_opNEG: return OPCODE_iNEG;
-	case MN_opADD: return OPCODE_iADD;
-	case MN_opSUB: return OPCODE_iSUB;
-	case MN_opMUL: return OPCODE_iMUL;
-	case MN_opDIV: return OPCODE_iDIV;
-	case MN_opMOD: return OPCODE_iMOD;
-	case MN_opEQ:  return OPCODE_iEQ;
-	case MN_opNOTEQ: return OPCODE_iNEQ;
-	case MN_opLT:  return OPCODE_iLT;
-	case MN_opLTE: return OPCODE_iLTE;
-	case MN_opGT:  return OPCODE_iGT;
-	case MN_opGTE: return OPCODE_iGTE;
+	case MN_opADD: return OPCODE_iADD + diff;
+	case MN_opSUB: return OPCODE_iSUB + diff;
+	case MN_opMUL: return OPCODE_iMUL + diff;
+	case MN_opDIV: return OPCODE_iDIV+ diff;
+	case MN_opMOD: return OPCODE_iMOD+ diff;
+	case MN_opEQ:  return OPCODE_iEQ+ diff;
+	case MN_opNOTEQ: return OPCODE_iNEQ+ diff;
+	case MN_opLT:  return OPCODE_iLT+ diff;
+	case MN_opLTE: return OPCODE_iLTE+ diff;
+	case MN_opGT:  return OPCODE_iGT+ diff;
+	case MN_opGTE: return OPCODE_iGTE+ diff;
 	}
 	return OPCODE_NOP;
 }
 
-static knh_opcode_t OPCODE_fmn(knh_methodn_t mn)
+static knh_opcode_t OPCODE_fmn(knh_methodn_t mn, int diff)
 {
 	switch(mn) {
 	case MN_opNEG: return OPCODE_fNEG;
-	case MN_opADD: return OPCODE_fADD;
-	case MN_opSUB: return OPCODE_fSUB;
-	case MN_opMUL: return OPCODE_fMUL;
-	case MN_opDIV: return OPCODE_fDIV;
-	case MN_opEQ:  return OPCODE_fEQ;
-	case MN_opNOTEQ: return OPCODE_fNEQ;
-	case MN_opLT:  return OPCODE_fLT;
-	case MN_opLTE: return OPCODE_fLTE;
-	case MN_opGT:  return OPCODE_fGT;
-	case MN_opGTE: return OPCODE_fGTE;
+	case MN_opADD: return OPCODE_fADD + diff;
+	case MN_opSUB: return OPCODE_fSUB + diff;
+	case MN_opMUL: return OPCODE_fMUL + diff;
+	case MN_opDIV: return OPCODE_fDIV + diff;
+	case MN_opEQ:  return OPCODE_fEQ + diff;
+	case MN_opNOTEQ: return OPCODE_fNEQ + diff;
+	case MN_opLT:  return OPCODE_fLT + diff;
+	case MN_opLTE: return OPCODE_fLTE + diff;
+	case MN_opGT:  return OPCODE_fGT + diff;
+	case MN_opGTE: return OPCODE_fGTE + diff;
 	}
 	return OPCODE_NOP;
 }
 
-static int knh_StmtOP_checkConst(Ctx *ctx, knh_Stmt_t *stmt, knh_methodn_t *mn, int swap)
+static knh_bool_t knh_StmtOPR_hasCONST(Ctx *ctx, knh_Stmt_t *stmt, knh_methodn_t *mn, int swap)
 {
 	int isCONST = (TT_(DP(stmt)->terms[2]) == TT_CONST);
-	if(swap != 0 && TT_(DP(stmt)->terms[1]) == TT_CONST) {
+	if(swap == 1 && TT_(DP(stmt)->terms[1]) == TT_CONST) {
 		knh_methodn_t newmn = *mn;
 		knh_Stmt_swap(ctx, stmt, 1, 2);
 		if(*mn == MN_opLT) newmn = MN_opGT;  /* 1 < n ==> n > 1 */
 		else if(*mn == MN_opLTE) newmn = MN_opGTE; /* 1 <= n => n >= 1 */
 		else if(*mn == MN_opGT) newmn = MN_opLT;
 		else if(*mn == MN_opGTE) newmn = MN_opLTE;
-		*mn = newmn;
-		isCONST = 1;
-	}
-	if(swap == 2 && TT_(DP(stmt)->terms[1]) == TT_CONST) {
-		knh_methodn_t newmn = *mn;
-		knh_Stmt_swap(ctx, stmt, 1, 2);
-		if(*mn == MN_opLT) newmn = MN_opGT;  /* 1 < n ==> n > 1 */
-		else if(*mn == MN_opLTE) newmn = MN_opGTE; /* 1 <= n => n >= 1 */
-		else if(*mn == MN_opGT) newmn = MN_opLT;
-		else if(*mn == MN_opGTE) newmn = MN_opLTE;
+		DBG_P("swap %s ==> %s", MN__(*mn), MN__(newmn));
 		*mn = newmn;
 		isCONST = 1;
 	}
 	return isCONST;
-}
-
-static knh_opcode_t knh_opcode_shiftCONST(knh_opcode_t opcode, knh_methodn_t mn)
-{
-	int diff = 0;
-	if (OPCODE_iADD <= opcode && opcode <= OPCODE_iGTE) {
-		diff = (OPCODE_iADDn - OPCODE_iADD);
-	}
-	else if (OPCODE_fADD <= opcode && opcode <= OPCODE_fGTE) {
-		diff = (OPCODE_fADDn - OPCODE_fADD);
-	}
-	switch(mn) {
-	case MN_opADD: case MN_opSUB:
-	case MN_opMUL: case MN_opDIV: case MN_opMOD:
-		return opcode + diff;
-	case MN_opEQ:  case MN_opNOTEQ:
-	case MN_opLT:  case MN_opLTE:
-	case MN_opGT:  case MN_opGTE:
-		return opcode + diff;
-	default:
-		DBG_ABORT();
-	}
-	return opcode;
 }
 
 static void knh_StmtCALL_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx);
@@ -1243,7 +1211,7 @@ static int knh_StmtOP_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpid
 		KNH_ASM(bNOT, (sfpidx), (a));
 		return 1;
 	}
-	if(cid == CLASS_Int && ((opcode = OPCODE_imn(mn)) != OPCODE_NOP)) {
+	if(cid == CLASS_Int && ((opcode = OPCODE_imn(mn, 0)) != OPCODE_NOP)) {
 		int swap = 1;
 		if(mn == MN_opNEG) {
 			int a = TERMs_put(ctx, stmt, 1, TYPE_Int, local + 1);
@@ -1251,14 +1219,15 @@ static int knh_StmtOP_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpid
 			return 1;
 		}
 		if(mn == MN_opSUB || mn == MN_opDIV || mn == MN_opMOD) swap = 0;
-		if(knh_StmtOP_checkConst(ctx, stmt, &mn, swap)) {
+		if(knh_StmtOPR_hasCONST(ctx, stmt, &mn, swap)) {
 			int a = TERMs_put(ctx, stmt, 1, TYPE_Int, local + 1);
 			knh_int_t b = TERMs_int(stmt, 2);
 			if(b == 0 && (mn == MN_opDIV || mn == MN_opMOD)) {
 				b = 1;
 				knh_Gamma_perror(ctx, KERR_ERRATA, _("divided by zero: /0 ==> /1"));
 			}
-			opcode = knh_opcode_shiftCONST(opcode, mn);
+			opcode = OPCODE_imn(mn, (OPCODE_iADDn - OPCODE_iADD));
+			//opcode = knh_opcode_shiftCONST(OPCODE_imn(mn), mn);
 			KNH_ASMOP(iADDn, opcode, sfpidx, a, b);
 		}
 		else {
@@ -1268,7 +1237,7 @@ static int knh_StmtOP_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpid
 		}
 		return 1;
 	} /* CLASS_Int */
-	if(cid == CLASS_Float && ((opcode = OPCODE_fmn(mn)) != OPCODE_NOP)) {
+	if(cid == CLASS_Float && ((opcode = OPCODE_fmn(mn, 0)) != OPCODE_NOP)) {
 		int swap = 1;
 		if(mn == MN_opNEG) {
 			int a = TERMs_put(ctx, stmt, 1, TYPE_Float, local + 1);
@@ -1276,14 +1245,15 @@ static int knh_StmtOP_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpid
 			return 1;
 		}
 		if(mn == MN_opSUB || mn == MN_opDIV || mn == MN_opMOD) swap = 0;
-		if(knh_StmtOP_checkConst(ctx, stmt, &mn, swap)) {
+		if(knh_StmtOPR_hasCONST(ctx, stmt, &mn, swap)) {
 			int a = TERMs_put(ctx, stmt, 1, TYPE_Float, local + 1);
 			knh_float_t b = TERMs_float(stmt, 2);
 			if(b == K_FLOAT_ZERO && mn == MN_opDIV) {
 				b = K_FLOAT_ONE;
 				knh_Gamma_perror(ctx, KERR_ERRATA, _("divided by zero: 0.0 ==> 1.0"));
 			}
-			opcode = knh_opcode_shiftCONST(opcode, mn);
+			opcode = OPCODE_fmn(mn, (OPCODE_fADDn - OPCODE_fADD));
+			//opcode = knh_opcode_shiftCONST(OPCODE_imn(mn), mn);
 			KNH_ASMOP(fADDn, opcode, (sfpidx), a, b);
 		}
 		else {

@@ -625,7 +625,12 @@ typedef KLRAPI(void) (*klr_Fprobe)(Ctx *, knh_sfp_t*, knh_sfpidx_t n, knh_opline
 #define KLR_fNEQ(ctx, c, a, b)  REGb(c) = (SFf(a) != SFf(b))
 #define KLR_fNEQn(ctx, c, a, n)  REGb(c) = (SFf(a) != n)
 #define KLR_fLT(ctx, c, a, b)  REGb(c) = (SFf(a) < SFf(b))
-#define KLR_fLTn(ctx, c, a, n)  REGb(c) = (SFf(a) < n)
+//#define KLR_fLTn(ctx, c, a, n)  REGb(c) = (SFf(a) < n)
+#define KLR_fLTn(ctx, c, a, n) {\
+		REGb(c) = (SFf(a) < n);\
+		DBG_P("c=%d, %d, a=%f, n=%f", sfp[c].bvalue, (SFf(a) < n), SFf(a), n);\
+	}\
+
 #define KLR_fLTE(ctx, c, a, b)  REGb(c) = (SFf(a) <= SFf(b))
 #define KLR_fLTEn(ctx, c, a, n) REGb(c) = (SFf(a) <= n)
 #define KLR_fGT(ctx, c, a, b)  REGb(c) = (SFf(a) > SFf(b))
