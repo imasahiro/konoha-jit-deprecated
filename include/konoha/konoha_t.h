@@ -186,7 +186,7 @@ typedef long double               knh_float_t;
 #define K_FLOAT_MAX             LDBL_MAX
 #define K_FLOAT_MIN             (-(LDBL_MAX))
 #define K_FLOAT_STEP            LDBL_MIN
-#define K_FLOAT_FMT             "%.5Lf"
+#define K_FLOAT_FMT             "%.6Lf"
 #define K_FLOAT_FMT1            "%.1Lf"
 #define K_FLOAT_FMT2            "%.2Lf"
 #define K_FLOAT_FMT3            "%.3Lf"
@@ -199,7 +199,7 @@ typedef float                     knh_float_t;
 #define K_FLOAT_MAX             FLT_MAX
 #define K_FLOAT_MIN             (-(FLT_MAX))
 #define K_FLOAT_STEP            FLT_MIN
-#define K_FLOAT_FMT             "%.5f"
+#define K_FLOAT_FMT             "%.6f"
 #define K_FLOAT_FMT1            "%.1f"
 #define K_FLOAT_FMT2            "%.2f"
 #define K_FLOAT_FMT3            "%.3f"
@@ -212,7 +212,7 @@ typedef double                    knh_float_t;
 #define K_FLOAT_MAX             DBL_MAX
 #define K_FLOAT_MIN             (-(DBL_MAX))
 #define K_FLOAT_STEP            DBL_MIN
-#define K_FLOAT_FMT             "%.5f"
+#define K_FLOAT_FMT             "%.6f"
 #define K_FLOAT_FMT1            "%.1f"
 #define K_FLOAT_FMT2            "%.2f"
 #define K_FLOAT_FMT3            "%.3f"

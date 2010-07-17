@@ -282,15 +282,20 @@ static METHOD OutputStream_print(Ctx *ctx, knh_sfp_t *sfp, long rix)
 }
 
 /* ------------------------------------------------------------------------ */
-//## method void OutputStream.opSEND(Object value, ...);
+//## method void OutputStream.opSEND(String s);
 
 static METHOD OutputStream_opSEND(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-	knh_OutputStream_t *w = (knh_OutputStream_t*)sfp[0].o;
+	knh_OutputStream_t *w = sfp[0].w;
 	knh_sfp_t *v = sfp + 1, *esp = ctx->esp;
 	size_t i, ac = knh_stack_argc(ctx, v);
-	for(i = 0; i < ac; i++) {
-		if(IS_bString(v[i].o)) {
+	if(ctx->bufw == w) {
+		for(i = 0; i < ac; i++) {
+			knh_Bytes_write(ctx, ctx->bufa, S_tobytes(v[i].s));
+		}
+	}
+	else {
+		for(i = 0; i < ac; i++) {
 			if(v[i].s == TS_EOL) {
 				knh_write_EOL(ctx, w);
 			}
@@ -303,17 +308,6 @@ static METHOD OutputStream_opSEND(Ctx *ctx, knh_sfp_t *sfp, long rix)
 			else {
 				knh_OutputStream_writeLine(ctx, w, S_tobytes(v[i].s), 0);
 			}
-		}
-		else {
-			knh_Method_t *mtdf = v[i].mtdOBJ; i++;
-			knh_class_t cid = knh_Object_cid(v[i].o);
-			if(!knh_Method_isFinal(mtdf) && !knh_Method_isPoly(mtdf, cid)) {
-				mtdf = knh_lookupFormatter(ctx, cid, DP(mtdf)->mn);
-			}
-			KNH_SETv(ctx, esp[K_CALLDELTA].o, v[i].o);
-			esp[K_CALLDELTA].data = v[i].data; // this is necessary
-			KNH_SETv(ctx, esp[K_CALLDELTA+1].o, w);
-			KNH_SCALL(ctx, esp, 0, mtdf, 1);
 		}
 	}
 	RETURNvoid_();

@@ -1847,53 +1847,6 @@ static knh_class_t knh_StmtopEQ_basecid(Ctx *ctx, knh_Stmt_t *stmt)
 	return CLASS_unknown;
 }
 
-static knh_Term_t* knh_StmtSEND_typing(Ctx *ctx, knh_Stmt_t *stmt)
-{
-	KNH_TODO("<< is renovating");
-//	BEGIN_LOCAL(ctx, lsfp, 1);
-//	size_t i;
-//	LOCAL_NEW(ctx, lsfp, 0, knh_Stmt_t*, stmt2,
-//		new_Stmt2(ctx, STT_(stmt), DP(stmt)->terms[0], DP(stmt)->terms[1], NULL));
-//	for(i = 2; i < DP(stmt)->size; i++) {
-//		DBG_P("i=%d, %s", i, TT_tochar(STT_(DP(stmt)->stmts[i])));
-//		if(STT_(DP(stmt)->stmts[i]) == STT_CALL) {
-//			knh_Token_t *tkM = DP(DP(stmt)->stmts[i])->tokens[0];
-//			knh_Token_t *tkO = DP(DP(stmt)->stmts[i])->tokens[1];
-//			if((DP(tkM)->mn == MN_format__FINAL || DP(tkM)->mn == MN_format)) {
-//				knh_Method_t *mtdf = DP(tkO)->mtd;
-//				DBG_ASSERT(IS_Method(mtdf));
-//				if(IS_Method(mtdf)) {
-//					DBG_P("INLINE FORMATTING FOR OutputStream");
-//					knh_Stmt_add(ctx, stmt2, new_TokenCONST(ctx, mtdf));
-//					knh_Stmt_add(ctx, stmt2, DP(DP(stmt)->stmts[i])->terms[2]);
-//					continue;
-//				}
-//			}
-//		}
-//		{
-//			knh_class_t cid = TERMs_getcid(stmt, i);
-//			if(cid == CLASS_String) {
-//				knh_Stmt_add(ctx, stmt2, DP(stmt)->terms[i]);
-//			}
-//			else {
-//				knh_Method_t *mtdf = knh_lookupFormatter(ctx, cid, MN__s);
-//				knh_Stmt_add(ctx, stmt2, new_TokenCONST(ctx, mtdf));
-//				knh_Stmt_add(ctx, stmt2, DP(stmt)->terms[i]);
-//			}
-//		}
-//	}
-//	/* swap */ {
-//		size_t capacity = DP(stmt)->capacity;
-//		knh_Term_t **t = DP(stmt)->terms;
-//		DP(stmt)->capacity = DP(stmt2)->capacity;
-//		DP(stmt)->terms = DP(stmt2)->terms;
-//		DP(stmt2)->capacity = capacity;
-//		DP(stmt2)->terms = t;
-//	}
-//	END_LOCAL(ctx, lsfp);
-//	return knh_Stmt_typed(ctx, stmt, TYPE_void);
-}
-
 /* ------------------------------------------------------------------------ */
 
 //static int knh_Gamma_isTypedBINARYOP(Ctx *ctx, knh_Stmt_t *stmt)
@@ -1984,6 +1937,15 @@ static knh_Term_t *knh_StmtOP_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt
 	case MN_opMOD: /* a % b */
 	{
 		mtd_cid = knh_StmtopADD_basecid(ctx, stmt);
+		if(mtd_cid == CLASS_String && mn == MN_opADD) {
+			knh_Token_t *tk = new_(Token);
+			TT_(tk) = TT_ASIS;
+			knh_Stmt_insert(ctx, stmt, 1, tk);
+			DBG_P("string concat");
+			STT_(stmt) = STT_W;
+			DP(stmt)->wstart = 2;
+			return knh_Stmt_typed(ctx, stmt, TYPE_String);
+		}
 		goto L_LOOKUPMETHOD;
 	}
 	case MN_opPLUS:
@@ -2033,10 +1995,12 @@ static knh_Term_t *knh_StmtOP_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt
 			mn = MN_opLSFT;
 		}
 		if(mtd_cid == CLASS_OutputStream) {
-			knh_Method_t *mtd = knh_getMethodNULL(ctx, mtd_cid, mn);
-			knh_Token_toMTD(ctx, tkOP, mn, mtd);
+//			knh_Method_t *mtd = knh_getMethodNULL(ctx, mtd_cid, mn);
+//			knh_Token_toMTD(ctx, tkOP, mn, mtd);
 			TYPING(ctx, stmt, 1, mtd_cid, 0);
-			return knh_StmtSEND_typing(ctx, stmt);
+			STT_(stmt) = STT_W;
+			DP(stmt)->wstart = 2;
+			return knh_Stmt_typed(ctx, stmt, TYPE_void);
 		}
 		goto L_LOOKUPMETHOD;
 	}

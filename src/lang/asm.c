@@ -1251,11 +1251,6 @@ static int knh_StmtOP_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpid
 		}
 		return 1;
 	} /* CLASS_Float */
-	if(cid == CLASS_String && mn == MN_opADD) {
-		DBG_P("string concat");
-		//STT_(DP(stmt)->stmts[0]);
-		//STT_(DP(stmt)->stmts[1])
-	}
 	knh_StmtCALL_asm(ctx, stmt, reqt, sfpidx);
 	return 0;
 }
@@ -1750,22 +1745,11 @@ static void knh_StmtLET_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfp
 	}
 }
 
-static void knh_StmtW_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
+static void knh_StmtW_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx);
+
+static void knh_StmtW_asmIN(Ctx *ctx, knh_Stmt_t *stmt, size_t thisidx)
 {
-	int isCWB = 0;
-	size_t i, thisidx = sfpidx + K_CALLDELTA + DP(stmt)->wstart - 2;
-	for(i = 2; i < DP(stmt)->wstart; i++) {
-		TERMs_asm(ctx, stmt, 2, TYPE_Object, sfpidx + i - 1);
-	}
-	DBG_P("@@@@@@@ sfpidx=%d, wstart=%d, thisidx=%d", sfpidx, DP(stmt)->wstart, thisidx);
-	if(TT_(DP(stmt)->terms[1]) == TT_ASIS) {
-		KNH_ASM(TR, thisidx, thisidx, CLASS_OutputStream, _CWB);
-		KNH_SETv(ctx, DP(stmt)->terms[1], knh_Token_toTYPED(ctx, DP(stmt)->tokens[1], TT_LOCAL, TYPE_OutputStream, thisidx));
-		isCWB = 1;
-	}
-	else {
-		TERMs_asm(ctx, stmt, 1, TYPE_OutputStream, thisidx);
-	}
+	size_t i;
 	for(i = DP(stmt)->wstart; i < DP(stmt)->size; i++) {
 		knh_Token_t *tk = DP(stmt)->tokens[i];
 		knh_Method_t *mtd = NULL;
@@ -1780,13 +1764,7 @@ static void knh_StmtW_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpid
 		else if(TT_(tk) == TT_CONST) {
 			KNH_ASM(OSET, thisidx + 1, DP(tk)->data);
 			if(IS_bString(DP(tk)->data)) {
-				knh_String_t *s = DP(tk)->text;
-				if(IS_Tstr(stmt->type) || knh_String_isASCII(s)) {
-					mtd = knh_getMethodNULL(ctx, CLASS_OutputStream, MN_write);
-				}
-				else {
-					mtd = knh_getMethodNULL(ctx, CLASS_OutputStream, MN_print);
-				}
+				mtd = knh_getMethodNULL(ctx, CLASS_OutputStream, MN_opSEND);
 			}
 			else {
 				mtd = knh_lookupFormatter(ctx, knh_Object_cid(DP(tk)->data), MN__s);
@@ -1797,19 +1775,47 @@ static void knh_StmtW_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpid
 			knh_Stmt_t *stmtIN = (knh_Stmt_t*)tk;
 			DBG_ASSERT(stmtIN->type == TYPE_String);
 			knh_Token_toTYPED(ctx, DP(stmtIN)->tokens[1], TT_LOCAL, TYPE_OutputStream, thisidx);
-			knh_StmtW_asm(ctx, stmtIN, reqt, thisidx+1);
-		}
-		else {
-			TERMs_asm(ctx, stmt, i, TYPE_Object, thisidx + 1);
-			if(IS_Tstr(tk->type)) {
-				mtd = knh_getMethodNULL(ctx, CLASS_OutputStream, MN_print);
+			if(DP(stmtIN)->wstart == 2) {
+				knh_StmtW_asmIN(ctx, stmtIN, thisidx);
 			}
 			else {
-				mtd = knh_lookupFormatter(ctx, CLASS_type(tk->type), MN__s);
+				DP(stmtIN)->espidx = thisidx + 2;
+				knh_StmtW_asm(ctx, stmtIN, TYPE_String, thisidx);
+			}
+		}
+		else {
+			knh_class_t cid = CLASS_type(tk->type);
+			TERMs_asm(ctx, stmt, i, TYPE_Object, thisidx + 1);
+			if(IS_Tstr(cid)) {
+				mtd = knh_getMethodNULL(ctx, CLASS_OutputStream, MN_opSEND);
+			}
+			else {
+				mtd = knh_lookupFormatter(ctx, cid, MN__s);
 			}
 			KNH_ASM(SCALL, thisidx-K_CALLDELTA, ESP_((thisidx-K_CALLDELTA), 1), mtd);
 		}
 	}
+}
+
+static void knh_StmtW_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
+{
+	int isCWB = 0;
+	int local = ASML(sfpidx);
+	size_t i, thisidx = local + K_CALLDELTA + DP(stmt)->wstart - 2;
+	DBG_P("espidx=%d", DP(stmt)->espidx);
+	for(i = 2; i < DP(stmt)->wstart; i++) {
+		TERMs_asm(ctx, stmt, i, TYPE_Object, local + i - 1);
+	}
+	DBG_P("@@@@@@@ local=%d, wstart=%d, thisidx=%d", local, DP(stmt)->wstart, thisidx);
+	if(TT_(DP(stmt)->terms[1]) == TT_ASIS) {
+		KNH_ASM(TR, thisidx, thisidx, CLASS_OutputStream, _CWB);
+		KNH_SETv(ctx, DP(stmt)->terms[1], knh_Token_toTYPED(ctx, DP(stmt)->tokens[1], TT_LOCAL, TYPE_OutputStream, thisidx));
+		isCWB = 1;
+	}
+	else {
+		TERMs_asm(ctx, stmt, 1, TYPE_OutputStream, thisidx);
+	}
+	knh_StmtW_asmIN(ctx, stmt, thisidx);
 	if(isCWB) {
 		KNH_ASM(TR, sfpidx, thisidx, CLASS_String, _TOSTR);
 	}
