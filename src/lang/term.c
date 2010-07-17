@@ -908,6 +908,9 @@ static int knh_bytes_isOPR(knh_bytes_t t, int ch)
 {
 	if(t.len==3) return 0;
 	switch(ch) {
+	case '%':
+		if(ISB1(t, '%')) return 1; /* %% */
+		return 0;
 	case '&':
 		if(ISB1(t, '&')) return 1; /* && */
 		return 0;
@@ -1306,8 +1309,9 @@ static void knh_InputStream_parseToken(Ctx *ctx, knh_InputStream_t *in, knh_Toke
 				goto L_NEWTOKEN;
 			}
 #endif
-		case '+': case '-': case '*': case '/': case '=': case '?':
-		case '&': case '<': case '>': case '^': case '!': case '~':
+		case '+': case '-': case '*': case '/': case '%':
+		case '=': case '?': case '&':
+		case '<': case '>': case '^': case '!': case '~':
 			knh_Token_addBuf(ctx, tk, cwb, TT_CODE, ch);
 			ch = knh_Token_addOPR(ctx, tk, cwb, in, ch);
 			goto L_AGAIN;
