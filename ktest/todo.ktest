@@ -1,0 +1,12 @@
+
+
+### Multiline Results
+>>> s = ## Binary Hacks
+...     ## 100 Hacker's Secret Tips and Tricks Revealed
+s
+
+// if started with TODO: don't count 
+### TODO: 
+
+// Block Comment /* /* */ */
+
