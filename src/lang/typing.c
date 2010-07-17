@@ -2052,8 +2052,6 @@ static knh_Term_t *knh_StmtOP_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt
 		knh_Token_toMTD(ctx, tkOP, mn, knh_getMethodNULL(ctx, mtd_cid, mn));
 		knh_Stmt_typed(ctx, stmt, reqt);
 	}
-
-
 	default:
 		mtd_cid = TERMs_getcid(stmt, 1);
 		break;
@@ -2192,7 +2190,7 @@ static knh_class_t knh_bytes_CFMT(knh_bytes_t t)
 	if(t.ustr[0] == '%' && (isdigit(t.ustr[1]) || t.ustr[1] == ' ' || t.ustr[1] == '.')) {
 		int ch = t.ustr[t.len - 1];
 		switch(ch) {
-		case 'd': case 'u': case 'x': return CLASS_Int;
+		case 'd': case 'u': case 'x': case 'c': return CLASS_Int;
 		case 'e': case 'f': return CLASS_Float;
 		case 's': return CLASS_String;
 		}
@@ -2233,7 +2231,7 @@ static knh_Term_t *knh_StmtFMT_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t req
 				knh_Gamma_perror(ctx, KERR_DWARN, _("too many parameters of '%B'"), fmt);
 				knh_Stmt_trimSize(ctx, stmt, 3);
 			}
-			if(cid != CLASS_unknown) {
+			if(cid != CLASS_unknown) {  // "%4d"(1)
 				knh_Method_t *mtd = knh_getMethodNULL(ctx, cid, MN_format);
 				knh_Token_setCONST(ctx, DP(stmt)->tokens[1], DP(tkFMT)->data);
 				TYPING(ctx, stmt, 2, cid, _ICAST);
@@ -2248,7 +2246,7 @@ static knh_Term_t *knh_StmtFMT_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t req
 					knh_Gamma_perror(ctx, KERR_DWARN, "invalid formatter: '%s'", fmt.text);
 					return knh_Token_toCONST(ctx, tkFMT);
 				}
-				TYPING(ctx, stmt, 2, TYPE_Any, 0);
+				TYPING(ctx, stmt, 2, TYPE_Object, 0);
 				KNH_SETv(ctx, DP(tkFMT)->data, DP(stmt)->terms[2]);
 				KNH_SETv(ctx, DP(stmt)->terms[2], knh_Token_toTYPED(ctx, tkFMT, TT_MT, TYPE_String, mn));
 				DBG_ASSERT(TT_(DP(stmt)->terms[1]) == TT_ASIS);
@@ -2273,7 +2271,7 @@ static knh_Term_t *knh_StmtFMT_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t req
 		LOCAL_NEW(ctx, lsfp, 0, knh_Array_t*, a, new_Array0(ctx, 0));
 		KNH_SETv(ctx, lsfp[1].o, DP(stmt)->terms[1]); // backups
 		knh_String_parseFMT(ctx, DP(tkFMT)->text, a, SP(tkFMT)->uri, SP(tkFMT)->line);
-		knh_Method_t *mtd = knh_lookupFormatter(ctx, CLASS_Array, MN__k);
+		knh_Method_t *mtd = knh_getSystemFormatter(ctx, CLASS_Array, MN__k);
 		knh_write_Object(ctx, KNH_STDOUT, ctx->esp, &mtd, UPCAST(a));
 		for(i = 0; i < knh_Array_size(a); i+= 2) {
 			if(IS_String(a->list[i]) && IS_String(a->list[i+1])) {

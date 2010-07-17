@@ -131,7 +131,7 @@ static knh_bool_t _isRecuriveFormatting(Ctx *ctx, knh_sfp_t *sfp)
 
 static void knh_stack_reformat(Ctx *ctx, knh_sfp_t *sfp, knh_methodn_t fmt)
 {
-	knh_Method_t *mtd = knh_lookupFormatter(ctx, knh_Object_cid(sfp[1].o), fmt);
+	knh_Method_t *mtd = knh_getSystemFormatter(ctx, knh_Object_cid(sfp[1].o), fmt);
 	mtd->fcall_1(ctx, sfp, K_RTNIDX);
 }
 
@@ -150,7 +150,7 @@ static
 void knh_write_ObjectField(Ctx *ctx, knh_OutputStream_t *w, Object **v, size_t i, knh_type_t type, knh_methodn_t mn)
 {
 	if(!knh_write_ndata(ctx, w, CLASS_type(type), knh_Object_ndata(v+i))) {
-		knh_Method_t *mtd = knh_lookupFormatter(ctx, CLASS_type(type), mn);
+		knh_Method_t *mtd = knh_getSystemFormatter(ctx, CLASS_type(type), mn);
 		knh_write_Object(ctx, w, ctx->esp, &mtd, v[i]);
 	}
 }
@@ -391,7 +391,7 @@ static METHOD Iterator__k(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	knh_OutputStream_t *w = WWW;
 	knh_ParamArray_t *pa = ClassTBL(knh_Object_cid(it)).cparam;
 	knh_class_t p1 = knh_Object_p1(it);
-	knh_Method_t *mtdf = knh_lookupFormatter(ctx, p1, MN__k);
+	knh_Method_t *mtdf = knh_getSystemFormatter(ctx, p1, MN__k);
 	if(pa->psize > 1) {
 		TODO();
 	}
@@ -496,7 +496,7 @@ static METHOD Array__k(Ctx *ctx, knh_sfp_t *sfp, long rix)
 			}
 		}
 		else if(knh_Array_size(a) > 0) {
-			knh_Method_t *mtd = knh_lookupFormatter(ctx, knh_Object_cid(a->list[0]), MN__k);
+			knh_Method_t *mtd = knh_getSystemFormatter(ctx, knh_Object_cid(a->list[0]), MN__k);
 			for(c = 0; c < knh_Array_size(a); c++) {
 				if(c > 0) knh_write_delim(ctx, w);
 				knh_write_Object(ctx, w, ctx->esp, &mtd, a->list[c]);
@@ -860,7 +860,7 @@ static METHOD Array__data(Ctx *ctx, knh_sfp_t *sfp, long rix)
 		}
 	}
 	else if(size > 0) {
-		knh_Method_t *mtd = knh_lookupFormatter(ctx, knh_Object_cid(a->list[0]), MN__data);
+		knh_Method_t *mtd = knh_getSystemFormatter(ctx, knh_Object_cid(a->list[0]), MN__data);
 		for(i = 0; i < size; i++) {
 			knh_write_BOL(ctx, w);
 			knh_write_Object(ctx, w, ctx->esp, &mtd, a->list[i]);

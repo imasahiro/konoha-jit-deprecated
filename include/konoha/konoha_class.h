@@ -511,9 +511,12 @@ typedef struct knh_Method_t {
 #define knh_Method_ptype(ctx, mtd, cid, n) \
 	knh_type_tocid(ctx, (knh_ParamArray_get(DP(mtd)->mp, n))->type, cid)
 
-#define knh_getMethodNULL(ctx, c, mn)    knh_findMethodNULL(ctx, c, mn, 0)
-#define knh_findMethod(ctx, c, mn)   knh_findMethodNULL(ctx, c, mn, 1)
-#define knh_getDefaultFormatter(ctx, mn)   knh_lookupFormatter(ctx, CLASS_Tvoid, mn)
+#define knh_getMethodNULL(ctx, c, mn)     knh_findMethodNULL(ctx, c, mn, 0)
+#define knh_getFormatterNULL(ctx, c, mn)  knh_findMethodNULL(ctx, c, mn, 0)
+#define knh_findMethod(ctx, c, mn)        knh_findMethodNULL(ctx, c, mn, 1)
+#define knh_findFormatter(ctx, c, mn)     knh_findMethodNULL(ctx, c, mn, 1)
+
+//#define knh_getDefaultFormatter(ctx, mn)   knh_lookupFormatter(ctx, CLASS_Tvoid, mn)
 
 #define knh_stack_argc(ctx, sfp)      (ctx->esp - (sfp))
 
@@ -938,6 +941,9 @@ typedef struct knh_NameSpace {
 	struct knh_DictMap_t*   lconstDictCaseMapNULL;
 	const struct knh_RegexSPI_t  *strregexSPI;
 	const struct knh_RegexSPI_t  *regexSPI;
+	struct knh_Array_t*     methodsNULL;
+	struct knh_Array_t*     formattersNULL;
+
 /*	struct knh_DictSet_t*   pathTrustDictSet; */
 /*	struct knh_DictMap_t*   tag2urnDictMap; */
 } knh_NameSpaceEX_t;

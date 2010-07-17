@@ -427,7 +427,7 @@ void knh_opcode_dump(Ctx *ctx, knh_opline_t *c, knh_OutputStream_t *w, knh_oplin
 		case VMT_TRL:
 		case VMT_OBJECT:
 		case VMT_STRING: {
-			knh_Method_t *mtd = knh_lookupFormatter(ctx, CLASS_String, MN__k);
+			knh_Method_t *mtd = knh_getSystemFormatter(ctx, CLASS_String, MN__k);
 			knh_write_Object(ctx, w, ctx->esp, &mtd, UPCAST(c->p[i]));
 			break;
 		}

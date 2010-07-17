@@ -561,7 +561,7 @@ static void knh_shell(Ctx *ctx, char *filename, const knh_ShellSPI_t *spi, const
 		}
 		for(i = 0; i < knh_Array_size(results); i++) {
 			knh_Object_t *o = results->list[i];
-			knh_Method_t *mtdf = knh_lookupFormatter(ctx, knh_Object_cid(o), MN__k);
+			knh_Method_t *mtdf = knh_getSystemFormatter(ctx, knh_Object_cid(o), MN__k);
 			knh_write_Object(ctx, cwb->w, lsfp+1, &mtdf, o);
 			knh_write_EOL(ctx, cwb->w);
 			spi->shell_display(ctx, shell_status, knh_cwb_tochar(ctx, cwb), api);

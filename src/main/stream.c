@@ -559,7 +559,7 @@ KNHAPI(void) knh_write_Object(Ctx *ctx, knh_OutputStream_t *w, knh_sfp_t *esp, k
 	knh_class_t cid = knh_Object_cid(o);
 	knh_Method_t *mtd = mtdP[0];
 	if(!knh_Method_isPoly(mtd, cid)) {
-		mtd = knh_lookupFormatter(ctx, cid, DP(mtd)->mn);
+		mtd = knh_getSystemFormatter(ctx, cid, DP(mtd)->mn);
 		mtdP[0] = mtd;
 	}
 	KNH_SETv(ctx, esp[K_CALLDELTA].o, w);
@@ -792,12 +792,12 @@ void knh_vprintf(Ctx *ctx, knh_OutputStream_t *w, const char *fmt, va_list ap)
 						}
 					case 'O': case 'o':
 						DBG_ASSERT(args[index].atype == VA_OBJECT);
-						mtd = knh_lookupFormatter(ctx, knh_Object_cid(args[index].ovalue), MN__s);
+						mtd = knh_getSystemFormatter(ctx, knh_Object_cid(args[index].ovalue), MN__s);
 						knh_write_Object(ctx, w, esp, &mtd, args[index].ovalue);
 						break;
 					case 'K': case 'k':
 						DBG_ASSERT(args[index].atype == VA_OBJECT);
-						mtd = knh_lookupFormatter(ctx, knh_Object_cid(args[index].ovalue), MN__k);
+						mtd = knh_getSystemFormatter(ctx, knh_Object_cid(args[index].ovalue), MN__k);
 						knh_write_Object(ctx, w, esp, &mtd, args[index].ovalue);
 						break;
 					case 'N': case 'F':

@@ -314,6 +314,7 @@ typedef knh_ushort_t       knh_ebi_t;    /* knh_ebi_t */
 #define IS_Tfloat(t)      (t == CLASS_Float || ClassTBL(CLASS_type(t)).bcid == CLASS_Float)
 #define IS_Tbool(t)       (TYPE_Boolean == t)
 #define IS_Tunbox(t)      (IS_Tint(t) || IS_Tfloat(t) || IS_Tbool(t))
+#define IS_Tnumbox(t)     (t == CLASS_Object || t == CLASS_Number)
 #define IS_Tfunc(t)       (ClassTBL(CLASS_type(t)).bcid == CLASS_Func)
 #define IS_Tstr(t)        (t == CLASS_String || ClassTBL(CLASS_type(t)).bcid == CLASS_String)
 

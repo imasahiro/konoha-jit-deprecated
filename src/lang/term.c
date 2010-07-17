@@ -226,7 +226,7 @@ void knh_write_token(Ctx *ctx,  knh_OutputStream_t *w, knh_Token_t *tk)
 	}else if(TT_(tk) == TT_ASIS) {
 		knh_putc(ctx, w, '_');
 	}else {
-		knh_Method_t *mtd = knh_lookupFormatter(ctx, knh_Object_cid(DP(tk)->data), MN__k);
+		knh_Method_t *mtd = knh_getSystemFormatter(ctx, knh_Object_cid(DP(tk)->data), MN__k);
 		knh_write_Object(ctx, w, ctx->esp, &mtd, DP(tk)->data);
 	}
 }
@@ -279,7 +279,7 @@ void knh_dump_token(Ctx *ctx, knh_OutputStream_t *w, knh_Token_t *tk)
 			}else if(TT_(tk) == TT_ASIS) {
 				knh_putc(ctx, w, '_');
 			}else {
-				knh_Method_t *mtd = knh_lookupFormatter(ctx, knh_Object_cid(DP(tk)->data), MN__k);
+				knh_Method_t *mtd = knh_getSystemFormatter(ctx, knh_Object_cid(DP(tk)->data), MN__k);
 				knh_write_Object(ctx, w, ctx->esp, &mtd, DP(tk)->data);
 			}
 		}

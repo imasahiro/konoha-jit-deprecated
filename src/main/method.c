@@ -571,7 +571,7 @@ knh_Method_t *knh_lookupMethod(Ctx *ctx, knh_class_t cid, knh_methodn_t mn)
 
 /* ------------------------------------------------------------------------ */
 
-knh_Method_t *knh_lookupFormatter(Ctx *ctx, knh_class_t cid, knh_methodn_t mn)
+knh_Method_t *knh_getSystemFormatter(Ctx *ctx, knh_class_t cid, knh_methodn_t mn)
 {
 	DBG_ASSERT(MN_isFMT(mn));
 	knh_hashcode_t h = ((((knh_hashcode_t)cid) << (sizeof(knh_class_t) * 8)) + mn) % K_CACHESIZE;
@@ -586,7 +586,7 @@ knh_Method_t *knh_lookupFormatter(Ctx *ctx, knh_class_t cid, knh_methodn_t mn)
 		knh_stat_fmtCacheMiss(ctx);
 		DBG_P("Cache[%ld] missed. looking up %s.%%%s <%s>", h, CLASS__(cid), MN__(mn), CLASS__(DP(mtd)->cid));
 	}
-	mtd = knh_findMethod(ctx, cid, mn);
+	mtd = knh_findFormatter(ctx, cid, mn);
 	ctx->fmtCache[h] = mtd;
 	DBG_ASSERT(IS_Method(mtd));
 	return mtd;

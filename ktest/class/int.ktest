@@ -168,13 +168,6 @@ konoha.Int
 >>> 1
 @ADD THIS TEST
 
-### int N + N with -N
->>> i1 = 1
->>> i2 = 2
->>> -i1 + i2
-1
->>> i1 + -i2
--1
 
 ### int N + N with N++
 >>> i1 = 1

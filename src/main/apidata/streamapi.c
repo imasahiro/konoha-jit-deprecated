@@ -258,7 +258,7 @@ static METHOD OutputStream_print(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	knh_OutputStream_t *w = (knh_OutputStream_t*)sfp[0].o;
 	knh_sfp_t *v = sfp + 1;
 	size_t i, ac = knh_stack_argc(ctx, v);
-	knh_Method_t *mtd = knh_getDefaultFormatter(ctx, MN__s);
+	knh_Method_t *mtd = knh_findFormatter(ctx, knh_Object_cid(v[i].o), MN__s);
 	for(i = 0; i < ac; i++) {
 		if(IS_bString(v[i].o)) {
 			if(v[i].s == TS_EOL) {
@@ -332,7 +332,7 @@ static METHOD OutputStream_writeData(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	knh_sfp_t *v = sfp + 1;
 	int i, ac = knh_stack_argc(ctx, v);
 	knh_intptr_t indent = DP(w)->indent;
-	knh_Method_t *mtd = knh_getDefaultFormatter(ctx, MN__data);
+	knh_Method_t *mtd = knh_findFormatter(ctx, knh_Object_cid(v[i].o), MN__data);
 	for(i = 0; i < ac; i++) {
 		DP(w)->indent = 0;
 		if(!knh_write_ndata(ctx, w, knh_Object_bcid(v[i].o), v[i].data)) {
