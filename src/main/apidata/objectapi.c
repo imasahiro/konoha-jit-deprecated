@@ -124,7 +124,7 @@ static METHOD Method_getName(Ctx *ctx, knh_sfp_t *sfp, long rix)
 //	if(ac == 1) {
 //		knh_class_t cid = knh_Object_cid(sfp[1].o);
 //		if(cid != DP(mtdf)->cid) {
-//			mtdf = knh_lookupFormatter(ctx, cid, DP(mtdf)->mn);
+//			mtdf = knh_getSystemFormatter(ctx, cid, DP(mtdf)->mn);
 //		}
 //		KNH_SETv(ctx, sfp[2].o, cwb->w);
 //		KNH_SCALL(ctx, sfp, -2, mtdf, 1);

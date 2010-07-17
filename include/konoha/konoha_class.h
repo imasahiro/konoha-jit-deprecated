@@ -516,7 +516,7 @@ typedef struct knh_Method_t {
 #define knh_findMethod(ctx, c, mn)        knh_findMethodNULL(ctx, c, mn, 1)
 #define knh_findFormatter(ctx, c, mn)     knh_findMethodNULL(ctx, c, mn, 1)
 
-//#define knh_getDefaultFormatter(ctx, mn)   knh_lookupFormatter(ctx, CLASS_Tvoid, mn)
+//#define knh_getDefaultFormatter(ctx, mn)   knh_getSystemFormatter(ctx, CLASS_Tvoid, mn)
 
 #define knh_stack_argc(ctx, sfp)      (ctx->esp - (sfp))
 

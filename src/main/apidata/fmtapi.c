@@ -522,7 +522,7 @@ static METHOD Map__k(Ctx *ctx, knh_sfp_t *sfp, long rix)
 //		knh_DictMap_sort(o);
 //		if(knh_DictMap_size(o) > 0) {
 //			size_t c;
-//			knh_Method_t *mtd = knh_lookupFormatter(ctx, knh_Object_cid(o->list[0].value), MN__k);
+//			knh_Method_t *mtd = knh_getSystemFormatter(ctx, knh_Object_cid(o->list[0].value), MN__k);
 //			for(c = 0; c < o->size; c++) {
 //				if(c > 0) knh_write_delim(ctx, w);
 //				knh_write(ctx, w, S_tobytes(o->list[c].key));
@@ -883,7 +883,7 @@ static METHOD Map__data(Ctx *ctx, knh_sfp_t *sfp, long rix)
 //	knh_DictMap_sort(o);
 //	knh_write_begin(ctx, w, '{');
 //	if(size > 0) {
-//		knh_Method_t *mtd = knh_lookupFormatter(ctx, knh_Object_cid(knh_DictMap_valueAt(o, i)), MN__data);
+//		knh_Method_t *mtd = knh_getSystemFormatter(ctx, knh_Object_cid(knh_DictMap_valueAt(o, i)), MN__data);
 //		for(; i < size; i++) {
 //			knh_write_BOL(ctx, w);
 //			knh_write(ctx, w, S_tobytes(knh_DictMap_keyAt(o, i)));

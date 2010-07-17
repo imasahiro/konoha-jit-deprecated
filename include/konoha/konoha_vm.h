@@ -740,7 +740,7 @@ typedef KLRAPI(void) (*klr_Fsetidx)(Ctx *, knh_sfp_t *, int, int, int, size_t);
 
 /* ------------------------------------------------------------------------ */
 
-#define KNH_SECURE(ctx, sfp) knh_stack_checkSecurityManager(ctx, sfp)
+#define KNH_SECURE(ctx, sfp) knh_checkSecurityManager(ctx, sfp)
 
 /* ------------------------------------------------------------------------ */
 

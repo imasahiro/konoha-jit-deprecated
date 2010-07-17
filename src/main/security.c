@@ -351,8 +351,8 @@ void knh_checkSecurityAlert(void)
 /* ======================================================================== */
 /* [Trusted] */
 
-	KNHAPI(void) knh_stack_checkSecurityManager(Ctx *ctx, knh_sfp_t *sfp)
-	{
+void knh_checkSecurityManager(Ctx *ctx, knh_sfp_t *sfp)
+{
 //	/* VERY SLOW */
 //	knh_sfp_t *sp = sfp - 2;
 //	while(ctx->stack < sp) {
@@ -365,7 +365,7 @@ void knh_checkSecurityAlert(void)
 //		}
 //		sp--;
 //	}
-	}
+}
 
 /* ------------------------------------------------------------------------ */
 

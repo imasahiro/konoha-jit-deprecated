@@ -157,7 +157,7 @@ KNHAPI(void) knh_stack_boxing(Ctx *ctx, knh_sfp_t *sfp)
 //
 //KNHAPI(void) knh_stack_w(Ctx *ctx, knh_sfp_t *sfp, knh_sfp_t *one, knh_methodn_t mn, knh_OutputStream_t *w)
 //{
-//	knh_Method_t *mtd = knh_lookupFormatter(ctx, knh_Object_cid(one[0].o), mn);
+//	knh_Method_t *mtd = knh_getSystemFormatter(ctx, knh_Object_cid(one[0].o), mn);
 //	KNH_SETv(ctx, sfp[3].o, one[0].o); sfp[3].data = one[0].data;
 //	KNH_SETv(ctx, sfp[4].o, w);
 //	KNH_SCALL(ctx, sfp, 0, mtd, 1);

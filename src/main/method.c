@@ -571,9 +571,8 @@ knh_Method_t *knh_lookupMethod(Ctx *ctx, knh_class_t cid, knh_methodn_t mn)
 
 /* ------------------------------------------------------------------------ */
 
-knh_Method_t *knh_getSystemFormatter(Ctx *ctx, knh_class_t cid, knh_methodn_t mn)
+static knh_Method_t *knh_getSystemFormatterNULL(Ctx *ctx, knh_class_t cid, knh_methodn_t mn)
 {
-	DBG_ASSERT(MN_isFMT(mn));
 	knh_hashcode_t h = ((((knh_hashcode_t)cid) << (sizeof(knh_class_t) * 8)) + mn) % K_CACHESIZE;
 	knh_Method_t *mtd = ctx->fmtCache[h];
 	if(mtd != NULL) {
@@ -586,9 +585,33 @@ knh_Method_t *knh_getSystemFormatter(Ctx *ctx, knh_class_t cid, knh_methodn_t mn
 		knh_stat_fmtCacheMiss(ctx);
 		DBG_P("Cache[%ld] missed. looking up %s.%%%s <%s>", h, CLASS__(cid), MN__(mn), CLASS__(DP(mtd)->cid));
 	}
-	mtd = knh_findFormatter(ctx, cid, mn);
+	mtd = knh_getFormatterNULL(ctx, cid, mn);
+	if(mtd == NULL) return NULL;
 	ctx->fmtCache[h] = mtd;
 	DBG_ASSERT(IS_Method(mtd));
+	return mtd;
+}
+
+knh_Method_t *knh_getSystemFormatter(Ctx *ctx, knh_class_t cid, knh_methodn_t mn0)
+{
+	knh_methodn_t mn = mn0;
+	knh_Method_t *mtd = knh_getSystemFormatterNULL(ctx, cid, mn0);
+	if(mtd == NULL && mn0 == MN__dump) {
+		mn0 = MN__data;
+		mtd = knh_getSystemFormatterNULL(ctx, cid, mn0);
+	}
+	if(mtd == NULL && mn0 == MN__data) {
+		mn0 = MN__k;
+		mtd = knh_getSystemFormatterNULL(ctx, cid, mn0);
+	}
+	if(mtd == NULL && mn0 == MN__k) {
+		mn0 = MN__s;
+		mtd = knh_getSystemFormatterNULL(ctx, cid, mn0);
+	}
+	if(mtd == NULL) {
+		mtd = knh_findFormatter(ctx, cid, mn);
+		DBG_ASSERT(mtd != NULL);
+	}
 	return mtd;
 }
 

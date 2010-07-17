@@ -1831,7 +1831,7 @@ static knh_Method_t* knh_NameSpace_getFormatterNULL(Ctx *ctx, knh_NameSpace_t *n
 static void knh_NameSpace_addFormatter(Ctx *ctx, knh_NameSpace_t *ns, knh_Method_t *mtd)
 {
 	if(DP(ns)->formattersNULL != NULL) {
-		KNH_INITv(DP(ns)->formatters, new_Array0(ctx, 0));
+		KNH_INITv(DP(ns)->formattersNULL, new_Array0(ctx, 0));
 	}
 	knh_Array_add(ctx, DP(ns)->formattersNULL, mtd);
 }
@@ -1846,7 +1846,7 @@ static knh_Method_t* knh_Gamma_getFormatter(Ctx *ctx, knh_class_t cid, knh_metho
 	knh_methodn_t mn = mn0;
 	knh_Method_t *mtd = knh_NameSpace_getFormatterNULL(ctx, DP(ctx->gma)->ns, cid, mn);
 	if(mtd == NULL) {
-		mtd = knh_getFormatterNULL(ctx, c, mn);
+		mtd = knh_getFormatterNULL(ctx, cid, mn);
 	}
 	if(mtd != NULL && mn == MN__data) {
 		mn = MN__k;
@@ -1910,7 +1910,7 @@ static void knh_StmtW_asmIN(Ctx *ctx, knh_Stmt_t *stmt, size_t thisidx)
 			TERMs_asm(ctx, stmt, i, cid, thisidx + 1);
 			if(IS_Tstr(cid)) {
 				mtd = knh_getMethodNULL(ctx, CLASS_OutputStream, MN_opSEND);
-				DBG_P(mtd != NULL);
+				DBG_ASSERT(mtd != NULL);
 			}
 			else {
 				mtd = knh_Gamma_getFormatter(ctx, cid, MN__s);

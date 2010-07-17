@@ -114,25 +114,25 @@ static METHOD String_endsWith(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	RETURNb_(knh_bytes_endsWith(S_tobytes(sfp[0].s), S_tobytes(sfp[1].s)));
 }
 
-/* ------------------------------------------------------------------------ */
-//## @Const method String String.concat(Object value, ...);
-//## @Const method String String.opADD(Any value);
-
-static METHOD String_concat(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	int i, ac = knh_stack_argc(ctx, sfp);
-	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-	knh_Method_t *mtd = knh_getDefaultFormatter(ctx, MN__s);
-	for(i = 0; i < ac; i++) {
-		if(IS_bString(sfp[i].o)) {
-			knh_Bytes_write(ctx, cwb->ba, S_tobytes(sfp[i].s));
-		}
-		else if(!knh_write_ndata(ctx, cwb->w, knh_Object_bcid(sfp[i].o), sfp[i].data)) {
-			knh_write_Object(ctx, cwb->w, sfp+ac, &mtd, sfp[i].o);
-		}
-	}
-	RETURN_(knh_cwb_newString(ctx, cwb));
-}
+///* ------------------------------------------------------------------------ */
+////## @Const method String String.concat(Object value, ...);
+////## @Const method String String.opADD(Any value);
+//
+//static METHOD String_concat(Ctx *ctx, knh_sfp_t *sfp, long rix)
+//{
+//	int i, ac = knh_stack_argc(ctx, sfp);
+//	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
+//	knh_Method_t *mtd = knh_getDefaultFormatter(ctx, MN__s);
+//	for(i = 0; i < ac; i++) {
+//		if(IS_bString(sfp[i].o)) {
+//			knh_Bytes_write(ctx, cwb->ba, S_tobytes(sfp[i].s));
+//		}
+//		else if(!knh_write_ndata(ctx, cwb->w, knh_Object_bcid(sfp[i].o), sfp[i].data)) {
+//			knh_write_Object(ctx, cwb->w, sfp+ac, &mtd, sfp[i].o);
+//		}
+//	}
+//	RETURN_(knh_cwb_newString(ctx, cwb));
+//}
 
 /* ------------------------------------------------------------------------ */
 //## @Const method Int String.indexOf(Regex re);
