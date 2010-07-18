@@ -112,7 +112,7 @@ typedef struct knh_PathDSPI_t {
 	knh_ushort_t pathtype;
 	knh_ushort_t cid;
 	knh_bool_t (*exists)(Ctx *, knh_bytes_t, knh_intptr_t *);
-	Object* (*newObjectNULL)(Ctx *, knh_class_t, knh_String_t *s);
+	Object* (*newObjectNULL)(Ctx *, knh_class_t, knh_String_t *);
 } knh_PathDSPI_t;
 
 /* ------------------------------------------------------------------------ */

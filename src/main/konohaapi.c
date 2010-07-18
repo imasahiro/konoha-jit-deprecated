@@ -232,9 +232,8 @@ void knh_loadPackageList(Ctx *ctx, const char *pkglist)
 		L_NEXT:;
 		isExists = 0;
 		while(i < t.len + 1) {
-			char *c = buf + 8;
-			buf[0] = 'p'; buf[1] = 'a'; buf[2] = 'c'; buf[3] = 'k';
-			buf[4] = 'a'; buf[5] = 'g'; buf[6] = 'e'; buf[7] = ':';
+			char *c = buf + 4;
+			buf[0] = 'p'; buf[1] = 'k'; buf[2] = 'g'; buf[3] = ':';
 			while(i < t.len + 1) {
 				int ch = t.ubuf[i];
 				i++;

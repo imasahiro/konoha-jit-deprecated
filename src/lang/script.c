@@ -230,7 +230,7 @@ static void knh_Gamma_swapPackage(Ctx *ctx, knh_Package_t *pkg)
 knh_bool_t knh_loadPackage(Ctx *ctx, knh_bytes_t path)
 {
 	int res = 1;
-	knh_bytes_t name = knh_bytes_last(path, 8);
+	knh_bytes_t name = knh_bytes_last(path, sizeof("pkg:") - 1);
 	knh_Package_t *pkg = (knh_Package_t*)knh_DictMap_getNULL(ctx, DP(ctx->sys)->PackageDictMap, name);
 	if(pkg == NULL) {
 		knh_PathDSPI_t *dspi = knh_getPathDSPINULL(ctx, path);
@@ -278,7 +278,7 @@ static void knh_NameSpace_setcid(Ctx *ctx, knh_NameSpace_t *ns, knh_String_t *na
 static int knh_StmtUSINGCLASS_eval(Ctx *ctx, knh_Stmt_t *stmt, size_t n)
 {
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-	knh_Bytes_write(ctx, cwb->ba, STEXT("package:"));
+	knh_Bytes_write(ctx, cwb->ba, STEXT("pkg:"));
 	knh_Token_t *tkPKG = DP(stmt)->tokens[n], *tkN;
 	knh_Bytes_write(ctx, cwb->ba, S_tobytes(DP(tkPKG)->text));
 	while(1) {
@@ -312,7 +312,7 @@ static int knh_StmtUSINGCLASS_eval(Ctx *ctx, knh_Stmt_t *stmt, size_t n)
 		else if(TT_(tkN) == TT_UNAME) {
 			knh_class_t newcid;
 			knh_String_t* cname = DP(tkN)->text;
-			knh_Bytes_write(ctx, cwb->ba, knh_bytes_last(S_tobytes(DP(tkPKG)->text), sizeof("pcckage")));
+			knh_Bytes_write(ctx, cwb->ba, knh_bytes_last(S_tobytes(DP(tkPKG)->text), sizeof("pkg")));
 			knh_Bytes_putc(ctx, cwb->ba, '.');
 			knh_Bytes_write(ctx, cwb->ba, S_tobytes(cname));
 			newcid = knh_getcid(ctx, knh_cwb_tobytes(cwb));

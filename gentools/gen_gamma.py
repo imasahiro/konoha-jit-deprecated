@@ -104,7 +104,8 @@ OP = '''
 or TT_OR            @opOR  @P5
 and TT_AND          @opAND @P6
 not TT_NOT          @opNOT @P7  @A1
-exists  TT_EXISTS      @P7  @opEXISTS
+exists  TT_EXISTS      @P8  @opEXISTS
+
 #begin TT_isBINARY
 is?  TT_IS             @opIS    @P9  @A2
 instanceof TT_OF       @opOF    @P9  @A2
@@ -134,11 +135,11 @@ until -                 @opUNTIL @A2   @P15
 & TT_LAND                 @opLAND @P27
 |  TT_LOR                 @opLOR  @P27
 #end TT_isBINARY
+
 ^  TT_XOR                 @opLXOR @P27
 ~  TT_LNOT                @opLNOT @A1 @top  @P27
 ++ TT_NEXT                @opNEXT @A1 @top  @P28
 -- TT_PREV                @opPREV @A1 @top  @P28
-** TT_PATH                @opPATH  @A1 @top @P28
 .. TT_ITR                 @opITR  @A1 @top  @P28
 *** TT_TMUL               @opEXPAND    @A1 @top  @P28
 +++ TT_TADD               @opPLUS    @A1 @top  @P28
@@ -191,6 +192,7 @@ err   - @stmt
 let     - @stmt  @expr
 new     - @stmt  @expr
 tcast   - @stmt  @expr
+qcast   - @stmt  @expr
 func    - @stmt  @expr
 call    - @stmt  @expr
 pcall   - @stmt  @expr
@@ -215,6 +217,7 @@ DOC -
 METAN - 
 PROPN - 
 URN - 
+QPATH -
 NAME - 
 UNAME - 
 FUNCNAME - 

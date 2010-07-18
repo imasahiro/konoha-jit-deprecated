@@ -44,11 +44,11 @@ extern "C" {
 /* ======================================================================== */
 /* K_PATH_DSPI */
 
-static knh_bytes_t knh_bytes_path(knh_bytes_t t)
+static knh_bytes_t knh_bytes_skipQPATH(knh_bytes_t qpath, knh_bytes_t t)
 {
-	knh_index_t loc = knh_bytes_index(t, ':');
-	if(loc >= 0) {
-		return knh_bytes_last(t, loc + 1);
+	if(knh_bytes_startsWith(t, qpath)) {
+		t.ustr = t.ustr + qpath.len;
+		t.len = t.len - qpath.len;
 	}
 	return t;
 }
@@ -86,7 +86,7 @@ static Object* new_Converter(Ctx *ctx, knh_class_t cid, knh_String_t *path, knh_
 
 static knh_bool_t TO_exists(Ctx *ctx, knh_bytes_t path, knh_intptr_t *id)
 {
-	knh_ConverterDSPI_t *dspi = knh_getConvTODSPINULL(ctx, knh_bytes_path(path));
+	knh_ConverterDSPI_t *dspi = knh_getConvTODSPINULL(ctx, knh_bytes_skipQPATH(STEXT("to:"), path));
 	if(dspi != NULL) {
 		*id = (knh_intptr_t)dspi;
 	}
@@ -95,7 +95,7 @@ static knh_bool_t TO_exists(Ctx *ctx, knh_bytes_t path, knh_intptr_t *id)
 
 static knh_Object_t* TO_newObjectNULL(Ctx *ctx, knh_class_t cid, knh_String_t *s)
 {
-	knh_bytes_t path = knh_bytes_path(S_tobytes(s));
+	knh_bytes_t path = knh_bytes_skipQPATH(STEXT("to:"), S_tobytes(s));
 	knh_ConverterDSPI_t *dspi = knh_getConvTODSPINULL(ctx, path);
 	if(dspi != NULL) {
 		if(cid == CLASS_StringConverter && dspi->sconv != NULL) {
@@ -117,7 +117,7 @@ static knh_Object_t* TO_newObjectNULL(Ctx *ctx, knh_class_t cid, knh_String_t *s
 
 static knh_bool_t FROM_exists(Ctx *ctx, knh_bytes_t path, knh_intptr_t *id)
 {
-	knh_ConverterDSPI_t *dspi = knh_getConvFROMDSPINULL(ctx, knh_bytes_path(path));
+	knh_ConverterDSPI_t *dspi = knh_getConvFROMDSPINULL(ctx, knh_bytes_skipQPATH(STEXT("from:"), path));
 	if(dspi != NULL) {
 		*id = (knh_intptr_t)dspi;
 	}
@@ -126,7 +126,7 @@ static knh_bool_t FROM_exists(Ctx *ctx, knh_bytes_t path, knh_intptr_t *id)
 
 static knh_Object_t* FROM_newObjectNULL(Ctx *ctx, knh_class_t cid, knh_String_t *s)
 {
-	knh_bytes_t path = knh_bytes_path(S_tobytes(s));
+	knh_bytes_t path = knh_bytes_skipQPATH(STEXT("from:"), S_tobytes(s));
 	knh_ConverterDSPI_t *dspi = knh_getConvFROMDSPINULL(ctx, path);
 	if(dspi != NULL) {
 		if(cid == CLASS_StringConverter && dspi->sconv != NULL) {
@@ -160,7 +160,7 @@ static knh_PathDSPI_t FROM_DSPI = {
 
 static knh_bool_t CHARSET_exists(Ctx *ctx, knh_bytes_t path, knh_intptr_t *id)
 {
-	knh_bytes_t t = knh_bytes_path(path);
+	knh_bytes_t t = knh_bytes_skipQPATH(STEXT("charset:"), path);
 	if(ctx->share->iconvDSPI == NULL) {
 		((knh_share_t*)ctx->share)->iconvDSPI = knh_getConvTODSPINULL(ctx, STEXT("iconv"));
 	}
@@ -215,7 +215,7 @@ knh_StringEncoder_t* new_StringEncoderNULL(Ctx *ctx, knh_bytes_t t)
 
 static knh_Object_t* CHARSET_newObjectNULL(Ctx *ctx, knh_class_t cid, knh_String_t *s)
 {
-	knh_bytes_t t = knh_bytes_path(S_tobytes(s));
+	knh_bytes_t t = knh_bytes_skipQPATH(STEXT("charset:"), S_tobytes(s));
 	if(cid == CLASS_StringEncoder) {
 		return (knh_Object_t*)new_StringEncoderNULL(ctx, t);
 	}
@@ -233,7 +233,7 @@ static knh_PathDSPI_t CHARSETPATH_DSPI = {
 
 static knh_bool_t CLASS_exists(Ctx *ctx, knh_bytes_t path, knh_intptr_t *id)
 {
-	knh_class_t cid = knh_NameSpace_getcid(ctx, knh_getGammaNameSpace(ctx), knh_bytes_path(path));
+	knh_class_t cid = knh_NameSpace_getcid(ctx, knh_getGammaNameSpace(ctx), knh_bytes_skipQPATH(STEXT("class:"), path));
 	if(cid != CLASS_unknown) {
 		if(id != NULL) *id = cid;
 	}
@@ -242,7 +242,7 @@ static knh_bool_t CLASS_exists(Ctx *ctx, knh_bytes_t path, knh_intptr_t *id)
 
 static knh_Object_t* CLASS_newObjectNULL(Ctx *ctx, knh_class_t cid, knh_String_t *s)
 {
-	cid = knh_NameSpace_getcid(ctx, knh_getGammaNameSpace(ctx), knh_bytes_path(S_tobytes(s)));
+	cid = knh_NameSpace_getcid(ctx, knh_getGammaNameSpace(ctx), knh_bytes_skipQPATH(STEXT("class:"), S_tobytes(s)));
 	DBG_ASSERT(cid != CLASS_unknown);
 	return UPCAST(new_Type(ctx, cid));
 }
@@ -255,7 +255,7 @@ static knh_PathDSPI_t CLASSPATH_DSPI = {
 
 static knh_bool_t METHOD_exists(Ctx *ctx, knh_bytes_t path, knh_intptr_t *id)
 {
-	knh_bytes_t t = knh_bytes_path(path);
+	knh_bytes_t t = knh_bytes_skipQPATH(STEXT("method:"), path);
 	knh_index_t idx = knh_bytes_rindex(t, '.');
 	if(idx != -1) {
 		knh_class_t cid = knh_NameSpace_getcid(ctx, knh_getGammaNameSpace(ctx), knh_bytes_first(t, idx));
@@ -289,7 +289,7 @@ static knh_PathDSPI_t METHODPATH_DSPI = {
 
 static knh_bool_t FILE_exists(Ctx *ctx, knh_bytes_t path, knh_intptr_t *id)
 {
-	knh_bytes_t n = knh_bytes_path(path);
+	knh_bytes_t n = knh_bytes_skipQPATH(STEXT("file:"), path);
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_openinit(ctx, &cwbbuf, n);
 	knh_cwb_ospath(ctx, cwb);
 	knh_bool_t res = knh_cwb_isfile(ctx, cwb);
@@ -311,7 +311,7 @@ static knh_Object_t* FILE_newObjectNULL(Ctx *ctx, knh_class_t cid, knh_String_t 
 
 static knh_bool_t DIR_exists(Ctx *ctx, knh_bytes_t path, knh_intptr_t *id)
 {
-	knh_bytes_t n = knh_bytes_path(path);
+	knh_bytes_t n = knh_bytes_skipQPATH(STEXT("dir:"), path);
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_openinit(ctx, &cwbbuf, n);
 	knh_cwb_ospath(ctx, cwb);
 	knh_bool_t res = knh_cwb_isdir(ctx, cwb);
@@ -325,7 +325,7 @@ static knh_bool_t DIR_exists(Ctx *ctx, knh_bytes_t path, knh_intptr_t *id)
 
 static knh_Object_t* DIR_newObjectNULL(Ctx *ctx, knh_class_t cid, knh_String_t *s)
 {
-	knh_bytes_t n = knh_bytes_path(S_tobytes(s));
+	knh_bytes_t n = knh_bytes_skipQPATH(STEXT("dir:"), S_tobytes(s));
 	if(cid == CLASS_StringARRAY || cid == CLASS_Array) {
 		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 		knh_cwb_write(ctx, cwb, n);
@@ -372,7 +372,7 @@ static knh_PathDSPI_t DIRPATH_DSPI = {
 static knh_bool_t LIB_exists(Ctx *ctx, knh_bytes_t path, knh_intptr_t *id)
 {
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-	knh_bytes_t libname = knh_bytes_path(path), funcname = STEXT(""); /* lib:m.sin */
+	knh_bytes_t libname = knh_bytes_skipQPATH(STEXT("lib:"), path), funcname = STEXT(""); /* lib:m.sin */
 	knh_index_t loc = knh_bytes_index(libname, '.');
 	if(loc != -1) {
 		libname = knh_bytes_first(libname, loc);
@@ -465,7 +465,7 @@ static knh_StreamDSPI_t NOFILE_DSPI = {
 
 static knh_io_t FILE_open(Ctx *ctx, knh_bytes_t path, const char *mode)
 {
-	knh_cwb_t cwbbuf, *cwb = knh_cwb_openinit(ctx, &cwbbuf, knh_bytes_path(path));
+	knh_cwb_t cwbbuf, *cwb = knh_cwb_openinit(ctx, &cwbbuf, knh_bytes_skipQPATH(STEXT("file:"), path));
 	knh_cwb_ospath(ctx, cwb);
 	FILE *fp = knh_fopen(ctx, knh_cwb_tochar(ctx, cwb), mode, /*isPERROR*/1);
 	knh_cwb_close(cwb);
@@ -579,7 +579,7 @@ static knh_bool_t knh_cwb_existsTOOL(Ctx *ctx, knh_cwb_t *cwb, knh_bytes_t path)
 static knh_bool_t TOOL_exists(Ctx *ctx, knh_bytes_t path, knh_intptr_t *id)
 {
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-	knh_bool_t res = knh_cwb_existsTOOL(ctx, cwb, knh_bytes_path(path));
+	knh_bool_t res = knh_cwb_existsTOOL(ctx, cwb, knh_bytes_skipQPATH(STEXT("tool:"), path));
 	if(res == 1) {
 		knh_cwb_record(ctx, cwb, id);
 	}
@@ -597,7 +597,7 @@ static knh_io_t TOOL_open(Ctx *ctx, knh_bytes_t path, const char *mode)
 {
 	FILE *fp = NULL;
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-	knh_bool_t res = knh_cwb_existsTOOL(ctx, cwb, knh_bytes_path(path));
+	knh_bool_t res = knh_cwb_existsTOOL(ctx, cwb, knh_bytes_skipQPATH(STEXT("tool:"), path));
 	if(res == 1) {
 		fp = knh_fopen(ctx, knh_cwb_tochar(ctx, cwb), mode, /*isPERROR*/1);
 	}
@@ -655,7 +655,7 @@ static knh_bool_t knh_cwb_existsPKG(Ctx *ctx, knh_cwb_t *cwb, knh_bytes_t path)
 static knh_bool_t PKG_exists(Ctx *ctx, knh_bytes_t path, knh_intptr_t *id)
 {
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-	knh_bool_t res = knh_cwb_existsPKG(ctx, cwb, knh_bytes_path(path));
+	knh_bool_t res = knh_cwb_existsPKG(ctx, cwb, knh_bytes_skipQPATH(STEXT("pkg:"), path));
 	if(res == 1) {
 		knh_cwb_record(ctx, cwb, id);
 	}
@@ -667,7 +667,7 @@ static knh_io_t PKG_open(Ctx *ctx, knh_bytes_t path, const char *mode)
 {
 	FILE *fp = NULL;
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-	knh_bool_t res = knh_cwb_existsPKG(ctx, cwb, knh_bytes_path(path));
+	knh_bool_t res = knh_cwb_existsPKG(ctx, cwb, knh_bytes_skipQPATH(STEXT("pkg:"), path));
 	if(res == 1) {
 		fp = knh_fopen(ctx, knh_cwb_tochar(ctx, cwb), mode, /*isPERROR*/1);
 	}
@@ -676,13 +676,13 @@ static knh_io_t PKG_open(Ctx *ctx, knh_bytes_t path, const char *mode)
 }
 
 static knh_PathDSPI_t PKGPATH_DSPI = {
-	K_PATH_DSPI, "package",
+	K_PATH_DSPI, "pkg",
 	PATH_STREAM, CLASS_InputStream,
 	PKG_exists, NULL,
 };
 
 static knh_StreamDSPI_t PKGFILE_DSPI = {
-	K_STREAM_DSPI, "package", 0,
+	K_STREAM_DSPI, "pkg", 0,
 	PKG_open, NOFILE_wopen, FILE_read, NOFILE_write, FILE_close,
 	FILE_feof, FILE_getc,
 };
@@ -713,7 +713,7 @@ static void knh_cwb_writeSCRIPT(Ctx *ctx, knh_cwb_t *cwb, knh_bytes_t path)
 static knh_bool_t SCRIPT_exists(Ctx *ctx, knh_bytes_t path, knh_intptr_t *id)
 {
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-	knh_cwb_writeSCRIPT(ctx, cwb, knh_bytes_path(path));
+	knh_cwb_writeSCRIPT(ctx, cwb, knh_bytes_skipQPATH(STEXT("script:"), path));
 	knh_bool_t res = knh_cwb_isfile(ctx, cwb);
 	if(res == 1) {
 		knh_cwb_record(ctx, cwb, id);
@@ -725,7 +725,7 @@ static knh_bool_t SCRIPT_exists(Ctx *ctx, knh_bytes_t path, knh_intptr_t *id)
 static knh_io_t SCRIPT_open(Ctx *ctx, knh_bytes_t path, const char *mode)
 {
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-	knh_cwb_writeSCRIPT(ctx, cwb, knh_bytes_path(path));
+	knh_cwb_writeSCRIPT(ctx, cwb, knh_bytes_skipQPATH(STEXT("script:"), path));
 	FILE *fp = knh_fopen(ctx, knh_cwb_tochar(ctx, cwb), mode, /*isPERROR*/1);
 	knh_cwb_close(cwb);
 	return (knh_io_t)fp;
@@ -808,7 +808,7 @@ static void knh_sqlite3_perror(Ctx *ctx, sqlite3 *db, int r)
 static knh_qconn_t *SQLITE3_qopen(Ctx *ctx, knh_bytes_t url)
 {
 	sqlite3 *db = NULL;
-	url = knh_bytes_path(url);
+	url = knh_bytes_skipQPATH(STEXT(""), url);
 	int r = sqlite3_open(url.text, &db);
 	if (r != SQLITE_OK) {
 		return NULL;
@@ -985,7 +985,7 @@ void knh_loadDriver(Ctx *ctx)
 	api->addPathDSPI(ctx, "dir", &DIRPATH_DSPI, 0/*isOVERRIDE*/);
 	api->addPathDSPI(ctx, "lib", &LIBPATH_DSPI, 0/*isOVERRIDE*/);
 
-	api->addPathDSPI(ctx, "package", &PKGPATH_DSPI, 0/*isOVERRIDE*/);
+	api->addPathDSPI(ctx, "pkg", &PKGPATH_DSPI, 0/*isOVERRIDE*/);
 	api->addPathDSPI(ctx, "script", &SCRIPTPATH_DSPI, 0/*isOVERRIDE*/);
 	api->addPathDSPI(ctx, "tool", &TOOLPATH_DSPI, 0/*isOVERRIDE*/);
 
@@ -996,7 +996,7 @@ void knh_loadDriver(Ctx *ctx)
 	api->addStreamDSPI(ctx, "file", &FILE_DSPI, 0/*isOVERRIDE*/);
 	api->addStreamDSPI(ctx, "script", &SCRIPTFILE_DSPI, 0/*isOVERRIDE*/);
 	api->addStreamDSPI(ctx, "tool", &TOOLFILE_DSPI, 0/*isOVERRIDE*/);
-	api->addStreamDSPI(ctx, "package", &PKGFILE_DSPI, 0/*isOVERRIDE*/);
+	api->addStreamDSPI(ctx, "pkg", &PKGFILE_DSPI, 0/*isOVERRIDE*/);
 
 	api->addQueryDSPI(ctx, NULL, &NOP_DSPI, 0/*isOVERRIDE*/);
 #ifdef K_USING_SQLITE3

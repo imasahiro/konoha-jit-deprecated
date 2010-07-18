@@ -990,10 +990,13 @@ static knh_Term_t* knh_TokenESTR_typing(Ctx *ctx, knh_Token_t *tk, knh_class_t r
 static knh_Term_t* knh_TokenURN_typing(Ctx *ctx, knh_Token_t *tk, knh_class_t reqt)
 {
 	knh_bytes_t path = S_tobytes(DP(tk)->text);
-	knh_PathDSPI_t *dspi = knh_getPathDSPINULL(ctx, path);
+	knh_PathDSPI_t *dspi = knh_NameSpace_getPathDSPINULL(ctx, DP(ctx->gma)->ns, path);
 	if(dspi == NULL) {
-		knh_Gamma_perror(ctx, KERR_ERR, "unsupported path scheme: '%s'", path);
+		knh_Gamma_perror(ctx, KERR_ERR, "unknown path: %s", path);
 		return NULL;
+	}
+	if(TT_(tk) == TT_QPATH) {
+		return knh_Token_toCONST(ctx, tk);
 	}
 	if(reqt == TYPE_Boolean) {
 		knh_Object_t *tf = dspi->exists(ctx, path, NULL) ? KNH_TRUE : KNH_FALSE;
@@ -1029,16 +1032,17 @@ static knh_Term_t *knh_Token_typing(Ctx *ctx, knh_Token_t *tk, knh_type_t reqt)
 	case TT_UNAME: tm = knh_TokenUNAME_typing(ctx, tk, 0/*isLVALUE*/); break;
 	case TT_TYPE: tm = knh_TokenTYPE_typing(ctx, tk, reqt); break;
 	case TT_PROPN: tm = knh_TokenPROPN_typing(ctx, tk, reqt, 0/*isLVALUE*/); break;
-	case TT_REGEX:
-	case TT_STR: tm = knh_Token_toCONST(ctx, tk); break;
+	case TT_REGEX: case TT_STR:
+		tm = knh_Token_toCONST(ctx, tk); break;
 	case TT_TSTR: tm = knh_TokenTSTR_typing(ctx, tk, reqt); break;
 	case TT_ESTR: tm = knh_TokenESTR_typing(ctx, tk, reqt); break;
 	case TT_NUM: tm = knh_TokenNUM_typing(ctx, tk, reqt); break;
-	case TT_URN: tm = knh_TokenURN_typing(ctx, tk, reqt); break;
+	case TT_URN: case TT_QPATH:
+		tm = knh_TokenURN_typing(ctx, tk, reqt); break;
 	case TT_ERR: return NULL;
 	}
 	if(tm != NULL && SP(tm)->type == TYPE_var) {
-		knh_Gamma_perror(ctx, KERR_ERR, _("untyped token: %L"), tk);
+		knh_Gamma_perror(ctx, KERR_ERR, _("syntax error: why %L?"), tk);
 		TT_(tk) = TT_ERR;
 	}
 	return tm;
@@ -2078,16 +2082,6 @@ static knh_class_t knh_StmtopEQ_basecid(Ctx *ctx, knh_Stmt_t *stmt)
 //	return 1;
 //}
 
-/* ------------------------------------------------------------------------ */
-
-static knh_bytes_t knh_Term_path(Ctx *ctx, knh_Term_t *tm)
-{
-	if(TT_(tm) == TT_CONST) {
-		return S_tobytes(DP((knh_Token_t*)tm)->text);
-	}
-	return STEXT("");
-}
-
 static knh_Term_t *knh_StmtOP_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
 {
 	size_t i, opsize = DP(stmt)->size - 1;
@@ -2219,35 +2213,6 @@ static knh_Term_t *knh_StmtOP_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt
 		goto L_LOOKUPMETHOD;
 	}
 
-	case MN_opPATH:
-	{
-		mtd_cid = TERMs_getcid(stmt, 1);
-		if(mtd_cid != CLASS_String) {
-			knh_Gamma_perror(ctx, KERR_ERR, _("path must be String, not %T"), mtd_cid);
-			return NULL;
-		}
-		if(reqt == TYPE_Any) {
-			knh_bytes_t path = knh_Term_path(ctx, DP(stmt)->terms[1]);
-			if(path.len > 0) {
-				knh_PathDSPI_t *dspi = knh_getPathDSPINULL(ctx, path);
-				if(dspi == NULL) {
-					knh_Gamma_perror(ctx, KERR_DWARN, _("path may be uninstalled: %B"), path);
-				}
-				else {
-					reqt = dspi->cid;
-					knh_Gamma_perror(ctx, KERR_INFO, _("path could be %T"), reqt);
-				}
-			}
-			if(reqt == TYPE_Any) {
-				reqt = CLASS_String;
-				knh_Gamma_perror(ctx, KERR_DWARN, _("untyped path is %T"), reqt);
-			}
-		}
-		KNH_ASSERT(DP(stmt)->size == 2);
-		knh_Stmt_add(ctx, stmt, new_TokenCONST(ctx, new_Type(ctx, reqt)));
-		knh_Token_toMTD(ctx, tkOP, mn, knh_getMethodNULL(ctx, mtd_cid, mn));
-		knh_Stmt_typed(ctx, stmt, reqt);
-	}
 	default:
 		mtd_cid = TERMs_getcid(stmt, 1);
 		break;
@@ -2346,6 +2311,42 @@ static knh_Term_t *knh_StmtTCAST_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t r
 	}
 }
 
+/* ------------------------------------------------------------------------ */
+/* [QCAST] */
+
+knh_PathDSPI_t *knh_NameSpace_getPathDSPINULL(Ctx *ctx, knh_NameSpace_t *ns, knh_bytes_t path)
+{
+	return knh_getPathDSPINULL(ctx, path);
+}
+
+static knh_Term_t* knh_StmtQCAST_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
+{
+	knh_Token_t *tkQPATH = DP(stmt)->tokens[2];
+	knh_bytes_t path = S_tobytes(DP(tkQPATH)->text);
+	DBG_ASSERT(TT_(tkQPATH) == TT_QPATH);
+	TYPING(ctx, stmt, 1, TYPE_String, 0);
+	{
+		knh_PathDSPI_t *dspi = knh_NameSpace_getPathDSPINULL(ctx, DP(ctx->gma)->ns, path);
+		if(dspi == NULL) {
+			knh_Gamma_perror(ctx, KERR_ERR, _("path may be uninstalled: %B"), path);
+			return NULL;
+		}
+		else {
+			if(reqt == TYPE_Any) {
+				reqt = dspi->cid;
+				knh_Gamma_perror(ctx, KERR_INFO, _("%B: can be %T"), path, reqt);
+			}
+		}
+	}
+	DBG_ASSERT(DP(stmt)->size == 3);
+	STT_(stmt) = STT_CALL;
+	knh_Token_toMTD(ctx, DP(stmt)->tokens[0], MN_path, knh_getMethodNULL(ctx, CLASS_String, MN_path));
+	TT_(tkQPATH) = TT_CONST;
+	knh_Stmt_add(ctx, stmt, new_TokenCONST(ctx, DP(ctx->gma)->ns));
+	knh_Stmt_add(ctx, stmt, new_TokenCONST(ctx, new_Type(ctx, reqt)));
+	return knh_Stmt_typed(ctx, stmt, reqt);
+}
+
 /* ======================================================================== */
 /* [MT,AND,OR,] */
 
@@ -2416,6 +2417,7 @@ static knh_Term_t *knh_StmtEXPR_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_class_t r
 		CASE_STMT(NEW, stmt, reqt);
 		CASE_STMT(OP, stmt, reqt);
 		CASE_STMT(TCAST, stmt, reqt);
+		CASE_STMT(QCAST, stmt, reqt);
 		CASE_STMT(FMT, stmt, reqt);
 		CASE_STMT(AND, stmt, reqt);
 		CASE_STMT(OR, stmt, reqt);
@@ -3293,6 +3295,7 @@ static knh_Term_t* knh_StmtFUNCTION_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_
 
 static knh_Term_t *knh_StmtFORMAT_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int scope)
 {
+
 	knh_Stmt_done(ctx, stmt);
 	return TM(stmt);
 }

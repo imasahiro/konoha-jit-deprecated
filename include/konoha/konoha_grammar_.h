@@ -82,59 +82,59 @@
 #define TT_METAN                        ((knh_term_t)74)
 #define TT_PROPN                        ((knh_term_t)75)
 #define TT_URN                          ((knh_term_t)76)
-#define TT_NAME                         ((knh_term_t)77)
-#define TT_UNAME                        ((knh_term_t)78)
-#define TT_FUNCNAME                     ((knh_term_t)79)
-#define TT_TYPE                         ((knh_term_t)80)
-#define TT_CID                          ((knh_term_t)81)
-#define TT_MN                           ((knh_term_t)82)
-#define TT_FMT                          ((knh_term_t)83)
-#define TT_MT                           ((knh_term_t)84)
-#define TT_CONST                        ((knh_term_t)85)
-#define TT_STMT                         ((knh_term_t)86)
-#define TT_SYSVAL                       ((knh_term_t)87)
-#define TT_LOCAL                        ((knh_term_t)88)
-#define TT_STACK                        ((knh_term_t)89)
-#define TT_FIELD                        ((knh_term_t)90)
-#define TT_ERR                          ((knh_term_t)91)
-#define TT_EOT                          ((knh_term_t)92)
-#define TT_LET                          ((knh_term_t)93)
-#define TT_SEND                         ((knh_term_t)94)
-#define TT_ALT                          ((knh_term_t)95)
-#define TT_QUESTION                     ((knh_term_t)96)
-#define TT_OR                           ((knh_term_t)97)
-#define TT_AND                          ((knh_term_t)98)
-#define TT_NOT                          ((knh_term_t)99)
-#define TT_EXISTS                       ((knh_term_t)100)
-#define TT_IS                           ((knh_term_t)101)
-#define TT_OF                           ((knh_term_t)102)
-#define TT_ISA                          ((knh_term_t)103)
-#define TT_IN                           ((knh_term_t)104)
-#define TT_MATCH                        ((knh_term_t)105)
-#define TT_EQ                           ((knh_term_t)106)
-#define TT_NEQ                          ((knh_term_t)107)
-#define TT_LT                           ((knh_term_t)108)
-#define TT_LTE                          ((knh_term_t)109)
-#define TT_GT                           ((knh_term_t)110)
-#define TT_GTE                          ((knh_term_t)111)
-#define TT_FROM                         ((knh_term_t)112)
-#define TT_WHERE                        ((knh_term_t)113)
-#define TT_TO                           ((knh_term_t)114)
-#define TT_UNTIL                        ((knh_term_t)115)
-#define TT_LSFT                         ((knh_term_t)116)
-#define TT_RSFT                         ((knh_term_t)117)
-#define TT_ADD                          ((knh_term_t)118)
-#define TT_SUB                          ((knh_term_t)119)
-#define TT_DIV                          ((knh_term_t)120)
-#define TT_MOD                          ((knh_term_t)121)
-#define TT_MUL                          ((knh_term_t)122)
-#define TT_LAND                         ((knh_term_t)123)
-#define TT_LOR                          ((knh_term_t)124)
-#define TT_XOR                          ((knh_term_t)125)
-#define TT_LNOT                         ((knh_term_t)126)
-#define TT_NEXT                         ((knh_term_t)127)
-#define TT_PREV                         ((knh_term_t)128)
-#define TT_PATH                         ((knh_term_t)129)
+#define TT_QPATH                        ((knh_term_t)77)
+#define TT_NAME                         ((knh_term_t)78)
+#define TT_UNAME                        ((knh_term_t)79)
+#define TT_FUNCNAME                     ((knh_term_t)80)
+#define TT_TYPE                         ((knh_term_t)81)
+#define TT_CID                          ((knh_term_t)82)
+#define TT_MN                           ((knh_term_t)83)
+#define TT_FMT                          ((knh_term_t)84)
+#define TT_MT                           ((knh_term_t)85)
+#define TT_CONST                        ((knh_term_t)86)
+#define TT_STMT                         ((knh_term_t)87)
+#define TT_SYSVAL                       ((knh_term_t)88)
+#define TT_LOCAL                        ((knh_term_t)89)
+#define TT_STACK                        ((knh_term_t)90)
+#define TT_FIELD                        ((knh_term_t)91)
+#define TT_ERR                          ((knh_term_t)92)
+#define TT_EOT                          ((knh_term_t)93)
+#define TT_LET                          ((knh_term_t)94)
+#define TT_SEND                         ((knh_term_t)95)
+#define TT_ALT                          ((knh_term_t)96)
+#define TT_QUESTION                     ((knh_term_t)97)
+#define TT_OR                           ((knh_term_t)98)
+#define TT_AND                          ((knh_term_t)99)
+#define TT_NOT                          ((knh_term_t)100)
+#define TT_EXISTS                       ((knh_term_t)101)
+#define TT_IS                           ((knh_term_t)102)
+#define TT_OF                           ((knh_term_t)103)
+#define TT_ISA                          ((knh_term_t)104)
+#define TT_IN                           ((knh_term_t)105)
+#define TT_MATCH                        ((knh_term_t)106)
+#define TT_EQ                           ((knh_term_t)107)
+#define TT_NEQ                          ((knh_term_t)108)
+#define TT_LT                           ((knh_term_t)109)
+#define TT_LTE                          ((knh_term_t)110)
+#define TT_GT                           ((knh_term_t)111)
+#define TT_GTE                          ((knh_term_t)112)
+#define TT_FROM                         ((knh_term_t)113)
+#define TT_WHERE                        ((knh_term_t)114)
+#define TT_TO                           ((knh_term_t)115)
+#define TT_UNTIL                        ((knh_term_t)116)
+#define TT_LSFT                         ((knh_term_t)117)
+#define TT_RSFT                         ((knh_term_t)118)
+#define TT_ADD                          ((knh_term_t)119)
+#define TT_SUB                          ((knh_term_t)120)
+#define TT_DIV                          ((knh_term_t)121)
+#define TT_MOD                          ((knh_term_t)122)
+#define TT_MUL                          ((knh_term_t)123)
+#define TT_LAND                         ((knh_term_t)124)
+#define TT_LOR                          ((knh_term_t)125)
+#define TT_XOR                          ((knh_term_t)126)
+#define TT_LNOT                         ((knh_term_t)127)
+#define TT_NEXT                         ((knh_term_t)128)
+#define TT_PREV                         ((knh_term_t)129)
 #define TT_ITR                          ((knh_term_t)130)
 #define TT_TMUL                         ((knh_term_t)131)
 #define TT_TADD                         ((knh_term_t)132)
@@ -186,19 +186,20 @@
 #define STT_LET                         ((knh_term_t)175)
 #define STT_NEW                         ((knh_term_t)176)
 #define STT_TCAST                       ((knh_term_t)177)
-#define STT_FUNC                        ((knh_term_t)178)
-#define STT_CALL                        ((knh_term_t)179)
-#define STT_PCALL                       ((knh_term_t)180)
-#define STT_MT                          ((knh_term_t)181)
-#define STT_FMT                         ((knh_term_t)182)
-#define STT_OP                          ((knh_term_t)183)
-#define STT_TRI                         ((knh_term_t)184)
-#define STT_ALT                         ((knh_term_t)185)
-#define STT_AND                         ((knh_term_t)186)
-#define STT_OR                          ((knh_term_t)187)
-#define STT_W                           ((knh_term_t)188)
-#define STT_CALL1                       ((knh_term_t)189)
-#define K_STMT_MAXSIZ                   ((knh_term_t)190)
+#define STT_QCAST                       ((knh_term_t)178)
+#define STT_FUNC                        ((knh_term_t)179)
+#define STT_CALL                        ((knh_term_t)180)
+#define STT_PCALL                       ((knh_term_t)181)
+#define STT_MT                          ((knh_term_t)182)
+#define STT_FMT                         ((knh_term_t)183)
+#define STT_OP                          ((knh_term_t)184)
+#define STT_TRI                         ((knh_term_t)185)
+#define STT_ALT                         ((knh_term_t)186)
+#define STT_AND                         ((knh_term_t)187)
+#define STT_OR                          ((knh_term_t)188)
+#define STT_W                           ((knh_term_t)189)
+#define STT_CALL1                       ((knh_term_t)190)
+#define K_STMT_MAXSIZ                   ((knh_term_t)191)
 
 /* ------------------------------------------------------------------------ */
 #define MN_opLET                        ((knh_methodn_t)0)
@@ -237,13 +238,12 @@
 #define MN_opLNOT                       ((knh_methodn_t)33)
 #define MN_opNEXT                       ((knh_methodn_t)34)
 #define MN_opPREV                       ((knh_methodn_t)35)
-#define MN_opPATH                       ((knh_methodn_t)36)
-#define MN_opITR                        ((knh_methodn_t)37)
-#define MN_opEXPAND                     ((knh_methodn_t)38)
-#define MN_opPLUS                       ((knh_methodn_t)39)
-#define MN_opADDR                       ((knh_methodn_t)40)
-#define MN_opNEG                        ((knh_methodn_t)41)
-#define MN_OPSIZE                       ((knh_methodn_t)42)
+#define MN_opITR                        ((knh_methodn_t)36)
+#define MN_opEXPAND                     ((knh_methodn_t)37)
+#define MN_opPLUS                       ((knh_methodn_t)38)
+#define MN_opADDR                       ((knh_methodn_t)39)
+#define MN_opNEG                        ((knh_methodn_t)40)
+#define MN_OPSIZE                       ((knh_methodn_t)41)
 
 /* ------------------------------------------------------------------------ */
 
@@ -361,7 +361,6 @@ static knh_TokenData_t knh_TokenData[] = {
 	{"checkin", TT_KEYWORD(TT_CHECKIN)}, 
 	{"*=", TT_MULE}, 
 	{"in?", TT_IN}, 
-	{"**", TT_PATH}, 
 	{"class", TT_KEYWORD(TT_CLASS)}, 
 	{"implements", TT_KEYWORD(TT_IMPLEMENTS)}, 
 	{"<<=", TT_LSFTE}, 
@@ -531,6 +530,7 @@ static const char* knh_tokens[] = {
 	"TT_METAN", /* TT_METAN */
 	"TT_PROPN", /* TT_PROPN */
 	"TT_URN", /* TT_URN */
+	"TT_QPATH", /* TT_QPATH */
 	"TT_NAME", /* TT_NAME */
 	"TT_UNAME", /* TT_UNAME */
 	"TT_FUNCNAME", /* TT_FUNCNAME */
@@ -583,7 +583,6 @@ static const char* knh_tokens[] = {
 	"~", /* TT_LNOT */
 	"++", /* TT_NEXT */
 	"--", /* TT_PREV */
-	"**", /* TT_PATH */
 	"..", /* TT_ITR */
 	"***", /* TT_TMUL */
 	"+++", /* TT_TADD */
@@ -638,6 +637,7 @@ static const char* knh_stmts[] = {
 	"STT_LET", /* STT_LET */
 	"STT_NEW", /* STT_NEW */
 	"STT_TCAST", /* STT_TCAST */
+	"STT_QCAST", /* STT_QCAST */
 	"STT_FUNC", /* STT_FUNC */
 	"STT_CALL", /* STT_CALL */
 	"STT_PCALL", /* STT_PCALL */
@@ -685,7 +685,7 @@ static knh_opdata_t knh_opdata[] = {
 	{"or", 5 /* TT_OR */}, 
 	{"and", 6 /* TT_AND */}, 
 	{"not", 7 /* TT_NOT */}, 
-	{"exists", 7 /* TT_EXISTS */}, 
+	{"exists", 8 /* TT_EXISTS */}, 
 	{"is?", 9 /* TT_IS */}, 
 	{"instanceof", 9 /* TT_OF */}, 
 	{"isa?", 9 /* TT_ISA */}, 
@@ -714,7 +714,6 @@ static knh_opdata_t knh_opdata[] = {
 	{"~", 27 /* TT_LNOT */}, 
 	{"++", 28 /* TT_NEXT */}, 
 	{"--", 28 /* TT_PREV */}, 
-	{"**", 28 /* TT_PATH */}, 
 	{"..", 28 /* TT_ITR */}, 
 	{"***", 28 /* TT_TMUL */}, 
 	{"+++", 28 /* TT_TADD */}, 

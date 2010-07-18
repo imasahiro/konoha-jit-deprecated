@@ -109,6 +109,7 @@ knh_Token_t* new_TokenTYPED(Ctx *ctx, knh_term_t tt, knh_type_t type, knh_short_
 knh_bool_t knh_StmtMETA_is(Ctx *ctx, knh_Stmt_t *stmt, knh_bytes_t name);
 knh_class_t knh_Token_getcid(Ctx *ctx, knh_Token_t *tk, knh_class_t defc);
 knh_class_t knh_class_parent(Ctx *ctx, knh_class_t c1, knh_class_t c2);
+knh_PathDSPI_t *knh_NameSpace_getPathDSPINULL(Ctx *ctx, knh_NameSpace_t *ns, knh_bytes_t path);
 knh_bool_t knh_Method_typing(Ctx *ctx, knh_Method_t *mtd, knh_Stmt_t *stmtP, knh_Stmt_t *stmtB, knh_type_t reqt);
 int knh_StmtITR_scriptTyping(Ctx *ctx, knh_Stmt_t *stmtITR, knh_type_t reqt);
 void knh_Stmt_scriptAsm(Ctx *ctx, knh_Stmt_t *stmt);

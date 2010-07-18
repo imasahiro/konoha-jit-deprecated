@@ -50,40 +50,52 @@ static METHOD String_opEXISTS(Ctx *ctx, knh_sfp_t *sfp, long rix)
 }
 
 /* ------------------------------------------------------------------------ */
-//## @Hidden @Private method Any String.opPATH(Class c);
+//## @Hidden @Private @ReadOnly method Any String.path(String qualifier, NameSpace ns, Class c);
 
-static METHOD String_opPATH(Ctx *ctx, knh_sfp_t *sfp, long rix)
+static METHOD String_path(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-	knh_class_t cid = (sfp[1].c)->cid;
+	knh_class_t cid = (sfp[3].c)->cid;
 	knh_bytes_t path = S_tobytes(sfp[0].s);
-	knh_PathDSPI_t *dspi = knh_getPathDSPINULL(ctx, path);
+	knh_bytes_t qpath = S_tobytes(sfp[1].s);
+	knh_PathDSPI_t *dspi = knh_NameSpace_getPathDSPINULL(ctx, sfp[2].ns, qpath);
+	knh_String_t* spath = sfp[0].s;
 	Object *v = NULL;
-	if(dspi != NULL) {
-		if(cid == CLASS_Any || cid == CLASS_Tvoid) {
-			cid = dspi->cid;
-		}
-		if(dspi->newObjectNULL != NULL) {
-			v = dspi->newObjectNULL(ctx, cid, sfp[0].s);
-			if(v == NULL && cid != CLASS_String) {
-				KNH_SYSLOG(ctx, LOG_WARNING, "MissingPath", "path=%B", path);
+	int isTRIM = 0;
+	if(!knh_bytes_startsWith(path, qpath)) {
+		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
+		knh_Bytes_write(ctx, cwb->ba, qpath);
+		knh_Bytes_write(ctx, cwb->ba, path);
+		spath = knh_cwb_newString(ctx, cwb);
+		KNH_SETv(ctx, sfp[rix].s, spath);
+		path = S_tobytes(spath);
+		isTRIM = 1;
+	}
+	KNH_ASSERT(dspi != NULL);
+	if(cid == CLASS_Boolean) {
+		sfp[rix].bvalue = dspi->exists(ctx, path, NULL);
+		v = sfp[rix].bvalue ? KNH_TRUE : KNH_FALSE;
+	}
+	else if(dspi->newObjectNULL != NULL) {
+		v = dspi->newObjectNULL(ctx, cid, spath);
+		if(v == NULL && cid != CLASS_String) {
+			if(!dspi->exists(ctx, path, NULL)) {
+				KNH_SYSLOG(ctx, LOG_WARNING, "MissingPath", "qpath='%B', path='%B'", qpath, path);
+			}
+			else {
+				KNH_SYSLOG(ctx, LOG_WARNING, "Type!!", "requested=%T, path='%B'", cid, path);
 			}
 		}
-	}
-	else {
-		KNH_SYSLOG(ctx, LOG_WARNING, "UnsupportedPath", "path=%B", path);
 	}
 	if(v == NULL) {
 		if(cid != CLASS_String) {
 			v = KNH_NULVAL(cid);
 		}
+		else if(isTRIM) {
+			v = sfp[0].o;
+		}
 		else {
-			knh_index_t loc = knh_bytes_index(path, ':');
-			if(loc > 0) {
-				v = (Object*)new_String_(ctx, CLASS_String, knh_bytes_last(path, loc+1), sfp[0].s);
-			}
-			else {
-				v = sfp[0].o;
-			}
+			path = S_tobytes(spath);
+			v = (Object*)new_String_(ctx, CLASS_String, knh_bytes_last(path, qpath.len), spath);
 		}
 	}
 	RETURN_(v);

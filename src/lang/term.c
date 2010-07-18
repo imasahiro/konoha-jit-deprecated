@@ -1067,6 +1067,11 @@ static int knh_Token_addURN(Ctx *ctx, knh_Token_t *tk, knh_cwb_t *cwb, knh_Input
 		return ch;
 	}
 	knh_Bytes_putc(ctx, cwb->ba, ':');
+	if(ch == ':') {
+		ch = knh_InputStream_getc(ctx, in);
+		knh_Token_addBuf(ctx, tk, cwb, TT_QPATH, ch);
+		return ch;
+	}
 	knh_Bytes_putc(ctx, cwb->ba, ch);
 	while((ch = knh_InputStream_getc(ctx, in)) != EOF) {
 		switch(ch) {
@@ -2112,8 +2117,7 @@ static void _EXPR(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 			}
 			return;
 		}
-		case TT_TMUL:
-		case TT_EXISTS: case TT_PATH:
+		case TT_TMUL: case TT_EXISTS:
 		case TT_XOR: case TT_LNOT: case TT_NOT:
 		case TT_TSUB: case TT_TADD: case TT_ADDR: {
 			if(itr->c == idx) {
@@ -2126,7 +2130,7 @@ static void _EXPR(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 				if(itr->c + 1 == idx && ITR_isCAST(itr)) {
 					goto L_CAST;
 				}
-				knh_Token_perror(ctx, tkCUR, KERR_ERR, "%s must be prefixed", TT_tochar(TT_(tkCUR)));
+				knh_Token_perror(ctx, tkCUR, KERR_ERR, "%s needs next", TT_tochar(TT_(tkCUR)));
 				goto L_ERROR;
 			}
 		}
@@ -2154,6 +2158,14 @@ static void _EXPR(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 		goto L_ERROR;
 	}
 
+	if(ITR_is(itr, TT_QPATH) && itr->c + 1 < itr->e) {
+		knh_Token_t *tkCUR = ITR_nextTK(itr);
+		knh_Stmt_t *stmtCAST = new_StmtREUSE(ctx, stmt, STT_QCAST);
+		_ASIS(ctx, stmtCAST, itr);
+		_EXPR(ctx, stmtCAST, itr);
+		knh_Stmt_add(ctx, stmtCAST, tkCUR);
+		return;
+	}
 	if(ITR_isCAST(itr)) {
 		L_CAST:;
 		knh_Stmt_t *stmtCAST = new_StmtREUSE(ctx, stmt, STT_TCAST);
@@ -2288,6 +2300,7 @@ static void _EXPR(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 		case TT_TSTR:
 		case TT_ESTR:
 		case TT_NUM:
+		case TT_QPATH:
 		case TT_URN:
 			knh_Stmt_add(ctx, stmt, tkCUR); break;
 		case TT_ERR: goto L_ERROR;
@@ -2805,6 +2818,31 @@ static void _CONSTRUCTOR(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 	}
 }
 
+static void _FORMAT(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
+{
+	knh_Token_t *tkT = ITR_nextTK(itr);
+	knh_Stmt_add(ctx, stmt, tkT);  // void
+	ITR_nextTK(itr); // skip %
+	_ASIS(ctx, stmt, itr);  // class name
+	knh_Stmt_add(ctx, stmt, ITR_nextTK(itr));
+	_PARAM(ctx, stmt, itr);
+	if(STT_(stmt) != STT_ERR) {
+		if(ITR_is(itr, TT_BLOCK)) {
+			knh_Token_t *tkT = new_Token(ctx, 0, TT_DOC);
+			KNH_SETv(ctx, DP(tkT)->data, DP(ITR_tk(itr))->text);
+			knh_Stmt_add(ctx, stmt, tkT);
+			knh_Stmt_add(ctx, stmt, ITR_nextTK(itr));
+		}
+		else if(ITR_is(itr, TT_STR) || ITR_is(itr, TT_TSTR) || ITR_is(itr, TT_ESTR)) {
+			knh_Stmt_add(ctx, stmt, ITR_nextTK(itr));
+			//_SEMICOLON(ctx, stmt, itr);
+		}
+		else {
+			_SEMICOLON(ctx, stmt, itr);
+		}
+	}
+}
+
 /* ------------------------------------------------------------------------ */
 /* META */
 
@@ -2932,7 +2970,13 @@ static knh_Stmt_t *new_StmtSTMT1(Ctx *ctx, tkitr_t *itr)
 				stmt = new_StmtMETA(ctx, STT_BLOCK, pitr, 0, _STMTs, NULL);
 			}
 			break /*L_EXPR*/;
-		case TT_VOID: case TT_VAR:
+		case TT_VOID: {
+			if(ITR_isN(itr, +1, TT_MOD) && ITR_isN(itr, +2, TT_FUNCNAME)) {
+				stmt = new_StmtMETA(ctx, STT_FORMAT, itr, 0, _FORMAT, NULL);
+				break;
+			}
+		}
+		case TT_VAR:
 		case TT_TYPE:
 		case TT_UNAME: {
 			tkitr_t mbuf, *mitr = ITR_copy(itr, &mbuf, +1);
@@ -3003,7 +3047,7 @@ static knh_Stmt_t *new_StmtSTMT1(Ctx *ctx, tkitr_t *itr)
 		case TT_PARENTHESIS:
 		case TT_BRANCET:
 		case TT_TRUE: case TT_FALSE: case TT_NULL:
-		case TT_NOT: case TT_EXISTS: case TT_PATH:
+		case TT_NOT: case TT_EXISTS: case TT_QPATH:
 		case TT_LNOT:
 		case TT_NEXT: case TT_PREV:  /* Prev */
 		case TT_ITR: case TT_NEW:
