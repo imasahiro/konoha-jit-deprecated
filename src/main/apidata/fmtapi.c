@@ -129,11 +129,11 @@ static knh_bool_t _isRecuriveFormatting(Ctx *ctx, knh_sfp_t *sfp)
 	return 0;
 }
 
-static void knh_stack_reformat(Ctx *ctx, knh_sfp_t *sfp, knh_methodn_t fmt)
-{
-	knh_Method_t *mtd = knh_getSystemFormatter(ctx, knh_Object_cid(sfp[1].o), fmt);
-	mtd->fcall_1(ctx, sfp, K_RTNIDX);
-}
+//static void knh_stack_reformat(Ctx *ctx, knh_sfp_t *sfp, knh_methodn_t fmt)
+//{
+//	knh_Method_t *mtd = knh_getSystemFormatter(ctx, knh_Object_cid(sfp[1].o), fmt);
+//	mtd->fcall_1(ctx, sfp, K_RTNIDX);
+//}
 
 static knh_ndata_t knh_Object_ndata(void *p)
 {
@@ -146,8 +146,7 @@ static knh_ndata_t knh_Object_ndata(void *p)
 	return ((knh_ndata_t*)p)[0];
 }
 
-static
-void knh_write_ObjectField(Ctx *ctx, knh_OutputStream_t *w, Object **v, size_t i, knh_type_t type, knh_methodn_t mn)
+static void knh_write_ObjectField(Ctx *ctx, knh_OutputStream_t *w, Object **v, size_t i, knh_type_t type, knh_methodn_t mn)
 {
 	if(!knh_write_ndata(ctx, w, CLASS_type(type), knh_Object_ndata(v+i))) {
 		knh_Method_t *mtd = knh_getSystemFormatter(ctx, CLASS_type(type), mn);
@@ -188,9 +187,6 @@ static METHOD Object__s(Ctx *ctx, knh_sfp_t *sfp, long rix)
 
 /* ------------------------------------------------------------------------ */
 //## method void Boolean.%s();
-//## method void Boolean.%k();
-//## method void Boolean.%data();
-//## method void Boolean.%dump();
 
 static METHOD Boolean__s(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
@@ -264,7 +260,7 @@ static METHOD String__s(Ctx *ctx, knh_sfp_t *sfp, long rix)
 
 static METHOD Bytes__s(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-	knh_printf(ctx, WWW, "byte[size=%d]", (sfp[1].ba)->bu.len);
+	knh_printf(ctx, WWW, "byte[%d]", (sfp[1].ba)->bu.len);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -315,9 +311,9 @@ static METHOD Object__k(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	if(knh_Object_isNullObject(o)) {
 		knh_write(ctx, w, STEXT("null"));
 	}
-	else if(o->h.cid == CLASS_Object || o->h.bcid != CLASS_Object) {
-		knh_stack_reformat(ctx, sfp, MN__s);
-	}
+//	else if(o->h.cid == CLASS_Object || o->h.bcid != CLASS_Object) {
+//		knh_stack_reformat(ctx, sfp, MN__s);
+//	}
 	else if(_isRecuriveFormatting(ctx, sfp)) {
 		knh_write_dots(ctx, w);
 	}
@@ -346,8 +342,6 @@ static METHOD Object__k(Ctx *ctx, knh_sfp_t *sfp, long rix)
 
 /* ------------------------------------------------------------------------ */
 //## method void Int.%k();
-//## method void Int.%data();
-//## method void Int.%dump();
 
 static METHOD Int__k(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
@@ -361,8 +355,6 @@ static METHOD Int__k(Ctx *ctx, knh_sfp_t *sfp, long rix)
 
 /* ------------------------------------------------------------------------ */
 //## method void Float.%k();
-//## method void Float.%data();
-//## method void Float.%dump();
 
 static METHOD Float__k(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
@@ -427,25 +419,6 @@ static METHOD Tuple__k(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	if(_isRecuriveFormatting(ctx, sfp)) {
 		knh_write_dots(ctx,w);
 	}
-//	else if(knh_Tuple_isTriple(o)) {
-//		knh_write_Object(ctx, w, MN__k, o->first);
-//		knh_write_delim(ctx,w);
-//		knh_write_Object(ctx, w, MN__k, o->second);
-//		if(o->thirdNULL != NULL) {
-//			knh_write_delim(ctx,w);
-//			knh_write_Object(ctx, w, MN__k, o->thirdNULL);
-//		}
-//	}
-//	else {
-//		size_t i;
-//		for(i = 0; i < o->size; i++) {
-//			if(i > 0) {
-//				knh_write_delim(ctx,w);
-//			}
-//			knh_write_Object(ctx, w, MN__k, o->list[i]);
-//		}
-//	}
-	TODO();
 	knh_putc(ctx, w, ')');
 }
 
@@ -458,14 +431,6 @@ static METHOD Range__k(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	knh_OutputStream_t *w = WWW;
 	knh_putc(ctx, w, '(');
 	TODO();
-	//	knh_write_Object(ctx, w, MN__k, o->start);
-//	if(knh_Range_isInclusive(o)) {
-//		knh_write(ctx, w, STEXT(" to "));
-//	}
-//	else {
-//		knh_write(ctx, w, STEXT(" until "));
-//	}
-//	knh_write_Object(ctx, w, MN__k, o->end);
 	knh_putc(ctx, w, ')');
 }
 
@@ -533,7 +498,6 @@ static METHOD Map__k(Ctx *ctx, knh_sfp_t *sfp, long rix)
 //	}
 //	knh_putc(ctx, w, '}');
 }
-
 
 /* ------------------------------------------------------------------------ */
 //## method void Class.%k();
@@ -649,7 +613,6 @@ static METHOD Script__k(Ctx *ctx, knh_sfp_t *sfp, long rix)
 
 /* ------------------------------------------------------------------------ */
 //## method void Any.%s();
-//## method void Any.%k();
 
 static METHOD Any__k(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
@@ -661,119 +624,6 @@ static METHOD Any__k(Ctx *ctx, knh_sfp_t *sfp, long rix)
 		knh_putc(ctx, WWW, ':');
 		knh_write__p(ctx, WWW, (sfp[1].p)->ptr);
 	}
-}
-
-/* ======================================================================== */
-/* [dump] */
-
-/* ------------------------------------------------------------------------ */
-//## method void Object.%dump();
-
-static METHOD Object__dump(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	KNH_SETv(ctx, sfp[2].o, TS_EMPTY);
-	knh_stack_reformat(ctx, sfp, MN__k);
-}
-
-/* ------------------------------------------------------------------------ */
-//## method void Bytes.%dump();
-
-static METHOD Bytes__dump(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	knh_Bytes_t *ba = sfp[1].ba;
-	knh_OutputStream_t *w = WWW;
-	size_t i, j, n;
-	char buf[40];
-	for(j = 0; j * 16 < ba->bu.len; j++) {
-		knh_snprintf(buf, sizeof(buf), "%08x", (int)(j*16));
-		knh_write(ctx, w, B(buf));
-		for(i = 0; i < 16; i++) {
-			n = j * 16 + i;
-			if(n < ba->bu.len) {
-				knh_snprintf(buf, sizeof(buf), " %2x", (int)ba->bu.ustr[n]);
-				knh_write(ctx, w, B(buf));
-			}
-			else {
-				knh_write(ctx, w, STEXT("   "));
-			}
-		}
-		knh_write(ctx, w, STEXT("    "));
-		for(i = 0; i < 16; i++) {
-			n = j * 16 + i;
-			if(n < ba->bu.len && isprint(ba->bu.ustr[n])) {
-				knh_snprintf(buf, sizeof(buf), "%c", (int)ba->bu.ustr[n]);
-				knh_write(ctx, w, B(buf));
-			}
-			else {
-				knh_write(ctx, w, STEXT(" "));
-			}
-		}
-		knh_write_EOL(ctx, w);
-	}
-}
-
-/* ------------------------------------------------------------------------ */
-//## method void Class.%dump();
-
-static METHOD Class__dump(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	TODO();
-}
-
-/* ------------------------------------------------------------------------ */
-//## method void Method.%dump();
-
-static METHOD Method__dump(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	knh_Method_t *mtd = sfp[1].mtdOBJ;
-	knh_OutputStream_t *w = WWW;
-	KNH_SETv(ctx, sfp[2].o, TS_EMPTY);
-	Method__k(ctx, sfp, rix);
-	knh_write_EOL(ctx, w);
-	if(knh_Method_isObjectCode(mtd)) {
-		if(IS_KLRCode(DP(mtd)->kcode)) {
-			knh_opline_t *pc = SP(mtd)->pc_start;
-			while(1) {
-				knh_opcode_dump(ctx, pc, w, SP(mtd)->pc_start);
-				if(pc->opcode == OPCODE_RET) break;
-				pc++;
-			}
-		}
-	}
-}
-
-/* ------------------------------------------------------------------------ */
-//## method void Exception.%dump();
-
-static METHOD Exception__dump(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	knh_Exception_t *o = sfp[1].e;
-	knh_OutputStream_t *w = WWW;
-	DBG_ASSERT(IS_Exception(o));
-	knh_write_EOL(ctx, w);
-	if(DP(o)->line != 0) {
-		knh_printf(ctx, w, "[%s:%d] ", DP(o)->file, DP(o)->line);
-	}
-	knh_print(ctx, w, S_tobytes(DP(o)->msg));
-	if(IS_bArray(DP(o)->traces)) {
-		size_t i, size = knh_Array_size(DP(o)->traces), c = 0;
-		knh_bytes_t prev = STEXT("?");
-		for(i = 0; i < size; i++) {
-			knh_String_t *s = (knh_String_t*)knh_Array_n(DP(o)->traces, i);
-			if(S_startsWith(s, prev)) {
-				c++;
-				continue;
-			}
-			if(c > 0) {
-				knh_printf(ctx, w, "\n    ** called %d times recursively **", c);
-				c = 0;
-			}
-			knh_printf(ctx, w, "\n  at %s", S_tochar(s));
-			prev = S_tobytes(s);
-			prev = knh_bytes_first(prev, knh_bytes_rindex(prev, '('));
-		}
-	}
-	knh_write_EOL(ctx, w);
 }
 
 /* ======================================================================== */
@@ -909,6 +759,102 @@ static METHOD Exception__data(Ctx *ctx, knh_sfp_t *sfp, long rix)
 static METHOD Func__data(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
 	TODO();
+}
+
+/* ======================================================================== */
+/* [dump] */
+
+/* ------------------------------------------------------------------------ */
+//## method void Bytes.%dump();
+
+static METHOD Bytes__dump(Ctx *ctx, knh_sfp_t *sfp, long rix)
+{
+	knh_Bytes_t *ba = sfp[1].ba;
+	knh_OutputStream_t *w = WWW;
+	size_t i, j, n;
+	char buf[40];
+	for(j = 0; j * 16 < ba->bu.len; j++) {
+		knh_snprintf(buf, sizeof(buf), "%08x", (int)(j*16));
+		knh_write(ctx, w, B(buf));
+		for(i = 0; i < 16; i++) {
+			n = j * 16 + i;
+			if(n < ba->bu.len) {
+				knh_snprintf(buf, sizeof(buf), " %2x", (int)ba->bu.ustr[n]);
+				knh_write(ctx, w, B(buf));
+			}
+			else {
+				knh_write(ctx, w, STEXT("   "));
+			}
+		}
+		knh_write(ctx, w, STEXT("    "));
+		for(i = 0; i < 16; i++) {
+			n = j * 16 + i;
+			if(n < ba->bu.len && isprint(ba->bu.ustr[n])) {
+				knh_snprintf(buf, sizeof(buf), "%c", (int)ba->bu.ustr[n]);
+				knh_write(ctx, w, B(buf));
+			}
+			else {
+				knh_write(ctx, w, STEXT(" "));
+			}
+		}
+		knh_write_EOL(ctx, w);
+	}
+}
+
+/* ------------------------------------------------------------------------ */
+//## method void Method.%dump();
+
+static METHOD Method__dump(Ctx *ctx, knh_sfp_t *sfp, long rix)
+{
+	knh_Method_t *mtd = sfp[1].mtdOBJ;
+	knh_OutputStream_t *w = WWW;
+	KNH_SETv(ctx, sfp[2].o, TS_EMPTY);
+	Method__k(ctx, sfp, rix);
+	knh_write_EOL(ctx, w);
+	if(knh_Method_isObjectCode(mtd)) {
+		if(IS_KLRCode(DP(mtd)->kcode)) {
+			knh_opline_t *pc = SP(mtd)->pc_start;
+			while(1) {
+				knh_opcode_dump(ctx, pc, w, SP(mtd)->pc_start);
+				if(pc->opcode == OPCODE_RET) break;
+				pc++;
+			}
+		}
+	}
+}
+
+/* ------------------------------------------------------------------------ */
+//## method void Exception.%dump();
+
+static METHOD Exception__dump(Ctx *ctx, knh_sfp_t *sfp, long rix)
+{
+	knh_Exception_t *o = sfp[1].e;
+	knh_OutputStream_t *w = WWW;
+	DBG_ASSERT(IS_Exception(o));
+	knh_write_EOL(ctx, w);
+	if(DP(o)->line != 0) {
+		knh_printf(ctx, w, "[%s:%d] ", DP(o)->file, DP(o)->line);
+	}
+	knh_print(ctx, w, S_tobytes(DP(o)->msg));
+	if(IS_bArray(DP(o)->traces)) {
+		size_t i, size = knh_Array_size(DP(o)->traces), c = 0;
+		knh_bytes_t prev = STEXT("?");
+		for(i = 0; i < size; i++) {
+			knh_String_t *s = (knh_String_t*)knh_Array_n(DP(o)->traces, i);
+			if(S_startsWith(s, prev)) {
+				c++;
+				continue;
+			}
+			if(c > 0) {
+				knh_printf(ctx, w, "\n    ** called %d times recursively **", c);
+				c = 0;
+			}
+			knh_printf(ctx, w, "\n  at %s", S_tochar(s));
+			prev = S_tobytes(s);
+			prev = knh_bytes_first(prev, knh_bytes_rindex(prev, '('));
+		}
+	}
+	knh_write_EOL(ctx, w);
 }
 
 ///* ======================================================================== */

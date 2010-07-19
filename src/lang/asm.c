@@ -2425,9 +2425,9 @@ KLRAPI(void) _PRINT(Ctx *ctx, knh_sfp_t *sfp, struct klr_P_t *op)
 	if(op->fmt != NULL) {
 		long n = op->n;
 		long rtnidx = n + 1;
-		KNH_SETv(ctx, sfp[rtnidx+K_CALLDELTA].o, sfp[n].o);
-		sfp[rtnidx+K_CALLDELTA].data = sfp[n].data;
-		KNH_SETv(ctx, sfp[rtnidx+K_CALLDELTA+1].o, w);
+		KNH_SETv(ctx, sfp[rtnidx+K_CALLDELTA].o, w);
+		KNH_SETv(ctx, sfp[rtnidx+K_CALLDELTA+1].o, sfp[n].o);
+		sfp[rtnidx+K_CALLDELTA+1].data = sfp[n].data;
 		KNH_SCALL(ctx, sfp, rtnidx, op->fmt, 1);
 	}
 	if(FLAG_is(flag, K_FLAG_PF_EOL)) {
@@ -2467,9 +2467,10 @@ static void knh_StmtPRINT_asm(Ctx *ctx, knh_Stmt_t *stmt)
 		}
 		else {
 			long espidx = DP(ctx->gma)->espidx;
-			knh_Method_t *mtd = knh_Gamma_getFormatter(ctx, TERMs_getcid(stmt, i), MN__s);
+			knh_Method_t *mtdf = knh_Gamma_getFormatter(ctx, TERMs_getcid(stmt, i), MN__s);
 			TERMs_asm(ctx, stmt, i, TERMs_gettype(stmt, i), espidx);
-			KNH_ASM(P, _PRINT, flag | mask, msg, mtd, espidx); flag=0;
+			KNH_ASM(P, _PRINT, flag | mask, msg, mtdf, espidx);
+			flag=0;
 		}
 	}
 	KNH_LABEL(ctx, lbskip);
