@@ -443,8 +443,8 @@ knh_index_t knh_Method_indexOfSetterField(knh_Method_t *o)
 	return -1;
 }
 
-///* ------------------------------------------------------------------------ */
-//
+/* ------------------------------------------------------------------------ */
+
 //static knh_methodn_t knh_methodn_base(Ctx *ctx, knh_methodn_t mn)
 //{
 //	size_t i;
@@ -458,6 +458,18 @@ knh_index_t knh_Method_indexOfSetterField(knh_Method_t *o)
 //	}
 //	return mn;
 //}
+
+/* ------------------------------------------------------------------------ */
+
+knh_Method_t* knh_Array_findMethodNULL(Ctx *ctx, knh_Array_t *a, knh_methodn_t mn)
+{
+	size_t i;
+	for(i = 0; i < knh_Array_size(a); i++) {
+		knh_Method_t *mtd = a->methods[i];
+		if(DP(mtd)->mn == mn) return mtd;
+	}
+	return NULL;
+}
 
 /* ------------------------------------------------------------------------ */
 
@@ -583,7 +595,7 @@ static knh_Method_t *knh_getSystemFormatterNULL(Ctx *ctx, knh_class_t cid, knh_m
 			}
 		}
 		knh_stat_fmtCacheMiss(ctx);
-		DBG_P("Cache[%ld] missed. looking up %s.%%%s <%s>", h, CLASS__(cid), MN__(mn), CLASS__(DP(mtd)->cid));
+//		DBG_P("Cache[%ld] missed. looking up %s.%%%s <%s>", h, CLASS__(cid), MN__(mn), CLASS__(DP(mtd)->cid));
 	}
 	mtd = knh_getFormatterNULL(ctx, cid, mn);
 	if(mtd == NULL) return NULL;
@@ -597,20 +609,21 @@ knh_Method_t *knh_getSystemFormatter(Ctx *ctx, knh_class_t cid, knh_methodn_t mn
 	knh_methodn_t mn = mn0;
 	knh_Method_t *mtd = knh_getSystemFormatterNULL(ctx, cid, mn0);
 	if(mtd == NULL && mn0 == MN__dump) {
-		mn0 = MN__data;
-		mtd = knh_getSystemFormatterNULL(ctx, cid, mn0);
+		mn = MN__data;
+		mtd = knh_getSystemFormatterNULL(ctx, cid, mn);
 	}
 	if(mtd == NULL && mn0 == MN__data) {
-		mn0 = MN__k;
-		mtd = knh_getSystemFormatterNULL(ctx, cid, mn0);
+		mn = MN__k;
+		mtd = knh_getSystemFormatterNULL(ctx, cid, mn);
 	}
 	if(mtd == NULL && mn0 == MN__k) {
-		mn0 = MN__s;
-		mtd = knh_getSystemFormatterNULL(ctx, cid, mn0);
+		mn = MN__s;
+		mtd = knh_getSystemFormatterNULL(ctx, cid, mn);
 	}
 	if(mtd == NULL) {
-		mtd = knh_findFormatter(ctx, cid, mn);
+		mtd = knh_findFormatter(ctx, cid, mn0);
 		DBG_ASSERT(mtd != NULL);
+		DBG_P("cid=%s.%%%s, mtdf=%s.%%%s", CLASS__(cid), MN__(mn), CLASS__(DP(mtd)->cid), MN__(DP(mtd)->mn));
 	}
 	return mtd;
 }

@@ -276,6 +276,7 @@ knh_Method_t* new_Method__NoSuchMethod(Ctx *ctx, knh_class_t cid, knh_methodn_t 
 void knh_Class_addMethod(Ctx *ctx, knh_class_t cid, knh_Method_t *mtd);
 knh_index_t knh_Method_indexOfGetterField(knh_Method_t *o);
 knh_index_t knh_Method_indexOfSetterField(knh_Method_t *o);
+knh_Method_t* knh_Array_findMethodNULL(Ctx *ctx, knh_Array_t *a, knh_methodn_t mn);
 knh_Method_t* knh_findMethodNULL(Ctx *ctx, knh_class_t this_cid, knh_methodn_t mn, int isGEN);
 knh_Method_t *knh_lookupMethod(Ctx *ctx, knh_class_t cid, knh_methodn_t mn);
 knh_Method_t *knh_getSystemFormatter(Ctx *ctx, knh_class_t cid, knh_methodn_t mn0);

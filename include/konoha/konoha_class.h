@@ -512,7 +512,7 @@ typedef struct knh_Method_t {
 	knh_type_tocid(ctx, (knh_ParamArray_get(DP(mtd)->mp, n))->type, cid)
 
 #define knh_getMethodNULL(ctx, c, mn)     knh_findMethodNULL(ctx, c, mn, 0)
-#define knh_getFormatterNULL(ctx, c, mn)  knh_findMethodNULL(ctx, c, mn, 0)
+#define knh_getFormatterNULL(ctx, c, mn)  knh_Array_findMethodNULL(ctx, ClassTBL(c).methods, mn)
 #define knh_findMethod(ctx, c, mn)        knh_findMethodNULL(ctx, c, mn, 1)
 #define knh_findFormatter(ctx, c, mn)     knh_findMethodNULL(ctx, c, mn, 1)
 
