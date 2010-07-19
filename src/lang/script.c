@@ -700,7 +700,7 @@ static knh_bool_t knh_Stmt_eval(Ctx *ctx, knh_Stmt_t *stmtITR, knh_type_t reqt, 
 				isCONTINUE = 0; goto L_BREAK;
 			}
 			knh_Stmt_setEveryLine(stmt, 1);
-			knh_Method_asm(ctx, mtd, NULL, stmt, isExpr ? reqt : TYPE_void);
+			knh_Method_asm(ctx, mtd, NULL, stmt, isExpr ? reqt : TYPE_void, knh_Method_typing);
 			if(knh_Method_isAbstract(mtd) || STT_(stmt) == STT_ERR) {
 				isCONTINUE = 0; goto L_BREAK;
 			}

@@ -607,7 +607,7 @@ static knh_data_t ParamArrayData0[] = {
 	DATA_PARAM/*73*/, FLAG_ParamArray_VARGs, 1, 0, TYPE_Any, FN_value,
 	DATA_PARAM/*74*/, FLAG_ParamArray_VARGs, 1, 0, TYPE_Object, FN_data,
 	DATA_PARAM/*75*/, 0, 1, 1, TYPE_StringEncoder, FN_c, TYPE_StringEncoder, FN_return,
-	DATA_PARAM/*76*/, 0, 2, 1, TYPE_String, FN_qualifier, TYPE_Class, FN_c, TYPE_Any, FN_return,
+	DATA_PARAM/*76*/, 0, 3, 1, TYPE_String, FN_qualifier, TYPE_NameSpace, FN_ns, TYPE_Class, FN_c, TYPE_Any, FN_return,
 	DATA_PARAM/*77*/, 0, 1, 1, TYPE_Regex, FN_re, TYPE_Int, FN_return,
 	DATA_PARAM/*78*/, 0, 2, 1, TYPE_Regex, FN_re, TYPE_String, FN_s, TYPE_String, FN_return,
 	DATA_PARAM/*79*/, 0, 1, 1, TYPE_Regex, FN_re, TYPE_StringARRAY, FN_return,

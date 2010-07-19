@@ -1247,6 +1247,8 @@ typedef struct knh_Gamma_t {
 	knh_uri_t uri; knh_ushort_t line;
 } knh_Gamma_t;
 
+typedef knh_bool_t (*knh_Ftyping)(Ctx *, knh_Method_t *, knh_Stmt_t *, knh_Stmt_t *, knh_type_t);
+
 ///* ------------------------------------------------------------------------ */
 
 typedef knh_uintptr_t          knh_opcode_t;

@@ -1737,6 +1737,8 @@ static FASTAPI(void) knh_NameSpace_traverse(Ctx *ctx, Object *o, knh_Ftraverse f
 	KNH_NULLFTR(ctx, ftr, (b->name2cidDictSetNULL));
 	KNH_NULLFTR(ctx, ftr, (b->func2cidDictSetNULL));
 	KNH_NULLFTR(ctx, ftr, (b->lconstDictCaseMapNULL));
+	KNH_NULLFTR(ctx, ftr, (b->formattersNULL));
+	KNH_NULLFTR(ctx, ftr, (b->methodsNULL));
 }
 
 static FASTAPI(void) knh_NameSpace_free(Ctx *ctx, Object *o)

@@ -1803,12 +1803,12 @@ static knh_Method_t* knh_NameSpace_getFormatterNULL(Ctx *ctx, knh_NameSpace_t *n
 		ns = DP(ns)->parentNULL;
 		goto L_TAIL;
 	}
-	return NULL;
+	return knh_getFormatterNULL(ctx, cid, mn);
 }
 
-static void knh_NameSpace_addFormatter(Ctx *ctx, knh_NameSpace_t *ns, knh_Method_t *mtd)
+void knh_NameSpace_addFormatter(Ctx *ctx, knh_NameSpace_t *ns, knh_Method_t *mtd)
 {
-	if(DP(ns)->formattersNULL != NULL) {
+	if(DP(ns)->formattersNULL == NULL) {
 		KNH_INITv(DP(ns)->formattersNULL, new_Array0(ctx, 0));
 	}
 	knh_Array_add(ctx, DP(ns)->formattersNULL, mtd);
@@ -1822,23 +1822,28 @@ static METHOD knh_Fmethod_dynamic(Ctx *ctx, knh_sfp_t *sfp, long rix)
 static knh_Method_t* knh_Gamma_getFormatter(Ctx *ctx, knh_class_t cid, knh_methodn_t mn0)
 {
 	knh_methodn_t mn = mn0;
-	knh_Method_t *mtd = knh_NameSpace_getFormatterNULL(ctx, DP(ctx->gma)->ns, cid, mn);
+	knh_NameSpace_t *ns = DP(ctx->gma)->ns;
+	knh_Method_t *mtd = knh_NameSpace_getFormatterNULL(ctx, ns, cid, mn);
 	if(mtd == NULL) {
-		mtd = knh_getFormatterNULL(ctx, cid, mn);
+		mtd = knh_NameSpace_getFormatterNULL(ctx, ns, cid, mn);
 	}
-	if(mtd != NULL && mn == MN__data) {
-		mn = MN__k;
-		mtd = knh_getFormatterNULL(ctx, cid, mn);
+	if(mtd == NULL && mn == MN__dump) {
+		mn  = MN__data;
+		mtd = knh_NameSpace_getFormatterNULL(ctx, ns, cid, mn);
 	}
-	if(mtd != NULL && mn == MN__k) {
-		mn = MN__s;
-		mtd = knh_getFormatterNULL(ctx, cid, mn);
+	if(mtd == NULL && mn == MN__data) {
+		mn  = MN__k;
+		mtd = knh_NameSpace_getFormatterNULL(ctx, ns, cid, mn);
+	}
+	if(mtd == NULL && mn == MN__k) {
+		mn  = MN__s;
+		mtd = knh_NameSpace_getFormatterNULL(ctx, ns, cid, mn);
 	}
 	if(mtd == NULL) {
 		knh_Gamma_perror(ctx, KERR_DWARN, _("undefined formatter: %M for %C"), mn0, cid);
 		mtd = new_Method(ctx, 0, cid, mn0, knh_Fmethod_dynamic);
 		KNH_SETv(ctx, DP(mtd)->mp, KNH_TNULL(ParamArray));
-		knh_NameSpace_addFormatter(ctx, DP(ctx->gma)->ns, mtd);
+		knh_NameSpace_addFormatter(ctx, ns, mtd);
 	}
 	return mtd;
 }
@@ -2572,12 +2577,11 @@ static void knh_Stmt_asmBLOCK(Ctx *ctx, knh_Stmt_t *stmtH, knh_type_t reqt)
 
 /* ------------------------------------------------------------------------ */
 
-void knh_Method_asm(Ctx *ctx, knh_Method_t *mtd, knh_Stmt_t *stmtP, knh_Stmt_t *stmtB, knh_type_t reqt)
+void knh_Method_asm(Ctx *ctx, knh_Method_t *mtd, knh_Stmt_t *stmtP, knh_Stmt_t *stmtB, knh_type_t reqt, knh_Ftyping typing)
 {
 	knh_class_t prev_cid = DP(ctx->gma)->this_cid;
 	if(STT_(stmtB) == STT_ERR) return ;
-	knh_Method_typing(ctx, mtd, stmtP, stmtB, reqt);
-	DBG_P("****** %s TYPE=%s, NEXT=%p", TT_tochar(STT_(stmtB)), TYPE__(stmtB->type), DP(stmtB)->nextNULL);
+	typing(ctx, mtd, stmtP, stmtB, reqt);
 	if(STT_(stmtB) == STT_ERR) return ;
 	DBG_ASSERT(knh_Array_size(DP(ctx->gma)->insts) == 0);
 	{

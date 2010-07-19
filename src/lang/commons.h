@@ -66,6 +66,9 @@ const char* TT_tochar(knh_term_t tt);
 #define knh_Gamma_setLine(ctx, n)   SP(ctx->gma)->line = n
 #define knh_Stmt_flag(ctx, stmt, text, flag) knh_Stmt_flag_(ctx, stmt, STEXT(text), flag)
 
+#define knh_Gamma_isCompilingFormatter(ctx)  MN_isFMT(DP(DP(ctx->gma)->mtd)->mn)
+
+
 knh_Token_t* new_Token(Ctx *ctx, knh_flag_t flag, knh_term_t tt);
 knh_Token_t *new_TokenCID(Ctx *ctx, knh_class_t cid);
 knh_Token_t *new_TokenMN(Ctx *ctx, knh_methodn_t mn);

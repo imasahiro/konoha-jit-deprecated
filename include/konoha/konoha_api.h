@@ -73,8 +73,9 @@ KNHAPI(knh_Range_t*) new_Range(Ctx *ctx, knh_class_t p1, Object *start, Object *
 /* ======================================================================== */
 /* DEVELOPERS API */
 METHOD knh_Fmethod_runVM(Ctx *ctx, knh_sfp_t *sfp, long rix);
+void knh_NameSpace_addFormatter(Ctx *ctx, knh_NameSpace_t *ns, knh_Method_t *mtd);
 KLRAPI(void) _PRINT(Ctx *ctx, knh_sfp_t *sfp, struct klr_P_t *op);
-void knh_Method_asm(Ctx *ctx, knh_Method_t *mtd, knh_Stmt_t *stmtP, knh_Stmt_t *stmtB, knh_type_t reqt);
+void knh_Method_asm(Ctx *ctx, knh_Method_t *mtd, knh_Stmt_t *stmtP, knh_Stmt_t *stmtB, knh_type_t reqt, knh_Ftyping typing);
 void knh_loadSystemKLRCode(Ctx *ctx);
 void knh_write_vmfunc(Ctx *ctx, knh_OutputStream_t *w, void *f);
 knh_NameSpace_t* new_NameSpace(Ctx *ctx, knh_NameSpace_t *nsNULL);
@@ -110,8 +111,9 @@ knh_bool_t knh_StmtMETA_is(Ctx *ctx, knh_Stmt_t *stmt, knh_bytes_t name);
 knh_class_t knh_Token_getcid(Ctx *ctx, knh_Token_t *tk, knh_class_t defc);
 knh_class_t knh_class_parent(Ctx *ctx, knh_class_t c1, knh_class_t c2);
 knh_PathDSPI_t *knh_NameSpace_getPathDSPINULL(Ctx *ctx, knh_NameSpace_t *ns, knh_bytes_t path);
-knh_bool_t knh_Method_typing(Ctx *ctx, knh_Method_t *mtd, knh_Stmt_t *stmtP, knh_Stmt_t *stmtB, knh_type_t reqt);
 int knh_StmtITR_scriptTyping(Ctx *ctx, knh_Stmt_t *stmtITR, knh_type_t reqt);
+knh_bool_t knh_Method_typing(Ctx *ctx, knh_Method_t *mtd, knh_Stmt_t *stmtP, knh_Stmt_t *stmtB, knh_type_t reqt);
+knh_bool_t knh_Formatter_typing(Ctx *ctx, knh_Method_t *mtd, knh_Stmt_t *stmtP, knh_Stmt_t *stmtB, knh_type_t reqt);
 void knh_Stmt_scriptAsm(Ctx *ctx, knh_Stmt_t *stmt);
 void knh_opcode_check(void);
 void knh_opcode_stat(Ctx *ctx);
