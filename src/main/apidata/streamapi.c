@@ -207,6 +207,7 @@ static METHOD OutputStream_new(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	}
 	else {
 		knh_Object_toNULL(ctx, w);
+		SP(w)->dspi = knh_getStreamDSPI(ctx, K_DEFAULT_DSPI);
 	}
 	RETURN_(w);
 }

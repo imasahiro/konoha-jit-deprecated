@@ -4,7 +4,7 @@
 
 ### InputStream.readLine
 >>> in.readLine();
-"## InputStream.new"
+"### InputStream.new"
 
 ### InputStream.getChar
 >>> in.getChar();
@@ -38,4 +38,7 @@ false
 >>> out.isClosed();
 true
 
-
+### OutputStream no such file
+>>> OutputStream o = new OutputStream("");
+>>> o << "abcd";
+ 
