@@ -2394,7 +2394,7 @@ static knh_flag_t knh_StmtPRINT_flag(Ctx *ctx, knh_Stmt_t *o)
 {
 	knh_flag_t flag = 0;
 	if(IS_Map(DP(o)->metaDictCaseMap)) {
-		Object *v = knh_DictCaseMap_getNULL(ctx,  DP(o)->metaDictCaseMap, STEXT("time"));
+		Object *v = knh_DictCaseMap_getNULL(ctx,  DP(o)->metaDictCaseMap, STEXT("Time"));
 		if(v != NULL) {
 			flag |= K_FLAG_PF_TIME;
 		}
