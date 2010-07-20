@@ -152,21 +152,24 @@ static METHOD String_endsWith(Ctx *ctx, knh_sfp_t *sfp, long rix)
 static METHOD String_indexOf(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
 	knh_Regex_t *re = sfp[1].re;
-	const char *str = ctx->api->tochar(ctx, sfp[0].s);  // necessary
-	knh_regmatch_t pmatch[K_REGEX_MATCHSIZE];
-	int res = re->spi->regexec(ctx, re->reg, str, K_REGEX_MATCHSIZE, pmatch, 0);
 	knh_index_t loc = -1;
-	if(res == 0) {
-		loc = pmatch[0].rm_so;
-		if (!knh_String_isASCII(sfp[0].s) && loc != -1) {
-			knh_bytes_t base = {{str}, loc};
-			loc = knh_bytes_mlen(base);
+	if (!IS_NULL(re)) {
+		const char *str = ctx->api->tochar(ctx, sfp[0].s);  // necessary
+		knh_regmatch_t pmatch[K_REGEX_MATCHSIZE];
+		int res = re->spi->regexec(ctx, re->reg, str, K_REGEX_MATCHSIZE, pmatch, 0);
+		if(res == 0) {
+			loc = pmatch[0].rm_so;
+			if (!knh_String_isASCII(sfp[0].s) && loc != -1) {
+				knh_bytes_t base = {{str}, loc};
+				loc = knh_bytes_mlen(base);
+			}
 		}
-	}
-	else {
-		char ebuf[K_ERRBUFSIZE];
-		re->spi->regerror(res, re->reg, ebuf, K_ERRBUFSIZE);
-		ctx->api->ebilog(ctx, re->spi->name, "regexec", LOG_WARNING, "errmsg='%s'", ebuf);
+		else {
+			char ebuf[K_ERRBUFSIZE];
+			re->spi->regerror(res, re->reg, ebuf, K_ERRBUFSIZE);
+			ctx->api->ebilog(ctx, re->spi->name, "regexec", LOG_WARNING, "errmsg='%s'", ebuf);
+		}
+
 	}
 	RETURNi_(loc);
 }
@@ -264,7 +267,10 @@ static METHOD String_split(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	knh_String_t *s0 = sfp[0].s;
 	knh_Regex_t *re = sfp[1].re;
 	knh_Array_t *a = NULL;
-	if(knh_Regex_isSTRREGEX(re)) {
+	if(IS_NULL(re)) {
+		a = knh_String_toCharArray(ctx, s0, 0);
+	}
+	else if(knh_Regex_isSTRREGEX(re)) {
 		int istrim = 0;
 		knh_bytes_t delim = S_tobytes((re)->pattern);
 		if(delim.len == 0) {
