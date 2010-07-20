@@ -1723,6 +1723,8 @@ static FASTAPI(void) knh_NameSpace_init(Ctx *ctx, Object *o)
 	b->name2cidDictSetNULL = NULL;
 	b->lconstDictCaseMapNULL = NULL;
 	b->func2cidDictSetNULL = NULL;
+	b->formattersNULL = NULL;
+	b->methodsNULL = NULL;
 	b->strregexSPI = &STRREGEXSPI;
 	b->regexSPI = &STRREGEXSPI;
 	o->ref = b;

@@ -599,8 +599,8 @@ static knh_Method_t *knh_getSystemFormatterNULL(Ctx *ctx, knh_class_t cid, knh_m
 	}
 	mtd = knh_getFormatterNULL(ctx, cid, mn);
 	if(mtd == NULL) return NULL;
-	ctx->fmtCache[h] = mtd;
 	DBG_ASSERT(IS_Method(mtd));
+	ctx->fmtCache[h] = mtd;
 	return mtd;
 }
 

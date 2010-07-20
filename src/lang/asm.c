@@ -119,15 +119,12 @@ static void knh_BasicBlock_add_(Ctx *ctx, knh_BasicBlock_t *bb, int line, knh_op
 		knh_opline_t *pc = DP(bb)->opbuf + DP(bb)->size;
 		knh_memcpy(pc, op, sizeof(knh_opline_t));
 		pc->line = (knh_ushort_t)line;
-#if defined(K_USING_RCGC)
-		knh_opline_traverse(ctx, pc, knh_ftraverse_inc);
-#endif
 		DP(bb)->size += 1;
 	}
 }
 
 static KLRAPI(void) _bBOX(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid);
-static KLRAPI(void) _ifBOX(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid);
+static KLRAPI(void) _BOX(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid);
 static KLRAPI(void) _OBOX(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid);
 
 static void knh_Gamma_asm(Ctx *ctx, knh_opline_t *op)
@@ -160,7 +157,7 @@ static void knh_Gamma_asm(Ctx *ctx, knh_opline_t *op)
 		if(opP->opcode == OPCODE_UNBOX && op->opcode == OPCODE_TR) {
 			klr_UNBOX_t *opUNBOX = (klr_UNBOX_t*)opP;
 			klr_TR_t *opTR = (klr_TR_t*)op;
-			if(opUNBOX->b == opTR->a && (opTR->tr == _OBOX || opTR->tr == _ifBOX || opTR->tr == _bBOX)) {
+			if(opUNBOX->b == opTR->a && (opTR->tr == _OBOX || opTR->tr == _BOX || opTR->tr == _bBOX)) {
 				DBG_ASSERT(opUNBOX->a == opTR->b); // CHECK Object o = 1;
 				DBG_P("PEEPHOLE: removed _BOX"); // this is safe, however
 				DP(bb)->size -= 1;
@@ -171,7 +168,7 @@ static void knh_Gamma_asm(Ctx *ctx, knh_opline_t *op)
 		if(opP->opcode == OPCODE_OSET && op->opcode == OPCODE_TR) {
 			klr_OSET_t *opOSET = (klr_OSET_t*)opP;
 			klr_TR_t *opTR = (klr_TR_t*)op;
-			if(opOSET->a == opTR->a && (opTR->tr == _OBOX || opTR->tr == _ifBOX || opTR->tr == _bBOX)) {
+			if(opOSET->a == opTR->a && (opTR->tr == _OBOX || opTR->tr == _BOX || opTR->tr == _bBOX)) {
 				DBG_P("PEEPHOLE: removed unnecesarry BOX"); // is it ok?
 				return;
 			}
@@ -423,12 +420,24 @@ static void knh_BasicBlock_strip1(Ctx *ctx, knh_BasicBlock_t *bb)
 	}
 }
 
+#define BB_(bb)   (bb != NULL) ? DP(bb)->id : -1
+
 static size_t knh_BasicBlock_size(Ctx *ctx, knh_BasicBlock_t *bb, size_t c)
 {
 	L_TAIL:;
 	if(bb == NULL || knh_BasicBlock_isVisited(bb)) return c;
 	knh_BasicBlock_setVisited(bb, 1);
+	if(bb->nextNC != NULL) {
+		//DBG_P("BB%d: NEXT=BB%d, isVisited=%d", BB_(bb), BB_(bb->nextNC), knh_BasicBlock_isVisited(bb));
+		if(knh_BasicBlock_isVisited(bb) || knh_BasicBlock_opcode(bb->nextNC) == OPCODE_RET) {
+			knh_BasicBlock_t *bb2 = new_BasicBlockLABEL(ctx);
+			bb2->jumpNC = bb->nextNC;
+			bb->nextNC = bb2;
+			DBG_P("BB%d: NEWBB%d, INSERT JMP", BB_(bb), BB_(bb2));
+		}
+	}
 	if(bb->jumpNC != NULL && bb->nextNC != NULL) {
+		DBG_ASSERT(bb->jumpNC != bb->nextNC);
 		c = knh_BasicBlock_size(ctx, bb->nextNC, c + DP(bb)->size);
 		bb = bb->jumpNC; goto L_TAIL;
 	}
@@ -442,13 +451,6 @@ static size_t knh_BasicBlock_size(Ctx *ctx, knh_BasicBlock_t *bb, size_t c)
 		c = DP(bb)->size + c; bb = bb->jumpNC;
 		goto L_TAIL;
 	}
-	if(bb->nextNC != NULL &&
-		(knh_BasicBlock_isVisited(bb) || knh_BasicBlock_opcode(bb->nextNC) == OPCODE_RET)) {
-		DBG_P("INSERT JMP");
-		knh_BasicBlock_t *bb2 = new_BasicBlockLABEL(ctx);
-		bb2->jumpNC = bb->nextNC;
-		bb->nextNC = bb2;
-	}
 	c = DP(bb)->size + c;
 	bb = bb->nextNC;
 	goto L_TAIL;
@@ -458,10 +460,14 @@ static knh_opline_t* knh_BasicBlock_copy(Ctx *ctx, knh_opline_t *dst, knh_BasicB
 {
 	knh_BasicBlock_setVisited(bb, 0);
 	DBG_ASSERT(!knh_BasicBlock_isVisited(bb));
-	if(DP(bb)->code != NULL) return dst;
+	DBG_P("BB%d: asm nextNC=BB%d, jumpNC=BB%d", BB_(bb), BB_(bb->nextNC), BB_(bb->jumpNC));
+	if(DP(bb)->code != NULL) {
+		//DBG_P("BB%d: already copied", BB_(bb));
+		return dst;
+	}
 	if(prev[0] != NULL && prev[0]->nextNC == NULL && prev[0]->jumpNC == bb) {
 		dst -= 1;
-		DBG_P("REMOVE unnecessary JMP/(?%s)", knh_opcode_tochar(dst->opcode));
+		//DBG_P("BB%d: REMOVE unnecessary JMP/(?%s)", BB_(bb), knh_opcode_tochar(dst->opcode));
 		DBG_ASSERT(dst->opcode == OPCODE_JMP || dst->opcode == OPCODE_JMP_);
 		prev[0]->jumpNC = NULL;
 		prev[0]->nextNC = bb;
@@ -476,6 +482,9 @@ static knh_opline_t* knh_BasicBlock_copy(Ctx *ctx, knh_opline_t *dst, knh_BasicB
 		}
 		for(i = 0; i < DP(bb)->size; i++) {
 			knh_opline_t *op = dst + i;
+#if defined(K_USING_RCGC)
+			knh_opline_traverse(ctx, op, knh_ftraverse_inc);
+#endif
 			if(op->opcode == OPCODE_VCALL) {
 				if(knh_BasicBlock_isStackChecked(bb)) {
 					op->opcode = OPCODE_VCALL_;
@@ -484,19 +493,22 @@ static knh_opline_t* knh_BasicBlock_copy(Ctx *ctx, knh_opline_t *dst, knh_BasicB
 					knh_BasicBlock_setStackChecked(bb, 1);
 				}
 			}
+			DBG_P("BB%d: [%ld] %s", BB_(bb), i, knh_opcode_tochar(op->opcode));
 		}
 		dst = dst + DP(bb)->size;
 		knh_BasicBlock_freebuf(ctx, bb);
 		prev[0] = bb;
-		DBG_P("asm bb=%d, %p, %s nextNC=%p", DP(bb)->id, dst, BB(bb), bb->nextNC);
 	}
 	if(bb->nextNC != NULL) {
+		//DBG_P("BB%d: NEXT=BB%d", BB_(bb), BB_(bb->nextNC));
+		DBG_ASSERT(DP(bb->nextNC)->code == NULL);
 		if(knh_BasicBlock_isStackChecked(bb) && DP(bb->nextNC)->incoming == 1) {
 			knh_BasicBlock_setStackChecked(bb->nextNC, 1);
 		}
 		dst = knh_BasicBlock_copy(ctx, dst, bb->nextNC, prev);
 	}
 	if(bb->jumpNC != NULL) {
+		//DBG_P("BB%d: JUMP=%d", DP(bb)->id, BB_(bb->jumpNC));
 		if(knh_BasicBlock_isStackChecked(bb) && DP(bb->jumpNC)->incoming == 1) {
 			knh_BasicBlock_setStackChecked(bb->jumpNC, 1);
 		}
@@ -513,7 +525,7 @@ static void knh_BasicBlock_setjump(knh_BasicBlock_t *bb)
 			knh_BasicBlock_t *bbJ = bb->jumpNC;
 			klr_JMP_t *j = (klr_JMP_t*)DP(bb)->opjmp;
 			j->jumppc = DP(bbJ)->code;
-			DBG_P("jump from id=%d to id=%d %s jumppc=%p", DP(bb)->id, DP(bbJ)->id, knh_opcode_tochar(j->opcode), DP(bbJ)->code);
+			//DBG_P("jump from id=%d to id=%d %s jumppc=%p", DP(bb)->id, DP(bbJ)->id, knh_opcode_tochar(j->opcode), DP(bbJ)->code);
 			bb->jumpNC = NULL;
 			if(!knh_BasicBlock_isVisited(bbJ)) {
 				knh_BasicBlock_setVisited(bbJ, 1);
@@ -680,9 +692,11 @@ static KLRAPI(void) _VARGS(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t
 }
 static KLRAPI(void) _bBOX(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid)
 {
-	klr_mov(ctx, sfp[c].o, sfp[0].bvalue ? KNH_TRUE : KNH_FALSE);
+	knh_Object_t *b = sfp[0].bvalue ? KNH_TRUE : KNH_FALSE;
+	//DBG_P("sfp[0].ivalue=%lld, .bvalue=%ld", sfp[0].ivalue, sfp[0].bvalue);
+	klr_mov(ctx, sfp[c].o, b);
 }
-static KLRAPI(void) _ifBOX(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid)
+static KLRAPI(void) _BOX(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid)
 {
 	Object *v = new_Object_boxing(ctx, cid, sfp);
 	klr_mov(ctx, sfp[c].o, v);
@@ -692,8 +706,8 @@ static KLRAPI(void) _OBOX(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t 
 	knh_class_t cid2 = knh_Object_cid(sfp[0].o);
 	if(IS_Tunbox(cid2)) {
 		Object *v = new_Object_boxing(ctx, cid2, sfp);
-		DBG_P("sfp: ivalue=%lld fvalue=%f bvalue=%d", sfp[0].ivalue, sfp[0].fvalue, (int)sfp[0].bvalue);
-		DBG_P("box: ivalue=%lld fvalue=%f bvalue=%d", ((knh_Int_t*)v)->n.ivalue, ((knh_Int_t*)v)->n.fvalue, (int)((knh_Int_t*)v)->n.bvalue);
+//		DBG_P("sfp: ivalue=%lld fvalue=%f bvalue=%d", sfp[0].ivalue, sfp[0].fvalue, (int)sfp[0].bvalue);
+//		DBG_P("box: ivalue=%lld fvalue=%f bvalue=%d", ((knh_Int_t*)v)->n.ivalue, ((knh_Int_t*)v)->n.fvalue, (int)((knh_Int_t*)v)->n.bvalue);
 		klr_mov(ctx, sfp[c].o, v);
 	}
 }
@@ -713,7 +727,6 @@ static KLRAPI(void) _TOSTR(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t
 	knh_String_t *s = knh_cwb_newString(ctx, cwb);
 	klr_mov(ctx, sfp[c].o, s);
 }
-
 static KLRAPI(void) _ERR(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid)
 {
 	if(IS_bString(sfp[0].o)) {
@@ -793,7 +806,7 @@ static void KNH_ASM_BOX2(Ctx *ctx, knh_type_t reqt, knh_type_t atype, int a)
 				KNH_ASM(OSET, a, v);
 			}
 			else {
-				KNH_ASM(TR, a, a, cid, _ifBOX);
+				KNH_ASM(TR, a, a, cid, _BOX);
 			}
 		}
 	}
@@ -978,12 +991,12 @@ static void KNH_ASM_XMOVx(Ctx *ctx, knh_type_t atype, knh_sfx_t ax, knh_type_t b
 		DBG_ASSERT(atype == TYPE_Any || IS_Tnumbox(atype));
 		if(IS_Tint(btype)) { // Any a = b; // int b;
 			KNH_ASM(iMOVx, espidx, bx);
-			KNH_ASM(TR, espidx, espidx, CLASS_type(btype), _ifBOX);
+			KNH_ASM(TR, espidx, espidx, CLASS_type(btype), _BOX);
 			KNH_ASM(XMOV, ax, espidx);
 		}
 		else if(IS_Tfloat(btype)) { // Any a = b; // float b;
 			KNH_ASM(fMOVx, espidx, bx);
-			KNH_ASM(TR, espidx, espidx, CLASS_type(btype), _ifBOX);
+			KNH_ASM(TR, espidx, espidx, CLASS_type(btype), _BOX);
 			KNH_ASM(XMOV, ax, espidx);
 		}
 		else if(IS_Tbool(btype)) { // Any a = b; // boolean b;
@@ -2706,7 +2719,7 @@ typedef struct knh_funcname_t {
 #define _FUNC(func, name) { (void*) func, (char *) name }
 
 static struct knh_funcname_t _FuncData[] = {
-	_FUNC(_PRINT, "PRINT"), _FUNC(_ifBOX, "BOX"), _FUNC(_NEW, "NEW"),
+	_FUNC(_PRINT, "PRINT"), _FUNC(_BOX, "BOX"), _FUNC(_NEW, "NEW"),
 	_FUNC(_NULVAL, "NULL"), _FUNC(_SYS, "SYS"), _FUNC(_CWB, "CWB"), _FUNC(_TOSTR, "TOSTR"),
 	_FUNC(klr_setMethod, "setMethod"), _FUNC(klr_lookupMethod, "lookupMethod"),
 	_FUNC(_PROP, "PROP"), _FUNC(_bBOX, "bBOX"), _FUNC(_OBOX, "OBOX"), _FUNC(_VARGS, "VARGS"),
