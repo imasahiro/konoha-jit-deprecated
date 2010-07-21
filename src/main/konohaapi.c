@@ -1104,7 +1104,6 @@ static void test_display(Ctx *ctx, void *status, const char* result, const knh_S
 		test_dump(kt->out, "\t", ks->testResult.text, "\nRESULTS:\n\t");
 		test_dump(kt->out, "\t", result, "\n");
 	}
-	fprintf(stderr, "%p:%s\n", ks->next, result);
 	if (ks->next == NULL) {
 		size_t i;
 		ks = ku->shead;
