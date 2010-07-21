@@ -779,11 +779,15 @@ static void add_kt_stmt_body(Ctx *ctx, kt_stmt_t* ks, char *body)
 static void add_kt_stmt_result(Ctx *ctx, kt_stmt_t *ks, const char *result)
 {
 	size_t len = knh_strlen(result);
-	DBG_ASSERT(len > 0);
+ 	DBG_ASSERT(len > 0);
 	if (ks != NULL) {
-		ks->testResult.ubuf = (knh_uchar_t *)KNH_MALLOC(ctx, len + 1);
-		knh_memcpy(ks->testResult.ubuf, result, len + 1);
-		ks->testResult.len = len;
+		if (ks->testResult.len == 0) {
+			ks->testResult.ubuf = (knh_uchar_t *)KNH_MALLOC(ctx, len + 1);
+			knh_memcpy(ks->testResult.ubuf, result, len + 1);
+			ks->testResult.len = len;
+		} else {
+			//TODO : for multiline;
+		}
 	} else {
 		// adding result before ks instance created.
 		// invalid syntax.
@@ -791,6 +795,172 @@ static void add_kt_stmt_result(Ctx *ctx, kt_stmt_t *ks, const char *result)
 	}
 }
 
+
+static knh_bool_t test_readstmt(Ctx *ctx, void *status, knh_cwb_t *cwb, const knh_ShellAPI_t *api)
+{
+	kt_status_t *kt = (kt_status_t*)status;
+	kt_unit_t *ku = NULL;
+	kt_stmt_t *ks = NULL;
+	if (kt == NULL) return 0;
+	if (kt->unitsize != 0) ku = kt->current;
+	if (ku != NULL && ku->stmtsize != 0) ks = ku->current;
+
+	/* if its in middle of unittest, return current */
+	if (ks != NULL && ks->next != NULL) {
+		ks = ks->next;
+		ku->current = ks;
+		knh_cwb_write(ctx, cwb, ks->testBody);
+		return 1;
+	}
+	char line[KTEST_LINE_MAX] = {0};
+	int comment_nest = 0;
+	char *search_ptr = NULL;
+	char *line_ptr = NULL;
+	int isUnitStarted = 0, isStmtContinue = 0, ignoreThisUnit = 0;
+	int isResultReady = 0;
+	while(kt_fgets(ctx, kt, line, KTEST_LINE_MAX) != NULL) {
+		kt->lineno += 1;
+		line_ptr = line;
+		search_ptr = NULL;
+		/* ignore comment first */
+		if (comment_nest == 0) {
+			if ((search_ptr = strstr(line_ptr, "//")) != NULL) {
+				/* only a single appearance is enough */
+				// ignore after searchptr
+				line_ptr[search_ptr - line_ptr] = '\0'; // terminate line before // appear.
+			}
+			// get the first comment opener
+			if ((search_ptr = strstr(line_ptr, "/*")) != NULL) {
+				comment_nest += 1;
+				line_ptr[search_ptr - line_ptr] = '\0';
+				search_ptr += 2;
+				char *tmp_ptr = search_ptr;
+				/* detect all comment opener */
+				while ((tmp_ptr = strstr(tmp_ptr, "/*")) != NULL) {
+					comment_nest += 1;
+					tmp_ptr += 2;
+				}
+				/* detect the last comment closer */
+				while ((search_ptr = strstr(search_ptr, "*/")) != NULL) {
+					comment_nest -= 1;
+					search_ptr += 2;
+				}
+			}
+		} else {
+			// its in comment nest, get last */
+			while ((search_ptr = strstr(line_ptr, "*/")) != NULL) {
+				comment_nest -= 1;
+				line_ptr = search_ptr + 2;
+			}
+			if (comment_nest > 0) {
+				// ignore
+				continue;
+			} else if (comment_nest == 0) {
+				// do nothing
+			}
+		}
+		if (comment_nest < 0) {
+			fprintf(stderr, "COMMENT ERROR!\n");
+			KNH_SYSLOG(ctx, LOG_ERR, "parsing testcode", "invalid comment nesting");
+			return 0;
+		}
+
+		/* now, we parse per unit */
+		if (IS_T(line_ptr, '#')) {
+			if (isUnitStarted) {
+				// next unit test. we need to rewind fp;
+				// TODO: rewind for a line;
+				long len = (long)knh_strlen(line);
+				fseek(kt->in, -(len + 1), SEEK_CUR);
+				kt->lineno -= 1;
+				break;
+			}
+			line_ptr += 4;
+			if (line_ptr[0] == 'T' && line_ptr[1] == 'O' && line_ptr[2] == 'D' && line_ptr[3] == 'O') {
+				//ignore this unit;
+				ignoreThisUnit = 1;
+				// TODO: we need to ignore
+				continue;
+			}
+			if (kt->unitsize == 0) {
+				kt->uhead = new_kt_unit(ctx, line_ptr);
+				ku = kt->uhead;
+			} else {
+				ku->next = new_kt_unit(ctx, line_ptr);
+				ku = ku->next;
+			}
+			kt->unitsize++;
+			kt->current = ku;
+			isUnitStarted = 1;
+			continue;
+		}
+		if (IS_T(line_ptr, '>')) {
+			line_ptr += 4;
+			if (ku == NULL) continue; // invalid test stmt
+			if (ku->stmtsize == 0) {
+				ku->shead = new_kt_stmt(ctx, line_ptr);
+				ks = ku->shead;
+				ku->current = ks;
+			} else {
+				if (isResultReady == 1) {
+					ks->isPassed = 2; /* including both case; ignore intentionally, or no result */
+					isResultReady = 0;
+				}
+				ks->next = new_kt_stmt(ctx, line_ptr);
+				ks = ks->next;
+			}
+			ku->stmtsize++;
+			int check;
+			if ((check = api->checkstmt(ks->testBody)) == 0) {
+				// stmt is valid. exec first stmt
+				isResultReady = 1;
+				continue;
+			}
+			if (check < 0) {
+				KNH_SYSLOG(ctx, LOG_WARNING, "KTEST", "invalid statement at line=%d", kt->lineno);
+				knh_cwb_clear(cwb, 0);
+				continue;
+			} else {
+				// stmt is continuing;
+				isStmtContinue = 1;
+				continue;
+			}
+		}
+		if (IS_T(line_ptr, '.')) {
+			if (!isStmtContinue) continue; // invalid stmt.
+			if (ku == NULL) continue; //invalid stmt.
+			if (ks == NULL) continue; // invalid stmt
+			add_kt_stmt_body(ctx, ks, line_ptr + 4);
+			int check;
+			if ((check = api->checkstmt(ks->testBody)) == 0) {
+				isStmtContinue = 0;
+				isResultReady = 1;
+				continue;
+			}
+			if (check < 0) {
+				KNH_SYSLOG(ctx, LOG_WARNING, "KTEST", "invalid statement at line=%d", kt->lineno);
+				knh_cwb_clear(cwb, 0);
+			}
+			continue;
+		}
+		// handle result
+		if (isResultReady) {
+			if (line_ptr[0] != '\0') {
+				add_kt_stmt_result(ctx, ks, line_ptr);
+				isResultReady = 0;
+			}
+
+		}
+	}
+	if (isUnitStarted && ks != NULL) {
+		ks = ku->current;
+		knh_cwb_write(ctx, cwb, ks->testBody);
+		return 1;
+	}
+	return 0;
+}
+
+#if 0
 static knh_bool_t test_readstmt(Ctx *ctx, void *status, knh_cwb_t *cwb, const knh_ShellAPI_t *api)
 {
 	kt_status_t *kt = (kt_status_t*)status;
@@ -889,6 +1059,7 @@ static knh_bool_t test_readstmt(Ctx *ctx, void *status, knh_cwb_t *cwb, const kn
 	}
 	return 0;
 }
+#endif
 
 static void test_dump(FILE *fp, const char *linehead, const char *body, const char *foot)
 {
@@ -910,42 +1081,45 @@ static void test_display(Ctx *ctx, void *status, const char* result, const knh_S
 	kt_unit_t *ku;
 	kt_stmt_t *ks;
 	if (kt == NULL) return;
-	//if (!kt->isForwarded) {
-		ku = kt->current;
-		if (ku == NULL) return;
-		ks = ku->current;
-		size_t len = ks->testResult.len;
-		if (len == 0) {
-			// ignoring result. we suppose this stmt is correct
-			ks->isPassed = 1;
-			return;
-		}
-		knh_uchar_t *charResult = ks->testResult.ubuf;
-		if (strncmp((char*)charResult, result, len) == 0) {
-			ks->isPassed = 1;
-			kt->sumOfPassed++;
-			if(isTestVerbose) {
-				fprintf(kt->out, "[PASSED] %s\n", ku->testTitle.text);
-			}
-		} else {
-			ks->isPassed = 0;
-			kt->sumOfFailed++;
-			fprintf(kt->out, "[FAILED] %s\nTESTED:\n>>> ", ku->testTitle.text);
-			test_dump(kt->out, "... ", ks->testBody.text, "\n\t");
-			test_dump(kt->out, "\t", ks->testResult.text, "\nRESULTS:\n\t");
-			test_dump(kt->out, "\t", result, "\n");
-		}
-//	} else {
-//		kt->isForwarded = 0;
-//		// check if its not the first test.
-//		if (kt->unitsize == 1) {
-//			//showResult(ctx, result, k);
-//			return;
+	ku = kt->current;
+	if (ku == NULL) return;
+	ks = ku->current;
+	size_t len = ks->testResult.len;
+	knh_uchar_t *charResult = ks->testResult.ubuf;
+	if (strncmp((char*)charResult, result, len) == 0) {
+		ks->isPassed = 1;
+		kt->sumOfPassed++;
+//		if(isTestVerbose) {
+//			fprintf(kt->out, "[PASSED] %s \n", ku->testTitle.text);
 //		}
-//		int i = 0;
-//		ku = kt->current
-//		for (i = 0; i < kt->unitsize)
-//	}
+	} else {
+		ks->isPassed = 0;
+		kt->sumOfFailed++;
+		fprintf(kt->out, "[FAILED] %s\nTESTED:\n>>> ", ku->testTitle.text);
+		test_dump(kt->out, "... ", ks->testBody.text, "\n\t");
+		test_dump(kt->out, "\t", ks->testResult.text, "\nRESULTS:\n\t");
+		test_dump(kt->out, "\t", result, "\n");
+	}
+	if (ks->next == NULL) {
+		size_t i;
+		ks = ku->shead;
+		int isAllPassed = 1;
+		int p = 0,  f = 0;
+		for(i = 1; i <= ku->stmtsize; i++) {
+			if (ks->isPassed == 0 /* failed */) {
+				isAllPassed = 0;
+				f++;
+			} else if (ks->isPassed == 1){
+				p++;
+			}
+			ks = ks->next;
+		}
+		if (isAllPassed) {
+			fprintf(kt->out, "[PASSED]");
+			fprintf(kt->out, "%s: %d of %d tests have been passed\n", ku->testTitle.text, p, p+f);
+		}
+		// if its failed, already alerted.
+	}
 }
 
 static void test_cleanup(Ctx *ctx, void *status)
