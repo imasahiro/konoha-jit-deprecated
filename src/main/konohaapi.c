@@ -709,6 +709,7 @@ static kt_unit_t* new_kt_unit(Ctx *ctx, char* title)
 {
 	kt_unit_t* ret = (kt_unit_t*)KNH_MALLOC(ctx, sizeof(kt_unit_t));
 	size_t len = knh_strlen(title);
+	if (len == 0) title = "(Undefined)";
 	ret->testTitle.ubuf = (knh_uchar_t *)KNH_MALLOC(ctx, len + 1);
 	knh_memcpy(ret->testTitle.ubuf, title, len + 1);
 	ret->testTitle.len = len;
@@ -876,7 +877,9 @@ static knh_bool_t test_readstmt(Ctx *ctx, void *status, knh_cwb_t *cwb, const kn
 				break;
 			}
 			line_ptr += 4;
-			if (line_ptr[0] == 'T' && line_ptr[1] == 'O' && line_ptr[2] == 'D' && line_ptr[3] == 'O') {
+			size_t title_len = knh_strlen(line_ptr);
+
+			if (title_len >= 4 && line_ptr[0] == 'T' && line_ptr[1] == 'O' && line_ptr[2] == 'D' && line_ptr[3] == 'O') {
 				//ignore this unit;
 				ignoreThisUnit = 1;
 				// TODO: we need to ignore
@@ -952,7 +955,7 @@ static knh_bool_t test_readstmt(Ctx *ctx, void *status, knh_cwb_t *cwb, const kn
 
 		}
 	}
-	if (isUnitStarted && ks != NULL) {
+	if (isUnitStarted && ku->current != NULL) {
 		ks = ku->current;
 		knh_cwb_write(ctx, cwb, ks->testBody);
 		return 1;
