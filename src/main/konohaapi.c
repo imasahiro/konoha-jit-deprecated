@@ -1089,6 +1089,7 @@ static void test_display(Ctx *ctx, void *status, const char* result, const knh_S
 	ks = ku->current;
 	size_t len = ks->testResult.len;
 	knh_uchar_t *charResult = ks->testResult.ubuf;
+
 	if (strncmp((char*)charResult, result, len) == 0) {
 		ks->isPassed = 1;
 		kt->sumOfPassed++;
@@ -1097,12 +1098,13 @@ static void test_display(Ctx *ctx, void *status, const char* result, const knh_S
 //		}
 	} else {
 		ks->isPassed = 0;
-		kt->sumOfFailed++;
+//		kt->sumOfFailed++;
 		fprintf(kt->out, "[FAILED] %s\nTESTED:\n>>> ", ku->testTitle.text);
 		test_dump(kt->out, "... ", ks->testBody.text, "\n\t");
 		test_dump(kt->out, "\t", ks->testResult.text, "\nRESULTS:\n\t");
 		test_dump(kt->out, "\t", result, "\n");
 	}
+	fprintf(stderr, "%p:%s\n", ks->next, result);
 	if (ks->next == NULL) {
 		size_t i;
 		ks = ku->shead;
@@ -1136,7 +1138,9 @@ static void test_cleanup(Ctx *ctx, void *status)
 		size_t i, j;
 		/* traverse test result, and sum up */
 		size_t unit_passed = 0, isAllPassed = 1, line = 0;
+		size_t total_stmts = 0;
 		for (i = 1; i <= kt->unitsize; i++) {
+			total_stmts += ku->stmtsize;
 			for (j = 1; j <= ku->stmtsize; j++) {
 				if (ks->isPassed == 0 /*failed*/) {
 					line = j;
@@ -1170,7 +1174,7 @@ static void test_cleanup(Ctx *ctx, void *status)
 		if(isTestVerbose) {
 			fprintf(kt->out, "%s: %d of %d units, %d of %d tests have been passed\n",
 					kt->filename.text, (int)unit_passed, (int)kt->unitsize,
-					(int)kt->sumOfPassed, (int)(kt->sumOfPassed + kt->sumOfFailed));
+					(int)kt->sumOfPassed, (int)total_stmts);
 		}
 		knh_statUnitTest(ctx, kt->sumOfPassed, kt->sumOfFailed);
 	}
