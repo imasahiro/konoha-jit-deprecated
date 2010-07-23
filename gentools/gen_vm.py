@@ -98,8 +98,8 @@ iGTE  c:sfpidx a:sfpidx b:sfpidx
 
 iADDn  c:sfpidx a:sfpidx n:int
 iSUBn  c:sfpidx a:sfpidx n:int
-iDIVn  c:sfpidx a:sfpidx n:int
 iMULn  c:sfpidx a:sfpidx n:int
+iDIVn  c:sfpidx a:sfpidx n:int
 iMODn  c:sfpidx a:sfpidx n:int
 iEQn   c:sfpidx a:sfpidx n:int
 iNEQn  c:sfpidx a:sfpidx n:int

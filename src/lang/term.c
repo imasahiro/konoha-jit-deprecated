@@ -1060,7 +1060,7 @@ static int knh_Token_addPROPN(Ctx *ctx, knh_Token_t *tk, knh_cwb_t *cwb, knh_Inp
 static int knh_Token_addURN(Ctx *ctx, knh_Token_t *tk, knh_cwb_t *cwb, knh_InputStream_t *in)
 {
 	int ch = knh_InputStream_getc(ctx, in);
-	if(ch == ' ' || ch == '\n' || ch == '\t' || ch == '\r' || ch == ';') {
+	if(ch < 128 && !isalpha(ch)) {
 		knh_Token_addBuf(ctx, tk, cwb, TT_CODE, ':');
 		knh_Bytes_putc(ctx, cwb->ba, ':');
 		knh_Token_addBuf(ctx, tk, cwb, TT_CODE, ch);
@@ -2118,7 +2118,7 @@ static void _EXPR(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 			return;
 		}
 		case TT_TMUL: case TT_EXISTS:
-		case TT_XOR: case TT_LNOT: case TT_NOT:
+		case TT_LNOT: case TT_NOT:
 		case TT_TSUB: case TT_TADD: case TT_ADDR: {
 			if(itr->c == idx) {
 				knh_Stmt_t *stmtOPR = new_StmtREUSE(ctx, stmt, stt);

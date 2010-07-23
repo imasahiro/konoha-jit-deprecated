@@ -146,7 +146,7 @@ knh_Token_t* new_TokenTYPED(Ctx *ctx, knh_term_t tt, knh_type_t type, knh_short_
 
 #define TT_(tk)        SP(tk)->tt
 #define TT_isSTR(tt)   (tt == TT_STR || tt == TT_TSTR || tt == TT_ESTR)
-#define TT_isBINARY(tt) (TT_EXISTS < (tt) && (tt) <= TT_LNOT)
+#define TT_isBINARY(tt) (TT_EXISTS < (tt) && (tt) <= TT_XOR)
 
 #define STT_(stmt)   SP(stmt)->stt
 #define knh_Stmt_add(ctx, stmt, ...)   knh_Stmt_add_(ctx, stmt, ## __VA_ARGS__, NULL)

@@ -639,7 +639,7 @@ static METHOD Tuple_getSize(Ctx *ctx, knh_sfp_t *sfp, long rix)
 static METHOD Bytes_get(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
 	knh_Bytes_t *ba = sfp[0].ba;
-	size_t n2 = knh_array_index(ctx, Int_to(size_t, sfp[1]), ba->bu.len);
+	size_t n2 = knh_array_index(ctx, sfp, Int_to(size_t, sfp[1]), ba->bu.len);
 	RETURNi_(ba->bu.ustr[n2]);
 }
 
@@ -649,7 +649,7 @@ static METHOD Bytes_get(Ctx *ctx, knh_sfp_t *sfp, long rix)
 static METHOD Bytes_set(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
 	knh_Bytes_t *ba = sfp[0].ba;
-	size_t n2 = knh_array_index(ctx, Int_to(size_t, sfp[1]), ba->bu.len);
+	size_t n2 = knh_array_index(ctx, sfp, Int_to(size_t, sfp[1]), ba->bu.len);
 	ba->bu.ubuf[n2] = Int_to(knh_uchar_t, sfp[2]);
 	RETURNi_(ba->bu.ustr[n2]);
 }
@@ -675,13 +675,13 @@ static METHOD String_get(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	knh_bytes_t base = S_tobytes(sfp[0].s);
 	knh_String_t *s;
 	if(knh_String_isASCII(sfp[0].s)) {
-		size_t n = knh_array_index(ctx, Int_to(size_t, sfp[1]), S_size(sfp[0].s));
+		size_t n = knh_array_index(ctx, sfp, Int_to(size_t, sfp[1]), S_size(sfp[0].s));
 		base.ustr = base.ustr + n;
 		base.len = 1;
 		s = new_String_(ctx, CLASS_String, base, sfp[0].s);
 	}
 	else {
-		size_t off = knh_array_index(ctx, Int_to(size_t, sfp[1]), knh_bytes_mlen(base));
+		size_t off = knh_array_index(ctx, sfp, Int_to(size_t, sfp[1]), knh_bytes_mlen(base));
 		knh_bytes_t sub = knh_bytes_mofflen(base, off, 1);
 		s = new_String_(ctx, CLASS_String, sub, sfp[0].s);
 	}
@@ -713,14 +713,14 @@ static METHOD String_get(Ctx *ctx, knh_sfp_t *sfp, long rix)
 
 static void _rangeUNTIL(Ctx *ctx, knh_sfp_t *sfp, size_t size, size_t *s, size_t *e)
 {
-	*s = sfp[1].ivalue == 0 ? 0 : knh_array_index(ctx, Int_to(size_t, sfp[1]), size);
-	*e = sfp[2].ivalue == 0 ? (size) : knh_array_index(ctx, Int_to(size_t, sfp[2]), size);
+	*s = sfp[1].ivalue == 0 ? 0 : knh_array_index(ctx, sfp, Int_to(size_t, sfp[1]), size);
+	*e = sfp[2].ivalue == 0 ? (size) : knh_array_index(ctx, sfp, Int_to(size_t, sfp[2]), size);
 }
 
 static void _rangeTO(Ctx *ctx, knh_sfp_t *sfp, size_t size, size_t *s, size_t *e)
 {
-	*s = sfp[1].ivalue == 0 ? 0 : knh_array_index(ctx, Int_to(size_t, sfp[1]), size);
-	*e = sfp[2].ivalue == 0 ? (size) : knh_array_index(ctx, Int_to(size_t, sfp[2]) + 1, size);
+	*s = sfp[1].ivalue == 0 ? 0 : knh_array_index(ctx, sfp, Int_to(size_t, sfp[1]), size);
+	*e = sfp[2].ivalue == 0 ? (size) : knh_array_index(ctx, sfp, Int_to(size_t, sfp[2]) + 1, size);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -780,7 +780,7 @@ static METHOD String_substring(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	knh_bytes_t t;
 	KNH_SYSLOG(ctx, LOG_DEBUG, __FUNCTION__, "*offset=%ld, length=%ld", (knh_intptr_t)(sfp[1].ivalue), (knh_intptr_t)(sfp[2].ivalue));
 	if(knh_String_isASCII(sfp[0].s)) {
-		size_t offset = knh_array_index(ctx, (knh_intptr_t)(sfp[1].ivalue), base.len);
+		size_t offset = knh_array_index(ctx, sfp, (sfp[1].ivalue), base.len);
 		t = knh_bytes_last(base, offset);
 		if(sfp[2].ivalue != 0) {
 			size_t len = (size_t)sfp[2].ivalue;
@@ -789,7 +789,7 @@ static METHOD String_substring(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	}
 	else { // multibytes
 		size_t mlen = knh_bytes_mlen(base);
-		size_t offset = knh_array_index(ctx, (knh_intptr_t)(sfp[1].ivalue), mlen);
+		size_t offset = knh_array_index(ctx, sfp, (sfp[1].ivalue), mlen);
 		size_t length = sfp[2].ivalue == 0  ? (mlen - offset) : (size_t)sfp[2].ivalue;
 		t = knh_bytes_mofflen(base, offset, length);
 	}
@@ -806,14 +806,14 @@ static METHOD String_opUNTIL(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	if(sfp[2].ivalue != 0) {
 		if(!knh_String_isASCII(sfp[0].s)) {
 			size_t mlen = knh_bytes_mlen(t);
-			size_t offset = knh_array_index(ctx, (knh_intptr_t)(sfp[1].ivalue), mlen);
-			size_t length = knh_array_index(ctx, (knh_intptr_t)(sfp[2].ivalue), mlen) - offset;
+			size_t offset = knh_array_index(ctx, sfp, (sfp[1].ivalue), mlen);
+			size_t length = knh_array_index(ctx, sfp, (sfp[2].ivalue), mlen) - offset;
 			t = knh_bytes_mofflen(t, offset, length);
 			RETURN_(new_String_(ctx, CLASS_String, t, sfp[0].s));
 		}
 		else {
 			size_t offset = Int_to(size_t, sfp[1]);
-			sfp[2].ivalue = knh_array_index(ctx, Int_to(knh_intptr_t, sfp[2]), (sfp[0].s)->str.len) - offset;
+			sfp[2].ivalue = knh_array_index(ctx, sfp, Int_to(knh_intptr_t, sfp[2]), (sfp[0].s)->str.len) - offset;
 		}
 	}
 	String_substring(ctx, sfp, rix);
@@ -828,14 +828,14 @@ static METHOD String_opTO(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	if(sfp[2].ivalue != 0) {
 		if(!knh_String_isASCII(sfp[0].s)) {
 			size_t mlen = knh_bytes_mlen(t);
-			size_t offset = knh_array_index(ctx, (knh_intptr_t)(sfp[1].ivalue), mlen);
-			size_t length = knh_array_index(ctx, (knh_intptr_t)(sfp[2].ivalue), mlen) - offset + 1;
+			size_t offset = knh_array_index(ctx, sfp, (sfp[1].ivalue), mlen);
+			size_t length = knh_array_index(ctx, sfp, (sfp[2].ivalue), mlen) - offset + 1;
 			t = knh_bytes_mofflen(t, offset, length);
 			RETURN_(new_String_(ctx, CLASS_String, t, sfp[0].s));
 		}
 		else {
 			size_t offset = Int_to(size_t, sfp[1]);
-			sfp[2].ivalue = knh_array_index(ctx, Int_to(knh_intptr_t, sfp[2]), (sfp[0].s)->str.len) - offset + 1;
+			sfp[2].ivalue = knh_array_index(ctx, sfp, Int_to(knh_intptr_t, sfp[2]), (sfp[0].s)->str.len) - offset + 1;
 		}
 	}
 	String_substring(ctx, sfp, rix);
@@ -899,7 +899,7 @@ static METHOD Tuple_opEXPAND(Ctx *ctx, knh_sfp_t *sfp, long rix)
 		res = (sfp[0].tuple)->first;
 	}
 	else {
-		knh_array_index(ctx, 0, (sfp[0].tuple)->size);
+		knh_array_index(ctx, sfp, 0, (sfp[0].tuple)->size);
 		res = (sfp[0].tuple)->list[0];
 	}
 	RETURN_(res);
@@ -911,7 +911,7 @@ static METHOD Tuple_opEXPAND(Ctx *ctx, knh_sfp_t *sfp, long rix)
 static METHOD Array_opEXPAND(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
 	knh_Array_t *a = sfp[0].a;
-	RETURN_(knh_Array_n(a, knh_array_index(ctx, 0, knh_Array_size(a))));
+	RETURN_(knh_Array_n(a, knh_array_index(ctx, sfp, 0, knh_Array_size(a))));
 }
 
 #endif /*K_USING_DEFAULTAPI*/

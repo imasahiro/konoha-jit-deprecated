@@ -511,21 +511,21 @@ typedef struct klr_iSUBn_t {
 	knh_int_t n;
 } klr_iSUBn_t;
 
-#define OPCODE_iDIVn ((knh_opcode_t)71)
-typedef struct klr_iDIVn_t {
-	KCODE_HEAD;
-	knh_sfpidx_t c;
-	knh_sfpidx_t a;
-	knh_int_t n;
-} klr_iDIVn_t;
-
-#define OPCODE_iMULn ((knh_opcode_t)72)
+#define OPCODE_iMULn ((knh_opcode_t)71)
 typedef struct klr_iMULn_t {
 	KCODE_HEAD;
 	knh_sfpidx_t c;
 	knh_sfpidx_t a;
 	knh_int_t n;
 } klr_iMULn_t;
+
+#define OPCODE_iDIVn ((knh_opcode_t)72)
+typedef struct klr_iDIVn_t {
+	KCODE_HEAD;
+	knh_sfpidx_t c;
+	knh_sfpidx_t a;
+	knh_int_t n;
+} klr_iDIVn_t;
 
 #define OPCODE_iMODn ((knh_opcode_t)73)
 typedef struct klr_iMODn_t {

@@ -590,13 +590,9 @@ void knh_Context_setThrowingException(Ctx *ctx, knh_Exception_t *e)
 
 /* ------------------------------------------------------------------------ */
 
-void knh_throw_OutOfIndex(Ctx *ctx, knh_int_t n, size_t max, const char *file, int line)
+void SYSLOG_OutOfIndex(Ctx *ctx, knh_sfp_t *sfp, knh_int_t n, size_t max)
 {
-	knh_Exception_t *e;
-	knh_cwb_t cwbbuf2, *cwb2 = knh_cwb_open(ctx, &cwbbuf2);
-	knh_printf(ctx, cwb2->w, "OutOfIndex!!: %i not < %i", n, (knh_int_t)max);
-	e = knh_cwb_newException(ctx, cwb2);
-	knh_stack_throw(ctx, ctx->esp, e);
+	KNH_SYSLOG(ctx, LOG_CRIT, "OutOfIndex!!", "%i not < %i", n, (knh_int_t)max);
 }
 
 /* ======================================================================== */

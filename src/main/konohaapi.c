@@ -458,7 +458,11 @@ static int shell_checkstmt(knh_bytes_t t)
 
 static void shell_restart(Ctx *ctx)
 {
-	KNH_SETv(ctx, ((knh_share_t*)ctx->share)->mainns, new_NameSpace(ctx, NULL));
+	knh_NameSpace_t *ns = new_NameSpace(ctx, NULL);
+	DBG_ASSERT(ns->b->aliasDictMapNULL == NULL);
+	DP(ns)->aliasDictMapNULL = DP(ctx->share->mainns)->aliasDictMapNULL;
+	DP(ctx->share->mainns)->aliasDictMapNULL = NULL;
+	KNH_SETv(ctx, ((knh_share_t*)ctx->share)->mainns, ns);
 	KNH_SETv(ctx, ((knh_Context_t*)ctx)->script, new_(Script));
 	{
 		knh_Gamma_t *kc = new_(Gamma);
@@ -479,9 +483,8 @@ static knh_bool_t shell_command(Ctx *ctx, knh_cwb_t *cwb)
 	if(B_equals(t, "restart")) {
 		knh_cwb_clear(cwb, 0);
 		fputs(
-"\n"
-"/* ------------------------------------------------------------------------ */"
-"\n\n\n\n\n", stdout);
+"=============================================================================="
+"\n\n\n", stdout);
 		shell_restart(ctx);
 	}
 	return 1;

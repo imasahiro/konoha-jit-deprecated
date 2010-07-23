@@ -651,7 +651,7 @@ typedef KLRAPI(void) (*klr_Fprobe)(Ctx *, knh_sfp_t*, knh_sfpidx_t n, knh_opline
 
 #define klr_array_index(ctx, n, size)   (size_t)n
 #define klr_array_check(n, size) \
-	if(unlikely(n >= size)) knh_throw_OutOfIndex(ctx, n, size, NULL, 0)
+	if(unlikely(n >= size)) SYSLOG_OutOfIndex(ctx, sfp, n, size)
 
 #define KLR_OGETIDXn(ctx, cidx, aidx, N) {\
 		knh_Array_t *a_ = sfp[aidx].a;\

@@ -342,7 +342,7 @@ knh_Exception_t* knh_Exception_new__init(Ctx *ctx, knh_Exception_t *e, knh_Strin
 int knh_Exception_isa(Ctx *ctx, knh_Exception_t *o, knh_String_t *msg);
 void knh_Exception_setCInfo(Ctx *ctx, knh_Exception_t *o, const char *file, int line);
 void knh_Context_setThrowingException(Ctx *ctx, knh_Exception_t *e);
-void knh_throw_OutOfIndex(Ctx *ctx, knh_int_t n, size_t max, const char *file, int line);
+void SYSLOG_OutOfIndex(Ctx *ctx, knh_sfp_t *sfp, knh_int_t n, size_t max);
 knh_InputStream_t* new_InputStreamDSPI(Ctx *ctx, knh_io_t fd, const knh_StreamDSPI_t *dspi);
 knh_InputStream_t* new_BytesInputStream(Ctx *ctx, knh_Bytes_t *ba);
 void knh_BytesInputStream_setpos(Ctx *ctx, knh_InputStream_t *in, size_t s, size_t e);

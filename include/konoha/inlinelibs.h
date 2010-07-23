@@ -317,11 +317,11 @@ static knh_bytes_t knh_cwb_tobytes(knh_cwb_t *cwb)
 /* ------------------------------------------------------------------------ */
 
 #if defined(USE_array_index)
-static size_t knh_array_index(Ctx *ctx, knh_intptr_t n, size_t size)
+static size_t knh_array_index(Ctx *ctx, knh_sfp_t *sfp, knh_intptr_t n, size_t size)
 {
 	size_t idx = (n < 0) ? size + n : n;
 	if(unlikely(!(idx < size))) {
-		KNH_THROW_OUTOFINDEX(ctx, n, size);
+		SYSLOG_OutOfIndex(ctx, sfp, n, size);
 	}
 	return idx;
 }

@@ -130,21 +130,21 @@ void knh_Array_grow(Ctx *ctx, knh_Array_t *a, size_t newsize, size_t reqsize)
 static METHOD knh_Farray_getO(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
 	knh_Array_t *a = sfp[0].a;
-	size_t n2 = knh_array_index(ctx, Int_to(size_t, ctx->esp[-1]), a->size);
+	size_t n2 = knh_array_index(ctx, sfp, Int_to(size_t, ctx->esp[-1]), a->size);
 	RETURN_(a->list[n2]);
 }
 
 static METHOD knh_Farray_getN(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
 	knh_Array_t *a = sfp[0].a;
-	size_t n2 = knh_array_index(ctx, Int_to(size_t, ctx->esp[-1]), a->size);
+	size_t n2 = knh_array_index(ctx, sfp, Int_to(size_t, ctx->esp[-1]), a->size);
 	RETURNd_(a->nlist[n2]);
 }
 
 static METHOD knh_Farray_setO(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
 	knh_Array_t *a = sfp[0].a;
-	size_t n2 = knh_array_index(ctx, Int_to(size_t, sfp[1]), a->size);
+	size_t n2 = knh_array_index(ctx, sfp, Int_to(size_t, sfp[1]), a->size);
 	KNH_SETv(ctx, a->list[n2], sfp[2].o);
 	RETURN_(sfp[2].o);
 }
@@ -152,7 +152,7 @@ static METHOD knh_Farray_setO(Ctx *ctx, knh_sfp_t *sfp, long rix)
 static METHOD knh_Farray_setN(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
 	knh_Array_t *a = sfp[0].a;
-	size_t n2 = knh_array_index(ctx, Int_to(size_t, sfp[1]), a->size);
+	size_t n2 = knh_array_index(ctx, sfp, Int_to(size_t, sfp[1]), a->size);
 	a->nlist[n2] = sfp[2].data;
 	RETURNd_(sfp[2].data);
 }

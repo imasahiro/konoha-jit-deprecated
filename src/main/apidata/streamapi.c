@@ -93,8 +93,8 @@ static METHOD InputStream_read(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	knh_bytes_t buf = BA_tobytes(ba);
 	size_t offset = 0;
 	offset = (size_t)sfp[2].ivalue;
-	if(offset > buf.len) {
-		KNH_THROW_OUTOFINDEX(ctx, offset, buf.len);
+	if(unlikely(offset > buf.len)) {
+		SYSLOG_OutOfIndex(ctx, sfp, offset, buf.len);
 	}
 	buf = knh_bytes_last(buf, offset);
 	if(sfp[3].ivalue != 0) {
@@ -234,7 +234,7 @@ static METHOD OutputStream_writeChar(Ctx *ctx, knh_sfp_t *sfp, long rix)
 static METHOD OutputStream_write(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
 	knh_bytes_t t = BA_tobytes(sfp[1].ba);
-	size_t offset = (sfp[2].ivalue == 0) ? 0 : knh_array_index(ctx, Int_to(size_t, sfp[2]), t.len);
+	size_t offset = (sfp[2].ivalue == 0) ? 0 : knh_array_index(ctx, sfp, Int_to(size_t, sfp[2]), t.len);
 	size_t len = (sfp[3].ivalue == 0) ? (t.len - offset) : Int_to(size_t, sfp[3]);
 	if(offset + len > t.len) len = t.len - offset;
 	t.ustr = &(t.ustr[offset]);

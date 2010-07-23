@@ -118,7 +118,7 @@ static METHOD ResultSet_getName(Ctx *ctx, knh_sfp_t *sfp, long rix)
 		v = knh_ResultSet_getName(ctx, o, n);
 	}
 	else {
-		KNH_THROW_OUTOFINDEX(ctx, sfp[1].ivalue, DP(o)->column_size);
+		SYSLOG_OutOfIndex(ctx, sfp, sfp[1].ivalue, DP(o)->column_size);
 	}
 	RETURN_(v);
 }
@@ -131,7 +131,7 @@ static int knh_ResultSet_indexof_(Ctx *ctx, knh_sfp_t *sfp)
 	if(IS_bInt(sfp[1].o)) {
 		size_t n = Int_to(size_t, sfp[1]);
 		if(!(n < DP(o)->column_size)) {
-			KNH_THROW_OUTOFINDEX(ctx, sfp[1].ivalue, DP(o)->column_size);
+			SYSLOG_OutOfIndex(ctx, sfp, sfp[1].ivalue, DP(o)->column_size);
 			return -1;
 		}
 		return n;

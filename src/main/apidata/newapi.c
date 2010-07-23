@@ -282,8 +282,8 @@ static METHOD Array_new__ARRAY(Ctx *ctx, knh_sfp_t *sfp, long rix)
 			}
 		}
 	}
-	else if(init < 0) {
-		KNH_THROW_OUTOFINDEX(ctx, init, 0);
+	else if(unlikely(init < 0)) {
+		SYSLOG_OutOfIndex(ctx, sfp, init, 0);
 	}
 	RETURN_(a);
 }

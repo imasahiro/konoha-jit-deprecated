@@ -132,12 +132,12 @@ until -                 @opUNTIL @A2   @P15
 / TT_DIV                @opDIV    @P24  @A2
 % TT_MOD                @opMOD    @P24  @A2
 * TT_MUL                @opMUL    @P24  @A2
-& TT_LAND                 @opLAND @P27
+& TT_LAND                 @opLAND @P26
 |  TT_LOR                 @opLOR  @P27
+^  TT_XOR                 @opLXOR @P27
 #end TT_isBINARY
 
-^  TT_XOR                 @opLXOR @P27
-~  TT_LNOT                @opLNOT @A1 @top  @P27
+~  TT_LNOT                @opLNOT @A1 @top  @P28
 ++ TT_NEXT                @opNEXT @A1 @top  @P28
 -- TT_PREV                @opPREV @A1 @top  @P28
 .. TT_ITR                 @opITR  @A1 @top  @P28
