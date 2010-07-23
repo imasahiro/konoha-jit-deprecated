@@ -693,7 +693,6 @@ typedef struct _kt_status_t {
 	size_t unitsize;
 	kt_unit_t *uhead;
 	kt_unit_t *current;
-	knh_int_t isForwarded;
 	size_t     lineno;
 	size_t     sumOfPassed;
 	size_t     sumOfFailed;
@@ -703,9 +702,17 @@ static char *kt_fgets(Ctx *ctx, kt_status_t *kt, char *line, int max)
 {
 	char *ret;
 	if ((ret = fgets(line, max - 1, kt->in)) != NULL) {
-		line[strlen(line) - 1] = '\0';
+		line[strlen(line)] = '\0';
 	}
 	return ret;
+}
+
+
+static
+void kt_truncate_line(char* str)
+{
+	size_t len = knh_strlen(str);
+	str[len - 1] = '\0';
 }
 
 static kt_unit_t* new_kt_unit(Ctx *ctx, const char* title)
@@ -758,7 +765,6 @@ static void* test_init(Ctx *ctx, const char *msg, const char *filename)
 		kt->current = NULL;
 		kt->uhead = NULL;
 		kt->unitsize = 0;
-		kt->isForwarded = 0;
 		kt->lineno = 0;
 		kt->sumOfPassed = 0;
 		kt->sumOfFailed = 0;
@@ -790,7 +796,14 @@ static void add_kt_stmt_result(Ctx *ctx, kt_stmt_t *ks, const char *result)
 			knh_memcpy(ks->testResult.ubuf, result, len + 1);
 			ks->testResult.len = len;
 		} else {
-			//TODO : for multiline;
+			//realloc;
+			knh_uchar_t *tmp = (knh_uchar_t *)KNH_MALLOC(ctx, ks->testResult.len + len + 1);
+			knh_memcpy(tmp, ks->testResult.ubuf, ks->testResult.len);
+			knh_memcpy(tmp + ks->testResult.len, result, len);
+			tmp[ks->testResult.len + len] = '\0';
+			KNH_FREE(ctx, ks->testResult.ubuf, ks->testResult.len + 1);
+			ks->testResult.ubuf = tmp;
+			ks->testResult.len += len;
 		}
 	} else {
 		// adding result before ks instance created.
@@ -882,12 +895,8 @@ static knh_bool_t test_readstmt(Ctx *ctx, void *status, knh_cwb_t *cwb, const kn
 			line_ptr += 4;
 			size_t title_len = knh_strlen(line_ptr);
 
-			if (title_len >= 4 && line_ptr[0] == 'T' && line_ptr[1] == 'O' && line_ptr[2] == 'D' && line_ptr[3] == 'O') {
-				//ignore this unit;
-				ignoreThisUnit = 1;
-				// TODO: we need to ignore
-				continue;
-			}
+
+			kt_truncate_line(line_ptr);
 			if (kt->unitsize == 0) {
 				kt->uhead = new_kt_unit(ctx, line_ptr);
 				ku = kt->uhead;
@@ -898,11 +907,17 @@ static knh_bool_t test_readstmt(Ctx *ctx, void *status, knh_cwb_t *cwb, const kn
 			kt->unitsize++;
 			kt->current = ku;
 			isUnitStarted = 1;
+			isResultReady = 0;
+			if (title_len >= 4 && line_ptr[0] == 'T' && line_ptr[1] == 'O' && line_ptr[2] == 'D' && line_ptr[3] == 'O') {
+				//TODO : ignore this unit;
+			}
 			continue;
 		}
+
 		if (IS_T(line_ptr, '>')) {
 			line_ptr += 4;
 			if (ku == NULL) continue; // invalid test stmt
+			kt_truncate_line(line_ptr);
 			if (ku->stmtsize == 0) {
 				ku->shead = new_kt_stmt(ctx, line_ptr);
 				ks = ku->shead;
@@ -932,10 +947,12 @@ static knh_bool_t test_readstmt(Ctx *ctx, void *status, knh_cwb_t *cwb, const kn
 				continue;
 			}
 		}
+
 		if (IS_T(line_ptr, '.')) {
 			if (!isStmtContinue) continue; // invalid stmt.
 			if (ku == NULL) continue; //invalid stmt.
 			if (ks == NULL) continue; // invalid stmt
+			kt_truncate_line(line_ptr);
 			add_kt_stmt_body(ctx, ks, line_ptr + 4);
 			int check;
 			if ((check = api->checkstmt(ks->testBody)) == 0) {
@@ -951,9 +968,8 @@ static knh_bool_t test_readstmt(Ctx *ctx, void *status, knh_cwb_t *cwb, const kn
 		}
 		// handle result
 		if (isResultReady) {
-			if (line_ptr[0] != '\0') {
+			if (line_ptr[0] != '\n' && line_ptr[0] != '\0') {
 				add_kt_stmt_result(ctx, ks, line_ptr);
-				isResultReady = 0;
 			}
 
 		}
@@ -1081,6 +1097,7 @@ static void test_dump(FILE *fp, const char *linehead, const char *body, const ch
 	fputs(foot, fp);
 }
 
+
 static void test_display(Ctx *ctx, void *status, const char* result, const knh_ShellAPI_t *api)
 {
 	kt_status_t *kt = (kt_status_t*)status;
@@ -1090,10 +1107,17 @@ static void test_display(Ctx *ctx, void *status, const char* result, const knh_S
 	ku = kt->current;
 	if (ku == NULL) return;
 	ks = ku->current;
-	size_t len = ks->testResult.len;
-	knh_uchar_t *charResult = ks->testResult.ubuf;
+	size_t len = knh_strlen(result);
 
-	if (strncmp((char*)charResult, result, len) == 0) {
+	// we cannot know if there is a result or?
+	if (ks->testResult.len == 0) {
+		//ignoring result;
+		kt->sumOfPassed++;
+		ks->isPassed = 2; //ignore
+		return;
+	}
+	knh_uchar_t *charResult = ks->testResult.ubuf;
+	if (strncmp(result,(char*)charResult, len) == 0) {
 		ks->isPassed = 1;
 		kt->sumOfPassed++;
 //		if(isTestVerbose) {
@@ -1123,7 +1147,7 @@ static void test_display(Ctx *ctx, void *status, const char* result, const knh_S
 		}
 		if (isAllPassed) {
 			fprintf(kt->out, "[PASSED]");
-			fprintf(kt->out, "%s: %d of %d tests have been passed\n", ku->testTitle.text, p, p+f);
+			fprintf(kt->out, "%s\n", ku->testTitle.text);
 		}
 		// if its failed, already alerted.
 	}
