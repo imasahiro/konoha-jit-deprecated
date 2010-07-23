@@ -129,11 +129,11 @@ static knh_bool_t _isRecuriveFormatting(Ctx *ctx, knh_sfp_t *sfp)
 	return 0;
 }
 
-//static void knh_stack_reformat(Ctx *ctx, knh_sfp_t *sfp, knh_methodn_t fmt)
-//{
-//	knh_Method_t *mtd = knh_getSystemFormatter(ctx, knh_Object_cid(sfp[1].o), fmt);
-//	mtd->fcall_1(ctx, sfp, K_RTNIDX);
-//}
+static void knh_stack_reformat(Ctx *ctx, knh_sfp_t *sfp, knh_methodn_t fmt)
+{
+	knh_Method_t *mtd = knh_getSystemFormatter(ctx, knh_Object_cid(sfp[1].o), fmt);
+	mtd->fcall_1(ctx, sfp, K_RTNIDX);
+}
 
 static knh_ndata_t knh_Object_ndata(void *p)
 {
@@ -311,9 +311,9 @@ static METHOD Object__k(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	if(knh_Object_isNullObject(o)) {
 		knh_write(ctx, w, STEXT("null"));
 	}
-//	else if(o->h.cid == CLASS_Object || o->h.bcid != CLASS_Object) {
-//		knh_stack_reformat(ctx, sfp, MN__s);
-//	}
+	else if(o->h.cid == CLASS_Object || o->h.bcid != CLASS_Object) {
+		knh_stack_reformat(ctx, sfp, MN__s);
+	}
 	else if(_isRecuriveFormatting(ctx, sfp)) {
 		knh_write_dots(ctx, w);
 	}
