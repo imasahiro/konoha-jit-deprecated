@@ -1,575 +1,737 @@
-/**
- * test of konoha.String
- * [literal, variables, operator, method]
- */
-
-//*============================================*/
-// literal
+// Mini UnitTest for String
+// Author: Utaro Hiraoka <utrhira at users.sourceforge.jp>
+//
 
 ### string literal
->>> "string"
-"string"
 >>> ""
 ""
 >>> ''
 ""
 >>> ``
 ""
->>> """ """
-" "
->>> ''' '''
-" "
->>> ``` ```
-" "
+
+>>> "string"
+"string"
+>>> 'string'
+"string"
+>>> `string`
+"string"
+
+>>> """
+... multiln
+... double
+... """
+"multiln\ndouble"
+>>> '''
+... multiln
+... single
+... '''
+"multiln\nsingle"
+>>> ```
+... multiln
+... back
+... ```
+"multiln\nback"
+
+>>> """a"""
+"a"
+>>> '''a'''
+"a"
+>>> ```a```
+"a"
+
 >>> "''"
 "''"
+>>> "``"
+"``"
 >>> '""'
 "\"\""
->>> typeof("'") == String;
-true
->>> typeof('"') == Int;
-true
->>> typeof('a') == Int;
-true
+>>> '``'
+"``"
+>>> `""`
+"\"\""
+>>> `''`
+"''"
 
-//*============================================*/
-// variables
+>>> "'"
+"'"
+>>> "`"
+"`"
+>>> typeof('"')
+konoha.Int
+>>> typeof('`')
+konoha.Int
+>>> `"`
+"\""
+>>> `'`
+"'"
 
 ### string variables
 >>> String s0;
->>> s0;
 ""
->>> String s1 = "konoha";
->>> s1;
-"konoha"
->>> s1 = "naruto";
->>> s1;
-"naruto"
->>> s2 = "konoha";
->>> s2;
-"konoha"
+>>> String s1 = "initialize";
+"initialize"
+>>> s1 = "substitute";
+"substitute"
+
+### type inference of String
 >>> String
 konoha.String
+>>> si0 = "inference";
+>>> typeof(si0)
+konoha.String
+>>> si1 = si0;
+>>> typeof(si1)
+konoha.String
+>>> sii = 'a';
+>>> typeof(sii)
+konoha.Int
 
 //*============================================*/
 // operator
 
-// init samples
->>> String emp;
->>> String sml = "sss";
->>> String str = "konoha";
->>> String mid = "m"; for(int i=0;i< 8;i++) { mid += mid; }
->>> String lng = "l"; for(int i=0;i<12;i++) { lng += lng; }
->>> String m_sml = "ｓ";
->>> String m_str = "ｋｏｎｏｈａ";
-
-
 ### string size operator
->>> |sml|;
-3
->>> |str|;
+>>> String ss = "s";
+>>> String sn = "string";
+>>> String sm = "s"; for(int i=0;i< 8;i++) { sm += sm; }
+>>> String sl = "s"; for(int i=0;i<12;i++) { sl += sl; }
+>>> |"string"|
 6
->>> |mid|;
-256
->>> |lng|;
-4096
->>> |emp|;
+>>> |""|
 0
->>> |sml + sml| == (|sml| + |sml|);
-true
+>>> |ss|
+1
+>>> |sn|
+6
+>>> |sm|
+256
+>>> |sl|
+4096
+
 
 ### string size operator : multi
->>> |m_sml|;
+>>> String mbss = "ｓ";
+>>> String mbsn = "ｓｔｒｉｎｇ";
+>>> |"ｓｔｒｉｎｇ"|
+6
+>>> |mbss|
 1
->>> |m_str|;
+>>> |mbsn|
 6
 
 
 ### string get operator
->>> str[0];
-"k"
->>> lng[4092];
-"l"
+>>> String sn = "string";
+>>> "string"[0]
+"s"
+>>> sn[2]
+"r"
+>>> sn[-2]
+"n"
 
 ### string get operator : multi
->>> m_sml[0];
+>>> String mbsn = "ｓｔｒｉｎｇ";
+>>> "ｓｔｒｉｎｇ"[0]
 "ｓ"
->>> m_str[3];
-"ｏ"
+>>> mbsn[2]
+"ｒ"
+>>> mbsn[-2]
+"ｎ"
 
 
 ### string + operator
->>> str + str;
-"konohakonoha"
->>> str + 7;
-"konoha7"
->>> str + 7.0;
-"konoha7.000000"
->>> str + true;
-"konohatrue"
->>> emp + 7;
-"7"
->>> emp + 7 + true + 1.23;
-"7true1.230000"
->>> emp + emp;
+>>> String ss = "s";
+>>> String sn = "string";
+>>> String sm = "s"; for(int i=0;i< 8;i++) { sm += sm; }
+>>> String sl = "s"; for(int i=0;i<12;i++) { sl += sl; }
+>>> "this is " + "string"
+"this is string"
+>>> "this is " + sn
+"this is string"
+>>> sn + " is this"
+"string is this"
+>>> ss + sn
+"sstring"
+>>> "" + sn
+"string"
+>>> "" + "" + ""
 ""
->>> emp + sml;
-"sss"
->>> emp + str;
-"konoha"
->>> |emp + mid|;
-256
->>> |emp + lng|;
-4096
->>> sml + sml;
-"ssssss"
->>> sml + str;
-"ssskonoha"
->>> |sml + mid|;
-259
->>> |sml + lng|;
-4099
->>> |str + mid|;
+>>> "" + 7
+"7"
+>>> "" + 7.0
+"7.000000"
+>>> "" + true
+"true"
+>>> "" + 0 + false + 1.23
+"0false1.230000"
+>>> |ss + sm|
+257
+>>> |ss + sl|
+4097
+>>> |sn + sm|
 262
->>> |str + lng|;
+>>> |sn + sl|
 4102
->>> |mid + lng|;
+>>> |sm + sm|
+512
+>>> |sm + sl|
 4352
->>> |lng + lng|;
+>>> |sl + sm|
+4352
+>>> |sl + sl|
 8192
 
+
 ### string + operator : multi
->>> m_str + "ｔｅｓｔ";
-"ｋｏｎｏｈａｔｅｓｔ"
->>> m_str + 7;
-"ｋｏｎｏｈａ7"
->>> m_str + true;
-"ｋｏｎｏｈａtrue"
->>> m_sml + sml;
-"ｓsss"
->>> sml + m_sml;
-"sssｓ"
->>> str + m_str;
-"konohaｋｏｎｏｈａ"
->>> m_str + str;
-"ｋｏｎｏｈａkonoha"
+>>> String sn = "string";
+>>> String mbsn = "ｓｔｒｉｎｇ";
+>>> "ｔｈｉｓ　ｉｓ　" + "ｓｔｒｉｎｇ"
+"ｔｈｉｓ　ｉｓ　ｓｔｒｉｎｇ"
+>>> mbsn + "　ｉｓ　ｔｈｉｓ"
+"ｓｔｒｉｎｇ　ｉｓ　ｔｈｉｓ"
+>>> "ｔｈｉｓ　ｉｓ　" + mbsn
+"ｔｈｉｓ　ｉｓ　ｓｔｒｉｎｇ"
+>>> sn + mbsn
+"stringｓｔｒｉｎｇ"
+>>> mbsn + sn
+"ｓｔｒｉｎｇstring"
+>>> mbsn + 7
+"ｓｔｒｉｎｇ7"
+>>> mbsn + 1.23
+"ｓｔｒｉｎｇ1.230000"
+>>> mbsn + true
+"ｓｔｒｉｎｇtrue"
 
 
 ### string - operator
->>> str - "o";
-"knha"
->>> str - "z";
-"konoha"
->>> str - emp;
-"konoha"
->>> str - str;
+>>> String sn = "string";
+>>> "string" - "s"
+"tring"
+>>> "this is string" - "s"
+"thi i tring"
+>>> sn - "s"
+"tring"
+>>> sn - "z"
+"string"
+>>> sn - ""
+"string"
+>>> sn - sn
 ""
->>> |lng - emp|;
-4096
->>> lng - "l";
+>>> "" - sn
 ""
->>> lng - lng;
-""
->>> emp - str;
-""
->>> emp - emp - emp;
+>>> "" - "" - ""
 ""
 
 ### string - operator : multi
->>> m_str - "ｏ";
-"ｋｎｈａ"
->>> m_str - str;
-"ｋｏｎｏｈａ"
->>> m_str - emp;
-"ｋｏｎｏｈａ"
->>> m_str - m_str;
+>>> String mbsn = "ｓｔｒｉｎｇ"
+>>> "ｓｔｒｉｎｇ" - "ｓ"
+"ｔｒｉｎｇ"
+>>> mbsn - "ｓ"
+"ｔｒｉｎｇ"
+>>> mbsn - ""
+"ｓｔｒｉｎｇ"
+>>> mbsn - mbsn
 ""
->>> emp - m_str;
+>>> "" - mbsn
 ""
 
 
 ### string to operator
->>> str[1 to 3];
-"ono"
->>> str[to 3];
-"kono"
->>> str[1 to];
-"onoha"
->>> str[3 to 3];
-"o"
->>> str[1 to -2];
-"onoh"
->>> str[3 to -5];
+>>> String sn = "string";
+>>> "string"[1 to 3]
+"tri"
+>>> sn[1 to 3]
+"tri"
+>>> sn[to 3]
+"stri"
+>>> sn[1 to]
+"tring"
+>>> sn[3 to 3]
+"i"
+>>> sn[1 to -2]
+"trin"
+>>> sn[3 to -5]
 ""
->>> lng[4090 to 4095];
-"llllll"
 
 ### string to operator : multi
->>> m_str[1 to 3];
-"ｏｎｏ"
->>> m_str[to 3];
-"ｋｏｎｏ"
->>> m_str[1 to];
-"ｏｎｏｈａ"
->>> m_str[3 to 3];
-"ｏ"
->>> m_str[1 to -2];
-"ｏｎｏｈ"
->>> m_str[3 to -5];
+>>> String mbsn = "ｓｔｒｉｎｇ";
+>>> "ｓｔｒｉｎｇ"[1 to 3]
+"ｔｒｉ"
+>>> mbsn[1 to 3]
+"ｔｒｉ"
+>>> mbsn[to 3]
+"ｓｔｒｉ"
+>>> mbsn[1 to]
+"ｔｒｉｎｇ"
+>>> mbsn[3 to 3]
+"ｉ"
+>>> mbsn[1 to -2]
+"ｔｒｉｎ"
+>>> mbsn[3 to -5]
 ""
 
 
 ### string until operator
->>> str[1 until 3];
-"on"
->>> str[until 3];
-"kon"
->>> str[1 until];
-"onoha"
->>> str[3 until 3];
+>>> String sn = "string";
+>>> "string"[1 until 3]
+"tr"
+>>> sn[1 until 3]
+"tr"
+>>> sn[until 3]
+"str"
+>>> sn[1 until]
+"tring"
+>>> sn[3 until 3]
 ""
->>> str[1 until -2];
-"ono"
->>> str[3 until -4];
+>>> sn[1 until -2]
+"tri"
+>>> sn[3 until -4]
 ""
->>> lng[4090 until 4095];
-"lllll"
 
 ### string until operator : multi
->>> m_str[1 until 3];
-"ｏｎ"
->>> m_str[until 3];
-"ｋｏｎ"
->>> m_str[1 until];
-"ｏｎｏｈａ"
->>> m_str[3 until 3];
+>>> String mbsn = "ｓｔｒｉｎｇ";
+>>> "ｓｔｒｉｎｇ"[1 until 3]
+"ｔｒ"
+>>> mbsn[1 until 3]
+"ｔｒ"
+>>> mbsn[until 3]
+"ｓｔｒ"
+>>> mbsn[1 until]
+"ｔｒｉｎｇ"
+>>> mbsn[3 until 3]
 ""
->>> m_str[1 until -2];
-"ｏｎｏ"
->>> m_str[3 until -4];
+>>> mbsn[1 until -2]
+"ｔｒｉ"
+>>> mbsn[3 until -4]
 ""
 
 
-### string comparator
->>> "a" < "z";
+### string < operator
+>>> String sn = "string";
+>>> "a" < "z"
 true
->>> "0" < "9";
-true
->>> "0" < "a";
-true
->>> " " < "0";
-true
->>> str < sml;
-true
->>> lng < sml;
-true
->>> sml == "sss";
-true
->>> str == "konoha";
-true
->>> emp == "";
-true
->>> "a" != "A";
-true
->>> emp != sml;
-true
-
-### string comparator : multi
->>> "ａ" < "ｚ";
-true
->>> "あ" < "お";
-true
->>> "ａ" < "あ";
+>>> "z" < "a"
 false
->>> sml < m_sml;
+>>> "0" < "a"
 true
->>> str < m_str;
+>>> " " < "0"
 true
->>> m_sml == "ｓ";
+>>> "" < sn
 true
->>> m_str == "ｋｏｎｏｈａ";
+>>> sn < "z"
 true
->>> "a" != "ａ";
+>>> "a" < sn
 true
->>> str != m_str;
+
+### string > operator : multi
+>>> String mbsn = "ｓｔｒｉｎｇ";
+>>> "ａ" < "ｚ"
+true
+>>> "a" < "ａ"
+true
+>>> "ｚ" < "a"
+false
+>>> "あ" < "お"
+true
+>>> "ａ" < "あ"
+false
+>>> "" < mbsn
+true
+>>> mbsn < "ｚ"
+true
+>>> "a" < mbsn
+true
+
+
+### string > operator
+>>> String sn = "string";
+>>> "z" > "a"
+true
+>>> "a" > "z"
+false
+>>> "a" > "0"
+true
+>>> "0" > " "
+true
+>>> "z" > sn
+true
+>>> sn > "a"
+true
+
+### string > operator : multi
+>>> String mbsn = "ｓｔｒｉｎｇ";
+>>> "ａ" > "ｚ"
+false
+>>> "a" > "ａ"
+false
+>>> "ｚ" > "a"
+true
+>>> "あ" > "お"
+false
+>>> "ａ" > "あ"
+true
+>>> "" > mbsn
+false
+>>> mbsn > "ｚ"
+false
+>>> "a" > mbsn
+false
+
+
+### string == operator
+>>> String sn = "string";
+>>> "a" == "a"
+true
+>>> "a" == "z"
+false
+>>> sn == "string"
+true
+>>> sn == "strings"
+false
+>>> "" == ""
+true
+
+### string == operator : multi
+>>> String mbsn = "ｓｔｒｉｎｇ";
+>>> "ａ" == "ａ"
+true
+>>> "ｚ" == "ａ"
+false
+>>> mbsn == "ｓｔｒｉｎｇ"
+true
+>>> mbsn == "string"
+false
+
+
+### string != operator
+>>> String sn = "string";
+>>> "a" != "A"
+true
+>>> sn != "a"
+true
+>>> "z" != sn
+true
+>>> "string" != sn
+false
+
+### string != operator : multi
+>>> String mbsn = "ｓｔｒｉｎｇ";
+>>> "ａ" != "ａ"
+false
+>>> "ｚ" != "ａ"
+true
+>>> mbsn != "ｓｔｒｉｎｇ"
+false
+>>> mbsn != "string"
 true
 
 //*============================================*/
 // method
 
 ### String.getSize
->>> str.getSize();
-6
->>> emp.getSize();
+>>> String sn = "string";
+>>> "".getSize();
 0
+>>> sn.getSize();
+6
 
 ### String.getSize : multi
->>> m_str.getSize();
+>>> String mbsn = "ｓｔｒｉｎｇ";
+>>> mbsn.getSize();
 6
 
 
 ### String.get
->>> str.get();
-"k"
+>>> String sn = "string";
+// >>> "".get();
+// ""
+>>> sn.get();
+"s"
 
 ### String.get : multi
->>> m_str.get();
-"ｋ"
+>>> String mbsn = "ｓｔｒｉｎｇ";
+>>> mbsn.get();
+"ｓ"
 
 
 ### String.concat
->>> str.concat();
-"konoha"
->>> emp.concat();
+>>> String sn = "string";
+>>> "".concat();
 ""
+>>> sn.concat();
+"string"
 
 ### String.concat : multi
->>> m_str.concat();
-"ｋｏｎｏｈａ"
+>>> String mbsn = "ｓｔｒｉｎｇ";
+>>> mbsn.concat();
+"ｓｔｒｉｎｇ"
 
 
 ### String.equals
->>> str.equals();
-false
->>> emp.equals();
+>>> String sn = "string";
+>>> "".equals();
 true
+>>> sn.equals();
+false
 
 ### String.equals : multi
->>> m_str.equals();
+>>> String mbsn = "ｓｔｒｉｎｇ";
+>>> mbsn.equals();
 false
 
 
 ### String.subString
->>> str.subString(2, 2);
-"no"
->>> str.subString(2);
-"noha"
->>> str.subString();
-"konoha"
+>>> String sn = "string";
+>>> sn.subString(2, 2);
+"ri"
+>>> sn.subString(2);
+"ring"
+>>> sn.subString();
+"string"
 
 ### String.subString : multi
->>> m_str.subString(2, 2);
-"ｎｏ"
->>> m_str.subString(2);
-"ｎｏｈａ"
->>> m_str.subString();
-"ｋｏｎｏｈａ"
+>>> String mbsn = "ｓｔｒｉｎｇ";
+>>> mbsn.subString(2, 2);
+"ｒｉ"
+>>> mbsn.subString(2);
+"ｒｉｎｇ"
+>>> mbsn.subString();
+"ｓｔｒｉｎｇ"
 
 
 ### String.startsWith
->>> str.startsWith("kon");
+>>> String sn = "string";
+>>> sn.startsWith("str");
 true
->>> str.startsWith("kno");
+>>> sn.startsWith("srt");
 false
->>> str.startsWith(emp);
+>>> sn.startsWith("");
 true
->>> str.startsWith();
+>>> sn.startsWith();
 true
->>> emp.startsWith();
+>>> "".startsWith();
 true
 
 ### String.startsWith : multi
->>> m_str.startsWith("ｋｏｎ");
+>>> String mbsn = "ｓｔｒｉｎｇ";
+>>> mbsn.startsWith("ｓｔｒ");
 true
->>> m_str.startsWith("ｋｎｏ");
+>>> mbsn.startsWith("ｓｒｔ");
 false
->>> m_str.startsWith(emp);
+>>> mbsn.startsWith("");
 true
->>> m_str.startsWith();
+>>> mbsn.startsWith();
 true
 
 
 ### String.endsWith
->>> str.endsWith("oha");
+>>> String sn = "string";
+>>> sn.endsWith("ing");
 true
->>> str.endsWith("hoa");
+>>> sn.endsWith("nig");
 false
->>> str.endsWith(emp);
+>>> sn.endsWith("");
 true
->>> str.endsWith();
+>>> sn.endsWith();
 true
->>> emp.endsWith();
+>>> "".endsWith();
 true
 
 ### String.endsWith : multi
->>> m_str.endsWith("ｏｈａ");
+>>> String mbsn = "ｓｔｒｉｎｇ";
+>>> mbsn.endsWith("ｉｎｇ");
 true
->>> m_str.endsWith("ｈｏａ");
+>>> mbsn.endsWith("ｎｉｇ");
 false
->>> m_str.endsWith(emp);
+>>> mbsn.endsWith("");
 true
->>> m_str.endsWith();
+>>> mbsn.endsWith();
 true
 
 
 ### String.trim
->>> "   konoha   ".trim() == str;
-true
->>> " ".trim() == emp;
-true
+>>> "   string   ".trim();
+"string"
+>>> " ".trim();
+""
 
-### String.trim : multi
->>> "　　ｋｏｎｏｈａ　　".trim() == m_str;
-false
+// ### String.trim : multi
+// >>> "　　ｓｔｒｉｎｇ　　".trim();
+// "ｓｔｒｉｎｇ"
 
 
 ### String.isASCII
->>> str.isASCII();
+>>> String sn = "string";
+>>> sn.isASCII();
 true
->>> emp.isASCII();
-false
+>>> "".isASCII();
+true
 
 ### String.isASCII : multi
->>> m_str.isASCII();
+>>> String mbsn = "ｓｔｒｉｎｇ";
+>>> mbsn.isASCII();
 false
 
 
 ### String.indexOf
->>> str.indexOf("o");
-1
->>> str.indexOf("z");
+>>> String sn = "string";
+>>> sn.indexOf("r");
+2
+>>> sn.indexOf("z");
 -1
-
->>> str.indexOf(emp);
+>>> sn.indexOf("");
 0
->>> emp.indexOf(emp);
+>>> "".indexOf("");
 0
-// >>> str.indexOf();
-// 0
-// >>> emp.indexOf();
-// 0
+>>> sn.indexOf();
+-1
+>>> "".indexOf();
+-1
 
 ### String.indexOf : multi
->>> m_str.indexOf("ｏ");
-1
->>> m_str.indexOf("ｚ");
+>>> String mbsn = "ｓｔｒｉｎｇ";
+>>> mbsn.indexOf("ｒ");
+2
+>>> mbsn.indexOf("r");
 -1
->>> m_str.indexOf(emp);
+>>> mbsn.indexOf("");
 0
-// >>> m_str.indexOf();
-// 0
+>>> mbsn.indexOf();
+-1
 
 
 // ### String.lastIndexOf
-// >>> str.lastIndexOf("o");
-// 4
-// >>> str.lastIndexOf("z");
+// >>> String sn = "string";
+// >>> sn.lastIndexOf("r");
+// 2
+// >>> sn.lastIndexOf("z");
 // -1
-// >>> str.lastIndexOf(emp);
+// >>> sn.lastIndexOf("");
 // 6
-// >>> emp.lastIndexOf(emp);
+// >>> "".lastIndexOf("");
 // 0
-// >>> str.lastIndexOf();
+// >>> sn.lastIndexOf();
 // 6
-// >>> emp.lastIndexOf();
+// >>> "".lastIndexOf();
 // 0
 
 // ### String.lastIndexOf : multi
-// >>> m_str.lastIndexOf("ｏ");
-// 4
-// >>> m_str.lastIndexOf("ｚ");
+// >>> String mbsn = "ｓｔｒｉｎｇ";
+// >>> mbsn.lastIndexOf("ｒ");
+// 2
+// >>> mbsn.lastIndexOf("ｚ");
 // -1
-// >>> m_str.lastIndexOf(emp);
+// >>> mbsn.lastIndexOf("");
 // 6
-// >>> m_str.lastIndexOf();
+// >>> mbsn.lastIndexOf();
 // 6
 
 
 ### String.replace
+>>> String sn = "string";
 >>> "a".replace("a", "b");
 "b"
 >>> "a".replace("", "b");
 "a"
->>> str.replace("noh", "al");
-"koala"
->>> str.replace("noh");
-"koa"
->>> emp.replace("test");
+>>> sn.replace("str", "script");
+"scripting"
+>>> sn.replace("str");
+"ing"
+>>> "".replace("test");
 ""
->>> str.replace("", "test");
-"konoha"
->>> emp.replace("", "test");
+>>> sn.replace("", "test");
+"string"
+>>> "".replace("", "test");
 ""
->>> str.replace();
-"konoha"
->>> emp.replace();
-""
+// >>> sn.replace();
+// "string"
+// >>> "".replace();
+// ""
 
 ### String.replace : multi
->>> m_str.replace("ｎｏｈ", "ａｌ");
-"ｋｏａｌａ"
->>> m_str.replace("ｎｏｈ");
-"ｋｏａ"
->>> m_str.replace("", "ｔｅｓｔ");
-"ｋｏｎｏｈａ"
->>> m_str.replace();
-"ｋｏｎｏｈａ"
+>>> String mbsn = "ｓｔｒｉｎｇ";
+>>> mbsn.replace("ｓｔｒ", "ｓｃｒｉｐｔ");
+"ｓｃｒｉｐｔｉｎｇ"
+>>> mbsn.replace("ｓｔｒ");
+"ｉｎｇ"
+>>> mbsn.replace("", "ｔｅｓｔ");
+"ｓｔｒｉｎｇ"
+// >>> mbsn.replace();
+// "ｓｔｒｉｎｇ"
 
 
 ### String.split
+>>> String sn = "string";
 >>> "a".split("a");
 ["", ""]
 >>> "a".split("");
 ["a"]
->>> str.split("o");
-["k", "n", "ha"]
->>> str.split("z");
-["konoha"]
->>> str.split(emp);
-["k", "o", "n", "o", "h", "a"]
->>> str.split();
-["k", "o", "n", "o", "h", "a"]
->>> emp.split();
-[""]
+>>> sn.split("r");
+["st", "ing"]
+>>> sn.split("z");
+["string"]
+>>> sn.split("");
+["s", "t", "r", "i", "n", "g"]
+>>> sn.split();
+["s", "t", "r", "i", "n", "g"]
+>>> "".split();
+[]
 
 ### String.split : multi
->>> m_str.split("ｏ");
-["ｋ", "ｎ", "ｈａ"]
->>> m_str.split("ｚ");
-["ｋｏｎｏｈａ"]
->>> m_str.split(emp);
-["ｋ", "ｏ", "ｎ", "ｏ", "ｈ", "ａ"]
->>> m_str.split();
-["ｋ", "ｏ", "ｎ", "ｏ", "ｈ", "ａ"]
+>>> String mbsn = "ｓｔｒｉｎｇ";
+>>> mbsn.split("ｒ");
+["ｓｔ", "ｉｎｇ"]
+>>> mbsn.split("ｚ");
+["ｓｔｒｉｎｇ"]
+>>> mbsn.split("");
+// ["ｓ", "ｔ", "ｒ", "ｉ", "ｎ", "ｇ"]
+// >>> mbsn.split();
+// ["ｓ", "ｔ", "ｒ", "ｉ", "ｎ", "ｇ"]
 
 
 //*============================================*/
 // converter
 
-### String.convert
->>> str.convert();
-"konoha"
->>> emp.convert();
-""
+// ### String.convert
+// >>> String sn = "string";
+// >>> sn.convert();
+// "string"
+// >>> "".convert();
+// ""
 
-### String.convert : multi
->>> m_str.convert();
-"ｋｏｎｏｈａ"
+// ### String.convert : multi
+// >>> String mbsn = "ｓｔｒｉｎｇ";
+// >>> mbsn.convert();
+// "ｓｔｒｉｎｇ"
 
 
 ### string to:upper converter
+>>> String sn = "string";
 >>> "a".convert(to:upper);
 "A"
 >>> "A".convert(to:upper);
 "A"
 >>> "1".convert(to:upper);
 "1"
->>> str.convert(to:upper);
-"KONOHA"
->>> "this is KONOHA.".convert(to:upper);
-"THIS IS KONOHA."
->>> emp.convert(to:upper);
+>>> "this is STRING.".convert(to:upper);
+"THIS IS STRING."
+>>> sn.convert(to:upper);
+"STRING"
+>>> "".convert(to:upper);
 ""
 
-### string to:upper converter : multi
->>> "ａ".convert(to:upper);
-"Ａ"
->>> "Ａ".convert(to:upper);
-"Ａ"
->>> "あ".convert(to:upper);
-"あ"
->>> m_str.convert(to:upper);
-"ＫＯＮＯＨＡ"
+// ### string to:upper converter : multi
+// >>> String mbsn = "ｓｔｒｉｎｇ";
+// >>> "ａ".convert(to:upper);
+// "Ａ"
+// >>> "Ａ".convert(to:upper);
+// "Ａ"
+// >>> "あ".convert(to:upper);
+// "あ"
+// >>> "ｔｈｉｓ　ｉｓ　ＳＴＲＩＮＧ".convert(to:upper);
+// "ＴＨＩＳ　ＩＳ　ＳＴＲＩＮＧ"
+// >>> mbsn.convert(to:upper);
+// "ＳＴＲＩＮＧ"
 
 
 ### string to:lower converter
@@ -579,16 +741,17 @@ false
 "a"
 >>> "1".convert(to:lower);
 "1"
->>> "this is KONOHA.".convert(to:lower);
-"this is konoha."
->>> emp.convert(to:lower);
+>>> "this is STRING".convert(to:lower);
+"this is string"
+>>> "".convert(to:lower);
 ""
 
-### string to:lower converter : multi
->>> "ａ".convert(to:lower);
-"ａ"
->>> "Ａ".convert(to:lower);
-"ａ"
->>> "あ".convert(to:lower);
-"あ"
-
+// ### string to:lower converter : multi
+// >>> "ａ".convert(to:lower);
+// "ａ"
+// >>> "Ａ".convert(to:lower);
+// "ａ"
+// >>> "あ".convert(to:lower);
+// "あ"
+// >>> "ｔｈｉｓ　ｉｓ　ＳＴＲＩＮＧ".convert(to:lower);
+// "ｔｈｉｓ　ｉｓ　ｓｔｒｉｎｇ"
