@@ -76,12 +76,12 @@ true
 >>> a.get(0) + "aa"
 "aaa"
 
-### Array<String>..
->>> a = ["a", "aa", "aaa"];
->>> a..
-"a"
-"aa"
-"aaa"
+//### Array<String>..
+//>>> a = ["a", "aa", "aaa"];
+//>>> a..
+//"a"
+//"aa"
+//"aaa"
 
 ### Array<String> until/to
 >>> a = ["a", "aa", "aaa", "aaaa", "aaaaa"];
