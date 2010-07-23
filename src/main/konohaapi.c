@@ -33,6 +33,7 @@
 #define USE_bytes_parseint  1
 #define USE_cwb_open      1
 #define USE_cwb_tobytes   1
+#define USE_cwb_size      1
 
 
 /* ************************************************************************ */
@@ -583,6 +584,8 @@ static void knh_shell(Ctx *ctx, char *filename, const knh_ShellSPI_t *spi, const
 			knh_Method_t *mtdf = knh_getSystemFormatter(ctx, knh_Object_cid(o), MN__k);
 			knh_write_Object(ctx, cwb->w, lsfp+1, &mtdf, o);
 			knh_write_EOL(ctx, cwb->w);
+		}
+		if(knh_cwb_size(cwb) !=0) {
 			spi->shell_display(ctx, shell_status, knh_cwb_tochar(ctx, cwb), api);
 			knh_cwb_clear(cwb, 0);
 		}
@@ -705,7 +708,7 @@ static char *kt_fgets(Ctx *ctx, kt_status_t *kt, char *line, int max)
 	return ret;
 }
 
-static kt_unit_t* new_kt_unit(Ctx *ctx, char* title)
+static kt_unit_t* new_kt_unit(Ctx *ctx, const char* title)
 {
 	kt_unit_t* ret = (kt_unit_t*)KNH_MALLOC(ctx, sizeof(kt_unit_t));
 	size_t len = knh_strlen(title);
