@@ -2,7 +2,7 @@
 
 int testSimpleLoop() {
 	int i;
-	for(i = 0; i < 100_000_000; i++) {
+	for(i = 0; i < 10_000_000; i++) {
 	}
 	return i;
 }
@@ -11,7 +11,7 @@ int testString_indexof_string() {
 	int i;
 	s = "1234567890";
 	key = "0";
-	for(i = 0; i < 100_000_000; i++) {
+	for(i = 0; i < 10_000_000; i++) {
 		s.indexOf(key);
 	}
 	return i;
@@ -21,7 +21,7 @@ int testString_indexof_regex() {
 	int i;
 	s = "1234567890";
 	key = /0/;
-	for(i = 0; i < 100_000_000; i++) {
+	for(i = 0; i < 10_000_000; i++) {
 		s.indexOf(key);
 	}
 	return i;
@@ -30,7 +30,7 @@ int testString_indexof_regex() {
 int testString_indexof_empty() {
 	int i;
 	s = "1234567890";
-	for(i = 0; i < 100_000_000; i++) {
+	for(i = 0; i < 10_000_000; i++) {
 		s.indexOf();
 	}
 	return i;
@@ -40,7 +40,7 @@ int testString_replace_string() {
 	int i;
 	s = "1234567890";
 	key = "0";
-	for(i = 0; i < 100_000_000; i++) {
+	for(i = 0; i < 10_000_000; i++) {
 		s.replace(key, s);
 	}
 	return i;
@@ -50,7 +50,7 @@ int testString_replace_regex() {
 	int i;
 	s = "1234567890";
 	key = /0/;
-	for(i = 0; i < 100_000_000; i++) {
+	for(i = 0; i < 10_000_000; i++) {
 		s.replace(key, s);
 	}
 	return i;
@@ -59,7 +59,7 @@ int testString_replace_regex() {
 int testString_replace_empty() {
 	int i;
 	s = "1234567890";
-	for(i = 0; i < 100_000_000; i++) {
+	for(i = 0; i < 10_000_000; i++) {
 		s.indexOf(, s);
 	}
 	return i;
@@ -69,7 +69,7 @@ int testString_getSize() {
 	int i;
 	s = "1234567890";
 	key = /0/;
-	for(i = 0; i < 100_000_000; i++) {
+	for(i = 0; i < 10_000_000; i++) {
 		x = s.size;
 	}
 	return i;
@@ -78,7 +78,7 @@ int testString_getSize() {
 int testString_startsWith_string() {
 	int i;
 	s = "1234567890";
-	for(i = 0; i < 100_000_000; i++) {
+	for(i = 0; i < 10_000_000; i++) {
 		s.startsWith(s);
 	}
 	return i;
@@ -87,7 +87,7 @@ int testString_startsWith_string() {
 int testString_startsWith_empty() {
 	int i;
 	s = "1234567890";
-	for(i = 0; i < 100_000_000; i++) {
+	for(i = 0; i < 10_000_000; i++) {
 		s.startsWith();
 	}
 	return i;
@@ -96,7 +96,7 @@ int testString_startsWith_empty() {
 int testString_endsWith_string() {
 	int i;
 	s = "1234567890";
-	for(i = 0; i < 100_000_000; i++) {
+	for(i = 0; i < 10_000_000; i++) {
 		s.endsWith(s);
 	}
 	return i;
@@ -105,7 +105,7 @@ int testString_endsWith_string() {
 int testString_endsWith_empty() {
 	int i;
 	s = "1234567890";
-	for(i = 0; i < 100_000_000; i++) {
+	for(i = 0; i < 10_000_000; i++) {
 		s.endsWith();
 	}
 	return i;
@@ -116,7 +116,7 @@ int testString_trim() {
 	empty10 = "          ";
 	s = empty10 + "1234567890" + empty10;
 	v = "";
-	for(i = 0; i < 100_000_000; i++) {
+	for(i = 0; i < 10_000_000; i++) {
 		v = s.trim();
 	}
 	return i;
@@ -127,7 +127,7 @@ int testString_split_string() {
 	s = "0000000000";
 	key = "0";
 	String[] a = [];
-	for(i = 0; i < 100_000_000; i++) {
+	for(i = 0; i < 10_000_000; i++) {
 		a = s.split(key);
 	}
 	return i;
@@ -139,7 +139,7 @@ int testString_split_regex() {
 	s = "0000000000";
 	key = /0/;
 	String[] a = [];
-	for(i = 0; i < 100_000_000; i++) {
+	for(i = 0; i < 10_000_000; i++) {
 		a = s.split(key);
 	}
 	return i;
@@ -151,7 +151,7 @@ int testString_split_empty() {
 	//  "1234567890";
 	s = "0000000000";
 	String[] a = [];
-	for(i = 0; i < 100_000_000; i++) {
+	for(i = 0; i < 10_000_000; i++) {
 		a = s.split();
 	}
 	return i;

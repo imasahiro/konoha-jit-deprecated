@@ -17,6 +17,12 @@ false
 >>> in.isClosed();
 true
 
+### InputStream no such file
+>>> InputStream in = new InputStream("");
+>>> in.close();
+>>> in.isClosed();
+true
+
 
 ### OutputStream.new
 >>> OutputStream out = new OutputStream("temp.txt","w");
