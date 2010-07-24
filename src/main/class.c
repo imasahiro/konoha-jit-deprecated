@@ -325,11 +325,11 @@ knh_fields_t *knh_Class_fieldAt(Ctx *ctx, knh_class_t cid, size_t n)
 
 /* ------------------------------------------------------------------------ */
 
-int knh_ClassMap_util_cmp(const knh_Translator_t *m1, const knh_Translator_t *m2)
-{
-	int res = DP(m1)->flag - DP(m2)->flag;
-	return (res == 0) ? SP(m2)->tcid - SP(m1)->tcid : res;
-}
+//static int knh_ClassMap_util_cmp(const knh_Translator_t *m1, const knh_Translator_t *m2)
+//{
+//	int res = DP(m1)->flag - DP(m2)->flag;
+//	return (res == 0) ? SP(m2)->tcid - SP(m1)->tcid : res;
+//}
 
 ///* ------------------------------------------------------------------------ */
 //
