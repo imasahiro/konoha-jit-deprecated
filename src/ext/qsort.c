@@ -21,6 +21,8 @@
    Engineering a sort function; Jon Bentley and M. Douglas McIlroy;
    Software - Practice and Experience; Vol. 23 (11), 1249-1265, 1993.  */
 
+#include<konoha.h>   // added to integrate konoha
+
 #ifdef KONOHA_ON_LKM
 #include <linux/string.h>
 #else
@@ -28,6 +30,8 @@
 #include <stdlib.h>
 #include <string.h>
 #endif
+
+#ifdef K_USING_QSORT
 
 /* Byte-wise swap two items of size SIZE. */
 #define SWAP(a, b, size)						      \
@@ -414,3 +418,6 @@ jump_over:;
         }
     }
 }
+
+#endif K_USING_QSORT
+

@@ -1245,7 +1245,7 @@ static int knh_StmtOP_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpid
 			knh_int_t b = TERMs_int(stmt, 2);
 			if(b == 0 && (mn == MN_opDIV || mn == MN_opMOD)) {
 				b = 1;
-				knh_Gamma_perror(ctx, KERR_ERRATA, _("divided by zero: /0 ==> /1"));
+				knh_Gamma_perror(ctx, KERR_DWARN, _("divided by zero"));
 			}
 			opcode = OPCODE_imn(mn, (OPCODE_iADDn - OPCODE_iADD));
 			//opcode = knh_opcode_shiftCONST(OPCODE_imn(mn), mn);
@@ -1271,10 +1271,9 @@ static int knh_StmtOP_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpid
 			knh_float_t b = TERMs_float(stmt, 2);
 			if(b == K_FLOAT_ZERO && mn == MN_opDIV) {
 				b = K_FLOAT_ONE;
-				knh_Gamma_perror(ctx, KERR_ERRATA, _("divided by zero: 0.0 ==> 1.0"));
+				knh_Gamma_perror(ctx, KERR_DWARN, _("divided by zero"));
 			}
 			opcode = OPCODE_fmn(mn, (OPCODE_fADDn - OPCODE_fADD));
-			//opcode = knh_opcode_shiftCONST(OPCODE_imn(mn), mn);
 			KNH_ASMOP(fADDn, opcode, (sfpidx), a, b);
 		}
 		else {

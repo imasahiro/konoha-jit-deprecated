@@ -1079,6 +1079,10 @@ typedef struct knh_Term_t {
 #define knh_Token_isPNAME(o)  knh_Token_isMEMO1(o)
 #define knh_Token_setPNAME(o, b) knh_Token_setMEMO1(o, b)
 
+// TT_UNAME
+#define knh_Token_isBYTE(o)  knh_Token_isMEMO1(o)
+#define knh_Token_setBYTE(o, b) knh_Token_setMEMO1(o, b)
+
 // TT_LOCAL,
 #define knh_Token_isSUPER(o)      knh_Token_isMEMO1(o)
 #define knh_Token_setSUPER(o, b)  knh_Token_setMEMO1(o, b)

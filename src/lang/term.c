@@ -532,6 +532,7 @@ static void knh_Token_add(Ctx *ctx, knh_Token_t *tk, knh_Token_t *tkc)
 	if(TT_(tkPREV) == TT_BYTE) {
 		TT_(tkPREV) = TT_UNAME;
 		if(TT_(tkc) == TT_BRANCET) {
+			knh_Token_setBYTE(tkPREV, 1);
 			KNH_SETv(ctx, DP(tkPREV)->text, ClassTBL(CLASS_Bytes).sname);
 			if(IS_NULL(DP(tkc)->data)) { // byte[] => Bytes
 				knh_Array_trimSize(ctx, a, prev+1);
@@ -2217,7 +2218,9 @@ static void _EXPR(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 			}
 			if(ITR_isT(itr, isTYPE) && ITR_isN(itr, +1, TT_BRANCET)) {
 				knh_Token_t *tkC = ITR_nextTK(itr);
-				tkC = new_TokenPTYPE(ctx, CLASS_Array, tkC);
+				if(!knh_Token_isBYTE(tkC)) {
+					tkC = new_TokenPTYPE(ctx, CLASS_Array, tkC);
+				}
 				TT_(tkCUR) = TT_MN; /* new C[10] */
 				DP(tkCUR)->mn = MN_new__ARRAY;
 				knh_Stmt_add(ctx, stmt, tkC);

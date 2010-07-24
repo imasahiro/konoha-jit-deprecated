@@ -114,7 +114,6 @@ static METHOD Object_new__MAP(Ctx *ctx, knh_sfp_t *sfp, long rix)
 }
 
 /* ------------------------------------------------------------------------ */
-/* [Bytes] */
 //## method Bytes Bytes.new(Int init);
 
 static METHOD Bytes_new(Ctx *ctx, knh_sfp_t *sfp, long rix)
@@ -122,15 +121,10 @@ static METHOD Bytes_new(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	knh_Bytes_t *ba = sfp[0].ba;
 	size_t init = sfp[1].ivalue <= 0 ? 0 : knh_good_size(Int_to(size_t, sfp[1]));
 	DBG_ASSERT(ba->capacity == 0);
-	if(init < K_FASTMALLOC_SIZE) {
-		init = K_FASTMALLOC_SIZE;
-	}
-	else if(init < K_SMALLPAGESIZE) {
-		init = K_SMALLPAGESIZE;
-	}
 	ba->bu.ubuf = (knh_uchar_t*)KNH_MALLOC(ctx, init);
 	knh_bzero(ba->bu.ubuf, init);
 	ba->capacity = init;
+	ba->bu.len = 0;
 	RETURN_(ba);
 }
 
@@ -139,7 +133,7 @@ static METHOD Bytes_new(Ctx *ctx, knh_sfp_t *sfp, long rix)
 
 static METHOD Bytes_new__ARRAY(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-	size_t size = sfp[1].ivalue <= 0 ? 0 : knh_good_size(Int_to(size_t, sfp[1]));
+	size_t size = sfp[1].ivalue <= 0 ? 0 : Int_to(size_t, sfp[1]);
 	Bytes_new(ctx, sfp, rix);
 	sfp[rix].ba->bu.len = size;
 }
