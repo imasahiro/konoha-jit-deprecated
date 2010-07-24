@@ -260,6 +260,22 @@ static knh_Array_t *knh_String_toCharArray(Ctx *ctx, knh_String_t *bs, int istri
 }
 
 /* ------------------------------------------------------------------------ */
+
+static knh_bytes_t knh_bytes_trim(knh_bytes_t t)
+{
+	while(isspace(t.ustr[0])) {
+		t.ustr++;
+		t.len--;
+	}
+	if(t.len == 0) return t;
+	while(isspace(t.ustr[t.len-1])) {
+		t.len--;
+		if(t.len == 0) return t;
+	}
+	return t;
+}
+
+/* ------------------------------------------------------------------------ */
 //## @Const method String[] String.split(Regex re);
 
 static METHOD String_split(Ctx *ctx, knh_sfp_t *sfp, long rix)

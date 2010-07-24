@@ -231,19 +231,6 @@ KNHAPI(knh_Array_t*) new_Array(Ctx *ctx, knh_class_t p1, size_t capacity)
 
 /* ------------------------------------------------------------------------ */
 
-void knh_Array_clear(Ctx *ctx, knh_Array_t *a, size_t n)
-{
-	if(!knh_Array_isNDATA(a)) {
-		size_t i;
-		for(i = n; i < a->size; i++) {
-			KNH_FINALv(ctx, a->list[i]);
-		}
-	}
-	a->size = n;
-}
-
-/* ------------------------------------------------------------------------ */
-
 KNHAPI(void) knh_Array_add_(Ctx *ctx, knh_Array_t *a, Any *value)
 {
 	if(a->size == a->hmem[-1].capacity) {
@@ -255,44 +242,18 @@ KNHAPI(void) knh_Array_add_(Ctx *ctx, knh_Array_t *a, Any *value)
 	a->size++;
 }
 
-///* ------------------------------------------------------------------------ */
-//
-//void knh_Array_remove(Ctx *ctx, knh_Array_t *a, size_t n)
-//{
-//	DBG_ASSERT(n < a->size);
-//	size_t i;
-//	Object *removed = a->list[n];
-//	for(i = n; i < a->size - 1; i++) {
-//		a->list[i] = a->list[i+1];
-//	}
-//	a->size--;
-//	a->list[a->size] = removed;
-//}
+/* ------------------------------------------------------------------------ */
 
-///* ------------------------------------------------------------------------ */
-//
-//Any* knh_Array_pop(Ctx *ctx, knh_Array_t *o)
-//{
-//	DBG_ASSERT(o->size > 0);
-//	if(!knh_Array_isNDATA(a)) {
-//		KNH_FINALv(ctx, a->list[i]);
-//	}
-//
-//	o->size--;
-//		return o->list[o->size];
-//	}else {
-//		return KNH_NULL;
-//	}
-//}
-
-///* ------------------------------------------------------------------------ */
-//
-//size_t knh_array_index0(Ctx *ctx, knh_intptr_t n, size_t size)
-//{
-//	size_t idx = (size_t)n;
-//	if(!(idx < size)) KNH_THROW_OUTOFINDEX(ctx, n, size);
-//	return idx;
-//}
+void knh_Array_clear(Ctx *ctx, knh_Array_t *a, size_t n)
+{
+	if(!knh_Array_isNDATA(a)) {
+		size_t i;
+		for(i = n; i < a->size; i++) {
+			KNH_FINALv(ctx, a->list[i]);
+		}
+	}
+	a->size = n;
+}
 
 /* ------------------------------------------------------------------------ */
 

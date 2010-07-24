@@ -51,17 +51,6 @@ extern "C" {
 /* ======================================================================== */
 /* [memory] */
 
-//size_t knh_good_size(size_t s)
-//{
-//	if(s > 64 * 1024) return s;
-//	s |= s >> 1;
-//	s |= s >> 2;
-//	s |= s >> 4;
-//	s |= s >> 8;
-//	s |= s >> 16;
-//	return s + 1;
-//}
-
 size_t knh_good_size(size_t ss)
 {
 	size_t s = ss;
@@ -119,10 +108,10 @@ static void knh_Bytes_expands(Ctx *ctx, knh_Bytes_t *ba, size_t newsize)
 	}
 }
 
-/* ======================================================================== */
+/* ------------------------------------------------------------------------ */
 /* [Bytes] */
 
-KNHAPI(knh_Bytes_t*) new_Bytes(Ctx *ctx, size_t capacity)
+knh_Bytes_t* new_Bytes(Ctx *ctx, size_t capacity)
 {
 	knh_Bytes_t *ba = new_(Bytes);
 	if(capacity > 0) {
@@ -133,7 +122,7 @@ KNHAPI(knh_Bytes_t*) new_Bytes(Ctx *ctx, size_t capacity)
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(void) knh_Bytes_clear(knh_Bytes_t *ba, size_t pos)
+void knh_Bytes_clear(knh_Bytes_t *ba, size_t pos)
 {
 	DBG_ASSERT(!knh_Bytes_isStatic(ba));
 	if(pos < BA_size(ba)) {
@@ -144,7 +133,7 @@ KNHAPI(void) knh_Bytes_clear(knh_Bytes_t *ba, size_t pos)
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(void) knh_Bytes_ensureSize(Ctx *ctx, knh_Bytes_t *ba, size_t len)
+void knh_Bytes_ensureSize(Ctx *ctx, knh_Bytes_t *ba, size_t len)
 {
 	DBG_ASSERT(!knh_Bytes_isStatic(ba));
 	if(ba->capacity < len) {
@@ -167,7 +156,7 @@ const char *knh_Bytes_ensureZero(Ctx *ctx, knh_Bytes_t *ba)
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(void) knh_Bytes_putc(Ctx *ctx, knh_Bytes_t *ba, int ch)
+void knh_Bytes_putc(Ctx *ctx, knh_Bytes_t *ba, int ch)
 {
 	if(BA_size(ba) == ba->capacity) {
 		knh_Bytes_expands(ctx, ba, ba->capacity * 2);
@@ -200,8 +189,7 @@ void knh_Bytes_write(Ctx *ctx, knh_Bytes_t *ba, knh_bytes_t t)
 	BA_size(ba) += t.len;
 }
 
-/* ======================================================================== */
-/* [cwb] */
+/* ------------------------------------------------------------------------ */
 
 knh_String_t *knh_cwb_newString(Ctx *ctx, knh_cwb_t *cwb)
 {
@@ -214,84 +202,6 @@ knh_String_t *knh_cwb_newString(Ctx *ctx, knh_cwb_t *cwb)
 		knh_cwb_close(cwb);
 		return s;
 	}
-}
-
-/* ------------------------------------------------------------------------ */
-/* [bytes] */
-/* ------------------------------------------------------------------------ */
-
-#define u_ knh_uintptr_t
-
-//knh_uintptr_t knh_bytes_tou(knh_bytes_t t)
-//{
-//#if ((defined(__WORDSIZE) && __WORDSIZE == 64)) || defined(__LP64__) || defined(__LLP64__)
-//	u_ u = (((u_)t.buf[0]) << 56) | (((u_)t.buf[1]) << 48)
-//		| (((u_)t.buf[2]) << 40) | (((u_)t.buf[3]) << 32)
-//		| (((u_)t.buf[4]) << 24) | (((u_)t.buf[5]) << 16)
-//		| (((u_)t.buf[6]) << 8) | (((u_)t.buf[7]) << 0);
-//	switch(t.len) {
-//		case 0: return u & 0x0000000000000000LL;
-//		case 1: return u & 0xff00000000000000LL;
-//		case 2: return u & 0xffff000000000000LL;
-//		case 3: return u & 0xffffff0000000000LL;
-//		case 4: return u & 0xffffffff00000000LL;
-//		case 5: return u & 0xffffffffff000000LL;
-//		case 6: return u & 0xffffffffffff0000LL;
-//		case 7: return u & 0xffffffffffffff00LL;
-//		default: return u;
-//	}
-//#else
-//	u_ u = (((u_)t.buf[0]) << 24) | (((u_)t.buf[1]) << 16)
-//		| (((u_)t.buf[2]) << 8) | (((u_)t.buf[3]) << 0);
-//	switch(t.len) {
-//		case 0: return u & 0x00000000;
-//		case 1: return u & 0xff000000;
-//		case 2: return u & 0xffff0000;
-//		case 3: return u & 0xffffff00;
-//		default: return u;
-//	}
-//#endif
-//}
-
-/* ------------------------------------------------------------------------ */
-
-KNHAPI(knh_bool_t) knh_bytes_matchWildCard(knh_bytes_t t, knh_bytes_t p)
-{
-	if(p.ustr[0] == '*') {
-		p.ustr = p.ustr + 1;
-		p.len = p.len - 1;
-		return knh_bytes_endsWith(t, p);
-	}
-	else if(p.ustr[p.len-1] == '*') {
-		p.len -= 1;
-		return knh_bytes_startsWith(t, p);
-	}
-	else {
-		knh_index_t idx = knh_bytes_index(p, '*');
-		if(idx == -1) {
-			return knh_bytes_startsWith(t, p);
-		}
-		else {
-			return knh_bytes_startsWith(t, knh_bytes_first(p, idx)) &&
-				knh_bytes_endsWith(t, knh_bytes_last(p, idx+1));
-		}
-	}
-}
-
-/* ------------------------------------------------------------------------ */
-
-knh_bytes_t knh_bytes_trim(knh_bytes_t t)
-{
-	while(isspace(t.ustr[0])) {
-		t.ustr++;
-		t.len--;
-	}
-	if(t.len == 0) return t;
-	while(isspace(t.ustr[t.len-1])) {
-		t.len--;
-		if(t.len == 0) return t;
-	}
-	return t;
 }
 
 /* ------------------------------------------------------------------------ */

@@ -88,6 +88,31 @@ static METHOD System_setProperty(Ctx *ctx, knh_sfp_t *sfp, long rix)
 }
 
 /* ------------------------------------------------------------------------ */
+
+static knh_bool_t knh_bytes_matchWildCard(knh_bytes_t t, knh_bytes_t p)
+{
+	if(p.ustr[0] == '*') {
+		p.ustr = p.ustr + 1;
+		p.len = p.len - 1;
+		return knh_bytes_endsWith(t, p);
+	}
+	else if(p.ustr[p.len-1] == '*') {
+		p.len -= 1;
+		return knh_bytes_startsWith(t, p);
+	}
+	else {
+		knh_index_t idx = knh_bytes_index(p, '*');
+		if(idx == -1) {
+			return knh_bytes_startsWith(t, p);
+		}
+		else {
+			return knh_bytes_startsWith(t, knh_bytes_first(p, idx)) &&
+				knh_bytes_endsWith(t, knh_bytes_last(p, idx+1));
+		}
+	}
+}
+
+/* ------------------------------------------------------------------------ */
 //## @Hidden method String[] System.listProperties(String key);
 
 static METHOD System_listProperties(Ctx *ctx, knh_sfp_t *sfp, long rix)

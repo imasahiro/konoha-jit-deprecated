@@ -82,14 +82,13 @@ static METHOD Object_getKey(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	RETURN_(s);
 }
 
-/* ------------------------------------------------------------------------ */
-//## @Hidden method Array! Class.domain();
-
-static METHOD Class_domain(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	
-	RETURN_(knh_getClassDomain(ctx, (sfp[0].c)->cid));
-}
+///* ------------------------------------------------------------------------ */
+////## @Hidden method Array! Class.domain();
+//
+//static METHOD Class_domain(Ctx *ctx, knh_sfp_t *sfp, long rix)
+//{
+//	RETURN_(knh_getClassDomain(ctx, (sfp[0].c)->cid));
+//}
 
 /* ======================================================================== */
 /* [Method] */

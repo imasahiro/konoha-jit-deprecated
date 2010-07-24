@@ -108,45 +108,21 @@ static METHOD Array_set(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	(sfp[0].a)->api->set(ctx, sfp, rix);
 }
 
-///* ------------------------------------------------------------------------ */
-////## method T1 Array.setAll(T1 v);
-//
-//static METHOD Array_setAll(Ctx *ctx, knh_sfp_t *sfp, long rix)
-//{
-//	knh_Array_t *o = (knh_Array_t*)sfp[0].o;
-//	size_t i;
-//	knh_stack_boxing(ctx, sfp + 1);
-//	for(i = 0; i < o->size; i++) {
-//		KNH_SETv(ctx, o->list[i], sfp[1].o);
-//	}
-//	RETURN_(sfp[1].o);
-//}
-//
-///* ------------------------------------------------------------------------ */
-////## method Int IArray.setAll(Int v);
-//
-//static METHOD IArray_setAll(Ctx *ctx, knh_sfp_t *sfp, long rix)
-//{
-//	knh_IArray_t *o = (knh_IArray_t*)sfp[0].o;
-//	size_t i;
-//	for(i = 0; i < o->size; i++) {
-//		o->ilist[i] = sfp[1].ivalue;
-//	}
-//	RETURNi_(sfp[1].ivalue);
-//}
-//
-///* ------------------------------------------------------------------------ */
-////## method Float! FArray.setAll(Float! v);
-//
-//static METHOD FArray_setAll(Ctx *ctx, knh_sfp_t *sfp, long rix)
-//{
-//	knh_FArray_t *o = (knh_FArray_t*)sfp[0].o;
-//	size_t i;
-//	for(i = 0; i < o->size; i++) {
-//		o->flist[i] = sfp[1].fvalue;
-//	}
-//	RETURNf_(sfp[1].fvalue);
-//}
+/* ------------------------------------------------------------------------ */
+//## method T1 Array.setAll(T1 v);
+
+static METHOD Array_setAll(Ctx *ctx, knh_sfp_t *sfp, long rix)
+{
+	size_t i;
+	knh_ndata_t data = sfp[2].data;  // @restrict
+	KNH_SETv(ctx, sfp[2].o, sfp[1].o);
+	sfp[2].data = sfp[1].data;
+	for(i = 0; i < (sfp[0].a)->size; i++) {
+		sfp[1].ivalue = i;
+		(sfp[0].a)->api->set(ctx, sfp, rix);
+	}
+	sfp[1].data = data;  // @restrict
+}
 
 /* ------------------------------------------------------------------------ */
 //## method void Array.add(T1 value, ...);
@@ -158,6 +134,20 @@ static METHOD Array_add(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	a->api->add(ctx, a, sfp+1);
 	RETURNvoid_();
 }
+
+///* ------------------------------------------------------------------------ */
+//
+//static void knh_Array_remove(Ctx *ctx, knh_Array_t *a, size_t n)
+//{
+//	DBG_ASSERT(n < a->size);
+//	size_t i;
+//	Object *removed = a->list[n];
+//	for(i = n; i < a->size - 1; i++) {
+//		a->list[i] = a->list[i+1];
+//	}
+//	a->size--;
+//	a->list[a->size] = removed;
+//}
 
 ///* ------------------------------------------------------------------------ */
 ////## method void Array.insert(Int n, T1! value);
@@ -654,7 +644,6 @@ static METHOD Array_add(Ctx *ctx, knh_sfp_t *sfp, long rix)
 //	}
 //	RETURNvoid_();
 //}
-
 
 /* ------------------------------------------------------------------------ */
 

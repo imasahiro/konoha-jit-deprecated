@@ -1538,8 +1538,8 @@ static knh_Term_t* knh_StmtLIKELY_typing(Ctx *ctx, knh_Stmt_t *stmt)
 	return NULL;
 }
 
-static knh_Term_t* knh_StmtDOMAIN_typing(Ctx *ctx, knh_Stmt_t *stmt)
-{
+//static knh_Term_t* knh_StmtDOMAIN_typing(Ctx *ctx, knh_Stmt_t *stmt)
+//{
 //	if(TERMs_typing(ctx, stmt, 2, CLASS_Any, TCHECK_)) {
 //		knh_class_t cid;
 //		if(TERMs_isCID(stmt, 2)) {
@@ -1554,9 +1554,9 @@ static knh_Term_t* knh_StmtDOMAIN_typing(Ctx *ctx, knh_Stmt_t *stmt)
 //		knh_Token_toMTD(ctx, DP(stmt)->tokens[0], MN_domain, knh_getMethodNULL(ctx, CLASS_Class, MN_domain));
 //		return knh_Stmt_typed(ctx, stmt, TYPE_cid(knh_class_Generics(ctx, CLASS_Array, cid, CLASS_Any)));
 //	}
-	TODO();
-	return NULL;
-}
+//	TODO();
+//	return NULL;
+//}
 
 static knh_Term_t* knh_StmtDEFINED_typing(Ctx *ctx, knh_Stmt_t *stmt)
 {
@@ -1749,7 +1749,7 @@ static knh_Term_t *knh_StmtCALL_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_class_t r
 				case MN_likely:
 				case MN_unlikely: return knh_StmtLIKELY_typing(ctx, stmt);
 //				case MN_format:  return knh_StmtFFORMAT_typing(ctx, stmt);
-				case MN_domain:  return knh_StmtDOMAIN_typing(ctx, stmt);
+//				case MN_domain:  return knh_StmtDOMAIN_typing(ctx, stmt);
 				case MN_defined: return knh_StmtDEFINED_typing(ctx, stmt);
 				case MN_this:
 				case MN_super: return knh_StmtTHIS_typing(ctx, stmt, mn);
