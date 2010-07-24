@@ -173,7 +173,6 @@ Object *knh_getClassDefaultValue(Ctx *ctx, knh_class_t cid);
 knh_index_t knh_Class_indexOfField(Ctx *ctx, knh_class_t cid, knh_fieldn_t fn);
 knh_index_t knh_Class_queryField(Ctx *ctx, knh_class_t cid, knh_fieldn_t fnq);
 knh_fields_t *knh_Class_fieldAt(Ctx *ctx, knh_class_t cid, size_t n);
-int knh_ClassMap_util_cmp(const knh_Translator_t *m1, const knh_Translator_t *m2);
 knh_bool_t knh_class_instanceof(Ctx *ctx, knh_class_t scid, knh_class_t tcid);
 int knh_class_isGenerics(Ctx *ctx, knh_class_t cid);
 knh_class_t knh_class_p(Ctx *ctx, knh_class_t cid, size_t n);

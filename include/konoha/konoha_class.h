@@ -41,12 +41,12 @@ extern "C" {
 /* flag */
 /* ------------------------------------------------------------------------ */
 //## @Cyclic class Object Object knh_ObjectField_t;
-//## flag Object Release!Debug 0 (%s)->h.flag is *  is *;
-//## flag Object Immutable     1 (%s)->h.flag is *  is *;
+//## flag Object Release!Debug 0 (%s)->h.flag is *  * *;
+//## flag Object Immutable     1 (%s)->h.flag is *  * *;
 //## flag Object NullObject    2 (%s)->h.flag is set * *;
 //## flag Object Cyclic        3 (%s)->h.flag is set * *;
-//## flag Object Modified      4 (%s)->h.flag is set is set;
-//## flag Object Shared        5 (%s)->h.flag is set is set;
+//## flag Object Modified      4 (%s)->h.flag is set *  *;
+//## flag Object Shared        5 (%s)->h.flag is set *  *;
 //## flag Object Local1       12 (%s)->h.flag is set *  *;
 //## flag Object Local2       13 (%s)->h.flag is set *  *;
 //## flag Object Local3       14 (%s)->h.flag is set *  *;
@@ -400,15 +400,15 @@ typedef void (*knh_Fdictset)(Ctx *, knh_DictCaseSet_t*, knh_String_t *k, knh_uin
 
 /* ------------------------------------------------------------------------ */
 //## @Immutable class Class Object;
-//## flag Class Release!Debug  0 (pClassTBL(ctx,%s))->cflag is * is *;
-//## flag Class Immutable      1 (pClassTBL(ctx,%s))->cflag is * is *;
+//## flag Class Release!Debug  0 (pClassTBL(ctx,%s))->cflag is * * *;
+//## flag Class Immutable      1 (pClassTBL(ctx,%s))->cflag is * * *;
 //## flag Class Cyclic         2 (pClassTBL(ctx,%s))->cflag is set * *;
-//## flag Class MetaClass      3 (pClassTBL(ctx,%s))->cflag is * is *;
-//## flag Class Private!Public 4 (pClassTBL(ctx,%s))->cflag is * is *;
-//## flag Class Final          5 (pClassTBL(ctx,%s))->cflag  is * is *;
-//## flag Class Singleton      6 (pClassTBL(ctx,%s))->cflag  is * is *;
-//## flag Class Unique         7 (pClassTBL(ctx,%s))->cflag  is * is *;
-//## flag Class Interface      8 (pClassTBL(ctx,%s))->cflag  is * is *;
+//## flag Class MetaClass      3 (pClassTBL(ctx,%s))->cflag is * * *;
+//## flag Class Private!Public 4 (pClassTBL(ctx,%s))->cflag is * * *;
+//## flag Class Final          5 (pClassTBL(ctx,%s))->cflag  is * * *;
+//## flag Class Singleton      6 (pClassTBL(ctx,%s))->cflag  is * * *;
+//## flag Class Unique         7 (pClassTBL(ctx,%s))->cflag  is * * *;
+//## flag Class Interface      8 (pClassTBL(ctx,%s))->cflag  is * * *;
 //## flag Class TypeVariable   9 (pClassTBL(ctx,%s))->cflag  is set * *;
 
 #define FLAG_Field_Hidden          (knh_flag_t)(1<<0)
@@ -469,11 +469,11 @@ typedef struct knh_ParamArray_t {
 
 /* ------------------------------------------------------------------------ */
 //## @Struct class Method Object;
-//## flag Method Private!Public  0 DP(%s)->flag is set is *;
-//## flag Method Virtual!Final   1 DP(%s)->flag is set is *;
+//## flag Method Private!Public  0 DP(%s)->flag is set * *;
+//## flag Method Virtual!Final   1 DP(%s)->flag is set * *;
 //## flag Method Debug           2 DP(%s)->flag is set * *;
-//## flag Method Const           3 DP(%s)->flag is * is *;
-//## flag Method Static          4 DP(%s)->flag is * is *;
+//## flag Method Const           3 DP(%s)->flag is * * *;
+//## flag Method Static          4 DP(%s)->flag is * * *;
 //## flag Method ObjectCode      5 DP(%s)->flag is set * *;
 //## flag Method Hidden          6 DP(%s)->flag is set * *;
 //## flag Method Dynamic         7 DP(%s)->flag is set * *;
@@ -529,13 +529,13 @@ typedef struct knh_Method_t {
 
 /* ------------------------------------------------------------------------ */
 //## @Struct class Translator Object;
-//## flag Translator Interface        0 DP(%s)->flag is set is *;
-//## flag Translator Significant      1 DP(%s)->flag is set is *;
-//## flag Translator Semantic         2 DP(%s)->flag is * is *;
-//## flag Translator Total!Partial    3 DP(%s)->flag is set is *;
-//## flag Translator LossLess         4 DP(%s)->flag is set is *;
-//## flag Translator Final            6 DP(%s)->flag is set is *;
-//## flag Translator Const!Temporal   7 DP(%s)->flag is set is *;
+//## flag Translator Interface        0 DP(%s)->flag is set * *;
+//## flag Translator Significant      1 DP(%s)->flag is set * *;
+//## flag Translator Semantic         2 DP(%s)->flag is * * *;
+//## flag Translator Total!Partial    3 DP(%s)->flag is set * *;
+//## flag Translator LossLess         4 DP(%s)->flag is set * *;
+//## flag Translator Final            6 DP(%s)->flag is set * *;
+//## flag Translator Const!Temporal   7 DP(%s)->flag is set * *;
 //## flag Translator MapMap           8 DP(%s)->flag is set * *;
 
 typedef struct {
@@ -586,7 +586,7 @@ typedef struct knh_Thunk_t {
 
 /* ------------------------------------------------------------------------ */
 //## @Struct class Exception Object;
-//## flag Exception Logging 0 DP(%s)->flag is * is *;
+//## flag Exception Logging 0 DP(%s)->flag is * * *;
 //## flag Exception Caught  1 DP(%s)->flag is set * *;
 
 //## expt Exception!! -;
@@ -810,7 +810,7 @@ typedef struct knh_InputStream_t {
 //## @Struct class OutputStream Object;
 //## flag OutputStream BOL            1 - is set * *;
 //## flag OutputStream AutoFlush      2 - is set is set;
-//## flag OutputStream StoringBuffer  3 - is set is set;
+//## flag OutputStream StoringBuffer  3 - is set * *;
 
 typedef struct {
 	knh_io_t fd;
@@ -1011,10 +1011,10 @@ typedef struct knh_System_t {
 
 /* ------------------------------------------------------------------------ */
 //## class Context Object;
-//## flag Context Strict       0 ((knh_Context_t*)%s)->flag is set is set;
+//## flag Context Strict       0 ((knh_Context_t*)%s)->flag is set * *;
 //## flag Context Debug        1 ((knh_Context_t*)%s)->flag is set is set;
 //## flag Context Verbose      2 ((knh_Context_t*)%s)->flag is set is set;
-//## flag Context Interactive  3 ((knh_Context_t*)%s)->flag is set is *;
+//## flag Context Interactive  3 ((knh_Context_t*)%s)->flag is set * *;
 //## flag Context Compiling    4 ((knh_Context_t*)%s)->flag is set * *;
 
 

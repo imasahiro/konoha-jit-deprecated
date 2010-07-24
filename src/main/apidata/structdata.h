@@ -3,176 +3,9 @@
 /* ======================================================================== */
 /* flag */
 
-static METHOD Object_isRelease(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURNb_(knh_Object_isRelease((knh_Object_t*)sfp[0].o));
-}
-
-static METHOD Object_isDebug(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURNb_(!(knh_Object_isRelease((knh_Object_t*)sfp[0].o)));
-}
-
-static METHOD Object_isImmutable(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURNb_(knh_Object_isImmutable((knh_Object_t*)sfp[0].o));
-}
-
-static METHOD Object_isModified(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURNb_(knh_Object_isModified((knh_Object_t*)sfp[0].o));
-}
-
-static METHOD Object_setModified(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	knh_Object_setModified((knh_Object_t*)sfp[0].o, sfp[1].bvalue);
-	RETURNb_(sfp[1].bvalue);
-}
-
-static METHOD Object_isShared(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURNb_(knh_Object_isShared((knh_Object_t*)sfp[0].o));
-}
-
-static METHOD Object_setShared(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	knh_Object_setShared((knh_Object_t*)sfp[0].o, sfp[1].bvalue);
-	RETURNb_(sfp[1].bvalue);
-}
-
 static METHOD String_isASCII(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
 	RETURNb_(knh_String_isASCII((knh_String_t*)sfp[0].o));
-}
-
-static METHOD Class_isRelease(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURNb_(knh_class_isRelease(knh_Class_cid(sfp[0].c)));
-}
-
-static METHOD Class_isDebug(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURNb_(!(knh_class_isRelease(knh_Class_cid(sfp[0].c))));
-}
-
-static METHOD Class_isImmutable(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURNb_(knh_class_isImmutable(knh_Class_cid(sfp[0].c)));
-}
-
-static METHOD Class_isMetaClass(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURNb_(knh_class_isMetaClass(knh_Class_cid(sfp[0].c)));
-}
-
-static METHOD Class_isPrivate(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURNb_(knh_class_isPrivate(knh_Class_cid(sfp[0].c)));
-}
-
-static METHOD Class_isPublic(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURNb_(!(knh_class_isPrivate(knh_Class_cid(sfp[0].c))));
-}
-
-static METHOD Class_isFinal(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURNb_(knh_class_isFinal(knh_Class_cid(sfp[0].c)));
-}
-
-static METHOD Class_isSingleton(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURNb_(knh_class_isSingleton(knh_Class_cid(sfp[0].c)));
-}
-
-static METHOD Class_isUnique(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURNb_(knh_class_isUnique(knh_Class_cid(sfp[0].c)));
-}
-
-static METHOD Class_isInterface(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURNb_(knh_class_isInterface(knh_Class_cid(sfp[0].c)));
-}
-
-static METHOD Method_isPrivate(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURNb_(knh_Method_isPrivate((knh_Method_t*)sfp[0].o));
-}
-
-static METHOD Method_isPublic(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURNb_(!(knh_Method_isPrivate((knh_Method_t*)sfp[0].o)));
-}
-
-static METHOD Method_isVirtual(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURNb_(knh_Method_isVirtual((knh_Method_t*)sfp[0].o));
-}
-
-static METHOD Method_isFinal(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURNb_(!(knh_Method_isVirtual((knh_Method_t*)sfp[0].o)));
-}
-
-static METHOD Method_isConst(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURNb_(knh_Method_isConst((knh_Method_t*)sfp[0].o));
-}
-
-static METHOD Method_isStatic(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURNb_(knh_Method_isStatic((knh_Method_t*)sfp[0].o));
-}
-
-static METHOD Translator_isInterface(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURNb_(knh_Translator_isInterface((knh_Translator_t*)sfp[0].o));
-}
-
-static METHOD Translator_isSignificant(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURNb_(knh_Translator_isSignificant((knh_Translator_t*)sfp[0].o));
-}
-
-static METHOD Translator_isSemantic(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURNb_(knh_Translator_isSemantic((knh_Translator_t*)sfp[0].o));
-}
-
-static METHOD Translator_isTotal(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURNb_(knh_Translator_isTotal((knh_Translator_t*)sfp[0].o));
-}
-
-static METHOD Translator_isPartial(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURNb_(!(knh_Translator_isTotal((knh_Translator_t*)sfp[0].o)));
-}
-
-static METHOD Translator_isLossLess(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURNb_(knh_Translator_isLossLess((knh_Translator_t*)sfp[0].o));
-}
-
-static METHOD Translator_isFinal(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURNb_(knh_Translator_isFinal((knh_Translator_t*)sfp[0].o));
-}
-
-static METHOD Translator_isConst(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURNb_(knh_Translator_isConst((knh_Translator_t*)sfp[0].o));
-}
-
-static METHOD Translator_isTemporal(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURNb_(!(knh_Translator_isConst((knh_Translator_t*)sfp[0].o)));
-}
-
-static METHOD Exception_isLogging(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURNb_(knh_Exception_isLogging((knh_Exception_t*)sfp[0].o));
 }
 
 static METHOD OutputStream_isAutoFlush(Ctx *ctx, knh_sfp_t *sfp, long rix)
@@ -183,28 +16,6 @@ static METHOD OutputStream_isAutoFlush(Ctx *ctx, knh_sfp_t *sfp, long rix)
 static METHOD OutputStream_setAutoFlush(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
 	knh_OutputStream_setAutoFlush((knh_OutputStream_t*)sfp[0].o, sfp[1].bvalue);
-	RETURNb_(sfp[1].bvalue);
-}
-
-static METHOD OutputStream_isStoringBuffer(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURNb_(knh_OutputStream_isStoringBuffer((knh_OutputStream_t*)sfp[0].o));
-}
-
-static METHOD OutputStream_setStoringBuffer(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	knh_OutputStream_setStoringBuffer((knh_OutputStream_t*)sfp[0].o, sfp[1].bvalue);
-	RETURNb_(sfp[1].bvalue);
-}
-
-static METHOD Context_isStrict(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURNb_(knh_Context_isStrict((knh_Context_t*)sfp[0].o));
-}
-
-static METHOD Context_setStrict(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	knh_Context_setStrict((knh_Context_t*)sfp[0].o, sfp[1].bvalue);
 	RETURNb_(sfp[1].bvalue);
 }
 
@@ -228,11 +39,6 @@ static METHOD Context_setVerbose(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
 	knh_Context_setVerbose((knh_Context_t*)sfp[0].o, sfp[1].bvalue);
 	RETURNb_(sfp[1].bvalue);
-}
-
-static METHOD Context_isInteractive(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURNb_(knh_Context_isInteractive((knh_Context_t*)sfp[0].o));
 }
 
 /* ======================================================================== */
@@ -314,7 +120,7 @@ static knh_data_t StructData0[] = {
 };
 
 static knh_data_t ClassData0[] = {
-	DATA_CLASS, _DATA("konoha.Object"), FLAG_Object, CLASS_ObjectField, CLASS_Object, 25 + 6 /*1*/,
+	DATA_CLASS, _DATA("konoha.Object"), FLAG_Object, CLASS_ObjectField, CLASS_Object, 18 + 6 /*1*/,
 	DATA_CLASS, _DATA("konoha.Boolean"), FLAG_Boolean, CLASS_Boolean, CLASS_Object, 1 + 1 /*0*/,
 	DATA_CLASS, _DATA("konoha.Number"), FLAG_Number, CLASS_Number, CLASS_Object, 0 + 0 /*0*/,
 	DATA_CLASS, _DATA("konoha.Int"), FLAG_Int, CLASS_Int, CLASS_Number, 21 + 8 /*1*/,
@@ -327,13 +133,13 @@ static knh_data_t ClassData0[] = {
 	DATA_CLASS, _DATA("konoha.Range"), FLAG_Range, CLASS_Range, CLASS_Object, 5 + 1 /*1*/,
 	DATA_CLASS, _DATA("konoha.Array"), FLAG_Array, CLASS_Array, CLASS_Object, 15 + 2 /*1*/,
 	DATA_CLASS, _DATA("konoha.Map"), FLAG_Map, CLASS_Map, CLASS_Object, 8 + 2 /*2*/,
-	DATA_CLASS, _DATA("konoha.Class"), FLAG_Class, CLASS_Class, CLASS_Object, 11 + 3 /*0*/,
+	DATA_CLASS, _DATA("konoha.Class"), FLAG_Class, CLASS_Class, CLASS_Object, 1 + 3 /*0*/,
 	DATA_CLASS, _DATA("konoha.ParamArray"), FLAG_ParamArray, CLASS_ParamArray, CLASS_Object, 0 + 0 /*0*/,
-	DATA_CLASS, _DATA("konoha.Method"), FLAG_Method, CLASS_Method, CLASS_Object, 8 + 3 /*0*/,
-	DATA_CLASS, _DATA("konoha.Translator"), FLAG_Translator, CLASS_Translator, CLASS_Object, 9 + 1 /*0*/,
+	DATA_CLASS, _DATA("konoha.Method"), FLAG_Method, CLASS_Method, CLASS_Object, 2 + 3 /*0*/,
+	DATA_CLASS, _DATA("konoha.Translator"), FLAG_Translator, CLASS_Translator, CLASS_Object, 0 + 1 /*0*/,
 	DATA_CLASS, _DATA("konoha.Func"), FLAG_Func, CLASS_Func, CLASS_Object, 2 + 1 /*0*/,
 	DATA_CLASS, _DATA("konoha.Thunk"), FLAG_Thunk, CLASS_Thunk, CLASS_Object, 0 + 0 /*0*/,
-	DATA_CLASS, _DATA("konoha.Exception"), FLAG_Exception, CLASS_Exception, CLASS_Object, 3 + 4 /*0*/,
+	DATA_CLASS, _DATA("konoha.Exception"), FLAG_Exception, CLASS_Exception, CLASS_Object, 2 + 4 /*0*/,
 	DATA_CLASS, _DATA("konoha.ExceptionHandler"), FLAG_ExceptionHandler, CLASS_ExceptionHandler, CLASS_Object, 0 + 0 /*0*/,
 	DATA_CLASS, _DATA("konoha.Regex"), FLAG_Regex, CLASS_Regex, CLASS_Object, 2 + 1 /*0*/,
 	DATA_CLASS, _DATA("konoha.Converter"), FLAG_Converter, CLASS_Converter, CLASS_Object, 0 + 0 /*0*/,
@@ -342,7 +148,7 @@ static knh_data_t ClassData0[] = {
 	DATA_CLASS, _DATA("konoha.StringConverter"), FLAG_StringConverter, CLASS_StringConverter, CLASS_Object, 0 + 0 /*0*/,
 	DATA_CLASS, _DATA("konoha.Semantics"), FLAG_Semantics, CLASS_Semantics, CLASS_Object, 0 + 0 /*0*/,
 	DATA_CLASS, _DATA("konoha.InputStream"), FLAG_InputStream, CLASS_InputStream, CLASS_Object, 7 + 1 /*1*/,
-	DATA_CLASS, _DATA("konoha.OutputStream"), FLAG_OutputStream, CLASS_OutputStream, CLASS_Object, 16 + 1 /*0*/,
+	DATA_CLASS, _DATA("konoha.OutputStream"), FLAG_OutputStream, CLASS_OutputStream, CLASS_Object, 14 + 1 /*0*/,
 	DATA_CLASS, _DATA("konoha.Channel"), FLAG_Channel, CLASS_Channel, CLASS_Object, 0 + 0 /*0*/,
 	DATA_CLASS, _DATA("konoha.Connection"), FLAG_Connection, CLASS_Connection, CLASS_Object, 4 + 0 /*0*/,
 	DATA_CLASS, _DATA("konoha.ResultSet"), FLAG_ResultSet, CLASS_ResultSet, CLASS_Object, 8 + 0 /*0*/,
@@ -350,7 +156,7 @@ static knh_data_t ClassData0[] = {
 	DATA_CLASS, _DATA("konoha.NameSpace"), FLAG_NameSpace, CLASS_NameSpace, CLASS_Object, 1 + 0 /*0*/,
 	DATA_CLASS, _DATA("konoha.Package"), FLAG_Package, CLASS_Package, CLASS_Object, 0 + 0 /*0*/,
 	DATA_CLASS, _DATA("konoha.System"), FLAG_System, CLASS_System, CLASS_Object, 11 + 0 /*0*/,
-	DATA_CLASS, _DATA("konoha.Context"), FLAG_Context, CLASS_Context, CLASS_Object, 10 + 0 /*0*/,
+	DATA_CLASS, _DATA("konoha.Context"), FLAG_Context, CLASS_Context, CLASS_Object, 7 + 0 /*0*/,
 	DATA_CLASS, _DATA("konoha.Term"), FLAG_Term, CLASS_Term, CLASS_Object, 0 + 0 /*0*/,
 	DATA_CLASS, _DATA("konoha.Token"), FLAG_Token, CLASS_Token, CLASS_Term, 0 + 0 /*0*/,
 	DATA_CLASS, _DATA("konoha.Stmt"), FLAG_Stmt, CLASS_Stmt, CLASS_Term, 0 + 0 /*0*/,
@@ -420,7 +226,6 @@ static knh_FieldNameData0_t FieldNameData0[] = {
 	{"exec", FN_exec},
 	{"exit", FN_exit},
 	{"f", FN_f},
-	{"final", FN_final},
 	{"flag", FN_flag},
 	{"float", FN_float},
 	{"floatToIntBits", FN_floatToIntBits},
@@ -429,14 +234,11 @@ static knh_FieldNameData0_t FieldNameData0[] = {
 	{"format", FN_format},
 	{"gc", FN_gc},
 	{"hashCode", FN_hashCode},
-	{"immutable", FN_immutable},
 	{"in", FN_in},
 	{"indexOf", FN_indexOf},
 	{"init", FN_init},
 	{"initCapacity", FN_initCapacity},
 	{"int", FN_int},
-	{"interactive", FN_interactive},
-	{"interface", FN_interface},
 	{"intToFloatBits", FN_intToFloatBits},
 	{"invoke", FN_invoke},
 	{"it", FN_it},
@@ -446,14 +248,10 @@ static knh_FieldNameData0_t FieldNameData0[] = {
 	{"length", FN_length},
 	{"likely", FN_likely},
 	{"listProperties", FN_listProperties},
-	{"logging", FN_logging},
-	{"lossLess", FN_lossLess},
 	{"main", FN_main},
 	{"man", FN_man},
-	{"metaClass", FN_metaClass},
 	{"method", FN_method},
 	{"mode", FN_mode},
-	{"modified", FN_modified},
 	{"msg", FN_msg},
 	{"n", FN_n},
 	{"name", FN_name},
@@ -471,14 +269,11 @@ static knh_FieldNameData0_t FieldNameData0[] = {
 	{"option", FN_option},
 	{"out", FN_out},
 	{"p", FN_p},
-	{"partial", FN_partial},
 	{"path", FN_path},
 	{"pattern", FN_pattern},
 	{"print", FN_print},
 	{"println", FN_println},
-	{"private", FN_private},
 	{"property", FN_property},
-	{"public", FN_public},
 	{"push", FN_push},
 	{"putc", FN_putc},
 	{"qualifier", FN_qualifier},
@@ -488,40 +283,28 @@ static knh_FieldNameData0_t FieldNameData0[] = {
 	{"re", FN_re},
 	{"read", FN_read},
 	{"readLine", FN_readLine},
-	{"release", FN_release},
 	{"remove", FN_remove},
 	{"replace", FN_replace},
 	{"s", FN_s},
 	{"seed", FN_seed},
-	{"semantic", FN_semantic},
-	{"shared", FN_shared},
-	{"significant", FN_significant},
-	{"singleton", FN_singleton},
 	{"size", FN_size},
 	{"split", FN_split},
 	{"start", FN_start},
 	{"startsWith", FN_startsWith},
-	{"static", FN_static},
 	{"status", FN_status},
-	{"storingBuffer", FN_storingBuffer},
-	{"strict", FN_strict},
 	{"string", FN_string},
 	{"substring", FN_substring},
 	{"super", FN_super},
-	{"temporal", FN_temporal},
 	{"this", FN_this},
 	{"time", FN_time},
-	{"total", FN_total},
 	{"trim", FN_trim},
 	{"u", FN_u},
-	{"unique", FN_unique},
 	{"unlikely", FN_unlikely},
 	{"urn", FN_urn},
 	{"v", FN_v},
 	{"value", FN_value},
 	{"vargs", FN_vargs},
 	{"verbose", FN_verbose},
-	{"virtual", FN_virtual},
 	{"write", FN_write},
 	{"writeChar", FN_writeChar},
 	{"writeData", FN_writeData},
@@ -868,51 +651,13 @@ static knh_data_t APIData0[] = {
 	DATA_METHOD0, CLASS_Exception, MN_opOF, 0, _DATA(Exception_opOF), /*P=*/93,
 	DATA_METHOD0, CLASS_NameSpace, MN_setConst, FLAG_Method_Const|FLAG_Method_Hidden, _DATA(NameSpace_setConst), /*P=*/94,
 	DATA_METHOD0, CLASS_Class, MN_setConst, FLAG_Method_Const|FLAG_Method_Hidden, _DATA(Class_setConst), /*P=*/94,
-	DATA_METHOD0, CLASS_Object, MN_isRelease, 0, _DATA(Object_isRelease), /*P=*/11,
-	DATA_METHOD0, CLASS_Object, MN_isDebug, 0, _DATA(Object_isDebug), /*P=*/11,
-	DATA_METHOD0, CLASS_Object, MN_isImmutable, 0, _DATA(Object_isImmutable), /*P=*/11,
-	DATA_METHOD0, CLASS_Object, MN_isModified, 0, _DATA(Object_isModified), /*P=*/11,
-	DATA_METHOD0, CLASS_Object, MN_setModified, 0, _DATA(Object_setModified), /*P=*/95,
-	DATA_METHOD0, CLASS_Object, MN_isShared, 0, _DATA(Object_isShared), /*P=*/11,
-	DATA_METHOD0, CLASS_Object, MN_setShared, 0, _DATA(Object_setShared), /*P=*/95,
 	DATA_METHOD0, CLASS_String, MN_isASCII, 0, _DATA(String_isASCII), /*P=*/11,
-	DATA_METHOD0, CLASS_Class, MN_isRelease, 0, _DATA(Class_isRelease), /*P=*/11,
-	DATA_METHOD0, CLASS_Class, MN_isDebug, 0, _DATA(Class_isDebug), /*P=*/11,
-	DATA_METHOD0, CLASS_Class, MN_isImmutable, 0, _DATA(Class_isImmutable), /*P=*/11,
-	DATA_METHOD0, CLASS_Class, MN_isMetaClass, 0, _DATA(Class_isMetaClass), /*P=*/11,
-	DATA_METHOD0, CLASS_Class, MN_isPrivate, 0, _DATA(Class_isPrivate), /*P=*/11,
-	DATA_METHOD0, CLASS_Class, MN_isPublic, 0, _DATA(Class_isPublic), /*P=*/11,
-	DATA_METHOD0, CLASS_Class, MN_isFinal, 0, _DATA(Class_isFinal), /*P=*/11,
-	DATA_METHOD0, CLASS_Class, MN_isSingleton, 0, _DATA(Class_isSingleton), /*P=*/11,
-	DATA_METHOD0, CLASS_Class, MN_isUnique, 0, _DATA(Class_isUnique), /*P=*/11,
-	DATA_METHOD0, CLASS_Class, MN_isInterface, 0, _DATA(Class_isInterface), /*P=*/11,
-	DATA_METHOD0, CLASS_Method, MN_isPrivate, 0, _DATA(Method_isPrivate), /*P=*/11,
-	DATA_METHOD0, CLASS_Method, MN_isPublic, 0, _DATA(Method_isPublic), /*P=*/11,
-	DATA_METHOD0, CLASS_Method, MN_isVirtual, 0, _DATA(Method_isVirtual), /*P=*/11,
-	DATA_METHOD0, CLASS_Method, MN_isFinal, 0, _DATA(Method_isFinal), /*P=*/11,
-	DATA_METHOD0, CLASS_Method, MN_isConst, 0, _DATA(Method_isConst), /*P=*/11,
-	DATA_METHOD0, CLASS_Method, MN_isStatic, 0, _DATA(Method_isStatic), /*P=*/11,
-	DATA_METHOD0, CLASS_Translator, MN_isInterface, 0, _DATA(Translator_isInterface), /*P=*/11,
-	DATA_METHOD0, CLASS_Translator, MN_isSignificant, 0, _DATA(Translator_isSignificant), /*P=*/11,
-	DATA_METHOD0, CLASS_Translator, MN_isSemantic, 0, _DATA(Translator_isSemantic), /*P=*/11,
-	DATA_METHOD0, CLASS_Translator, MN_isTotal, 0, _DATA(Translator_isTotal), /*P=*/11,
-	DATA_METHOD0, CLASS_Translator, MN_isPartial, 0, _DATA(Translator_isPartial), /*P=*/11,
-	DATA_METHOD0, CLASS_Translator, MN_isLossLess, 0, _DATA(Translator_isLossLess), /*P=*/11,
-	DATA_METHOD0, CLASS_Translator, MN_isFinal, 0, _DATA(Translator_isFinal), /*P=*/11,
-	DATA_METHOD0, CLASS_Translator, MN_isConst, 0, _DATA(Translator_isConst), /*P=*/11,
-	DATA_METHOD0, CLASS_Translator, MN_isTemporal, 0, _DATA(Translator_isTemporal), /*P=*/11,
-	DATA_METHOD0, CLASS_Exception, MN_isLogging, 0, _DATA(Exception_isLogging), /*P=*/11,
 	DATA_METHOD0, CLASS_OutputStream, MN_isAutoFlush, 0, _DATA(OutputStream_isAutoFlush), /*P=*/11,
 	DATA_METHOD0, CLASS_OutputStream, MN_setAutoFlush, 0, _DATA(OutputStream_setAutoFlush), /*P=*/95,
-	DATA_METHOD0, CLASS_OutputStream, MN_isStoringBuffer, 0, _DATA(OutputStream_isStoringBuffer), /*P=*/11,
-	DATA_METHOD0, CLASS_OutputStream, MN_setStoringBuffer, 0, _DATA(OutputStream_setStoringBuffer), /*P=*/95,
-	DATA_METHOD0, CLASS_Context, MN_isStrict, 0, _DATA(Context_isStrict), /*P=*/11,
-	DATA_METHOD0, CLASS_Context, MN_setStrict, 0, _DATA(Context_setStrict), /*P=*/95,
 	DATA_METHOD0, CLASS_Context, MN_isDebug, 0, _DATA(Context_isDebug), /*P=*/11,
 	DATA_METHOD0, CLASS_Context, MN_setDebug, 0, _DATA(Context_setDebug), /*P=*/95,
 	DATA_METHOD0, CLASS_Context, MN_isVerbose, 0, _DATA(Context_isVerbose), /*P=*/11,
 	DATA_METHOD0, CLASS_Context, MN_setVerbose, 0, _DATA(Context_setVerbose), /*P=*/95,
-	DATA_METHOD0, CLASS_Context, MN_isInteractive, 0, _DATA(Context_isInteractive), /*P=*/11,
 	DATA_TCAST, CLASS_String, CLASS_Iterator, FLAG_Translator_Total, _DATA(String_Iterator),
 	DATA_TCAST, CLASS_String, CLASS_StringITR, FLAG_Translator_Total, _DATA(String_Iterator),
 	DATA_TCAST, CLASS_Range, CLASS_Iterator, FLAG_Translator_Total, _DATA(Range_Iterator),
