@@ -899,12 +899,16 @@ static knh_bool_t test_readstmt(Ctx *ctx, void *status, knh_cwb_t *cwb, const kn
 		/* now, we parse per unit */
 		if (IS_T(line_ptr, '#')) {
 			if (isUnitStarted) {
+				if (ku->stmtsize != 0) {
 				// next unit test. we need to rewind fp;
-				// TODO: rewind for a line;
-				long len = (long)knh_strlen(line);
-				fseek(kt->in, -(len + 1), SEEK_CUR);
-				kt->lineno -= 1;
-				break;
+					// TODO: alternate fseek for windows implementation
+					long len = (long)knh_strlen(line);
+					fseek(kt->in, -(len + 1), SEEK_CUR);
+					kt->lineno -= 1;
+					break;
+				} else {
+					// empty unit. ignore this.
+				}
 			}
 			line_ptr += 4;
 			size_t title_len = knh_strlen(line_ptr);
@@ -930,7 +934,7 @@ static knh_bool_t test_readstmt(Ctx *ctx, void *status, knh_cwb_t *cwb, const kn
 		if (IS_T(line_ptr, '>')) {
 			line_ptr += 4;
 			if (ku == NULL) continue; // invalid test stmt
-			kt_truncate_line(line_ptr);
+//			kt_truncate_line(line_ptr);
 			if (ku->stmtsize == 0) {
 				ku->shead = new_kt_stmt(ctx, line_ptr);
 				ks = ku->shead;
@@ -965,7 +969,7 @@ static knh_bool_t test_readstmt(Ctx *ctx, void *status, knh_cwb_t *cwb, const kn
 			if (!isStmtContinue) continue; // invalid stmt.
 			if (ku == NULL) continue; //invalid stmt.
 			if (ks == NULL) continue; // invalid stmt
-			kt_truncate_line(line_ptr);
+//			kt_truncate_line(line_ptr);
 			add_kt_stmt_body(ctx, ks, line_ptr + 4);
 			int check;
 			if ((check = api->checkstmt(ks->testBody)) == 0) {
@@ -1177,8 +1181,19 @@ static void test_cleanup(Ctx *ctx, void *status)
 		size_t i, j;
 		/* traverse test result, and sum up */
 		size_t unit_passed = 0, isAllPassed = 1, line = 0;
-		size_t total_stmts = 0;
+		size_t total_stmts = 0, ignore_units = 0; /* for TODOs, and Empties */
 		for (i = 1; i <= kt->unitsize; i++) {
+			if (ku->stmtsize ==0) {
+				clean_ku = ku;
+				ignore_units++;
+				if (i < kt->unitsize) {
+					ku = ku->next;
+					ks = ku->shead;
+				}
+				KNH_FREE(ctx, clean_ku->testTitle.ubuf, clean_ku->testTitle.len + 1);
+				KNH_FREE(ctx, clean_ku, sizeof(kt_unit_t));
+				continue;
+			}// ignore
 			total_stmts += ku->stmtsize;
 			for (j = 1; j <= ku->stmtsize; j++) {
 				if (ks->isPassed == 0 /*failed*/) {
@@ -1212,7 +1227,7 @@ static void test_cleanup(Ctx *ctx, void *status)
 		}
 		if(isTestVerbose) {
 			fprintf(kt->out, "%s: %d of %d units, %d of %d tests have been passed\n",
-					kt->filename.text, (int)unit_passed, (int)kt->unitsize,
+					kt->filename.text, (int)unit_passed, (int)(kt->unitsize - ignore_units),
 					(int)kt->sumOfPassed, (int)(kt->sumOfPassed + kt->sumOfFailed));
 		}
 		knh_statUnitTest(ctx, kt->sumOfPassed, kt->sumOfFailed);
