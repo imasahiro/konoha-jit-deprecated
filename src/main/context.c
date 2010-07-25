@@ -432,10 +432,8 @@ static void knh_ObjectArenaSet_free(Ctx *ctx, knh_ArenaSet_t *t)
 	}
 }
 
-
 void knh_Object_finalSweep(Ctx *ctx, Object *o)
 {
-
 }
 
 static void knh_share_free(Ctx *ctx, knh_share_t *share)

@@ -837,7 +837,7 @@ knh_bool_t knh_load(Ctx *ctx, knh_bytes_t path, knh_type_t reqt, knh_Array_t *re
 	knh_Bytes_clear(ba, 0);
 	if(!knh_InputStream_isClosed(ctx, in)) {
 		int ch;
-		int isBLOCK = 0, prev = 0;
+		int isBLOCK = 0, isSKIP = 0, prev = 0;
 		linenum = DP(in)->line;
 		while((ch = knh_InputStream_getc(ctx, in)) != EOF) {
 			if(ch == '\r') continue;
@@ -857,14 +857,17 @@ knh_bool_t knh_load(Ctx *ctx, knh_bytes_t path, knh_type_t reqt, knh_Array_t *re
 				knh_Bytes_addQUOTE(ctx, ba, in, ch);
 				continue;
 			}
+			if(ch == '#' && prev == '#') isSKIP = 1;
+			if(isSKIP == 1 && ch == '\n') {
+				isSKIP = 0; prev = 0; continue;
+			}
 			if(ch == '\n') {
 				if(prev == '{' || prev == '[') {
 					isBLOCK = 1;
 				}
 				if(prev == '\\') continue;
 				if(!isBLOCK) goto L_PARSE;
-				prev = 0;
-				continue;
+				prev = 0; continue;
 			}
 			if(prev != 0 && (ch == ' ' || ch == '\t')) continue;
 			prev = ch;
