@@ -1,6 +1,6 @@
 // Mini UnitTest for Int Method
 // Author: Kimio Kuramitsu <kimio at sourceforge.jp>
-// ADD Your name here
+// add tests by: Masakazu Kato, Shinpei Nakata
 
 ### int literal
 >>> 0
@@ -50,15 +50,34 @@
 >>> i = i
 1
 
-### type inference of int
->>> Int i;
->>> newvar_i = 0
-0
->>> typeof(newvar_i)
-konoha.Int
->>> newvar_i2 = i
->>> typeof(newvar_i2)
-konoha.Int
+
+### int instanceof Int // by nakata
+>>> i1 = 0;
+>>> i1 instanceof Integer
+true
+>>> i1 instanceof Int
+true
+
+
+### int comparator // by nakata
+>>> int i1 = 1;
+>>> int i2 = 2;
+>>> i1 == i2;
+false
+>>> i1 != i2;
+true
+>>> i1 == 1;
+true
+>>> i1 != 1;
+false
+>>> i1 > i2;
+false
+>>> i1 < i2;
+true
+>>> i1 >= i2;
+false
+>>> i1 <= i2;
+true
 
 ### int negative operator
 >>> i0 = 0
@@ -98,12 +117,31 @@ konoha.Int
 >>> i
 2
 
-### int i-- operator
->>> 1
-@ADD THIS TEST
-### int --i operator
->>> 1
-@ADD THIS TEST
+
+### int i-- operator  // by nakata
+>>> i = 0;
+>>> i;
+0
+>>> i--;
+0
+>>> i;
+-1
+>>> i--;
+-1
+>>> i;
+-2
+### int --i operator  // by nakata
+>>> i = 0;
+>>> i;
+0
+>>> --i;
+-1
+>>> i;
+-1
+>>> --i;
+-2
+>>> i;
+-2
 
 ### int + operator
 >>> i0 = 0
@@ -140,46 +178,276 @@ konoha.Int
 -12
 
 ### int * operator
->>> 1
-@ADD THIS TEST
-### int / operator
->>> 1
-@ADD THIS TEST
-### int % operator
->>> 1
-@ADD THIS TEST
-### int mod operator
->>> 1
-@ADD THIS TEST
+>>> i0 = 0;
+>>> i1 = 1;
+>>> i2 = 2;
+>>> 1 * 2;
+2
+>>> 1 * i2;
+2
+>>> i2 * 1;
+2
+>>> i1 * i2;
+2
+>>> i1 * i2 * i0;
+0
+>>> i1 * -2 * i2 * 3 * 4;
+-48
 
-### int | operator
->>> 1
-@ADD THIS TEST
-### int & operator
->>> 1
-@ADD THIS TEST
-### int ^ operator
->>> 1
-@ADD THIS TEST
-### int << operator
->>> 1
-@ADD THIS TEST
-### int >> operator
->>> 1
-@ADD THIS TEST
+### int / operator // by nakata
+>>> i1 = 1;
+>>> i2 = 2;
+>>> i4 = 4;
+>>> 4 / 2;
+2
+>>> 4 / i2;
+2
+>>> i4 / 2;
+2
+>>> i4 / i2;
+2
+>>> i4 / i2 / i1;
+2
+>>> 48 / i2 / 2 / i4;
+3
+
+/*
+### int zero division 
+>>> 1 / 0;
+ZeroDivision!!
+*/
 
 
-### int N + N with N++
+
+### int % operator // by nakata
+>>> i1 = 1;
+>>> i2 = 2;
+>>> i3 = 3;
+>>> 3 % 2;
+1
+>>> i3 % 2;
+1
+>>> 3 % i2;
+1
+>>> i3 % i2;
+1
+>>> i3 % i2 % i1;
+0
+>>> 49 % i3 % 5 % i2;
+1
+
+### int mod operator // by nakata
+>>> i1 = 1;
+>>> i2 = 2;
+>>> i3 = 3;
+>>> i3 mod 2;
+1
+>>> 3 mod i2;
+1
+>>> i3 mod 2;
+1
+>>> i3 mod i2;
+1
+>>> i3 mod i2 mod i1;
+0
+>>> 49 mod i3 mod 5 mod i2;
+1
+
+### int | operator // by nakata
+>>> i1 = 1;
+>>> i2 = 2;
+>>> i3 = 3;
+>>> 2 | 1;
+3
+>>> i2 | 1;
+3
+>>> 2 | i1;
+3
+>>> i2 | i1;
+3
+>>> i2 | i3 | i1;
+3
+>>> 4 | i3 | 1 | i2;
+7
+
+
+### int & operator // by nakata
+>>> i1 = 1;
+>>> i2 = 2;
+>>> i3 = 3;
+>>> 1 & 2;
+0
+>>> i1 & 2;
+0
+>>> 1 & i2;
+0
+>>> i1 & i2;
+0
+>>> i3 & i1;
+1
+>>> i3 & i1 & i2;
+0
+>>> 7 & i1 & 4 & i2;
+0
+
+
+### int ^ operator // by nakata
+>>> i1 = 1;
+>>> i2 = 2;
+>>> i3 = 3;
+>>> 3 ^ 2;
+1
+>>> 3 ^ i2;
+1
+>>> i3 ^ i2;
+1
+>>> i3 ^ i2 ^ i1;
+0
+>>> 7 ^ i3 ^ 2 ^ i1;
+7
+
+### int << operator // by nakata
+>>> i1 = 1;
+>>> i3 = 3;
+>>> i7 = 7;
+>>> 3 << 1;
+6
+>>> i3 << 1;
+6
+>>> 3 << i1;
+6
+>>> i3 << i1;
+6
+>>> i7 << i1 << i3; // its error
+112
+>>> (i7 << i1) << i3;
+112
+
+
+### int >> operator // by nakata
+>>> i1 = 1;
+>>> i4 = 4;
+>>> i8 = 8;
+>>> 8 >> 1;
+4
+>>> i8 >> 1;
+4
+>>> 8 >> i1;
+4
+>>> i8 >> i1;
+4
+>>> i8 >> i1 >> i1;
+2
+>>> (i8 >> i1) >> i1;
+2
+
+### type inference of int // by nakata
+>>> Int i;
+>>> newvar_i = 0
+0
+>>> typeof(newvar_i)
+konoha.Int
+>>> newvar_i2 = i
+>>> typeof(newvar_i2)
+konoha.Int
+
+
+### int N + N with N++ // by nakata
 >>> i1 = 1
 >>> i2 = 2
->>> 1
-@ADD THIS THEST
+>>> i1++ + 1;
+2
+>>> i1;
+2
+>>> i1 = 1;
+>>> 1 + i1++;
+2
+>>> i1;
+2
+>>> i1 = 1;
+>>> i1++ + i2++;
+3
+>>> i1;
+2
+>>> i2;
+3
+>>> i1 = 1;
+>>> i2 = 2;
 
-### int N + N with ++N
+### int N + N with ++N // by nakata
 >>> i1 = 1
 >>> i2 = 2
->>> 1
-@ADD THIS THEST
+>>> ++i1 + 1;
+3
+>>> i1;
+2
+>>> i1 = 1;
+>>> 1 + ++i1;
+3
+>>> i1;
+2
+>>> i1 = 1;
+>>> ++i1 + ++i2;
+5
+>>> i1;
+2
+>>> i2;
+3
+>>> i1 = 1;
+>>> i2 = 2;
+
+### int assignment operators // by nakata
+>>> i = 1;
+>>> i += 1;
+2
+>>> i;
+2
+>>> i = 2
+>>> i -= 1;
+1
+>>> i;
+1
+>>> i = 1;
+>>> i *= 1;
+1
+>>> i;
+1
+>>> i = 4;
+>>> i /= 2;
+2
+>>> i;
+2
+>>> i = 2;
+>>> i %= 5;
+2
+>>> i;
+2
+>>> i = 2;
+>>> i |= 1;
+3
+>>> i;
+3
+>>> i = 3;
+>>> i &= 1;
+1
+>>> i;
+1
+>>> i = 3;
+>>> i ^= 1;
+1
+>>> i;
+1
+>>> i = 1;
+>>> i <<= 1;
+2
+>>> i;
+2
+>>> i = 2;
+>>> i >> 1;
+1
+>>> i;
+1
+
 
 ### int N + N with N - N
 >>> i1 = 1
@@ -193,6 +461,7 @@ konoha.Int
 // ADD EVERY OPERATOR AS THESE
 
 
+/* from here, work by Kato */
 ### int single division 
 >>> 100 / 10
 10
