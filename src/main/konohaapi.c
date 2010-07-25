@@ -1138,7 +1138,7 @@ static void test_display(Ctx *ctx, void *status, const char* result, const knh_S
 //		}
 	} else {
 		ks->isPassed = 0;
-//		kt->sumOfFailed++;
+		kt->sumOfFailed++;
 		fprintf(kt->out, "[FAILED] %s\nTESTED:\n>>> ", ku->testTitle.text);
 		test_dump(kt->out, "... ", ks->testBody.text, "\n\t");
 		test_dump(kt->out, "\t", ks->testResult.text, "\nRESULTS:\n\t");
