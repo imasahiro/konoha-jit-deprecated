@@ -829,6 +829,17 @@ static knh_bool_t test_readstmt(Ctx *ctx, void *status, knh_cwb_t *cwb, const kn
 	if (ks != NULL && ks->next != NULL) {
 		ks = ks->next;
 		ku->current = ks;
+		if(ks->testBody.len == 0) {
+			/* assured as passed */
+			kt->sumOfPassed++;
+			ks->isPassed = 1;
+			if (ks->next != NULL) {
+				ks = ks->next;
+				ku->current = ks;
+			} else {
+				return 1;
+			}
+		}
 		knh_cwb_write(ctx, cwb, ks->testBody);
 		return 1;
 	}
@@ -836,7 +847,7 @@ static knh_bool_t test_readstmt(Ctx *ctx, void *status, knh_cwb_t *cwb, const kn
 	int comment_nest = 0;
 	char *search_ptr = NULL;
 	char *line_ptr = NULL;
-	int isUnitStarted = 0, isStmtContinue = 0, ignoreThisUnit = 0;
+	int isUnitStarted = 0, isStmtContinue = 0;
 	int isResultReady = 0;
 	while(kt_fgets(ctx, kt, line, KTEST_LINE_MAX) != NULL) {
 		kt->lineno += 1;
@@ -897,7 +908,6 @@ static knh_bool_t test_readstmt(Ctx *ctx, void *status, knh_cwb_t *cwb, const kn
 			}
 			line_ptr += 4;
 			size_t title_len = knh_strlen(line_ptr);
-
 
 			kt_truncate_line(line_ptr);
 			if (kt->unitsize == 0) {
@@ -1115,7 +1125,7 @@ static void test_display(Ctx *ctx, void *status, const char* result, const knh_S
 	// we cannot know if there is a result or?
 	if (ks->testResult.len == 0) {
 		//ignoring result;
-		kt->sumOfPassed++;
+//		kt->sumOfPassed++;
 		ks->isPassed = 2; //ignore
 		return;
 	}
@@ -1203,7 +1213,7 @@ static void test_cleanup(Ctx *ctx, void *status)
 		if(isTestVerbose) {
 			fprintf(kt->out, "%s: %d of %d units, %d of %d tests have been passed\n",
 					kt->filename.text, (int)unit_passed, (int)kt->unitsize,
-					(int)kt->sumOfPassed, (int)total_stmts);
+					(int)kt->sumOfPassed, (int)(kt->sumOfPassed + kt->sumOfFailed));
 		}
 		knh_statUnitTest(ctx, kt->sumOfPassed, kt->sumOfFailed);
 	}
