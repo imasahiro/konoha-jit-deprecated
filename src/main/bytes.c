@@ -95,11 +95,11 @@ static void knh_Bytes_expands(Ctx *ctx, knh_Bytes_t *ba, size_t newsize)
 		knh_bzero(&newa[capacity], newsize - capacity);
 		ba->bu.ubuf = newa;
 		ba->capacity = newsize;
+		KNH_FREE(ctx, buf, capacity);
 		if(unlikely(ctx->bufa == ba)) {
 			KNH_SYSLOG(ctx, LOG_INFO, "ExtendedContextBuffer", "*newsize=%ld, pointer=(%p => %p)", newsize, buf, newa);
 			knh_Bytes_checkstack(ctx, buf, buf + ba->bu.len, newa);
 		}
-		KNH_FREE(ctx, buf, capacity);
 	}
 }
 
