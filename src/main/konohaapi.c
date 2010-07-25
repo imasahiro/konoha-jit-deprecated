@@ -829,7 +829,7 @@ static knh_bool_t test_readstmt(Ctx *ctx, void *status, knh_cwb_t *cwb, const kn
 	if (ks != NULL && ks->next != NULL) {
 		ks = ks->next;
 		ku->current = ks;
-		if(ks->testBody.len == 0) {
+		if(ks->testBody.len == 1 && ks->testBody.text[0] == '\n') {
 			/* assured as passed */
 			kt->sumOfPassed++;
 			ks->isPassed = 1;
@@ -1129,7 +1129,6 @@ static void test_display(Ctx *ctx, void *status, const char* result, const knh_S
 	// we cannot know if there is a result or?
 	if (ks->testResult.len == 0) {
 		//ignoring result;
-//		kt->sumOfPassed++;
 		ks->isPassed = 2; //ignore
 		return;
 	}
