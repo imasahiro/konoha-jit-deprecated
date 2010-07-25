@@ -172,78 +172,76 @@ static METHOD Regex_new(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	RETURN_(sfp[0].o);
 }
 
-/* ------------------------------------------------------------------------ */
-//## @Const mapper String Regex!;
+///* ------------------------------------------------------------------------ */
+////## @Const mapper String Regex!;
+//
+//static METHOD String_Regex(Ctx *ctx, knh_sfp_t *sfp, long rix)
+//{
+//	knh_Regex_t *re = new_(Regex);
+//	const char *ptn = ctx->api->tochar(ctx, sfp[0].s);
+//	KNH_SETv(ctx, re->pattern, sfp[0].s);
+//	re->reg = re->spi->regmalloc(ctx, sfp[0].s);
+//	re->spi->regcomp(ctx, re->reg, ptn, 0);
+//	re->eflags = 0;
+//	RETURN_(re);
+//}
 
-static METHOD String_Regex(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	knh_Regex_t *re = new_(Regex);
-	const char *ptn = ctx->api->tochar(ctx, sfp[0].s);
-	KNH_SETv(ctx, re->pattern, sfp[0].s);
-	re->reg = re->spi->regmalloc(ctx, sfp[0].s);
-	re->spi->regcomp(ctx, re->reg, ptn, 0);
-	re->eflags = 0;
-	RETURN_(re);
-}
-
-
-
-/* ------------------------------------------------------------------------ */
-/* [Pair, Tuple, Range] */
-
-//## @Hidden @Const method This Tuple.new:TUPLE(T1 k, T2 v, Any value, ...);
-
-static METHOD Tuple_new__TUPLE(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	knh_Tuple_t *t = (knh_Tuple_t*)sfp[0].o;
-	knh_sfp_t *v = sfp + 1;
-	size_t i, ac = knh_stack_argc(ctx, v);
-	for(i = 0; i < ac; i++) {
-		knh_stack_boxing(ctx, v + i);
-	}
-	DBG_ASSERT(t->size == 0);
-	if(ac <= 3) {
-		KNH_INITv(t->first, v[0].o);
-		KNH_INITv(t->second, v[1].o);
-		if(ac == 3) {
-			KNH_INITv(t->thirdNULL, v[2].o);
-		}
-		else {
-			t->thirdNULL = NULL;
-		}
-	}
-	else {
-		t->size = ac;
-		t->list = (knh_Object_t**)KNH_MALLOC(ctx, sizeof(void*) * t->size);
-		for(i = 0; i < t->size; i++) {
-			KNH_INITv(t->list[i], v[i].o);
-		}
-	}
-	RETURN_(t);
-}
-
-/* ------------------------------------------------------------------------ */
-//## @Hidden @Const method This Range.new:LIST(T1! start, T1! end);
-
-static METHOD Range_new__LIST(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	
-	knh_Range_t *r = (knh_Range_t*)sfp[0].o;
-	knh_stack_boxing(ctx, sfp + 1);
-	KNH_SETv(ctx, r->start, sfp[1].o);
-	knh_stack_boxing(ctx, sfp + 2);
-	KNH_SETv(ctx, r->end, sfp[2].o);
-	RETURN_(r);
-}
-
-/* ------------------------------------------------------------------------ */
-//## @Hidden @Const method This Range.new:RANGE(T1! start, T1! end);
-
-static METHOD Range_new__RANGE(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	Range_new__LIST(ctx, sfp, rix);
-	knh_Range_setInclusive((knh_Range_t*)sfp[0].o, 1);
-}
+///* ------------------------------------------------------------------------ */
+///* [Pair, Tuple, Range] */
+//
+////## @Hidden @Const method This Tuple.new:TUPLE(T1 k, T2 v, Any value, ...);
+//
+//static METHOD Tuple_new__TUPLE(Ctx *ctx, knh_sfp_t *sfp, long rix)
+//{
+//	knh_Tuple_t *t = (knh_Tuple_t*)sfp[0].o;
+//	knh_sfp_t *v = sfp + 1;
+//	size_t i, ac = knh_stack_argc(ctx, v);
+//	for(i = 0; i < ac; i++) {
+//		knh_stack_boxing(ctx, v + i);
+//	}
+//	DBG_ASSERT(t->size == 0);
+//	if(ac <= 3) {
+//		KNH_INITv(t->first, v[0].o);
+//		KNH_INITv(t->second, v[1].o);
+//		if(ac == 3) {
+//			KNH_INITv(t->thirdNULL, v[2].o);
+//		}
+//		else {
+//			t->thirdNULL = NULL;
+//		}
+//	}
+//	else {
+//		t->size = ac;
+//		t->list = (knh_Object_t**)KNH_MALLOC(ctx, sizeof(void*) * t->size);
+//		for(i = 0; i < t->size; i++) {
+//			KNH_INITv(t->list[i], v[i].o);
+//		}
+//	}
+//	RETURN_(t);
+//}
+//
+///* ------------------------------------------------------------------------ */
+////## @Hidden @Const method This Range.new:LIST(T1! start, T1! end);
+//
+//static METHOD Range_new__LIST(Ctx *ctx, knh_sfp_t *sfp, long rix)
+//{
+//
+//	knh_Range_t *r = (knh_Range_t*)sfp[0].o;
+//	knh_stack_boxing(ctx, sfp + 1);
+//	KNH_SETv(ctx, r->start, sfp[1].o);
+//	knh_stack_boxing(ctx, sfp + 2);
+//	KNH_SETv(ctx, r->end, sfp[2].o);
+//	RETURN_(r);
+//}
+//
+///* ------------------------------------------------------------------------ */
+////## @Hidden @Const method This Range.new:RANGE(T1! start, T1! end);
+//
+//static METHOD Range_new__RANGE(Ctx *ctx, knh_sfp_t *sfp, long rix)
+//{
+//	Range_new__LIST(ctx, sfp, rix);
+//	knh_Range_setInclusive((knh_Range_t*)sfp[0].o, 1);
+//}
 
 /* ------------------------------------------------------------------------ */
 /* [Array] */
@@ -353,7 +351,7 @@ static METHOD Exception_new(Ctx *ctx, knh_sfp_t *sfp, long rix)
 }
 
 /* ------------------------------------------------------------------------ */
-//## method This Func.new(Any! base, Method! method);
+//## method This Func.new(Any base, Method method);
 
 static METHOD Func_new(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {

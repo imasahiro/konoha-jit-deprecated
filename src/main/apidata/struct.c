@@ -586,18 +586,18 @@ static FASTAPI(void) knh_Range_traverse(Ctx *ctx, Object *o, knh_Ftraverse ftr)
 	KNH_FTR(ctx, ftr, t->end);
 }
 
-static TCAST Range_Iterator(Ctx *ctx, knh_sfp_t *sfp, long rix);
+//static TCAST Range_Iterator(Ctx *ctx, knh_sfp_t *sfp, long rix);
 #define FLAG_Translator_Iteration (FLAG_Translator_Total)
 
 static knh_Translator_t* knh_Range_genmap(Ctx *ctx, knh_class_t cid, knh_class_t tcid)
 {
-	if(knh_class_bcid(tcid) == CLASS_Iterator) {
-		knh_class_t p1 = knh_class_p1(cid); //Range<p1>
-		knh_class_t tp1 = knh_class_p1(tcid);  //Iterator<tp2>
-		if(p1 == tp1 || tp1 == CLASS_Any || knh_class_instanceof(ctx, p1, tp1)) {
-			return new_Translator(ctx, FLAG_Translator_Iteration, cid, tcid, Range_Iterator);
-		}
-	}
+//	if(knh_class_bcid(tcid) == CLASS_Iterator) {
+//		knh_class_t p1 = knh_class_p1(cid); //Range<p1>
+//		knh_class_t tp1 = knh_class_p1(tcid);  //Iterator<tp2>
+//		if(p1 == tp1 || tp1 == CLASS_Any || knh_class_instanceof(ctx, p1, tp1)) {
+//			return new_Translator(ctx, FLAG_Translator_Iteration, cid, tcid, Range_Iterator);
+//		}
+//	}
 	return NULL;
 }
 
@@ -845,7 +845,7 @@ static FASTAPI(void*) knh_Class_hashkey(Ctx *ctx,knh_sfp_t *sfp, int opt)
 		return (void*)(ClassTBL(cid).lname);
 	}
 	else {
-		return (void*)cid;
+		return (void*)((knh_uintptr_t)cid);
 	}
 }
 

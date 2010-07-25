@@ -1061,18 +1061,19 @@ static int knh_Token_addPROPN(Ctx *ctx, knh_Token_t *tk, knh_cwb_t *cwb, knh_Inp
 static int knh_Token_addURN(Ctx *ctx, knh_Token_t *tk, knh_cwb_t *cwb, knh_InputStream_t *in)
 {
 	int ch = knh_InputStream_getc(ctx, in);
-	if(ch < 128 && !isalpha(ch)) {
+	if(ch == ':') {
+		knh_Bytes_putc(ctx, cwb->ba, ':');
+		ch = knh_InputStream_getc(ctx, in);
+		knh_Token_addBuf(ctx, tk, cwb, TT_QPATH, ch);
+		return ch;
+	}
+	if(isspace(ch) || ch == ';' || ch == '"' || ch == '\'') {
 		knh_Token_addBuf(ctx, tk, cwb, TT_CODE, ':');
 		knh_Bytes_putc(ctx, cwb->ba, ':');
 		knh_Token_addBuf(ctx, tk, cwb, TT_CODE, ch);
 		return ch;
 	}
 	knh_Bytes_putc(ctx, cwb->ba, ':');
-	if(ch == ':') {
-		ch = knh_InputStream_getc(ctx, in);
-		knh_Token_addBuf(ctx, tk, cwb, TT_QPATH, ch);
-		return ch;
-	}
 	knh_Bytes_putc(ctx, cwb->ba, ch);
 	while((ch = knh_InputStream_getc(ctx, in)) != EOF) {
 		switch(ch) {
@@ -1087,9 +1088,11 @@ static int knh_Token_addURN(Ctx *ctx, knh_Token_t *tk, knh_cwb_t *cwb, knh_Input
 	L_NEWURN: {
 		knh_bytes_t t = knh_cwb_tobytes(cwb);
 		knh_term_t tt = TT_URN;
+#ifdef K_USING_SEMANTICS
 		if(knh_bytes_startsWith(t, STEXT("int:")) || knh_bytes_startsWith(t, STEXT("float:"))) {
 			t.ubuf[0] = toupper(t.ustr[0]);
 		}
+#endif
 		if(knh_bytes_startsWith(t, STEXT("new:"))) {
 			tt = TT_NEW;
 		}
@@ -1107,6 +1110,15 @@ static int knh_Token_addNUM(Ctx *ctx, knh_Token_t *tk, knh_cwb_t *cwb, knh_Input
 	while((ch = knh_InputStream_getc(ctx, in)) != EOF) {
 		if(isalnum(ch)) goto L_ADD;
 		if(ch == '_') continue; // nothing
+		if(prev == '.' && ch == '.') {  /* 1.. => 1 .. */
+			knh_Bytes_unputc(cwb->ba);
+			knh_Token_addBuf(ctx, tk, cwb, TT_NUM, ch);
+			knh_Bytes_putc(ctx, cwb->ba, '.');
+			knh_Bytes_putc(ctx, cwb->ba, '.');
+			ch = knh_InputStream_getc(ctx, in);
+			knh_Token_addBuf(ctx, tk, cwb, TT_CODE, ch);
+			return ch;
+		}
 		if(ch == '.') {
 			dot++;
 			if(dot == 1) goto L_ADD;
@@ -1716,7 +1728,7 @@ static knh_index_t ITR_indexTOUNTIL(tkitr_t *itr)
 	for(i = itr->c; i < itr->e; i++) {
 		knh_term_t tt = TT_(itr->ts[i]);
 		if(tt == TT_TO || tt == TT_UNTIL) return i;
-		if(tt == TT_COLON) {
+		if(tt == TT_ITR) { /* a[1..n] as a [1 until n] */
 			TT_(itr->ts[i]) = TT_UNTIL;
 			return i;
 		}
@@ -1752,10 +1764,6 @@ static int ITR_indexKEY(tkitr_t *itr, int shift)
 		if(TT_(ts[i+1]) == TT_COLON && IS_bString(DP(ts[i])->text)) {
 			return i;
 		}
-//		if(TT_(ts[i+1]) == TT_LET && IS_bString(DP(ts[i])->text)) {
-//			TT_(ts[i+1]) = TT_COLON;
-//			return i;
-//		}
 	}
 	return itr->e;
 }
@@ -1784,6 +1792,7 @@ static void _KEYVALUEs(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 		eitr->e = ITR_indexKEY(eitr, +1);
 		if(ITR_size(eitr) > 0) {
 			knh_Token_t *tk = ITR_nextTK(eitr);
+			TT_(tk) = TT_STR;
 			knh_Stmt_add(ctx, stmt, tk);
 			DBG_ASSERT(ITR_is(eitr, TT_COLON));
 			ITR_next(eitr);
@@ -2263,8 +2272,11 @@ static void _EXPR(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 				}
 			}
 			else {
+#ifdef MN_new__TUPLE
 				stmt = new_StmtREUSE(ctx, stmt, STT_NEW);
 				_ARRAY(ctx, stmt, MN_new__TUPLE, CLASS_Tuple, pitr);
+#endif
+				KNH_TODO("new:TUPLE");
 			}
 			goto L_FUNC;
 		}

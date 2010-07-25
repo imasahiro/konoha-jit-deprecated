@@ -340,9 +340,9 @@ static int knh_Token_toSYSVAL(Ctx *ctx, knh_Token_t *tk)
 	else if(IS_SYSVAL(t, "__file__")) {
 		knh_Token_setCONST(ctx, tk, knh_getURN(ctx, SP(tk)->uri));
 	}
-	else if(IS_SYSVAL(t, "__method__") || IS_SYSVAL(t, "__function__")) {
-		knh_Token_setCONST(ctx, tk, knh_Object_getkey(ctx, UPCAST(DP(ctx->gma)->mtd)));
-	}
+//	else if(IS_SYSVAL(t, "__method__") || IS_SYSVAL(t, "__function__")) {
+//		knh_Token_setCONST(ctx, tk, knh_Object_getkey(ctx, UPCAST(DP(ctx->gma)->mtd)));
+//	}
 	else if(IS_SYSVAL(t, "__namespace__") || IS_SYSVAL(t, "__ns__")) {
 		knh_NameSpace_t *ns = knh_getGammaNameSpace(ctx);
 		knh_Token_setCONST(ctx, tk, DP(ns)->nsname);

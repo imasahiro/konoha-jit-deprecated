@@ -102,32 +102,32 @@ knh_float_t knh_float_rand(void)
 #endif
 }
 
-/* ======================================================================== */
-/* [Number] */
-
-knh_bool_t knh_Object_isNumber(Ctx *ctx, knh_Object_t *o)
-{
-	knh_NumberCSPI_t *cspi = (knh_NumberCSPI_t*)ClassTBL(knh_Object_cid(o)).cspi;
-	return (cspi->magic == K_NUMBERCSPI_MAGIC);
-}
-
-/* ------------------------------------------------------------------------ */
-
-FASTAPI(knh_int_t) knh_stack0_toint(Ctx *ctx, knh_sfp_t *sfp)
-{
-	knh_NumberCSPI_t *cspi = (knh_NumberCSPI_t*)ClassTBL(knh_Object_cid(sfp[0].o)).cspi;
-	DBG_ASSERT(cspi->magic == K_NUMBERCSPI_MAGIC);
-	return cspi->to_int(ctx, sfp);
-}
-
-/* ------------------------------------------------------------------------ */
-
-FASTAPI(knh_float_t) knh_stack0_tofloat(Ctx *ctx, knh_sfp_t *sfp)
-{
-	knh_NumberCSPI_t *cspi = (knh_NumberCSPI_t*)ClassTBL(knh_Object_cid(sfp[0].o)).cspi;
-	DBG_ASSERT(cspi->magic == K_NUMBERCSPI_MAGIC);
-	return cspi->to_float(ctx, sfp);
-}
+///* ======================================================================== */
+///* [Number] */
+//
+//knh_bool_t knh_Object_isNumber(Ctx *ctx, knh_Object_t *o)
+//{
+//	knh_NumberCSPI_t *cspi = (knh_NumberCSPI_t*)ClassTBL(knh_Object_cid(o)).cspi;
+//	return (cspi->magic == K_NUMBERCSPI_MAGIC);
+//}
+//
+///* ------------------------------------------------------------------------ */
+//
+//FASTAPI(knh_int_t) knh_stack0_toint(Ctx *ctx, knh_sfp_t *sfp)
+//{
+//	knh_NumberCSPI_t *cspi = (knh_NumberCSPI_t*)ClassTBL(knh_Object_cid(sfp[0].o)).cspi;
+//	DBG_ASSERT(cspi->magic == K_NUMBERCSPI_MAGIC);
+//	return cspi->to_int(ctx, sfp);
+//}
+//
+///* ------------------------------------------------------------------------ */
+//
+//FASTAPI(knh_float_t) knh_stack0_tofloat(Ctx *ctx, knh_sfp_t *sfp)
+//{
+//	knh_NumberCSPI_t *cspi = (knh_NumberCSPI_t*)ClassTBL(knh_Object_cid(sfp[0].o)).cspi;
+//	DBG_ASSERT(cspi->magic == K_NUMBERCSPI_MAGIC);
+//	return cspi->to_float(ctx, sfp);
+//}
 
 /* ======================================================================== */
 /* [Int] */

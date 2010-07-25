@@ -68,87 +68,125 @@ static TCAST String_Iterator(Ctx *ctx, knh_sfp_t *sfp, long rix)
 /* ======================================================================== */
 /* [Range] */
 
-static ITRNEXT knh_Range_inext(Ctx *ctx, knh_sfp_t *sfp, long rtnidx)
+//static ITRNEXT knh_Range_inext(Ctx *ctx, knh_sfp_t *sfp, long rtnidx)
+//{
+//	knh_Iterator_t *itr = sfp[0].it;
+//	knh_Range_t *rng = (knh_Range_t*)DP(itr)->source;
+//	knh_int_t pos = DP(itr)->pos;
+//	if(pos < N_toint((rng)->end)) {
+//		DP(itr)->pos = pos+1;
+//		ITRNEXTi_(pos);
+//	}
+//	ITREND_();
+//}
+//
+//static ITRNEXT knh_Range_inextInclusive(Ctx *ctx, knh_sfp_t *sfp, long rtnidx)
+//{
+//	knh_Iterator_t *itr = sfp[0].it;
+//	knh_Range_t *rng = (knh_Range_t*)DP(itr)->source;
+//	knh_int_t pos = DP(itr)->pos;
+//	if(pos <= N_toint((rng)->end)) {
+//		DP(itr)->pos = pos+1;
+//		ITRNEXTi_(pos);
+//	}
+//	ITREND_();
+//}
+//
+//static ITRNEXT knh_Range_fnext(Ctx *ctx, knh_sfp_t *sfp, long rtnidx)
+//{
+//	knh_Iterator_t *itr = sfp[0].it;
+//	knh_Range_t *rng = (knh_Range_t*)DP(itr)->source;
+//	knh_int_t pos = DP(itr)->pos;
+//	if(pos < N_toint((rng)->end)) {
+//		DP(itr)->pos = pos+1;
+//		ITRNEXTf_((knh_float_t)pos);
+//	}
+//	ITREND_();
+//}
+//
+//static ITRNEXT knh_Range_fnextInclusive(Ctx *ctx, knh_sfp_t *sfp, long rtnidx)
+//{
+//	knh_Iterator_t *itr = sfp[0].it;
+//	knh_Range_t *rng = (knh_Range_t*)DP(itr)->source;
+//	knh_int_t pos = DP(itr)->pos;
+//	if(pos <= N_toint((rng)->end)) {
+//		DP(itr)->pos = pos+1;
+//		ITRNEXTf_((knh_float_t)pos);
+//	}
+//	ITREND_();
+//}
+//
+//static knh_Iterator_t *new_RangeIterator(Ctx *ctx, knh_Range_t *rng)
+//{
+//	knh_class_t p1 = knh_Object_p1(rng);
+//	if(ClassTBL(p1).bcid == CLASS_Int) {
+//		knh_Iterator_t *itr = new_Iterator(ctx, p1, UPCAST(rng), knh_Range_isInclusive(rng) ? knh_Range_inextInclusive : knh_Range_inext);
+//		DP(itr)->pos = N_toint(rng->start);
+//		return itr;
+//	}
+//	else if(ClassTBL(p1).bcid == CLASS_Float) {
+//		knh_Iterator_t *itr = new_Iterator(ctx, p1, UPCAST(rng), knh_Range_isInclusive(rng) ? knh_Range_fnextInclusive : knh_Range_fnext);
+//		knh_float_t s = N_tofloat((rng)->start);
+//		DP(itr)->pos = (knh_int_t)s;
+//		if((knh_float_t)DP(itr)->pos < s) DP(itr)->pos += 1;
+//		return itr;
+//	}
+//	else {
+//		knh_Array_t *a = new_Array(ctx, p1, 2);
+//		knh_Array_add(ctx, a, (rng)->start);
+//		if(knh_Range_isInclusive(rng)) {
+//			knh_Array_add(ctx, a, (rng)->end);
+//		}
+//		return new_ArrayIterator(ctx, a);
+//	}
+//}
+//
+
+/* ------------------------------------------------------------------------ */
+/* [ArrayIterator] */
+
+static ITRNEXT knh_Array_nextO(Ctx *ctx, knh_sfp_t *sfp, long rtnidx)
 {
-	knh_Iterator_t *itr = sfp[0].it;
-	knh_Range_t *rng = (knh_Range_t*)DP(itr)->source;
-	knh_int_t pos = DP(itr)->pos;
-	if(pos < N_toint((rng)->end)) {
-		DP(itr)->pos = pos+1;
-		ITRNEXTi_(pos);
+	DBG_ASSERT(IS_bIterator(sfp[0].it));
+	knh_Array_t *a = (knh_Array_t*)DP(sfp[0].it)->source;
+	size_t pos = (size_t)(DP(sfp[0].it)->pos);
+	if(pos < a->size) {
+		DP(sfp[0].it)->pos = pos+1;
+		ITRNEXT_(a->list[pos]);
 	}
 	ITREND_();
 }
 
-static ITRNEXT knh_Range_inextInclusive(Ctx *ctx, knh_sfp_t *sfp, long rtnidx)
+static ITRNEXT knh_Array_nextN(Ctx *ctx, knh_sfp_t *sfp, long rtnidx)
 {
-	knh_Iterator_t *itr = sfp[0].it;
-	knh_Range_t *rng = (knh_Range_t*)DP(itr)->source;
-	knh_int_t pos = DP(itr)->pos;
-	if(pos <= N_toint((rng)->end)) {
-		DP(itr)->pos = pos+1;
-		ITRNEXTi_(pos);
+	DBG_ASSERT(IS_bIterator(sfp[0].it));
+	knh_Array_t *a = (knh_Array_t*)DP(sfp[0].it)->source;
+	size_t pos = (size_t)(DP(sfp[0].it)->pos);
+	if(pos < a->size) {
+		DP(sfp[0].it)->pos = pos+1;
+		ITRNEXTd_(a->nlist[pos]);
 	}
 	ITREND_();
-}
-
-static ITRNEXT knh_Range_fnext(Ctx *ctx, knh_sfp_t *sfp, long rtnidx)
-{
-	knh_Iterator_t *itr = sfp[0].it;
-	knh_Range_t *rng = (knh_Range_t*)DP(itr)->source;
-	knh_int_t pos = DP(itr)->pos;
-	if(pos < N_toint((rng)->end)) {
-		DP(itr)->pos = pos+1;
-		ITRNEXTf_((knh_float_t)pos);
-	}
-	ITREND_();
-}
-
-static ITRNEXT knh_Range_fnextInclusive(Ctx *ctx, knh_sfp_t *sfp, long rtnidx)
-{
-	knh_Iterator_t *itr = sfp[0].it;
-	knh_Range_t *rng = (knh_Range_t*)DP(itr)->source;
-	knh_int_t pos = DP(itr)->pos;
-	if(pos <= N_toint((rng)->end)) {
-		DP(itr)->pos = pos+1;
-		ITRNEXTf_((knh_float_t)pos);
-	}
-	ITREND_();
-}
-
-static knh_Iterator_t *new_RangeIterator(Ctx *ctx, knh_Range_t *rng)
-{
-	knh_class_t p1 = knh_Object_p1(rng);
-	if(ClassTBL(p1).bcid == CLASS_Int) {
-		knh_Iterator_t *itr = new_Iterator(ctx, p1, UPCAST(rng), knh_Range_isInclusive(rng) ? knh_Range_inextInclusive : knh_Range_inext);
-		DP(itr)->pos = N_toint(rng->start);
-		return itr;
-	}
-	else if(ClassTBL(p1).bcid == CLASS_Float) {
-		knh_Iterator_t *itr = new_Iterator(ctx, p1, UPCAST(rng), knh_Range_isInclusive(rng) ? knh_Range_fnextInclusive : knh_Range_fnext);
-		knh_float_t s = N_tofloat((rng)->start);
-		DP(itr)->pos = (knh_int_t)s;
-		if((knh_float_t)DP(itr)->pos < s) DP(itr)->pos += 1;
-		return itr;
-	}
-	else {
-		knh_Array_t *a = new_Array(ctx, p1, 2);
-		knh_Array_add(ctx, a, (rng)->start);
-		if(knh_Range_isInclusive(rng)) {
-			knh_Array_add(ctx, a, (rng)->end);
-		}
-		return new_ArrayIterator(ctx, a);
-	}
 }
 
 /* ------------------------------------------------------------------------ */
-//## @General mapper Range Iterator;
-//## method T1.. Range.opITR();
 
-static TCAST Range_Iterator(Ctx *ctx, knh_sfp_t *sfp, long rix)
+static knh_Iterator_t* new_ArrayIterator(Ctx *ctx, knh_Array_t *a)
 {
-	RETURN_(new_RangeIterator(ctx, sfp[K_SELFIDX].range));
+	knh_class_t cid = knh_Object_p1(a);
+	knh_Fitrnext fnext = knh_Array_isNDATA(a) ? knh_Array_nextN : knh_Array_nextO;
+	return new_Iterator(ctx, cid, UPCAST(a), fnext);
 }
+
+
+///* ------------------------------------------------------------------------ */
+////## @General mapper Range Iterator;
+////## method T1.. Range.opITR();
+//
+//static TCAST Range_Iterator(Ctx *ctx, knh_sfp_t *sfp, long rix)
+//{
+//	RETURN_(new_RangeIterator(ctx, sfp[K_SELFIDX].range));
+//}
 
 /* ======================================================================== */
 /* [Array] */

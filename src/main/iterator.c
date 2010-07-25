@@ -45,7 +45,7 @@ static ITRNEXT knh_fitrnext_end(Ctx *ctx, knh_sfp_t *sfp, long rtnidx)
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(void) knh_Iterator_close(Ctx *ctx, knh_Iterator_t *it)
+void knh_Iterator_close(Ctx *ctx, knh_Iterator_t *it)
 {
 	DBG_ASSERT(IS_bIterator(it));
 	KNH_SETv(ctx, DP(it)->source, KNH_NULL);
@@ -71,60 +71,6 @@ KNHAPI(knh_Iterator_t*) new_Iterator(Ctx *ctx, knh_class_t p1, Any *source, knh_
 	KNH_SETv(ctx, DP(it)->source, source);
 	it->fnext_1 = DP(it)->fnext;
 	return it;
-}
-
-/* ------------------------------------------------------------------------ */
-/* [constructors] */
-
-KNHAPI(knh_Iterator_t*) new_RawPtrIterator(Ctx *ctx, knh_class_t p1, void *ref, knh_Fitrnext fnext, knh_Ffree ffree)
-{
-	knh_class_t cid = knh_class_P1(ctx, CLASS_Iterator, p1);
-	knh_Iterator_t *it = new_O(Iterator, cid);
-	if(ref == NULL) {
-		fnext = knh_fitrnext_end;
-		ffree = NULL;
-	}
-	DP(it)->ref = ref;
-	DP(it)->freffree = ffree;
-	if(fnext != NULL) DP(it)->fnext = fnext;
-	it->fnext_1 = DP(it)->fnext;
-	return it;
-}
-
-/* ------------------------------------------------------------------------ */
-/* [ArrayIterator] */
-
-static ITRNEXT knh_Array_nextO(Ctx *ctx, knh_sfp_t *sfp, long rtnidx)
-{
-	knh_Array_t *a = (knh_Array_t*)DP(sfp[0].it)->source;
-	size_t pos = (size_t)(DP(sfp[0].it)->pos);
-	while(pos < a->size) {
-		DP(sfp[0].it)->pos = pos+1;
-		ITRNEXT_(a->list[pos]);
-		pos++;
-	}
-	ITREND_();
-}
-
-static ITRNEXT knh_Array_nextN(Ctx *ctx, knh_sfp_t *sfp, long rtnidx)
-{
-	knh_Array_t *a = (knh_Array_t*)DP(sfp[0].it)->source;
-	size_t pos = (size_t)(DP(sfp[0].it)->pos);
-	while(pos < a->size) {
-		DP(sfp[0].it)->pos = pos+1;
-		ITRNEXTd_(a->nlist[pos]);
-		pos++;
-	}
-	ITREND_();
-}
-
-/* ------------------------------------------------------------------------ */
-
-KNHAPI(knh_Iterator_t*) new_ArrayIterator(Ctx *ctx, knh_Array_t *a)
-{
-	knh_class_t cid = knh_Object_p1(a);
-	knh_Fitrnext fnext = knh_Array_isNDATA(a) ? knh_Array_nextN : knh_Array_nextO;
-	return new_Iterator(ctx, cid, UPCAST(a), fnext);
 }
 
 /* ------------------------------------------------------------------------ */

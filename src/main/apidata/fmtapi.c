@@ -379,8 +379,8 @@ static METHOD String__k(Ctx *ctx, knh_sfp_t *sfp, long rix)
 
 static METHOD Iterator__k(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-	knh_Iterator_t *it = sfp[1].it;
 	knh_OutputStream_t *w = WWW;
+	knh_Iterator_t *it = sfp[1].it;
 	knh_ParamArray_t *pa = ClassTBL(knh_Object_cid(it)).cparam;
 	knh_class_t p1 = knh_Object_p1(it);
 	knh_Method_t *mtdf = knh_getSystemFormatter(ctx, p1, MN__k);
@@ -389,19 +389,18 @@ static METHOD Iterator__k(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	}
 	if(pa->psize == 1) {
 		size_t c = 0;
-		klr_mov(ctx, sfp[4].o, w);
-		while(it->fnext_1(ctx, sfp, 3)) {
+		while(it->fnext_1(ctx, sfp+1, /*1+*/1)) {
 			if(c > 0) {
 				knh_write_EOL(ctx, w);
 			}
 			if(IS_Tint(p1)) {
-				knh_write_ifmt(ctx, w, K_INT_FMT, sfp[3].ivalue);
+				knh_write_ifmt(ctx, w, K_INT_FMT, sfp[2].ivalue);
 			}
 			else if(IS_Tfloat(p1)) {
-				knh_write_ffmt(ctx, w, K_FLOAT_FMT, sfp[3].fvalue);
+				knh_write_ffmt(ctx, w, K_FLOAT_FMT, sfp[2].fvalue);
 			}
 			else {
-				knh_write_Object(ctx, w, sfp+4, &mtdf, sfp[3].o);
+				knh_write_Object(ctx, w, sfp+4, &mtdf, sfp[2].o);
 			}
 			c++;
 		}

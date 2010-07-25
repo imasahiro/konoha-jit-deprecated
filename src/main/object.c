@@ -44,25 +44,25 @@ extern "C" {
 /* ======================================================================== */
 /* [getkey] */
 
-knh_String_t *knh_Object_getkey(Ctx *ctx, Object *o)
-{
-	knh_sfp_t lsfp;
-	lsfp.o = o;
-	lsfp.data = ((knh_Int_t*)o)->n.data;
-	return (knh_String_t*)ClassTBL(knh_Object_bcid(o)).cspi->hashkey(ctx, &lsfp, KNH_FOBJECT_KEY);
-}
+//knh_String_t *knh_Object_getkey(Ctx *ctx, Object *o)
+//{
+//	knh_sfp_t lsfp;
+//	lsfp.o = o;
+//	lsfp.data = ((knh_Int_t*)o)->n.data;
+//	return (knh_String_t*)ClassTBL(knh_Object_bcid(o)).cspi->hashkey(ctx, &lsfp, KNH_FOBJECT_KEY);
+//}
 
 /* ======================================================================== */
 /* [copy] */
-
-Object *knh_Object_copy(Ctx *ctx, Object *b)
-{
-	if(knh_Object_isImmutable(b)) {
-		return b;
-	}
-	DBG_P("!IMMUTABLE %s", CLASS__(knh_Object_cid(b)));
-	return b;
-}
+//
+//Object *knh_Object_copy(Ctx *ctx, Object *b)
+//{
+//	if(knh_Object_isImmutable(b)) {
+//		return b;
+//	}
+//	DBG_P("!IMMUTABLE %s", CLASS__(knh_Object_cid(b)));
+//	return b;
+//}
 
 /* ======================================================================== */
 /* [commons] */
@@ -77,16 +77,16 @@ Object *knh_Object_copy(Ctx *ctx, Object *b)
 
 /* ------------------------------------------------------------------------ */
 
-knh_String_t *knh_Object_key(Ctx *ctx, Object *o)
-{
-	knh_String_t *s;
-	knh_sfp_t *lsfp = ctx->esp + 1;
-	KNH_SETv(ctx, lsfp[0].o, o);
-	lsfp[0].data = knh_Object_data(o);
-	s = (knh_String_t*)ClassTBL(o->h.bcid).cspi->hashkey(ctx, lsfp, KNH_FOBJECT_KEY);
-	KNH_SETv(ctx, lsfp[-1].o, s);
-	return s;
-}
+//knh_String_t *knh_Object_key(Ctx *ctx, Object *o)
+//{
+//	knh_String_t *s;
+//	knh_sfp_t *lsfp = ctx->esp + 1;
+//	KNH_SETv(ctx, lsfp[0].o, o);
+//	lsfp[0].data = knh_Object_data(o);
+//	s = (knh_String_t*)ClassTBL(o->h.bcid).cspi->hashkey(ctx, lsfp, KNH_FOBJECT_KEY);
+//	KNH_SETv(ctx, lsfp[-1].o, s);
+//	return s;
+//}
 /* ------------------------------------------------------------------------ */
 
 int knh_Object_compareTo(Ctx *ctx, Object *o1, Object *o2)
@@ -106,40 +106,40 @@ int knh_Object_compareTo(Ctx *ctx, Object *o1, Object *o2)
 
 /* ------------------------------------------------------------------------ */
 
-int knh_Object_compareTo2(Ctx *ctx, Object **o1, Object **o2)
-{
-	Object* _o1 = *((Object**) o1);
-	Object* _o2 = *((Object**) o2);
-	knh_class_t bcid1 = _o1->h.bcid;
-	knh_class_t bcid2 = _o2->h.bcid;
-	int res;
-	if(bcid1 == bcid2) {
-		res = ClassTBL(bcid1).cspi->compareTo(ctx, _o1, _o2);
-	}
-	else {
-		res = (int)(_o1 - _o2);
-		DBG_P("compared %s %s res=%d", O__(_o1), O__(_o2), res);
-	}
-	return res;
-}
+//int knh_Object_compareTo2(Ctx *ctx, Object **o1, Object **o2)
+//{
+//	Object* _o1 = *((Object**) o1);
+//	Object* _o2 = *((Object**) o2);
+//	knh_class_t bcid1 = _o1->h.bcid;
+//	knh_class_t bcid2 = _o2->h.bcid;
+//	int res;
+//	if(bcid1 == bcid2) {
+//		res = ClassTBL(bcid1).cspi->compareTo(ctx, _o1, _o2);
+//	}
+//	else {
+//		res = (int)(_o1 - _o2);
+//		DBG_P("compared %s %s res=%d", O__(_o1), O__(_o2), res);
+//	}
+//	return res;
+//}
 
 /* ------------------------------------------------------------------------ */
 
-knh_bool_t knh_Object_equals(Ctx *ctx, Object *o1, Object *o2)
-{
-	return (knh_Object_compareTo(ctx, o1, o2) == 0);
-}
+//knh_bool_t knh_Object_equals(Ctx *ctx, Object *o1, Object *o2)
+//{
+//	return (knh_Object_compareTo(ctx, o1, o2) == 0);
+//}
 
-/* ------------------------------------------------------------------------ */
-
-knh_bytes_t knh_Object_tobytes(Ctx *ctx, Object *o)
-{
-	switch(o->h.bcid) {
-		case CLASS_String : return S_tobytes((knh_String_t*)o);
-		case CLASS_Bytes : return BA_tobytes((knh_Bytes_t*)o);
-	}
-	return STEXT("");
-}
+///* ------------------------------------------------------------------------ */
+//
+//knh_bytes_t knh_Object_tobytes(Ctx *ctx, Object *o)
+//{
+//	switch(o->h.bcid) {
+//		case CLASS_String : return S_tobytes((knh_String_t*)o);
+//		case CLASS_Bytes : return BA_tobytes((knh_Bytes_t*)o);
+//	}
+//	return STEXT("");
+//}
 
 /* ------------------------------------------------------------------------ */
 

@@ -737,10 +737,10 @@ static KLRAPI(void) _ERR(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t c
 		knh_Context_setThrowingException(ctx, sfp[0].e);
 	}
 }
-static knh_bool_t knh_Object_opTypeOf(Ctx *ctx, Object *o, knh_type_t t)
-{
-	return knh_class_instanceof(ctx, o->h.cid, CLASS_type(t));
-}
+//static knh_bool_t knh_Object_opTypeOf(Ctx *ctx, Object *o, knh_type_t t)
+//{
+//	return knh_class_instanceof(ctx, o->h.cid, CLASS_type(t));
+//}
 static KLRAPI(void) _CHKTYPE(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid)
 {
 //	if(!knh_Object_opTypeOf(ctx, sfp[0].o, cid)) {

@@ -197,6 +197,24 @@ const knh_ExportsAPI_t *knh_getExportsAPI(void)
 	return &exports;
 }
 
+///* ------------------------------------------------------------------------ */
+///* [constructors] */
+//
+//KNHAPI(knh_Iterator_t*) new_RawPtrIterator(Ctx *ctx, knh_class_t p1, void *ref, knh_Fitrnext fnext, knh_Ffree ffree)
+//{
+//	knh_class_t cid = knh_class_P1(ctx, CLASS_Iterator, p1);
+//	knh_Iterator_t *it = new_O(Iterator, cid);
+//	if(ref == NULL) {
+//		fnext = knh_fitrnext_end;
+//		ffree = NULL;
+//	}
+//	DP(it)->ref = ref;
+//	DP(it)->freffree = ffree;
+//	if(fnext != NULL) DP(it)->fnext = fnext;
+//	it->fnext_1 = DP(it)->fnext;
+//	return it;
+//}
+
 /* ------------------------------------------------------------------------ */
 /* [CONST/PROPERTY DATA] */
 

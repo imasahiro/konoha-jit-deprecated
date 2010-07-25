@@ -48,17 +48,17 @@ extern "C" {
 //	}
 //	return t;
 //}
-
-/* ------------------------------------------------------------------------ */
-
-KNHAPI(knh_Range_t*) new_Range(Ctx *ctx, knh_class_t p1, Object *start, Object *end)
-{
-	knh_class_t cid = knh_class_P1(ctx, CLASS_Range, p1);
-	knh_Range_t *o = (knh_Range_t*)new_hObject_(ctx, FLAG_Range, CLASS_Range, cid);
-	o->start = start;
-	o->end   = end;
-	return o;
-}
+//
+///* ------------------------------------------------------------------------ */
+//
+//KNHAPI(knh_Range_t*) new_Range(Ctx *ctx, knh_class_t p1, Object *start, Object *end)
+//{
+//	knh_class_t cid = knh_class_P1(ctx, CLASS_Range, p1);
+//	knh_Range_t *o = (knh_Range_t*)new_hObject_(ctx, FLAG_Range, CLASS_Range, cid);
+//	o->start = start;
+//	o->end   = end;
+//	return o;
+//}
 
 /* ------------------------------------------------------------------------ */
 

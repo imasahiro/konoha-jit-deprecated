@@ -15,10 +15,7 @@ KNHAPI(knh_Array_t*) new_Array(Ctx *ctx, knh_class_t p1, size_t capacity);
 KNHAPI(void) knh_Array_add_(Ctx *ctx, knh_Array_t *a, Any *value);
 KNHAPI(konoha_t) konoha_open(size_t stacksize);
 KNHAPI(void) konoha_close(konoha_t konoha);
-KNHAPI(void) knh_Iterator_close(Ctx *ctx, knh_Iterator_t *it);
 KNHAPI(knh_Iterator_t*) new_Iterator(Ctx *ctx, knh_class_t p1, Any *source, knh_Fitrnext fnext);
-KNHAPI(knh_Iterator_t*) new_RawPtrIterator(Ctx *ctx, knh_class_t p1, void *ref, knh_Fitrnext fnext, knh_Ffree ffree);
-KNHAPI(knh_Iterator_t*) new_ArrayIterator(Ctx *ctx, knh_Array_t *a);
 KNHAPI(Ctx*) knh_beginContext(Ctx *ctx, Ctx **bottom);
 KNHAPI(void) knh_endContext(Ctx *ctx);
 KNHAPI(Ctx*) knh_getCurrentContext(void);
@@ -63,7 +60,6 @@ KNHAPI(knh_String_t*) new_String_(Ctx *ctx, knh_class_t cid, knh_bytes_t t, knh_
 KNHAPI(void) knh_setPropertyText(Ctx *ctx, char *key, char *value);
 KNHAPI(void) knh_addTranslator(Ctx *ctx, knh_Translator_t *trl);
 KNHAPI(knh_Translator_t*) new_Translator(Ctx *ctx, knh_flag_t flag, knh_class_t scid, knh_class_t tcid, knh_Ftranslator ftcast);
-KNHAPI(knh_Range_t*) new_Range(Ctx *ctx, knh_class_t p1, Object *start, Object *end);
 
 /* ======================================================================== */
 /* DEVELOPERS API */
@@ -205,6 +201,7 @@ void knh_vperror(Ctx *ctx, knh_uri_t uri, int line, int pe, const char *fmt, va_
 void knh_perror(Ctx *ctx, knh_uri_t uri, int line, int pe, const char *fmt, ...);
 const knh_ExportsAPI_t *knh_getExportsAPI(void);
 const knh_PackageLoaderAPI_t* knh_getPackageAPI(void);
+void knh_Iterator_close(Ctx *ctx, knh_Iterator_t *it);
 void konoha_init(void);
 knh_bool_t knh_isSystemVerbose(void);
 knh_bool_t knh_isInteractiveMode(void);
@@ -278,16 +275,7 @@ const char *knh_Method_file(Ctx *ctx, knh_Method_t *mtd);
 void knh_srand(knh_uint_t seed);
 knh_uint_t knh_rand(void);
 knh_float_t knh_float_rand(void);
-knh_bool_t knh_Object_isNumber(Ctx *ctx, knh_Object_t *o);
-FASTAPI(knh_int_t) knh_stack0_toint(Ctx *ctx, knh_sfp_t *sfp);
-FASTAPI(knh_float_t) knh_stack0_tofloat(Ctx *ctx, knh_sfp_t *sfp);
-knh_String_t *knh_Object_getkey(Ctx *ctx, Object *o);
-Object *knh_Object_copy(Ctx *ctx, Object *b);
-knh_String_t *knh_Object_key(Ctx *ctx, Object *o);
 int knh_Object_compareTo(Ctx *ctx, Object *o1, Object *o2);
-int knh_Object_compareTo2(Ctx *ctx, Object **o1, Object **o2);
-knh_bool_t knh_Object_equals(Ctx *ctx, Object *o1, Object *o2);
-knh_bytes_t knh_Object_tobytes(Ctx *ctx, Object *o);
 void knh_Object_toNULL_(Ctx *ctx, Object *o);
 const char* knh_cwb_ospath(Ctx *ctx, knh_cwb_t* cwb);
 const char* knh_cwb_realpath(Ctx *ctx, knh_cwb_t *cwb);

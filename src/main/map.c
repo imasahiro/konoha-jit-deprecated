@@ -56,6 +56,8 @@ knh_Map_t *new_Map(Ctx *ctx, size_t init, char *path, const knh_MapDSPI_t *dspi)
 /* ------------------------------------------------------------------------ */
 /* [HashMap] */
 
+#ifdef K_USING_HASHMAP
+
 #define K_HMAP_DELTA          (sizeof(knh_hmap_t) / sizeof(void*))
 #define knh_map_hmap(m)      ((knh_hmap_t*)m);
 #define knh_map_hentry(m)    ((knh_hentry_t**)m) + K_HMAP_DELTA;
@@ -420,6 +422,8 @@ static const knh_MapDSPI_t* hmap_config(Ctx *ctx, knh_class_t p1, knh_class_t p2
 		return &MAP_ObjectObject;
 	}
 }
+
+#endif
 
 /* ------------------------------------------------------------------------ */
 /* dmap */
@@ -1320,7 +1324,9 @@ void knh_DictCaseSet_append(Ctx *ctx, knh_DictCaseSet_t *m, knh_String_t *key, k
 
 void knh_loadDefaultMapDSPI(Ctx *ctx, const knh_MapDSPI_t *dspi)
 {
+#ifdef K_USING_HASHMAP
 	knh_addDriverSPI(ctx, "hash", (knh_DriverSPI_t*)&MAP_ObjectObject);
+#endif
 	knh_addDriverSPI(ctx, "dict", (knh_DriverSPI_t*)&DMAP_StringObject);
 	knh_addDriverSPI(ctx, "casedict", (knh_DriverSPI_t*)&CASEMAP_StringObject);
 }
