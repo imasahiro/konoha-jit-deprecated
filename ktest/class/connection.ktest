@@ -1,0 +1,27 @@
+### create no_such Connection
+>>> c = new Connection("sqlite3:./no_such_db");
+>>> r = c.query("select * from t1 limit 2");
+>>> r.next();
+false
+>>> r.close();
+>>> c.close();
+
+### no schema Connection
+>>> c = new Connection("./no_such_db");
+>>> c.close();
+
+### create Connection
+>>> c = new Connection("sqlite3:./test.db");
+>>> r = c.query("select * from t1 limit 2");
+>>> r.next();
+true
+>>> r.getString("data")
+"This is sample data"
+>>> r.next();
+true
+>>> r.getString("data")
+"More sample data"
+>>> r.next();
+false
+>>> r.close();
+>>> c.close();

@@ -78,6 +78,18 @@ true
 false
 >>> i1 <= i2;
 true
+>>> i1 == 2;
+false
+>>> i1 != 2;
+true
+>>> i1 > 2;
+false
+>>> i1 < 2;
+true
+>>> i1 >= 2;
+false
+>>> i1 <= 2;
+true
 
 ### int negative operator
 >>> i0 = 0

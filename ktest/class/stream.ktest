@@ -47,4 +47,10 @@ true
 ### OutputStream no such file
 >>> OutputStream o = new OutputStream("");
 >>> o << "abcd";
- 
+
+### OutputStream isAutoFlush
+>>> OUT.isAutoFlush();
+true
+>>> OUT.setAutoFlush(false);
+false
+

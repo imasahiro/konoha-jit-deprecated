@@ -177,6 +177,40 @@ false
 true
 >>> 3.0 <= 2.0
 false
+>>> float f2 = 2.0
+>>> float f3 = 3.0
+>>> f2 < 3.0
+true
+>>> f3 < 2.0
+false
+>>> f3 > 2.0
+true
+>>> f2 > 3.0
+false
+>>> f3 >= 2.0
+true
+>>> f2 >= 3.0
+false
+>>> f2 <= 3.0
+true
+>>> f3 <= 2.0
+false
+>>> f2 < f3
+true
+>>> f3 < f2
+false
+>>> f3 > f2
+true
+>>> f2 > f3
+false
+>>> f3 >= f2
+true
+>>> f2 >= f3
+false
+>>> f2 <= f3
+true
+>>> f3 <= f2
+false
 
 ### float Formatter
 >>> f = 9.0

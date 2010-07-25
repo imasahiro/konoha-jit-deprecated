@@ -380,26 +380,26 @@ extern "C" {
 
 /* ------------------------------------------------------------------------ */
 
-void *knh_generateCallBackFunc(Ctx *ctx, void *func, knh_Func_t *c)
-{
-	// (1) duplicate func;
-	// (2) replace (-1) with c
-	//
-	return func;
-}
+//void *knh_generateCallBackFunc(Ctx *ctx, void *func, knh_Func_t *c)
+//{
+//	// (1) duplicate func;
+//	// (2) replace (-1) with c
+//	//
+//	return func;
+//}
 
 /* ------------------------------------------------------------------------ */
 
-static inline int knh_pow2(int n)
-{
-	int p = 0;
-	if(n <= 0) return 1;
-	--n;
-	for(;n != 0;n >>=1) {
-		p = (p << 1) + 1;
-	}
-	return p + 1;
-}
+//static inline int knh_pow2(int n)
+//{
+//	int p = 0;
+//	if(n <= 0) return 1;
+//	--n;
+//	for(;n != 0;n >>=1) {
+//		p = (p << 1) + 1;
+//	}
+//	return p + 1;
+//}
 
 /* ------------------------------------------------------------------------ */
 // HOWTO USE callback func
@@ -439,12 +439,12 @@ static inline int knh_pow2(int n)
 //	return knh_qsort(d1,d2,(knh_Func_t*) -1);
 //}
 //
-#define MAX_FUNC_SIZE 256
-// copy callback func and return function that allocate form heap.
-void *knh_copyCallbackfunc(Ctx* ctx, void *func, void *target,knh_Func_t *cc)
-{
-	void *callback = NULL;
-	TODO();
+//#define MAX_FUNC_SIZE 256
+//// copy callback func and return function that allocate form heap.
+//void *knh_copyCallbackfunc(Ctx* ctx, void *func, void *target,knh_Func_t *cc)
+//{
+//	void *callback = NULL;
+//	TODO();
 //#if !defined(KONOHA_ON_LKM) && !defined(KONOHA_ON_TB) && !defined(KONOHA_ON_WINDOWS)
 //	int i,_ffffffff = -1,jmp_pos = -1;
 //	knh_uchar_t *f = (knh_uchar_t *) func;
@@ -496,8 +496,8 @@ void *knh_copyCallbackfunc(Ctx* ctx, void *func, void *target,knh_Func_t *cc)
 //		*(int*) &f[jmp_pos+1] = (int) diff;
 //	}
 //#endif /* KONOHA_ON_LKM */
-	return callback;
-}
+//	return callback;
+//}
 
 /* ------------------------------------------------------------------------ */
 

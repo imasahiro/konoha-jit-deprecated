@@ -180,8 +180,6 @@ knh_bool_t knh_ParamArray_hasTypeVar(knh_ParamArray_t *pa);
 void knh_ParamArray_tocid(Ctx *ctx, knh_ParamArray_t *pa, knh_class_t this_cid, knh_ParamArray_t *npa);
 knh_class_t knh_type_tocid(Ctx *ctx, knh_type_t ptype, knh_class_t this_cid);
 const char *knh_TYPE__(Ctx *ctx, knh_type_t type);
-void *knh_generateCallBackFunc(Ctx *ctx, void *func, knh_Func_t *c);
-void *knh_copyCallbackfunc(Ctx* ctx, void *func, void *target,knh_Func_t *cc);
 knh_class_t new_ClassId(Ctx *ctx);
 void knh_expandEventTBL(Ctx *ctx);
 void knh_Object_finalSweep(Ctx *ctx, Object *o);

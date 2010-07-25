@@ -1,0 +1,35 @@
+### System.setRandomSeed(int)
+>>> System.setRandomSeed(10);
+
+### System.gc
+>>> System.gc()
+
+### System Default Stream
+>>> System.getIn() == IN
+true
+>>> System.getOut() == OUT
+true
+>>> System.getErr() == ERR
+true
+
+### System.{get,set}Property
+>>> System.setProperty("test", "test2");
+"test2"
+>>> System.getProperty("test");
+"test2"
+### System.listProperties
+>>> $konoha.*
+["konoha.bin.path", "konoha.os", "konoha.package.path", "konoha.path", "konoha.platform", "konoha.temp.path", "konoha.tool.path", "konoha.version"]
+
+### Context isDebug
+>>> Context.setDebug(true)
+true
+>>> Context.isDebug()
+true
+
+### Context isVerbose
+>>> Context.setVerbose(true)
+true
+>>> Context.isVerbose()
+true
+

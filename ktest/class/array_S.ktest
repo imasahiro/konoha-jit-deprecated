@@ -93,7 +93,7 @@ true
 ["aa", "aaa", "aaaa"]
 >>> a[1 : 3] << 1;
 ["aa", "aaa", "a"]
->>> a[0] == "a" && a[1] == "aa" & a[2] == "aaa" && a[3] == "aaaa" && a[4] == "aaaaa";
+>>> a[0] == "a" && a[1] == "aa" && a[2] == "aaa" && a[3] == "aaaa" && a[4] == "aaaaa";
 true
 
 
