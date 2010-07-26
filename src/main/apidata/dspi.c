@@ -788,7 +788,7 @@ static void knh_sqlite3_perror(Ctx *ctx, sqlite3 *db, int r)
 static knh_qconn_t *SQLITE3_qopen(Ctx *ctx, knh_bytes_t url)
 {
 	sqlite3 *db = NULL;
-	url = knh_bytes_skipPATHHEAD(STEXT(""), url);
+	url = knh_bytes_skipPATHHEAD(url);
 	int r = sqlite3_open(url.text, &db);
 	if (r != SQLITE_OK) {
 		return NULL;
