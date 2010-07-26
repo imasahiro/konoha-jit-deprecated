@@ -58,7 +58,7 @@ knh_bytes_t knh_bytes_skipPATHHEAD(knh_bytes_t path)
 	size_t i;
 	for(i = 1; i < path.len; i++) {
 		if(i == K_PATHHEAD_MAXSIZ) break;
-		if(path.ustr[i] == ':' && path.ustr[i-1] != '\\') {
+		if(path.ustr[i] == ':') {
 			path.ustr = path.ustr + (i + 1);
 			path.len = path.len - (i + 1);
 			return path;
@@ -291,10 +291,10 @@ static knh_uintptr_t FILE_exists(Ctx *ctx, knh_bytes_t path, knh_NameSpace_t *ns
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_openinit(ctx, &cwbbuf, n);
 	knh_cwb_ospath(ctx, cwb);
 	knh_uintptr_t res = knh_cwb_isfile(ctx, cwb) ? 1: PATH_unknown;
-	knh_cwb_close(cwb);
 	if(res != PATH_unknown) {
-		res = knh_getURI(ctx, n);
+		res = knh_getURI(ctx, knh_cwb_tobytes(cwb));
 	}
+	knh_cwb_close(cwb);
 	return res;
 }
 
@@ -318,7 +318,7 @@ static knh_Object_t* FILE_newObjectNULL(Ctx *ctx, knh_class_t cid, knh_String_t 
 
 static knh_PathDSPI_t FILEPATH_DSPI = {
 	K_DSPI_PATH, "file",
-	PATH_STREAM, CLASS_InputStream,
+	PATH_STREAM, CLASS_Boolean,
 	FILE_exists, FILE_isTyped, FILE_newObjectNULL,
 };
 
@@ -411,7 +411,7 @@ static knh_uintptr_t LIB_exists(Ctx *ctx, knh_bytes_t path, knh_NameSpace_t *ns)
 
 static knh_PathDSPI_t LIBPATH_DSPI = {
 	K_DSPI_PATH, "lib",
-	PATH_SYSTEM, CLASS_String,
+	PATH_SYSTEM, CLASS_Boolean,
 	LIB_exists, NOPATH_isTyped, NOPATH_newObjectNULL,
 };
 
@@ -443,7 +443,7 @@ static int NOFILE_getc(Ctx *ctx, knh_io_t fd)
 }
 
 static knh_StreamDSPI_t NOFILE_DSPI = {
-	K_DSPI_STREAM, "NOP", 0,
+	K_DSPI_STREAM, "NOFILE", 0,
 	NOFILE_open, NOFILE_open, NOFILE_read, NOFILE_write, NOFILE_close,
 	NOFILE_feof, NOFILE_getc
 };
@@ -641,7 +641,7 @@ static knh_uintptr_t PKG_exists(Ctx *ctx, knh_bytes_t path, knh_NameSpace_t *ns)
 {
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 	knh_uintptr_t res =
-		knh_cwb_existsPKG(ctx, cwb, knh_bytes_skipPATHHEAD(path)) ? knh_getURI(ctx, path) : PATH_unknown;
+		knh_cwb_existsPKG(ctx, cwb, knh_bytes_skipPATHHEAD(path)) ? knh_getURI(ctx, knh_cwb_tobytes(cwb)) : PATH_unknown;
 	knh_cwb_close(cwb);
 	return res;
 }
@@ -660,7 +660,7 @@ static knh_io_t PKG_open(Ctx *ctx, knh_bytes_t path, const char *mode)
 
 static knh_PathDSPI_t PKGPATH_DSPI = {
 	K_DSPI_PATH, "pkg",
-	PATH_STREAM, CLASS_InputStream,
+	PATH_STREAM, CLASS_Boolean,
 	PKG_exists, NOPATH_isTyped, NOPATH_newObjectNULL,
 };
 
@@ -697,7 +697,7 @@ static knh_uintptr_t SCRIPT_exists(Ctx *ctx, knh_bytes_t path, knh_NameSpace_t *
 {
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 	knh_cwb_writeSCRIPT(ctx, cwb, knh_bytes_skipPATHHEAD(path));
-	knh_uintptr_t res = knh_cwb_isfile(ctx, cwb) ? knh_getURI(ctx, path) : PATH_unknown;
+	knh_uintptr_t res = knh_cwb_isfile(ctx, cwb) ? knh_getURI(ctx, knh_cwb_tobytes(cwb)) : PATH_unknown;
 	knh_cwb_close(cwb);
 	return res;
 }

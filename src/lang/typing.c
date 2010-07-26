@@ -994,6 +994,7 @@ static knh_Term_t* knh_TokenURN_typing(Ctx *ctx, knh_Token_t *tk, knh_class_t re
 		return knh_Token_toCONST(ctx, tk);
 	}
 	if(reqt == TYPE_Any) reqt = dspi->cid;
+	DBG_P("dspi->name=%s %s", dspi->name, CLASS__(dspi->cid));
 	if(!dspi->isTyped(ctx, CLASS_type(reqt))) {
 		knh_Gamma_perror(ctx, KERR_ERR, "%B can be %T, NOT %T, ", path, dspi->cid, reqt);
 		return NULL;
