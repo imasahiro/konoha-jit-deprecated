@@ -340,7 +340,7 @@ typedef struct knh_Map_t {
 		knh_dmap_t    *dmap;
 		knh_hmap_t    *hmap;
 	};
-	const struct knh_MapDSPI_t *dspi;
+	const struct _knh_MapDSPI_t *dspi;
 } knh_Map_t;
 
 #define K_HASH_INITSIZE 83
@@ -356,7 +356,7 @@ typedef struct knh_DictMap_t {
 		knh_dmap_t    *dmap;
 		knh_dentry_t  *dlistO;
 	};
-	const struct knh_MapDSPI_t *dspi;
+	const struct _knh_MapDSPI_t *dspi;
 } knh_DictMap_t;
 
 typedef struct knh_DictCaseMap_t {
@@ -366,7 +366,7 @@ typedef struct knh_DictCaseMap_t {
 		knh_dmap_t    *dmap;
 		knh_dentry_t  *dlistO;
 	};
-	const struct knh_MapDSPI_t *dspi;
+	const struct _knh_MapDSPI_t *dspi;
 } knh_DictCaseMap_t;
 
 #define knh_DictMap_size(m)    ((m)->dmap)->size
@@ -381,7 +381,7 @@ typedef struct knh_DictSet_t {
 		knh_dmap_t    *dmap;
 		knh_dentry_t  *dlistI;
 	};
-	const struct knh_MapDSPI_t *dspi;
+	const struct _knh_MapDSPI_t *dspi;
 } knh_DictSet_t;
 
 typedef struct knh_DictCaseSet_t {
@@ -391,7 +391,7 @@ typedef struct knh_DictCaseSet_t {
 		knh_dmap_t    *dmap;
 		knh_dentry_t  *dlistI;
 	};
-	const struct knh_MapDSPI_t *dspi;
+	const struct _knh_MapDSPI_t *dspi;
 } knh_DictCaseSet_t;
 
 typedef void (*knh_Fdictset)(Ctx *, knh_DictCaseSet_t*, knh_String_t *k, knh_uintptr_t);
@@ -662,7 +662,7 @@ typedef struct knh_Regex_t {
 	knh_hObject_t h;
 	knh_regex_t *reg;
 	int eflags;
-	const struct knh_RegexSPI_t *spi;
+	const struct _knh_RegexSPI_t *spi;
 	struct knh_String_t *pattern;
 } knh_Regex_t;
 
@@ -674,7 +674,7 @@ typedef void knh_conv_t;
 typedef struct knh_Converter_t {
 	knh_hObject_t h;
 	knh_conv_t *conv;
-	const struct knh_ConverterDSPI_t *dspi;
+	const struct _knh_ConvDSPI_t *dspi;
 } knh_Converter_t;
 
 /* ------------------------------------------------------------------------ */
@@ -683,7 +683,7 @@ typedef struct knh_Converter_t {
 typedef struct knh_StringEncoder_t {
 	knh_hObject_t h;
 	knh_conv_t *conv;
-	const struct knh_ConverterDSPI_t *dspi;
+	const struct _knh_ConvDSPI_t *dspi;
 } knh_StringEncoder_t;
 
 /* ------------------------------------------------------------------------ */
@@ -692,7 +692,7 @@ typedef struct knh_StringEncoder_t {
 typedef struct knh_StringDecoder_t {
 	knh_hObject_t h;
 	knh_conv_t *conv;
-	const struct knh_ConverterDSPI_t *dspi;
+	const struct _knh_ConvDSPI_t *dspi;
 } knh_StringDecoder_t;
 
 /* ------------------------------------------------------------------------ */
@@ -701,7 +701,7 @@ typedef struct knh_StringDecoder_t {
 typedef struct knh_StringConveter_t {
 	knh_hObject_t h;
 	knh_conv_t *conv;
-	const struct knh_ConverterDSPI_t *dspi;
+	const struct _knh_ConvDSPI_t *dspi;
 } knh_StringConverter_t;
 
 /* ------------------------------------------------------------------------ */
@@ -803,7 +803,7 @@ typedef struct {
 typedef struct knh_InputStream_t {
 	knh_hObject_t h;
 	knh_InputStreamEX_t *b;
-	const struct knh_StreamDSPI_t *dspi;
+	const struct _knh_StreamDSPI_t *dspi;
 } knh_InputStream_t;
 
 /* ------------------------------------------------------------------------ */
@@ -831,7 +831,7 @@ typedef struct {
 typedef struct knh_OutputStream_t {
 	knh_hObject_t h;
 	knh_OutputStreamEX_t *b;
-	const struct knh_StreamDSPI_t *dspi;
+	const struct _knh_StreamDSPI_t *dspi;
 } knh_OutputStream_t;
 
 #ifdef K_EXPORTS
@@ -875,7 +875,7 @@ typedef void   knh_qcur_t;
 typedef struct knh_Connection_t {
 	knh_hObject_t h;
 	knh_qconn_t              *conn;
-	struct knh_QueryDPI_t    *dspi;
+	const struct _knh_QueryDPI_t           *dspi;
 	knh_String_t             *urn;
 } knh_Connection_t;
 
@@ -939,8 +939,8 @@ typedef struct knh_NameSpace {
 	struct knh_DictSet_t*   name2cidDictSetNULL;
 	struct knh_DictSet_t*   func2cidDictSetNULL;
 	struct knh_DictMap_t*   lconstDictCaseMapNULL;
-	const struct knh_RegexSPI_t  *strregexSPI;
-	const struct knh_RegexSPI_t  *regexSPI;
+	const struct _knh_RegexSPI_t  *strregexSPI;
+	const struct _knh_RegexSPI_t  *regexSPI;
 	struct knh_Array_t*     methodsNULL;
 	struct knh_Array_t*     formattersNULL;
 

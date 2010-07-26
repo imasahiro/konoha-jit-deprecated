@@ -789,11 +789,11 @@ typedef struct {
 	struct knh_opline_t      *PC_ABSTRACT;
 
 	/* spi */
-	const struct knh_ShellSPI_t       *shellSPI;
-	const struct knh_ConverterDSPI_t  *iconvDSPI;
-	const struct knh_EvidenceSPI_t    *ebiSPI;
-	const struct knh_CompilerSPI_t    *jitSPI;
-	const struct knh_SyncSPI_t      *syncSPI;
+	const struct _knh_ShellSPI_t       *shellSPI;
+	const struct _knh_ConvDSPI_t       *iconvDSPI;
+	const struct _knh_EvidenceSPI_t    *ebiSPI;
+	const struct _knh_CompilerSPI_t    *jitSPI;
+	const struct _knh_SyncSPI_t        *syncSPI;
 
 	/* thread */
 	size_t              contextCounter;

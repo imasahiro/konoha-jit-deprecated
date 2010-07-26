@@ -231,10 +231,11 @@ knh_bool_t knh_loadPackage(Ctx *ctx, knh_bytes_t path)
 {
 	int res = 1;
 	knh_bytes_t name = knh_bytes_last(path, sizeof("pkg:") - 1);
+	knh_NameSpace_t *ns = DP(ctx->gma)->ns;
 	knh_Package_t *pkg = (knh_Package_t*)knh_DictMap_getNULL(ctx, DP(ctx->sys)->PackageDictMap, name);
 	if(pkg == NULL) {
-		knh_PathDSPI_t *dspi = knh_getPathDSPINULL(ctx, path);
-		if(dspi->exists(ctx, path, NULL)) {
+		knh_PathDSPI_t *dspi = knh_NameSpace_getPathDSPINULL(ctx, ns, path);
+		if(dspi->exists(ctx, path, ns) != PATH_unknown) {
 			knh_String_t *nameS = new_S(ctx, name);
 			knh_Array_t * a = KNH_TNULL(Array);
 			pkg = new_Package(ctx, nameS);
@@ -797,6 +798,7 @@ static void knh_Bytes_skipLCOMMENT(Ctx *ctx, knh_Bytes_t *ba, knh_InputStream_t 
 
 static knh_InputStream_t* knh_openPathNULL(Ctx *ctx, knh_bytes_t path)
 {
+	knh_NameSpace_t *ns = DP(ctx->gma)->ns;
 	knh_StreamDSPI_t *sdspi = knh_getStreamDSPI(ctx, path);
 	knh_io_t fd = sdspi->fopen(ctx, path, "r");
 	if(fd == IO_NULL) {
@@ -805,8 +807,8 @@ static knh_InputStream_t* knh_openPathNULL(Ctx *ctx, knh_bytes_t path)
 	}
 	else {
 		knh_intptr_t id = 0;
-		knh_PathDSPI_t *pdspi = knh_getPathDSPINULL(ctx, path);
-		if(pdspi != NULL) pdspi->exists(ctx, path, &id);
+		knh_PathDSPI_t *pdspi = knh_NameSpace_getPathDSPINULL(ctx, ns, path);
+		if(pdspi != NULL) id = pdspi->exists(ctx, path, ns);
 		knh_InputStream_t *in = new_InputStreamDSPI(ctx, fd, sdspi);
 		if(id != 0) {
 			DP(in)->uri = (knh_uri_t)id;

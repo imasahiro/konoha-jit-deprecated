@@ -27,6 +27,9 @@
 
 /* ************************************************************************ */
 
+#define USE_STEXT
+#define USE_bytes_strcasecmp
+
 #include"commons.h"
 
 /* ************************************************************************ */
@@ -351,6 +354,52 @@ knh_String_t *new_TEXT(Ctx *ctx, knh_class_t cid, knh_TEXT_t text)
 	knh_String_setTextSgm(o, 1);
 	knh_String_checkASCII(o);
 	return o;
+}
+
+/* ------------------------------------------------------------------------ */
+
+knh_StringDecoder_t* new_StringDecoderNULL(Ctx *ctx, knh_bytes_t t, knh_NameSpace_t *ns)
+{
+	if(knh_bytes_strcasecmp(t, STEXT(K_ENCODING))) {
+		return KNH_TNULL(StringDecoder);
+	}
+	if(ctx->share->iconvDSPI == NULL) {
+		((knh_share_t*)ctx->share)->iconvDSPI = knh_NameSpace_getConvTODSPINULL(ctx, ns, STEXT("iconv"));
+	}
+	if(ctx->share->iconvDSPI != NULL) {
+		const knh_ConvDSPI_t *dspi = ctx->share->iconvDSPI;
+		knh_conv_t *conv = dspi->open(ctx, K_ENCODING, t.text);
+		if(conv != NULL) {
+			knh_StringDecoder_t *c = new_(StringDecoder);
+			c->conv = conv;
+			c->dspi = dspi;
+			return c;
+		}
+	}
+	return NULL;
+}
+
+/* ------------------------------------------------------------------------ */
+
+knh_StringEncoder_t* new_StringEncoderNULL(Ctx *ctx, knh_bytes_t t, knh_NameSpace_t *ns)
+{
+	if(knh_bytes_strcasecmp(t, STEXT(K_ENCODING))) {
+		return KNH_TNULL(StringEncoder);
+	}
+	if(ctx->share->iconvDSPI == NULL) {
+		((knh_share_t*)ctx->share)->iconvDSPI = knh_NameSpace_getConvTODSPINULL(ctx, ns, STEXT("iconv"));
+	}
+	if(ctx->share->iconvDSPI != NULL) {
+		const knh_ConvDSPI_t *dspi = ctx->share->iconvDSPI;
+		knh_conv_t *conv = dspi->open(ctx, t.text, K_ENCODING);
+		if(conv != NULL) {
+			knh_StringEncoder_t *c = new_(StringEncoder);
+			c->conv = conv;
+			c->dspi = dspi;
+			return c;
+		}
+	}
+	return NULL;
 }
 
 /* ------------------------------------------------------------------------ */

@@ -177,7 +177,7 @@ knh_String_t* knh_InputStream_readLine(Ctx *ctx, knh_InputStream_t *in)
 	if(DP(in)->decNULL == NULL && in->dspi->getCharset != NULL) {
 		char *charset = (char*)in->dspi->getCharset(ctx, DP(in)->fd);
 		if(charset != NULL) {
-			knh_InputStream_setCharset(ctx, in, new_StringDecoderNULL(ctx, B(charset)));
+			knh_InputStream_setCharset(ctx, in, new_StringDecoderNULL(ctx, B(charset), NULL));
 		}
 	}
 	while((ch = knh_InputStream_getc(ctx, in)) != EOF) {

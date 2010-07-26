@@ -448,22 +448,22 @@ static void knh_setEbiSPI(Ctx *ctx, const knh_EvidenceSPI_t *spi, int isOVERRIDE
 
 static void knh_addPathDSPI(Ctx *ctx, const char *scheme, const knh_PathDSPI_t *d, int isOVERIDE)
 {
-	knh_addDriverSPI(ctx, scheme, (knh_DriverSPI_t*)d);
+	knh_addDSPI(ctx, scheme, (knh_DSPI_t*)d);
 }
 
 static void knh_addStreamDSPI(Ctx *ctx, const char *scheme, const knh_StreamDSPI_t *d, int isOVERRIDE)
 {
-	knh_addDriverSPI(ctx, scheme, (knh_DriverSPI_t*)d);
+	knh_addDSPI(ctx, scheme, (knh_DSPI_t*)d);
 }
 
 static void knh_addQueryDSPI(Ctx *ctx, const char *scheme, const knh_QueryDSPI_t *d, int isOVERRIDE)
 {
-	knh_addDriverSPI(ctx, scheme, (knh_DriverSPI_t*)d);
+	knh_addDSPI(ctx, scheme, (knh_DSPI_t*)d);
 }
 
-static void knh_addConverterDSPI(Ctx *ctx, const char *scheme, const knh_ConverterDSPI_t *d, int isOVERRIDE)
+static void knh_addConverterDSPI(Ctx *ctx, const char *scheme, const knh_ConvDSPI_t *d, int isOVERRIDE)
 {
-	knh_addDriverSPI(ctx, scheme, (knh_DriverSPI_t*)d);
+	knh_addDSPI(ctx, scheme, (knh_DSPI_t*)d);
 }
 
 /* ------------------------------------------------------------------------ */

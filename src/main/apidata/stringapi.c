@@ -38,19 +38,20 @@ extern "C" {
 #ifdef K_USING_DEFAULTAPI
 
 /* ------------------------------------------------------------------------ */
-//## @Const method Boolean String.opEXISTS();
+//## @Const method Boolean String.opEXISTS(NameSpace ns);
 
 static METHOD String_opEXISTS(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
 	knh_bytes_t path = S_tobytes(sfp[0].s);
-	knh_PathDSPI_t *dspi = knh_getPathDSPINULL(ctx, path);
+	DBG_ASSERT(IS_NameSpace(sfp[1].ns));
+	knh_PathDSPI_t *dspi = knh_NameSpace_getPathDSPINULL(ctx, sfp[1].ns, path);
 	knh_bool_t tf = 0;
-	if(dspi != NULL) tf = dspi->exists(ctx, path, NULL) ? 1 : 0;
+	if(dspi != NULL) tf = (dspi->exists(ctx, path, sfp[1].ns) != PATH_unknown) ? 1 : 0;
 	RETURNb_(tf);
 }
 
 /* ------------------------------------------------------------------------ */
-//## @Hidden @Private @ReadOnly method Any String.path(String qualifier, NameSpace ns, Class c);
+//## @Hidden @Private method Any String.path(String qualifier, NameSpace ns, Class c);
 
 static METHOD String_path(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
@@ -71,19 +72,15 @@ static METHOD String_path(Ctx *ctx, knh_sfp_t *sfp, long rix)
 		isTRIM = 1;
 	}
 	KNH_ASSERT(dspi != NULL);
+	KNH_ASSERT(dspi->isTyped(ctx, cid));
 	if(cid == CLASS_Boolean) {
-		sfp[rix].bvalue = dspi->exists(ctx, path, NULL);
+		sfp[rix].bvalue = dspi->exists(ctx, path, NULL) == PATH_unknown ? 0 : 1;
 		v = sfp[rix].bvalue ? KNH_TRUE : KNH_FALSE;
 	}
-	else if(dspi->newObjectNULL != NULL) {
-		v = dspi->newObjectNULL(ctx, cid, spath);
+	else {
+		v = dspi->newObjectNULL(ctx, cid, spath, sfp[2].ns);
 		if(v == NULL && cid != CLASS_String) {
-			if(!dspi->exists(ctx, path, NULL)) {
-				KNH_SYSLOG(ctx, LOG_WARNING, "MissingPath", "qpath='%B', path='%B'", qpath, path);
-			}
-			else {
-				KNH_SYSLOG(ctx, LOG_WARNING, "Type!!", "requested=%T, path='%B'", cid, path);
-			}
+			KNH_SYSLOG(ctx, LOG_WARNING, "MissingPath", "qpath='%B', path='%B' for %C", qpath, path, cid);
 		}
 	}
 	if(v == NULL) {
@@ -147,89 +144,146 @@ static METHOD String_endsWith(Ctx *ctx, knh_sfp_t *sfp, long rix)
 //}
 
 /* ------------------------------------------------------------------------ */
-//## @Const method Int String.indexOf(Regex re);
+//## @Const method Int String.indexOf(String s);
 
 static METHOD String_indexOf(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-	knh_Regex_t *re = sfp[1].re;
-	knh_index_t loc = -1;
-	if (!IS_NULL(re)) {
-		const char *str = ctx->api->tochar(ctx, sfp[0].s);  // necessary
-		knh_regmatch_t pmatch[K_REGEX_MATCHSIZE];
-		int res = re->spi->regexec(ctx, re->reg, str, K_REGEX_MATCHSIZE, pmatch, 0);
-		if(res == 0) {
-			loc = pmatch[0].rm_so;
-			if (!knh_String_isASCII(sfp[0].s) && loc != -1) {
-				knh_bytes_t base = {{str}, loc};
-				loc = knh_bytes_mlen(base);
-			}
-		}
-		else {
-			char ebuf[K_ERRBUFSIZE];
-			re->spi->regerror(res, re->reg, ebuf, K_ERRBUFSIZE);
-			ctx->api->ebilog(ctx, re->spi->name, "regexec", LOG_WARNING, "errmsg='%s'", ebuf);
-		}
-
+	knh_bytes_t base = S_tobytes(sfp[0].s);
+	knh_bytes_t delim = S_tobytes(sfp[1].s);
+	knh_index_t loc = knh_bytes_indexOf(base, delim);
+	if (loc >= 0 && !knh_String_isASCII(sfp[0].s)) {
+		base.len = (size_t)loc;
+		loc = knh_bytes_mlen(base);
 	}
 	RETURNi_(loc);
 }
 
 /* ------------------------------------------------------------------------ */
-//## @Const method Int String.lastIndexOf(Regex re);
+//## @Const method Int String.lastIndexOf(String s);
 
 static METHOD String_lastIndexOf(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-	KNH_TODO("function, assigned to NAKATA!!");
+	knh_bytes_t base = S_tobytes(sfp[0].s);
+	knh_bytes_t delim = S_tobytes(sfp[1].s);
+	knh_index_t loc = base.len - delim.len;
+	if(delim.len == 0) loc--;
+	for(; loc >= 0; loc--) {
+		if(base.ustr[loc] == delim.ustr[0]) {
+			knh_bytes_t sub = {{base.text + loc}, delim.len};
+			if(knh_bytes_strcmp(sub, delim) == 0) break;
+		}
+	}
+	if (loc >= 0 && !knh_String_isASCII(sfp[0].s)) {
+		base.len = (size_t)loc;
+		loc = knh_bytes_mlen(base);
+	}
+	RETURNi_(loc);
 }
 
 /* ------------------------------------------------------------------------ */
+//## @Const method Int String.search(Regex re);
 
-static int knh_bytes_equals_(knh_bytes_t base, size_t s, knh_bytes_t target)
+static METHOD String_search(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-	size_t i;
-	for(i = 1; i < target.len; i++) {
-		if(base.ustr[s+i] != target.ustr[i]) return 0;
+	knh_Regex_t *re = sfp[1].re;
+	knh_index_t loc = -1;
+	const char *str = ctx->api->tochar(ctx, sfp[0].s);  // necessary
+	knh_regmatch_t pmatch[K_REGEX_MATCHSIZE];
+	int res = re->spi->regexec(ctx, re->reg, str, K_REGEX_MATCHSIZE, pmatch, 0);
+	if(res == 0) {
+		loc = pmatch[0].rm_so;
+		if (!knh_String_isASCII(sfp[0].s) && loc != -1) {
+			knh_bytes_t base = {{str}, loc};
+			loc = knh_bytes_mlen(base);
+		}
 	}
-	return 1;
+//	else {
+//		char ebuf[K_ERRBUFSIZE];
+//		re->spi->regerror(res, re->reg, ebuf, K_ERRBUFSIZE);
+//		ctx->api->ebilog(ctx, re->spi->name, "regexec", LOG_WARNING, "errmsg='%s'", ebuf);
+//	}
+	RETURNi_(loc);
 }
+
+/* ------------------------------------------------------------------------ */
+//## @Const method String[] String.match(Regex re);
+
+static METHOD String_match(Ctx *ctx, knh_sfp_t *sfp, long rix)
+{
+	knh_String_t *s0 = sfp[0].s;
+	knh_Regex_t *re = sfp[1].re;
+	const char *str = ctx->api->tochar(ctx, sfp[0].s);  // necessary
+	knh_regmatch_t pmatch[K_REGEX_MATCHSIZE];
+	int res = re->spi->regexec(ctx, re->reg, str, K_REGEX_MATCHSIZE, pmatch, 0);
+	knh_Array_t *a = new_Array(ctx, CLASS_String, K_REGEX_MATCHSIZE);
+	if(res == 0) {
+		knh_bytes_t sub = S_tobytes(s0);
+		int i;
+		for(i = 0; i < K_REGEX_MATCHSIZE; i++) {
+			if(pmatch[i].rm_so == -1) break;
+			//DBG_P("[%d], rm_so=%d, rm_eo=%d", i, pmatch[i].rm_so, pmatch[i].rm_eo);
+			sub.text = str + pmatch[i].rm_so;
+			sub.len = pmatch[i].rm_eo - pmatch[i].rm_so;
+			knh_Array_add(ctx, a, new_String_(ctx, CLASS_String, sub, s0));
+		}
+	}
+//	else {
+//		char ebuf[K_ERRBUFSIZE];
+//		re->spi->regerror(res, re->reg, ebuf, K_ERRBUFSIZE);
+//		ctx->api->ebilog(ctx, re->spi->name, "regexec", LOG_WARNING, "errmsg='%s'", ebuf);
+//	}
+	RETURN_(a);
+}
+
+///* ------------------------------------------------------------------------ */
+//
+//static int knh_bytes_equals_(knh_bytes_t base, size_t s, knh_bytes_t target)
+//{
+//	size_t i;
+//	for(i = 1; i < target.len; i++) {
+//		if(base.ustr[s+i] != target.ustr[i]) return 0;
+//	}
+//	return 1;
+//}
 
 /* ------------------------------------------------------------------------ */
 //## @Const method String String.replace(Regex re, String s);
 
 static METHOD String_replace(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-	if(knh_Regex_isSTRREGEX(sfp[1].re)) { /* @author nakata */
-		knh_bytes_t base = S_tobytes(sfp[0].s);
-		knh_bytes_t target = S_tobytes((sfp[1].re)->pattern);
-		knh_bytes_t alt = S_tobytes(sfp[2].s);
-		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-		int search_flag= 0, ch = target.ustr[0];
-		size_t i;
-		if (base.len == 0 || target.len == 0 || base.len < target.len) {
-			RETURN_(sfp[0].o);
-		}
-		for(i = 0; i < base.len - target.len+1; i++) {
-			if(base.ustr[i] == ch && knh_bytes_equals_(base, i, target)) {
-				knh_Bytes_write(ctx, cwb->ba, alt);
-				i += target.len - 1;
-				search_flag = 1;
-			}else {
-				knh_Bytes_putc(ctx, cwb->ba, base.ustr[i]);
-			}
-		}
-		if(search_flag == 0) {
-			RETURN_(sfp[0].o);
-		}
-		else {
-			knh_bytes_t leftover = {{base.text + i}, base.len - i};
-			knh_Bytes_write(ctx, cwb->ba, leftover);
-			RETURN_(knh_cwb_newString(ctx, cwb));
-		}
-	}
-	else {
-		//knh_Regex_t *re = sfp[1].re;
-		KNH_TODO("function, assigned to HIRA!!");
-	}
+	KNH_TODO("String.replace");
+//	if(knh_Regex_isSTRREGEX(sfp[1].re)) { /* @author nakata */
+//		knh_bytes_t base = S_tobytes(sfp[0].s);
+//		knh_bytes_t target = S_tobytes((sfp[1].re)->pattern);
+//		knh_bytes_t alt = S_tobytes(sfp[2].s);
+//		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
+//		int search_flag= 0, ch = target.ustr[0];
+//		size_t i;
+//		if (base.len == 0 || target.len == 0 || base.len < target.len) {
+//			RETURN_(sfp[0].o);
+//		}
+//		for(i = 0; i < base.len - target.len+1; i++) {
+//			if(base.ustr[i] == ch && knh_bytes_equals_(base, i, target)) {
+//				knh_Bytes_write(ctx, cwb->ba, alt);
+//				i += target.len - 1;
+//				search_flag = 1;
+//			}else {
+//				knh_Bytes_putc(ctx, cwb->ba, base.ustr[i]);
+//			}
+//		}
+//		if(search_flag == 0) {
+//			RETURN_(sfp[0].o);
+//		}
+//		else {
+//			knh_bytes_t leftover = {{base.text + i}, base.len - i};
+//			knh_Bytes_write(ctx, cwb->ba, leftover);
+//			RETURN_(knh_cwb_newString(ctx, cwb));
+//		}
+//	}
+//	else {
+//		//knh_Regex_t *re = sfp[1].re;
+//		KNH_TODO("function, assigned to HIRA!!");
+//	}
 }
 
 /* ------------------------------------------------------------------------ */
@@ -286,60 +340,27 @@ static METHOD String_split(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	if(IS_NULL(re)) {
 		a = knh_String_toCharArray(ctx, s0, 0);
 	}
-	else if(knh_Regex_isSTRREGEX(re)) {
-		int istrim = 0;
-		knh_bytes_t delim = S_tobytes((re)->pattern);
-		if(delim.len == 0) {
-			a = knh_String_toCharArray(ctx, s0, 0);
-		}
-		else {
-			knh_bytes_t base = S_tobytes(s0);
-			a = new_Array(ctx, CLASS_String, 8);
-			while(1) {
-				knh_index_t loc = knh_bytes_indexOf(base, delim);
-				if(loc == -1) {
-					if(istrim) base = knh_bytes_trim(base);
-					knh_Array_add(ctx, a, new_String_(ctx, CLASS_String, base, s0));
-					break;
-				}
-				else if(loc == 0) {
-					knh_Array_add_(ctx, a, UPCAST(TS_EMPTY));
-				}
-				else {
-					knh_bytes_t t = knh_bytes_first(base, loc);
-					if(istrim) t = knh_bytes_trim(t);
-					knh_Array_add(ctx, a, new_String_(ctx, CLASS_String, t, s0));
-				}
-				base.ustr = base.ustr + loc + delim.len;
-				base.len = base.len - loc - delim.len;
-			}
-		}
-	}
 	else {
-		const char *str = S_tochar(s0);
+		const char *str = ctx->api->tochar(ctx, sfp[0].s);  // necessary
+		const char *estr = str + S_size(sfp[0].s);
 		knh_regmatch_t pmatch[K_REGEX_MATCHSIZE];
-		int res = re->spi->regexec(ctx, re->reg, str, K_REGEX_MATCHSIZE, pmatch, 0);
-		a = new_Array(ctx, CLASS_String, K_REGEX_MATCHSIZE);
-		if(res == 0) {
-			knh_bytes_t sub = S_tobytes(s0);
-			int i;
-			for(i = 0; i < K_REGEX_MATCHSIZE; i++) {
-				if(pmatch[i].rm_so == -1) break;
-				//DBG_P("[%d], rm_so=%d, rm_eo=%d", i, pmatch[i].rm_so, pmatch[i].rm_eo);
-				sub.text = str + pmatch[i].rm_so;
-				sub.len = pmatch[i].rm_eo - pmatch[i].rm_so;
+		a = new_Array(ctx, CLASS_String, 0);
+		while (str < estr) {
+			int res = re->spi->regexec(ctx, re->reg, str, K_REGEX_MATCHSIZE, pmatch, re->eflags);
+			if(res == 0) {
+				knh_bytes_t sub = {{str},  pmatch[0].rm_so};
 				knh_Array_add(ctx, a, new_String_(ctx, CLASS_String, sub, s0));
+				str += (pmatch[0].rm_eo + 1);
 			}
-		}
-		else {
-			char ebuf[K_ERRBUFSIZE];
-			re->spi->regerror(res, re->reg, ebuf, K_ERRBUFSIZE);
-			ctx->api->ebilog(ctx, re->spi->name, "regexec", LOG_WARNING, "errmsg='%s'", ebuf);
+			else {
+				knh_bytes_t sub = {{str}, knh_strlen(str)};
+				knh_Array_add(ctx, a, new_String_(ctx, CLASS_String, sub, s0));
+				break;
+			}
 		}
 	}
 	RETURN_(a);
 }
-
 
 /* ------------------------------------------------------------------------ */
 //## @Const method Bytes Bytes.(Converter enc);
@@ -362,6 +383,7 @@ static METHOD String_encode(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 	knh_Converter_t *c = sfp[1].conv;
+	//fprintf(stderr, "c=%p, c->dspi=%p, c->dspi->enc=%p****\n", c, c->dspi);
 	c->dspi->enc(ctx, c->conv, S_tobytes(sfp[0].s), cwb->ba);
 	knh_Bytes_t *ba = new_Bytes(ctx, knh_cwb_size(cwb));
 	knh_Bytes_write(ctx, ba, knh_cwb_tobytes(cwb));
@@ -406,32 +428,32 @@ static METHOD String_trim(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	RETURN_(s);
 }
 
-/* ------------------------------------------------------------------------ */
-
-static int knh_String_opCASE(Ctx *ctx, knh_String_t *s, knh_Regex_t *re)
-{
-	const char *str = ctx->api->tochar(ctx, s);
-	knh_regmatch_t pmatch[K_REGEX_MATCHSIZE];
-	int res = re->spi->regexec(ctx, re->reg, str, K_REGEX_MATCHSIZE, pmatch, 0);
-	return (res == 0);
-}
-
-/* ------------------------------------------------------------------------ */
-//## method Boolean String.opCASE(Regex! re);
-
-static METHOD String_opCASE(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURNb_(knh_String_opCASE(ctx, sfp[0].s, (knh_Regex_t*)sfp[1].o));
-}
-
-/* ------------------------------------------------------------------------ */
-//## method Boolean Regex.opCASE(String s);
-
-static METHOD Regex_opCASE(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-
-	RETURNb_(knh_String_opCASE(ctx, sfp[1].s, (knh_Regex_t*)sfp[0].o));
-}
+///* ------------------------------------------------------------------------ */
+//
+//static int knh_String_opCASE(Ctx *ctx, knh_String_t *s, knh_Regex_t *re)
+//{
+//	const char *str = ctx->api->tochar(ctx, s);
+//	knh_regmatch_t pmatch[K_REGEX_MATCHSIZE];
+//	int res = re->spi->regexec(ctx, re->reg, str, K_REGEX_MATCHSIZE, pmatch, 0);
+//	return (res == 0);
+//}
+//
+///* ------------------------------------------------------------------------ */
+////## method Boolean String.opCASE(Regex! re);
+//
+//static METHOD String_opCASE(Ctx *ctx, knh_sfp_t *sfp, long rix)
+//{
+//	RETURNb_(knh_String_opCASE(ctx, sfp[0].s, (knh_Regex_t*)sfp[1].o));
+//}
+//
+///* ------------------------------------------------------------------------ */
+////## method Boolean Regex.opCASE(String s);
+//
+//static METHOD Regex_opCASE(Ctx *ctx, knh_sfp_t *sfp, long rix)
+//{
+//
+//	RETURNb_(knh_String_opCASE(ctx, sfp[1].s, (knh_Regex_t*)sfp[0].o));
+//}
 
 /* ------------------------------------------------------------------------ */
 

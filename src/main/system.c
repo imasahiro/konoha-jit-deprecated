@@ -335,7 +335,7 @@ knh_String_t *knh_getURN(Ctx *ctx, knh_uri_t uri)
 /* ======================================================================== */
 /* [Driver] */
 
-void knh_addDriverSPI(Ctx *ctx, const char *scheme, knh_DriverSPI_t* p)
+void knh_addDSPI(Ctx *ctx, const char *scheme, const knh_DSPI_t* p)
 {
 	const char *name = (scheme == NULL) ? p->name : scheme;
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
@@ -349,7 +349,7 @@ void knh_addDriverSPI(Ctx *ctx, const char *scheme, knh_DriverSPI_t* p)
 
 /* ------------------------------------------------------------------------ */
 
-knh_DriverSPI_t *knh_getDriverSPI(Ctx *ctx, int type, knh_bytes_t path)
+const knh_DSPI_t *knh_getDSPINULL(Ctx *ctx, int type, knh_bytes_t path)
 {
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 	knh_index_t idx = knh_bytes_index(path, ':');
@@ -362,10 +362,31 @@ knh_DriverSPI_t *knh_getDriverSPI(Ctx *ctx, int type, knh_bytes_t path)
 	knh_putc(ctx, cwb->w, ':');
 	knh_write_ifmt(ctx, cwb->w, K_INT_FMT, type);
 	OLD_LOCK(ctx, LOCK_SYSTBL, NULL);
-	knh_DriverSPI_t *p = (knh_DriverSPI_t*)knh_DictSet_get(ctx, DP(ctx->sys)->dspiDictSet, knh_cwb_tobytes(cwb));
+	const knh_DSPI_t *p = (const knh_DSPI_t*)knh_DictSet_get(ctx, DP(ctx->sys)->dspiDictSet, knh_cwb_tobytes(cwb));
 	OLD_UNLOCK(ctx, LOCK_SYSTBL, NULL);
 	knh_cwb_close(cwb);
 	return p;
+}
+
+/* ------------------------------------------------------------------------ */
+
+knh_PathDSPI_t *knh_NameSpace_getPathDSPINULL(Ctx *ctx, knh_NameSpace_t *ns, knh_bytes_t path)
+{
+	return (knh_PathDSPI_t *)knh_getDSPINULL(ctx, K_DSPI_PATH, path);
+}
+
+/* ------------------------------------------------------------------------ */
+
+knh_ConvDSPI_t *knh_NameSpace_getConvTODSPINULL(Ctx *ctx, knh_NameSpace_t *ns, knh_bytes_t path)
+{
+	return (knh_ConvDSPI_t *)knh_getDSPINULL(ctx, K_DSPI_CONVTO, path);
+}
+
+/* ------------------------------------------------------------------------ */
+
+knh_ConvDSPI_t *knh_NameSpace_getConvFROMDSPINULL(Ctx *ctx, knh_NameSpace_t *ns, knh_bytes_t path)
+{
+	return (const knh_ConvDSPI_t *)knh_getDSPINULL(ctx, K_DSPI_CONVFROM, path);
 }
 
 /* ------------------------------------------------------------------------ */

@@ -81,24 +81,24 @@ typedef struct knh_ExportsAPI_t {
 /* ------------------------------------------------------------------------ */
 /* driver */
 
-typedef struct {
+typedef const struct {
 	int   type;
 	const char *name;
-} knh_DriverSPI_t ;
+} knh_DSPI_t ;
 
-#define K_PATH_DSPI             1
-#define K_CONVTO_DSPI           2
-#define K_CONVFROM_DSPI         3
-#define K_STREAM_DSPI           4
-#define K_REGEX_DSPI            5
-#define K_QUERY_DSPI            6
-#define K_MAP_DSPI              7
+#define K_DSPI_PATH             1
+#define K_DSPI_CONVTO           2
+#define K_DSPI_CONVFROM         3
+#define K_DSPI_STREAM           4
+#define K_DSPI_REGEX            5
+#define K_DSPI_QUERY            6
+#define K_DSPI_MAP              7
 
-#define IS_DRVAPI(c)   (0 < c && c < 8)
+#define IS_DSPI(c)   (0 < c && c < 8)
 #define K_DEFAULT_DSPI          STEXT("")
 
 /* ------------------------------------------------------------------------ */
-/* K_PATH_DSPI */
+/* K_DSPI_PATH */
 
 #define PATH_INTERNAL    0
 #define PATH_SYSTEM      1
@@ -106,19 +106,25 @@ typedef struct {
 #define PATH_EXTERNAL    3
 #define PATH_CONVERTER   4
 
-typedef struct knh_PathDSPI_t {
+#define K_PATHHEAD_MAXSIZ    32
+#define PATH_found          1
+#define PATH_unknown        ((knh_uintptr_t)(-1))
+#define PATH_isTyped(cid)   (cid == CLASS_Boolean || cid == CLASS_String)
+
+typedef const struct _knh_PathDSPI_t {
 	int   type;
 	const char *name;
 	knh_ushort_t pathtype;
 	knh_ushort_t cid;
-	knh_bool_t (*exists)(Ctx *, knh_bytes_t, knh_intptr_t *);
-	Object* (*newObjectNULL)(Ctx *, knh_class_t, knh_String_t *);
+	knh_uintptr_t (*exists)(Ctx *, knh_bytes_t, knh_NameSpace_t *);
+	knh_bool_t    (*isTyped)(Ctx *, knh_class_t);
+	Object*       (*newObjectNULL)(Ctx *, knh_class_t, knh_String_t *, knh_NameSpace_t *);
 } knh_PathDSPI_t;
 
 /* ------------------------------------------------------------------------ */
 /* K_BCONV_DSPI */
 
-typedef struct knh_ConverterDSPI_t {
+typedef const struct _knh_ConvDSPI_t {
 	int  type;
 	const char *name;
 	knh_conv_t* (*open)(Ctx *, const char*, const char*);
@@ -128,14 +134,14 @@ typedef struct knh_ConverterDSPI_t {
 	knh_bool_t (*sconv)(Ctx *, knh_conv_t *, knh_bytes_t t, knh_Bytes_t *);
 	void (*close)(Ctx *ctx, knh_conv_t*);
 	void (*setparam)(Ctx *ctx, knh_conv_t *, void *, void *);
-} knh_ConverterDSPI_t;
+} knh_ConvDSPI_t;
 
 /* ------------------------------------------------------------------------ */
-/* K_STREAM_DSPI */
+/* K_DSPI_STREAM */
 
 typedef void   (*knh_Fclose)(Ctx *, knh_io_t);
 
-typedef struct knh_StreamDSPI_t {
+typedef const struct _knh_StreamDSPI_t {
 	int type;
 	const char *name;
 	size_t bufsiz;  /* knh_io_t == FILE* if bufsiz == 0 */
@@ -151,9 +157,9 @@ typedef struct knh_StreamDSPI_t {
 } knh_StreamDSPI_t;
 
 /* ------------------------------------------------------------------------ */
-/* K_QUERY_DSPI */
+/* K_DSPI_QUERY */
 
-typedef struct knh_QueryDPI_t {
+typedef const struct _knh_QueryDPI_t {
 	int   type;
 	const char *name;
 	knh_qconn_t* (*qopen)(Ctx *ctx, knh_bytes_t);
@@ -164,12 +170,12 @@ typedef struct knh_QueryDPI_t {
 } knh_QueryDSPI_t;
 
 /* ------------------------------------------------------------------------ */
-/* K_MAP_DSPI */
+/* K_DSPI_MAP */
 
-typedef struct knh_MapDSPI_t {
+typedef const struct _knh_MapDSPI_t {
 	int   type;
 	const char *name;
-	const struct knh_MapDSPI_t* (*config)(Ctx *, knh_class_t, knh_class_t);
+	const struct _knh_MapDSPI_t* (*config)(Ctx *, knh_class_t, knh_class_t);
 	knh_map_t* (*init)(Ctx *, size_t, char*, void *);
 	void (*ftrmap)(Ctx *, knh_map_t*, knh_Ftraverse ftr);
 	void (*freemap)(Ctx *, knh_map_t*);
@@ -183,16 +189,16 @@ typedef struct knh_MapDSPI_t {
 /* ------------------------------------------------------------------------ */
 /* SHELL_SPI */
 
-typedef struct knh_ShellAPI_t {
+typedef const struct _knh_ShellAPI_t {
 	int (*checkstmt)(knh_bytes_t t);
 	knh_bool_t (*command)(Ctx *ctx, knh_cwb_t *cwb);
 } knh_ShellAPI_t;
 
-typedef struct knh_ShellSPI_t {
+typedef const struct _knh_ShellSPI_t {
 	const char *name;  // shell name
 	void* (*shell_init)(Ctx *ctx, const char *msg, const char *optstr);
-	knh_bool_t (*shell_readstmt)(Ctx *, void* status, knh_cwb_t *cwb, const knh_ShellAPI_t *api);
-	void  (*shell_display)(Ctx *, void*, const char *, const knh_ShellAPI_t *api);
+	knh_bool_t (*shell_readstmt)(Ctx *, void* status, knh_cwb_t *cwb, knh_ShellAPI_t *api);
+	void  (*shell_display)(Ctx *, void*, const char *, knh_ShellAPI_t *api);
 	void  (*shell_cleanup)(Ctx *, void*);
 } knh_ShellSPI_t;
 
@@ -209,7 +215,7 @@ typedef struct {
 	knh_bytes_t rm_name;  /* {NULL, 0}, if not NAMED */
 } knh_regmatch_t;
 
-typedef struct knh_RegexSPI_t {
+typedef const struct _knh_RegexSPI_t {
 	const char *name;
 	knh_regex_t* (*regmalloc)(Ctx *, knh_String_t *);
 	int (*parse_cflags)(Ctx *, const char *opt);
@@ -223,7 +229,7 @@ typedef struct knh_RegexSPI_t {
 /* ------------------------------------------------------------------------ */
 /* EBI_SPI */
 
-typedef struct knh_EvidenceSPI_t {
+typedef const struct _knh_EvidenceSPI_t {
 	const char *name;
 	void (*syslog)(int, const char *, ...);
 	void (*vsyslog)(int, const char *, va_list);
@@ -232,7 +238,7 @@ typedef struct knh_EvidenceSPI_t {
 /* ------------------------------------------------------------------------ */
 /* CompilerSPI */
 
-typedef struct knh_CompilerSPI_t {
+typedef const struct _knh_CompilerSPI_t {
 	const char *name;
 	knh_bool_t (*isOPCODE)(knh_opcode_t opcode);
 	knh_Fmethod (*compile)(Ctx *ctx, knh_opline_t* line);
@@ -241,7 +247,7 @@ typedef struct knh_CompilerSPI_t {
 /* ------------------------------------------------------------------------ */
 /* SyncSPI */
 
-typedef struct knh_SyncSPI_t {
+typedef const struct _knh_SyncSPI_t {
 	const char *name;
 #ifdef K_USING_DEBUG
 	int (*lock)(knh_mutex_t *m, const char *_file, const char* _func, int _line);
@@ -256,22 +262,22 @@ typedef struct knh_SyncSPI_t {
 /* ConstData  */
 /* ------------------------------------------------------------------------ */
 
-typedef struct {
+typedef const struct {
 	const char *name;
 	knh_int_t ivalue;
 } knh_IntData_t;
 
-typedef struct {
+typedef const struct {
 	const char *name;
 	knh_float_t fvalue;
 } knh_FloatData_t;
 
-typedef struct {
+typedef const struct {
 	const char *name;
 	const char *value;
 } knh_StringData_t;
 
-typedef struct {
+typedef const struct {
 	const char *name;
 	void *ptr;
 } knh_NamedPointerData_t;
@@ -293,26 +299,26 @@ typedef knh_intptr_t knh_data_t;
 
 /* ------------------------------------------------------------------------ */
 
-typedef struct knh_PackageLoaderAPI_t {
+typedef const struct _knh_PackageLoaderAPI_t {
 	void (*loadData)(Ctx *, knh_data_t *, knh_ParamArray_t **);
 	void (*loadIntData)(Ctx *, knh_IntData_t *);
 	void (*loadFloatData)(Ctx *, knh_FloatData_t *);
 	void (*loadStringData)(Ctx *, knh_StringData_t *);
-	void (*setRegexSPI)(Ctx *, const knh_RegexSPI_t *);
-	void (*setShellSPI)(Ctx *, const knh_ShellSPI_t *, int);
-	void (*setEvidenceSPI)(Ctx *, const knh_EvidenceSPI_t *, int);
-	void (*addPathDSPI)(Ctx *, const char*, const knh_PathDSPI_t *, int);
-	void (*addStreamDSPI)(Ctx *, const char*, const knh_StreamDSPI_t *, int);
-	void (*addQueryDSPI)(Ctx *, const char *, const knh_QueryDSPI_t *, int);
-	void (*addConverterDSPI)(Ctx *, const char *, const knh_ConverterDSPI_t*, int);
+	void (*setRegexSPI)(Ctx *, knh_RegexSPI_t *);
+	void (*setShellSPI)(Ctx *, knh_ShellSPI_t *, int);
+	void (*setEvidenceSPI)(Ctx *, knh_EvidenceSPI_t *, int);
+	void (*addPathDSPI)(Ctx *, const char*, knh_PathDSPI_t *, int);
+	void (*addStreamDSPI)(Ctx *, const char*, knh_StreamDSPI_t *, int);
+	void (*addQueryDSPI)(Ctx *, const char *, knh_QueryDSPI_t *, int);
+	void (*addConverterDSPI)(Ctx *, const char *, knh_ConvDSPI_t*, int);
 } knh_PackageLoaderAPI_t;
 
 typedef int  (*knh_FcheckPKG)(void);
-typedef void (*knh_FsetupPKG)(Ctx *ctx, const knh_PackageLoaderAPI_t *, const char *, int);
+typedef void (*knh_FsetupPKG)(Ctx *ctx, knh_PackageLoaderAPI_t *, const char *, int);
 
 #define knh_isSelectedDSPI(c, T)   (c == NULL || strstr(c, ":" T ":") != NULL)
 
-typedef struct {
+typedef const struct {
 	const char *name;
 	knh_ObjectCSPI_t *cspi;  // if cspi is NULL, rawptr is be used instead.
 	knh_Fdefnull      fdefault;

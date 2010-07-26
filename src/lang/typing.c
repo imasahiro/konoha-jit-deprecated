@@ -984,30 +984,36 @@ static knh_Term_t* knh_TokenESTR_typing(Ctx *ctx, knh_Token_t *tk, knh_class_t r
 static knh_Term_t* knh_TokenURN_typing(Ctx *ctx, knh_Token_t *tk, knh_class_t reqt)
 {
 	knh_bytes_t path = S_tobytes(DP(tk)->text);
-	knh_PathDSPI_t *dspi = knh_NameSpace_getPathDSPINULL(ctx, DP(ctx->gma)->ns, path);
+	knh_NameSpace_t *ns = DP(ctx->gma)->ns;
+	knh_PathDSPI_t *dspi = knh_NameSpace_getPathDSPINULL(ctx, ns, path);
 	if(dspi == NULL) {
-		knh_Gamma_perror(ctx, KERR_ERR, "unknown path: %s", path);
+		knh_Gamma_perror(ctx, KERR_ERR, "unknown path: %B", path);
 		return NULL;
 	}
 	if(TT_(tk) == TT_QPATH) {
 		return knh_Token_toCONST(ctx, tk);
 	}
+	if(reqt == TYPE_Any) reqt = dspi->cid;
+	if(!dspi->isTyped(ctx, CLASS_type(reqt))) {
+		knh_Gamma_perror(ctx, KERR_ERR, "%B can be %T, NOT %T, ", path, dspi->cid, reqt);
+		return NULL;
+	}
 	if(reqt == TYPE_Boolean) {
-		knh_Object_t *tf = dspi->exists(ctx, path, NULL) ? KNH_TRUE : KNH_FALSE;
+		knh_Object_t *tf = dspi->exists(ctx, path, ns) == PATH_unknown ? KNH_FALSE : KNH_TRUE;
 		return knh_Token_setCONST(ctx, tk, tf);
 	}
-	else if(reqt != TYPE_String && (void*)dspi->newObjectNULL != NULL) {
-		knh_Object_t *o = dspi->newObjectNULL(ctx, reqt, DP(tk)->text);
+	else {
+		knh_Object_t *o = dspi->newObjectNULL(ctx, reqt, DP(tk)->text, ns);
 		if(o == NULL) {
-			o = dspi->newObjectNULL(ctx, dspi->cid, DP(tk)->text);
-			if(o == NULL) {
-				knh_Gamma_perror(ctx, KERR_ERR, "'%s' is not %T", path, reqt);
-				return NULL;
+			if(reqt == TYPE_String) {
+				o = DP(tk)->data;
+			}
+			else {
+				o = KNH_NULVAL(reqt);
 			}
 		}
 		return knh_Token_setCONST(ctx, tk, o);
 	}
-	return knh_Token_toCONST(ctx, tk);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -2096,6 +2102,13 @@ static knh_Term_t *knh_StmtOP_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt
 		//			return knh_Stmt_untyped(ctx, stmt);
 		//		}
 	}
+	for(i = 1; i < opsize + 1; i++) {
+		if(TT_(DP(stmt)->terms[i]) == TT_NULL) {
+			knh_Gamma_perror(ctx, KERR_ERR,
+				_("undefined behavior for null"));
+			return NULL;
+		}
+	}
 
 	switch(mn) {
 	case MN_opADD: /* a + b*/
@@ -2109,7 +2122,6 @@ static knh_Term_t *knh_StmtOP_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt
 			knh_Token_t *tk = new_(Token);
 			TT_(tk) = TT_ASIS;
 			knh_Stmt_insert(ctx, stmt, 1, tk);
-			DBG_P("string concat");
 			STT_(stmt) = STT_W;
 			DP(stmt)->wstart = 2;
 			return knh_Stmt_typed(ctx, stmt, TYPE_String);
@@ -2190,6 +2202,13 @@ static knh_Term_t *knh_StmtOP_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt
 		}
 		goto L_LOOKUPMETHOD;
 	}
+
+	case MN_opEXISTS:
+	{
+		knh_Stmt_add(ctx, stmt, new_TokenCONST(ctx, DP(ctx->gma)->ns));
+		goto L_LOOKUPMETHOD;
+	}
+
 
 	default:
 		mtd_cid = TERMs_getcid(stmt, 1);
@@ -2291,11 +2310,6 @@ static knh_Term_t *knh_StmtTCAST_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t r
 
 /* ------------------------------------------------------------------------ */
 /* [QCAST] */
-
-knh_PathDSPI_t *knh_NameSpace_getPathDSPINULL(Ctx *ctx, knh_NameSpace_t *ns, knh_bytes_t path)
-{
-	return knh_getPathDSPINULL(ctx, path);
-}
 
 static knh_Term_t* knh_StmtQCAST_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
 {

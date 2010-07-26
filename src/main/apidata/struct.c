@@ -1214,7 +1214,7 @@ static FASTAPI(void) knh_Regex_init(Ctx *ctx, Object *o)
 	knh_Regex_t *re = (knh_Regex_t*)o;
 	KNH_INITv(re->pattern, TS_EMPTY);
 	re->spi = &STRREGEXSPI;
-	re->reg = NULL;
+	re->reg = (knh_regex_t*)TS_EMPTY;
 }
 
 static FASTAPI(void) knh_Regex_traverse(Ctx *ctx, Object *o, knh_Ftraverse ftr)
@@ -1251,31 +1251,31 @@ knh_bool_t knh_Regex_isSTRREGEX(knh_Regex_t *re)
 /* ======================================================================== */
 /* StringEncoder */
 
-static knh_conv_t *knh_open_NOCONV(Ctx *ctx, const char*f, const char *t)
-{
-	return NULL;
-}
+//static knh_conv_t *knh_open_NOCONV(Ctx *ctx, const char*f, const char *t)
+//{
+//	return NULL;
+//}
 static knh_bool_t knh_conv_NOCONV(Ctx *ctx, knh_conv_t *c, knh_bytes_t t, knh_Bytes_t *tobuf)
 {
-	knh_Bytes_write(ctx, tobuf, t);
+	knh_Bytes_write(ctx, tobuf, t);  // this is necessary for default StringEncoder
 	return 1;
 }
-static void knh_conv_NOSET(Ctx *ctx, knh_conv_t *c, void *k, void *v)
-{
-}
-static void knh_close_NOCONV(Ctx *ctx, knh_conv_t *c)
-{
-}
+//static void knh_conv_NOSET(Ctx *ctx, knh_conv_t *c, void *k, void *v)
+//{
+//}
+//static void knh_close_NOCONV(Ctx *ctx, knh_conv_t *c)
+//{
+//}
 
-static knh_ConverterDSPI_t NOCONV_DSPI = {
-	K_CONVTO_DSPI, "NOP",
-	knh_open_NOCONV,
+static knh_ConvDSPI_t NOCONV_DSPI = {
+	K_DSPI_CONVTO, "NOP",
+	NULL,
 	knh_conv_NOCONV,
 	knh_conv_NOCONV,
 	knh_conv_NOCONV,
 	knh_conv_NOCONV,
-	knh_close_NOCONV,
-	knh_conv_NOSET,
+	NULL/*knh_close_NOCONV*/,
+	NULL/*knh_conv_NOSET*/,
 };
 
 static FASTAPI(void) knh_Converter_init(Ctx *ctx, Object *o)

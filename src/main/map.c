@@ -378,30 +378,30 @@ static knh_bool_t hmap_setIterator(Ctx *ctx, knh_map_t* m, knh_Iterator_t *it)
 
 static const knh_MapDSPI_t* hmap_config(Ctx *ctx, knh_class_t p1, knh_class_t p2);
 
-static const struct knh_MapDSPI_t MAP_ObjectObject = {
-	K_MAP_DSPI, "hash",
+static knh_MapDSPI_t MAP_ObjectObject = {
+	K_DSPI_MAP, "hash",
 	hmap_config,
 	hmap_init, hmap_ftr, hmap_free,
 	hmap_get, hmap_set, hmap_remove, hmap_size,
 	hmap_setIterator,
 };
 
-static const struct knh_MapDSPI_t MAP_ObjectData = {
-	K_MAP_DSPI, "hash",
+static knh_MapDSPI_t MAP_ObjectData = {
+	K_DSPI_MAP, "hash",
 	hmap_config, hmap_init, hmap_ftrdata, hmap_free,
 	hmap_getdata, hmap_setdata, hmap_remove, hmap_size,
 	hmap_setIterator,
 };
 
-static const struct knh_MapDSPI_t MAP_DataObject = {
-	K_MAP_DSPI, "hash",
+static knh_MapDSPI_t MAP_DataObject = {
+	K_DSPI_MAP, "hash",
 	hmap_config, hmap_init, hmap_dftr, hmap_free,
 	hmap_dget, hmap_dset, hmap_dremove, hmap_size,
 	hmap_setIterator,
 };
 
-static const struct knh_MapDSPI_t MAP_DataData = {
-	K_MAP_DSPI, "hash",
+static knh_MapDSPI_t MAP_DataData = {
+	K_DSPI_MAP, "hash",
 	hmap_config, hmap_init, hmap_dftrdata, hmap_free,
 	hmap_dgetdata, hmap_dsetdata, hmap_dremove, hmap_size,
 	hmap_setIterator,
@@ -845,72 +845,72 @@ static void dmap_sremovedata(Ctx *ctx, knh_map_t* m, knh_sfp_t *ksfp)
 
 static const knh_MapDSPI_t* dmap_config(Ctx *ctx, knh_class_t p1, knh_class_t p2);
 
-static const struct knh_MapDSPI_t DMAP_IntObject = {
-	K_MAP_DSPI, "dict",
+static knh_MapDSPI_t DMAP_IntObject = {
+	K_DSPI_MAP, "dict",
 	dmap_config,
 	dmap_init, dmap_dftr, dmap_free,
 	dmap_iget, dmap_iset, dmap_iremove,
 	dmap_size, dmap_setIterator,
 };
 
-static const struct knh_MapDSPI_t DMAP_IntInt = {
-	K_MAP_DSPI, "dict",
+static knh_MapDSPI_t DMAP_IntInt = {
+	K_DSPI_MAP, "dict",
 	dmap_config,
 	dmap_init, dmap_dftrdata, dmap_free,
 	dmap_igetint, dmap_isetint, dmap_iremovedata,
 	dmap_size, dmap_setIterator,
 };
 
-static const struct knh_MapDSPI_t DMAP_IntFloat = {
-	K_MAP_DSPI, "dict",
+static knh_MapDSPI_t DMAP_IntFloat = {
+	K_DSPI_MAP, "dict",
 	dmap_config,
 	dmap_init, dmap_dftrdata, dmap_free,
 	dmap_igetfloat, dmap_isetfloat, dmap_iremovedata,
 	dmap_size, dmap_setIterator,
 };
 
-static const struct knh_MapDSPI_t DMAP_FloatObject = {
-	K_MAP_DSPI, "dict",
+static knh_MapDSPI_t DMAP_FloatObject = {
+	K_DSPI_MAP, "dict",
 	dmap_config,
 	dmap_init, dmap_dftr, dmap_free,
 	dmap_fget, dmap_fset, dmap_fremove,
 	dmap_size, dmap_setIterator,
 };
 
-static const struct knh_MapDSPI_t DMAP_FloatInt = {
-	K_MAP_DSPI, "dict",
+static knh_MapDSPI_t DMAP_FloatInt = {
+	K_DSPI_MAP, "dict",
 	dmap_config,
 	dmap_init, dmap_dftrdata, dmap_free,
 	dmap_fgetint, dmap_fsetint, dmap_fremovedata,
 	dmap_size, dmap_setIterator,
 };
 
-static const struct knh_MapDSPI_t DMAP_FloatFloat = {
-	K_MAP_DSPI, "dict",
+static knh_MapDSPI_t DMAP_FloatFloat = {
+	K_DSPI_MAP, "dict",
 	dmap_config,
 	dmap_init, dmap_dftrdata, dmap_free,
 	dmap_fgetfloat, dmap_fsetfloat, dmap_fremovedata,
 	dmap_size, dmap_setIterator,
 };
 
-static const struct knh_MapDSPI_t DMAP_StringObject = {
-	K_MAP_DSPI, "dict",
+static knh_MapDSPI_t DMAP_StringObject = {
+	K_DSPI_MAP, "dict",
 	dmap_config,
 	dmap_init, dmap_ftr, dmap_free,
 	dmap_sget, dmap_sset, dmap_sremove, dmap_size,
 	dmap_setIterator,
 };
 
-static const struct knh_MapDSPI_t DMAP_StringInt = {
-	K_MAP_DSPI, "dict",
+static knh_MapDSPI_t DMAP_StringInt = {
+	K_DSPI_MAP, "dict",
 	dmap_config,
 	dmap_init, dmap_ftrdata, dmap_free,
 	dmap_sgetint, dmap_ssetint, dmap_sremovedata, dmap_size,
 	dmap_setIterator,
 };
 
-static const struct knh_MapDSPI_t DMAP_StringFloat = {
-	K_MAP_DSPI, "dict",
+static knh_MapDSPI_t DMAP_StringFloat = {
+	K_DSPI_MAP, "dict",
 	dmap_config,
 	dmap_init, dmap_ftrdata, dmap_free,
 	dmap_sgetfloat, dmap_ssetfloat, dmap_sremovedata, dmap_size,
@@ -1034,24 +1034,24 @@ static knh_map_t* casemap_ssetfloat(Ctx *ctx, knh_map_t* m, knh_sfp_t* ksfp)
 
 static const knh_MapDSPI_t* casemap_config(Ctx *ctx, knh_class_t p1, knh_class_t p2);
 
-static const struct knh_MapDSPI_t CASEMAP_StringObject = {
-	K_MAP_DSPI, "casedict",
+static knh_MapDSPI_t CASEMAP_StringObject = {
+	K_DSPI_MAP, "casedict",
 	casemap_config,
 	dmap_init, dmap_ftr, dmap_free,
 	casemap_sget, casemap_sset, dmap_sremove,
 	dmap_size, dmap_setIterator,
 };
 
-static const struct knh_MapDSPI_t CASEMAP_StringInt = {
-	K_MAP_DSPI, "casedict",
+static knh_MapDSPI_t CASEMAP_StringInt = {
+	K_DSPI_MAP, "casedict",
 	casemap_config,
 	dmap_init, dmap_ftrdata, dmap_free,
 	casemap_sgetint, casemap_ssetint, dmap_sremove,
 	dmap_size, dmap_setIterator,
 };
 
-static const struct knh_MapDSPI_t CASEMAP_StringFloat = {
-	K_MAP_DSPI, "casedict",
+static knh_MapDSPI_t CASEMAP_StringFloat = {
+	K_DSPI_MAP, "casedict",
 	casemap_config,
 	dmap_init, dmap_ftrdata, dmap_free,
 	casemap_sgetfloat, casemap_ssetfloat, dmap_sremove,
@@ -1325,10 +1325,10 @@ void knh_DictCaseSet_append(Ctx *ctx, knh_DictCaseSet_t *m, knh_String_t *key, k
 void knh_loadDefaultMapDSPI(Ctx *ctx, const knh_MapDSPI_t *dspi)
 {
 #ifdef K_USING_HASHMAP
-	knh_addDriverSPI(ctx, "hash", (knh_DriverSPI_t*)&MAP_ObjectObject);
+	knh_addDSPI(ctx, "hash", (knh_DSPI_t*)&MAP_ObjectObject);
 #endif
-	knh_addDriverSPI(ctx, "dict", (knh_DriverSPI_t*)&DMAP_StringObject);
-	knh_addDriverSPI(ctx, "casedict", (knh_DriverSPI_t*)&CASEMAP_StringObject);
+	knh_addDSPI(ctx, "dict", (knh_DSPI_t*)&DMAP_StringObject);
+	knh_addDSPI(ctx, "casedict", (knh_DSPI_t*)&CASEMAP_StringObject);
 }
 
 #ifdef __cplusplus
