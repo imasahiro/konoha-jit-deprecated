@@ -8,14 +8,16 @@ false
 
 ### if else branch
 >>> b = false;
+>>> st = "";
 >>> if (b) {
-... s = "true";
+... st = "true";
 ... } else {
-... s =  "false";
+... st =  "false";
 ... }
->>> s
+>>> st
 "false"
 >>> i = 40;
+>>> s = "";
 >>> if (i < 0) {
 ...   s = "i < 0";
 ... } else if (i >= 0 && i < 50) {

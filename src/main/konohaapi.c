@@ -854,48 +854,49 @@ static knh_bool_t test_readstmt(Ctx *ctx, void *status, knh_cwb_t *cwb, const kn
 		line_ptr = line;
 		search_ptr = NULL;
 		/* ignore comment first */
-		if (comment_nest == 0) {
-			if ((search_ptr = strstr(line_ptr, "//")) != NULL) {
-				/* only a single appearance is enough */
-				// ignore after searchptr
-				line_ptr[search_ptr - line_ptr] = '\0'; // terminate line before // appear.
-			}
-			// get the first comment opener
-			if ((search_ptr = strstr(line_ptr, "/*")) != NULL) {
-				comment_nest += 1;
-				line_ptr[search_ptr - line_ptr] = '\0';
-				search_ptr += 2;
-				char *tmp_ptr = search_ptr;
-				/* detect all comment opener */
-				while ((tmp_ptr = strstr(tmp_ptr, "/*")) != NULL) {
+		if (isResultReady == 0) {
+			if (comment_nest == 0) {
+				if ((search_ptr = strstr(line_ptr, "//")) != NULL) {
+					/* only a single appearance is enough */
+					// ignore after searchptr
+					line_ptr[search_ptr - line_ptr] = '\0'; // terminate line before // appear.
+				}
+				// get the first comment opener
+				if ((search_ptr = strstr(line_ptr, "/*")) != NULL) {
 					comment_nest += 1;
-					tmp_ptr += 2;
-				}
-				/* detect the last comment closer */
-				while ((search_ptr = strstr(search_ptr, "*/")) != NULL) {
-					comment_nest -= 1;
+					line_ptr[search_ptr - line_ptr] = '\0';
 					search_ptr += 2;
+					char *tmp_ptr = search_ptr;
+					/* detect all comment opener */
+					while ((tmp_ptr = strstr(tmp_ptr, "/*")) != NULL) {
+						comment_nest += 1;
+						tmp_ptr += 2;
+					}
+					/* detect the last comment closer */
+					while ((search_ptr = strstr(search_ptr, "*/")) != NULL) {
+						comment_nest -= 1;
+						search_ptr += 2;
+					}
+				}
+			} else {
+				// its in comment nest, get last */
+				while ((search_ptr = strstr(line_ptr, "*/")) != NULL) {
+					comment_nest -= 1;
+					line_ptr = search_ptr + 2;
+				}
+				if (comment_nest > 0) {
+					// ignore
+					continue;
+				} else if (comment_nest == 0) {
+					// do nothing
 				}
 			}
-		} else {
-			// its in comment nest, get last */
-			while ((search_ptr = strstr(line_ptr, "*/")) != NULL) {
-				comment_nest -= 1;
-				line_ptr = search_ptr + 2;
+			if (comment_nest < 0) {
+				fprintf(stderr, "COMMENT ERROR!\n");
+				KNH_SYSLOG(ctx, LOG_ERR, "parsing testcode", "invalid comment nesting");
+				return 0;
 			}
-			if (comment_nest > 0) {
-				// ignore
-				continue;
-			} else if (comment_nest == 0) {
-				// do nothing
-			}
-		}
-		if (comment_nest < 0) {
-			fprintf(stderr, "COMMENT ERROR!\n");
-			KNH_SYSLOG(ctx, LOG_ERR, "parsing testcode", "invalid comment nesting");
-			return 0;
-		}
-
+		}/* end of isResultReady */
 		/* now, we parse per unit */
 		if (IS_T(line_ptr, '#')) {
 			if (isUnitStarted) {
@@ -999,106 +1000,6 @@ static knh_bool_t test_readstmt(Ctx *ctx, void *status, knh_cwb_t *cwb, const kn
 	return 0;
 }
 
-#if 0
-static knh_bool_t test_readstmt(Ctx *ctx, void *status, knh_cwb_t *cwb, const knh_ShellAPI_t *api)
-{
-	kt_status_t *kt = (kt_status_t*)status;
-	kt_unit_t *ku = NULL;
-	kt_stmt_t *ks = NULL;
-	if (kt == NULL) return 0;
-	if (kt->unitsize != 0) ku = kt->current;
-	if (ku != NULL && ku->stmtsize != 0) ks = ku->current;
-	char line[KTEST_LINE_MAX];
-	int isMultiline = 0, isTestStarted = 0, isSecondStmt = 0;
-	int isInComment = 0;
-	while(kt_fgets(ctx, kt, line, KTEST_LINE_MAX) != NULL) {
-		kt->lineno += 1;  // added by kimio
-		if (IS_D(line, '/')) continue;
-		if (line[0] == '/' && line[1] == '*') {
-			isInComment = 1;
-			continue;
-		}
-		if (isInComment) {
-			if (strstr(line, "*/") != NULL) {
-				isInComment = 0;
-			}
-			continue;
-		}
-		if(IS_T(line, '#')) {
-			isMultiline = 0;
-			if (isTestStarted == 1) {
-				// there were no result line.
-				add_kt_stmt_result(ctx, ks, "");
-				return 1;
-			}
-			if (kt->unitsize == 0) {
-				kt->unitsize++;
-				kt->isForwarded = 1;
-				kt->uhead = new_kt_unit(ctx, line + 4);
-				ku = kt->uhead;
-			} else {
-				kt->unitsize++;
-				kt->isForwarded = 1;
-				ku->next = new_kt_unit(ctx, line + 4);
-				ku = ku->next;
-			}
-			isTestStarted = 1;
-			kt->current = ku;
-			continue;
-		}
-		if(IS_T(line, '>') || IS_T(line, '.')) {
-			if (isMultiline) {
-				add_kt_stmt_body(ctx, ks, line + 4);
-			} else if (isSecondStmt == 1) {
-				// this is for no result stmt.
-				// there are two situations.
-				// 1) originally, no result. such as 'if (1) str = "hoge"'
-				// 2) ignore its result. such as  str = "hoge";
-				// in situation 1), we need to set result here.
-				long len = (long)knh_strlen(line);
-				fseek(kt->in, -(len+1), SEEK_CUR); //rewind
-				ku->current->isPassed = 1;
-				return 1;
-			} else {
-				if (ku == NULL) continue; // invalid test statement
-				isTestStarted = 1;
-				if (ku->stmtsize == 0) {
-					ku->stmtsize++;
-					ku->shead = new_kt_stmt(ctx, line + 4);
-					ks = ku->shead;
-				} else {
-					ku->stmtsize++;
-					ks->next = new_kt_stmt(ctx, line + 4);
-					ks = ks->next;
-				}
-				ku->current = ks;
-			}
-			int check;
-//			fprintf(stderr, "%p->%p:%s\n", ku, ks, line);
-			if ((check = api->checkstmt(ks->testBody)) == 0) {
-				knh_cwb_write(ctx, cwb, ks->testBody);
-				isSecondStmt=1;
-				isMultiline = 0;
-				continue;
-			}
-			if (check < 0) {
-				KNH_SYSLOG(ctx, LOG_WARNING, "TestFile", "invalid statements at line=%d", kt->lineno);
-				knh_cwb_clear(cwb, 0);
-				continue;
-			} else {
-				isMultiline = 1;
-				continue;
-			}
-		}
-		if (isTestStarted) {
-			add_kt_stmt_result(ctx, ks, line);
-			return 1;
-		}
-		return 1;
-	}
-	return 0;
-}
-#endif
 
 static void test_dump(FILE *fp, const char *linehead, const char *body, const char *foot)
 {
