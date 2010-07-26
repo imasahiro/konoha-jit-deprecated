@@ -360,9 +360,9 @@ static knh_term_t TT_ch(int ch)
 #ifdef TT_SIZE
 		case '|': return TT_SIZE;
 #endif
-		case '@': return TT_METAN;
-		case '$': return TT_PROPN;
-		case ';': return TT_SEMICOLON;
+//		case '@': return TT_METAN;
+//		case '$': return TT_PROPN;
+//		case ';': return TT_SEMICOLON;
 		case ',': return TT_COMMA;
 		case '"': return TT_STR;
 		case '\'': return TT_TSTR;
@@ -1327,8 +1327,16 @@ static void knh_InputStream_parseToken(Ctx *ctx, knh_InputStream_t *in, knh_Toke
 				goto L_NEWTOKEN;
 			}
 #endif
+		case '?': {
+			knh_bytes_t t = knh_cwb_tobytes(cwb);
+			if(ISB(t, "in") || ISB(t, "isa") || ISB(t, "is")) {
+				knh_Bytes_putc(ctx, cwb->ba, ch);
+				knh_Token_addBuf(ctx, tk, cwb, TT_CODE, ' ');
+				break;
+			}
+		}
 		case '+': case '-': case '*': case '/': case '%':
-		case '=': case '?': case '&':
+		case '=': case '&':
 		case '<': case '>': case '^': case '!': case '~':
 			knh_Token_addBuf(ctx, tk, cwb, TT_CODE, ch);
 			ch = knh_Token_addOPR(ctx, tk, cwb, in, ch);

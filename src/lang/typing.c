@@ -28,7 +28,6 @@
 /* ************************************************************************ */
 
 #define USE_STEXT 1
-#define USE_bytes_strcasecmp  1
 #define USE_bytes_endsWith    1
 #define USE_bytes_parseint    1
 #define USE_bytes_parsefloat  1
@@ -343,10 +342,10 @@ static int knh_Token_toSYSVAL(Ctx *ctx, knh_Token_t *tk)
 //	else if(IS_SYSVAL(t, "__method__") || IS_SYSVAL(t, "__function__")) {
 //		knh_Token_setCONST(ctx, tk, knh_Object_getkey(ctx, UPCAST(DP(ctx->gma)->mtd)));
 //	}
-	else if(IS_SYSVAL(t, "__namespace__") || IS_SYSVAL(t, "__ns__")) {
-		knh_NameSpace_t *ns = knh_getGammaNameSpace(ctx);
-		knh_Token_setCONST(ctx, tk, DP(ns)->nsname);
-	}
+//	else if(IS_SYSVAL(t, "__namespace__") || IS_SYSVAL(t, "__ns__")) {
+//		knh_NameSpace_t *ns = knh_getGammaNameSpace(ctx);
+//		knh_Token_setCONST(ctx, tk, DP(ns)->nsname);
+//	}
 	else if(IS_SYSVAL(t, "EOL")) {
 		knh_Token_setCONST(ctx, tk, TS_EOL);
 	}
@@ -994,7 +993,6 @@ static knh_Term_t* knh_TokenURN_typing(Ctx *ctx, knh_Token_t *tk, knh_class_t re
 		return knh_Token_toCONST(ctx, tk);
 	}
 	if(reqt == TYPE_Any) reqt = dspi->cid;
-	DBG_P("dspi->name=%s %s", dspi->name, CLASS__(dspi->cid));
 	if(!dspi->isTyped(ctx, CLASS_type(reqt))) {
 		knh_Gamma_perror(ctx, KERR_ERR, "%B can be %T, NOT %T, ", path, dspi->cid, reqt);
 		return NULL;
@@ -2329,15 +2327,19 @@ static knh_Term_t* knh_StmtQCAST_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t r
 				reqt = dspi->cid;
 				knh_Gamma_perror(ctx, KERR_INFO, _("%B: can be %T"), path, reqt);
 			}
+			if(!dspi->isTyped(ctx, CLASS_type(reqt))) {
+				knh_Gamma_perror(ctx, KERR_INFO, _("%B: must NOT be %T"), path, reqt);
+				return NULL;
+			}
 		}
+		DBG_ASSERT(DP(stmt)->size == 3);
+		STT_(stmt) = STT_CALL;
+		knh_Token_toMTD(ctx, DP(stmt)->tokens[0], MN_path, knh_getMethodNULL(ctx, CLASS_String, MN_path));
+		TT_(tkQPATH) = TT_CONST;
+		knh_Stmt_add(ctx, stmt, new_TokenCONST(ctx, DP(ctx->gma)->ns));
+		knh_Stmt_add(ctx, stmt, new_TokenCONST(ctx, new_Type(ctx, reqt)));
+		return knh_Stmt_typed(ctx, stmt, reqt);
 	}
-	DBG_ASSERT(DP(stmt)->size == 3);
-	STT_(stmt) = STT_CALL;
-	knh_Token_toMTD(ctx, DP(stmt)->tokens[0], MN_path, knh_getMethodNULL(ctx, CLASS_String, MN_path));
-	TT_(tkQPATH) = TT_CONST;
-	knh_Stmt_add(ctx, stmt, new_TokenCONST(ctx, DP(ctx->gma)->ns));
-	knh_Stmt_add(ctx, stmt, new_TokenCONST(ctx, new_Type(ctx, reqt)));
-	return knh_Stmt_typed(ctx, stmt, reqt);
 }
 
 /* ======================================================================== */

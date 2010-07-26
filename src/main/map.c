@@ -30,7 +30,6 @@
 //#define USE_STEXT 1
 //#define USE_B     1
 #define USE_bytes_strcmp      1
-#define USE_bytes_strcasecmp  1
 #define USE_bytes_equals      1
 
 #include"commons.h"

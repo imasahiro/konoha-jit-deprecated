@@ -99,7 +99,7 @@
 /* object specification */
 
 #define K_USING_I18N                  1
-#define K_ENCODING                    "UTF8"
+#define K_ENCODING                    "UTF-8"
 
 /* ======================================================================== */
 

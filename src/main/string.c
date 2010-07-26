@@ -28,7 +28,6 @@
 /* ************************************************************************ */
 
 #define USE_STEXT
-#define USE_bytes_strcasecmp
 
 #include"commons.h"
 
@@ -354,6 +353,23 @@ knh_String_t *new_TEXT(Ctx *ctx, knh_class_t cid, knh_TEXT_t text)
 	knh_String_setTextSgm(o, 1);
 	knh_String_checkASCII(o);
 	return o;
+}
+
+/* ------------------------------------------------------------------------ */
+
+int knh_bytes_strcasecmp(knh_bytes_t v1, knh_bytes_t v2)
+{
+	if(v1.len < v2.len) {
+		int res = knh_strncasecmp(v1.text, v2.text, v1.len);
+		return (res == 0) ? -1 : res;
+	}
+	else if(v1.len > v2.len) {
+		int res = knh_strncasecmp(v1.text, v2.text, v2.len);
+		return (res == 0) ? 1 : res;
+	}
+	else {
+		return knh_strncasecmp(v1.text, v2.text, v1.len);
+	}
 }
 
 /* ------------------------------------------------------------------------ */

@@ -68,21 +68,21 @@ static METHOD Float_random(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	RETURNf_(knh_float_rand());
 }
 
-/* ------------------------------------------------------------------------ */
-//## @Static method Int Float.floatToIntBits(Float! n);
-
-static METHOD Float_floatToIntBits(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURNi_((knh_int_t)(sfp[1].fvalue));
-}
-
-/* ------------------------------------------------------------------------ */
-//## @Static method Float! Float.intToFloatBits(Int n);
-
-static METHOD Float_intToFloatBits(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURNf_((knh_float_t)(sfp[1].ivalue));
-}
+///* ------------------------------------------------------------------------ */
+////## @Static method Int Float.floatToIntBits(Float! n);
+//
+//static METHOD Float_floatToIntBits(Ctx *ctx, knh_sfp_t *sfp, long rix)
+//{
+//	RETURNi_((knh_int_t)(sfp[1].fvalue));
+//}
+//
+///* ------------------------------------------------------------------------ */
+////## @Static method Float! Float.intToFloatBits(Int n);
+//
+//static METHOD Float_intToFloatBits(Ctx *ctx, knh_sfp_t *sfp, long rix)
+//{
+//	RETURNf_((knh_float_t)(sfp[1].ivalue));
+//}
 
 /* ------------------------------------------------------------------------ */
 

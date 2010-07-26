@@ -44,15 +44,6 @@ extern "C" {
 /* ======================================================================== */
 /* K_DSPI_PATH */
 
-//static knh_bytes_t knh_bytes_skipQPATH(knh_bytes_t qpath, knh_bytes_t t)
-//{
-//	if(knh_bytes_startsWith(t, qpath)) {
-//		t.ustr = t.ustr + qpath.len;
-//		t.len = t.len - qpath.len;
-//	}
-//	return t;
-//}
-
 knh_bytes_t knh_bytes_skipPATHHEAD(knh_bytes_t path)
 {
 	size_t i;
@@ -189,7 +180,7 @@ static knh_uintptr_t CHARSET_exists(Ctx *ctx, knh_bytes_t path, knh_NameSpace_t 
 		}
 	}
 	else {
-		if(B_equals(t, K_ENCODING)) {
+		if(knh_bytes_strcasecmp(t, STEXT(K_ENCODING))) {
 			res = PATH_found;
 		}
 	}
@@ -215,7 +206,7 @@ static knh_Object_t* CHARSET_newObjectNULL(Ctx *ctx, knh_class_t cid, knh_String
 
 static knh_PathDSPI_t CHARSETPATH_DSPI = {
 	K_DSPI_PATH, "charset",
-	PATH_INTERNAL, CLASS_StringEncoder,
+	PATH_INTERNAL, CLASS_Boolean,
 	CHARSET_exists, CHARSET_isTyped, CHARSET_newObjectNULL,
 };
 

@@ -383,7 +383,7 @@ static METHOD String_encode(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 	knh_Converter_t *c = sfp[1].conv;
-	//fprintf(stderr, "c=%p, c->dspi=%p, c->dspi->enc=%p****\n", c, c->dspi);
+	fprintf(stderr, "%s, c=%p, c->dspi=%p, c->dspi->enc=****\n", CLASS__(c->h.cid), c, c->dspi);
 	c->dspi->enc(ctx, c->conv, S_tobytes(sfp[0].s), cwb->ba);
 	knh_Bytes_t *ba = new_Bytes(ctx, knh_cwb_size(cwb));
 	knh_Bytes_write(ctx, ba, knh_cwb_tobytes(cwb));

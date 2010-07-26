@@ -118,6 +118,9 @@ static void knh_BasicBlock_add_(Ctx *ctx, knh_BasicBlock_t *bb, int line, knh_op
 	{
 		knh_opline_t *pc = DP(bb)->opbuf + DP(bb)->size;
 		knh_memcpy(pc, op, sizeof(knh_opline_t));
+#if defined(K_USING_RCGC)
+			knh_opline_traverse(ctx, op, knh_ftraverse_inc);
+#endif
 		pc->line = (knh_ushort_t)line;
 		DP(bb)->size += 1;
 	}
@@ -482,9 +485,6 @@ static knh_opline_t* knh_BasicBlock_copy(Ctx *ctx, knh_opline_t *dst, knh_BasicB
 		}
 		for(i = 0; i < DP(bb)->size; i++) {
 			knh_opline_t *op = dst + i;
-#if defined(K_USING_RCGC)
-			knh_opline_traverse(ctx, op, knh_ftraverse_inc);
-#endif
 			if(op->opcode == OPCODE_VCALL) {
 				if(knh_BasicBlock_isStackChecked(bb)) {
 					op->opcode = OPCODE_VCALL_;

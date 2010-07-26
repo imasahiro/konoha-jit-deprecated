@@ -351,6 +351,7 @@ knh_bytes_t knh_bytes_mofflen(knh_bytes_t m, size_t moff, size_t mlen);
 knh_int_t knh_uchar_toucs4(knh_ustr_t *utf8)   /* utf8 -> ucs4 */;
 char *knh_format_utf8(char *buf, size_t bufsiz, knh_uint_t ucs4);
 knh_String_t *new_TEXT(Ctx *ctx, knh_class_t cid, knh_TEXT_t text);
+int knh_bytes_strcasecmp(knh_bytes_t v1, knh_bytes_t v2);
 knh_StringDecoder_t* new_StringDecoderNULL(Ctx *ctx, knh_bytes_t t, knh_NameSpace_t *ns);
 knh_StringEncoder_t* new_StringEncoderNULL(Ctx *ctx, knh_bytes_t t, knh_NameSpace_t *ns);
 knh_String_t *knh_cwb_newStringDECODE(Ctx *ctx, knh_cwb_t *cwb, knh_StringDecoder_t *c);

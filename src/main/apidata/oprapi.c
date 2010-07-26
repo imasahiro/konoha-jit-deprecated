@@ -219,37 +219,37 @@ static METHOD String_opHAS(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	RETURNb_(knh_bytes_indexOf(S_tobytes(sfp[0].s), S_tobytes(sfp[1].s)) != -1);
 }
 
-/* ------------------------------------------------------------------------ */
-//## method Boolean Range.opHAS(Any v);
-//## method Boolean Range.opCASE(Any v);
-
-static METHOD Range_opHAS(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	int res = 0/*NotFound*/;
-	knh_Range_t *o = sfp[0].range;
-	if(IS_Int((o)->start) && IS_Float(sfp[1].o)) {
-		KNH_SETv(ctx, sfp[1].o, new_Int(ctx, CLASS_Int, (knh_int_t)sfp[1].fvalue));
-	}
-	else if(IS_Float((o)->start) && IS_Int(sfp[1].o)) {
-		KNH_SETv(ctx, sfp[1].o, new_Float(ctx, CLASS_Float, (knh_float_t)sfp[1].ivalue));
-	}
-	else {
-		knh_stack_boxing(ctx, sfp + 1);
-	}
-	if(knh_Object_compareTo(ctx, o->start, sfp[1].o) <= 0) {
-		if(knh_Range_isInclusive(o)) {
-			if(knh_Object_compareTo(ctx, sfp[1].o, o->end) <= 0) {
-				res = 1;
-			}
-		}
-		else {
-			if(knh_Object_compareTo(ctx, sfp[1].o, o->end) < 0) {
-				res = 1;
-			}
-		}
-	}
-	RETURNb_(res);
-}
+///* ------------------------------------------------------------------------ */
+////## method Boolean Range.opHAS(Any v);
+////## method Boolean Range.opCASE(Any v);
+//
+//static METHOD Range_opHAS(Ctx *ctx, knh_sfp_t *sfp, long rix)
+//{
+//	int res = 0/*NotFound*/;
+//	knh_Range_t *o = sfp[0].range;
+//	if(IS_Int((o)->start) && IS_Float(sfp[1].o)) {
+//		KNH_SETv(ctx, sfp[1].o, new_Int(ctx, CLASS_Int, (knh_int_t)sfp[1].fvalue));
+//	}
+//	else if(IS_Float((o)->start) && IS_Int(sfp[1].o)) {
+//		KNH_SETv(ctx, sfp[1].o, new_Float(ctx, CLASS_Float, (knh_float_t)sfp[1].ivalue));
+//	}
+//	else {
+//		knh_stack_boxing(ctx, sfp + 1);
+//	}
+//	if(knh_Object_compareTo(ctx, o->start, sfp[1].o) <= 0) {
+//		if(knh_Range_isInclusive(o)) {
+//			if(knh_Object_compareTo(ctx, sfp[1].o, o->end) <= 0) {
+//				res = 1;
+//			}
+//		}
+//		else {
+//			if(knh_Object_compareTo(ctx, sfp[1].o, o->end) < 0) {
+//				res = 1;
+//			}
+//		}
+//	}
+//	RETURNb_(res);
+//}
 
 /* ------------------------------------------------------------------------ */
 //## method Boolean Array.opHAS(Any v);
@@ -275,25 +275,25 @@ static METHOD Array_opHAS(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	RETURNb_(res);
 }
 
-/* ------------------------------------------------------------------------ */
-//## method Boolean Tuple.opHAS(Any v);
-//## method Boolean Tuple.opCASE(Any v);
-
-static METHOD Tuple_opHAS(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	if(knh_Tuple_isTriple(sfp[0].tuple)) {
-		knh_Tuple_t *t = sfp[0].tuple;
-		int res;
-		knh_stack_boxing(ctx, sfp + 1);
-		res = ((knh_Object_compareTo(ctx, t->first, sfp[1].o) == 0)
-				|| (knh_Object_compareTo(ctx, t->second, sfp[1].o) == 0)
-				|| (t->thirdNULL != NULL && (knh_Object_compareTo(ctx, t->thirdNULL, sfp[1].o) == 0)));
-		RETURNb_(res);
-	}
-	else {
-		Array_opHAS(ctx, sfp, rix); // reuse
-	}
-}
+///* ------------------------------------------------------------------------ */
+////## method Boolean Tuple.opHAS(Any v);
+////## method Boolean Tuple.opCASE(Any v);
+//
+//static METHOD Tuple_opHAS(Ctx *ctx, knh_sfp_t *sfp, long rix)
+//{
+//	if(knh_Tuple_isTriple(sfp[0].tuple)) {
+//		knh_Tuple_t *t = sfp[0].tuple;
+//		int res;
+//		knh_stack_boxing(ctx, sfp + 1);
+//		res = ((knh_Object_compareTo(ctx, t->first, sfp[1].o) == 0)
+//				|| (knh_Object_compareTo(ctx, t->second, sfp[1].o) == 0)
+//				|| (t->thirdNULL != NULL && (knh_Object_compareTo(ctx, t->thirdNULL, sfp[1].o) == 0)));
+//		RETURNb_(res);
+//	}
+//	else {
+//		Array_opHAS(ctx, sfp, rix); // reuse
+//	}
+//}
 
 /* ======================================================================== */
 /* [Case] */
@@ -620,15 +620,15 @@ METHOD Map_getSize(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	RETURNi_(m->dspi->size(ctx, m->map));
 }
 
-/* ------------------------------------------------------------------------ */
-//## method Int Tuple.getSize();
-
-static METHOD Tuple_getSize(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	size_t size = (IS_NULL(sfp[0].o)) ? 0 : 2;
-	if(!knh_Tuple_isTriple(sfp[0].tuple)) size = (sfp[0].tuple)->size;
-	RETURNi_(size);
-}
+///* ------------------------------------------------------------------------ */
+////## method Int Tuple.getSize();
+//
+//static METHOD Tuple_getSize(Ctx *ctx, knh_sfp_t *sfp, long rix)
+//{
+//	size_t size = (IS_NULL(sfp[0].o)) ? 0 : 2;
+//	if(!knh_Tuple_isTriple(sfp[0].tuple)) size = (sfp[0].tuple)->size;
+//	RETURNi_(size);
+//}
 
 /* ======================================================================== */
 /* [get,set] */
@@ -889,30 +889,30 @@ static METHOD Array_opTO(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	RETURN_(new_Array__range(ctx, sfp[0].a, s, e));
 }
 
-/* ------------------------------------------------------------------------ */
-//## method Any Tuple.opEXPAND();
+///* ------------------------------------------------------------------------ */
+////## method Any Tuple.opEXPAND();
+//
+//static METHOD Tuple_opEXPAND(Ctx *ctx, knh_sfp_t *sfp, long rix)
+//{
+//	Object *res;
+//	if(knh_Tuple_isTriple(sfp[0].tuple)) {
+//		res = (sfp[0].tuple)->first;
+//	}
+//	else {
+//		knh_array_index(ctx, sfp, 0, (sfp[0].tuple)->size);
+//		res = (sfp[0].tuple)->list[0];
+//	}
+//	RETURN_(res);
+//}
 
-static METHOD Tuple_opEXPAND(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	Object *res;
-	if(knh_Tuple_isTriple(sfp[0].tuple)) {
-		res = (sfp[0].tuple)->first;
-	}
-	else {
-		knh_array_index(ctx, sfp, 0, (sfp[0].tuple)->size);
-		res = (sfp[0].tuple)->list[0];
-	}
-	RETURN_(res);
-}
-
-/* ------------------------------------------------------------------------ */
-//## method T1! Array.opEXPAND();
-
-static METHOD Array_opEXPAND(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	knh_Array_t *a = sfp[0].a;
-	RETURN_(knh_Array_n(a, knh_array_index(ctx, sfp, 0, knh_Array_size(a))));
-}
+///* ------------------------------------------------------------------------ */
+////## method T1! Array.opEXPAND();
+//
+//static METHOD Array_opEXPAND(Ctx *ctx, knh_sfp_t *sfp, long rix)
+//{
+//	knh_Array_t *a = sfp[0].a;
+//	RETURN_(knh_Array_n(a, knh_array_index(ctx, sfp, 0, knh_Array_size(a))));
+//}
 
 #endif /*K_USING_DEFAULTAPI*/
 

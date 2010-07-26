@@ -71,23 +71,6 @@ static int knh_bytes_strcmp(knh_bytes_t v1, knh_bytes_t v2)
 
 /* ------------------------------------------------------------------------ */
 
-#ifdef USE_bytes_strcasecmp
-static int knh_bytes_strcasecmp(knh_bytes_t v1, knh_bytes_t v2)
-{
-	if(v1.len < v2.len) {
-		int res = knh_strncasecmp(v1.text, v2.text, v1.len);
-		return (res == 0) ? -1 : res;
-	}
-	else if(v1.len > v2.len) {
-		int res = knh_strncasecmp(v1.text, v2.text, v2.len);
-		return (res == 0) ? 1 : res;
-	}
-	else {
-		return knh_strncasecmp(v1.text, v2.text, v1.len);
-	}
-}
-#endif
-
 #ifdef USE_bytes_equals
 static knh_bool_t knh_bytes_equals(knh_bytes_t v1, knh_bytes_t v2)
 {

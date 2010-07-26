@@ -27,7 +27,6 @@
 
 /* ************************************************************************ */
 
-#define USE_bytes_strcasecmp    1
 #define USE_cwb_open      1
 
 #include"commons.h"
