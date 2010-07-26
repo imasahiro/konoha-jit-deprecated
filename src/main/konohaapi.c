@@ -854,49 +854,55 @@ static knh_bool_t test_readstmt(Ctx *ctx, void *status, knh_cwb_t *cwb, const kn
 		line_ptr = line;
 		search_ptr = NULL;
 		/* ignore comment first */
-		if (isResultReady == 0) {
-			if (comment_nest == 0) {
-				if ((search_ptr = strstr(line_ptr, "//")) != NULL) {
-					/* only a single appearance is enough */
-					// ignore after searchptr
+		if (comment_nest == 0) {
+			if ((search_ptr = strstr(line_ptr, "//")) != NULL) {
+				/* only a single appearance is enough */
+				// ignore after searchptr
+				if (search_ptr - line_ptr >= 1) {
+					if (search_ptr[-1] == '"' || search_ptr[-1] == '\'') { /* its might be literal */
+						// do nothing.
+					} else {
+						line_ptr[search_ptr - line_ptr] = '\0'; // terminate line before // appear.
+					}
+				} else {
 					line_ptr[search_ptr - line_ptr] = '\0'; // terminate line before // appear.
 				}
-				// get the first comment opener
-				if ((search_ptr = strstr(line_ptr, "/*")) != NULL) {
+			}
+			// get the first comment opener
+			if ((search_ptr = strstr(line_ptr, "/*")) != NULL) {
+				comment_nest += 1;
+				line_ptr[search_ptr - line_ptr] = '\0';
+				search_ptr += 2;
+				char *tmp_ptr = search_ptr;
+				/* detect all comment opener */
+				while ((tmp_ptr = strstr(tmp_ptr, "/*")) != NULL) {
 					comment_nest += 1;
-					line_ptr[search_ptr - line_ptr] = '\0';
-					search_ptr += 2;
-					char *tmp_ptr = search_ptr;
-					/* detect all comment opener */
-					while ((tmp_ptr = strstr(tmp_ptr, "/*")) != NULL) {
-						comment_nest += 1;
-						tmp_ptr += 2;
-					}
-					/* detect the last comment closer */
-					while ((search_ptr = strstr(search_ptr, "*/")) != NULL) {
-						comment_nest -= 1;
-						search_ptr += 2;
-					}
+					tmp_ptr += 2;
 				}
-			} else {
-				// its in comment nest, get last */
-				while ((search_ptr = strstr(line_ptr, "*/")) != NULL) {
+				/* detect the last comment closer */
+				while ((search_ptr = strstr(search_ptr, "*/")) != NULL) {
 					comment_nest -= 1;
-					line_ptr = search_ptr + 2;
-				}
-				if (comment_nest > 0) {
-					// ignore
-					continue;
-				} else if (comment_nest == 0) {
-					// do nothing
+					search_ptr += 2;
 				}
 			}
-			if (comment_nest < 0) {
-				fprintf(stderr, "COMMENT ERROR!\n");
-				KNH_SYSLOG(ctx, LOG_ERR, "parsing testcode", "invalid comment nesting");
-				return 0;
+		} else {
+			// its in comment nest, get last */
+			while ((search_ptr = strstr(line_ptr, "*/")) != NULL) {
+				comment_nest -= 1;
+				line_ptr = search_ptr + 2;
 			}
-		}/* end of isResultReady */
+			if (comment_nest > 0) {
+				// ignore
+				continue;
+			} else if (comment_nest == 0) {
+				// do nothing
+			}
+		}
+		if (comment_nest < 0) {
+			fprintf(stderr, "COMMENT ERROR!\n");
+			KNH_SYSLOG(ctx, LOG_ERR, "parsing testcode", "invalid comment nesting");
+			return 0;
+		}
 		/* now, we parse per unit */
 		if (IS_T(line_ptr, '#')) {
 			if (isUnitStarted) {
