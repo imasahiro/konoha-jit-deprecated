@@ -77,4 +77,4 @@ false
 ### file getc
 >>> ins = new InputStream("stream.ktest");
 >>> s = ins.readline();
-"// file(pass) test"
+"### InputStream.new"

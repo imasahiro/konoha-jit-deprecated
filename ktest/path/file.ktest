@@ -1,4 +1,4 @@
-// file(pass) test
+// file(path) test
 ### file exists
 >>> exists file:file.ktest
 true
