@@ -410,7 +410,9 @@ static METHOD String_convert(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 	knh_Converter_t *c = sfp[1].conv;
-	c->dspi->sconv(ctx, c->conv, S_tobytes(sfp[0].s), cwb->ba);
+	if (!IS_NULL(c)) {
+		c->dspi->sconv(ctx, c->conv, S_tobytes(sfp[0].s), cwb->ba);
+	}
 	RETURN_(knh_cwb_newString(ctx, cwb));
 }
 
