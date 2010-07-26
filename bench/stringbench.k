@@ -17,6 +17,7 @@ int testString_indexof_string() {
 	return i;
 }
 
+/*
 int testString_indexof_regex() {
 	int i;
 	s = "1234567890";
@@ -26,6 +27,7 @@ int testString_indexof_regex() {
 	}
 	return i;
 }
+*/
 
 int testString_indexof_empty() {
 	int i;
@@ -36,6 +38,7 @@ int testString_indexof_empty() {
 	return i;
 }
 
+/*
 int testString_replace_string() {
 	int i;
 	s = "1234567890";
@@ -64,6 +67,7 @@ int testString_replace_empty() {
 	}
 	return i;
 }
+*/
 
 int testString_getSize() {
 	int i;
@@ -181,19 +185,19 @@ void run() {
 	t = System.getTime() - s;
 	score = t - delta;
 	print_data("String.indexOf(string)", score, t);
-	//
+	/*
 	s = System.getTime();
 	testString_indexof_regex();
 	t = System.getTime() - s;
 	score = t - delta;
 	print_data("String.indexOf(regex)", score, t);
-	//
+	*/
 	s = System.getTime();
 	testString_indexof_empty();
 	t = System.getTime() - s;
 	score = t - delta;
 	print_data("String.indexOf(null)", score, t);
-	//
+	/*
 	s = System.getTime();
 	testString_replace_string();
 	t = System.getTime() - s;
@@ -211,7 +215,7 @@ void run() {
 	t = System.getTime() - s;
 	score = t - delta;
 	print_data("String.replace(null)", score, t);
-	//
+	*/
 	s = System.getTime();
 	testString_getSize();
 	t = System.getTime() - s;
@@ -247,7 +251,7 @@ void run() {
 	t = System.getTime() - s;
 	score = t - delta;
 	print_data("String.trim", score, t);
-	//
+	/*
 	s = System.getTime();
 	testString_split_string();
 	t = System.getTime() - s;
@@ -265,7 +269,7 @@ void run() {
 	t = System.getTime() - s;
 	score = t - delta;
 	print_data("String.split(null)", score, t);
-	//
+	*/
 
 }
 

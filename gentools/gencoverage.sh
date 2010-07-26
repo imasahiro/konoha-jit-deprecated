@@ -102,17 +102,24 @@ $DIR/src/main/updater.o        \
 $DIR/src/konoha.o              \
 -lsqlite3 -lpthread -ldl -lgcov -o ./konoha
 
+lcov -z -d .
+
 ./konoha -t \
 $DIR/ktest/class/array_F.ktest       \
-$DIR/ktest/class/array_I.ktest       \
 $DIR/ktest/class/boolean.ktest       \
 $DIR/ktest/class/float.ktest         \
 $DIR/ktest/class/int.ktest           \
 $DIR/ktest/class/stream.ktest        \
+$DIR/ktest/class/system.ktest        \
+$DIR/ktest/class/connection.ktest    \
+$DIR/ktest/class/string.ktest        \
 $DIR/ktest/statement/auxiliary.ktest \
 $DIR/ktest/statement/for.ktest       \
-$DIR/ktest/statement/if.ktest       \
-$DIR/ktest/statement/while.ktest    \
+$DIR/ktest/statement/if.ktest        \
+$DIR/ktest/statement/while.ktest     \
+
+./konoha -t \
+$DIR/ktest/class/array_I.ktest
 
 ./konoha $DIR/bench/microbench2.k
 ./konoha $DIR/bench/stringbench.k
