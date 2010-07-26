@@ -1,62 +1,99 @@
-#!/bin/sh
+#!/bin/bash
 # ./gencoverage.sh
 # ** Please install "lcov" **
 #
 # $ cd /path/to/konoha/
-# $ konoha ./gensrc/gencoverage.h
+# $ bash ./gensrc/gencoverage.sh -R -C
 # $ open lcov/index.html
 
+
+CC=gcc
 DIR=`pwd`
+arch=`uname -a`;
+if [ "$arch" = "Darwin" ]; then
+    ver=`uname -r`;
+    if [ "$ver" = "9.8.0" ]; then
+        CC="$CC-4.2"
+    fi
+fi
+
+C="false"
+R="false"
+for v in $* 
+do
+    if [ "$v" = "-C" ]; then
+        C="true";
+    fi
+    if [ "$v" = "-R" ]; then
+        R="true";
+    fi
+    if [ "$v" = "-h" ]; then
+        echo "Usage: $0 [OPTIONS]"
+        echo "  -h : Print this help, then exit"
+        echo "  -C : Compile Source  Code before code coverage"
+        echo "  -R : Remove coverage data after  code coverage"
+        exit
+    fi
+done
+
+if [ "$C" = "false" ]; then
+    if [ ! -e src/konoha.gcno ]; then
+        C="true"
+    fi
+fi
+
+if [ "$C" = "true" ]; then
+CFLAGS="-O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include"
 cd $DIR/src/ext/
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include mt19937-64.c
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include mt19937ar.c
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include qsort.c
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include strerror.c
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include strlen.c
+$CC $CFLAGS mt19937-64.c
+$CC $CFLAGS mt19937ar.c
+$CC $CFLAGS qsort.c
+$CC $CFLAGS strerror.c
+$CC $CFLAGS strlen.c
 cd $DIR/src/lang
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include asm.c
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include optimizer.c
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include script.c
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include ssa.c
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include term.c
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include typing.c
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include vmcodelibs.c
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include vminline.c
+$CC $CFLAGS asm.c
+$CC $CFLAGS optimizer.c
+$CC $CFLAGS script.c
+$CC $CFLAGS ssa.c
+$CC $CFLAGS term.c
+$CC $CFLAGS typing.c
+$CC $CFLAGS vmcodelibs.c
+$CC $CFLAGS vminline.c
 cd $DIR/src/main/apidata
-gcc -O2 -Wall -g -coverage -DHAVE_CONFIG_H -I. -I.. -I./include struct.c -c 
+$CC $CFLAGS struct.c 
 cd $DIR/src/main 
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include array.c
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include bytes.c
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include class.c
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include closure.c
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include context.c
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include empty.c
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include evidence.c
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include exports.c
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include iterator.c
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include konohaapi.c
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include map.c
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include memory.c
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include method.c
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include number.c
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include object.c
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include os.c
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include query.c
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include security.c
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include semantics.c
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include stack.c
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include stream.c
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include string.c
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include system.c
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include thread.c
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include time.c
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include translator.c
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include tuple.c
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I./include updater.c
+$CC $CFLAGS array.c
+$CC $CFLAGS bytes.c
+$CC $CFLAGS class.c
+$CC $CFLAGS closure.c
+$CC $CFLAGS context.c
+$CC $CFLAGS empty.c
+$CC $CFLAGS evidence.c
+$CC $CFLAGS exports.c
+$CC $CFLAGS iterator.c
+$CC $CFLAGS konohaapi.c
+$CC $CFLAGS map.c
+$CC $CFLAGS memory.c
+$CC $CFLAGS method.c
+$CC $CFLAGS number.c
+$CC $CFLAGS object.c
+$CC $CFLAGS os.c
+$CC $CFLAGS query.c
+$CC $CFLAGS security.c
+$CC $CFLAGS semantics.c
+$CC $CFLAGS stack.c
+$CC $CFLAGS stream.c
+$CC $CFLAGS string.c
+$CC $CFLAGS system.c
+$CC $CFLAGS thread.c
+$CC $CFLAGS time.c
+$CC $CFLAGS translator.c
+$CC $CFLAGS tuple.c
+$CC $CFLAGS updater.c
 cd $DIR/src/
-gcc -O2 -Wall -g -coverage -c -DHAVE_CONFIG_H -I. -I.. -I../include konoha.c
+$CC $CFLAGS konoha.c
 cd $DIR/
-gcc -O2 -Wall -g -coverage -DHAVE_CONFIG_H -I. -I.. -I./include \
+$CC -O2 -Wall -g -coverage -DHAVE_CONFIG_H -I. -I.. -I./include \
 $DIR/src/ext/mt19937-64.o      \
 $DIR/src/ext/mt19937ar.o       \
 $DIR/src/ext/qsort.o           \
@@ -101,6 +138,7 @@ $DIR/src/main/tuple.o          \
 $DIR/src/main/updater.o        \
 $DIR/src/konoha.o              \
 -lsqlite3 -lpthread -ldl -lgcov -o ./konoha
+fi
 
 lcov -z -d .
 
@@ -128,6 +166,7 @@ $DIR/ktest/class/array_I.ktest
 lcov -c -d . -o $DIR/konoha.info
 genhtml -o $DIR/lcov -p $DIR --num-spaces 4  $DIR/konoha.info
 
+if [ "$R" = "true" ]; then
 rm -f \
 $DIR/src/ext/mt19937-64.{o,gcno,gcda}      \
 $DIR/src/ext/mt19937ar.{o,gcno,gcda}       \
@@ -173,3 +212,4 @@ $DIR/src/main/tuple.{o,gcno,gcda}          \
 $DIR/src/main/updater.{o,gcno,gcda}        \
 $DIR/src/konoha.{o,gcno,gcda}              \
 
+fi
