@@ -11,16 +11,36 @@ false
 >>> c.close();
 
 ### create Connection
->>> c = new Connection("sqlite3:./test.db");
->>> r = c.query("select * from t1 limit 2");
+>>> c = new Connection("sqlite3:./ktest/class/test.db");
+>>> r = c.query("select * from test limit 4");
 >>> r.next();
 true
->>> r.getString("data")
-"This is sample data"
+>>> r.getInt("val");
+123
+>>> r.getString("val");
+"123"
+>>> r.getFloat("val");
+123.000000
 >>> r.next();
 true
->>> r.getString("data")
-"More sample data"
+>>> r.getFloat("val")
+1.230000
+>>> r.getString("val")
+"1.230000"
+>>> r.getInt("val");
+1
+>>> r.next();
+true
+>>> r.getString("val");
+"This is test"
+>>> r.next();
+true
+>>> r.getInt("val");
+0
+>>> r.getFloat("val");
+0.000000
+>>> r.getString("val")
+""
 >>> r.next();
 false
 >>> r.close();
