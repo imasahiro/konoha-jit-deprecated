@@ -1,0 +1,16 @@
+// file(pass) test
+### file exists
+>>> exists file:file.ktest
+true
+>>> exists file:bar.txt
+false
+
+### file newObjectNULL
+>>> InputStream i = file:file.ktest
+'file:file.ktest'
+
+### file isTyped
+>>> InputStream i = file:file.ktest;
+'file:file.ktest'
+>>> OutputStream o = file:hoge.txt;
+'file:hoge.txt'

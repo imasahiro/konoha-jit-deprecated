@@ -54,3 +54,27 @@ true
 >>> OUT.setAutoFlush(false);
 false
 
+### file open
+>>> ins = new InputStream("stream.ktest");
+'stream.ktest'
+
+### file read
+>>> InputStream ins = file:stream.ktest;
+>>> c = ins.read();
+0
+
+### file write
+>>> out = new OutputStream("hoge.ktest");
+'hoge.ktest'
+
+### file close
+>>> ins = new InputStream("stream.ktest");
+>>> ins.close();
+>>> 
+
+### file feof
+
+### file getc
+>>> ins = new InputStream("stream.ktest");
+>>> s = ins.readline();
+"// file(pass) test"
