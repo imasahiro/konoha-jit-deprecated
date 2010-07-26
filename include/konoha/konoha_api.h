@@ -310,12 +310,11 @@ knh_sfp_t* knh_stack_callee(Ctx *ctx, knh_sfp_t *sfp, char **file, int *linenum)
 METHOD knh_Fmethod_stackTrace(Ctx *ctx, knh_sfp_t *sfp, long rix);
 knh_ExceptionHandler_t* knh_stack_findExceptionHandler(Ctx *ctx, knh_sfp_t *sfp, long start);
 int knh_expt_isa(Ctx *ctx, knh_ebi_t eid, knh_ebi_t parent);
-knh_String_t *knh_getExptName(Ctx *ctx, knh_ebi_t eid);
+knh_String_t *knh_getEventName(Ctx *ctx, knh_ebi_t eid);
 knh_ebi_t knh_geteid(Ctx *ctx, knh_bytes_t msg, knh_ebi_t def);
-knh_ebi_t knh_addException(Ctx *ctx, knh_flag_t flag, knh_class_t eid, knh_String_t *name, knh_class_t peid);
-knh_Exception_t* knh_Exception_new__init(Ctx *ctx, knh_Exception_t *e, knh_String_t *ename, knh_String_t *msg, Object *bag);
+knh_ebi_t knh_addEvent(Ctx *ctx, knh_flag_t flag, knh_class_t eid, knh_String_t *name, knh_class_t peid);
+knh_Exception_t* knh_Exception_setup(Ctx *ctx, knh_Exception_t *e, knh_String_t *event, knh_String_t *msg, Object *bag);
 int knh_Exception_isa(Ctx *ctx, knh_Exception_t *o, knh_String_t *msg);
-void knh_Exception_setCInfo(Ctx *ctx, knh_Exception_t *o, const char *file, int line);
 void knh_Context_setThrowingException(Ctx *ctx, knh_Exception_t *e);
 void SYSLOG_OutOfIndex(Ctx *ctx, knh_sfp_t *sfp, knh_int_t n, size_t max);
 knh_InputStream_t* new_InputStreamDSPI(Ctx *ctx, knh_io_t fd, const knh_StreamDSPI_t *dspi);

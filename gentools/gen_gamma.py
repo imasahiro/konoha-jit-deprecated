@@ -212,6 +212,7 @@ NUM -
 STR - 
 TSTR - 
 ESTR - 
+FMTSTR -
 REGEX - 
 DOC - 
 METAN - 

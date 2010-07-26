@@ -325,29 +325,12 @@ static METHOD Map_new__MAP(Ctx *ctx, knh_sfp_t *sfp, long rix)
 }
 
 /* ------------------------------------------------------------------------ */
-//## method Exception! Exception.new(String msg, Any bag);
+//## method Exception! Exception.new(String event, String msg, Any bag);
 
 static METHOD Exception_new(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-	TODO();DBG_ABORT();
-//	
-//	KNH_RETURN(ctx, sfp,
-//		knh_Exception_new__init(ctx, sfp[0].e, sfp[1].s, sfp[2].s, sfp[3].o));
-//
-//	
-//	knh_Exception_t *o = sfp[0].e;
-//	DP(o)->eid  = EBI_Exception;
-//	DP(o)->flag = ctx->share->EventTBL[EBI_Exception].flag;
-//
-//	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-//	knh_write_char(ctx, cwb->w, "Exception!!");
-//	if(IS_NOTNULL(sfp[1].o)) {
-//		knh_write_char(ctx, cwb->w, ": ");
-//		knh_write(ctx, cwb->w, S_tobytes(sfp[1].s));
-//	}
-//	KNH_SETv(ctx, DP(o)->msg, knh_cwb_newString(ctx, cwb));
-//	KNH_SETv(ctx, DP(o)->bag, sfp[2].o);
-//	RETURN_(o);
+	knh_Exception_setup(ctx, sfp[0].e, sfp[1].s, sfp[2].s, sfp[3].o);
+	RETURN_(sfp[0].e);
 }
 
 /* ------------------------------------------------------------------------ */

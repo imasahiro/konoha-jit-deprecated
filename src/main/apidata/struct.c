@@ -1108,22 +1108,24 @@ static knh_ObjectCSPI_t ThunkSPI = {
 static FASTAPI(void) knh_Exception_init(Ctx *ctx, Object *o)
 {
 	knh_ExceptionEX_t *b = KNH_MALLOCBODY(ctx, Exception);
-	b->eid  = 1;
-	b->flag = 0;
+	b->eid  = 1; b->flag = 0;
+	KNH_INITv(b->event, ClassTBL(CLASS_Exception).sname);
 	KNH_INITv(b->msg, TS_EMPTY);
 	KNH_INITv(b->bag, KNH_NULL);
-	KNH_INITv(b->traces, KNH_NULL);
+	b->tracesNULL = NULL;
 	b->file = "";
 	b->line = 0;
+	b->sysloglevel = LOG_ERR;
 	o->ref = b;
 }
 
 static FASTAPI(void) knh_Exception_traverse(Ctx *ctx, Object *o, knh_Ftraverse ftr)
 {
 	knh_ExceptionEX_t *b = DP((knh_Exception_t*)o);
-	KNH_FTR(ctx, ftr, (b->msg));
+	KNH_FTR(ctx, ftr, b->event);
+	KNH_FTR(ctx, ftr, b->msg);
 	KNH_FTR(ctx, ftr, b->bag);
-	KNH_FTR(ctx, ftr, (b->traces));
+	KNH_NULLFTR(ctx, ftr, b->tracesNULL);
 }
 
 static FASTAPI(void) knh_Exception_free(Ctx *ctx, Object *o)

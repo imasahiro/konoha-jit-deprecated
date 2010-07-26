@@ -602,15 +602,14 @@ typedef struct knh_Thunk_t {
 //## expt Assertion!! Script!!;
 
 typedef struct {
-	knh_flag_t flag;
-	knh_ebi_t eid;
-	knh_String_t* msg;
-	Object* bag;
-	knh_Array_t* traces;
+	knh_flag_t flag;   knh_ebi_t eid;
+	knh_String_t *event;
+	knh_String_t *msg;
+	Object *bag;
+	knh_Array_t*    tracesNULL;
 	const char*     file;
-	const char*     Cfile;
-	int       line;
-	int       Cline;
+	int             line;
+	int             sysloglevel;
 } knh_ExceptionEX_t;
 
 typedef struct knh_Exception_t {

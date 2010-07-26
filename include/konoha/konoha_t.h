@@ -330,7 +330,7 @@ typedef knh_ushort_t       knh_ebi_t;    /* knh_ebi_t */
 #define EBI_unknown            ((knh_ebi_t)-1)
 #define EBI_newid              ((knh_ebi_t)0)
 #define ASSERT_ebi(eid)        DBG_ASSERT(eid < ctx->share->EventTBLSize + 1)
-#define EBI__(eid)             S_tochar(knh_getExptName(ctx, eid))
+#define EBI__(eid)             S_tochar(knh_getEventName(ctx, eid))
 
 /* ------------------------------------------------------------------------ */
 

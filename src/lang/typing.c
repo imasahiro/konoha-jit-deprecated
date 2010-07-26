@@ -162,6 +162,7 @@ static knh_Func_t * new_StaticFunc(Ctx *ctx, knh_class_t cid, knh_Method_t *mtd)
 
 static knh_Term_t* knh_Token_toCONST(Ctx *ctx, knh_Token_t *tk)
 {
+	DBG_ASSERT(IS_Token(tk));
 	TT_(tk) = TT_CONST;
 	SP(tk)->type = knh_Object_cid(DP(tk)->data);
 	return (knh_Term_t*)tk;
@@ -1977,9 +1978,16 @@ static knh_Term_t *knh_StmtNEW_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_class_t re
 	}
 
 	if(mtd_cid == CLASS_Exception) {
-//		knh_Token_t *tkE = new_TokenCONST(ctx, DP(tkC)->data);
-		mn = MN_new;
-		TODO(); DBG_ABORT();
+		knh_ebi_t eid = knh_geteid(ctx, S_tobytes(DP(tkC)->text), EBI_unknown);
+		if(eid == EBI_unknown) {
+			knh_Gamma_perror(ctx, KERR_DWARN, "undefined exception event: %B", S_tobytes(DP(tkC)->text));
+		}
+		knh_Token_toCONST(ctx, tkC);
+		tkC = new_TokenCID(ctx, CLASS_Exception);
+		knh_Token_toTYPED(ctx, tkC, TT_CID, CLASS_Class, mtd_cid);
+		knh_Stmt_insert(ctx, stmt, 1, tkC);
+		DBG_ASSERT(TT_(DP(stmt)->terms[2]) == TT_CONST);
+		DBG_ASSERT((DP(stmt)->terms[2])->type == CLASS_String);
 		goto L_LOOKUPMETHOD;
 	}
 

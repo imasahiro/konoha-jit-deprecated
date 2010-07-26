@@ -373,7 +373,7 @@ static void knh_loadData(Ctx *ctx, knh_data_t *data, knh_ParamArray_t **buf)
 			knh_flag_t flag = (knh_flag_t)data[1];
 			knh_ebi_t eid = _EXPTID(data[2]);
 			knh_ebi_t pid = _EXPTID(data[3]);
-			knh_addException(ctx, flag, eid, new_T(name), pid);
+			knh_addEvent(ctx, flag, eid, new_T(name), pid);
 			data += 4;
 			break;
 		}

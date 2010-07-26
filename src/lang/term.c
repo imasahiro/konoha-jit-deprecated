@@ -450,16 +450,23 @@ static void knh_Token_add(Ctx *ctx, knh_Token_t *tk, knh_Token_t *tkc)
 	knh_Array_add(ctx, a, tkc);
 
 	/* join part */
-	if(TT_isSTR(TT_(tkc)) && TT_isSTR(TT_(tkPREV))) {
-		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-		knh_Bytes_write(ctx, cwb->ba, S_tobytes(DP(tkPREV)->text));
-		if(SP(tkc)->line > SP(tkPREV)->line) {
-			knh_Bytes_putc(ctx, cwb->ba, '\n');
+	if(TT_isSTR(TT_(tkc))) {
+		if(TT_isSTR(TT_(tkPREV)) || TT_(tkPREV) == TT_FMTSTR) {
+			knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
+			knh_Bytes_write(ctx, cwb->ba, S_tobytes(DP(tkPREV)->text));
+			if(SP(tkc)->line > SP(tkPREV)->line) {
+				knh_Bytes_putc(ctx, cwb->ba, '\n');
+			}
+			knh_Bytes_write(ctx, cwb->ba, S_tobytes(DP(tkc)->text));
+			KNH_SETv(ctx, DP(tkPREV)->data, knh_cwb_newString(ctx, cwb));
+			if(TT_(tkc) == TT_ESTR) TT_(tkPREV) = TT_ESTR;
+			knh_Array_trimSize(ctx, a, prev+1); return;
 		}
-		knh_Bytes_write(ctx, cwb->ba, S_tobytes(DP(tkc)->text));
-		KNH_SETv(ctx, DP(tkPREV)->data, knh_cwb_newString(ctx, cwb));
-		if(TT_(tkc) == TT_ESTR) TT_(tkPREV) = TT_ESTR;
-		knh_Array_trimSize(ctx, a, prev+1); return;
+		if(TT_(tkPREV) == TT_NAME && ISB(S_tobytes(DP(tkPREV)->text), "%%")) {
+			TT_(tkc) = TT_FMTSTR;
+			KNH_SETv(ctx, a->list[prev], tkc);
+			knh_Array_trimSize(ctx, a, prev+1); return;
+		}
 	}
 	if(TT_isSTR(TT_(tkc)) && TT_(tkPREV) == TT_URN) {
 		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
@@ -1385,6 +1392,7 @@ static void knh_InputStream_parseToken(Ctx *ctx, knh_InputStream_t *in, knh_Toke
 	knh_Token_addBuf(ctx, tk, cwb, TT_CODE, EOF);
 }
 
+/* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
 static void knh_Token_toBLOCK(Ctx *ctx, knh_Token_t *tk)
@@ -3077,7 +3085,7 @@ static knh_Stmt_t *new_StmtSTMT1(Ctx *ctx, tkitr_t *itr)
 		case TT_TADD: case TT_TMUL:
 		case TT_ADDR: case TT_TSUB:
 		case TT_NUM:
-		case TT_STR: case TT_TSTR:
+		case TT_STR: case TT_TSTR: case TT_FMTSTR:
 		case TT_ESTR: case TT_REGEX:
 		case TT_URN: break; // EXPR
 
