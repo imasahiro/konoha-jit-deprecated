@@ -12,6 +12,8 @@ false
 
 ### create Connection
 >>> c = new Connection("sqlite3:./ktest/class/test.db");
+>>> c.exec("create table exectest(val);
+>>> c.exec("drop table exectest");
 >>> r = c.query("select * from test limit 4");
 >>> r.next();
 true
@@ -21,6 +23,10 @@ true
 "123"
 >>> r.getFloat("val");
 123.000000
+>>> r.get("val");
+123
+>>> r.getName(0);
+"val"
 >>> r.next();
 true
 >>> r.getFloat("val")
@@ -29,9 +35,13 @@ true
 "1.230000"
 >>> r.getInt("val");
 1
+>>> r.get("val");
+1.230000
 >>> r.next();
 true
 >>> r.getString("val");
+"This is test"
+>>> r.get("val");
 "This is test"
 >>> r.next();
 true
@@ -41,6 +51,8 @@ true
 0.000000
 >>> r.getString("val")
 ""
+>>> r.get("val");
+null
 >>> r.next();
 false
 >>> r.close();
