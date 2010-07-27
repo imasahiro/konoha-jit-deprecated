@@ -399,7 +399,7 @@ static knh_data_t ParamArrayData0[] = {
 	DATA_PARAM/*86*/, 0, 1, 0, TYPE_Int, FN_status,
 	DATA_PARAM/*87*/, 0, 1, 1, TYPE_InputStream, FN_in, TYPE_InputStream, FN_return,
 	DATA_PARAM/*88*/, 0, 1, 1, TYPE_OutputStream, FN_out, TYPE_OutputStream, FN_return,
-	DATA_PARAM/*89*/, 0, 1, 1, TYPE_Any, FN_msg, TYPE_Boolean, FN_return,
+	DATA_PARAM/*89*/, 0, 1, 1, TYPE_String, FN_event, TYPE_Boolean, FN_return,
 	DATA_PARAM/*90*/, 0, 2, 1, TYPE_String, FN_name, TYPE_Object, FN_value, TYPE_Any, FN_return,
 	DATA_PARAM/*91*/, 0, 1, 1, TYPE_Boolean, FN_flag, TYPE_Boolean, FN_return,
 	0

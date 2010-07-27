@@ -2197,7 +2197,15 @@ static knh_Term_t *knh_StmtOP_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt
 		knh_Token_t *tkC = DP(stmt)->tokens[2];
 		knh_class_t cid = CLASS_type((tkC)->type);
 		mtd_cid = TERMs_getcid(stmt, 1);
-		if(TT_(tkC) == TT_CID) cid = DP(tkC)->cid;
+		if(TT_(tkC) == TT_CID) {
+			if(mtd_cid == CLASS_Exception) {
+				mtd_cid = CLASS_Object;
+			}
+			cid = DP(tkC)->cid;
+		}
+		if(mtd_cid == CLASS_Exception){
+			goto L_LOOKUPMETHOD;
+		}
 		//DBG_P("%s instanceof %s true? %d", TYPE__(mtd_cid), TYPE__(cid), knh_class_instanceof(ctx, mtd_cid, cid));
 		if(mtd_cid == cid || cid == CLASS_Any) {
 			//knh_Gamma_perror(ctx, KERR_DWARN, _("always true: %C instanceof %C"), mtd_cid, cid);

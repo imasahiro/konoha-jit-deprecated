@@ -2,7 +2,7 @@
 
 /* ======================================================================== */
 /* MACROS */
-#define K_REVISION                      1747
+#define K_REVISION                      1749
 #define K_BUILDID                       961
 
 /* ======================================================================== */
@@ -721,12 +721,7 @@
 #define knh_Exception_isCaught(o)  ((DP(o)->flag & FLAG_Exception_Caught) == FLAG_Exception_Caught)
 
 #define knh_Exception_setCaught(o,b) if(b) DP(o)->flag |= FLAG_Exception_Caught; else DP(o)->flag &= ~(FLAG_Exception_Caught);
-#define FLAG_ExceptionHandler_Jumpable  FLAG_Object_Local1
-
-#define knh_ExceptionHandler_isJumpable(o)  (((o)->h.flag & FLAG_ExceptionHandler_Jumpable) == FLAG_ExceptionHandler_Jumpable)
-
-#define knh_ExceptionHandler_setJumpable(o,b) if(b) (o)->h.flag |= FLAG_ExceptionHandler_Jumpable; else (o)->h.flag &= ~(FLAG_ExceptionHandler_Jumpable);
-#define FLAG_ExceptionHandler_Catching  FLAG_Object_Local2
+#define FLAG_ExceptionHandler_Catching  FLAG_Object_Local1
 
 #define knh_ExceptionHandler_isCatching(o)  (((o)->h.flag & FLAG_ExceptionHandler_Catching) == FLAG_ExceptionHandler_Catching)
 

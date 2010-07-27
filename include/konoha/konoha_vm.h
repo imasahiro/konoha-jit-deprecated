@@ -498,31 +498,32 @@ typedef KLRAPI(int) (*klr_Fnext)(Ctx *, knh_sfp_t *, int, knh_class_t);
 
 #define NPC  /* for KNH_TRY */
 
-#define KLR_THROW(ctx, start) { \
-		if(IS_Exception(ctx->e)) {\
-			knh_ExceptionHandler_t* _hdr = knh_stack_findExceptionHandler(ctx, sfp, start); \
-			pc = SP(_hdr)->pc; \
-			sfp = ctx->stack + SP(_hdr)->sfpidx;\
-			klr_setesp(ctx, (ctx->stack + SP(_hdr)->espidx));\
-			vpc = SP(_hdr)->pc; \
-			vshift = SP(_hdr)->vshift; \
-			GOTO_PC(pc);\
-		}\
-	} \
-
-#define KNH_SETJUMP(hdlr) knh_setjmp(DP(hdlr)->jmpbuf)
-
 #define KLR_TRY(ctx, PC, JUMP, hn)  {\
 		knh_ExceptionHandler_t* _hdr = sfp[hn].hdr; \
 		if(!IS_ExceptionHandler(_hdr)) { \
 			_hdr = new_(ExceptionHandler); \
 			klr_mov(ctx, sfp[hn].o, _hdr); \
 		} \
-		SP(_hdr)->pc  = pc; \
-		SP(_hdr)->sfpidx = (sfp - ctx->stack); \
-		SP(_hdr)->espidx = (ctx->esp - ctx->stack); \
-		SP(_hdr)->vshift = vshift; \
-		SP(_hdr)->vpc = vpc; \
+		if(knh_ExceptionHandler_setjmp(ctx, _hdr)) {\
+			DP(_hdr)->pc  = pc; \
+			DP(_hdr)->vpc = vpc; \
+			SP(_hdr)->sfpidx = (sfp - ctx->stack); \
+			SP(_hdr)->espidx = (ctx->esp - ctx->stack); \
+			SP(_hdr)->vshift = vshift; \
+		} else {\
+			pc = DP(_hdr)->pc; \
+			vpc = DP(_hdr)->vpc; \
+			sfp = ctx->stack + SP(_hdr)->sfpidx;\
+			klr_setesp(ctx, (ctx->stack + SP(_hdr)->espidx));\
+			vshift = SP(_hdr)->vshift; \
+			KLR_JMP(ctx, PC, JUMP);\
+		}\
+	} \
+
+#define KLR_THROW(ctx, start) { \
+		if(IS_Exception(ctx->e)) {\
+			knh_throw(ctx, sfp, start); \
+		}\
 	} \
 
 #define KLR_CATCH(ctx, PC, JUMP, en, emsg) { \

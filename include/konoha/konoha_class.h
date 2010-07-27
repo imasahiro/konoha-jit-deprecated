@@ -621,26 +621,20 @@ typedef struct knh_Exception_t {
 
 /* ------------------------------------------------------------------------ */
 //## @Private class ExceptionHandler Object;
-//## flag ExceptionHandler Jumpable   1 - is set * *;
-//## flag ExceptionHandler Catching   2 - is set * *;
+//## flag ExceptionHandler Catching   1 - is set * *;
 
-#ifdef K_USING_POSIX
-typedef sigjmp_buf knh_jmpbuf_t;
-#define knh_setjmp(buf)         sigsetjmp(buf, 1)
-#define knh_longjmp(buf, val)   siglongjmp(buf, val)
-#elif defined(KONOHA_ON_LKM)
-typedef jmp_buf knh_jmpbuf_t;
-#else
-typedef jmp_buf knh_jmpbuf_t;
-#define knh_setjmp(buf)         setjmp(buf)
-#define knh_longjmp(buf, val)   longjmp(buf, val)
-#endif
+typedef struct {
+	struct knh_opline_t *pc;
+	struct knh_opline_t *vpc;
+	void *return_address;
+	void *frame_address;
+} knh_ExceptionHandlerEX_t;
 
 typedef struct knh_ExceptionHandler_t {
 	knh_hObject_t h;
-	struct knh_opline_t *pc;
-	knh_ushort_t sfpidx;     knh_ushort_t espidx;
-	struct knh_opline_t *vpc;
+	knh_ExceptionHandlerEX_t *b;
+	knh_intptr_t sfpidx;
+	knh_intptr_t espidx;
 	knh_intptr_t vshift;
 } knh_ExceptionHandler_t;
 

@@ -348,30 +348,53 @@ KNHAPI(void) knh_stack_throw(Ctx *ctx, knh_sfp_t *sfp, knh_Exception_t *e)
 
 /* ------------------------------------------------------------------------ */
 
-knh_ExceptionHandler_t* knh_stack_findExceptionHandler(Ctx *ctx, knh_sfp_t *sfp, long start)
+knh_bool_t knh_ExceptionHandler_setjmp(Ctx *ctx, knh_ExceptionHandler_t *hdr)
+{
+	DP(hdr)->return_address = __builtin_return_address(0);
+	DP(hdr)->frame_address = __builtin_frame_address(0);
+	fprintf(stderr, "@%s: return_addr=%p, frame_addr=%p\n",
+		__FUNCTION__, DP(hdr)->return_address, DP(hdr)->frame_address);
+	return 1;
+}
+
+static knh_bool_t knh_ExceptionHandler_longjmp(Ctx *ctx, knh_ExceptionHandler_t *hdr)
+{
+	fprintf(stderr, "@%s: return_addr=%p, frame_addr=%p\n",
+		__FUNCTION__, DP(hdr)->return_address, DP(hdr)->frame_address);
+
+	// TODO:
+	// rewrite return_address
+
+	KNH_ASSERT(DP(hdr)->return_address == __builtin_return_address(0));
+
+	// TODO:
+	// rewrite frame_address
+
+	return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+
+void knh_throw(Ctx *ctx, knh_sfp_t *sfp, long start)
 {
 	knh_sfp_t *sp = (sfp == NULL) ? ctx->esp : sfp + start;
-//	if(DP(e)->line != 0) {
-//		if(line == 0) {
-//			knh_stack_callee(ctx, sp, &file, &line);
-//		}
-//		DP(e)->file = file;
-//		DP(e)->line = line;
-//	}
+	KNH_ASSERT(IS_Exception(ctx->e));
 	while(ctx->stack <= sp) {
-		if(IS_ExceptionHandler(sp[0].hdr) && knh_ExceptionHandler_isCatching(sp[0].hdr)) {
-			return sp[0].hdr;
+		DBG_P("[%d] cid=%s ivalue=%lld", (sp - ctx->stack), CLASS__(knh_Object_cid(sp[0].o)), sp[0].ivalue);
+		if(IS_ExceptionHandler(sp[0].hdr) && DP(sp[0].hdr)->return_address != NULL) {
+			knh_ExceptionHandler_longjmp(ctx, sp[0].hdr);
+			goto L_NOCATCH;
 		}
 //		else if(IS_Method(sp[0].o) && sp[0].data != knh_Object_data(sp[0].mtd)) {
 //			knh_stack_addStackTrace(ctx, sp+1, e);
 //		}
 		sp--;
 	}
+	L_NOCATCH:;
 	fprintf(stderr, "********** USE STACKTRACE IN YOUR C/C++ DEBUGGER ************\n");
 	fprintf(stderr, "Uncaught Exception: %s\n", S_tochar(DP(ctx->e)->msg));
 	fprintf(stderr, "*************************************************************\n");
 	exit(0);
-	return NULL;
 }
 
 ///* ------------------------------------------------------------------------ */
@@ -382,11 +405,9 @@ knh_ExceptionHandler_t* knh_stack_findExceptionHandler(Ctx *ctx, knh_sfp_t *sfp,
 //	knh_stack_throw(ctx, new_Exception(ctx, knh_getEventName(ctx, EBI_Security)), NULL, 0);
 //}
 
-/* ------------------------------------------------------------------------ */
-/* [EventTBL] */
-
 
 /* ------------------------------------------------------------------------ */
+/* [Event] */
 
 int knh_expt_isa(Ctx *ctx, knh_ebi_t eid, knh_ebi_t parent)
 {
@@ -531,18 +552,6 @@ KNHAPI(knh_Exception_t*) new_Exception__T(Ctx *ctx, const char *msg)
 
 /* ------------------------------------------------------------------------ */
 
-int knh_Exception_isa(Ctx *ctx, knh_Exception_t *o, knh_String_t *msg)
-{
-	int res = 0;
-	knh_ebi_t eid = knh_geteid(ctx, S_tobytes(msg), EBI_unknown);
-	if(eid != EBI_unknown) {
-		res = knh_expt_isa(ctx, DP(o)->eid, eid);
-	}
-	return res;
-}
-
-/* ------------------------------------------------------------------------ */
-
 void knh_Context_setThrowingException(Ctx *ctx, knh_Exception_t *e)
 {
 	KNH_SETv(ctx, ((knh_Context_t*)ctx)->e, e);
@@ -563,14 +572,6 @@ void SYSLOG_OutOfIndex(Ctx *ctx, knh_sfp_t *sfp, knh_int_t n, size_t max)
 //	return (knh_ExceptionHandler_t*)new_Object_bcid(ctx, CLASS_ExceptionHandler, 0);
 //}
 //
-///* ------------------------------------------------------------------------ */
-//
-//void knh_ExceptionHandler_longjmp(Ctx *ctx, knh_ExceptionHandler_t *o, knh_Exception_t *e)
-//{
-//	KNH_ASSERT(IS_Exception(e));
-//	KNH_SETv(ctx, DP(o)->caught, e);
-//	knh_longjmp(DP(o)->jmpbuf, ((int)DP(e)->eid));
-//}
 //
 ///* ------------------------------------------------------------------------ */
 //

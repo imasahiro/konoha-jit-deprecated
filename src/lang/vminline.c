@@ -34,7 +34,6 @@ extern "C" {
 
 #ifdef K_USING_VMINLINE
 
-
 static void knh_code_thread(Ctx *ctx, knh_opline_t *pc, void **codeaddr)
 {
 #ifdef K_USING_THREADEDCODE
@@ -60,6 +59,18 @@ static int knh_stack_pushesp(Ctx *ctx, knh_sfp_t *sfp) /* thisidx */
 	}
 	klr_setesp(ctx, esp + delta);
 	return delta;
+}
+
+static knh_bool_t knh_Exception_isa(Ctx *ctx, knh_Exception_t *e, knh_String_t *event)
+{
+	if(knh_bytes_strcasecmp(S_tobytes(event), S_tobytes(DP(e)->event)) != 0) {
+		knh_ebi_t eid = knh_geteid(ctx, S_tobytes(event), EBI_unknown);
+		if(eid != EBI_unknown) {
+			return knh_expt_isa(ctx, DP(e)->eid, eid);
+		}
+		return 0;
+	}
+	return 1;
 }
 
 /* ------------------------------------------------------------------------ */

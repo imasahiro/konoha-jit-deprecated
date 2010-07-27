@@ -1144,10 +1144,31 @@ static knh_ObjectCSPI_t ExceptionSPI = {
 /* ======================================================================== */
 /* ExceptionHandler */
 
+static FASTAPI(void) knh_ExceptionHandler_init(Ctx *ctx, Object *o)
+{
+	knh_ExceptionHandlerEX_t *b = KNH_MALLOCBODY(ctx, ExceptionHandler);
+	b->pc = NULL;
+	b->vpc = NULL;
+	b->return_address = NULL;
+	b->frame_address = NULL;
+	o->ref = b;
+}
+
+static FASTAPI(void) knh_ExceptionHandler_traverse(Ctx *ctx, Object *o, knh_Ftraverse ftr)
+{
+//	knh_ExceptionHandlerEX_t *b = DP((knh_ExceptionHandler_t*)o);
+//	KNH_FTR(ctx, ftr, b->event);
+}
+
+static FASTAPI(void) knh_ExceptionHandler_free(Ctx *ctx, Object *o)
+{
+	KNH_FREEBODY(ctx, o->ref, ExceptionHandler);
+}
+
 static knh_ObjectCSPI_t ExceptionHandlerSPI = {
 	"ExceptionHandler", 0, CFLAG_ExceptionHandler,
-	DEFAULT_init, DEFAULT_initcopy,
-	DEFAULT_traverse, DEFAULT_free,
+	knh_ExceptionHandler_init, DEFAULT_initcopy,
+	knh_ExceptionHandler_traverse, knh_ExceptionHandler_free,
 	DEFAULT_checkout, DEFAULT_compareTo,
 	DEFAULT_hashkey, DEFAULT_genmap,
 };

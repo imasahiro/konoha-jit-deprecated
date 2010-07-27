@@ -248,19 +248,20 @@ static METHOD Context_setErr(Ctx *ctx, knh_sfp_t *sfp, long rix)
 }
 
 /* ------------------------------------------------------------------------ */
-//## method Boolean Exception.opOF(Any msg);
+//## method Boolean Exception.opOF(String event);
 
 static METHOD Exception_opOF(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
 	int isa = 0;
-	if(IS_Class(sfp[1].o)) {
-		isa = knh_Object_cid(sfp[0].o) == CLASS_Exception ? 1 : 0;
+	knh_String_t *event = sfp[1].s;
+	if(knh_bytes_strcasecmp(S_tobytes(event), S_tobytes(DP(sfp[0].e)->event)) != 0) {
+		knh_ebi_t eid = knh_geteid(ctx, S_tobytes(event), EBI_unknown);
+		if(eid != EBI_unknown) {
+			isa = knh_expt_isa(ctx, DP(sfp[0].e)->eid, eid);
+		}
 	}
-	else if(IS_bString(sfp[1].o)){
-		isa = knh_Exception_isa(ctx, sfp[0].e, sfp[1].s);
-	}
-	else if(IS_Exception(sfp[1].o)) {
-		isa = knh_expt_isa(ctx, DP(sfp[0].e)->eid, DP(sfp[1].e)->eid);
+	else {
+		isa = 1;
 	}
 	RETURNb_(isa);
 }
