@@ -113,7 +113,7 @@ knh_bool_t knh_opcode_hasjump(knh_opcode_t opcode);
 void knh_opline_traverse(Ctx *ctx, knh_opline_t *c, knh_Ftraverse ftr);
 void knh_opcode_dump(Ctx *ctx, knh_opline_t *c, knh_OutputStream_t *w, knh_opline_t *pc_start);
 void knh_opcode_idxshift(knh_opline_t *c, int idxshift);
-knh_opline_t* knh_VirtualMachine_run(Ctx *ctx, knh_sfp_t *sfp, knh_opline_t *pc);
+knh_opline_t* knh_VirtualMachine_run(Ctx *ctx, knh_sfp_t *sfp0, knh_opline_t *pc0);
 knh_bytes_t knh_bytes_skipPATHHEAD(knh_bytes_t path);
 knh_StreamDSPI_t *knh_getStreamDSPI(Ctx *ctx, knh_bytes_t path);
 knh_QueryDSPI_t *knh_getQueryDSPI(Ctx *ctx, knh_bytes_t path);

@@ -172,6 +172,7 @@ fJGTn  addr:addr a:sfpidx n:float   @3
 fJGTEn addr:addr a:sfpidx n:float   @3
 
 NOP
+
 """
 
 CTYPE = {

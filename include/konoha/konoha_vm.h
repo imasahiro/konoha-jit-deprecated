@@ -533,11 +533,17 @@ typedef KLRAPI(int) (*klr_Fnext)(Ctx *, knh_sfp_t *, int, knh_class_t);
 	} \
 
 
-#define KLR_THROW(ctx, start) { \
+#define KLR_THROW2(ctx, start) { \
 		if(IS_Exception(ctx->e)) {\
 			knh_throw(ctx, sfp, start); \
 		}\
 	} \
+
+#define KLR_THROW(ctx, start) { \
+		knh_throw(ctx, sfp, start); \
+	} \
+
+
 
 #define KLR_CATCH(ctx, PC, JUMP, en, emsg) { \
 		if(knh_Exception_isa(ctx, ctx->e, emsg)) { \
@@ -707,12 +713,14 @@ typedef KLRAPI(void) (*klr_Fprobe)(Ctx *, knh_sfp_t*, knh_sfpidx_t n, knh_opline
 
 /* ------------------------------------------------------------------------ */
 
-#define KLR_LABEL(ctx, id, msg) DBG_P("LABEL: id=%d", (int)id)
+
 #ifndef KONOHA_ON_WINDOWS
 #define KLR_NOP(ctx)  asm("nop")
 #else
 #define KLR_NOP(ctx)
 #endif
+
+
 /* ------------------------------------------------------------------------ */
 
 #define BEGIN_LOCAL(ctx, lsfp, n) \
