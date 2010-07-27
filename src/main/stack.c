@@ -194,31 +194,25 @@ void knh_stack_typecheck(Ctx *ctx, knh_sfp_t *sfp, knh_Method_t *mtd, knh_opline
 /* ======================================================================== */
 /* [throw] */
 
-static knh_bool_t knh_stack_isCalledMethod(Ctx *ctx, knh_sfp_t *sfp)
-{
-	//IS_Method(sfp[0].mtd)
-	return 0;
-}
-
-knh_sfp_t* knh_stack_callee(Ctx *ctx, knh_sfp_t *sfp, char **file, int *linenum)
-{
-	while(ctx->stack <= sfp) {
-		if(knh_stack_isCalledMethod(ctx, sfp)) {
-			knh_opline_t *pc = sfp[0].pc;
-			//DBG_P("sfp[%d] pc=%p callee yes=%d", sfp - ctx->stack, pc, sfp[0].data != knh_Object_data(sfp[0].mtd));
-			if(pc == NULL) {
-				return sfp;
-			}
-//			if(sfp[0].data != knh_Object_data(sfp[0].mtd)) {
-//				*linenum = knh_Method_pcline(sfp[0].mtd, pc);
-//				*file = knh_Method_file(ctx, sfp[0].mtd);
+//knh_sfp_t* knh_stack_callee(Ctx *ctx, knh_sfp_t *sfp, char **file, int *linenum)
+//{
+//	while(ctx->stack <= sfp) {
+//		if(knh_stack_isCalledMethod(ctx, sfp)) {
+//			knh_opline_t *pc = sfp[0].pc;
+//			//DBG_P("sfp[%d] pc=%p callee yes=%d", sfp - ctx->stack, pc, sfp[0].data != knh_Object_data(sfp[0].mtd));
+//			if(pc == NULL) {
 //				return sfp;
 //			}
-		}
-		sfp--;
-	}
-	return ctx->stack;
-}
+////			if(sfp[0].data != knh_Object_data(sfp[0].mtd)) {
+////				*linenum = knh_Method_pcline(sfp[0].mtd, pc);
+////				*file = knh_Method_file(ctx, sfp[0].mtd);
+////				return sfp;
+////			}
+//		}
+//		sfp--;
+//	}
+//	return ctx->stack;
+//}
 
 //static void knh_stack_writeStackTrace(Ctx *ctx, knh_sfp_t *sfp, knh_OutputStream_t *w)
 //{
@@ -300,27 +294,6 @@ METHOD knh_Fmethod_stackTrace(Ctx *ctx, knh_sfp_t *sfp, long rix)
 
 /* ------------------------------------------------------------------------ */
 
-//static knh_sfp_t *knh_stack_addStackTrace(Ctx *ctx, knh_sfp_t *sfp, knh_Exception_t *e)
-//{
-//	char *file = "-";
-//	int  line = 0;
-//	knh_sfp_t *callee = knh_stack_callee(ctx, sfp, &file, &line);
-//	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-//	knh_write_fline(ctx, cwb->w, file, line);
-//	knh_putc(ctx, cwb->w, ':');
-//	knh_stack_writeStackTrace(ctx, sfp, cwb->w);
-//	{
-//		knh_String_t *msg = knh_cwb_newString(ctx, cwb);
-//		if(IS_NULL(DP(e)->traces)) {
-//			KNH_SETv(ctx, DP(e)->traces, new_Array(ctx, CLASS_String, 16));
-//		}
-//		knh_Array_add_(ctx, DP(e)->traces, UPCAST(msg));
-//	}
-//	return callee;
-//}
-
-/* ------------------------------------------------------------------------ */
-
 KNHAPI(void) knh_stack_throw(Ctx *ctx, knh_sfp_t *sfp, knh_Exception_t *e)
 {
 	knh_sfp_t *sp = (sfp == NULL) ? ctx->esp : sfp;
@@ -375,12 +348,53 @@ static knh_bool_t knh_ExceptionHandler_longjmp(Ctx *ctx, knh_ExceptionHandler_t 
 
 /* ------------------------------------------------------------------------ */
 
+static knh_bool_t isCalledMethod(Ctx *ctx, knh_sfp_t *sfp)
+{
+	knh_Method_t *mtd = sfp[0].callmtd;
+	if(knh_isObject(ctx, mtd) && IS_Method(mtd)) {
+		DBG_P("shift=%d, pc=%d", sfp[-2].shift, sfp[-1].pc);
+		return 1;
+	}
+	return 0;
+}
+
+//static knh_sfp_t *knh_stack_addStackTrace(Ctx *ctx, knh_sfp_t *sfp, knh_Exception_t *e)
+//{
+//	knh_sfp_t *psfp;
+//	char *file = "-";
+//	int  line = 0;
+//	int shift = sfp[K_SHIFTIDX].shift;
+//	knh_opline_t *pc = sfp[K_SHIFTIDX].pc;
+//	knh_Method_t *mtd = sfp[K_MTDIDX].callmtd;
+//	knh_sfp_t *psfp = sfp - shift;
+//	if(ctx->stack < psfp && psfp < sfp) {
+//		if(psfp[K_MTDIDX].callmtd != NULL && isCalledMethod(ctx, psfp + K_MTDIDX))
+//	}
+//
+//	knh_sfp_t *callee = knh_stack_callee(ctx, sfp, &file, &line);
+//	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
+//	knh_write_fline(ctx, cwb->w, file, line);
+//	knh_putc(ctx, cwb->w, ':');
+//	knh_stack_writeStackTrace(ctx, sfp, cwb->w);
+//	{
+//		knh_String_t *msg = knh_cwb_newString(ctx, cwb);
+//		if(IS_NULL(DP(e)->traces)) {
+//			KNH_SETv(ctx, DP(e)->traces, new_Array(ctx, CLASS_String, 16));
+//		}
+//		knh_Array_add_(ctx, DP(e)->traces, UPCAST(msg));
+//	}
+//	return callee;
+//}
+
 void knh_throw(Ctx *ctx, knh_sfp_t *sfp, long start)
 {
 	knh_sfp_t *sp = (sfp == NULL) ? ctx->esp : sfp + start;
 	KNH_ASSERT(IS_Exception(ctx->e));
 	while(ctx->stack <= sp) {
 		DBG_P("[%d] cid=%s ivalue=%lld", (sp - ctx->stack), CLASS__(knh_Object_cid(sp[0].o)), sp[0].ivalue);
+		if(sp[0].callmtd != NULL && isCalledMethod(ctx, sp)) {
+			//sp = knh_stack_addStackTrace(ctx, sp+1, ctx->e);
+		}
 		if(IS_ExceptionHandler(sp[0].hdr) && DP(sp[0].hdr)->return_address != NULL) {
 			knh_ExceptionHandler_longjmp(ctx, sp[0].hdr);
 			goto L_NOCATCH;

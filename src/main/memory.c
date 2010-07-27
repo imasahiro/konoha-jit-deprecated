@@ -184,7 +184,7 @@ void TRACE_free(Ctx *ctx, void *p, size_t size TRACEARG0)
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(knh_bool_t) knh_isObject(Ctx *ctx, void *p)
+knh_bool_t knh_isObject(Ctx *ctx, void *p)
 {
 	knh_uintptr_t n = (knh_uintptr_t)p;
 	if(p != NULL && n % sizeof(knh_Object_t) == 0) {

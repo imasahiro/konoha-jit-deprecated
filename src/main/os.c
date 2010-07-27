@@ -457,7 +457,7 @@ void *knh_cwb_dlopen(Ctx *ctx, knh_cwb_t *cwb, int isPERROR)
 #elif defined(K_USING_POSIX)
 	hdlr = dlopen(file, RTLD_LAZY);
 	if(isPERROR && hdlr == NULL) {
-		KNH_SYSLOG(ctx, LOG_ERR, K_PERROR_LIBNAME, "dlopen", "%s", dlerror());
+		KNH_SYSLOG(ctx, LOG_ERR, K_PERROR_LIBNAME, "%s", dlerror());
 	}
 #elif defined(K_USING_BTRON)
 //	TC buff_tc[FILEPATH_BUFSIZ];

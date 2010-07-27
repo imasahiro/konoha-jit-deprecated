@@ -1411,8 +1411,8 @@ static void KNH_ASM_CALL(Ctx *ctx, knh_type_t reqt, int sfpidx, knh_Method_t *mt
 	KNH_ASSERT(sfpidx >= DP(ctx->gma)->espidx);
 	if(knh_Method_isFinal(mtd) || isStatic) {
 		if(knh_Gamma_hasJIT(ctx)) {
-			KNH_ASM(LDMETHOD, klr_setMethod, sfpidx+K_CALLDELTA, mtd);
-			KNH_ASM(CALL, sfpidx, ESP_(sfpidx, args));
+			KNH_ASM(LOADMTD, sfpidx+K_CALLDELTA, klr_setMethod, mtd);
+			KNH_ASM(CALL, sfpidx+K_CALLDELTA, ESP_(sfpidx, args));
 		}
 		else if(knh_Method_isKLRCode(mtd) || DP(ctx->gma)->mtd == mtd) {
 //			if(knh_Gamma_isInlineFunction(ctx->gma) && DP(ctx->gma)->mtd != mtd) {
@@ -1425,19 +1425,19 @@ static void KNH_ASM_CALL(Ctx *ctx, knh_type_t reqt, int sfpidx, knh_Method_t *mt
 //				}
 //			}
 			if(args == 0) {
-				KNH_ASM(VCALL_, sfpidx, ESP_(sfpidx, args), mtd);
+				KNH_ASM(VCALL_, sfpidx+K_CALLDELTA, ESP_(sfpidx, args), mtd);
 			}
 			else {
-				KNH_ASM(VCALL, sfpidx, ESP_(sfpidx, args), mtd);
+				KNH_ASM(VCALL, sfpidx+K_CALLDELTA, ESP_(sfpidx, args), mtd);
 			}
 		}
 		else {
-			KNH_ASM(SCALL, sfpidx, ESP_(sfpidx, args), mtd);
+			KNH_ASM(SCALL, sfpidx+K_CALLDELTA, ESP_(sfpidx, args), mtd);
 		}
 	}
 	else {
-		KNH_ASM(LDMETHOD, klr_lookupMethod, sfpidx+K_CALLDELTA, mtd);
-		KNH_ASM(CALL, sfpidx, ESP_(sfpidx, args));
+		KNH_ASM(LOADMTD, sfpidx+K_CALLDELTA, klr_lookupMethod, mtd);
+		KNH_ASM(CALL, sfpidx + K_CALLDELTA, ESP_(sfpidx, args));
 	}
 }
 
@@ -1462,8 +1462,8 @@ static void knh_StmtCALL_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sf
 	if(!IS_Method(mtd)) {
 		knh_StmtPARAMs_asm(ctx, stmt, 1, local, cid, mtd);
 		mtd = knh_lookupDynamicMethod(ctx, DP(tkMTD)->mn);
-		KNH_ASM(LDMETHOD, klr_checkParams, local+K_CALLDELTA, mtd);
-		KNH_ASM(CALL, local, ESP_(local, DP(stmt)->size - 2));
+		KNH_ASM(LOADMTD, local+K_CALLDELTA, klr_checkParams, mtd);
+		KNH_ASM(CALL, local+K_CALLDELTA, ESP_(local, DP(stmt)->size - 2));
 		KNH_ASM_MOVL(ctx, reqt, sfpidx, TYPE_Any, local);
 		return;
 	}
@@ -2689,15 +2689,16 @@ void knh_loadSystemKLRCode(Ctx *ctx)
 	KNH_SETv(ctx, lsfp[2].o, ic);
 	KNH_SETv(ctx, lsfp[3].o, id);
 	knh_BasicBlock_add(ctx, ia, THCODE);
-	knh_BasicBlock_add(ctx, ia, TRY, NULL/*lb*/, (-3));
+	knh_BasicBlock_add(ctx, ia, TRY, NULL/*lb*/, (-4));  // LAUNCH
 	ia->nextNC = ib;
 	ia->jumpNC = ic;
 	knh_BasicBlock_add(ctx, ib, ENTER);
+	knh_BasicBlock_add(ctx, ib, TRYEND, (-4));
 	knh_BasicBlock_add(ctx, ib, EXIT);
 	ib->nextNC = ic;
 	knh_BasicBlock_add(ctx, ic, EXIT);
-	knh_BasicBlock_add(ctx, ic, FUNCCALL);
-	knh_BasicBlock_add(ctx, ic, VEXEC);
+	knh_BasicBlock_add(ctx, ic, FUNCCALL);               // FUNCCALL
+	knh_BasicBlock_add(ctx, ic, VEXEC);                  // VEXEC
 	knh_BasicBlock_add(ctx, ic, EXIT);
 	ic->nextNC = id;
 	knh_BasicBlock_add(ctx, id, RET);  // NEED TERMINATION

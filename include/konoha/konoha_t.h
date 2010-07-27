@@ -503,7 +503,7 @@ typedef struct knh_sfp_t {
 		knh_uint_t    uvalue;
 		knh_float_t   fvalue;
 		knh_uint64_t  data;
-		knh_uintptr_t shift;
+		knh_intptr_t  shift;
 		struct knh_opline_t  * pc;
 		struct knh_Method_t * callmtd;
 		struct knh_Translator_t * casttrl;

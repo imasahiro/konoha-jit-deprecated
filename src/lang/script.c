@@ -706,13 +706,15 @@ static knh_bool_t knh_Stmt_eval(Ctx *ctx, knh_Stmt_t *stmtITR, knh_type_t reqt, 
 				isCONTINUE = 0; goto L_BREAK;
 			}
 			if(resultsNULL != NULL) {
+				int rtnidx=3, thisidx = rtnidx + K_CALLDELTA;
 				DP(mtd)->uri = SP(stmt)->uri;
 				KNH_SETv(ctx, lsfp[1].o, DP(mtd)->kcode);  // put KCode to avoid GC
-				klr_setcallmtd(ctx, lsfp[2], mtd);
-				KNH_SETv(ctx, lsfp[3].o, scr);
-				klr_setesp(ctx, lsfp + 4);
-				if(knh_VirtualMachine_run(ctx, lsfp + 3, CODE_LAUNCH) == NULL) {
-					int rtnidx=4;
+				// lsfp[2] exception handler
+				lsfp[thisidx+K_PCIDX].pc = NULL;
+				klr_setcallmtd(ctx, lsfp[thisidx+K_MTDIDX], mtd);
+				KNH_SETv(ctx, lsfp[thisidx].o, scr);
+				klr_setesp(ctx, lsfp + thisidx+1);
+				if(knh_VirtualMachine_run(ctx, lsfp + thisidx, CODE_LAUNCH) == NULL) {
 					knh_class_t cid = knh_Object_cid(lsfp[rtnidx].o);
 					//DBG_P("returning sfpidx=%d, rtnidx=%d, %s %lld %ld %f", sfpidx_, sfpidx_ + rtnidx, O__(lsfp[rtnidx].o), lsfp[rtnidx].ivalue, lsfp[rtnidx].bvalue, lsfp[rtnidx].fvalue);
 					if(isExpr && SP(stmt)->type != TYPE_void) {
@@ -806,11 +808,11 @@ static knh_InputStream_t* knh_openPathNULL(Ctx *ctx, knh_bytes_t path)
 		return NULL;
 	}
 	else {
-		knh_intptr_t id = 0;
+		knh_uintptr_t id = 0;
 		knh_PathDSPI_t *pdspi = knh_NameSpace_getPathDSPINULL(ctx, ns, path);
 		if(pdspi != NULL) id = pdspi->exists(ctx, path, ns);
 		knh_InputStream_t *in = new_InputStreamDSPI(ctx, fd, sdspi);
-		if(id != 0) {
+		if(id != PATH_unknown) {
 			DP(in)->uri = (knh_uri_t)id;
 			KNH_SETv(ctx, DP(in)->urn, knh_getURN(ctx, DP(in)->uri));
 		}

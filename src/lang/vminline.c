@@ -46,20 +46,20 @@ static void knh_code_thread(Ctx *ctx, knh_opline_t *pc, void **codeaddr)
 #endif
 }
 
-static int knh_stack_pushesp(Ctx *ctx, knh_sfp_t *sfp) /* thisidx */
-{
-	int i = -1;
-	knh_sfp_t *esp = ctx->esp + 3;
-	int delta = esp - sfp;
-	DBG_ASSERT(sfp < esp);
-	while(sfp + i < esp) {
-		klr_mov(ctx, esp[i].o, sfp[i].o);
-		esp[i].data = sfp[i].data;
-		i++;
-	}
-	klr_setesp(ctx, esp + delta);
-	return delta;
-}
+//static int knh_stack_pushesp(Ctx *ctx, knh_sfp_t *sfp) /* thisidx */
+//{
+//	int i = -1;
+//	knh_sfp_t *esp = ctx->esp + 3;
+//	int delta = esp - sfp;
+//	DBG_ASSERT(sfp < esp);
+//	while(sfp + i < esp) {
+//		klr_mov(ctx, esp[i].o, sfp[i].o);
+//		esp[i].data = sfp[i].data;
+//		i++;
+//	}
+//	klr_setesp(ctx, esp + delta);
+//	return delta;
+//}
 
 static knh_bool_t knh_Exception_isa(Ctx *ctx, knh_Exception_t *e, knh_String_t *event)
 {

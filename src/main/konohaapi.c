@@ -389,12 +389,16 @@ KNHAPI(int) konoha_runMain(konoha_t konoha, int argc, char **argv)
 	knh_Method_t *mtd = knh_getMethodNULL(ctx, knh_Object_cid(ctx->script), MN_main);
 	int res = 0;
 	if(mtd != NULL) {
+		int thisidx = 1 + K_CALLDELTA;
 		BEGIN_LOCAL(ctx, lsfp, 5);
-		klr_setcallmtd(ctx,lsfp[2], mtd);
-		KNH_SETv(ctx, lsfp[3].o, ctx->script);
-		KNH_SETv(ctx, lsfp[4].o, knh_getPropertyNULL(ctx, STEXT("script.argv")));
-		knh_VirtualMachine_run(ctx, lsfp + 3, CODE_LAUNCH);
-		res = (int)lsfp[2].ivalue;
+		lsfp[1].ivalue = 0;
+		lsfp[thisidx+K_PCIDX].pc = NULL;
+		klr_setcallmtd(ctx,lsfp[thisidx+K_MTDIDX], mtd);
+		KNH_SETv(ctx, lsfp[thisidx].o, ctx->script);
+		KNH_SETv(ctx, lsfp[thisidx+1].o, knh_getPropertyNULL(ctx, STEXT("script.argv")));
+		klr_setesp(ctx, lsfp + thisidx+2);
+		knh_VirtualMachine_run(ctx, lsfp + thisidx, CODE_LAUNCH);
+		res = (int)lsfp[1].ivalue;
 		END_LOCAL(ctx, lsfp);
 	}
 	KONOHA_END(ctx);

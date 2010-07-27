@@ -77,14 +77,11 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_opline_t *pc);
 	}\
 
 /* [HALT] */
-// knh_stack_pushesp(ctx, sfp) is meaningless but necessary for generating
-// higly-optimized assemble virtual machince code. by ide and kimio
 
 #define KLR0_HALT(ctx) {\
-		knh_intptr_t thisidx_ = knh_stack_pushesp(ctx, sfp);\
 		pc--;\
-		KNH_SYSLOG(ctx, LOG_CRIT, "HaltVirtualMachine", "file=%s, line=%d thisidx=%d", \
-			knh_Method_file(ctx, sfp[K_MTDIDX].callmtd), pc->line, (int)thisidx_);\
+		KNH_SYSLOG(ctx, LOG_CRIT, "HaltVirtualMachine", "file=%s, line=%d", \
+			knh_Method_file(ctx, sfp[K_MTDIDX].callmtd), pc->line);\
 		goto L_RETURN;\
 	}\
 
@@ -218,58 +215,7 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_opline_t *pc);
 			sfp = knh_stack_initexpand(ctx, sfp, n);\
 		}\
 
-#define klr_ncall(ctx, Fcall, lsfp, rix) { \
-		Fcall(ctx, lsfp, rix);\
-	}\
-
-#define klr_vcall(ctx, mtd, thisidx) { \
-		vshift = thisidx;\
-		vpc = pc;\
-		pc = (mtd)->pc_start;\
-		sfp = sfp + vshift;\
-		if(unlikely(sfp > ctx->stacktop)) {\
-			sfp = knh_stack_initexpand(ctx, sfp, 0);\
-		}\
-		sfp[K_SHIFTIDX].shift = vshift;\
-		sfp[K_PCIDX].pc = vpc;\
-		GOTO_PC(pc); \
-	}
-
-#define klr_vcall2(ctx, mtd, thisidx) { \
-		vshift = thisidx;\
-		vpc = pc;\
-		pc = (mtd)->pc_start;\
-		sfp = sfp + vshift;\
-		sfp[K_SHIFTIDX].shift = vshift;\
-		sfp[K_PCIDX].pc = vpc;\
-		GOTO_PC(pc); \
-	}
-
-#define KLR_RET(ctx) {\
-		sfp = sfp - vshift; \
-		pc = vpc; \
-		vshift = sfp[K_SHIFTIDX].shift;\
-		vpc = sfp[K_PCIDX].pc;\
-		GOTO_PC(pc);\
-	}\
-
-#define KLR0_VEXEC(ctx) {\
-		vpc = pc;\
-		pc = (sfp[K_MTDIDX].callmtd)->pc_start;\
-		sfp[K_SHIFTIDX].shift = 0;\
-		sfp[K_PCIDX].pc = vpc;\
-		GOTO_PC(pc); \
-	}\
-
-#define KLR0_VEXEC_OLD(ctx) {\
-		knh_intptr_t thisidx_ = knh_stack_pushesp(ctx, sfp);\
-		klr_vcall2(ctx, sfp[K_MTDIDX].callmtd, thisidx_);\
-	}\
-
-#define KLR2_JMP_(ctx, PC, JUMP)   KLR_RET(ctx)
-
 knh_opline_t* knh_VirtualMachine_run(Ctx *, knh_sfp_t *, knh_opline_t *);
-//METHOD knh_Fmethod_runVM(Ctx *ctx, knh_sfp_t *sfp, long rix);
 #define knh_Method_isKLRCode(mtd) ((mtd)->fcall_1 == knh_Fmethod_runVM)
 
 #define knh_Gamma_hasJIT(ctx)     0
@@ -278,58 +224,30 @@ knh_opline_t* knh_VirtualMachine_run(Ctx *, knh_sfp_t *, knh_opline_t *);
 #define CODE_FUNCCALL  (ctx->share->PC_FUNCCALL)
 //#define CODE_ABSTRACT  (ctx->share->PC_ABSTRACT)
 
-#define klr_hcall(ctx, mtd, thisidx, rix) { \
-		if(knh_Method_isKLRCode(mtd)) {\
-			klr_vcall(ctx, mtd, thisidx);\
-		}else {\
-			klr_ncall(ctx, (mtd)->fcall_1, sfp + thisidx, rix);\
-		}\
-	}\
-
-#define KNH_SCALL(ctx, lsfp, rtnidx, mtdO, argc) { \
-		knh_intptr_t thisidx_ = rtnidx+ K_CALLDELTA;\
-		DBG_ASSERT(IS_Method(mtdO));\
-		klr_setcallmtd(ctx, lsfp[thisidx_+K_MTDIDX], mtdO);\
-		klr_setesp(ctx, lsfp + thisidx_ + argc + 1);\
-		if(knh_Method_isKLRCode(mtdO)) {\
-			knh_VirtualMachine_run(ctx, lsfp + thisidx_, CODE_VEXEC);\
-		}else {\
-			(mtdO)->fcall_1(ctx, lsfp + thisidx_, K_RTNIDX);\
-		}\
-		klr_setesp(ctx, lsfp + rtnidx);\
-	} \
-
-#define KNH_SELFCALL(ctx, sfp, mtd, rix) { \
-		(mtd)->fcall_1(ctx, sfp, rix);\
-	} \
-
-typedef KLRAPI(knh_Method_t*) (*klr_Fmethod)(Ctx *, knh_sfp_t *, int, knh_Method_t*);
-
-#define KLR_LDMETHOD(ctx, fmtd, thisidx, mtdO) { \
-		knh_Method_t *mtd_ = fmtd(ctx, sfp, thisidx, mtdO);\
-		if(mtd_ != mtdO) { \
-			((klr_LDMETHOD_t*)op)->callmtd = mtd_;\
-		}\
-		klr_setcallmtd(ctx, sfp[thisidx+K_MTDIDX], mtd_);\
-	} \
-
-#define KLR_CALL(ctx, rtnidx, espshift) { \
-		knh_intptr_t thisidx_ = rtnidx + K_CALLDELTA;\
-		knh_intptr_t mtdidx_ = thisidx_ + K_MTDIDX;\
-		klr_setesp(ctx, sfp + espshift);\
-		klr_hcall(ctx, sfp[mtdidx_].callmtd, thisidx_, K_RTNIDX);\
-	} \
-
-#define KLR2_SCALL(ctx, rtnidx, espshift, mtdO) { \
+#define KLR2_SCALL_OLD(ctx, rtnidx, espshift, mtdO) { \
 		knh_Method_t *mtd_ = mtdO;\
 		knh_intptr_t thisidx_ = rtnidx + K_CALLDELTA;\
-		knh_intptr_t mtdidx_ = thisidx_ + K_MTDIDX;\
-		klr_setcallmtd(ctx, sfp[mtdidx_], mtd_);\
+		knh_sfp_t *sfp_ = sfp + thisidx_; \
+		sfp_[K_SHIFTIDX].shift = thisidx_;\
+		sfp_[K_PCIDX].pc = pc;\
+		sfp_[K_MTDIDX].callmtd = mtd_;\
 		klr_setesp(ctx, sfp + espshift);\
-		klr_ncall(ctx, (mtd_)->fcall_1, sfp + thisidx_, K_RTNIDX); \
+		(mtd_)->fcall_1(ctx, sfp_, K_RTNIDX); \
 	} \
 
-#define KLR3_FASTCALL(ctx, fcall, c, a) { \
+#define KLR2_SCALL(ctx, thisidx, espshift, mtdO) { \
+		knh_Method_t *mtd_ = mtdO;\
+		knh_sfp_t *sfp_ = sfp + thisidx; \
+		sfp_[K_SHIFTIDX].shift = thisidx; \
+		sfp_[K_PCIDX].pc = pc;\
+		sfp_[K_MTDIDX].callmtd = mtd_;\
+		klr_setesp(ctx, sfp + espshift);\
+		(mtd_)->fcall_1(ctx, sfp_, K_RTNIDX); \
+	} \
+
+#define klr_Ffcall    knh_Fmethod
+
+#define KLR_FASTCALL(ctx, c, a, fcall) { \
 		fcall(ctx, sfp + a, c - a);\
 	} \
 
@@ -345,30 +263,106 @@ typedef KLRAPI(knh_Method_t*) (*klr_Fmethod)(Ctx *, knh_sfp_t *, int, knh_Method
 		fcall(ctx, sfp + a, c - a);\
 	} \
 
-#define KLR2_VCALL(ctx, rtnidx, espshift, mtdO) { \
-		knh_Method_t *mtd_ = mtdO;\
-		knh_intptr_t thisidx_ = rtnidx + K_CALLDELTA;\
-		knh_intptr_t mtdidx_ = thisidx_ + K_MTDIDX;\
-		klr_setcallmtd(ctx, sfp[mtdidx_], mtd_);\
-		klr_setesp(ctx, sfp + espshift);\
-		klr_vcall(ctx, mtd_, thisidx_); \
+#define KNH_SCALL(ctx, lsfp, rtnidx, mtdO, argc) { \
+		knh_intptr_t thisidx_ = rtnidx+ K_CALLDELTA;\
+		DBG_ASSERT(IS_Method(mtdO));\
+		klr_setcallmtd(ctx, lsfp[thisidx_+K_MTDIDX], mtdO);\
+		klr_setesp(ctx, lsfp + thisidx_ + argc + 1);\
+		if(knh_Method_isKLRCode(mtdO)) {\
+			knh_VirtualMachine_run(ctx, lsfp + thisidx_, CODE_VEXEC);\
+		}else {\
+			(mtdO)->fcall_1(ctx, lsfp + thisidx_, K_RTNIDX);\
+		}\
+		klr_setcallmtd(ctx, lsfp[thisidx_+K_MTDIDX], NULL);\
+		klr_setesp(ctx, lsfp + rtnidx);\
 	} \
 
-#define KLR2_VCALL_(ctx, rtnidx, espshift, mtdO) { \
+#define KNH_SELFCALL(ctx, sfp, mtd, rix) { \
+		(mtd)->fcall_1(ctx, sfp, rix);\
+	} \
+
+/* ------------------------------------------------------------------------- */
+/* VCALL */
+
+// vshift = rtnidx + K_CALLDELTA;
+
+#define KLR2_VCALL(ctx, thisidx, espshift, mtdO) { \
 		knh_Method_t *mtd_ = mtdO;\
-		knh_intptr_t thisidx_ = rtnidx + K_CALLDELTA;\
-		knh_intptr_t mtdidx_ = thisidx_ + K_MTDIDX;\
-		klr_setcallmtd(ctx, sfp[mtdidx_], mtd_);\
 		klr_setesp(ctx, sfp + espshift);\
-		klr_vcall2(ctx, mtd_, thisidx_);\
+		vshift = thisidx;\
+		sfp = sfp + vshift;\
+		vpc = pc;\
+		if(unlikely(sfp > ctx->stacktop)) {\
+			sfp = knh_stack_initexpand(ctx, sfp, 0);\
+		}\
+		sfp[K_SHIFTIDX].shift = vshift;\
+		sfp[K_PCIDX].pc = pc;\
+		sfp[K_MTDIDX].callmtd = mtd_;\
+		pc = (mtd_)->pc_start;\
+		GOTO_PC(pc); \
+	} \
+
+#define KLR2_VCALL_(ctx, thisidx, espshift, mtdO) { \
+		knh_Method_t *mtd_ = mtdO;\
+		klr_setesp(ctx, sfp + espshift);\
+		vshift = thisidx;\
+		sfp = sfp + vshift;\
+		vpc = pc;\
+		sfp[K_SHIFTIDX].shift = vshift;\
+		sfp[K_PCIDX].pc = pc;\
+		sfp[K_MTDIDX].callmtd = mtd_;\
+		pc = (mtd_)->pc_start;\
+		GOTO_PC(pc); \
+	} \
+
+#define KLR_LEAVE(ctx) {\
+		sfp[K_MTDIDX].callmtd = NULL;\
+	}\
+
+#define KLR2_JMP_(ctx, PC, JUMP)   KLR_RET(ctx)
+
+#define KLR_RET(ctx) {\
+		sfp = sfp - vshift; \
+		pc = vpc; \
+		vshift = sfp[K_SHIFTIDX].shift;\
+		vpc = sfp[K_PCIDX].pc;\
+		GOTO_PC(pc);\
+	}\
+
+typedef KLRAPI(knh_Method_t*) (*klr_Fmethod)(Ctx *, knh_sfp_t *, int, knh_Method_t*);
+
+#define KLR_LOADMTD(ctx, thisidx, fmtd, mtdO) { \
+		knh_Method_t *mtd_ = fmtd(ctx, sfp, thisidx, mtdO);\
+		if(mtd_ != mtdO) { \
+			((klr_LOADMTD_t*)op)->callmtd = mtd_;\
+		}\
+		klr_setcallmtd(ctx, sfp[thisidx+K_MTDIDX], mtd_);\
+	} \
+
+#define KLR_CALL(ctx, thisidx, espshift) { \
+		vshift = thisidx;\
+		klr_setesp(ctx, sfp + espshift);\
+		sfp = sfp + vshift;\
+		vpc = pc;\
+		sfp[K_SHIFTIDX].shift = vshift;\
+		sfp[K_PCIDX].pc = pc;\
+		pc = (sfp[K_MTDIDX].callmtd)->pc_start;\
+		GOTO_PC(pc); \
 	} \
 
 #define KLR0_FUNCCALL(ctx) { \
-		knh_opline_t *pc2 = sfp[K_PCIDX].pc;\
-		klr_ncall(ctx, (sfp[K_MTDIDX].callmtd)->fcall_1, 0, K_RTNIDX);\
-		pc = pc2; \
-		GOTO_PC(pc);\
+		(sfp[K_MTDIDX].callmtd)->fcall_1(ctx, sfp, K_RTNIDX);\
+		KLR_RET(ctx);\
 	} \
+
+
+#define KLR0_VEXEC(ctx) {\
+		vpc = pc;\
+		pc = (sfp[K_MTDIDX].callmtd)->pc_start;\
+		sfp[K_SHIFTIDX].shift = 0;\
+		sfp[K_PCIDX].pc = vpc;\
+		GOTO_PC(pc); \
+	}\
 
 #define KLR0_YEILD(ctx, espidx) {\
 		klr_setesp(ctx, sfp+espidx);\
@@ -376,9 +370,22 @@ typedef KLRAPI(knh_Method_t*) (*klr_Fmethod)(Ctx *, knh_sfp_t *, int, knh_Method
 	}\
 
 #define KLR0_ENTER(ctx) {\
-		knh_intptr_t thisidx_ = knh_stack_pushesp(ctx, sfp);\
-		DBG_ASSERT(sfp[thisidx_ + K_MTDIDX].callmtd == sfp[K_MTDIDX].callmtd);\
-		klr_hcall(ctx, sfp[K_MTDIDX].callmtd, thisidx_, K_RTNIDX);\
+		vpc = pc;\
+		pc = (sfp[K_MTDIDX].callmtd)->pc_start;\
+		sfp[K_SHIFTIDX].shift = 0;\
+		sfp[K_PCIDX].pc = vpc;\
+		GOTO_PC(pc); \
+	}\
+
+#define KLR0_ENTER2(ctx) {\
+		vshift = knh_stack_pushesp(ctx, sfp);\
+		DBG_ASSERT(sfp[vshift + K_MTDIDX].callmtd == sfp[K_MTDIDX].callmtd);\
+		sfp = sfp + vshift;\
+		vpc = pc;\
+		sfp[K_SHIFTIDX].shift = vshift;\
+		sfp[K_PCIDX].pc = pc;\
+		pc = (sfp[K_MTDIDX].callmtd)->pc_start;\
+		GOTO_PC(pc); \
 	}\
 
 #define KLR0_EXIT(ctx) {\
@@ -389,8 +396,6 @@ typedef KLRAPI(knh_Method_t*) (*klr_Fmethod)(Ctx *, knh_sfp_t *, int, knh_Method
 		knh_code_thread(ctx, pc-1, OPJUMP); \
 		goto L_RETURN; \
 	}\
-
-#define KLR0_LABEL(ctx, id, msg)
 
 /* ------------------------------------------------------------------------- */
 
@@ -519,6 +524,14 @@ typedef KLRAPI(int) (*klr_Fnext)(Ctx *, knh_sfp_t *, int, knh_class_t);
 			KLR_JMP(ctx, PC, JUMP);\
 		}\
 	} \
+
+#define KLR_TRYEND(ctx, hn)  {\
+		knh_ExceptionHandler_t* _hdr = sfp[hn].hdr; \
+		DBG_ASSERT(IS_ExceptionHandler(_hdr)); \
+		DP(_hdr)->return_address = NULL;\
+		DP(_hdr)->frame_address  = NULL;\
+	} \
+
 
 #define KLR_THROW(ctx, start) { \
 		if(IS_Exception(ctx->e)) {\

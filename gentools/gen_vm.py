@@ -8,16 +8,16 @@ from pygenlib2 import *
 INSTRUCTIONS = """
 # level 0 instruction 
 HALT      @0
-ENTER     @0
+THCODE    @0
 FUNCCALL  @0
-THCODE  @0
-LABEL   id:u msg:String  @0
-PROBE   probe:f n:u  @0
+ENTER     @0
+#ENTER2    @0
+PROBE     probe:f n:u  @0
 VEXEC     @0
-YEILD   n:sfpidx   @0
-EXIT    @0
+YEILD     n:sfpidx   @0
+EXIT      @0
 
-P       print:f flag:u msg:String  fmt:mtd n:sfpidx
+P         print:f flag:u msg:String  fmt:mtd n:sfpidx
 
 OSET   a:sfpidx o:Object
 NSET   a:sfpidx n:int
@@ -45,11 +45,12 @@ XBMOV  a:sfx b:sfpidx
 #MOVe   a:sfpidx xspidx:u
 
 CHKSTACK n:sfpidx
-LDMETHOD method:f n:sfpidx callmtd:mtd
-CALL   rtnidx:sfpidx espshift:sfpidx
-SCALL  rtnidx:sfpidx espshift:sfpidx callmtd:mtd    @2
-VCALL  rtnidx:sfpidx espshift:sfpidx callmtd:mtd    @2
-VCALL_  rtnidx:sfpidx espshift:sfpidx callmtd:mtd    @2
+LOADMTD  thisidx:sfpidx method:f callmtd:mtd
+CALL     thisidx:sfpidx espshift:sfpidx
+SCALL    thisidx:sfpidx espshift:sfpidx callmtd:mtd    @2
+VCALL    thisidx:sfpidx espshift:sfpidx callmtd:mtd    @2
+VCALL_   thisidx:sfpidx espshift:sfpidx callmtd:mtd    @2
+FASTCALL a:sfpidx b:sfpidx fcall:f
 RET
 
 SCAST   a:sfpidx b:sfpidx cast:trl
@@ -60,12 +61,12 @@ fCAST   a:sfpidx b:sfpidx
 TR      a:sfpidx b:sfpidx cid:cid tr:f
 
 NUL     a:sfpidx b:sfpidx
-iNUL    a:sfpidx b:sfpidx
-fNUL    a:sfpidx b:sfpidx
+#iNUL    a:sfpidx b:sfpidx
+#fNUL    a:sfpidx b:sfpidx
 
 JMP     addr:addr
 JMP_    addr:addr   @2
-ONCE    addr:addr
+#ONCE    addr:addr
 JMPF    addr:addr a:sfpidx
 DYJMP   addr:addr a:sfpidx chk:f
 
@@ -73,6 +74,7 @@ NEXT    addr:addr a:sfpidx b:sfpidx
 #NEXTf   addr:addr a:sfpidx b:sfpidx cid:cid next:f
 
 TRY     addr:addr hn:sfpidx
+TRYEND  hn:sfpidx
 THROW   start:sfpidx
 CATCH   addr:addr en:sfpidx msg:String
 
@@ -555,7 +557,7 @@ def write_exec(f):
 #define GOTO_PC(pc)         goto L_HEAD;
 #endif/*K_USING_THREADEDCODE*/
 
-knh_opline_t* knh_VirtualMachine_run(Ctx *ctx, knh_sfp_t *sfp, knh_opline_t *pc)
+knh_opline_t* knh_VirtualMachine_run(Ctx *ctx, knh_sfp_t *sfp0, knh_opline_t *pc0)
 {
 #ifdef K_USING_THREADEDCODE
 	static void *OPJUMP[] = {''')
@@ -567,8 +569,10 @@ knh_opline_t* knh_VirtualMachine_run(Ctx *ctx, knh_sfp_t *sfp, knh_opline_t *pc)
 	f.write('''
 	};
 #endif
-	knh_intptr_t vshift = 0;
+	register knh_sfp_t *sfp = sfp0;
+	register knh_opline_t* pc = pc0;
 	knh_opline_t* vpc = NULL;
+	knh_intptr_t vshift = 0;
 	DISPATCH_START(pc);
 ''')
 	for kc in KCODE_LIST:

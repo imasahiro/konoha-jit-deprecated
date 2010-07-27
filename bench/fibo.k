@@ -12,11 +12,11 @@ int fibo2(int n) {
 {
 	n = 36;
 	s = System.getTime();
-	print "fibo(40):", fibo(n);
+	print "fibo(36):", fibo(n);
 	e = System.getTime();
 	print "\ttime=", e - s;
 	s = System.getTime();
-	print "fibo2(40):", fibo2(n);
+	print "fibo2(36):", fibo2(n);
 	e = System.getTime();
 	print "\ttime=", e - s;
 }

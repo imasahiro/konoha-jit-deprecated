@@ -52,10 +52,9 @@ typedef struct {
 
 static const knh_OPDATA_t OPDATA[] = {
 	{"HALT", 0, { VMT_VOID}}, 
-	{"ENTER", 0, { VMT_VOID}}, 
-	{"FUNCCALL", 0, { VMT_VOID}}, 
 	{"THCODE", 0, { VMT_VOID}}, 
-	{"LABEL", 2, { VMT_U, VMT_STRING, VMT_VOID}}, 
+	{"FUNCCALL", 0, { VMT_VOID}}, 
+	{"ENTER", 0, { VMT_VOID}}, 
 	{"PROBE", 2, { VMT_F, VMT_U, VMT_VOID}}, 
 	{"VEXEC", 0, { VMT_VOID}}, 
 	{"YEILD", 1, { VMT_SFPIDX, VMT_VOID}}, 
@@ -81,11 +80,12 @@ static const knh_OPDATA_t OPDATA[] = {
 	{"XFMOV", 2+1, { VMT_SFX, VMT_VOID, VMT_SFPIDX, VMT_VOID}}, 
 	{"XBMOV", 2+1, { VMT_SFX, VMT_VOID, VMT_SFPIDX, VMT_VOID}}, 
 	{"CHKSTACK", 1, { VMT_SFPIDX, VMT_VOID}}, 
-	{"LDMETHOD", 3, { VMT_F, VMT_SFPIDX, VMT_MTD, VMT_VOID}}, 
+	{"LOADMTD", 3, { VMT_SFPIDX, VMT_F, VMT_MTD, VMT_VOID}}, 
 	{"CALL", 2, { VMT_SFPIDX, VMT_SFPIDX, VMT_VOID}}, 
 	{"SCALL", 3, { VMT_SFPIDX, VMT_SFPIDX, VMT_MTD, VMT_VOID}}, 
 	{"VCALL", 3, { VMT_SFPIDX, VMT_SFPIDX, VMT_MTD, VMT_VOID}}, 
 	{"VCALL", 3, { VMT_SFPIDX, VMT_SFPIDX, VMT_MTD, VMT_VOID}}, 
+	{"FASTCALL", 3, { VMT_SFPIDX, VMT_SFPIDX, VMT_F, VMT_VOID}}, 
 	{"RET", 0, { VMT_VOID}}, 
 	{"SCAST", 3, { VMT_SFPIDX, VMT_SFPIDX, VMT_TRL, VMT_VOID}}, 
 	{"TCAST", 3, { VMT_SFPIDX, VMT_SFPIDX, VMT_TRL, VMT_VOID}}, 
@@ -94,15 +94,13 @@ static const knh_OPDATA_t OPDATA[] = {
 	{"fCAST", 2, { VMT_SFPIDX, VMT_SFPIDX, VMT_VOID}}, 
 	{"TR", 4, { VMT_SFPIDX, VMT_SFPIDX, VMT_CID, VMT_F, VMT_VOID}}, 
 	{"NUL", 2, { VMT_SFPIDX, VMT_SFPIDX, VMT_VOID}}, 
-	{"iNUL", 2, { VMT_SFPIDX, VMT_SFPIDX, VMT_VOID}}, 
-	{"fNUL", 2, { VMT_SFPIDX, VMT_SFPIDX, VMT_VOID}}, 
 	{"JMP", 1, { VMT_ADDR, VMT_VOID}}, 
 	{"JMP", 1, { VMT_ADDR, VMT_VOID}}, 
-	{"ONCE", 1, { VMT_ADDR, VMT_VOID}}, 
 	{"JMPF", 2, { VMT_ADDR, VMT_SFPIDX, VMT_VOID}}, 
 	{"DYJMP", 3, { VMT_ADDR, VMT_SFPIDX, VMT_F, VMT_VOID}}, 
 	{"NEXT", 3, { VMT_ADDR, VMT_SFPIDX, VMT_SFPIDX, VMT_VOID}}, 
 	{"TRY", 2, { VMT_ADDR, VMT_SFPIDX, VMT_VOID}}, 
+	{"TRYEND", 1, { VMT_SFPIDX, VMT_VOID}}, 
 	{"THROW", 1, { VMT_SFPIDX, VMT_VOID}}, 
 	{"CATCH", 3, { VMT_ADDR, VMT_SFPIDX, VMT_STRING, VMT_VOID}}, 
 	{"bNOT", 2, { VMT_SFPIDX, VMT_SFPIDX, VMT_VOID}}, 
@@ -191,10 +189,9 @@ static const knh_OPDATA_t OPDATA[] = {
 void knh_opcode_check(void)
 {
 	KNH_ASSERT(sizeof(klr_HALT_t) <= sizeof(knh_opline_t));
-	KNH_ASSERT(sizeof(klr_ENTER_t) <= sizeof(knh_opline_t));
-	KNH_ASSERT(sizeof(klr_FUNCCALL_t) <= sizeof(knh_opline_t));
 	KNH_ASSERT(sizeof(klr_THCODE_t) <= sizeof(knh_opline_t));
-	KNH_ASSERT(sizeof(klr_LABEL_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_FUNCCALL_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_ENTER_t) <= sizeof(knh_opline_t));
 	KNH_ASSERT(sizeof(klr_PROBE_t) <= sizeof(knh_opline_t));
 	KNH_ASSERT(sizeof(klr_VEXEC_t) <= sizeof(knh_opline_t));
 	KNH_ASSERT(sizeof(klr_YEILD_t) <= sizeof(knh_opline_t));
@@ -220,11 +217,12 @@ void knh_opcode_check(void)
 	KNH_ASSERT(sizeof(klr_XFMOV_t) <= sizeof(knh_opline_t));
 	KNH_ASSERT(sizeof(klr_XBMOV_t) <= sizeof(knh_opline_t));
 	KNH_ASSERT(sizeof(klr_CHKSTACK_t) <= sizeof(knh_opline_t));
-	KNH_ASSERT(sizeof(klr_LDMETHOD_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_LOADMTD_t) <= sizeof(knh_opline_t));
 	KNH_ASSERT(sizeof(klr_CALL_t) <= sizeof(knh_opline_t));
 	KNH_ASSERT(sizeof(klr_SCALL_t) <= sizeof(knh_opline_t));
 	KNH_ASSERT(sizeof(klr_VCALL_t) <= sizeof(knh_opline_t));
 	KNH_ASSERT(sizeof(klr_VCALL__t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_FASTCALL_t) <= sizeof(knh_opline_t));
 	KNH_ASSERT(sizeof(klr_RET_t) <= sizeof(knh_opline_t));
 	KNH_ASSERT(sizeof(klr_SCAST_t) <= sizeof(knh_opline_t));
 	KNH_ASSERT(sizeof(klr_TCAST_t) <= sizeof(knh_opline_t));
@@ -233,15 +231,13 @@ void knh_opcode_check(void)
 	KNH_ASSERT(sizeof(klr_fCAST_t) <= sizeof(knh_opline_t));
 	KNH_ASSERT(sizeof(klr_TR_t) <= sizeof(knh_opline_t));
 	KNH_ASSERT(sizeof(klr_NUL_t) <= sizeof(knh_opline_t));
-	KNH_ASSERT(sizeof(klr_iNUL_t) <= sizeof(knh_opline_t));
-	KNH_ASSERT(sizeof(klr_fNUL_t) <= sizeof(knh_opline_t));
 	KNH_ASSERT(sizeof(klr_JMP_t) <= sizeof(knh_opline_t));
 	KNH_ASSERT(sizeof(klr_JMP__t) <= sizeof(knh_opline_t));
-	KNH_ASSERT(sizeof(klr_ONCE_t) <= sizeof(knh_opline_t));
 	KNH_ASSERT(sizeof(klr_JMPF_t) <= sizeof(knh_opline_t));
 	KNH_ASSERT(sizeof(klr_DYJMP_t) <= sizeof(knh_opline_t));
 	KNH_ASSERT(sizeof(klr_NEXT_t) <= sizeof(knh_opline_t));
 	KNH_ASSERT(sizeof(klr_TRY_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_TRYEND_t) <= sizeof(knh_opline_t));
 	KNH_ASSERT(sizeof(klr_THROW_t) <= sizeof(knh_opline_t));
 	KNH_ASSERT(sizeof(klr_CATCH_t) <= sizeof(knh_opline_t));
 	KNH_ASSERT(sizeof(klr_bNOT_t) <= sizeof(knh_opline_t));
@@ -484,69 +480,67 @@ void knh_opcode_idxshift(knh_opline_t *c, int idxshift)
 #define GOTO_PC(pc)         goto L_HEAD;
 #endif/*K_USING_THREADEDCODE*/
 
-knh_opline_t* knh_VirtualMachine_run(Ctx *ctx, knh_sfp_t *sfp, knh_opline_t *pc)
+knh_opline_t* knh_VirtualMachine_run(Ctx *ctx, knh_sfp_t *sfp0, knh_opline_t *pc0)
 {
 #ifdef K_USING_THREADEDCODE
 	static void *OPJUMP[] = {
-		&&L_HALT, &&L_ENTER, &&L_FUNCCALL, &&L_THCODE, 
-		&&L_LABEL, &&L_PROBE, &&L_VEXEC, &&L_YEILD, 
-		&&L_EXIT, &&L_P, &&L_OSET, &&L_NSET, 
-		&&L_OMOV, &&L_NMOV, &&L_SWAP, &&L_UNBOX, 
-		&&L_ONMOV, &&L_OOMOV, &&L_NNMOV, &&L_OMOVx, 
-		&&L_iMOVx, &&L_fMOVx, &&L_bMOVx, &&L_XMOV, 
-		&&L_XMOVx, &&L_XOSET, &&L_XIMOV, &&L_XFMOV, 
-		&&L_XBMOV, &&L_CHKSTACK, &&L_LDMETHOD, &&L_CALL, 
-		&&L_SCALL, &&L_VCALL, &&L_VCALL_, &&L_RET, 
+		&&L_HALT, &&L_THCODE, &&L_FUNCCALL, &&L_ENTER, 
+		&&L_PROBE, &&L_VEXEC, &&L_YEILD, &&L_EXIT, 
+		&&L_P, &&L_OSET, &&L_NSET, &&L_OMOV, 
+		&&L_NMOV, &&L_SWAP, &&L_UNBOX, &&L_ONMOV, 
+		&&L_OOMOV, &&L_NNMOV, &&L_OMOVx, &&L_iMOVx, 
+		&&L_fMOVx, &&L_bMOVx, &&L_XMOV, &&L_XMOVx, 
+		&&L_XOSET, &&L_XIMOV, &&L_XFMOV, &&L_XBMOV, 
+		&&L_CHKSTACK, &&L_LOADMTD, &&L_CALL, &&L_SCALL, 
+		&&L_VCALL, &&L_VCALL_, &&L_FASTCALL, &&L_RET, 
 		&&L_SCAST, &&L_TCAST, &&L_ACAST, &&L_iCAST, 
-		&&L_fCAST, &&L_TR, &&L_NUL, &&L_iNUL, 
-		&&L_fNUL, &&L_JMP, &&L_JMP_, &&L_ONCE, 
-		&&L_JMPF, &&L_DYJMP, &&L_NEXT, &&L_TRY, 
-		&&L_THROW, &&L_CATCH, &&L_bNOT, &&L_iINC, 
-		&&L_iDEC, &&L_iNEG, &&L_iADD, &&L_iSUB, 
-		&&L_iMUL, &&L_iDIV, &&L_iMOD, &&L_iEQ, 
-		&&L_iNEQ, &&L_iLT, &&L_iLTE, &&L_iGT, 
-		&&L_iGTE, &&L_iADDn, &&L_iSUBn, &&L_iMULn, 
-		&&L_iDIVn, &&L_iMODn, &&L_iEQn, &&L_iNEQn, 
-		&&L_iLTn, &&L_iLTEn, &&L_iGTn, &&L_iGTEn, 
-		&&L_fNEG, &&L_fADD, &&L_fSUB, &&L_fMUL, 
-		&&L_fDIV, &&L_fEQ, &&L_fNEQ, &&L_fLT, 
-		&&L_fLTE, &&L_fGT, &&L_fGTE, &&L_fADDn, 
-		&&L_fSUBn, &&L_fMULn, &&L_fDIVn, &&L_fEQn, 
-		&&L_fNEQn, &&L_fLTn, &&L_fLTEn, &&L_fGTn, 
-		&&L_fGTEn, &&L_OGETIDX, &&L_OSETIDX, &&L_OGETIDXn, 
-		&&L_OSETIDXn, &&L_NGETIDX, &&L_NSETIDX, &&L_NGETIDXn, 
-		&&L_NSETIDXn, &&L_bJNOT, &&L_iJEQ, &&L_iJNEQ, 
-		&&L_iJLT, &&L_iJLTE, &&L_iJGT, &&L_iJGTE, 
-		&&L_iJEQn, &&L_iJNEQn, &&L_iJLTn, &&L_iJLTEn, 
-		&&L_iJGTn, &&L_iJGTEn, &&L_fJEQ, &&L_fJNEQ, 
-		&&L_fJLT, &&L_fJLTE, &&L_fJGT, &&L_fJGTE, 
-		&&L_fJEQn, &&L_fJNEQn, &&L_fJLTn, &&L_fJLTEn, 
-		&&L_fJGTn, &&L_fJGTEn, &&L_NOP, 
+		&&L_fCAST, &&L_TR, &&L_NUL, &&L_JMP, 
+		&&L_JMP_, &&L_JMPF, &&L_DYJMP, &&L_NEXT, 
+		&&L_TRY, &&L_TRYEND, &&L_THROW, &&L_CATCH, 
+		&&L_bNOT, &&L_iINC, &&L_iDEC, &&L_iNEG, 
+		&&L_iADD, &&L_iSUB, &&L_iMUL, &&L_iDIV, 
+		&&L_iMOD, &&L_iEQ, &&L_iNEQ, &&L_iLT, 
+		&&L_iLTE, &&L_iGT, &&L_iGTE, &&L_iADDn, 
+		&&L_iSUBn, &&L_iMULn, &&L_iDIVn, &&L_iMODn, 
+		&&L_iEQn, &&L_iNEQn, &&L_iLTn, &&L_iLTEn, 
+		&&L_iGTn, &&L_iGTEn, &&L_fNEG, &&L_fADD, 
+		&&L_fSUB, &&L_fMUL, &&L_fDIV, &&L_fEQ, 
+		&&L_fNEQ, &&L_fLT, &&L_fLTE, &&L_fGT, 
+		&&L_fGTE, &&L_fADDn, &&L_fSUBn, &&L_fMULn, 
+		&&L_fDIVn, &&L_fEQn, &&L_fNEQn, &&L_fLTn, 
+		&&L_fLTEn, &&L_fGTn, &&L_fGTEn, &&L_OGETIDX, 
+		&&L_OSETIDX, &&L_OGETIDXn, &&L_OSETIDXn, &&L_NGETIDX, 
+		&&L_NSETIDX, &&L_NGETIDXn, &&L_NSETIDXn, &&L_bJNOT, 
+		&&L_iJEQ, &&L_iJNEQ, &&L_iJLT, &&L_iJLTE, 
+		&&L_iJGT, &&L_iJGTE, &&L_iJEQn, &&L_iJNEQn, 
+		&&L_iJLTn, &&L_iJLTEn, &&L_iJGTn, &&L_iJGTEn, 
+		&&L_fJEQ, &&L_fJNEQ, &&L_fJLT, &&L_fJLTE, 
+		&&L_fJGT, &&L_fJGTE, &&L_fJEQn, &&L_fJNEQn, 
+		&&L_fJLTn, &&L_fJLTEn, &&L_fJGTn, &&L_fJGTEn, 
+		&&L_NOP, 
 	};
 #endif
-	knh_intptr_t vshift = 0;
+	register knh_sfp_t *sfp = sfp0;
+	register knh_opline_t* pc = pc0;
 	knh_opline_t* vpc = NULL;
+	knh_intptr_t vshift = 0;
 	DISPATCH_START(pc);
 
 	CASE(HALT) {
 		klr_HALT_t *op = (klr_HALT_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR0_HALT(ctx);  goto NEXT_OP;
 	} 
-	CASE(ENTER) {
-		klr_ENTER_t *op = (klr_ENTER_t*)pc;; (void)op; VMCOUNT(pc); pc++;
-		KLR0_ENTER(ctx);  goto NEXT_OP;
+	CASE(THCODE) {
+		klr_THCODE_t *op = (klr_THCODE_t*)pc;; (void)op; VMCOUNT(pc); pc++;
+		KLR0_THCODE(ctx);  goto NEXT_OP;
 	} 
 	CASE(FUNCCALL) {
 		klr_FUNCCALL_t *op = (klr_FUNCCALL_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR0_FUNCCALL(ctx);  goto NEXT_OP;
 	} 
-	CASE(THCODE) {
-		klr_THCODE_t *op = (klr_THCODE_t*)pc;; (void)op; VMCOUNT(pc); pc++;
-		KLR0_THCODE(ctx);  goto NEXT_OP;
-	} 
-	CASE(LABEL) {
-		klr_LABEL_t *op = (klr_LABEL_t*)pc;; (void)op; VMCOUNT(pc); pc++;
-		KLR0_LABEL(ctx, op->id, op->msg);  goto NEXT_OP;
+	CASE(ENTER) {
+		klr_ENTER_t *op = (klr_ENTER_t*)pc;; (void)op; VMCOUNT(pc); pc++;
+		KLR0_ENTER(ctx);  goto NEXT_OP;
 	} 
 	CASE(PROBE) {
 		klr_PROBE_t *op = (klr_PROBE_t*)pc;; (void)op; VMCOUNT(pc); pc++;
@@ -648,25 +642,29 @@ knh_opline_t* knh_VirtualMachine_run(Ctx *ctx, knh_sfp_t *sfp, knh_opline_t *pc)
 		klr_CHKSTACK_t *op = (klr_CHKSTACK_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_CHKSTACK(ctx, op->n);  goto NEXT_OP;
 	} 
-	CASE(LDMETHOD) {
-		klr_LDMETHOD_t *op = (klr_LDMETHOD_t*)pc;; (void)op; VMCOUNT(pc); pc++;
-		KLR_LDMETHOD(ctx, op->method, op->n, op->callmtd);  goto NEXT_OP;
+	CASE(LOADMTD) {
+		klr_LOADMTD_t *op = (klr_LOADMTD_t*)pc;; (void)op; VMCOUNT(pc); pc++;
+		KLR_LOADMTD(ctx, op->thisidx, op->method, op->callmtd);  goto NEXT_OP;
 	} 
 	CASE(CALL) {
 		klr_CALL_t *op = (klr_CALL_t*)pc;; (void)op; VMCOUNT(pc); pc++;
-		KLR_CALL(ctx, op->rtnidx, op->espshift);  goto NEXT_OP;
+		KLR_CALL(ctx, op->thisidx, op->espshift);  goto NEXT_OP;
 	} 
 	CASE(SCALL) {
 		klr_SCALL_t *op = (klr_SCALL_t*)pc;; (void)op; VMCOUNT(pc); pc++;
-		KLR2_SCALL(ctx, op->rtnidx, op->espshift, op->callmtd);  goto NEXT_OP;
+		KLR2_SCALL(ctx, op->thisidx, op->espshift, op->callmtd);  goto NEXT_OP;
 	} 
 	CASE(VCALL) {
 		klr_VCALL_t *op = (klr_VCALL_t*)pc;; (void)op; VMCOUNT(pc); pc++;
-		KLR2_VCALL(ctx, op->rtnidx, op->espshift, op->callmtd);  goto NEXT_OP;
+		KLR2_VCALL(ctx, op->thisidx, op->espshift, op->callmtd);  goto NEXT_OP;
 	} 
 	CASE(VCALL_) {
 		klr_VCALL__t *op = (klr_VCALL__t*)pc;; (void)op; VMCOUNT(pc); pc++;
-		KLR2_VCALL_(ctx, op->rtnidx, op->espshift, op->callmtd);  goto NEXT_OP;
+		KLR2_VCALL_(ctx, op->thisidx, op->espshift, op->callmtd);  goto NEXT_OP;
+	} 
+	CASE(FASTCALL) {
+		klr_FASTCALL_t *op = (klr_FASTCALL_t*)pc;; (void)op; VMCOUNT(pc); pc++;
+		KLR_FASTCALL(ctx, op->a, op->b, op->fcall);  goto NEXT_OP;
 	} 
 	CASE(RET) {
 		klr_RET_t *op = (klr_RET_t*)pc;; (void)op; VMCOUNT(pc); pc++;
@@ -700,14 +698,6 @@ knh_opline_t* knh_VirtualMachine_run(Ctx *ctx, knh_sfp_t *sfp, knh_opline_t *pc)
 		klr_NUL_t *op = (klr_NUL_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_NUL(ctx, op->a, op->b);  goto NEXT_OP;
 	} 
-	CASE(iNUL) {
-		klr_iNUL_t *op = (klr_iNUL_t*)pc;; (void)op; VMCOUNT(pc); pc++;
-		KLR_iNUL(ctx, op->a, op->b);  goto NEXT_OP;
-	} 
-	CASE(fNUL) {
-		klr_fNUL_t *op = (klr_fNUL_t*)pc;; (void)op; VMCOUNT(pc); pc++;
-		KLR_fNUL(ctx, op->a, op->b);  goto NEXT_OP;
-	} 
 	CASE(JMP) {
 		klr_JMP_t *op = (klr_JMP_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_JMP(ctx, pc = op->jumppc, JUMP);  goto NEXT_OP;
@@ -715,10 +705,6 @@ knh_opline_t* knh_VirtualMachine_run(Ctx *ctx, knh_sfp_t *sfp, knh_opline_t *pc)
 	CASE(JMP_) {
 		klr_JMP__t *op = (klr_JMP__t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR2_JMP_(ctx, pc = op->jumppc, JUMP);  goto NEXT_OP;
-	} 
-	CASE(ONCE) {
-		klr_ONCE_t *op = (klr_ONCE_t*)pc;; (void)op; VMCOUNT(pc); pc++;
-		KLR_ONCE(ctx, pc = op->jumppc, JUMP);  goto NEXT_OP;
 	} 
 	CASE(JMPF) {
 		klr_JMPF_t *op = (klr_JMPF_t*)pc;; (void)op; VMCOUNT(pc); pc++;
@@ -735,6 +721,10 @@ knh_opline_t* knh_VirtualMachine_run(Ctx *ctx, knh_sfp_t *sfp, knh_opline_t *pc)
 	CASE(TRY) {
 		klr_TRY_t *op = (klr_TRY_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_TRY(ctx, pc = op->jumppc, JUMP, op->hn);  goto NEXT_OP;
+	} 
+	CASE(TRYEND) {
+		klr_TRYEND_t *op = (klr_TRYEND_t*)pc;; (void)op; VMCOUNT(pc); pc++;
+		KLR_TRYEND(ctx, op->hn);  goto NEXT_OP;
 	} 
 	CASE(THROW) {
 		klr_THROW_t *op = (klr_THROW_t*)pc;; (void)op; VMCOUNT(pc); pc++;

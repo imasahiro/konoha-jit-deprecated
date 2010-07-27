@@ -110,11 +110,13 @@ static void knh_CommonContext_init(Ctx *ctx, knh_Context_t *o)
 	KNH_INITv(o->in,  DP(ctx->sys)->in);
 	KNH_INITv(o->out, DP(ctx->sys)->out);
 	KNH_INITv(o->err, DP(ctx->sys)->err);
+	KNH_INITv(o->e, KNH_NULL);
 	o->ctxlock = knh_mutex_malloc(ctx);
 }
 
 static void knh_CommonContext_traverse(Ctx *ctx, knh_Context_t *ctxo, knh_Ftraverse ftr)
 {
+	KNH_FTR(ctx, ftr, ctxo->e);
 	KNH_FTR(ctx, ftr, (ctxo->script));
 	KNH_FTR(ctx, ftr, (ctxo->enc));
 	KNH_FTR(ctx, ftr, (ctxo->in));
