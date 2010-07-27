@@ -63,8 +63,8 @@
 #define CPU_NAME "unknown"
 #endif
 
-#define UPDATE_HOST "localhost"//"192.168.59.5"
-#define UPDATE_PATH "/cgi-bin/security-alert/update_server?dist=%s&ver=%s&arch=%s(%s)&rev=%d&clock=%d&mem=%d&ncpu=%d"
+#define UPDATE_HOST "konoha.sourceforge.jp"
+#define UPDATE_PATH "/cgi-bin/security-alert/server?dist=%s&ver=%s&arch=%s(%s)&rev=%d&clock=%u&mem=%u&ncpu=%d"
 #define PORT 80
 #define BUF_LEN 512
 
@@ -77,7 +77,7 @@ extern "C" {
 /* ======================================================================== */
 /* [security alert] */
 
-static void getmesseage(int fd, char* path);
+static void getmessage(int fd, char* path);
 static void serverconnect(char *path)
 {
 	struct hostent *servhost;
@@ -88,36 +88,35 @@ static void serverconnect(char *path)
 	WSADATA data;
 	WSAStartup(MAKEWORD(2,0), &data);
 #endif
-
 	servhost = gethostbyname(UPDATE_HOST);
 	if (servhost == NULL) {
 		DBG_P("[%s] Failed to convert Name to IPAdress \n", UPDATE_HOST);
 		return;
 	}
-	
 	server.sin_family = AF_INET;
 	memcpy(&server.sin_addr, servhost->h_addr,  servhost->h_length);
 	server.sin_port = htons(PORT);
-	
 	if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-		TODO(/* error message */);
+		DBG_P("[%s] Failed to make socket\n", UPDATE_HOST);
 		return;
 	}
 	if (connect(fd, (struct sockaddr *)&server, sizeof(server)) == -1) {
-		TODO(/* error message */);
+		DBG_P("[%s] Failed to connect\n", UPDATE_HOST);
 		return;
 	}
-	getmesseage(fd, path);
-
+	getmessage(fd, path);
+	
 #ifdef KONOHA_ON_WINDOWS
 		closesocket(fd);
 		WSACleanup();
 #else
 		close(fd);
 #endif
+		return;
 }
 
 /* ------------------------------------------------------------------------ */
+
 #define CHANGE_COLOR(out, color) fprintf(out, "\x1b[%dm", color)
 
 enum {
@@ -133,21 +132,21 @@ enum {
 	WHITE,
 };
 
-static void getmesseage(int fd, char* path)
+static void getmessage(int fd, char* path)
 {
 	char send_buf[BUF_LEN] = {'\0'};
 	knh_snprintf(send_buf, BUF_LEN, "GET %s HTTP/1.0\r\n", path);
 	send(fd, send_buf, strlen(send_buf), 0);
 	knh_snprintf(send_buf, BUF_LEN, "Host: %s:%d\r\n\r\n", UPDATE_HOST, PORT);
 	send(fd, send_buf, strlen(send_buf), 0);
-
+	
 	if (fd != -1) {
 		char buf[BUF_LEN] = {'\0'};
 		recv(fd, buf, BUF_LEN, 0);
 		char *version_str;
-		if((version_str = strstr(buf, "\r\n\r\nMESSAGE:")) != 0 ){
+		if ((version_str = strstr(buf, "\r\n\r\nMESSAGE:")) != 0 ){
 			version_str += strlen("\r\n\r\nMESSAGE:");
-			CHANGE_COLOR(stderr, RED);
+			CHANGE_COLOR(stderr, GREEN);
 			fprintf(stderr, "%s", version_str);
 			CHANGE_COLOR(stderr, WHITE);
 		}
@@ -169,7 +168,7 @@ static int getncpu(void)
 	CAtlString strMessage;
 	SYSTEM_INFO sysInfo;
 	GetNativeSystemInfo(&sysInfo);
-	ncpu = sysInfo.dwNumberOfProcessors;
+	ncpu = (int)sysInfo.dwNumberOfProcessors;
 #elif defined(KONOHA_ON_LINUX)
 	ncpu = sysconf(_SC_NPROCESSORS_ONLN);
 #else
@@ -181,20 +180,20 @@ static int getncpu(void)
 /* ------------------------------------------------------------------------ */
 
 #define ONE_MB (1024 * 1024)
-static int getmem(void)
+static unsigned int getmem(void)
 {
-	int mem = 0;
+	unsigned int mem = 0;
 #ifdef KONOHA_ON_MACOSX
 	int mem_sels[2] = { CTL_HW, HW_PHYSMEM };
 	size_t length = sizeof(int);
 	sysctl(mem_sels, 2, &mem, &length, NULL, 0);
-	mem /= ONE_MB;
+	mem = (unsigned int) mem / ONE_MB;
 #elif defined(KONOHA_ON_WINDOWS)
 	MEMORYSTATUSEX stat;
 	GlobalMemoryStatusEx(&stat);
-	mem = (int) stat.ullTotalPhys / ONE_MB;
+	mem = (unsigned int) stat.ullTotalPhys / ONE_MB;
 #elif defined(KONOHA_ON_LINUX)
-	mem = (int) getpagesize() * sysconf (_SC_PHYS_PAGES) / ONE_MB;
+	mem = (unsigned int) getpagesize() * sysconf (_SC_PHYS_PAGES) / ONE_MB;
 #else
 	TODO();
 #endif
@@ -203,14 +202,14 @@ static int getmem(void)
 
 /* ------------------------------------------------------------------------ */
 
-static int getclock(void)
+static unsigned int getclock(void)
 {
-	int clock;
+	unsigned int clock;
 #ifdef KONOHA_ON_MACOSX
 	int cpu_sels[2] = { CTL_HW, HW_CPU_FREQ };
 	size_t len = sizeof(int);
 	sysctl(cpu_sels, 2, &clock, &len, NULL, 0);
-	clock = clock / (1000 * 1000);
+	clock = (unsigned int) clock / (1000 * 1000);
 #elif defined(KONOHA_ON_WINDOWS)
 	HRESULT hres;
 	hres = CoInitializeEx(0, COINIT_MULTITHREADED);
@@ -272,7 +271,7 @@ static int getclock(void)
 		if (uReturn == 0) { break; }
 		VARIANT vtProp;
 		hr = pclsObj->Get(L"MaxClockSpeed", 0, &vtProp, 0, 0);
-		clock = (int)vtProp.bstrVal;
+		clock = (unsigned int)vtProp.bstrVal;
 		VariantClear(&vtProp);
 		pclsObj->Release();
 	}
@@ -282,19 +281,22 @@ static int getclock(void)
 	CoUninitialize();
 #elif defined(KONOHA_ON_LINUX)
 	char buf[64] = {'\0'}, *data;
-	int n = 0, m = 0;
 	const char *cpumhz = "cpu MHz";
 	size_t len = strlen(cpumhz);
 	FILE *fp = fopen("/proc/cpuinfo","r");
-	while(fgets( buf, 64, fp ) != NULL){
-		if( strncmp(buf, cpumhz, len) == 0){
+	while (fgets( buf, 64, fp ) != NULL){
+		if ( strncmp(buf, cpumhz, len) == 0){
 			data = strstr(buf, cpumhz);
 			break;
 		}
 	}
-	clock = atoi(data) / 1000;
+	while (!isdigit(*data)) {
+		data++;
+	}
+	clock = (unsigned int) atoi(data) / 1000;
 	fclose(fp);
-#else 
+
+#else
 	TODO();
 #endif
 	return clock;
@@ -305,8 +307,8 @@ static int getclock(void)
 void knh_checkSecurityAlert(void)
 {
 	char path[BUF_LEN] = {'\0'};
-	int clock = getmem();
-	int mem   = getclock();
+	unsigned int clock = getclock();
+	unsigned int mem   = getmem();
 	int ncpu  = getncpu();
 	knh_snprintf(path, 512, UPDATE_PATH,
 				 K_DIST, K_VERSION, K_PLATFORM,
