@@ -185,7 +185,7 @@ void dbg_p(const char *file, const char *func, int line, const char *fmt, ...);
 void todo_p(const char *file, const char *func, int line, const char *fmt, ...);
 void knh_write_cline(Ctx *ctx, knh_OutputStream_t *w, char *file, long line);
 void knh_write_uline(Ctx *ctx, knh_OutputStream_t *w, knh_uri_t uri, long line);
-const char* LOG_tochar(int p);
+const char* LOG__(int p);
 void knh_makeEvidence(Ctx *ctx, const char *ns, const char *event, int p, const char *fmt, ...);
 void knh_stack_perror(Ctx *ctx, knh_sfp_t *sfp, const char *ns, const char *event);
 void knh_foundKonohaStyle(Ctx *ctx, size_t score);

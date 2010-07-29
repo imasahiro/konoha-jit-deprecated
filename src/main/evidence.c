@@ -127,7 +127,7 @@ void knh_write_uline(Ctx *ctx, knh_OutputStream_t *w, knh_uri_t uri, long line)
 
 /* ------------------------------------------------------------------------ */
 
-const char* LOG_tochar(int p)
+const char* LOG__(int p)
 {
 	switch(p) {
 	case LOG_EMERG:   return "PANIC";
@@ -154,13 +154,13 @@ static void knh_vsyslog(Ctx *ctx, int p, const char *fmt, va_list ap)
 	vprintk(fmt, ap);
 #else
 	if(ctx == NULL) {
-		fprintf(stderr, "konoha[%s] ", LOG_tochar(p));
+		fprintf(stderr, "konoha[%s] ", LOG__(p));
 		vfprintf(stderr, fmt, ap);
 		fprintf(stderr, "\n");
 	}
 	else {
 		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-		knh_printf(ctx, cwb->w, "konoha[%s] ", LOG_tochar(p));
+		knh_printf(ctx, cwb->w, "konoha[%s] ", LOG__(p));
 		knh_vprintf(ctx, cwb->w, fmt, ap);
 		fprintf(stderr, "%s\n", knh_cwb_tochar(ctx, cwb));
 		knh_cwb_clear(cwb, 0);
@@ -188,6 +188,7 @@ void knh_makeEvidence(Ctx *ctx, const char *ns, const char *event, int p, const 
 			knh_write_uline(ctx, cwb->w, SP(ctx->gma)->uri, SP(ctx->gma)->line);
 		}
 		knh_vprintf(ctx, cwb->w, (char*)fmt, ap);
+		DBG_P("'''%s'''", knh_cwb_tochar(ctx, cwb));
 		ctx->share->ebiSPI->syslog(p, knh_cwb_tochar(ctx, cwb));
 		knh_cwb_clear(cwb, 0);
 	}

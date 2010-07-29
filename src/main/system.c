@@ -316,7 +316,7 @@ knh_uri_t knh_getURI(Ctx *ctx, knh_bytes_t t)
 		idx = knh_Array_size(DP(ctx->sys)->urns);
 		knh_DictSet_set(ctx, DP(ctx->sys)->urnDictSet, s, idx);
 		knh_Array_add(ctx, DP(ctx->sys)->urns, s);
-		KNH_SYSLOG(ctx, LOG_INFO, "NEW_URI", "URI=%d, URN=%s", idx, S_tobytes(s));
+		KNH_SYSLOG(ctx, LOG_INFO, "NEW_URI", "URI=%d, URN='%B'", idx, S_tobytes(s));
 	}
 	OLD_UNLOCK(ctx, LOCK_SYSTBL, NULL);
 	return (knh_uri_t)idx;

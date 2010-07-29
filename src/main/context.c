@@ -154,7 +154,7 @@ static void knh_CommonContext_free(Ctx *ctx, knh_Context_t *ctxo)
 
 static void _vsyslog(int p, const char *fmt, va_list ap)
 {
-	fprintf(stderr, "%s ", LOG_tochar(p));
+	fprintf(stderr, "%s ", LOG__(p));
 	vfprintf(stderr, fmt, ap);
 	fprintf(stderr, "\n");
 }
@@ -163,7 +163,7 @@ static void _syslog(int p, const char *fmt, ...)
 {
 	va_list ap;
 	va_start(ap , fmt);
-	fprintf(stderr, "%s ", LOG_tochar(p));
+	fprintf(stderr, "%s ", LOG__(p));
 	vfprintf(stderr, fmt, ap);
 	fprintf(stderr, "\n");
 	va_end(ap);

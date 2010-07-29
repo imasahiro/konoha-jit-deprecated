@@ -813,6 +813,7 @@ static knh_InputStream_t* knh_openPathNULL(Ctx *ctx, knh_bytes_t path)
 		if(pdspi != NULL) id = pdspi->exists(ctx, path, ns);
 		knh_InputStream_t *in = new_InputStreamDSPI(ctx, fd, sdspi);
 		if(id != PATH_unknown) {
+			DBG_P("URI=%ld, URN='%s'", id, path.text);
 			DP(in)->uri = (knh_uri_t)id;
 			KNH_SETv(ctx, DP(in)->urn, knh_getURN(ctx, DP(in)->uri));
 		}
@@ -827,10 +828,8 @@ knh_bool_t knh_load(Ctx *ctx, knh_bytes_t path, knh_type_t reqt, knh_Array_t *re
 	void *dlhdrSTACK = DP(ctx->gma)->dlhdr;
 	BEGIN_LOCAL(ctx, lsfp, 2);
 	DP(ctx->gma)->dlhdr = NULL;
-
 	LOCAL_NEW(ctx, lsfp, 1, knh_InputStream_t *, bin, new_BytesInputStream(ctx, new_Bytes(ctx, K_PAGESIZE)));
 	knh_Bytes_t *ba = DP(bin)->ba;
-
 	knh_InputStream_t *in = knh_openPathNULL(ctx, path);
 	if(in == NULL) {
 		goto L_RETURN;

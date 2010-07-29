@@ -1879,7 +1879,7 @@ static void knh_StmtW_asmIN(Ctx *ctx, knh_Stmt_t *stmt, size_t thisidx)
 			mtd = knh_Gamma_getFormatter(ctx, CLASS_type(type), DP(tk)->mn);
 			KNH_SETv(ctx, DP(stmt)->terms[i], tm);
 			TERMs_asm(ctx, stmt, i, type, thisidx + 1);
-			KNH_ASM(SCALL, thisidx-K_CALLDELTA, ESP_((thisidx-K_CALLDELTA), 1), mtd);
+			KNH_ASM(SCALL, thisidx, ESP_((thisidx-K_CALLDELTA), 1), mtd);
 		}
 //		else if(TT_(tk) == TT_CONST) {
 //			KNH_ASM_SMOV(ctx, tk->type, thisidx + 1, tk);
@@ -1914,7 +1914,7 @@ static void knh_StmtW_asmIN(Ctx *ctx, knh_Stmt_t *stmt, size_t thisidx)
 			else {
 				mtd = knh_Gamma_getFormatter(ctx, cid, MN__s);
 			}
-			KNH_ASM(SCALL, thisidx-K_CALLDELTA, ESP_((thisidx-K_CALLDELTA), 1), mtd);
+			KNH_ASM(SCALL, thisidx, ESP_((thisidx-K_CALLDELTA), 1), mtd);
 		}
 	}
 }
