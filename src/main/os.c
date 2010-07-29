@@ -177,7 +177,7 @@ const char* knh_cwb_realpath(Ctx *ctx, knh_cwb_t *cwb)
 	char *buf = NULL;
 	int path_max = 0;
 #endif
-	if(_fullpath(buf, p, path_max) != NULL) {
+	if(_fullpath(buf, p, path_max) == NULL) {
 		knh_cwb_clear(cwb, 0);
 		knh_Bytes_write(ctx, cwb->ba, B(buf));
 #if !defined(PATH_MAX)
@@ -277,7 +277,7 @@ static knh_bool_t knh_cwb_mkdir(Ctx *ctx, knh_cwb_t *cwb, char *subpath)
 	}
 	pathname = knh_cwb_tochar(ctx, cwb);
 #if defined(K_USING_WINDOWS)
-	PERROR_returnb_(CreateDirectoryA, pathname, NULL);
+	PERROR_returnb_(CreateDirectory, pathname, NULL);
 #elif defined(K_USING_POSIX)
 	PERROR_returnb_(mkdir, pathname, 0777);
 #else
@@ -400,7 +400,7 @@ void knh_System_initPath(Ctx *ctx, knh_System_t *o)
 	knh_DictMap_set_(ctx, sys->props, new_T("konoha.tool.path"), UPCAST(knh_cwb_newString(ctx, cwb)));
 
 #if defined(K_USING_WINDOWS)
-	homepath = knh_getenv("HOMEPATH");
+	homepath = knh_getenv("USERPROFILE");
 #else
 	homepath = knh_getenv("HOME");
 #endif
@@ -437,7 +437,7 @@ void knh_System_initPath(Ctx *ctx, knh_System_t *o)
 	}
 	knh_cwb_close(cwb);
 	// Generating Directory
-	//knh_mkdir(ctx, S_tobytes(knh_getPropertyNULL(ctx, STEXT("user.path"))));
+	knh_mkdir(ctx, S_tobytes(knh_getPropertyNULL(ctx, STEXT("user.path"))));
 	//knh_mkdir(ctx, S_tobytes(knh_getPropertyNULL(ctx, STEXT("konoha.temp.path"))));
 }
 
