@@ -173,7 +173,7 @@ static void knh_setVerboseMode(Ctx *ctx, int mode, const char *optstr)
 
 static knh_bool_t toInteractiveMode = 0;
 
-knh_bool_t knh_isInteractiveMode(void)
+KNHAPI(knh_bool_t) knh_isInteractiveMode(void)
 {
 	return toInteractiveMode;
 }
@@ -205,7 +205,7 @@ static void knh_setOptimizationMode(Ctx *ctx, int mode, const char *optstr)
 
 static knh_bool_t toTestMode = 0;
 
-knh_bool_t knh_isTestMode(void)
+KNHAPI(knh_bool_t) knh_isTestMode(void)
 {
 	return toTestMode;
 }
@@ -1154,7 +1154,7 @@ static const knh_ShellSPI_t testSPI = {
 		test_cleanup,
 };
 
-void konoha_runTest(konoha_t konoha, int argc, char **argv)
+KNHAPI(void) konoha_runTest(konoha_t konoha, int argc, char **argv)
 {
 	KONOHA_CHECK_(konoha);
 	Ctx *ctx = KONOHA_BEGIN(konoha.ctx);

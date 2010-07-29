@@ -149,6 +149,9 @@
 /* [WINDOWS] */
 
 #ifdef KONOHA_ON_WINDOWS
+#ifdef K_USING_SECURITY_ALERT
+#include<winsock2.h>
+#endif
 #include<windows.h>
 #define 	K_USING_WIN32    1
 #define 	K_USING_WINDOWS  1

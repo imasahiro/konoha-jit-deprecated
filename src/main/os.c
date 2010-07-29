@@ -169,7 +169,7 @@ const char* knh_cwb_realpath(Ctx *ctx, knh_cwb_t *cwb)
 #endif
 	}
 	p = knh_cwb_tochar(ctx, cwb);
-#elif defined(KONOHA_ON_WINDOWS)
+#elif defined(K_USING_WINDOWS)
 #if defined(PATH_MAX)
 	char buf[PATH_MAX] = {0};
 	int path_max = PATH_MAX;
@@ -181,7 +181,7 @@ const char* knh_cwb_realpath(Ctx *ctx, knh_cwb_t *cwb)
 		knh_cwb_clear(cwb, 0);
 		knh_Bytes_write(ctx, cwb->ba, B(buf));
 #if !defined(PATH_MAX)
-	free(p);
+	free(buf);
 #endif
 	}
 	p = knh_cwb_tochar(ctx, cwb);
@@ -303,6 +303,7 @@ knh_bool_t knh_mkdir(Ctx *ctx, knh_bytes_t path)
 /* ======================================================================== */
 /* [homepath] */
 
+/* Linux, MacOSX */
 // $konoha.path /usr/local/konoha
 // $konoha.bin.path  /usr/local/bin/konoha
 // $konoha.package.path {$konoha.path}/package
@@ -336,7 +337,6 @@ void knh_System_initPath(Ctx *ctx, knh_System_t *o)
 		if(homepath == NULL) {
 			GetModuleFileNameA(h, buf, bufsiz);
 			knh_cwb_write(ctx, cwb, B(buf));
-			knh_cwb_parentpath(ctx, cwb, NULL);
 			knh_cwb_parentpath(ctx, cwb, NULL);
 			shome = knh_cwb_newString(ctx, cwb);
 			home = S_tobytes(shome);
@@ -399,7 +399,11 @@ void knh_System_initPath(Ctx *ctx, knh_System_t *o)
 	knh_cwb_write(ctx, cwb, STEXT("/script/" LIBK_VERSION));
 	knh_DictMap_set_(ctx, sys->props, new_T("konoha.tool.path"), UPCAST(knh_cwb_newString(ctx, cwb)));
 
+#if defined(K_USING_WINDOWS)
+	homepath = knh_getenv("HOMEPATH");
+#else
 	homepath = knh_getenv("HOME");
+#endif
 	if(homepath != NULL) {
 		/* $user.path */
 		knh_cwb_write(ctx, cwb, B(homepath));
@@ -424,7 +428,7 @@ void knh_System_initPath(Ctx *ctx, knh_System_t *o)
 		knh_DictMap_set_(ctx, sys->props, new_T("user.tool.path"), UPCAST(knh_cwb_newString(ctx, cwb)));
 	}
 	else {
-#if defined(KONOHA_ON_WINDOWS)
+#if defined(K_USING_WINDOWS)
 		knh_cwb_write(ctx, cwb, STEXT("\\Temp"));
 #else
 		knh_cwb_write(ctx, cwb, STEXT("/tmp"));
@@ -433,7 +437,7 @@ void knh_System_initPath(Ctx *ctx, knh_System_t *o)
 	}
 	knh_cwb_close(cwb);
 	// Generating Directory
-	knh_mkdir(ctx, S_tobytes(knh_getPropertyNULL(ctx, STEXT("user.path"))));
+	//knh_mkdir(ctx, S_tobytes(knh_getPropertyNULL(ctx, STEXT("user.path"))));
 	//knh_mkdir(ctx, S_tobytes(knh_getPropertyNULL(ctx, STEXT("konoha.temp.path"))));
 }
 
@@ -532,7 +536,7 @@ int knh_dlclose(Ctx *ctx, void* hdr)
 /* ======================================================================== */
 /* [charset] */
 
-#ifdef KONOHA_ON_WINDOWS
+#if defined(K_USING_WINDOWS)
 
 #define HAVE_LOCALCHARSET_H 1
 

@@ -69,7 +69,7 @@ typedef knh_intptr_t      knh_index_t;
 #define K_INTPTR_UFMT     "%"PRIuPTR
 
 
-#if defined(__LP64__) || defined(__WIN64__)
+#if defined(__LP64__) || defined(_WIN64)
 typedef int32_t           knh_short_t;
 typedef uint32_t          knh_ushort_t;
 #ifndef K_USING_NOFLOAT
