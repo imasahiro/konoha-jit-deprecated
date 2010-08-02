@@ -107,12 +107,12 @@ static void serverconnect(char *path)
 	getmessage(fd, path);
 	
 #ifdef KONOHA_ON_WINDOWS
-		closesocket(fd);
-		WSACleanup();
+	closesocket(fd);
+	WSACleanup();
 #else
-		close(fd);
+	close(fd);
 #endif
-		return;
+	return;
 }
 
 /* ------------------------------------------------------------------------ */

@@ -47,7 +47,7 @@
 extern "C" {
 #endif
 
-#if K_USING_INT32
+#if defined(K_USING_INT32)
 
 /* Period parameters */
 #define N 624
