@@ -42,7 +42,7 @@
 extern "C" {
 #endif
 
-char *TT_tochar(knh_term_t tt);
+char *TT__(knh_term_t tt);
 
 /* ======================================================================== */
 /* [ContextTable] */
@@ -420,7 +420,7 @@ static void knh_ObjectArenaSet_free(Ctx *ctx, knh_ArenaSet_t *t)
 					break;
 				}
 				case CLASS_Stmt:
-					fprintf(stderr, "stmt='%s'\n", TT_tochar((SP(knh_Stmt_t*)o)->stt));
+					fprintf(stderr, "stmt='%s'\n", TT__((SP(knh_Stmt_t*)o)->stt));
 				break;
 				default:
 					fprintf(stderr, "\n");

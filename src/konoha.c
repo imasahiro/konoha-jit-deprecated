@@ -32,12 +32,12 @@
 extern "C" {
 #endif
 
-int main(int argc, char **argv)
+int main(int argc, const char **argv)
 {
 #if defined(K_USING_BTRON)
 	char **args = knh_tcstoeucs(argc, argv);
 #else
-	char** args = (char**) argv;
+	const char** args = argv;
 #endif
 	konoha_t konoha = konoha_open(4096);
 	int n = konoha_parseopt(konoha, argc, args);

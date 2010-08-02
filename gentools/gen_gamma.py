@@ -453,7 +453,7 @@ static const char* knh_stmts[] = {''')
 };
 #endif/*SMALLFOOTPRINT*/
 
-const char *TT_tochar(knh_term_t tt)
+const char *TT__(knh_term_t tt)
 {
 	if(tt < K_TOKEN_MAXSIZ) {
 #ifdef K_USING_SMALLFOOTPRINT

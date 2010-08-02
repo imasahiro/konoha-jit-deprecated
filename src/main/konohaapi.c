@@ -312,7 +312,7 @@ static knh_optdata_t *knh_getoptdata(const char *name)
 
 /* ----------------------------------------------------------------------- */
 
-KNHAPI(int) konoha_parseopt(konoha_t konoha, int argc, char **argv)
+KNHAPI(int) konoha_parseopt(konoha_t konoha, int argc, const char **argv)
 {
 	KONOHA_CHECK(konoha, 1);
 	Ctx *ctx = konoha.ctx;
@@ -382,7 +382,7 @@ KNHAPI(int) konoha_parseopt(konoha_t konoha, int argc, char **argv)
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(int) konoha_runMain(konoha_t konoha, int argc, char **argv)
+int konoha_runMain(konoha_t konoha, int argc, const char **argv)
 {
 	KONOHA_CHECK(konoha, -1);
 	Ctx *ctx = KONOHA_BEGIN(konoha.ctx);
@@ -559,7 +559,7 @@ static const knh_ShellSPI_t shellSPI = {
 	shell_cleanup,
 };
 
-static void knh_shell(Ctx *ctx, char *filename, const knh_ShellSPI_t *spi, const knh_ShellAPI_t *api)
+static void knh_shell(Ctx *ctx, const char *filename, const knh_ShellSPI_t *spi, const knh_ShellAPI_t *api)
 {
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 	void *shell_status = NULL;
@@ -1073,8 +1073,7 @@ static void test_display(Ctx *ctx, void *status, const char* result, const knh_S
 			ks = ks->next;
 		}
 		if (isAllPassed) {
-			fprintf(kt->out, "[PASSED]");
-			fprintf(kt->out, "%s\n", ku->testTitle.text);
+			fprintf(kt->out, "[PASSED] %s\n", ku->testTitle.text);
 		}
 		// if its failed, already alerted.
 	}
@@ -1154,7 +1153,7 @@ static const knh_ShellSPI_t testSPI = {
 		test_cleanup,
 };
 
-KNHAPI(void) konoha_runTest(konoha_t konoha, int argc, char **argv)
+void konoha_runTest(konoha_t konoha, int argc, const char **argv)
 {
 	KONOHA_CHECK_(konoha);
 	Ctx *ctx = KONOHA_BEGIN(konoha.ctx);

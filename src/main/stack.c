@@ -325,8 +325,8 @@ knh_bool_t knh_ExceptionHandler_setjmp(Ctx *ctx, knh_ExceptionHandler_t *hdr)
 {
 	DP(hdr)->return_address = __builtin_return_address(0);
 	DP(hdr)->frame_address = __builtin_frame_address(0);
-	fprintf(stderr, "@%s: return_addr=%p, frame_addr=%p\n",
-		__FUNCTION__, DP(hdr)->return_address, DP(hdr)->frame_address);
+//	fprintf(stderr, "@%s: return_addr=%p, frame_addr=%p\n",
+//		__FUNCTION__, DP(hdr)->return_address, DP(hdr)->frame_address);
 	return 1;
 }
 

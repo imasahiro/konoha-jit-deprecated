@@ -21,10 +21,8 @@ KNHAPI(void) knh_endContext(Ctx *ctx);
 KNHAPI(Ctx*) knh_getCurrentContext(void);
 KNHAPI(knh_bool_t) knh_isInteractiveMode(void);
 KNHAPI(knh_bool_t) knh_isTestMode(void);
-KNHAPI(int) konoha_parseopt(konoha_t konoha, int argc, char **argv);
-KNHAPI(int) konoha_runMain(konoha_t konoha, int argc, char **argv);
+KNHAPI(int) konoha_parseopt(konoha_t konoha, int argc, const char **argv);
 KNHAPI(void) konoha_shell(konoha_t konoha, char *optstr);
-KNHAPI(void) konoha_runTest(konoha_t konoha, int argc, char **argv);
 KNHAPI(Object*) new_Object_boxing(Ctx *ctx, knh_class_t cid, knh_sfp_t *sfp);
 KNHAPI(knh_Int_t*) new_Int(Ctx *ctx, knh_class_t cid, knh_int_t value);
 KNHAPI(knh_Float_t*) new_Float(Ctx *ctx, knh_class_t cid, knh_float_t value);
@@ -200,6 +198,8 @@ void knh_Iterator_close(Ctx *ctx, knh_Iterator_t *it);
 void konoha_init(void);
 knh_bool_t knh_isSystemVerbose(void);
 void knh_loadPackageList(Ctx *ctx, const char *pkglist);
+int konoha_runMain(konoha_t konoha, int argc, const char **argv);
+void konoha_runTest(konoha_t konoha, int argc, const char **argv);
 knh_Map_t *new_Map(Ctx *ctx, size_t init, char *path, const knh_MapDSPI_t *dspi);
 knh_DictMap_t* new_DictMap0(Ctx *ctx, size_t capacity);
 knh_DictCaseMap_t* new_DictCaseMap0(Ctx *ctx, size_t capacity);
@@ -389,7 +389,6 @@ int knh_thread_key_delete(knh_thread_key_t key);
 void knh_addTranslatorFunc(Ctx *ctx, knh_flag_t flag, knh_type_t stype, knh_type_t ttype, knh_Ftranslator ftcast, Object *mapdata);
 knh_bool_t knh_Translator_isNoSuchMapping(knh_Translator_t *trl);
 knh_Translator_t *knh_findTranslatorNULL(Ctx *ctx, knh_class_t scid, knh_class_t tcid, int isGEN);
-void knh_check_update(Ctx *ctx);
 
 #ifdef __cplusplus
 }

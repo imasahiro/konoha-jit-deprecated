@@ -138,17 +138,17 @@ static METHOD System_gc(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	knh_System_gc(ctx);
 }
 
-/* ------------------------------------------------------------------------ */
-//## @Static @Hidden method void System.push(Object value, ...);
-
-static METHOD System_push(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	long i, ac = knh_stack_argc(ctx, (sfp+1));
-	for(i = 0; i < ac; i++) {
-		KNH_SETv(ctx, sfp[rix+i].o, sfp[i+1].o);
-		sfp[rix+i].data = sfp[i+1].data;
-	}
-}
+///* ------------------------------------------------------------------------ */
+////## @Static @Hidden method void System.push(Object value, ...);
+//
+//static METHOD System_push(Ctx *ctx, knh_sfp_t *sfp, long rix)
+//{
+//	long i, ac = knh_stack_argc(ctx, (sfp+1));
+//	for(i = 0; i < ac; i++) {
+//		KNH_SETv(ctx, sfp[rix+i].o, sfp[i+1].o);
+//		sfp[rix+i].data = sfp[i+1].data;
+//	}
+//}
 
 ///* ------------------------------------------------------------------------ */
 ////## @Hidden method void System.test(Boolean result, String msg);
@@ -173,19 +173,19 @@ static METHOD System_getTime(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	RETURNi_(knh_getTimeMilliSecond());
 }
 
-/* ------------------------------------------------------------------------ */
-//## @Static @Unsafe method void System.exit(Int status);
-
-static METHOD System_exit(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-#if defined(K_USING_STDC)
-	int status = IS_NULL(sfp[1].o) ? 0 : Int_to(size_t, sfp[1]);
-	KNH_SECURE(ctx, sfp);
-	KNH_SYSLOG(ctx, LOG_NOTICE, "EXIT", "exiting by a user");
-	exit(status);
-#endif
-	RETURNvoid_();
-}
+///* ------------------------------------------------------------------------ */
+////## @Static @Unsafe method void System.exit(Int status);
+//
+//static METHOD System_exit(Ctx *ctx, knh_sfp_t *sfp, long rix)
+//{
+//#if defined(K_USING_STDC)
+//	int status = IS_NULL(sfp[1].o) ? 0 : Int_to(size_t, sfp[1]);
+//	KNH_SECURE(ctx, sfp);
+//	KNH_SYSLOG(ctx, LOG_NOTICE, "EXIT", "exiting by a user");
+//	exit(status);
+//#endif
+//	RETURNvoid_();
+//}
 
 ///* ------------------------------------------------------------------------ */
 ////## method String[] System.listDir(String path);

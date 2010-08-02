@@ -91,7 +91,7 @@ void knh_Stmt_trimToSize(Ctx *ctx, knh_Stmt_t *stmt, size_t n)
 void knh_Stmt_toERR(Ctx *ctx, knh_Stmt_t *stmt, knh_Term_t *tm)
 {
 	if(STT_(stmt) == STT_ERR) return;
-	DBG_P("** %s => STT_ERR", TT_tochar(STT_(stmt)));
+	DBG_P("** %s => STT_ERR", TT__(STT_(stmt)));
 	STT_(stmt) = STT_ERR;
 	if(tm != NULL) {
 		SP(stmt)->uri =  SP(tm)->uri;
@@ -235,7 +235,7 @@ void knh_dump_token(Ctx *ctx, knh_OutputStream_t *w, knh_Token_t *tk)
 {
 	if(tk != NULL && IS_Token(tk)) {
 		tkitr_t tcbuf, *itr = ITR_new(tk, &tcbuf);
-		knh_write(ctx, w, STEXT("tt=")); knh_write_text(ctx, w, TT_tochar(TT_(tk)));
+		knh_write(ctx, w, STEXT("tt=")); knh_write_text(ctx, w, TT__(TT_(tk)));
 		if(SP(tk)->line != 0) {
 			knh_putc(ctx, w, ':');
 			knh_write_ifmt(ctx, w, K_INT_FMT, SP(tk)->line);
@@ -310,7 +310,7 @@ void knh_dump_stmt(Ctx *ctx, knh_OutputStream_t *w, knh_Stmt_t *stmt, int isNEXT
 			}
 		}
 	}
-	knh_write_text(ctx, w, TT_tochar(STT_(stmt)));
+	knh_write_text(ctx, w, TT__(STT_(stmt)));
 	if(DP(stmt)->size > 0) knh_putc(ctx, w, ' ');
 	for(i = 0; i < DP(stmt)->size; i++) {
 		if(i > 0) knh_putc(ctx, w, ' ');
@@ -1871,7 +1871,7 @@ static int ITR_indexLET(tkitr_t *itr)
 		}
 		if(TT_LSFTE <= tt && tt < TT_ALTLET) {
 			TT_(ts[i]) += (TT_ADD - TT_ADDE);
-			DBG_P("REWRITE OP %s => %s", TT_tochar(tt), TT_tochar(TT_(ts[i])));
+			DBG_P("REWRITE OP %s => %s", TT__(tt), TT__(TT_(ts[i])));
 			return i;
 		}
 	}
@@ -2156,7 +2156,7 @@ static void _EXPR(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 				if(itr->c + 1 == idx && ITR_isCAST(itr)) {
 					goto L_CAST;
 				}
-				knh_Token_perror(ctx, tkCUR, KERR_ERR, "%s needs next", TT_tochar(TT_(tkCUR)));
+				knh_Token_perror(ctx, tkCUR, KERR_ERR, "%s needs next", TT__(TT_(tkCUR)));
 				goto L_ERROR;
 			}
 		}
@@ -2218,7 +2218,7 @@ static void _EXPR(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 			_REGEX(ctx, stmt, itr); return;
 		}
 		tkCUR = ITR_nextTK(itr);
-		//DBG_P("FIRST ************* tt = %s", TT_tochar(tt));
+		//DBG_P("FIRST ************* tt = %s", TT__(tt));
 		if(ITR_hasNext(itr)) {
 			stmt = new_StmtREUSE(ctx, stmt, STT_CALL);
 		}
@@ -2366,7 +2366,7 @@ static void _EXPR(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 
 		}
 		tkCUR = ITR_tk(itr);
-		DBG_P("** Unexpected funcname %s **", TT_tochar(TT_(tkCUR)));
+		DBG_P("** Unexpected funcname %s **", TT__(TT_(tkCUR)));
 		knh_Token_perror(ctx, tkCUR, KERR_ERR, _("syntax error: function? %L"), tkCUR);
 		goto L_ERROR;
 	}
@@ -2387,7 +2387,7 @@ static void _EXPR(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 
 	L_ERROR:;
 	if(tkCUR != NULL) {
-		DBG_P("TO ERROR stt=%s", TT_tochar(STT_(stmt)));
+		DBG_P("TO ERROR stt=%s", TT__(STT_(stmt)));
 		knh_Stmt_toERR(ctx, stmt, TM(tkCUR));
 	}
 	return;
@@ -2401,7 +2401,7 @@ static void _PEXPR(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 		knh_term_t stt = STT_(stmt); (void)stt;
 		tkitr_t pbuf, *pitr = ITR_new(ITR_nextTK(itr), &pbuf);
 		_EXPR(ctx, stmt, pitr);
-		DBG_P("stt=%s => %s", TT_tochar(stt), TT_tochar(STT_(stmt)));
+		DBG_P("stt=%s => %s", TT__(stt), TT__(STT_(stmt)));
 	}
 	else {
 		ITR_perror(ctx, itr, stmt, _("needs ()"));

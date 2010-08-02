@@ -952,7 +952,7 @@ static void KNH_ASM_SMOV(Ctx *ctx, knh_type_t atype, int a, knh_Token_t *tkb)
 			break;
 		}
 		default: {
-			DBG_P("unknown TT=%s", TT_tochar(TT_(tkb)));
+			DBG_P("unknown TT=%s", TT__(TT_(tkb)));
 			DBG_ABORT();
 		}
 	}/*switch*/
@@ -1881,17 +1881,6 @@ static void knh_StmtW_asmIN(Ctx *ctx, knh_Stmt_t *stmt, size_t thisidx)
 			TERMs_asm(ctx, stmt, i, type, thisidx + 1);
 			KNH_ASM(SCALL, thisidx, ESP_((thisidx-K_CALLDELTA), 1), mtd);
 		}
-//		else if(TT_(tk) == TT_CONST) {
-//			KNH_ASM_SMOV(ctx, tk->type, thisidx + 1, tk);
-//			if(IS_bString(DP(tk)->data)) {
-//				mtd = knh_getMethodNULL(ctx, CLASS_OutputStream, MN_opSEND);
-//				DBG_P(mtd != NULL);
-//			}
-//			else {
-//				mtd = knh_NameSpace_getFormatterNULL(ctx, knh_Object_cid(DP(tk)->data), MN__s);
-//			}
-//			KNH_ASM(SCALL, thisidx-K_CALLDELTA, ESP_((thisidx-K_CALLDELTA), 1), mtd);
-//		}
 		else if(TT_(tk) == STT_W) {
 			knh_Stmt_t *stmtIN = (knh_Stmt_t*)tk;
 			DBG_ASSERT(stmtIN->type == TYPE_String);
@@ -1967,7 +1956,7 @@ static void knh_StmtEXPR_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sf
 	CASE_ASM(TRI, reqt, sfpidx);
 	CASE_ASM(W, reqt, sfpidx);
 	default:
-		DBG_P("unknown stt=%s", TT_tochar(STT_(stmt)));
+		DBG_P("unknown stt=%s", TT__(STT_(stmt)));
 	}
 	KNH_ASM_BOX2(ctx, reqt, SP(stmt)->type, sfpidx);
 	if(sfpidx == K_RTNIDX) {
@@ -2552,7 +2541,7 @@ static void knh_Stmt_asmBLOCK(Ctx *ctx, knh_Stmt_t *stmtH, knh_type_t reqt)
 		knh_type_t etype = (_isLast(stmt)) ? reqt : TYPE_void;
 		knh_Gamma_setLine(ctx, SP(stmt)->line);
 		DP(ctx->gma)->espidx = DP(stmt)->espidx;
-		DBG_P("ASM %s %p etype=%s,%s, espidx=%d", TT_tochar(STT_(stmt)), stmt, TYPE__(etype), TYPE__(stmt->type), DP(ctx->gma)->espidx);
+		DBG_P("ASM %s %p etype=%s,%s, espidx=%d", TT__(STT_(stmt)), stmt, TYPE__(etype), TYPE__(stmt->type), DP(ctx->gma)->espidx);
 		switch(STT_(stmt)) {
 		case STT_BLOCK:
 			knh_Stmt_asmBLOCK(ctx, DP(stmt)->stmts[0], etype);

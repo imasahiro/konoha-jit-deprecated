@@ -625,7 +625,7 @@
 #define ASSERT_bool                     0
 
 /* ======================================================================== */
-char* TT_tochar(knh_term_t t);
+char* TT__(knh_term_t t);
 knh_methodn_t knh_token_tomethodn(knh_term_t t);
 int knh_token_getOpPriority(knh_term_t t);
 int knh_token_getOpSize(knh_term_t t);
@@ -633,5 +633,5 @@ knh_bool_t knh_token_isBeginOfStmt(knh_term_t t);
 int knh_token_isKeyword(knh_term_t tt);
 knh_Token_t *knh_cwb_parseToken(Ctx *ctx, knh_cwb_t *cwb, knh_flag_t flag, knh_InputStream_t *in);
 int knh_bytes_istoken(knh_bytes_t t, int ch);
-char* TT_tochar(knh_term_t t);
+char* TT__(knh_term_t t);
 int knh_stmt_isExpr(knh_term_t t);

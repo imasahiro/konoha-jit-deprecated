@@ -14,7 +14,7 @@ extern "C" {
 #define TT_CODE TT_EOT
 
 #define knh_stmt_isExpr(stt)   (STT_LET <= stt && stt <= STT_CALL1)
-const char* TT_tochar(knh_term_t tt);
+const char* TT__(knh_term_t tt);
 
 #define knh_Term_setLine(tm, tm2) \
 	((knh_Term_t*)tm)->line = ((knh_Term_t*)tm2)->line;\
@@ -47,7 +47,7 @@ const char* TT_tochar(knh_term_t tt);
 #define isSINGLEFOREACH(stmt)   (DP(stmt)->size == 3)
 
 #define TERMs(stmt, n)         DP(stmt)->terms[n]
-#define TERMs__(stmt, n)       TT_tochar(TT_(DP(stmt)->terms[n]))
+#define TERMs__(stmt, n)       TT__(TT_(DP(stmt)->terms[n]))
 #define TT_TERMs(stmt, n)       TT_(DP(stmt)->terms[n])
 #define TERMs_isCONST(stmt,n)   (TT_(DP(stmt)->terms[n]) == TT_CONST)
 #define TERMs_isASIS(stmt,n)    (TT_(DP(stmt)->terms[n]) == TT_ASIS)
@@ -139,7 +139,7 @@ knh_Token_t* new_TokenTYPED(Ctx *ctx, knh_term_t tt, knh_type_t type, knh_short_
 /* ------------------------------------------------------------------------ */
 
 #define TM(o)             ((knh_Term_t*)o)
-#define cSTT_(o)          TT_tochar(STT_(o))
+#define cSTT_(o)          TT__(STT_(o))
 
 #define knh_token_isNested(tt)  \
 	(tt == TT_BRACE || tt == TT_PARENTHESIS || tt == TT_BRANCET)
