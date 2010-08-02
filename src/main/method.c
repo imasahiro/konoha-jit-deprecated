@@ -435,7 +435,8 @@ knh_index_t knh_Method_indexOfGetterField(knh_Method_t *o)
 knh_index_t knh_Method_indexOfSetterField(knh_Method_t *o)
 {
 	knh_Fmethod f = SP(o)->fcall_1;
-	if(f == knh_Fmethod_isetter ||
+	if(f == knh_Fmethod_setter ||
+		f == knh_Fmethod_isetter ||
 		f == knh_Fmethod_fsetter ||
 		f == knh_Fmethod_bsetter) {
 		return (knh_index_t)DP(o)->delta;
