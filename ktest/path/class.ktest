@@ -1,0 +1,8 @@
+### Class PATH
+>>> exists class:Int
+true
+>>> Class c = class:Int
+konoha.Int
+>>> c
+konoha.Int
+

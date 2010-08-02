@@ -89,7 +89,6 @@ $CC $CFLAGS thread.c
 $CC $CFLAGS time.c
 $CC $CFLAGS translator.c
 $CC $CFLAGS tuple.c
-$CC $CFLAGS updater.c
 cd $DIR/src/
 $CC $CFLAGS konoha.c
 cd $DIR/
@@ -135,13 +134,13 @@ $DIR/src/main/thread.o         \
 $DIR/src/main/time.o           \
 $DIR/src/main/translator.o     \
 $DIR/src/main/tuple.o          \
-$DIR/src/main/updater.o        \
 $DIR/src/konoha.o              \
 -lsqlite3 -lpthread -ldl -lgcov -o ./konoha
 fi
 
 lcov -z -d .
 
+echo "*************************************************"
 ./konoha -t \
 $DIR/ktest/class/array_F.ktest       \
 $DIR/ktest/class/boolean.ktest       \
@@ -154,20 +153,32 @@ $DIR/ktest/class/string.ktest        \
 $DIR/ktest/statement/auxiliary.ktest \
 $DIR/ktest/statement/for.ktest       \
 $DIR/ktest/statement/if.ktest        \
-$DIR/ktest/statement/while.ktest     \
+$DIR/ktest/statement/while.ktest
 
+echo "*************************************************"
 ./konoha -t \
-$DIR/ktest/class/array_I.ktest
+$DIR/ktest/path/file.ktest           \
+$DIR/ktest/path/dir.ktest            \
+$DIR/ktest/path/lib.ktest            \
+$DIR/ktest/path/script.ktest         \
+$DIR/ktest/path/class.ktest
+
+echo "*************************************************"
+./konoha -t $DIR/ktest/class/array_I.ktest
+./konoha -t $DIR/ktest/method/getKey.ktest
 
 ./konoha $DIR/bench/microbench2.k
 ./konoha $DIR/bench/stringbench.k
 ##./konoha $DIR/bench/gcbench.k
+KONOHA_HOME="/" ./konoha    ./ktest/empty.k
+KONOHA_PACKAGE="/" ./konoha ./ktest/empty.k
+./konoha -c -i --version -g -v0 -O0 
 
 lcov -c -d . -o $DIR/konoha.info
 genhtml -o $DIR/lcov -p $DIR --num-spaces 4  $DIR/konoha.info
 
 if [ "$R" = "true" ]; then
-rm -f \
+rm -f konoha \
 $DIR/src/ext/mt19937-64.{o,gcno,gcda}      \
 $DIR/src/ext/mt19937ar.{o,gcno,gcda}       \
 $DIR/src/ext/qsort.{o,gcno,gcda}           \
@@ -209,7 +220,6 @@ $DIR/src/main/thread.{o,gcno,gcda}         \
 $DIR/src/main/time.{o,gcno,gcda}           \
 $DIR/src/main/translator.{o,gcno,gcda}     \
 $DIR/src/main/tuple.{o,gcno,gcda}          \
-$DIR/src/main/updater.{o,gcno,gcda}        \
 $DIR/src/konoha.{o,gcno,gcda}              \
 
 fi

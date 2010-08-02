@@ -1,0 +1,17 @@
+// file(path) test
+### file exists
+>>> exists dir:./dist
+true
+>>> exists dir:./no_such_dir
+false
+
+### file newObjectNULL && isTyped
+>>> String[] dir = dir:./dist
+[".svn", "bin", "doc", "package", "sample", "script"]
+
+>>> Array dir2 = dir:./dist
+[".svn", "bin", "doc", "package", "sample", "script"]
+
+>>> dir:./no_such_dir
+[]
+
