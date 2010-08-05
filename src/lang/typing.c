@@ -1133,9 +1133,9 @@ static knh_flag_t knh_StmtDECL_flag(Ctx *ctx, knh_Stmt_t *o)
 static void knh_Script_checkFieldSize(Ctx *ctx, knh_Script_t *scr, knh_type_t type)
 {
 	size_t usesize = 1;
+	knh_ClassTBL_t *t = (knh_ClassTBL_t*)(&ClassTBL(knh_Object_cid(scr)));
 	if(sizeof(knh_int_t) > sizeof(Object*) && IS_Tint(type)) usesize += 1;
 	if(sizeof(knh_float_t) > sizeof(Object*) && IS_Tfloat(type)) usesize += 1;
-	knh_ClassTBL_t *t = (knh_ClassTBL_t*)(&ClassTBL(knh_Object_cid(scr)));
 	if(!(scr->fsizeUSED + usesize < t->fsize)) {
 		size_t i, newsize = t->fsize == 0 ? (K_FASTMALLOC_SIZE / sizeof(void*)) : t->fsize * 2;
 		knh_fields_t *newfields = (knh_fields_t*)KNH_MALLOC(ctx, sizeof(knh_fields_t) * newsize);
@@ -1158,7 +1158,7 @@ static void knh_Script_checkFieldSize(Ctx *ctx, knh_Script_t *scr, knh_type_t ty
 		t->fsize = newsize;
 		t->size = t->fsize * sizeof(knh_Object_t*);
 	}
-	if(!IS_Tint(type) && !IS_Tfloat(type)) {
+	if(!IS_Tunbox(type)) {
 		KNH_INITv(scr->fields[scr->fsizeUSED], KNH_NULVAL(CLASS_type(type)));
 	}
 	scr->fsizeUSED += usesize;

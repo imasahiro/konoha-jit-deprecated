@@ -39,7 +39,14 @@ extern "C" {
 #define K_RCGC_INIT           0
 
 #ifdef K_USING_RCGC
-#define knh_Object_RCinc(o)     (o)->h.refc ++
+//#define knh_Object_RCinc(o)     (o)->h.refc ++
+#define knh_Object_RCinc(o)    {\
+		(o)->h.refc ++; \
+		if((o)->h.cid == CLASS_Boolean) {\
+			DBG_P("p=%p refc=%d", o, o->h.refc);\
+		}\
+	}\
+
 #define knh_Object_RCplus(o,n)  (o)->h.refc += n
 #define knh_Object_DRCsweep(ctx, o)  knh_Object_sweep(ctx, o)
 #define knh_Object_RCdec(o)     (o)->h.refc--

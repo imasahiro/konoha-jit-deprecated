@@ -162,7 +162,6 @@ static void knh_Gamma_asm(Ctx *ctx, knh_opline_t *op)
 			klr_TR_t *opTR = (klr_TR_t*)op;
 			if(opUNBOX->b == opTR->a && (opTR->tr == _OBOX || opTR->tr == _BOX || opTR->tr == _bBOX)) {
 				DBG_ASSERT(opUNBOX->a == opTR->b); // CHECK Object o = 1;
-				DBG_P("PEEPHOLE: removed _BOX"); // this is safe, however
 				DP(bb)->size -= 1;
 				DBG_P("PEEPHOLE: removed UNBOX. IS OK?"); // is it ok?
 				return;
@@ -223,7 +222,7 @@ static int knh_Gamma_asmJMPF(Ctx *ctx, klr_JMPF_t *op)
 		knh_opline_t *opP = DP(bb)->opbuf + (DP(bb)->size - 1);
 		if(opP->opcode == OPCODE_bNOT) {
 			klr_bNOT_t *opN = (klr_bNOT_t*)opP;
-			DBG_P("REWRITE JMPF index %d => %d", op->a, opN->a);
+//			DBG_P("REWRITE JMPF index %d => %d", op->a, opN->a);
 			op->a = opN->a;
 			swap = (swap == 0) ? 1 : 0;
 			DP(bb)->size -= 1;
@@ -285,18 +284,18 @@ static knh_opcode_t knh_BasicBlock_opcode(knh_BasicBlock_t *bb)
 static void dumpBB(knh_BasicBlock_t *bb, const char *indent)
 {
 	size_t i;
-	DBG_P("%sid=%i, size=%d", indent, DP(bb)->id, DP(bb)->size);
+//	DBG_P("%sid=%i, size=%d", indent, DP(bb)->id, DP(bb)->size);
 	if(bb->nextNC != NULL) {
-		DBG_P("%s\tnext=%d", indent, DP(bb->nextNC)->id);
+//		DBG_P("%s\tnext=%d", indent, DP(bb->nextNC)->id);
 		if(indent[0] == 0) dumpBB(bb->nextNC, "\t");
 	}
 	if(bb->jumpNC != NULL) {
-		DBG_P("%s\tjump=%d", indent, DP(bb->jumpNC)->id);
+//		DBG_P("%s\tjump=%d", indent, DP(bb->jumpNC)->id);
 		if(indent[0] == 0) dumpBB(bb->jumpNC, "\t");
 	}
 	for(i = 0; i < DP(bb)->size; i++) {
 		knh_opline_t *op = DP(bb)->opbuf + i;
-		DBG_P("%s\t opcode=%s", indent, knh_opcode_tochar(op->opcode));
+//		DBG_P("%s\t opcode=%s", indent, knh_opcode_tochar(op->opcode));
 		(void)op;
 	}
 }
@@ -463,7 +462,7 @@ static knh_opline_t* knh_BasicBlock_copy(Ctx *ctx, knh_opline_t *dst, knh_BasicB
 {
 	knh_BasicBlock_setVisited(bb, 0);
 	DBG_ASSERT(!knh_BasicBlock_isVisited(bb));
-	DBG_P("BB%d: asm nextNC=BB%d, jumpNC=BB%d", BB_(bb), BB_(bb->nextNC), BB_(bb->jumpNC));
+//	DBG_P("BB%d: asm nextNC=BB%d, jumpNC=BB%d", BB_(bb), BB_(bb->nextNC), BB_(bb->jumpNC));
 	if(DP(bb)->code != NULL) {
 		//DBG_P("BB%d: already copied", BB_(bb));
 		return dst;
@@ -493,7 +492,7 @@ static knh_opline_t* knh_BasicBlock_copy(Ctx *ctx, knh_opline_t *dst, knh_BasicB
 					knh_BasicBlock_setStackChecked(bb, 1);
 				}
 			}
-			DBG_P("BB%d: [%ld] %s", BB_(bb), i, knh_opcode_tochar(op->opcode));
+//			DBG_P("BB%d: [%ld] %s", BB_(bb), i, knh_opcode_tochar(op->opcode));
 		}
 		dst = dst + DP(bb)->size;
 		knh_BasicBlock_freebuf(ctx, bb);
@@ -558,8 +557,9 @@ static knh_KLRCode_t* knh_BasicBlock_link(Ctx *ctx, knh_BasicBlock_t *bb, knh_Ba
 
 METHOD knh_Fmethod_runVM(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
+	DBG_ASSERT(rix == -3);
 	DBG_ASSERT(IS_Method(sfp[K_MTDIDX].callmtd));
-	DBG_P("invoking Konoha_VM");
+//	DBG_P("invoking Konoha_VM");
 	knh_VirtualMachine_run(ctx, sfp, CODE_VEXEC);
 }
 

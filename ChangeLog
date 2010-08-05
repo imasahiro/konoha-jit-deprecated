@@ -1,58 +1,279 @@
-2010-02-06 Kimio Kuramitsu <kimio AT ynu.ac.jp>
-	
-2009-05-15 Kimio Kuramitsu <kimio AT ynu.ac.jp>
-	* Renewal for konoha-0.5
 
-2008-11-24 Kimio Kuramitsu <kimio AT ynu.ac.jp>
-	* The XOP instruction added
 
-2008-11-16 Kimio Kuramitsu <kimio AT ynu.ac.jp>
-	* throw errno message
-	
-2008-11-14 Kimio Kuramitsu <kimio AT ynu.ac.jp>
-	* global const is added
-	* Bugs fixes on Array and try-catch parser
+**** Build of configuration Release for project konoha ****
 
-2008-11-13 Kimio Kuramitsu <kimio AT ynu.ac.jp>
-	* new %man() is available
-
-2008-10-29 Kimio Kuramitsu <kimio AT ynu.ac.jp>
-	* nmake for Microsoft Windows Visual C++
-
-2008-10-26 Kimio Kuramitsu <kimio AT ynu.ac.jp>
-	* Stupid bugs fixes around %% %bits and %3.2d
-
-2008-10-19 Kimio Kuramitsu <kimio AT ynu.ac.jp>
-	* new IODriver(knh_iodrv_t) launched
-	* Bugs fixes around String.
-
-2008-10-15 Kimio Kuramitsu <kimio AT ynu.ac.jp>
-	* Now, you can throw Exception.
-	* Floating overflow fixes
-
-2008-10-11 Kimio Kuramitsu <kimio AT ynu.ac.jp>
-	* Now "1*-1" is passed.
-	* Int64 class was deleted. 
-
-2008-10-06 Kimio Kuramitsu <kimio AT ynu.ac.jp>
-	* Very simple unit test is now running.
-
-2008-10-03 Kimio Kuramitsu <kimio AT ynu.ac.jp>
-	* new lightweight DictMap, DictSet
-	* new parser to detect the end of statement
-	* bugs fixes around Boolean
-
-2008-09-23  Kimio Kuramitsu <kimio AT ynu.ac.jp>
-	* added opFmt
-	* Optional formatter is newly supported!!
-	* Array is waiting for tested. 
-
-2008-09-15  Kimio Kuramitsu <kimio AT ynu.ac.jp>
-	* Built-in function 'defined' is added.
-	* String formatter is added.
-	* New formatter %man for Class
-	* METHOD Macros refactored.
-
-2008-09-08  Kimio Kuramitsu <kimio AT ynu.ac.jp>
-	* Version 0.1 released.
-	* This day could be Konoha Day!!
+make all 
+Building file: ../src/main/array.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/array.d" -MT"src/main/array.d" -o"src/main/array.o" "../src/main/array.c"
+Finished building: ../src/main/array.c
+ 
+Building file: ../src/main/bytes.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/bytes.d" -MT"src/main/bytes.d" -o"src/main/bytes.o" "../src/main/bytes.c"
+Finished building: ../src/main/bytes.c
+ 
+Building file: ../src/main/class.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/class.d" -MT"src/main/class.d" -o"src/main/class.o" "../src/main/class.c"
+Finished building: ../src/main/class.c
+ 
+Building file: ../src/main/closure.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/closure.d" -MT"src/main/closure.d" -o"src/main/closure.o" "../src/main/closure.c"
+Finished building: ../src/main/closure.c
+ 
+Building file: ../src/main/context.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/context.d" -MT"src/main/context.d" -o"src/main/context.o" "../src/main/context.c"
+Finished building: ../src/main/context.c
+ 
+Building file: ../src/main/empty.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/empty.d" -MT"src/main/empty.d" -o"src/main/empty.o" "../src/main/empty.c"
+Finished building: ../src/main/empty.c
+ 
+Building file: ../src/main/evidence.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/evidence.d" -MT"src/main/evidence.d" -o"src/main/evidence.o" "../src/main/evidence.c"
+Finished building: ../src/main/evidence.c
+ 
+Building file: ../src/main/exports.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/exports.d" -MT"src/main/exports.d" -o"src/main/exports.o" "../src/main/exports.c"
+Finished building: ../src/main/exports.c
+ 
+Building file: ../src/main/iterator.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/iterator.d" -MT"src/main/iterator.d" -o"src/main/iterator.o" "../src/main/iterator.c"
+Finished building: ../src/main/iterator.c
+ 
+Building file: ../src/main/konohaapi.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/konohaapi.d" -MT"src/main/konohaapi.d" -o"src/main/konohaapi.o" "../src/main/konohaapi.c"
+Finished building: ../src/main/konohaapi.c
+ 
+Building file: ../src/main/map.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/map.d" -MT"src/main/map.d" -o"src/main/map.o" "../src/main/map.c"
+Finished building: ../src/main/map.c
+ 
+Building file: ../src/main/memory.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/memory.d" -MT"src/main/memory.d" -o"src/main/memory.o" "../src/main/memory.c"
+Finished building: ../src/main/memory.c
+ 
+Building file: ../src/main/method.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/method.d" -MT"src/main/method.d" -o"src/main/method.o" "../src/main/method.c"
+Finished building: ../src/main/method.c
+ 
+Building file: ../src/main/number.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/number.d" -MT"src/main/number.d" -o"src/main/number.o" "../src/main/number.c"
+Finished building: ../src/main/number.c
+ 
+Building file: ../src/main/object.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/object.d" -MT"src/main/object.d" -o"src/main/object.o" "../src/main/object.c"
+../src/main/../../include/konoha/inlinelibs.h:26: warning: 'new_bytes2' defined but not used
+Finished building: ../src/main/object.c
+ 
+Building file: ../src/main/os.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/os.d" -MT"src/main/os.d" -o"src/main/os.o" "../src/main/os.c"
+Finished building: ../src/main/os.c
+ 
+Building file: ../src/main/query.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/query.d" -MT"src/main/query.d" -o"src/main/query.o" "../src/main/query.c"
+Finished building: ../src/main/query.c
+ 
+Building file: ../src/main/security.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/security.d" -MT"src/main/security.d" -o"src/main/security.o" "../src/main/security.c"
+Finished building: ../src/main/security.c
+ 
+Building file: ../src/main/semantics.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/semantics.d" -MT"src/main/semantics.d" -o"src/main/semantics.o" "../src/main/semantics.c"
+Finished building: ../src/main/semantics.c
+ 
+Building file: ../src/main/stack.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/stack.d" -MT"src/main/stack.d" -o"src/main/stack.o" "../src/main/stack.c"
+../src/main/../../include/konoha/inlinelibs.h:26: warning: 'new_bytes2' defined but not used
+../src/main/../../include/konoha/inlinelibs.h:37: warning: 'knh_bytes_indexOf' defined but not used
+../src/main/../../include/konoha/inlinelibs.h:141: warning: 'knh_bytes_last' defined but not used
+Finished building: ../src/main/stack.c
+ 
+Building file: ../src/main/stream.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/stream.d" -MT"src/main/stream.d" -o"src/main/stream.o" "../src/main/stream.c"
+Finished building: ../src/main/stream.c
+ 
+Building file: ../src/main/string.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/string.d" -MT"src/main/string.d" -o"src/main/string.o" "../src/main/string.c"
+Finished building: ../src/main/string.c
+ 
+Building file: ../src/main/system.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/system.d" -MT"src/main/system.d" -o"src/main/system.o" "../src/main/system.c"
+Finished building: ../src/main/system.c
+ 
+Building file: ../src/main/thread.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/thread.d" -MT"src/main/thread.d" -o"src/main/thread.o" "../src/main/thread.c"
+Finished building: ../src/main/thread.c
+ 
+Building file: ../src/main/time.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/time.d" -MT"src/main/time.d" -o"src/main/time.o" "../src/main/time.c"
+Finished building: ../src/main/time.c
+ 
+Building file: ../src/main/translator.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/translator.d" -MT"src/main/translator.d" -o"src/main/translator.o" "../src/main/translator.c"
+Finished building: ../src/main/translator.c
+ 
+Building file: ../src/main/tuple.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/tuple.d" -MT"src/main/tuple.d" -o"src/main/tuple.o" "../src/main/tuple.c"
+Finished building: ../src/main/tuple.c
+ 
+Building file: ../src/main/apidata/anyapi.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/apidata/anyapi.d" -MT"src/main/apidata/anyapi.d" -o"src/main/apidata/anyapi.o" "../src/main/apidata/anyapi.c"
+Finished building: ../src/main/apidata/anyapi.c
+ 
+Building file: ../src/main/apidata/arrayapi.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/apidata/arrayapi.d" -MT"src/main/apidata/arrayapi.d" -o"src/main/apidata/arrayapi.o" "../src/main/apidata/arrayapi.c"
+Finished building: ../src/main/apidata/arrayapi.c
+ 
+Building file: ../src/main/apidata/compilerapi.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/apidata/compilerapi.d" -MT"src/main/apidata/compilerapi.d" -o"src/main/apidata/compilerapi.o" "../src/main/apidata/compilerapi.c"
+Finished building: ../src/main/apidata/compilerapi.c
+ 
+Building file: ../src/main/apidata/dbapi.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/apidata/dbapi.d" -MT"src/main/apidata/dbapi.d" -o"src/main/apidata/dbapi.o" "../src/main/apidata/dbapi.c"
+Finished building: ../src/main/apidata/dbapi.c
+ 
+Building file: ../src/main/apidata/dictapi.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/apidata/dictapi.d" -MT"src/main/apidata/dictapi.d" -o"src/main/apidata/dictapi.o" "../src/main/apidata/dictapi.c"
+Finished building: ../src/main/apidata/dictapi.c
+ 
+Building file: ../src/main/apidata/dspi.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/apidata/dspi.d" -MT"src/main/apidata/dspi.d" -o"src/main/apidata/dspi.o" "../src/main/apidata/dspi.c"
+Finished building: ../src/main/apidata/dspi.c
+ 
+Building file: ../src/main/apidata/fmtapi.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/apidata/fmtapi.d" -MT"src/main/apidata/fmtapi.d" -o"src/main/apidata/fmtapi.o" "../src/main/apidata/fmtapi.c"
+Finished building: ../src/main/apidata/fmtapi.c
+ 
+Building file: ../src/main/apidata/itrapi.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/apidata/itrapi.d" -MT"src/main/apidata/itrapi.d" -o"src/main/apidata/itrapi.o" "../src/main/apidata/itrapi.c"
+Finished building: ../src/main/apidata/itrapi.c
+ 
+Building file: ../src/main/apidata/mprapi.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/apidata/mprapi.d" -MT"src/main/apidata/mprapi.d" -o"src/main/apidata/mprapi.o" "../src/main/apidata/mprapi.c"
+Finished building: ../src/main/apidata/mprapi.c
+ 
+Building file: ../src/main/apidata/narutoapi.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/apidata/narutoapi.d" -MT"src/main/apidata/narutoapi.d" -o"src/main/apidata/narutoapi.o" "../src/main/apidata/narutoapi.c"
+Finished building: ../src/main/apidata/narutoapi.c
+ 
+Building file: ../src/main/apidata/newapi.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/apidata/newapi.d" -MT"src/main/apidata/newapi.d" -o"src/main/apidata/newapi.o" "../src/main/apidata/newapi.c"
+Finished building: ../src/main/apidata/newapi.c
+ 
+Building file: ../src/main/apidata/numberapi.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/apidata/numberapi.d" -MT"src/main/apidata/numberapi.d" -o"src/main/apidata/numberapi.o" "../src/main/apidata/numberapi.c"
+Finished building: ../src/main/apidata/numberapi.c
+ 
+Building file: ../src/main/apidata/objectapi.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/apidata/objectapi.d" -MT"src/main/apidata/objectapi.d" -o"src/main/apidata/objectapi.o" "../src/main/apidata/objectapi.c"
+Finished building: ../src/main/apidata/objectapi.c
+ 
+Building file: ../src/main/apidata/oprapi.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/apidata/oprapi.d" -MT"src/main/apidata/oprapi.d" -o"src/main/apidata/oprapi.o" "../src/main/apidata/oprapi.c"
+Finished building: ../src/main/apidata/oprapi.c
+ 
+Building file: ../src/main/apidata/streamapi.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/apidata/streamapi.d" -MT"src/main/apidata/streamapi.d" -o"src/main/apidata/streamapi.o" "../src/main/apidata/streamapi.c"
+Finished building: ../src/main/apidata/streamapi.c
+ 
+Building file: ../src/main/apidata/stringapi.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/apidata/stringapi.d" -MT"src/main/apidata/stringapi.d" -o"src/main/apidata/stringapi.o" "../src/main/apidata/stringapi.c"
+Finished building: ../src/main/apidata/stringapi.c
+ 
+Building file: ../src/main/apidata/struct.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/apidata/struct.d" -MT"src/main/apidata/struct.d" -o"src/main/apidata/struct.o" "../src/main/apidata/struct.c"
+Finished building: ../src/main/apidata/struct.c
+ 
+Building file: ../src/main/apidata/systemapi.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/apidata/systemapi.d" -MT"src/main/apidata/systemapi.d" -o"src/main/apidata/systemapi.o" "../src/main/apidata/systemapi.c"
+Finished building: ../src/main/apidata/systemapi.c
+ 
+Building file: ../src/lang/asm.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/lang/asm.d" -MT"src/lang/asm.d" -o"src/lang/asm.o" "../src/lang/asm.c"
+Finished building: ../src/lang/asm.c
+ 
+Building file: ../src/lang/optimizer.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/lang/optimizer.d" -MT"src/lang/optimizer.d" -o"src/lang/optimizer.o" "../src/lang/optimizer.c"
+Finished building: ../src/lang/optimizer.c
+ 
+Building file: ../src/lang/script.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/lang/script.d" -MT"src/lang/script.d" -o"src/lang/script.o" "../src/lang/script.c"
+Finished building: ../src/lang/script.c
+ 
+Building file: ../src/lang/term.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/lang/term.d" -MT"src/lang/term.d" -o"src/lang/term.o" "../src/lang/term.c"
+Finished building: ../src/lang/term.c
+ 
+Building file: ../src/lang/typing.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/lang/typing.d" -MT"src/lang/typing.d" -o"src/lang/typing.o" "../src/lang/typing.c"
+Finished building: ../src/lang/typing.c
+ 
+Building file: ../src/lang/vmcodelibs.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/lang/vmcodelibs.d" -MT"src/lang/vmcodelibs.d" -o"src/lang/vmcodelibs.o" "../src/lang/vmcodelibs.c"
+Finished building: ../src/lang/vmcodelibs.c
+ 
+Building file: ../src/lang/vminline.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/lang/vminline.d" -MT"src/lang/vminline.d" -o"src/lang/vminline.o" "../src/lang/vminline.c"
+Finished building: ../src/lang/vminline.c
+ 
+Building file: ../src/ext/strlen.c
+Invoking: GCC C Compiler
+gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/ext/strlen.d" -MT"src/ext/strlen.d" -o"src/ext/strlen.o" "../src/ext/strlen.c"
+Finished building: ../src/ext/strlen.c
+ 
+Building target: konoha
+Invoking: MacOS X C Linker
+gcc -coverage -o "konoha"  ./src/main/array.o ./src/main/bytes.o ./src/main/class.o ./src/main/closure.o ./src/main/context.o ./src/main/empty.o ./src/main/evidence.o ./src/main/exports.o ./src/main/iterator.o ./src/main/konohaapi.o ./src/main/map.o ./src/main/memory.o ./src/main/method.o ./src/main/number.o ./src/main/object.o ./src/main/os.o ./src/main/query.o ./src/main/security.o ./src/main/semantics.o ./src/main/stack.o ./src/main/stream.o ./src/main/string.o ./src/main/system.o ./src/main/thread.o ./src/main/time.o ./src/main/translator.o ./src/main/tuple.o  ./src/main/apidata/anyapi.o ./src/main/apidata/arrayapi.o ./src/main/apidata/compilerapi.o ./src/main/apidata/dbapi.o ./src/main/apidata/dictapi.o ./src/main/apidata/dspi.o ./src/main/apidata/fmtapi.o ./src/main/apidata/itrapi.o ./src/main/apidata/mprapi.o ./src/main/apidata/narutoapi.o ./src/main/apidata/newapi.o ./src/main/apidata/numberapi.o ./src/main/apidata/objectapi.o ./src/main/apidata/oprapi.o ./src/main/apidata/streamapi.o ./src/main/apidata/stringapi.o ./src/main/apidata/struct.o ./src/main/apidata/systemapi.o  ./src/lang/asm.o ./src/lang/optimizer.o ./src/lang/script.o ./src/lang/ssa.o ./src/lang/term.o ./src/lang/typing.o ./src/lang/vmcodelibs.o ./src/lang/vminline.o  ./src/konoha.o  ./src/ext/mt19937-64.o ./src/ext/mt19937ar.o ./src/ext/qsort.o ./src/ext/strerror.o ./src/ext/strlen.o   -lgcov -lsqlite3
+Finished building target: konoha
+ 

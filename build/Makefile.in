@@ -87,23 +87,23 @@ am_libkonoha_la_OBJECTS = libkonoha_la-mt19937-64.lo \
 	libkonoha_la-mt19937ar.lo libkonoha_la-qsort.lo \
 	libkonoha_la-strerror.lo libkonoha_la-strlen.lo \
 	libkonoha_la-asm.lo libkonoha_la-optimizer.lo \
-	libkonoha_la-script.lo libkonoha_la-term.lo \
-	libkonoha_la-typing.lo libkonoha_la-vmcodelibs.lo \
-	libkonoha_la-vminline.lo libkonoha_la-struct.lo \
-	libkonoha_la-array.lo libkonoha_la-bytes.lo \
-	libkonoha_la-class.lo libkonoha_la-closure.lo \
-	libkonoha_la-context.lo libkonoha_la-empty.lo \
-	libkonoha_la-evidence.lo libkonoha_la-exports.lo \
-	libkonoha_la-iterator.lo libkonoha_la-konohaapi.lo \
-	libkonoha_la-map.lo libkonoha_la-memory.lo \
-	libkonoha_la-method.lo libkonoha_la-number.lo \
-	libkonoha_la-object.lo libkonoha_la-os.lo \
-	libkonoha_la-query.lo libkonoha_la-security.lo \
-	libkonoha_la-semantics.lo libkonoha_la-stack.lo \
-	libkonoha_la-stream.lo libkonoha_la-string.lo \
-	libkonoha_la-system.lo libkonoha_la-thread.lo \
-	libkonoha_la-time.lo libkonoha_la-translator.lo \
-	libkonoha_la-tuple.lo libkonoha_la-updater.lo
+	libkonoha_la-script.lo libkonoha_la-ssa.lo \
+	libkonoha_la-term.lo libkonoha_la-typing.lo \
+	libkonoha_la-vmcodelibs.lo libkonoha_la-vminline.lo \
+	libkonoha_la-struct.lo libkonoha_la-array.lo \
+	libkonoha_la-bytes.lo libkonoha_la-class.lo \
+	libkonoha_la-closure.lo libkonoha_la-context.lo \
+	libkonoha_la-empty.lo libkonoha_la-evidence.lo \
+	libkonoha_la-exports.lo libkonoha_la-iterator.lo \
+	libkonoha_la-konohaapi.lo libkonoha_la-map.lo \
+	libkonoha_la-memory.lo libkonoha_la-method.lo \
+	libkonoha_la-number.lo libkonoha_la-object.lo \
+	libkonoha_la-os.lo libkonoha_la-query.lo \
+	libkonoha_la-security.lo libkonoha_la-semantics.lo \
+	libkonoha_la-stack.lo libkonoha_la-stream.lo \
+	libkonoha_la-string.lo libkonoha_la-system.lo \
+	libkonoha_la-thread.lo libkonoha_la-time.lo \
+	libkonoha_la-translator.lo libkonoha_la-tuple.lo
 libkonoha_la_OBJECTS = $(am_libkonoha_la_OBJECTS)
 libkonoha_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libkonoha_la_CFLAGS) \
@@ -271,7 +271,7 @@ AM_CPPFLAGS = -I../include
 libkonoha_la_SOURCES = ../src/ext/mt19937-64.c ../src/ext/mt19937ar.c \
 	../src/ext/qsort.c ../src/ext/strerror.c ../src/ext/strlen.c \
 	../src/lang/asm.c ../src/lang/optimizer.c ../src/lang/script.c \
-	../src/lang/term.c ../src/lang/typing.c \
+	../src/lang/ssa.c ../src/lang/term.c ../src/lang/typing.c \
 	../src/lang/vmcodelibs.c ../src/lang/vminline.c \
 	../src/main/apidata/struct.c ../src/main/array.c \
 	../src/main/bytes.c ../src/main/class.c ../src/main/closure.c \
@@ -284,8 +284,7 @@ libkonoha_la_SOURCES = ../src/ext/mt19937-64.c ../src/ext/mt19937ar.c \
 	../src/main/semantics.c ../src/main/stack.c \
 	../src/main/stream.c ../src/main/string.c ../src/main/system.c \
 	../src/main/thread.c ../src/main/time.c \
-	../src/main/translator.c ../src/main/tuple.c \
-	../src/main/updater.c
+	../src/main/translator.c ../src/main/tuple.c
 libkonoha_la_includedir = $(includedir)
 libkonoha_la_include_HEADERS = ../include/konoha.h
 libkonoha_la_includekonohadir = $(includedir)/../include/konoha
@@ -564,6 +563,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-script.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-security.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-semantics.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-ssa.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-stack.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-stream.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-strerror.Plo@am__quote@
@@ -577,7 +577,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-translator.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-tuple.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-typing.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-updater.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-vmcodelibs.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-vminline.Plo@am__quote@
 
@@ -657,6 +656,13 @@ libkonoha_la-script.lo: ../src/lang/script.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/lang/script.c' object='libkonoha_la-script.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libkonoha_la_CFLAGS) $(CFLAGS) -c -o libkonoha_la-script.lo `test -f '../src/lang/script.c' || echo '$(srcdir)/'`../src/lang/script.c
+
+libkonoha_la-ssa.lo: ../src/lang/ssa.c
+@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libkonoha_la_CFLAGS) $(CFLAGS) -MT libkonoha_la-ssa.lo -MD -MP -MF $(DEPDIR)/libkonoha_la-ssa.Tpo -c -o libkonoha_la-ssa.lo `test -f '../src/lang/ssa.c' || echo '$(srcdir)/'`../src/lang/ssa.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libkonoha_la-ssa.Tpo $(DEPDIR)/libkonoha_la-ssa.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/lang/ssa.c' object='libkonoha_la-ssa.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libkonoha_la_CFLAGS) $(CFLAGS) -c -o libkonoha_la-ssa.lo `test -f '../src/lang/ssa.c' || echo '$(srcdir)/'`../src/lang/ssa.c
 
 libkonoha_la-term.lo: ../src/lang/term.c
 @am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libkonoha_la_CFLAGS) $(CFLAGS) -MT libkonoha_la-term.lo -MD -MP -MF $(DEPDIR)/libkonoha_la-term.Tpo -c -o libkonoha_la-term.lo `test -f '../src/lang/term.c' || echo '$(srcdir)/'`../src/lang/term.c
@@ -881,13 +887,6 @@ libkonoha_la-tuple.lo: ../src/main/tuple.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/main/tuple.c' object='libkonoha_la-tuple.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libkonoha_la_CFLAGS) $(CFLAGS) -c -o libkonoha_la-tuple.lo `test -f '../src/main/tuple.c' || echo '$(srcdir)/'`../src/main/tuple.c
-
-libkonoha_la-updater.lo: ../src/main/updater.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libkonoha_la_CFLAGS) $(CFLAGS) -MT libkonoha_la-updater.lo -MD -MP -MF $(DEPDIR)/libkonoha_la-updater.Tpo -c -o libkonoha_la-updater.lo `test -f '../src/main/updater.c' || echo '$(srcdir)/'`../src/main/updater.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libkonoha_la-updater.Tpo $(DEPDIR)/libkonoha_la-updater.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/main/updater.c' object='libkonoha_la-updater.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libkonoha_la_CFLAGS) $(CFLAGS) -c -o libkonoha_la-updater.lo `test -f '../src/main/updater.c' || echo '$(srcdir)/'`../src/main/updater.c
 
 konoha.o: ../src/konoha.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT konoha.o -MD -MP -MF $(DEPDIR)/konoha.Tpo -c -o konoha.o `test -f '../src/konoha.c' || echo '$(srcdir)/'`../src/konoha.c
