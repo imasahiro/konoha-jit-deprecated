@@ -212,20 +212,23 @@ static FASTAPI(void) knh_ObjectField_init(Ctx *ctx, Object *o)
 	knh_class_t cid = of->h.cid;
 	size_t size = ClassTBL(cid).size;
 	if(size > 0) {
-		Object **v = (Object**)KNH_MALLOC(ctx, size);
-		size_t offset;
-		while((offset = ClassTBL(cid).offset) != 0) {
-			knh_ClassField_initField(ctx, pClassTBL(ctx, cid), of->h.cid, v + offset);
-			cid = ClassTBL(cid).supcid;
-			DBG_ASSERT_cid(cid);
+		Object **v = &(of->smallobject);
+		if(size > sizeof(Object*) * K_SMALLOBJECT_FIELDSIZE) {
+			v = (Object**)KNH_MALLOC(ctx, size);
 		}
-		knh_ClassField_initField(ctx, pClassTBL(ctx, cid), of->h.cid, v + offset);
 		of->fields = v;
-		of->bsize = size / sizeof(Object*);
+		knh_ClassTBL_t *t = pClassTBL(ctx, cid);
+		size_t offset;
+		while((offset = t->offset) != 0) {
+			knh_ClassField_initField(ctx, t, of->h.cid, v + offset);
+			cid = t->supcid;
+			DBG_ASSERT_cid(cid);
+			t = pClassTBL(ctx, cid);
+		}
+		knh_ClassField_initField(ctx, t, of->h.cid, v + offset);
 	}
 	else {
 		of->fields = NULL;
-		of->bsize = 0;
 	}
 }
 
@@ -235,10 +238,9 @@ static FASTAPI(void) knh_ObjectField_traverse(Ctx *ctx, Object *o, knh_Ftraverse
 	knh_class_t cid = knh_Object_cid(of);
 	while(cid != CLASS_Object) {
 		knh_ClassTBL_t *t = pClassTBL(ctx, cid);
-		size_t i, offset = ClassTBL(cid).offset;
+		size_t i, offset = t->offset;
 		for(i = 0; i < t->fsize; i++) {
 			knh_type_t type = t->fields[i].type;
-			//DBG_P("i=%d, fn=%s, type=%s%s", i, FN__(cs->fields[i].fn), TYPEQN(type));
 			if(IS_Tunbox(type) || type == TYPE_void) {
 				continue;
 			}
@@ -253,8 +255,9 @@ static FASTAPI(void) knh_ObjectField_traverse(Ctx *ctx, Object *o, knh_Ftraverse
 static FASTAPI(void) knh_ObjectField_free(Ctx *ctx, Object *o)
 {
 	knh_ObjectField_t *of = (knh_ObjectField_t*)o;
-	if(of->bsize > 0) {
-		KNH_FREE(ctx, of->fields, of->bsize * sizeof(knh_Object_t*));
+	size_t size = ClassTBL(knh_Object_cid(o)).size;
+	if(size > sizeof(Object*) * K_SMALLOBJECT_FIELDSIZE) {
+		KNH_FREE(ctx, of->fields, size);
 	}
 }
 
@@ -1716,6 +1719,16 @@ static FASTAPI(void) knh_Script_init(Ctx *ctx, Object *o)
 	scr->fsizeUSED = 0;
 	knh_setClassDefaultValue(ctx, cid, scr, NULL);
 }
+
+//static FASTAPI(void) knh_ObjectField_free(Ctx *ctx, Object *o)
+//{
+//	knh_ObjectField_t *of = (knh_ObjectField_t*)o;
+//	size_t size = ClassTBL(cid).size;
+//
+//	if(of->bsize > 0) {
+//		KNH_FREE(ctx, of->fields, of->bsize * sizeof(knh_Object_t*));
+//	}
+//}
 
 static FASTAPI(void) knh_Script_free(Ctx *ctx, Object *o)
 {

@@ -3345,7 +3345,6 @@ static void knh_Gamma_declareClassField(Ctx *ctx, knh_class_t cid)
 				DP(ctx->gma)->gf[i].value = NULL; /* COPY TO GC */
 			}
 			if(FLAG_is(cf[i].flag, _FKEY)) {
-				DBG_P("@Key keyidx=%d, %d", t->keyidx, i);
 				if(t->keyidx == -1) t->keyidx = i;
 			}
 		}
@@ -3363,18 +3362,22 @@ static void knh_Gamma_declareClassField(Ctx *ctx, knh_class_t cid)
 	});
 	/* update default value */
 	DBG_ASSERT(knh_Object_cid(t->defnull) == cid);
-	{
-		knh_ObjectField_t *of = (knh_ObjectField_t*)t->defnull;
-		of->bsize = t->size / sizeof(Object*);
-		if(t->size == 0) {
-			of->fields = NULL;
-		}
-		else {
-			of->fields = (knh_Object_t**)KNH_MALLOC(ctx, sizeof(Object*) * of->bsize);
-			//ClassTBL(CLASS_ObjectField).cspi->init(ctx, UPCAST(of));
-			t->cspi->init(ctx, UPCAST(of));
-		}
-	}
+	t->cspi->init(ctx, t->defnull);
+//	{
+//		knh_ObjectField_t *of = (knh_ObjectField_t*)t->defnull;
+//		if(t->size == 0) {
+//			of->fields = NULL;
+//		}
+//		else {
+//			if(t->size <= sizeof(Object*) * K_SMALLOBJECT_FIELDSIZE) {
+//				of->fields = &(of->smallobject);
+//			}
+//			else {
+//				of->fields = (knh_Object_t**)KNH_MALLOC(ctx, t->size);
+//			}
+//			t->cspi->init(ctx, UPCAST(of));
+//		}
+//	}
 }
 
 static knh_Term_t *knh_StmtCLASS_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)

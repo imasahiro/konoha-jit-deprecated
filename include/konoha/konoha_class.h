@@ -41,9 +41,9 @@ extern "C" {
 /* flag */
 /* ------------------------------------------------------------------------ */
 //## @Cyclic class Object Object knh_ObjectField_t;
-//## flag Object Release!Debug 0 (%s)->h.flag is *  * *;
-//## flag Object Immutable     1 (%s)->h.flag is *  * *;
-//## flag Object NullObject    2 (%s)->h.flag is set * *;
+//## flag Object Release!Debug 0 (%s)->h.flag is *   * *;
+//## flag Object NullObject    1 (%s)->h.flag is set * *;
+//## flag Object Immutable     2 (%s)->h.flag is *   * *;
 //## flag Object Cyclic        3 (%s)->h.flag is set * *;
 //## flag Object Modified      4 (%s)->h.flag is set *  *;
 //## flag Object Shared        5 (%s)->h.flag is set *  *;
@@ -56,10 +56,13 @@ extern "C" {
 #define K_FIELDSIZE 64
 #endif
 
+#define	K_SMALLOBJECT_FIELDSIZE 3
+
 typedef struct knh_ObjectField_t {
 	knh_hObject_t h;
 	Object  **fields;
-	size_t  bsize;
+	Object  *smallobject;  // small object
+	//size_t  bsize;
 } knh_ObjectField_t ;
 
 #define IS_NULL(o)     (((o)->h.flag & FLAG_Object_NullObject) == FLAG_Object_NullObject)
