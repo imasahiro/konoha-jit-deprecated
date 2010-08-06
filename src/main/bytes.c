@@ -142,10 +142,15 @@ void knh_Bytes_ensureSize(Ctx *ctx, knh_Bytes_t *ba, size_t len)
 const char *knh_Bytes_ensureZero(Ctx *ctx, knh_Bytes_t *ba)
 {
 	DBG_ASSERT(!knh_Bytes_isStatic(ba));
-	if(BA_size(ba) == ba->capacity) {
+	size_t size = BA_size(ba);
+	if(size == ba->capacity) {
 		knh_Bytes_expands(ctx, ba, ba->capacity * 2);
 	}
-	ba->bu.ubuf[BA_size(ba)] = 0;
+	DBG_P("@@@@ pos=%d, ch=%d, %c", size, ba->bu.ubuf[size], ba->bu.ubuf[size]);
+	if(ba->bu.text[size] != 0) {
+		//knh_bzero(ba->bu.ubuf + size, ba->capacity - size);
+		ba->bu.ubuf[BA_size(ba)] = 0;
+	}
 	return ba->bu.text;
 }
 

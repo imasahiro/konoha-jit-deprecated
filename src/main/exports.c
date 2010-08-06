@@ -60,7 +60,7 @@ static void knh_cwb_clearAPI(knh_cwb_t *cwb, size_t n)
 
 static const char *knh_cwb_tocharAPI(Ctx *ctx, knh_cwb_t *cwb)
 {
-	return knh_Bytes_ensureZero(ctx, cwb->ba);
+	return knh_Bytes_ensureZero(ctx, cwb->ba) + cwb->pos;
 }
 
 

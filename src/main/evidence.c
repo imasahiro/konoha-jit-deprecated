@@ -188,7 +188,6 @@ void knh_makeEvidence(Ctx *ctx, const char *ns, const char *event, int p, const 
 			knh_write_uline(ctx, cwb->w, SP(ctx->gma)->uri, SP(ctx->gma)->line);
 		}
 		knh_vprintf(ctx, cwb->w, (char*)fmt, ap);
-		DBG_P("'''%s'''", knh_cwb_tochar(ctx, cwb));
 		ctx->share->ebiSPI->syslog(p, knh_cwb_tochar(ctx, cwb));
 		knh_cwb_clear(cwb, 0);
 	}
