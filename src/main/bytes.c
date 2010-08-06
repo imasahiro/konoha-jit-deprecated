@@ -146,8 +146,8 @@ const char *knh_Bytes_ensureZero(Ctx *ctx, knh_Bytes_t *ba)
 	if(size == ba->capacity) {
 		knh_Bytes_expands(ctx, ba, ba->capacity * 2);
 	}
-	DBG_P("@@@@ pos=%d, ch=%d, %c", size, ba->bu.ubuf[size], ba->bu.ubuf[size]);
 	if(ba->bu.text[size] != 0) {
+		//DBG_P("@@@@ pos=%d, ch=%d, %c", size, ba->bu.ubuf[size], ba->bu.ubuf[size]);
 		//knh_bzero(ba->bu.ubuf + size, ba->capacity - size);
 		ba->bu.ubuf[BA_size(ba)] = 0;
 	}
