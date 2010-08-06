@@ -161,11 +161,13 @@ $DIR/ktest/path/file.ktest           \
 $DIR/ktest/path/dir.ktest            \
 $DIR/ktest/path/lib.ktest            \
 $DIR/ktest/path/script.ktest         \
+$DIR/ktest/path/charset.ktest        \
 $DIR/ktest/path/class.ktest
 
 echo "*************************************************"
 ./konoha -t $DIR/ktest/class/array_I.ktest
-./konoha -t $DIR/ktest/method/getKey.ktest
+./konoha -t $DIR/ktest/class/array_S.ktest
+./konoha -t $DIR/ktest/class/object.ktest
 
 ./konoha $DIR/bench/microbench2.k
 ./konoha $DIR/bench/stringbench.k
