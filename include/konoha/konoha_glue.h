@@ -320,7 +320,7 @@ typedef void (*knh_FsetupPKG)(Ctx *ctx, knh_PackageLoaderAPI_t *, const char *, 
 
 typedef const struct {
 	const char *name;
-	knh_ObjectCSPI_t *cspi;  // if cspi is NULL, rawptr is be used instead.
+	knh_ObjectSPI_t *cspi;  // if cspi is NULL, rawptr is be used instead.
 	knh_Fdefnull      fdefault;
 } knh_ClassData_t;
 

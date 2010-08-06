@@ -850,16 +850,16 @@ typedef struct knh_OutputStream_t {
 #define knh_write__O(ctx, w, o)    knh_write_Object(ctx, w, MN__k, o)
 #endif
 
-/* ------------------------------------------------------------------------ */
-//## @Struct class Channel Object;
-
-typedef struct knh_Channel_t {
-	knh_hObject_t h;
-	knh_intptr_t sd;
-	struct knh_String_t *urn;
-	struct knh_InputStream_t  *in;
-	struct knh_OutputStream_t *out;
-} knh_Channel_t;
+///* ------------------------------------------------------------------------ */
+//// ## @Struct class0 Channel Object;
+//
+//typedef struct knh_Channel_t {
+//	knh_hObject_t h;
+//	knh_intptr_t sd;
+//	struct knh_String_t *urn;
+//	struct knh_InputStream_t  *in;
+//	struct knh_OutputStream_t *out;
+//} knh_Channel_t;
 
 /* ======================================================================== */
 //## class Connection Object;

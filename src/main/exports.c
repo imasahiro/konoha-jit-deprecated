@@ -317,7 +317,7 @@ static void knh_loadData(Ctx *ctx, knh_data_t *data, knh_ParamArray_t **buf)
 		case DATA_END: return;
 		case DATA_STRUCT: {
 			knh_class_t cid = _CID(data[0]);
-			knh_ObjectCSPI_t *cspi = (knh_ObjectCSPI_t*)data[1];
+			knh_ObjectSPI_t *cspi = (knh_ObjectSPI_t*)data[1];
 			knh_ClassTBL_t *t = pClassTBL(ctx, cid);
 			t->cspi = cspi;
 			t->cflag = (knh_flag_t)data[2];

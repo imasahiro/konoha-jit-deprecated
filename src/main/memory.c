@@ -474,7 +474,7 @@ KNHAPI(Object*) new_Object_boxing(Ctx *ctx, knh_class_t cid, knh_sfp_t *sfp)
 
 /* ------------------------------------------------------------------------ */
 
-FASTAPI(void) knh_Object_free(Ctx *ctx, knh_Object_t *o)
+void knh_Object_free(Ctx *ctx, knh_Object_t *o)
 {
 #ifdef K_USING_RCGC
 	DBG_ASSERT(knh_Object_isRC0(o));

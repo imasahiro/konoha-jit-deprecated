@@ -268,7 +268,7 @@ knh_Translator_t *knh_findTranslatorNULL(Ctx *ctx, knh_class_t scid, knh_class_t
 		goto L_ADDTRL;
 	}
 
-	trl = ClassTBL(scid).cspi->genmap(ctx, scid, tcid);
+	trl = ClassTBL(scid).cspi->findTransNULL(ctx, scid, tcid);
 	if(trl != NULL) {
 		goto L_ADDTRL;
 	}

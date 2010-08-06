@@ -550,42 +550,32 @@ typedef void (*knh_Ftraverse)(Ctx *ctx, Object *);
 typedef knh_uintptr_t                knh_hashcode_t;  /* knh_hashcode_t */
 #define knh_hcode_join(s1,s2)	   ((knh_hashcode_t)s1 << (sizeof(knh_short_t)*8)) + s2;
 
-#define KNH_FOBJECT_HASH  0    /*knh_fobject_hashkey */
-#define KNH_FOBJECT_KEY   1    /*knh_fobject_hashkey */
-
-typedef FASTAPI(void) (*knh_Fobject_init)(Ctx *, Object *);
-typedef FASTAPI(void) (*knh_Fobject_initcopy)(Ctx *, Object *, Object *);
-typedef FASTAPI(void) (*knh_Fobject_traverse)(Ctx *, Object*, knh_Ftraverse);
-typedef FASTAPI(void) (*knh_Fobject_free)(Ctx *, Object *);
-typedef FASTAPI(void) (*knh_Fobject_checkout)(Ctx *, Object*, int);
-typedef int     (*knh_Fobject_compareTo)(Ctx *ctx, Object*, Object*);
-typedef FASTAPI(void*) (*knh_Fstack_hashkey)(Ctx *, knh_sfp_t *, int);
-typedef struct  knh_Translator_t* (*knh_Fgenmap)(Ctx *, knh_class_t, knh_class_t);
-
-typedef struct {
+typedef const struct _knh_ObjectSPI_t {
 	const char             *name;
 	knh_ushort_t            size;
 	knh_flag_t              cflag;
-	knh_Fobject_init        init;
-	knh_Fobject_initcopy    initcopy;
-	knh_Fobject_traverse    traverse;
-	knh_Fobject_free        free;
-	knh_Fobject_checkout    checkout;
-	knh_Fobject_compareTo   compareTo;
-	knh_Fstack_hashkey      hashkey;
-	knh_Fgenmap             genmap;
-} knh_ObjectCSPI_t ;
+	void (*init)(Ctx *, Object*);
+	void (*initcopy)(Ctx *, Object *, Object *);
+	void (*traverse)(Ctx *, Object*, knh_Ftraverse);
+	void (*free)(Ctx *, Object *);
+	int  (*compareTo)(Ctx *ctx, Object*, Object*);
+	struct knh_String_t* (*getkey)(Ctx *, knh_sfp_t*);
+	knh_hashcode_t (*hashCode)(Ctx *, knh_sfp_t*);
+	struct knh_Translator_t* (*findTransNULL)(Ctx *, knh_class_t, knh_class_t);
+	void (*checkin)(Ctx *, Object*);
+	void (*checkout)(Ctx *, Object*);
+	void (*lock)(Ctx *, Object*);
+	void (*unlock)(Ctx *, Object*);
+} knh_ObjectSPI_t ;
 
 #define K_NUMBERCSPI_MAGIC   ((size_t)1234567)
-typedef FASTAPI(knh_int_t) (*knh_Fnumber_toint)(Ctx *, knh_sfp_t *);
-typedef FASTAPI(knh_float_t) (*knh_Fnumber_tofloat)(Ctx *, knh_sfp_t *);
 
-typedef struct {
-	knh_ObjectCSPI_t        common;
+typedef const struct _knh_NumberSPI_t {
+	knh_ObjectSPI_t        common;
 	size_t                  magic;
-	knh_Fnumber_toint       to_int;
-	knh_Fnumber_tofloat     to_float;
-} knh_NumberCSPI_t ;
+	knh_int_t (*to_int)(Ctx *ctx, knh_sfp_t*);
+	knh_float_t (*to_float)(Ctx *ctx, knh_sfp_t*);
+} knh_NumberSPI_t ;
 
 /* ------------------------------------------------------------------------ */
 
@@ -612,8 +602,8 @@ typedef struct {
 	knh_class_t   bcid;    knh_short_t   keyidx;
 	knh_class_t   supcid;  knh_ushort_t  offset;
 	union {
-		knh_ObjectCSPI_t *cspi;
-		knh_NumberCSPI_t *numcspi;
+		knh_ObjectSPI_t *cspi;
+		knh_NumberSPI_t *numcspi;
 	};
 	size_t size;
 	struct knh_String_t       *lname;

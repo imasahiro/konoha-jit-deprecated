@@ -197,8 +197,6 @@
 
 #ifndef KNHAPI
 #define KNHAPI(T)         T
-#define FASTAPI(T)        T  K_CC_FASTCALL
-#define KNHFASTAPI(T)     T  K_CC_FASTCALL
 #define KNH_EXPORTS(T)    T
 #endif
 
