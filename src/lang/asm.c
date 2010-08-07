@@ -2645,15 +2645,6 @@ void knh_Method_asm(Ctx *ctx, knh_Method_t *mtd, knh_Stmt_t *stmtP, knh_Stmt_t *
 /* ------------------------------------------------------------------------ */
 /* [loadSystem] */
 
-//static
-//KLRAPI(void) knh_Fprobe_printStackTrace(Ctx *ctx, knh_sfp_t *sfp, int n, knh_opline_t **pc)
-//{
-//	knh_Exception_t *e = DP(sfp[n].hdr)->caught;
-//	DBG_ASSERT(IS_ExceptionHandler(sfp[-3].hdr));
-//	DBG_ASSERT(IS_Exception(e));
-//	knh_write_Object(ctx, KNH_STDERR, MN__dump, UPCAST(e), KNH_NULL);
-//}
-
 static knh_opline_t* knh_code_findOPCODE(Ctx *ctx, knh_opline_t *op, knh_opcode_t opcode)
 {
 	while(1) {
@@ -2663,6 +2654,15 @@ static knh_opline_t* knh_code_findOPCODE(Ctx *ctx, knh_opline_t *op, knh_opcode_
 	}
 	DBG_ABORT();
 	return NULL;
+}
+
+static
+void _printStackTrace(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t n, knh_opline_t *pc)
+{
+	if(IS_Exception(ctx->e)) {
+		knh_Method_t *mtdf = knh_getSystemFormatter(ctx, CLASS_Exception, MN__dump);
+		knh_write_Object(ctx, KNH_STDERR, sfp, &mtdf, UPCAST(ctx->e));
+	}
 }
 
 void knh_loadSystemKLRCode(Ctx *ctx)
@@ -2684,6 +2684,7 @@ void knh_loadSystemKLRCode(Ctx *ctx)
 	knh_BasicBlock_add(ctx, ib, TRYEND, (-4));
 	knh_BasicBlock_add(ctx, ib, EXIT);
 	ib->nextNC = ic;
+	knh_BasicBlock_add(ctx, ic, PROBE, _printStackTrace, 0);
 	knh_BasicBlock_add(ctx, ic, EXIT);
 	knh_BasicBlock_add(ctx, ic, FUNCCALL);               // FUNCCALL
 	knh_BasicBlock_add(ctx, ic, VEXEC);                  // VEXEC
