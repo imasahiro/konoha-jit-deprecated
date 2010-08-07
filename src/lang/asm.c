@@ -2275,7 +2275,6 @@ static void knh_StmtTRY_asm(Ctx *ctx, knh_Stmt_t *stmt)
 	knh_BasicBlock_t*  lbFINALLY = new_BasicBlockLABEL(ctx);
 	knh_Token_t *tkIT = TERMs_it(stmt, 3/*HDR*/);
 	knh_Gamma_setFinallyStmt(ctx, DP(stmt)->stmts[2/*finally*/]);
-
 	/* try { */
 	KNH_ASM_BRANCH(TRY, lbCATCH, (DP(tkIT)->index));
 	TERMs_asmBLOCK(ctx, stmt, 0/*try*/, TYPE_void);
@@ -2293,6 +2292,7 @@ static void knh_StmtTRY_asm(Ctx *ctx, knh_Stmt_t *stmt)
 			knh_Token_t *tkn = DP(stmtCATCH)->tokens[1];
 			DBG_ASSERT(IS_String(emsg));
 			DBG_ASSERT(TT_(tkn) == TT_LOCAL);
+			DBG_P("CATCH %s", S_tochar(emsg));
 			lbCATCH = new_BasicBlockLABEL(ctx);
 			KNH_ASM_BRANCH(CATCH, lbCATCH, (DP(tkn)->index), emsg);
 			TERMs_asmBLOCK(ctx, stmtCATCH, 2, TYPE_void);
@@ -2303,8 +2303,8 @@ static void knh_StmtTRY_asm(Ctx *ctx, knh_Stmt_t *stmt)
 	}
 	KNH_LABEL(ctx, lbFINALLY); /* FINALLY */
 	TERMs_asmBLOCK(ctx, stmt, 2/*finally*/, TYPE_void);
-	KNH_ASM(THROW, (DP(tkIT)->index));
-	KNH_ASM(OSET, (DP(tkIT)->index), KNH_NULL);
+	//KNH_ASM(OSET, (DP(tkIT)->index), KNH_NULL);
+	KNH_ASM(THROW, (DP(tkIT)->index)-1);
 }
 
 static void knh_StmtTHROW_asm(Ctx *ctx, knh_Stmt_t *stmt)
@@ -2662,6 +2662,8 @@ void _printStackTrace(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t n, knh_opline_t *pc
 	if(IS_Exception(ctx->e)) {
 		knh_Method_t *mtdf = knh_getSystemFormatter(ctx, CLASS_Exception, MN__dump);
 		knh_write_Object(ctx, KNH_STDERR, sfp, &mtdf, UPCAST(ctx->e));
+		((knh_Context_t*)ctx)->esp = sfp;
+		//KNH_SETv(ctx, ((knh_Context_t*)ctx)->e, KNH_NULL);
 	}
 }
 

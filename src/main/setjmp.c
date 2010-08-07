@@ -52,12 +52,12 @@ knh_bool_t knh_ExceptionHandler_longjmp(Ctx *ctx, knh_ExceptionHandler_t *hdr)
 	fprintf(stderr, "@%s: return_addr=%p, frame_addr=%p\n",
 			__FUNCTION__, DP(hdr)->return_address, DP(hdr)->frame_address);
 	fprintf(stderr, " sp[0]=%p, sp[1]=%p, sp[2]=%p, sp[3]=%p, sp[4]=%p\n", sp[0], sp[1], sp[2], sp[3], sp[4]);
-	fprintf(stderr, " ctx=%p, hdr=%p\n", ctx, hdr);
 
 	// TODO:
 	// rewrite return_address
 	sp[3] = DP(hdr)->return_address;
 	KNH_ASSERT(DP(hdr)->return_address == __builtin_return_address(0));
+	DP(hdr)->return_address = NULL;
 
 	// TODO:
 	// rewrite frame_address

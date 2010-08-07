@@ -361,27 +361,28 @@ static knh_bool_t isCalledMethod(Ctx *ctx, knh_sfp_t *sfp)
 
 void knh_throw(Ctx *ctx, knh_sfp_t *sfp, long start)
 {
-	knh_sfp_t *sp = (sfp == NULL) ? ctx->esp : sfp + start;
-	KNH_ASSERT(IS_Exception(ctx->e));
-	while(ctx->stack <= sp) {
-		DBG_P("[%d] cid=%s ivalue=%lld", (sp - ctx->stack), CLASS__(knh_Object_cid(sp[0].o)), sp[0].ivalue);
-		if(sp[0].callmtd != NULL && isCalledMethod(ctx, sp)) {
-			//sp = knh_stack_addStackTrace(ctx, sp+1, ctx->e);
+	if(IS_Exception(ctx->e)) {
+		knh_sfp_t *sp = (sfp == NULL) ? ctx->esp : sfp + start;
+		while(ctx->stack <= sp) {
+			DBG_P("[%d] cid=%s ivalue=%lld", (sp - ctx->stack), CLASS__(knh_Object_cid(sp[0].o)), sp[0].ivalue);
+			if(sp[0].callmtd != NULL && isCalledMethod(ctx, sp)) {
+				//sp = knh_stack_addStackTrace(ctx, sp+1, ctx->e);
+			}
+			if(IS_ExceptionHandler(sp[0].hdr) && DP(sp[0].hdr)->return_address != NULL) {
+				knh_ExceptionHandler_longjmp(ctx, sp[0].hdr);
+				goto L_NOCATCH;
+			}
+			//		else if(IS_Method(sp[0].o) && sp[0].data != knh_Object_data(sp[0].mtd)) {
+			//			knh_stack_addStackTrace(ctx, sp+1, e);
+			//		}
+			sp--;
 		}
-		if(IS_ExceptionHandler(sp[0].hdr) && DP(sp[0].hdr)->return_address != NULL) {
-			knh_ExceptionHandler_longjmp(ctx, sp[0].hdr);
-			goto L_NOCATCH;
-		}
-//		else if(IS_Method(sp[0].o) && sp[0].data != knh_Object_data(sp[0].mtd)) {
-//			knh_stack_addStackTrace(ctx, sp+1, e);
-//		}
-		sp--;
+		L_NOCATCH:;
+		fprintf(stderr, "********** USE STACKTRACE IN YOUR C/C++ DEBUGGER ************\n");
+		fprintf(stderr, "Uncaught Exception: %s\n", S_tochar(DP(ctx->e)->msg));
+		fprintf(stderr, "*************************************************************\n");
+		exit(0);
 	}
-	L_NOCATCH:;
-	fprintf(stderr, "********** USE STACKTRACE IN YOUR C/C++ DEBUGGER ************\n");
-	fprintf(stderr, "Uncaught Exception: %s\n", S_tochar(DP(ctx->e)->msg));
-	fprintf(stderr, "*************************************************************\n");
-	exit(0);
 }
 
 ///* ------------------------------------------------------------------------ */

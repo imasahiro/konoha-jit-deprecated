@@ -2853,7 +2853,7 @@ static knh_Term_t *knh_StmtTRY_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t req
 			if(SP(stmtCATCH)->stt == STT_CATCH) {
 				BEGIN_BLOCK(esp2);
 				knh_fieldn_t fn = knh_Token_getfnq(ctx, DP(stmtCATCH)->tokens[1]);
-				knh_fields_t decl = {0, TYPE_Exception, fn, 0, NULL};
+				knh_fields_t decl = {0, 0, TYPE_Exception, fn, NULL};
 				knh_index_t idx = knh_Gamma_addLocal(ctx, &decl, 0);
 				if(idx == -1) {
 					knh_Stmt_done(ctx, stmtCATCH);
@@ -3499,9 +3499,6 @@ static knh_Term_t *knh_StmtITR_typing(Ctx *ctx, knh_Stmt_t *stmtITR, knh_type_t 
 		}
 		stmt = knh_Stmt_isEveryLine(stmt) ? NULL : DP(stmt)->nextNULL;
 	}
-//	if(foundRETURN == 0 && reqt != TYPE_void) {
-//		DBG_P("** NO RETURN %s **", TYPE__(reqt));
-//	}
 	stmt = stmtITR;
 	while(stmt != NULL) {
 		knh_Term_t *tm;
