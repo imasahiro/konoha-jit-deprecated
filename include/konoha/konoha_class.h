@@ -631,6 +631,7 @@ typedef struct {
 	struct knh_opline_t *vpc;
 	void *return_address;
 	void *frame_address;
+	struct klr_TRY_t *op;
 } knh_ExceptionHandlerEX_t;
 
 typedef struct knh_ExceptionHandler_t {

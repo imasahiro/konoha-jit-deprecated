@@ -499,18 +499,26 @@ typedef KLRAPI(int) (*klr_Fnext)(Ctx *, knh_sfp_t *, int, knh_class_t);
 			_hdr = new_(ExceptionHandler); \
 			klr_mov(ctx, sfp[hn].o, _hdr); \
 		} \
-		if(knh_ExceptionHandler_setjmp(ctx, _hdr)) {\
+		asm("nop");\
+		if((_hdr = knh_ExceptionHandler_setjmp(ctx, _hdr)) == NULL) {\
+			_hdr = sfp[hn].hdr;\
+			fprintf(stderr, "TRY ctx=%p, hdr=%p, stack=%p,%p\n", ctx, _hdr, __builtin_frame_address(0), DP(_hdr)->frame_address);\
 			DP(_hdr)->pc  = pc; \
 			DP(_hdr)->vpc = (knh_opline_t*)vpc; \
+			DP(_hdr)->op  = op;\
 			SP(_hdr)->sfpidx = (sfp - ctx->stack); \
 			SP(_hdr)->espidx = (ctx->esp - ctx->stack); \
 			SP(_hdr)->vshift = vshift; \
 		} else {\
+			fprintf(stderr, "CATCH ctx=%p, hdr=%p, stack=%p,%p\n", ctx, _hdr, __builtin_frame_address(0), DP(_hdr)->frame_address);\
+			asm("nop");\
+			asm("nop");\
 			pc = DP(_hdr)->pc; \
 			vpc = DP(_hdr)->vpc; \
 			sfp = ctx->stack + SP(_hdr)->sfpidx;\
 			klr_setesp(ctx, (ctx->stack + SP(_hdr)->espidx));\
 			vshift = SP(_hdr)->vshift; \
+			op = DP(_hdr)->op;\
 			KLR_JMP(ctx, PC, JUMP);\
 		}\
 	} \
