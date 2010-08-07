@@ -1725,6 +1725,7 @@ static void _PNAME(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 
 static void _EXPRs(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 {
+	if(ITR_is(itr, TT_SEMICOLON)) return;
 	do {
 		int idx = ITR_indexTT(itr, TT_COMMA, itr->e);
 		tkitr_t ebuf, *eitr = ITR_first(itr, idx, &ebuf, +1);
@@ -2525,7 +2526,7 @@ static void _STMTs(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 			KNH_INITv(DP(stmtTAIL)->nextNULL, stmtCUR);
 		}
 		stmtTAIL = stmtCUR;
-		while(DP(stmt)->nextNULL != NULL) stmtTAIL = DP(stmt)->nextNULL;
+		while(DP(stmtTAIL)->nextNULL != NULL) stmtTAIL = DP(stmtTAIL)->nextNULL;
 	}
 	if(stmtHEAD == NULL) {
 		stmtHEAD = new_Stmt2(ctx, STT_DONE, NULL);

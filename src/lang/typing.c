@@ -84,15 +84,33 @@ void knh_Gamma_perror(Ctx *ctx, int pe, const char *fmt, ...)
 	va_end(ap);
 }
 
-/* ------------------------------------------------------------------------ */
-/* [TypeVariable] */
-
-#define TYPEINF()    TODO()
-
-static knh_type_t GMA_newTVAR(Ctx *ctx)
-{
-	return TYPE_Any;
-}
+///* ------------------------------------------------------------------------ */
+///* [TypeVariable] */
+//
+//#define TYPEINF()    TODO()
+//
+//static knh_type_t GMA_newTVAR(Ctx *ctx)
+//{
+//	return TYPE_Any;
+//}
+//
+//
+//static int GMA_isTVAR(Ctx *ctx, knh_type_t type)
+//{
+//	if(type < TYPE_T0) return 0;
+//	type = DP(ctx->gma)->typevars[type - TYPE_T0].type;
+//	if(type == TYPE_var || type == TYPE_Any) return 1;
+//	return 0;
+//}
+//
+//static int GMA_typingTVAR(Ctx *ctx, knh_type_t type, knh_type_t reqt)
+//{
+//	DBG_ASSERT(!(type < TYPE_T0));
+//	if(GMA_isTVAR(ctx, reqt)) {
+//
+//	}
+//	return 1;
+//}
 
 static int GMA_type(Ctx *ctx, knh_type_t type)
 {
@@ -100,25 +118,8 @@ static int GMA_type(Ctx *ctx, knh_type_t type)
 		return type;
 	}
 	else {
-		return DP(ctx->gma)->typevars[type - TYPE_T0].type;
+		return knh_type_tocid(ctx, type, DP(ctx->gma)->this_cid);
 	}
-}
-
-static int GMA_isTVAR(Ctx *ctx, knh_type_t type)
-{
-	if(type < TYPE_T0) return 0;
-	type = DP(ctx->gma)->typevars[type - TYPE_T0].type;
-	if(type == TYPE_var || type == TYPE_Any) return 1;
-	return 0;
-}
-
-static int GMA_typingTVAR(Ctx *ctx, knh_type_t type, knh_type_t reqt)
-{
-	DBG_ASSERT(!(type < TYPE_T0));
-	if(GMA_isTVAR(ctx, reqt)) {
-
-	}
-	return 1;
 }
 
 static knh_Term_t *knh_Stmt_typed(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t type)
@@ -393,9 +394,9 @@ static knh_Term_t *knh_TokenNAME_typing(Ctx *ctx, knh_Token_t *tk, knh_type_t re
 		idx = knh_Gamma_rindexFNQ(ctx, fnq);
 		if(idx != -1) {
 			knh_fields_t *gf = DP(ctx->gma)->gf + idx;
-			if(GMA_isTVAR(ctx, gf->type)) {
-				gf->type = GMA_typingTVAR(ctx, gf->type, reqt);
-			}
+//			if(GMA_isTVAR(ctx, gf->type)) {
+//				gf->type = GMA_typingTVAR(ctx, gf->type, reqt);
+//			}
 			if(idx < DP(ctx->gma)->goffset) {
 				knh_Token_toTYPED(ctx, tk, TT_STACK, gf->type, idx);
 				knh_Token_setReadOnly(tk, 1);
@@ -1193,7 +1194,8 @@ static knh_Term_t *knh_StmtDECL_typing(Ctx *ctx, knh_Stmt_t *stmt, size_t offset
 		TYPING(ctx, stmt, offset+2, TYPE_var, _NOTCHECK);
 		decl->type = TERMs_gettype(stmt, offset+2);
 		if(decl->type == TYPE_var) {
-			decl->type = (scope == SCOPE_PARAM) ? GMA_newTVAR(ctx) : TYPE_Any;
+			decl->type =  TYPE_Any;
+//			decl->type = (scope == SCOPE_PARAM) ? GMA_newTVAR(ctx) : TYPE_Any;
 		}
 		DP(tkT)->cid = decl->type;
 	}
@@ -3489,6 +3491,19 @@ static knh_Term_t *knh_StmtITR_typing(Ctx *ctx, knh_Stmt_t *stmtITR, knh_type_t 
 	knh_Stmt_t *stmt = stmtITR;
 	BEGIN_BLOCK(espidx);
 	while(stmt != NULL) {
+		if(STT_(stmt) == STT_RETURN || STT_(stmt) == STT_THROW) {
+			if(DP(stmt)->nextNULL != NULL) {
+				KNH_FINALv(ctx, DP(stmt)->nextNULL);
+			}
+			break;
+		}
+		stmt = knh_Stmt_isEveryLine(stmt) ? NULL : DP(stmt)->nextNULL;
+	}
+//	if(foundRETURN == 0 && reqt != TYPE_void) {
+//		DBG_P("** NO RETURN %s **", TYPE__(reqt));
+//	}
+	stmt = stmtITR;
+	while(stmt != NULL) {
 		knh_Term_t *tm;
 		knh_type_t rtype = (reqt != TYPE_void) ? knh_Gamma_getReturnType(ctx) : TYPE_void;
 		rtype = (_isLast(stmt)) ? rtype : TYPE_void;
@@ -3497,7 +3512,7 @@ static knh_Term_t *knh_StmtITR_typing(Ctx *ctx, knh_Stmt_t *stmtITR, knh_type_t 
 		if(tm == NULL) {
 			knh_Stmt_toERR(ctx, stmtITR, TM(stmt)); return NULL;
 		}
-		DBG_P("TYPING=%s, TYPED=%s, %s", TT__(STT_(stmt)), TT__(TT_(tm)), TYPE__(tm->type));
+		DBG_P("TYPING=%s, TYPED=%s, %s, rtype=%s", TT__(STT_(stmt)), TT__(TT_(tm)), TYPE__(tm->type), TYPE__(rtype));
 		if(IS_Token(tm)) {
 			if(rtype != TYPE_void) {
 				knh_Stmt_toCALL1(ctx, stmt, tm);
@@ -3510,12 +3525,6 @@ static knh_Term_t *knh_StmtITR_typing(Ctx *ctx, knh_Stmt_t *stmtITR, knh_type_t 
 		knh_Stmt_setESPIDX(ctx, stmt);
 		DP(ctx->gma)->typeIT = tm->type;
 		DP(ctx->gma)->idxIT = DP(stmt)->espidx;
-		if(STT_(stmt) == STT_RETURN || STT_(stmt) == STT_THROW) {
-			if(DP(stmt)->nextNULL != NULL) {
-				KNH_FINALv(ctx, DP(stmt)->nextNULL);
-			}
-			goto L_RETURN;
-		}
 		if(rtype != TYPE_void) {
 			if(tm->type == TYPE_void && DP(stmt)->nextNULL == NULL) {
 				if(rtype != TYPE_Any) {
@@ -3529,7 +3538,6 @@ static knh_Term_t *knh_StmtITR_typing(Ctx *ctx, knh_Stmt_t *stmtITR, knh_type_t 
 		}
 		stmt = knh_Stmt_isEveryLine(stmt) ? NULL : DP(stmt)->nextNULL;
 	}
-	L_RETURN:;
 	stmt = stmtITR;
 	END_BLOCK(espidx);
 	return TM(stmtITR);
@@ -3537,9 +3545,8 @@ static knh_Term_t *knh_StmtITR_typing(Ctx *ctx, knh_Stmt_t *stmtITR, knh_type_t 
 
 static void knh_Gamma_initThisM(Ctx *ctx, knh_class_t cid)
 {
-	size_t i, goffset = DP(ctx->gma)->goffset;
+	size_t goffset = DP(ctx->gma)->goffset;
 	knh_fields_t *gamma = DP(ctx->gma)->gf;
-	knh_typevars_t *typevars = DP(ctx->gma)->typevars;
 	DBG_ASSERT(goffset < K_GAMMASIZE);
 	knh_Gamma_clear(ctx, goffset);
 	DP(ctx->gma)->psize = 0;
@@ -3548,22 +3555,22 @@ static void knh_Gamma_initThisM(Ctx *ctx, knh_class_t cid)
 	gamma[goffset].type = TYPE_cid(cid);
 	gamma[goffset].fn   = FN_this;
 	DP(ctx->gma)->espidx = goffset + 1;
-	typevars[0].type = cid;
+//	typevars[0].type = cid;
 	DP(ctx->gma)->tvsize = 1;
-	if(ClassTBL(cid).cparam != NULL) {
-		knh_ParamArray_t *cp = ClassTBL(cid).cparam;
-		for(i = 0; i < cp->psize; i++) {
-			knh_param_t *p = knh_ParamArray_get(cp, i);
-			typevars[i+1].type = p->type;
-			typevars[i+1].pn = p->fn;
-		}
-		for(i = 0; i < cp->rsize; i++) {
-			knh_param_t *p = knh_ParamArray_rget(cp, i);
-			typevars[i+1+(cp->psize)].type = p->type;
-			typevars[i+1+(cp->psize)].pn = p->fn;
-		}
-		DP(ctx->gma)->tvsize += (cp->psize + cp->rsize);
-	}
+//	if(ClassTBL(cid).cparam != NULL) {
+//		knh_ParamArray_t *cp = ClassTBL(cid).cparam;
+//		for(i = 0; i < cp->psize; i++) {
+//			knh_param_t *p = knh_ParamArray_get(cp, i);
+//			typevars[i+1].type = p->type;
+//			typevars[i+1].pn = p->fn;
+//		}
+//		for(i = 0; i < cp->rsize; i++) {
+//			knh_param_t *p = knh_ParamArray_rget(cp, i);
+//			typevars[i+1+(cp->psize)].type = p->type;
+//			typevars[i+1+(cp->psize)].pn = p->fn;
+//		}
+//		DP(ctx->gma)->tvsize += (cp->psize + cp->rsize);
+//	}
 	//DBG_P("goffset=%ld, this=%s, tvsize=%d", goffset, CLASS__(cid), (int)DP(ctx->gma)->tvsize);
 }
 
@@ -3604,11 +3611,10 @@ int knh_StmtITR_scriptTyping(Ctx *ctx, knh_Stmt_t *stmtITR, knh_type_t reqt)
 /* ------------------------------------------------------------------------ */
 /* [asm] */
 
-
-knh_bool_t knh_Method_typing(Ctx *ctx, knh_Method_t *mtd, knh_Stmt_t *stmtP, knh_Stmt_t *stmtB, knh_type_t reqt)
+knh_bool_t knh_Method_typing(Ctx *ctx, knh_Method_t *mtd, knh_Stmt_t *stmtP, knh_Stmt_t *stmtB)
 {
-	KNH_SETv(ctx, DP(ctx->gma)->mtd, mtd);
 	knh_Method_toAbstract(ctx, mtd);
+	KNH_SETv(ctx, DP(ctx->gma)->mtd, mtd);
 	DP(ctx->gma)->flag  = 0;
 	knh_Gamma_initThisM(ctx, DP(mtd)->cid);
 	if(stmtP != NULL) {
@@ -3621,7 +3627,7 @@ knh_bool_t knh_Method_typing(Ctx *ctx, knh_Method_t *mtd, knh_Stmt_t *stmtP, knh
 		}
 		DP(ctx->gma)->psize = i / 3;
 		if(knh_Stmt_isVARGs(stmtP)) {
-			TODO();DBG_ABORT();
+			KNH_TODO("variable arguments..");
 		}
 		for(; i < DP(stmtP)->size; i += 3) {
 			knh_StmtDECL_typing(ctx, stmtP, +i, TYPE_void, SCOPE_PARAM); /*checked*/
@@ -3630,10 +3636,10 @@ knh_bool_t knh_Method_typing(Ctx *ctx, knh_Method_t *mtd, knh_Stmt_t *stmtP, knh
 	}
 	knh_Array_clear(ctx, DP(ctx->gma)->lstacks, 0);
 	knh_Array_clear(ctx, DP(ctx->gma)->insts, 0);
-	return (knh_StmtITR_typing(ctx, stmtB, reqt) != NULL);
+	return (knh_StmtITR_typing(ctx, stmtB, knh_ParamArray_rtype(DP(mtd)->mp)) != NULL);
 }
 
-knh_bool_t knh_Formatter_typing(Ctx *ctx, knh_Method_t *mtd, knh_Stmt_t *stmtP, knh_Stmt_t *stmtB, knh_type_t reqt)
+knh_bool_t knh_Formatter_typing(Ctx *ctx, knh_Method_t *mtd, knh_Stmt_t *stmtP, knh_Stmt_t *stmtB)
 {
 	knh_Gamma_initThisM(ctx, CLASS_OutputStream);
 	knh_Token_t *tkT = DP(stmtP)->tokens[0];
@@ -3645,7 +3651,7 @@ knh_bool_t knh_Formatter_typing(Ctx *ctx, knh_Method_t *mtd, knh_Stmt_t *stmtP, 
 	DP(ctx->gma)->flag  = 0;
 	knh_Array_clear(ctx, DP(ctx->gma)->lstacks, 0);
 	knh_Array_clear(ctx, DP(ctx->gma)->insts, 0);
-	return (knh_StmtITR_typing(ctx, stmtB, reqt) != NULL);
+	return (knh_StmtITR_typing(ctx, stmtB, TYPE_void) != NULL);
 }
 
 static void knh_Method_setSourceCode(Ctx*ctx, knh_Method_t *mtd, knh_String_t *source)

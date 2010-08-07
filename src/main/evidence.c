@@ -212,7 +212,7 @@ void knh_stack_perror(Ctx *ctx, knh_sfp_t *sfp, const char *ns, const char *even
 
 void knh_foundKonohaStyle(Ctx *ctx, size_t score)
 {
-	DP(ctx->gma)->statKonohaStyle += score;
+//	DP(ctx->gma)->statKonohaStyle += score;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -242,12 +242,12 @@ void knh_vperror(Ctx *ctx, knh_uri_t uri, int line, int pe, const char *fmt, va_
 	if(knh_Gamma_isQuiet(ctx->gma)) {
 		return;
 	}
-	if(pe < KERR_DWARN) {
-		DP(ctx->gma)->statError += 1;
-	}
-	else if(pe < KERR_TINFO) {
-		DP(ctx->gma)->statBadManner += 1;
-	}
+//	if(pe < KERR_DWARN) {
+//		DP(ctx->gma)->statError += 1;
+//	}
+//	else if(pe < KERR_TINFO) {
+//		DP(ctx->gma)->statBadManner += 1;
+//	}
 	if(knh_Context_isInteractive(ctx)) {
 		goto L_PRINT;
 	}

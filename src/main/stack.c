@@ -323,26 +323,33 @@ KNHAPI(void) knh_stack_throw(Ctx *ctx, knh_sfp_t *sfp, knh_Exception_t *e)
 
 knh_bool_t knh_ExceptionHandler_setjmp(Ctx *ctx, knh_ExceptionHandler_t *hdr)
 {
+	void* sp[1];
 	DP(hdr)->return_address = __builtin_return_address(0);
-	DP(hdr)->frame_address = __builtin_frame_address(0);
-//	fprintf(stderr, "@%s: return_addr=%p, frame_addr=%p\n",
-//		__FUNCTION__, DP(hdr)->return_address, DP(hdr)->frame_address);
+	DP(hdr)->frame_address = __builtin_frame_address(1);
+	fprintf(stderr, "@%s: return_addr=%p, frame_addr=%p\n",
+		__FUNCTION__, DP(hdr)->return_address, DP(hdr)->frame_address);
+	fprintf(stderr, " sp[0]=%p, sp[1]=%p, sp[2]=%p, sp[3]=%p, sp[4]=%p\n", sp[0], sp[1], sp[2], sp[3], sp[4]);
+	fprintf(stderr, " ctx=%p, hdr=%p\n", ctx, hdr);
 	return 1;
 }
 
 static knh_bool_t knh_ExceptionHandler_longjmp(Ctx *ctx, knh_ExceptionHandler_t *hdr)
 {
+	void* sp[1];
+	KNH_ASSERT(sp[3] == __builtin_return_address(0));
+	KNH_ASSERT(sp[2] == __builtin_frame_address(1));
 	fprintf(stderr, "@%s: return_addr=%p, frame_addr=%p\n",
 		__FUNCTION__, DP(hdr)->return_address, DP(hdr)->frame_address);
 
 	// TODO:
 	// rewrite return_address
-
+	sp[3] = DP(hdr)->return_address;
 	KNH_ASSERT(DP(hdr)->return_address == __builtin_return_address(0));
 
 	// TODO:
 	// rewrite frame_address
-
+	sp[2] = DP(hdr)->frame_address;
+	KNH_ASSERT(DP(hdr)->return_address == __builtin_frame_address(1));
 	return 0;
 }
 

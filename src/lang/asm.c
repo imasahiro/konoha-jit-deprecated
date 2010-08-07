@@ -2586,7 +2586,7 @@ void knh_Method_asm(Ctx *ctx, knh_Method_t *mtd, knh_Stmt_t *stmtP, knh_Stmt_t *
 {
 	knh_class_t prev_cid = DP(ctx->gma)->this_cid;
 	if(STT_(stmtB) == STT_ERR) return ;
-	typing(ctx, mtd, stmtP, stmtB, reqt);
+	typing(ctx, mtd, stmtP, stmtB);
 	if(STT_(stmtB) == STT_ERR) return ;
 	DBG_ASSERT(knh_Array_size(DP(ctx->gma)->insts) == 0);
 	{

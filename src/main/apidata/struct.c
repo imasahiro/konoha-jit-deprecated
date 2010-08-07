@@ -2108,20 +2108,20 @@ static void knh_Gamma_init(Ctx *ctx, Object *o)
 		b->gf[i].value = NULL;
 	}
 	b->psize = 0;
-	b->typevars = (knh_typevars_t*)KNH_MALLOC(ctx, K_GAMMASIZE * sizeof(knh_typevars_t));
-	knh_bzero(b->typevars, K_GAMMASIZE * sizeof(knh_typevars_t));
+//	b->typevars = (knh_typevars_t*)KNH_MALLOC(ctx, K_GAMMASIZE * sizeof(knh_typevars_t));
+//	knh_bzero(b->typevars, K_GAMMASIZE * sizeof(knh_typevars_t));
 	b->tvsize = 0;
 	KNH_INITv(b->lstacks, new_Array0(ctx, 0));
-	KNH_INITv(b->insts, new_Array0(ctx, 64));
+	KNH_INITv(b->insts, new_Array0(ctx, 0));
 	KNH_INITv(b->finallyStmt, KNH_NULL);
 	b->dlhdr = NULL;
 	b->symbolDictMap = NULL;
 	b->constPools = NULL;
-	b->statStmt = 1;
-	b->statError = 0;
-	b->statWarning = 0;
-	b->statBadManner = 0;
-	b->statKonohaStyle = 0;
+//	b->statStmt = 1;
+//	b->statError = 0;
+//	b->statWarning = 0;
+//	b->statBadManner = 0;
+//	b->statKonohaStyle = 0;
 	o->ref = b;
 }
 
@@ -2146,7 +2146,7 @@ static void knh_Gamma_free(Ctx *ctx, Object *o)
 {
 	knh_GammaEX_t *b = DP((knh_Gamma_t*)o);
 	KNH_FREE(ctx, b->gf, K_GAMMASIZE * sizeof(knh_fields_t));
-	KNH_FREE(ctx, b->typevars, K_GAMMASIZE * sizeof(knh_typevars_t));
+//	KNH_FREE(ctx, b->typevars, K_GAMMASIZE * sizeof(knh_typevars_t));
 	KNH_FREEBODY(ctx, b, Gamma);
 }
 

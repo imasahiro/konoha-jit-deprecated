@@ -490,14 +490,14 @@ typedef struct {
 	struct knh_ParamArray_t* mp;
 	knh_Fmethod       fproceed;
 	union {
-		void*             code;
+		void*                 code;
 		struct knh_String_t  *source;
 		struct knh_KLRCode_t *kcode;
 	};
 } knh_MethodEX_t;
 
 typedef struct knh_Method_t {
-	knh_hObject_t h;
+	knh_hObject_t   h;
 	knh_MethodEX_t *b;
 	knh_Fmethod fcall_1;
 	struct knh_opline_t *pc_start;
@@ -1222,23 +1222,24 @@ typedef struct {
 	knh_short_t                idxIT;
 	knh_type_t                 typeIT;
 	size_t                     tvsize;
-	knh_typevars_t            *typevars;
+//	knh_typevars_t            *typevars;
 
-	struct knh_Array_t    *constPools;
-	struct knh_BasicBlock_t *bbNC;
-	struct knh_Array_t    *insts;
-	struct knh_Array_t*   lstacks;
-	struct knh_Stmt_t*    finallyStmt;
+	struct knh_Array_t         *constPools;
+	struct knh_BasicBlock_t    *bbNC;
+	struct knh_Array_t         *insts;  // bbNC->listNC
+	struct knh_Array_t         *lstacks;
+	struct knh_Stmt_t          *finallyStmt;
 
-	void                  *dlhdr;
-	struct knh_DictMap_t  *symbolDictMap;
+	void                       *dlhdr;
+	struct knh_DictMap_t       *symbolDictMap;
 
 	/*stat*/
-	size_t statError;
-	size_t statWarning;
-	size_t statBadManner;
-	size_t statKonohaStyle;
-	size_t statStmt;
+//	size_t statError;
+//	size_t statWarning;
+//	size_t statBadManner;
+//	size_t statKonohaStyle;
+//	size_t statStmt;
+
 } knh_GammaEX_t;
 
 typedef struct knh_Gamma_t {
@@ -1247,7 +1248,7 @@ typedef struct knh_Gamma_t {
 	knh_uri_t uri; knh_ushort_t line;
 } knh_Gamma_t;
 
-typedef knh_bool_t (*knh_Ftyping)(Ctx *, knh_Method_t *, knh_Stmt_t *, knh_Stmt_t *, knh_type_t);
+typedef knh_bool_t (*knh_Ftyping)(Ctx *, knh_Method_t *, knh_Stmt_t *, knh_Stmt_t *);
 
 ///* ------------------------------------------------------------------------ */
 
