@@ -480,7 +480,7 @@ void knh_opcode_idxshift(knh_opline_t *c, int idxshift)
 #define GOTO_PC(pc)         goto L_HEAD;
 #endif/*K_USING_THREADEDCODE*/
 
-knh_opline_t* knh_VirtualMachine_run(Ctx *ctx, knh_sfp_t *sfp0, knh_opline_t *pc0)
+knh_opline_t* knh_VirtualMachine_run(Ctx *ctx, knh_sfp_t *sfp, knh_opline_t *pc)
 {
 #ifdef K_USING_THREADEDCODE
 	static void *OPJUMP[] = {
@@ -520,8 +520,8 @@ knh_opline_t* knh_VirtualMachine_run(Ctx *ctx, knh_sfp_t *sfp0, knh_opline_t *pc
 		&&L_NOP, 
 	};
 #endif
-	register knh_sfp_t *sfp = sfp0;
-	register knh_opline_t* pc = pc0;
+//	knh_sfp_t *sfp = sfp0;
+//	knh_opline_t* pc = pc0;
 	knh_opline_t* vpc = NULL;
 	knh_intptr_t vshift = 0;
 	DISPATCH_START(pc);

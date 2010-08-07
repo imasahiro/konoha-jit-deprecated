@@ -42,8 +42,8 @@ extern "C" {
 /* ------------------------------------------------------------------------ */
 //## @Cyclic class Object Object knh_ObjectField_t;
 //## flag Object Release!Debug 0 (%s)->h.flag is *   * *;
-//## flag Object NullObject    1 (%s)->h.flag is set * *;
-//## flag Object Immutable     2 (%s)->h.flag is *   * *;
+//## flag Object Immutable     1 (%s)->h.flag is *   * *;
+//## flag Object NullObject    2 (%s)->h.flag is set * *;
 //## flag Object Cyclic        3 (%s)->h.flag is set * *;
 //## flag Object Modified      4 (%s)->h.flag is set *  *;
 //## flag Object Shared        5 (%s)->h.flag is set *  *;

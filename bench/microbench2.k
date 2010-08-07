@@ -1,6 +1,6 @@
 // konoha microbench by kimio kuramitsu
 
-//using konoha.math.*;
+using konoha.math.*;
 
 int testSimpleLoop() {
 	int i;
@@ -75,7 +75,7 @@ int testFunctionReturn() {
 int testMathFabs() {
 	int i;
 	for(i = 0; i< 100_000_000; i++) {
-		//Math.fabs(-1.0);
+		Math.fabs(-1.0);
 	}
 	return i;
 }

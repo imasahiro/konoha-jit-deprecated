@@ -88,11 +88,12 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_opline_t *pc);
 /* [MOV, SET] */
 
 #define klr_mov(ctx, v1, v2) {\
+		Object *v1_ = (Object*)v1;\
 		Object *v2_ = (Object*)v2;\
 		knh_Object_RCinc(v2_);\
-		knh_Object_RCdec(v1);\
-		if(knh_Object_isRC0(v1)) {\
-			knh_Object_free(ctx, v1);\
+		knh_Object_RCdec(v1_);\
+		if(knh_Object_isRC0(v1_)) {\
+			knh_Object_free(ctx, v1_);\
 		}\
 		v1 = v2_;\
 	}\
@@ -115,7 +116,7 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_opline_t *pc);
 		sfp[a].data = n;\
 	}\
 
-#define KLR_MOV(ctx, a, b) { \
+#define UNUSED_MOV(ctx, a, b) { \
 		knh_Object_RCinc(sfp[b].o);\
 		knh_Object_RCdec(sfp[a].o);\
 		if(knh_Object_isRC0(sfp[a].o)) {\
@@ -153,7 +154,7 @@ int knh_Method_pcline(knh_Method_t *mtd, knh_opline_t *pc);
 		sfp[(b)] = temp;\
 	}\
 
-#define KLR_BOX(ctx, a, b, cid) {\
+#define UNUSED_BOX(ctx, a, b, cid) {\
 		klr_mov(ctx, sfp[a].o new_Object_boxing(ctx, sfp+b, cid));\
 	}\
 
@@ -223,17 +224,6 @@ knh_opline_t* knh_VirtualMachine_run(Ctx *, knh_sfp_t *, knh_opline_t *);
 #define CODE_LAUNCH    (ctx->share->PC_LAUNCH)
 #define CODE_FUNCCALL  (ctx->share->PC_FUNCCALL)
 //#define CODE_ABSTRACT  (ctx->share->PC_ABSTRACT)
-
-#define KLR2_SCALL_OLD(ctx, rtnidx, espshift, mtdO) { \
-		knh_Method_t *mtd_ = mtdO;\
-		knh_intptr_t thisidx_ = rtnidx + K_CALLDELTA;\
-		knh_sfp_t *sfp_ = sfp + thisidx_; \
-		sfp_[K_SHIFTIDX].shift = thisidx_;\
-		sfp_[K_PCIDX].pc = pc;\
-		sfp_[K_MTDIDX].callmtd = mtd_;\
-		klr_setesp(ctx, sfp + espshift);\
-		(mtd_)->fcall_1(ctx, sfp_, K_RTNIDX); \
-	} \
 
 #define KLR2_SCALL(ctx, thisidx, espshift, mtdO) { \
 		knh_Method_t *mtd_ = mtdO;\
@@ -323,7 +313,7 @@ knh_opline_t* knh_VirtualMachine_run(Ctx *, knh_sfp_t *, knh_opline_t *);
 
 #define KLR_RET(ctx) {\
 		sfp = sfp - vshift; \
-		pc = vpc; \
+		pc = (knh_opline_t*)vpc; \
 		vshift = sfp[K_SHIFTIDX].shift;\
 		vpc = sfp[K_PCIDX].pc;\
 		GOTO_PC(pc);\
@@ -360,7 +350,7 @@ typedef KLRAPI(knh_Method_t*) (*klr_Fmethod)(Ctx *, knh_sfp_t *, int, knh_Method
 		vpc = pc;\
 		pc = (sfp[K_MTDIDX].callmtd)->pc_start;\
 		sfp[K_SHIFTIDX].shift = 0;\
-		sfp[K_PCIDX].pc = vpc;\
+		sfp[K_PCIDX].pc = (knh_opline_t*)vpc;\
 		GOTO_PC(pc); \
 	}\
 
@@ -373,7 +363,7 @@ typedef KLRAPI(knh_Method_t*) (*klr_Fmethod)(Ctx *, knh_sfp_t *, int, knh_Method
 		vpc = pc;\
 		pc = (sfp[K_MTDIDX].callmtd)->pc_start;\
 		sfp[K_SHIFTIDX].shift = 0;\
-		sfp[K_PCIDX].pc = vpc;\
+		sfp[K_PCIDX].pc = (knh_opline_t*)vpc;\
 		GOTO_PC(pc); \
 	}\
 
@@ -511,7 +501,7 @@ typedef KLRAPI(int) (*klr_Fnext)(Ctx *, knh_sfp_t *, int, knh_class_t);
 		} \
 		if(knh_ExceptionHandler_setjmp(ctx, _hdr)) {\
 			DP(_hdr)->pc  = pc; \
-			DP(_hdr)->vpc = vpc; \
+			DP(_hdr)->vpc = (knh_opline_t*)vpc; \
 			SP(_hdr)->sfpidx = (sfp - ctx->stack); \
 			SP(_hdr)->espidx = (ctx->esp - ctx->stack); \
 			SP(_hdr)->vshift = vshift; \

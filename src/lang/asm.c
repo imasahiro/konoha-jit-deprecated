@@ -2418,8 +2418,7 @@ KLRAPI(void) _PRINT(Ctx *ctx, knh_sfp_t *sfp, struct klr_P_t *op)
 			knh_write_uline(ctx, w, DP(mtd)->uri, op->line);
 		}
 	}
-	if(IS_NOTNULL(op->msg)) {
-		DBG_ASSERT(IS_bString(op->msg));
+	if(IS_bString(op->msg)) {
 		if((op->msg)->str.len > 0) {
 			knh_print(ctx, w, S_tobytes(op->msg));
 		}

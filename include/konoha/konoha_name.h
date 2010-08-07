@@ -2,8 +2,8 @@
 
 /* ======================================================================== */
 /* MACROS */
-#define K_REVISION                      1763
-#define K_BUILDID                       967
+#define K_REVISION                      1769
+#define K_BUILDID                       968
 
 /* ======================================================================== */
 /* STRUCT */
@@ -463,14 +463,14 @@
 #define knh_Object_isRelease(o)  (((o)->h.flag & FLAG_Object_Release) == FLAG_Object_Release)
 
 #define knh_Object_isDebug(o)  (((o)->h.flag & FLAG_Object_Release) != FLAG_Object_Release)
-#define FLAG_Object_NullObject          (knh_flag_t)(1<<1)
+#define FLAG_Object_Immutable           (knh_flag_t)(1<<1)
+
+#define knh_Object_isImmutable(o)  (((o)->h.flag & FLAG_Object_Immutable) == FLAG_Object_Immutable)
+#define FLAG_Object_NullObject          (knh_flag_t)(1<<2)
 
 #define knh_Object_isNullObject(o)  (((o)->h.flag & FLAG_Object_NullObject) == FLAG_Object_NullObject)
 
 #define knh_Object_setNullObject(o,b) if(b) (o)->h.flag |= FLAG_Object_NullObject; else (o)->h.flag &= ~(FLAG_Object_NullObject);
-#define FLAG_Object_Immutable           (knh_flag_t)(1<<2)
-
-#define knh_Object_isImmutable(o)  (((o)->h.flag & FLAG_Object_Immutable) == FLAG_Object_Immutable)
 #define FLAG_Object_Cyclic              (knh_flag_t)(1<<3)
 
 #define knh_Object_isCyclic(o)  (((o)->h.flag & FLAG_Object_Cyclic) == FLAG_Object_Cyclic)

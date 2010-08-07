@@ -311,15 +311,12 @@ knh_uri_t knh_getURI(Ctx *ctx, knh_bytes_t t)
 {
 	OLD_LOCK(ctx, LOCK_SYSTBL, NULL);
 	knh_index_t idx = knh_DictSet_index(DP(ctx->sys)->urnDictSet, t);
-	DBG_P("@@@@@@@@@@ idx=%d, t=%s", idx, t.text);
 	if(idx == -1) {
 		knh_String_t *s = new_S(ctx, t);
 		idx = knh_Array_size(DP(ctx->sys)->urns);
 		knh_DictSet_set(ctx, DP(ctx->sys)->urnDictSet, s, idx);
 		knh_Array_add(ctx, DP(ctx->sys)->urns, s);
-		DBG_P("ADDED idx=%d, t=%s", idx, t.text);
 		KNH_SYSLOG(ctx, LOG_INFO, "NEW_URI", "URI=%d, URN='%B'", idx, S_tobytes(s));
-		DBG_P("GET idx=%d, t=%s", idx, S_tochar(knh_getURN(ctx, idx)));
 	}
 	else {
 		idx = knh_DictSet_valueAt(DP(ctx->sys)->urnDictSet, idx);

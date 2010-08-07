@@ -570,10 +570,10 @@ knh_opline_t* knh_VirtualMachine_run(Ctx *ctx, knh_sfp_t *sfp0, knh_opline_t *pc
 	f.write('''
 	};
 #endif
-	register knh_sfp_t *sfp = sfp0;
-	register knh_opline_t* pc = pc0;
-	knh_opline_t* vpc = NULL;
-	knh_intptr_t vshift = 0;
+	knh_sfp_t *sfp = sfp0;
+	knh_opline_t* pc = pc0;
+	volatile knh_opline_t* vpc = NULL;
+	volatile knh_intptr_t vshift = 0;
 	DISPATCH_START(pc);
 ''')
 	for kc in KCODE_LIST:
