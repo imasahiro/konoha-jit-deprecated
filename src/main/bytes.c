@@ -59,6 +59,42 @@ size_t knh_good_size(size_t ss)
 	return ((s + 1) == ss * 2) ? ss : s + 1;
 }
 
+///* added by ide */
+///* find last bit set in a long int */
+//static int knh_fls(int i)
+//{
+//	return (sizeof(int) * 8) - __builtin_clz(i);
+//}
+//
+//static const size_t log2table[] = {
+//	/*   1  */ K_FASTMALLOC_SIZE, /*   2  */ K_FASTMALLOC_SIZE,
+//	/*   4  */ K_FASTMALLOC_SIZE, /*   8  */ K_FASTMALLOC_SIZE,
+//	/*  16  */ K_FASTMALLOC_SIZE, /*  32  */ K_FASTMALLOC_SIZE,
+//#if defined(__x86_64__)
+//	/*  64  */ K_FASTMALLOC_SIZE,
+//#else
+//	/*  64  */ 1 << 6,
+//#endif
+//	/* 128  */ 1 <<  7,
+//	/* 256  */ 1 <<  8, /* 512  */ 1 <<  9,
+//	/*   1K */ 1 << 10, /*   2K */ 1 << 11,
+//	/*   4K */ 1 << 12, /*   8K */ 1 << 13,
+//	/*  16K */ 1 << 14, /*  32K */ 1 << 15,
+//	/*  64K */ 1 << 16, /* 128K */ 1 << 17,
+//	/* 256K */ 1 << 18, /* 512K */ 1 << 19,
+//	/*   1M */ 1 << 20, /*   2M */ 1 << 21,
+//	/*   4M */ 1 << 22, /*   8M */ 1 << 23,
+//	/*  16M */ 1 << 24, /*  32M */ 1 << 25,
+//	/*  64M */ 1 << 26, /* 128M */ 1 << 27,
+//	/* 256M */ 1 << 28, /* 512M */ 1 << 29,
+//	/*   1G */ 1 << 30, /*   2G */ 1 << 31,
+//};
+//
+///* XXX "s" must be larger than 0 (s > 0) */
+//size_t knh_good_size2(size_t s)
+//{
+//	return log2table[knh_fls(s-1)];
+//}
 /* ------------------------------------------------------------------------ */
 
 static void knh_Bytes_checkstack(Ctx *ctx, knh_uchar_t*oldstart, knh_uchar_t *oldend, knh_uchar_t* newstart)

@@ -180,7 +180,7 @@ static knh_uintptr_t CHARSET_exists(Ctx *ctx, knh_bytes_t path, knh_NameSpace_t 
 		}
 	}
 	else {
-		if(knh_bytes_strcasecmp(t, STEXT(K_ENCODING))) {
+		if(knh_bytes_strcasecmp(t, STEXT(K_ENCODING)) == 0) {
 			res = PATH_found;
 		}
 	}

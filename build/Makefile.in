@@ -93,13 +93,13 @@ am_libkonoha_la_OBJECTS = libkonoha_la-mt19937-64.lo \
 	libkonoha_la-struct.lo libkonoha_la-array.lo \
 	libkonoha_la-bytes.lo libkonoha_la-class.lo \
 	libkonoha_la-closure.lo libkonoha_la-context.lo \
-	libkonoha_la-empty.lo libkonoha_la-evidence.lo \
-	libkonoha_la-exports.lo libkonoha_la-iterator.lo \
-	libkonoha_la-konohaapi.lo libkonoha_la-map.lo \
+	libkonoha_la-evidence.lo libkonoha_la-exports.lo \
+	libkonoha_la-iterator.lo libkonoha_la-map.lo \
 	libkonoha_la-memory.lo libkonoha_la-method.lo \
 	libkonoha_la-number.lo libkonoha_la-object.lo \
 	libkonoha_la-os.lo libkonoha_la-query.lo \
-	libkonoha_la-security.lo libkonoha_la-semantics.lo \
+	libkonoha_la-runtime.lo libkonoha_la-security.lo \
+	libkonoha_la-semantics.lo libkonoha_la-setjmp.lo \
 	libkonoha_la-stack.lo libkonoha_la-stream.lo \
 	libkonoha_la-string.lo libkonoha_la-system.lo \
 	libkonoha_la-thread.lo libkonoha_la-time.lo \
@@ -237,7 +237,6 @@ libdir = @libdir@
 libexecdir = @libexecdir@
 localedir = @localedir@
 localstatedir = @localstatedir@
-lt_ECHO = @lt_ECHO@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
 oldincludedir = @oldincludedir@
@@ -275,15 +274,14 @@ libkonoha_la_SOURCES = ../src/ext/mt19937-64.c ../src/ext/mt19937ar.c \
 	../src/lang/vmcodelibs.c ../src/lang/vminline.c \
 	../src/main/apidata/struct.c ../src/main/array.c \
 	../src/main/bytes.c ../src/main/class.c ../src/main/closure.c \
-	../src/main/context.c ../src/main/empty.c \
-	../src/main/evidence.c ../src/main/exports.c \
-	../src/main/iterator.c ../src/main/konohaapi.c \
-	../src/main/map.c ../src/main/memory.c ../src/main/method.c \
-	../src/main/number.c ../src/main/object.c ../src/main/os.c \
-	../src/main/query.c ../src/main/security.c \
-	../src/main/semantics.c ../src/main/stack.c \
-	../src/main/stream.c ../src/main/string.c ../src/main/system.c \
-	../src/main/thread.c ../src/main/time.c \
+	../src/main/context.c ../src/main/evidence.c \
+	../src/main/exports.c ../src/main/iterator.c ../src/main/map.c \
+	../src/main/memory.c ../src/main/method.c ../src/main/number.c \
+	../src/main/object.c ../src/main/os.c ../src/main/query.c \
+	../src/main/runtime.c ../src/main/security.c \
+	../src/main/semantics.c ../src/main/setjmp.c \
+	../src/main/stack.c ../src/main/stream.c ../src/main/string.c \
+	../src/main/system.c ../src/main/thread.c ../src/main/time.c \
 	../src/main/translator.c ../src/main/tuple.c
 libkonoha_la_includedir = $(includedir)
 libkonoha_la_include_HEADERS = ../include/konoha.h
@@ -544,11 +542,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-class.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-closure.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-context.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-empty.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-evidence.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-exports.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-iterator.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-konohaapi.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-map.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-memory.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-method.Plo@am__quote@
@@ -560,9 +556,11 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-os.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-qsort.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-query.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-runtime.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-script.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-security.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-semantics.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-setjmp.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-ssa.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-stack.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-stream.Plo@am__quote@
@@ -734,13 +732,6 @@ libkonoha_la-context.lo: ../src/main/context.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libkonoha_la_CFLAGS) $(CFLAGS) -c -o libkonoha_la-context.lo `test -f '../src/main/context.c' || echo '$(srcdir)/'`../src/main/context.c
 
-libkonoha_la-empty.lo: ../src/main/empty.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libkonoha_la_CFLAGS) $(CFLAGS) -MT libkonoha_la-empty.lo -MD -MP -MF $(DEPDIR)/libkonoha_la-empty.Tpo -c -o libkonoha_la-empty.lo `test -f '../src/main/empty.c' || echo '$(srcdir)/'`../src/main/empty.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libkonoha_la-empty.Tpo $(DEPDIR)/libkonoha_la-empty.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/main/empty.c' object='libkonoha_la-empty.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libkonoha_la_CFLAGS) $(CFLAGS) -c -o libkonoha_la-empty.lo `test -f '../src/main/empty.c' || echo '$(srcdir)/'`../src/main/empty.c
-
 libkonoha_la-evidence.lo: ../src/main/evidence.c
 @am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libkonoha_la_CFLAGS) $(CFLAGS) -MT libkonoha_la-evidence.lo -MD -MP -MF $(DEPDIR)/libkonoha_la-evidence.Tpo -c -o libkonoha_la-evidence.lo `test -f '../src/main/evidence.c' || echo '$(srcdir)/'`../src/main/evidence.c
 @am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libkonoha_la-evidence.Tpo $(DEPDIR)/libkonoha_la-evidence.Plo
@@ -761,13 +752,6 @@ libkonoha_la-iterator.lo: ../src/main/iterator.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/main/iterator.c' object='libkonoha_la-iterator.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libkonoha_la_CFLAGS) $(CFLAGS) -c -o libkonoha_la-iterator.lo `test -f '../src/main/iterator.c' || echo '$(srcdir)/'`../src/main/iterator.c
-
-libkonoha_la-konohaapi.lo: ../src/main/konohaapi.c
-@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libkonoha_la_CFLAGS) $(CFLAGS) -MT libkonoha_la-konohaapi.lo -MD -MP -MF $(DEPDIR)/libkonoha_la-konohaapi.Tpo -c -o libkonoha_la-konohaapi.lo `test -f '../src/main/konohaapi.c' || echo '$(srcdir)/'`../src/main/konohaapi.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libkonoha_la-konohaapi.Tpo $(DEPDIR)/libkonoha_la-konohaapi.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/main/konohaapi.c' object='libkonoha_la-konohaapi.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libkonoha_la_CFLAGS) $(CFLAGS) -c -o libkonoha_la-konohaapi.lo `test -f '../src/main/konohaapi.c' || echo '$(srcdir)/'`../src/main/konohaapi.c
 
 libkonoha_la-map.lo: ../src/main/map.c
 @am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libkonoha_la_CFLAGS) $(CFLAGS) -MT libkonoha_la-map.lo -MD -MP -MF $(DEPDIR)/libkonoha_la-map.Tpo -c -o libkonoha_la-map.lo `test -f '../src/main/map.c' || echo '$(srcdir)/'`../src/main/map.c
@@ -818,6 +802,13 @@ libkonoha_la-query.lo: ../src/main/query.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libkonoha_la_CFLAGS) $(CFLAGS) -c -o libkonoha_la-query.lo `test -f '../src/main/query.c' || echo '$(srcdir)/'`../src/main/query.c
 
+libkonoha_la-runtime.lo: ../src/main/runtime.c
+@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libkonoha_la_CFLAGS) $(CFLAGS) -MT libkonoha_la-runtime.lo -MD -MP -MF $(DEPDIR)/libkonoha_la-runtime.Tpo -c -o libkonoha_la-runtime.lo `test -f '../src/main/runtime.c' || echo '$(srcdir)/'`../src/main/runtime.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libkonoha_la-runtime.Tpo $(DEPDIR)/libkonoha_la-runtime.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/main/runtime.c' object='libkonoha_la-runtime.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libkonoha_la_CFLAGS) $(CFLAGS) -c -o libkonoha_la-runtime.lo `test -f '../src/main/runtime.c' || echo '$(srcdir)/'`../src/main/runtime.c
+
 libkonoha_la-security.lo: ../src/main/security.c
 @am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libkonoha_la_CFLAGS) $(CFLAGS) -MT libkonoha_la-security.lo -MD -MP -MF $(DEPDIR)/libkonoha_la-security.Tpo -c -o libkonoha_la-security.lo `test -f '../src/main/security.c' || echo '$(srcdir)/'`../src/main/security.c
 @am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libkonoha_la-security.Tpo $(DEPDIR)/libkonoha_la-security.Plo
@@ -831,6 +822,13 @@ libkonoha_la-semantics.lo: ../src/main/semantics.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/main/semantics.c' object='libkonoha_la-semantics.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libkonoha_la_CFLAGS) $(CFLAGS) -c -o libkonoha_la-semantics.lo `test -f '../src/main/semantics.c' || echo '$(srcdir)/'`../src/main/semantics.c
+
+libkonoha_la-setjmp.lo: ../src/main/setjmp.c
+@am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libkonoha_la_CFLAGS) $(CFLAGS) -MT libkonoha_la-setjmp.lo -MD -MP -MF $(DEPDIR)/libkonoha_la-setjmp.Tpo -c -o libkonoha_la-setjmp.lo `test -f '../src/main/setjmp.c' || echo '$(srcdir)/'`../src/main/setjmp.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libkonoha_la-setjmp.Tpo $(DEPDIR)/libkonoha_la-setjmp.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/main/setjmp.c' object='libkonoha_la-setjmp.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libkonoha_la_CFLAGS) $(CFLAGS) -c -o libkonoha_la-setjmp.lo `test -f '../src/main/setjmp.c' || echo '$(srcdir)/'`../src/main/setjmp.c
 
 libkonoha_la-stack.lo: ../src/main/stack.c
 @am__fastdepCC_TRUE@	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libkonoha_la_CFLAGS) $(CFLAGS) -MT libkonoha_la-stack.lo -MD -MP -MF $(DEPDIR)/libkonoha_la-stack.Tpo -c -o libkonoha_la-stack.lo `test -f '../src/main/stack.c' || echo '$(srcdir)/'`../src/main/stack.c
