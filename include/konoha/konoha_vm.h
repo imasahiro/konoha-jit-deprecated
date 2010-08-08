@@ -500,7 +500,7 @@ typedef KLRAPI(int) (*klr_Fnext)(Ctx *, knh_sfp_t *, int, knh_class_t);
 			klr_mov(ctx, sfp[hn].o, _hdr); \
 		} \
 		_hdr = _hdr = knh_ExceptionHandler_setjmp(ctx, _hdr); \
-		asm("int3");\
+		/** asm("int3"); gdb info r **/\
 		if(_hdr == NULL) {\
 			_hdr = sfp[hn].hdr;\
 			fprintf(stderr, "TRY ctx=%p, hdr=%p, stack=%p,%p\n", ctx, _hdr, __builtin_frame_address(0), DP(_hdr)->frame_address);\
