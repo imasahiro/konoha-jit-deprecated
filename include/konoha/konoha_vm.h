@@ -499,8 +499,9 @@ typedef KLRAPI(int) (*klr_Fnext)(Ctx *, knh_sfp_t *, int, knh_class_t);
 			_hdr = new_(ExceptionHandler); \
 			klr_mov(ctx, sfp[hn].o, _hdr); \
 		} \
-		asm("nop");\
-		if((_hdr = knh_ExceptionHandler_setjmp(ctx, _hdr)) == NULL) {\
+		_hdr = _hdr = knh_ExceptionHandler_setjmp(ctx, _hdr); \
+		asm("int3");\
+		if(_hdr == NULL) {\
 			_hdr = sfp[hn].hdr;\
 			fprintf(stderr, "TRY ctx=%p, hdr=%p, stack=%p,%p\n", ctx, _hdr, __builtin_frame_address(0), DP(_hdr)->frame_address);\
 			DP(_hdr)->pc  = pc; \
@@ -511,8 +512,6 @@ typedef KLRAPI(int) (*klr_Fnext)(Ctx *, knh_sfp_t *, int, knh_class_t);
 			SP(_hdr)->vshift = vshift; \
 		} else {\
 			fprintf(stderr, "CATCH ctx=%p, hdr=%p, stack=%p,%p\n", ctx, _hdr, __builtin_frame_address(0), DP(_hdr)->frame_address);\
-			asm("nop");\
-			asm("nop");\
 			pc = DP(_hdr)->pc; \
 			vpc = DP(_hdr)->vpc; \
 			sfp = ctx->stack + SP(_hdr)->sfpidx;\

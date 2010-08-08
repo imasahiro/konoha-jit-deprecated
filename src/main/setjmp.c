@@ -37,15 +37,20 @@ extern "C" {
 
 /* ------------------------------------------------------------------------ */
 
-knh_ExceptionHandler_t* knh_ExceptionHandler_setjmp(Ctx *ctx, const knh_ExceptionHandler_t *hdr)
+knh_ExceptionHandler_t* knh_ExceptionHandler_setjmp(Ctx *ctx, knh_ExceptionHandler_t *hdr)
 {
+	knh_uintptr_t rsp;
+	__asm__ volatile ("movq %%rsp, %0; " : "=r" (rsp));
+//	fprintf (stderr, "The stack pointer is 0x%lx\n", rsp);
 	DP(hdr)->return_address = __builtin_return_address(0);
 	DP(hdr)->frame_address = __builtin_frame_address(1);
+	DP(hdr)->stack_pointer =rsp;
 	return NULL;
 }
 
-knh_ExceptionHandler_t *knh_ExceptionHandler_longjmp(Ctx *ctx, const knh_ExceptionHandler_t *hdr)
+knh_ExceptionHandler_t *knh_ExceptionHandler_longjmp(Ctx *ctx, knh_ExceptionHandler_t *hdr)
 {
+	knh_uintptr_t rsp = DP(hdr)->stack_pointer;
 	void** rbp = (void**)__builtin_frame_address(0);
 //	fprintf(stderr, "@%s: return_addr=%p, frame_addr=%p\n",
 //			__FUNCTION__, DP(hdr)->return_address, DP(hdr)->frame_address);
@@ -53,11 +58,10 @@ knh_ExceptionHandler_t *knh_ExceptionHandler_longjmp(Ctx *ctx, const knh_Excepti
 
 	rbp[1] = DP(hdr)->return_address;
 	KNH_ASSERT(DP(hdr)->return_address == __builtin_return_address(0));
-	//DP(hdr)->return_address = NULL;
-	// TODO:
-	// rewrite frame_address
+	DP(hdr)->return_address = NULL;
 	rbp[0] = DP(hdr)->frame_address;
 	KNH_ASSERT(DP(hdr)->frame_address == __builtin_frame_address(1));
+	__asm__ volatile ("movq %0, %%rsp; " : : "r" (rsp): "%rsp");
 	return hdr;
 }
 
