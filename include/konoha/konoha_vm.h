@@ -503,7 +503,7 @@ typedef KLRAPI(int) (*klr_Fnext)(Ctx *, knh_sfp_t *, int, knh_class_t);
 		/** asm("int3"); gdb info r **/\
 		if(_hdr == NULL) {\
 			_hdr = sfp[hn].hdr;\
-			fprintf(stderr, "TRY ctx=%p, hdr=%p, stack=%p,%p\n", ctx, _hdr, __builtin_frame_address(0), DP(_hdr)->frame_address);\
+			/*fprintf(stderr, "TRY ctx=%p, hdr=%p, stack=%p,%p\n", ctx, _hdr, __builtin_frame_address(0));*/\
 			DP(_hdr)->pc  = pc; \
 			DP(_hdr)->vpc = (knh_opline_t*)vpc; \
 			DP(_hdr)->op  = op;\
