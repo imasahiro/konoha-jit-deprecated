@@ -33,7 +33,7 @@
 //#define USE_bytes_last        1
 //#define USE_bytes_indexOf     1
 //#define USE_bytes_startsWith  1
-#define USE_cwb_open      1
+//#define USE_cwb_open      1
 #define USE_cwb_tobytes   1
 
 #include"commons.h"
@@ -168,7 +168,6 @@ KNHAPI(void) knh_stack_boxing(Ctx *ctx, knh_sfp_t *sfp)
 
 void knh_stack_typecheck(Ctx *ctx, knh_sfp_t *sfp, knh_Method_t *mtd, knh_opline_t *pc)
 {
-	const char *emsg;
 	knh_class_t this_cid = knh_Object_cid(sfp[0].o);
 	int i, argc;
 	DBG_ASSERT(IS_Method(sfp[K_MTDIDX].callmtd));
@@ -177,18 +176,11 @@ void knh_stack_typecheck(Ctx *ctx, knh_sfp_t *sfp, knh_Method_t *mtd, knh_opline
 		knh_type_t type = knh_Method_ptype(ctx, mtd, this_cid, i - 1);
 		knh_class_t reqc = CLASS_type(type);
 		if(!knh_class_instanceof(ctx, knh_Object_cid(sfp[i].o), reqc)) {
-			emsg = "Type!!: the parameter %d of %M";
-			goto L_THROWERR;
+			SYSLOG_ParamTypeError(ctx, sfp, DP(mtd)->mn, i, reqc, knh_Object_cid(sfp[i].o));
+			break;
 		}
 	}
 	return;
-
-	L_THROWERR:
-	{
-		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-		knh_printf(ctx, cwb->w, emsg, (knh_intptr_t)i, DP(mtd)->mn);
-		knh_stack_throw(ctx, ctx->esp, knh_cwb_newException(ctx, cwb));
-	}
 }
 
 /* ======================================================================== */
@@ -292,32 +284,32 @@ METHOD knh_Fmethod_stackTrace(Ctx *ctx, knh_sfp_t *sfp, long rix)
 //	knh_write_EOL(ctx, w);
 }
 
-/* ------------------------------------------------------------------------ */
-
-KNHAPI(void) knh_stack_throw(Ctx *ctx, knh_sfp_t *sfp, knh_Exception_t *e)
-{
-	knh_sfp_t *sp = (sfp == NULL) ? ctx->esp : sfp;
-//	if(DP(e)->line != 0) {
-//		if(line == 0) {
-//			knh_stack_callee(ctx, sp, &file, &line);
+///* ------------------------------------------------------------------------ */
+//
+//KNHAPI(void) knh_stack_throw(Ctx *ctx, knh_sfp_t *sfp, knh_Exception_t *e)
+//{
+//	knh_sfp_t *sp = (sfp == NULL) ? ctx->esp : sfp;
+////	if(DP(e)->line != 0) {
+////		if(line == 0) {
+////			knh_stack_callee(ctx, sp, &file, &line);
+////		}
+////		DP(e)->file = file;
+////		DP(e)->line = line;
+////	}
+//	while(ctx->stack <= sp) {
+//		if(IS_ExceptionHandler(sp[0].hdr) && knh_ExceptionHandler_isCatching(sp[0].hdr)) {
+//			TODO();
 //		}
-//		DP(e)->file = file;
-//		DP(e)->line = line;
+////		else if(IS_Method(sp[0].o) && sp[0].data != knh_Object_data(sp[0].mtd)) {
+////			knh_stack_addStackTrace(ctx, sp+1, e);
+////		}
+//		sp--;
 //	}
-	while(ctx->stack <= sp) {
-		if(IS_ExceptionHandler(sp[0].hdr) && knh_ExceptionHandler_isCatching(sp[0].hdr)) {
-			TODO();
-		}
-//		else if(IS_Method(sp[0].o) && sp[0].data != knh_Object_data(sp[0].mtd)) {
-//			knh_stack_addStackTrace(ctx, sp+1, e);
-//		}
-		sp--;
-	}
-	fprintf(stderr, "********** USE STACKTRACE IN YOUR C/C++ DEBUGGER ************\n");
-	fprintf(stderr, "Uncaught Exception: %s\n", S_tochar(DP(e)->msg));
-	fprintf(stderr, "*************************************************************\n");
-	exit(0);
-}
+//	fprintf(stderr, "********** USE STACKTRACE IN YOUR C/C++ DEBUGGER ************\n");
+//	fprintf(stderr, "Uncaught Exception: %s\n", S_tochar(DP(e)->msg));
+//	fprintf(stderr, "*************************************************************\n");
+//	exit(0);
+//}
 
 /* ------------------------------------------------------------------------ */
 
@@ -503,7 +495,7 @@ knh_Exception_t* knh_Exception_setup(Ctx *ctx, knh_Exception_t *e, knh_String_t 
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(knh_Exception_t*) new_Exception(Ctx *ctx, knh_String_t *msg)
+knh_Exception_t* new_Exception(Ctx *ctx, knh_String_t *msg)
 {
 	knh_Exception_t* e = new_(Exception);
 	knh_ebi_t eid = knh_geteid(ctx, S_tobytes(msg), EBI_newid);
@@ -513,44 +505,38 @@ KNHAPI(knh_Exception_t*) new_Exception(Ctx *ctx, knh_String_t *msg)
 	return e;
 }
 
-/* ------------------------------------------------------------------------ */
-
-KNHAPI(knh_Exception_t*) knh_cwb_newException(Ctx *ctx, knh_cwb_t *cwb)
-{
-	knh_Exception_t* e = new_(Exception);
-	knh_ebi_t eid = knh_geteid(ctx, knh_cwb_tobytes(cwb), EBI_newid);
-	DP(e)->eid = eid;
-	DP(e)->flag = ctx->share->EventTBL[eid].flag;
-	KNH_SETv(ctx, DP(e)->msg, knh_cwb_newString(ctx, cwb));
-	return e;
-}
-
-/* ------------------------------------------------------------------------ */
-
-KNHAPI(knh_Exception_t*) new_Exception__T(Ctx *ctx, const char *msg)
-{
-	knh_Exception_t* e = new_(Exception);
-	knh_bytes_t t = {{msg}, knh_strlen(msg)};
-	knh_ebi_t eid = knh_geteid(ctx, t, EBI_newid);
-	DP(e)->eid = eid;
-	DP(e)->flag = ctx->share->EventTBL[eid].flag;
-	KNH_SETv(ctx, DP(e)->msg, new_T(msg));
-	return e;
-}
-
-/* ------------------------------------------------------------------------ */
-
 void knh_Context_setThrowingException(Ctx *ctx, knh_Exception_t *e)
 {
 	KNH_SETv(ctx, ((knh_Context_t*)ctx)->e, e);
 }
 
-/* ------------------------------------------------------------------------ */
-
-void SYSLOG_OutOfIndex(Ctx *ctx, knh_sfp_t *sfp, knh_int_t n, size_t max)
-{
-	KNH_SYSLOG(ctx, LOG_CRIT, "OutOfIndex!!", "%i not < %i", n, (knh_int_t)max);
-}
+///* ------------------------------------------------------------------------ */
+//
+//KNHAPI(knh_Exception_t*) knh_cwb_newException(Ctx *ctx, knh_cwb_t *cwb)
+//{
+//	knh_Exception_t* e = new_(Exception);
+//	knh_ebi_t eid = knh_geteid(ctx, knh_cwb_tobytes(cwb), EBI_newid);
+//	DP(e)->eid = eid;
+//	DP(e)->flag = ctx->share->EventTBL[eid].flag;
+//	KNH_SETv(ctx, DP(e)->msg, knh_cwb_newString(ctx, cwb));
+//	return e;
+//}
+//
+///* ------------------------------------------------------------------------ */
+//
+//KNHAPI(knh_Exception_t*) new_Exception__T(Ctx *ctx, const char *msg)
+//{
+//	knh_Exception_t* e = new_(Exception);
+//	knh_bytes_t t = {{msg}, knh_strlen(msg)};
+//	knh_ebi_t eid = knh_geteid(ctx, t, EBI_newid);
+//	DP(e)->eid = eid;
+//	DP(e)->flag = ctx->share->EventTBL[eid].flag;
+//	KNH_SETv(ctx, DP(e)->msg, new_T(msg));
+//	return e;
+//}
+//
+///* ------------------------------------------------------------------------ */
+//
 
 /* ======================================================================== */
 /* [ExceptionHandler] */

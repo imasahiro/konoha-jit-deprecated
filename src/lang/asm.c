@@ -126,9 +126,9 @@ static void knh_BasicBlock_add_(Ctx *ctx, knh_BasicBlock_t *bb, int line, knh_op
 	}
 }
 
-static KLRAPI(void) _bBOX(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid);
-static KLRAPI(void) _BOX(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid);
-static KLRAPI(void) _OBOX(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid);
+static void _bBOX(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid);
+static void _BOX(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid);
+static void _OBOX(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid);
 
 static void knh_Gamma_asm(Ctx *ctx, knh_opline_t *op)
 {
@@ -665,43 +665,43 @@ static void KNH_ASM_RET(Ctx *ctx)
 /* ------------------------------------------------------------------------ */
 /* [func] */
 
-static KLRAPI(void) _NEW(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid)
+static void _NEW(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid)
 {
 	klr_mov(ctx, sfp[c].o, new_Object_init2(ctx, 0, knh_class_bcid(cid), cid));
 }
-static KLRAPI(void) _NULVAL(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid)
+static void _NULVAL(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid)
 {
 	klr_mov(ctx, sfp[c].o, KNH_NULVAL(cid));
 	sfp[c].data = knh_Object_data(sfp[c].o);
 }
-static KLRAPI(void) _SYS(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid)
+static void _SYS(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid)
 {
 	klr_mov(ctx, sfp[c].o, KNH_SYS(ctx, (int)sfp[0].ivalue));
 }
-static KLRAPI(void) _PROP(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid)
+static void _PROP(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid)
 {
 	Object *v = (Object*)knh_getPropertyNULL(ctx, S_tobytes(sfp[0].s));
 	if(v == NULL) v = KNH_NULVAL(cid);
 	klr_mov(ctx, sfp[c].o, v);
 }
-static KLRAPI(void) _VARGS(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid)
+static void _VARGS(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid)
 {
 	knh_Array_t *a = new_Array(ctx, cid, ctx->esp - (sfp - 1));
 	a->api->add(ctx, a, sfp - 1);
 	klr_mov(ctx, sfp[c].o, a);
 }
-static KLRAPI(void) _bBOX(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid)
+static void _bBOX(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid)
 {
 	knh_Object_t *b = sfp[0].bvalue ? KNH_TRUE : KNH_FALSE;
 	//DBG_P("sfp[0].ivalue=%lld, .bvalue=%ld", sfp[0].ivalue, sfp[0].bvalue);
 	klr_mov(ctx, sfp[c].o, b);
 }
-static KLRAPI(void) _BOX(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid)
+static void _BOX(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid)
 {
 	Object *v = new_Object_boxing(ctx, cid, sfp);
 	klr_mov(ctx, sfp[c].o, v);
 }
-static KLRAPI(void) _OBOX(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid)
+static void _OBOX(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid)
 {
 	knh_class_t cid2 = knh_Object_cid(sfp[0].o);
 	if(IS_Tunbox(cid2)) {
@@ -711,14 +711,14 @@ static KLRAPI(void) _OBOX(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t 
 		klr_mov(ctx, sfp[c].o, v);
 	}
 }
-static KLRAPI(void) _CWB(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid)
+static void _CWB(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid)
 {
 	size_t pos = BA_size(ctx->bufa);
 	klr_mov(ctx, sfp[c].o, ctx->bufw);
 	sfp[c].ivalue = pos;
 	DBG_P("sfpidx=%d, pos=%zd", (sfp + c) - ctx->stack, pos);
 }
-static KLRAPI(void) _TOSTR(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid)
+static void _TOSTR(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid)
 {
 	DBG_ASSERT(IS_OutputStream(sfp[0].w));
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
@@ -727,7 +727,7 @@ static KLRAPI(void) _TOSTR(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t
 	knh_String_t *s = knh_cwb_newString(ctx, cwb);
 	klr_mov(ctx, sfp[c].o, s);
 }
-static KLRAPI(void) _ERR(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid)
+static void _ERR(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid)
 {
 	if(IS_bString(sfp[0].o)) {
 		knh_Context_setThrowingException(ctx, new_Exception(ctx, sfp[0].s));
@@ -741,17 +741,17 @@ static KLRAPI(void) _ERR(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t c
 //{
 //	return knh_class_instanceof(ctx, o->h.cid, CLASS_type(t));
 //}
-static KLRAPI(void) _CHKTYPE(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid)
+static void _CHKTYPE(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t c, knh_class_t cid)
 {
 //	if(!knh_Object_opTypeOf(ctx, sfp[0].o, cid)) {
 //		knh_Context_setThrowingException(ctx, new_Exception__T(ctx, "ClassCast!!"));
 //	}
 }
-static KLRAPI(knh_Method_t*) klr_setMethod(Ctx *ctx, knh_sfp_t *sfp, int thisidx, knh_Method_t *mtd)
+static knh_Method_t* klr_setMethod(Ctx *ctx, knh_sfp_t *sfp, int thisidx, knh_Method_t *mtd)
 {
 	return mtd;
 }
-static KLRAPI(knh_Method_t*) klr_lookupMethod(Ctx *ctx, knh_sfp_t *sfp, int thisidx, knh_Method_t *mtd)
+static knh_Method_t* klr_lookupMethod(Ctx *ctx, knh_sfp_t *sfp, int thisidx, knh_Method_t *mtd)
 {
 	knh_class_t cid = knh_Object_cid(sfp[thisidx].o);
 	if(cid != DP(mtd)->cid) {
@@ -759,7 +759,7 @@ static KLRAPI(knh_Method_t*) klr_lookupMethod(Ctx *ctx, knh_sfp_t *sfp, int this
 	}
 	return mtd;
 }
-static KLRAPI(knh_Method_t*) klr_checkParams(Ctx *ctx, knh_sfp_t *sfp, int thisidx, knh_Method_t *mtd)
+static knh_Method_t* klr_checkParams(Ctx *ctx, knh_sfp_t *sfp, int thisidx, knh_Method_t *mtd)
 {
 	knh_class_t cid = knh_Object_cid(sfp[thisidx].o);
 	if(cid != DP(mtd)->cid) {
@@ -783,11 +783,11 @@ static KLRAPI(knh_Method_t*) klr_checkParams(Ctx *ctx, knh_sfp_t *sfp, int thisi
 //		return 0;
 //	}
 //}
-//static KLRAPI(void) klr_size(Ctx *ctx, knh_sfp_t *sfp, int c, int a)
+//static void klr_size(Ctx *ctx, knh_sfp_t *sfp, int c, int a)
 //{
 //	sfp[c].ivalue = (sfp[a].a)->size;
 //}
-static KLRAPI(int) klr_isskip(Ctx *ctx, knh_sfp_t *sfp, int a)
+static int klr_isskip(Ctx *ctx, knh_sfp_t *sfp, int a)
 {
 	return 0;
 }
@@ -2407,7 +2407,7 @@ static knh_flag_t knh_StmtPRINT_flag(Ctx *ctx, knh_Stmt_t *o)
 	return flag;
 }
 
-KLRAPI(void) _PRINT(Ctx *ctx, knh_sfp_t *sfp, struct klr_P_t *op)
+static void _PRINT(Ctx *ctx, knh_sfp_t *sfp, struct klr_P_t *op)
 {
 	knh_flag_t flag = (knh_flag_t)op->flag;
 	knh_OutputStream_t *w = KNH_STDOUT; //knh_stack_pstream(ctx, flag);

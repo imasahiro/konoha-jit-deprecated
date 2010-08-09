@@ -39,7 +39,6 @@ KNHAPI(knh_Semantics_t*) new_Vocab(Ctx *ctx, char *tag, knh_bytes_t urn, int bas
 KNHAPI(void) knh_loadURNAliasData(Ctx *ctx, knh_StringData_t *data);
 KNHAPI(void) knh_loadSemanticsFuncData(Ctx *ctx, knh_NamedPointerData_t *data);
 KNHAPI(void) knh_stack_boxing(Ctx *ctx, knh_sfp_t *sfp);
-KNHAPI(void) knh_stack_throw(Ctx *ctx, knh_sfp_t *sfp, knh_Exception_t *e);
 KNHAPI(knh_Exception_t*) new_Exception(Ctx *ctx, knh_String_t *msg);
 KNHAPI(knh_Exception_t*) knh_cwb_newException(Ctx *ctx, knh_cwb_t *cwb);
 KNHAPI(knh_Exception_t*) new_Exception__T(Ctx *ctx, const char *msg);
@@ -63,7 +62,6 @@ KNHAPI(knh_Translator_t*) new_Translator(Ctx *ctx, knh_flag_t flag, knh_class_t 
 /* DEVELOPERS API */
 METHOD knh_Fmethod_runVM(Ctx *ctx, knh_sfp_t *sfp, long rix);
 void knh_NameSpace_addFormatter(Ctx *ctx, knh_NameSpace_t *ns, knh_Method_t *mtd);
-KLRAPI(void) _PRINT(Ctx *ctx, knh_sfp_t *sfp, struct klr_P_t *op);
 void knh_Method_asm(Ctx *ctx, knh_Method_t *mtd, knh_Stmt_t *stmtP, knh_Stmt_t *stmtB, knh_type_t reqt, knh_Ftyping typing);
 void knh_loadSystemKLRCode(Ctx *ctx);
 void knh_write_vmfunc(Ctx *ctx, knh_OutputStream_t *w, void *f);
@@ -193,6 +191,11 @@ void knh_write_uline(Ctx *ctx, knh_OutputStream_t *w, knh_uri_t uri, long line);
 const char* LOG__(int p);
 void knh_makeEvidence(Ctx *ctx, const char *ns, const char *event, int p, const char *fmt, ...);
 void knh_stack_perror(Ctx *ctx, knh_sfp_t *sfp, const char *ns, const char *event);
+void SYSLOG_Halt(Ctx *ctx, knh_sfp_t *sfp, const char *msg);
+void SYSLOG_Arithmetic(Ctx *ctx, knh_sfp_t *sfp, const char *msg);
+void SYSLOG_OutOfIndex(Ctx *ctx, knh_sfp_t *sfp, knh_int_t n, size_t max);
+void SYSLOG_NoSuchMethod(Ctx *ctx, knh_sfp_t *sfp, knh_class_t cid, knh_methodn_t mn);
+void SYSLOG_ParamTypeError(Ctx *ctx, knh_sfp_t *sfp, size_t n, knh_methodn_t mn, knh_class_t reqt, knh_class_t cid);
 void knh_foundKonohaStyle(Ctx *ctx, size_t score);
 void knh_vperror(Ctx *ctx, knh_uri_t uri, int line, int pe, const char *fmt, va_list ap);
 void knh_perror(Ctx *ctx, knh_uri_t uri, int line, int pe, const char *fmt, ...);
@@ -254,7 +257,6 @@ knh_bool_t knh_Method_isAbstract(knh_Method_t *o);
 void knh_Method_toAbstract(Ctx *ctx, knh_Method_t *mtd);
 void knh_Method_setFunc(Ctx *ctx, knh_Method_t *mtd, knh_Fmethod func);
 knh_Method_t* new_Method(Ctx *ctx, knh_flag_t flag, knh_class_t cid, knh_methodn_t mn, knh_Fmethod func);
-knh_bool_t knh_Method_isNoSuchMethod(knh_Method_t *o);
 knh_Method_t* new_Method__NoSuchMethod(Ctx *ctx, knh_class_t cid, knh_methodn_t mn);
 void knh_Class_addMethod(Ctx *ctx, knh_class_t cid, knh_Method_t *mtd);
 knh_index_t knh_Method_indexOfGetterField(knh_Method_t *o);
@@ -320,7 +322,6 @@ knh_ebi_t knh_addEvent(Ctx *ctx, knh_flag_t flag, knh_class_t eid, knh_String_t 
 knh_ebi_t knh_geteid(Ctx *ctx, knh_bytes_t msg, knh_ebi_t def);
 knh_Exception_t* knh_Exception_setup(Ctx *ctx, knh_Exception_t *e, knh_String_t *event, knh_String_t *msg, Object *bag);
 void knh_Context_setThrowingException(Ctx *ctx, knh_Exception_t *e);
-void SYSLOG_OutOfIndex(Ctx *ctx, knh_sfp_t *sfp, knh_int_t n, size_t max);
 knh_InputStream_t* new_InputStreamDSPI(Ctx *ctx, knh_io_t fd, const knh_StreamDSPI_t *dspi);
 knh_InputStream_t* new_BytesInputStream(Ctx *ctx, knh_Bytes_t *ba);
 void knh_BytesInputStream_setpos(Ctx *ctx, knh_InputStream_t *in, size_t s, size_t e);

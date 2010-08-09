@@ -207,6 +207,35 @@ void knh_stack_perror(Ctx *ctx, knh_sfp_t *sfp, const char *ns, const char *even
 	ctx->share->ebiSPI->syslog(p, K_EVENT_FORMAT "errno=%d, msg='%s'", ns, event, errno_, emsg);
 }
 
+/* ------------------------------------------------------------------------ */
+
+void SYSLOG_Halt(Ctx *ctx, knh_sfp_t *sfp, const char *msg)
+{
+	KNH_SYSLOG(ctx, LOG_CRIT, "InternalError!!", "%s", msg);
+}
+
+void SYSLOG_Arithmetic(Ctx *ctx, knh_sfp_t *sfp, const char *msg)
+{
+	KNH_SYSLOG(ctx, LOG_CRIT, "Arithmetic!!", "%s", msg);
+}
+
+void SYSLOG_OutOfIndex(Ctx *ctx, knh_sfp_t *sfp, knh_int_t n, size_t max)
+{
+	KNH_SYSLOG(ctx, LOG_CRIT, "OutOfIndex!!", "%i not < %i", n, (knh_int_t)max);
+}
+
+void SYSLOG_NoSuchMethod(Ctx *ctx, knh_sfp_t *sfp, knh_class_t cid, knh_methodn_t mn)
+{
+	KNH_SYSLOG(ctx, LOG_CRIT, "NoSuchMethod!!", "%C.%M", cid, mn);
+}
+
+void SYSLOG_ParamTypeError(Ctx *ctx, knh_sfp_t *sfp, size_t n, knh_methodn_t mn, knh_class_t reqt, knh_class_t cid)
+{
+	KNH_SYSLOG(ctx, LOG_CRIT, "Type!!", "%d of %M NOT %T", n, mn, cid);
+}
+
+
+
 /* ======================================================================== */
 /* [perror] */
 

@@ -36,7 +36,7 @@
 #define USE_bytes_rindex      1
 #define USE_bytes_equals      1
 #define USE_bytes_startsWith  1
-#define USE_bytes_endsWith    1
+//#define USE_bytes_endsWith    1
 
 #define USE_cwb_open      1
 #define USE_cwb_tobytes   1
@@ -787,16 +787,16 @@ static void knh_Bytes_addCOMMENT(Ctx *ctx, knh_Bytes_t *ba, knh_InputStream_t *i
 	}
 }
 
-static void knh_Bytes_skipLCOMMENT(Ctx *ctx, knh_Bytes_t *ba, knh_InputStream_t *in)
-{
-	int ch;
-	while((ch = knh_InputStream_getc(ctx, in)) != EOF) {
-		if(ch == '\n') {
-			knh_Bytes_putc(ctx, ba, ch);
-			break;
-		}
-	}
-}
+//static void knh_Bytes_addLCOMMENT(Ctx *ctx, knh_Bytes_t *ba, knh_InputStream_t *in)
+//{
+//	int ch;
+//	while((ch = knh_InputStream_getc(ctx, in)) != EOF) {
+//		knh_Bytes_putc(ctx, ba, ch);
+//		if(ch == '\n') {
+//			break;
+//		}
+//	}
+//}
 
 static knh_InputStream_t* knh_openPathNULL(Ctx *ctx, knh_bytes_t path)
 {
@@ -840,42 +840,69 @@ knh_bool_t knh_load(Ctx *ctx, knh_bytes_t path, knh_type_t reqt, knh_Array_t *re
 	knh_Bytes_clear(ba, 0);
 	if(!knh_InputStream_isClosed(ctx, in)) {
 		int ch;
-		int isBLOCK = 0, isSKIP = 0, prev = 0;
+		int prev = 0, isBLOCK = 0;
 		linenum = DP(in)->line;
 		while((ch = knh_InputStream_getc(ctx, in)) != EOF) {
 			if(ch == '\r') continue;
 			knh_Bytes_putc(ctx, ba, ch);
-			if(isBLOCK && (ch == '}' || ch == ']') && prev == 0) {
-				isBLOCK = 0;
-			}
 			if(prev == '/' && ch == '*') {
 				knh_Bytes_addCOMMENT(ctx, ba, in);
-				continue;
-			}
-			if(prev == '/' && ch == '/') {
-				knh_Bytes_skipLCOMMENT(ctx, ba, in);
 				continue;
 			}
 			if(ch == '\'' || ch == '"' || ch == '`') {
 				knh_Bytes_addQUOTE(ctx, ba, in, ch);
 				continue;
 			}
-			if(ch == '#' && prev == '#') isSKIP = 1;
-			if(isSKIP == 1 && ch == '\n') {
-				isSKIP = 0; prev = 0; continue;
+			if(isBLOCK != 1 && prev == '\n' && ch == '\n') {
+				goto L_PARSE;
 			}
-			if(ch == '\n') {
-				if(prev == '{' || prev == '[') {
-					isBLOCK = 1;
-				}
-				if(prev == '\\') continue;
-				if(!isBLOCK) goto L_PARSE;
-				prev = 0; continue;
+			if(prev == '{') {
+				isBLOCK = 1;
 			}
-			if(prev != 0 && (ch == ' ' || ch == '\t')) continue;
+			if(prev == '\n' && ch == '}') {
+				isBLOCK = 0;
+			}
 			prev = ch;
 		}
 	}
+//	if(!knh_InputStream_isClosed(ctx, in)) {
+//		int ch;
+//		int isBLOCK = 0, isSKIP = 0, prev = 0;
+//		linenum = DP(in)->line;
+//		while((ch = knh_InputStream_getc(ctx, in)) != EOF) {
+//			if(ch == '\r') continue;
+//			knh_Bytes_putc(ctx, ba, ch);
+//			if(isBLOCK && (ch == '}' || ch == ']') && prev == 0) {
+//				isBLOCK = 0;
+//			}
+//			if(prev == '/' && ch == '*') {
+//				knh_Bytes_addCOMMENT(ctx, ba, in);
+//				continue;
+//			}
+//			if(prev == '/' && ch == '/') {
+//				knh_Bytes_addLCOMMENT(ctx, ba, in);
+//				continue;
+//			}
+//			if(ch == '\'' || ch == '"' || ch == '`') {
+//				knh_Bytes_addQUOTE(ctx, ba, in, ch);
+//				continue;
+//			}
+//			if(ch == '#' && prev == '#') isSKIP = 1;
+//			if(isSKIP == 1 && ch == '\n') {
+//				isSKIP = 0; prev = 0; continue;
+//			}
+//			if(ch == '\n') {
+//				if(prev == '{' || prev == '[') {
+//					isBLOCK = 1;
+//				}
+//				if(prev == '\\') continue;
+//				if(!isBLOCK) goto L_PARSE;
+//				prev = 0; continue;
+//			}
+//			if(prev != 0 && (ch == ' ' || ch == '\t')) continue;
+//			prev = ch;
+//		}
+//	}
 	L_PARSE:;
 	if(!knh_bytes_isempty(ba->bu)) {
 		knh_BytesInputStream_setpos(ctx, bin, 0, BA_size(ba));
@@ -913,12 +940,7 @@ KNHAPI(int) konoha_load(konoha_t konoha, knh_bytes_t path, int isCompileOnly)
 	Ctx *ctx = KONOHA_BEGIN(konoha.ctx);
 	char buf[256];
 	knh_Array_t *resultsNULL = isCompileOnly ? NULL : KNH_TNULL(Array);
-	if(B_endsWith(path, ".k")) {
-		knh_snprintf(buf, sizeof(buf), "file:%s", path.text);
-	}
-	else {
-		knh_snprintf(buf, sizeof(buf), "tool:%s", path.text);
-	}
+	knh_snprintf(buf, sizeof(buf), "file:%s", path.text);
 	isCONTINUE = knh_load(ctx, B(buf), TYPE_void, resultsNULL);
 	if(resultsNULL != NULL) knh_Array_clear(ctx, resultsNULL, 0);
 	knh_stack_clear(ctx, ctx->stack);

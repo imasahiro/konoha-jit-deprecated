@@ -1949,8 +1949,7 @@ static knh_ObjectSPI_t SystemSPI = {
 
 static void knh_Context_init(Ctx *ctx, Object *o)
 {
-	/* Context can be only instatiated in new_Context() */
-	KNH_THROW__T(ctx, "Abort!!");
+	SYSLOG_Halt(ctx, NULL, "Context can be only instatiated in new_Context()");
 }
 
 static knh_ObjectSPI_t ContextSPI = {

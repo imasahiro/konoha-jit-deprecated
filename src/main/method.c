@@ -257,20 +257,18 @@ knh_Method_t* new_Method(Ctx *ctx, knh_flag_t flag, knh_class_t cid, knh_methodn
 
 static METHOD knh_Fmethod_NoSuchMethod(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-	knh_Bytes_write(ctx, cwb->ba, STEXT("NoSuchMethod!!: "));
-	knh_write_sname(ctx, cwb->w, knh_Object_cid(sfp[0].o));
-	knh_putc(ctx, cwb->w, '.');
-	knh_write_mn(ctx, cwb->w, DP(sfp[K_MTDIDX].callmtd)->mn);
-	knh_stack_throw(ctx, ctx->esp, knh_cwb_newException(ctx, cwb));
+	knh_Method_t *mtd = sfp[K_MTDIDX].callmtd;
+	KNH_ASSERT(IS_Method(mtd));
+	knh_class_t cid = knh_Method_isStatic(mtd) ? DP(mtd)->cid : knh_Object_cid(sfp[0].o);
+	SYSLOG_NoSuchMethod(ctx, sfp, cid, DP(mtd)->mn);
 }
 
-/* ------------------------------------------------------------------------ */
-
-knh_bool_t knh_Method_isNoSuchMethod(knh_Method_t *o)
-{
-	return (DP(o)->fproceed == knh_Fmethod_NoSuchMethod);
-}
+///* ------------------------------------------------------------------------ */
+//
+//knh_bool_t knh_Method_isNoSuchMethod(knh_Method_t *o)
+//{
+//	return (DP(o)->fproceed == knh_Fmethod_NoSuchMethod);
+//}
 
 /* ------------------------------------------------------------------------ */
 
@@ -298,7 +296,7 @@ void knh_Class_addMethod(Ctx *ctx, knh_class_t cid, knh_Method_t *mtd)
 	for(i = 0; i < knh_Array_size(a); i++) {
 		knh_Method_t *mtd2 = a->methods[i];
 		if(DP(mtd2)->mn == DP(mtd)->mn) {
-			KNH_SYSLOG(ctx, LOG_WARNING, "RedefinedMethod", "%C.%M", DP(mtd)->cid, DP(mtd)->mn);
+			KNH_SYSLOG(ctx, LOG_WARNING, "RedefinitonOfMethod", "%C.%M", DP(mtd)->cid, DP(mtd)->mn);
 			return ;
 		}
 	}

@@ -414,7 +414,7 @@ static METHOD Int_opMUL(Ctx *ctx, knh_sfp_t *sfp, long rix)
 
 static METHOD Int_opDIV(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-	KNH_THROW_iZERODIV(sfp[1].ivalue);
+	SYSLOG_iZERODIV(ctx, sfp, sfp[1].ivalue);
 	RETURNi_(sfp[0].ivalue / sfp[1].ivalue);
 }
 
@@ -423,7 +423,7 @@ static METHOD Int_opDIV(Ctx *ctx, knh_sfp_t *sfp, long rix)
 
 static METHOD Int_opMOD(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-	KNH_THROW_iZERODIV(sfp[1].ivalue);
+	SYSLOG_iZERODIV(ctx, sfp, sfp[1].ivalue);
 	RETURNi_(sfp[0].ivalue % sfp[1].ivalue);
 }
 
@@ -465,7 +465,7 @@ static METHOD Float_opMUL(Ctx *ctx, knh_sfp_t *sfp, long rix)
 
 static METHOD Float_opDIV(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-	KNH_THROW_fZERODIV(sfp[1].fvalue);
+	SYSLOG_fZERODIV(ctx, sfp, sfp[1].fvalue);
 	RETURNf_(sfp[0].fvalue / sfp[1].fvalue);
 }
 

@@ -38,50 +38,32 @@ extern "C" {
 /* KCODE */
 /* ======================================================================== */
 
-#ifndef KLRAPI
-#define KLRAPI(T)         T  K_CC_FASTCALL
-#endif
-
 #define SFi(x)   sfp[x].ivalue
 #define SFf(x)   sfp[x].fvalue
 #define SFb(x)   sfp[x].bvalue
 #define	REGb(x)  sfp[x].bvalue
 
-#define KNH_THROW__T(ctx, s) \
-	knh_stack_throw(ctx, ctx->esp, new_Exception__T(ctx, s)); \
+#define SYSLOG_iZERODIV(ctx, sfp, n)
+#define SYSLOG_fZERODIV(ctx, sfp, n)
 
-#define KNH_THROW_iZERODIV(n)  \
+#define SYSLOG_iZERODIV2(ctx, sfp, n)  \
 	if(unlikely(n == 0)) { \
-		KNH_THROW__T(ctx, "Arithmetic!!: Zero Divided"); \
+		SYSLOG_Arithmetic(ctx, sfp, "zero divided"); \
 	}\
 
-#define KNH_THROW_fZERODIV(n)  \
+#define SYSLOG_fZERODIV2(ctx, sfp, n)  \
 	if(unlikely(n == K_FLOAT_ZERO)) { \
-		KNH_THROW__T(ctx, "Arithmetic!!: Zero Divided"); \
+		SYSLOG_Arithmetic(ctx, sfp, "zero divided"); \
 	}\
 
 int knh_Method_pcline(knh_Method_t *mtd, knh_opline_t *pc);
 #define _HERE_    knh_Method_file(ctx, sfp[K_MTDIDX].callmtd), knh_Method_pcline(sfp[K_MTDIDX].callmtd, pc-1)
 
-#define klr_throw__T(ctx, s) \
-	knh_stack_throw(ctx, ctx->esp, new_Exception__T(ctx, s)); \
-
-#define klr_throw__iZERODIV(n)  \
-	if(unlikely(n == 0)) { \
-		klr_throw__T(ctx, "Arithmetic!!: Zero Divided"); \
-	}\
-
-#define klr_throw__fZERODIV(n)  \
-	if(unlikely(n == K_FLOAT_ZERO)) { \
-		klr_throw__T(ctx, "Arithmetic!!: Zero Divided"); \
-	}\
-
 /* [HALT] */
 
 #define KLR0_HALT(ctx) {\
 		pc--;\
-		KNH_SYSLOG(ctx, LOG_CRIT, "HaltVirtualMachine", "file=%s, line=%d", \
-			knh_Method_file(ctx, sfp[K_MTDIDX].callmtd), pc->line);\
+		SYSLOG_Halt(ctx, sfp, "HALT"); \
 		goto L_RETURN;\
 	}\
 
@@ -319,7 +301,7 @@ knh_opline_t* knh_VirtualMachine_run(Ctx *, knh_sfp_t *, knh_opline_t *);
 		GOTO_PC(pc);\
 	}\
 
-typedef KLRAPI(knh_Method_t*) (*klr_Fmethod)(Ctx *, knh_sfp_t *, int, knh_Method_t*);
+typedef knh_Method_t* (*klr_Fmethod)(Ctx *, knh_sfp_t *, int, knh_Method_t*);
 
 #define KLR_LOADMTD(ctx, thisidx, fmtd, mtdO) { \
 		knh_Method_t *mtd_ = fmtd(ctx, sfp, thisidx, mtdO);\
@@ -436,7 +418,7 @@ typedef KLRAPI(knh_Method_t*) (*klr_Fmethod)(Ctx *, knh_sfp_t *, int, knh_Method
 		}\
 	} \
 
-typedef KLRAPI(void) (*klr_Ftr)(Ctx *, knh_sfp_t *, knh_sfpidx_t, knh_class_t);
+typedef void (*klr_Ftr)(Ctx *, knh_sfp_t *, knh_sfpidx_t, knh_class_t);
 
 #define KLR_TR(Ctx, c, a, cid, f) { \
 		f(ctx, sfp + a, c - a, (knh_class_t)cid);\
@@ -463,7 +445,7 @@ typedef KLRAPI(void) (*klr_Ftr)(Ctx *, knh_sfp_t *, knh_sfpidx_t, knh_class_t);
 		KLR_JMP(ctx, PC, JUMP); \
 	} \
 
-typedef KLRAPI(int) (*klr_Fchk)(Ctx *, knh_sfp_t *, int n);
+typedef int (*klr_Fchk)(Ctx *, knh_sfp_t *, int n);
 
 #define KLR_DYJMP(ctx, PC, JUMP, n, fcheck) \
 	if(fcheck(ctx, sfp, n)) { \
@@ -480,7 +462,7 @@ typedef KLRAPI(int) (*klr_Fchk)(Ctx *, knh_sfp_t *, int n);
 		} \
 	} \
 
-typedef KLRAPI(int) (*klr_Fnext)(Ctx *, knh_sfp_t *, int, knh_class_t);
+typedef int (*klr_Fnext)(Ctx *, knh_sfp_t *, int, knh_class_t);
 
 #define KLR_NEXTf(ctx, PC, JUMP, fnext, reqc, na, ib) { \
 		knh_sfp_t *itrsfp_ = sfp + ib; \
@@ -499,7 +481,7 @@ typedef KLRAPI(int) (*klr_Fnext)(Ctx *, knh_sfp_t *, int, knh_class_t);
 			_hdr = new_(ExceptionHandler); \
 			klr_mov(ctx, sfp[hn].o, _hdr); \
 		} \
-		_hdr = _hdr = knh_ExceptionHandler_setjmp(ctx, _hdr); \
+		_hdr = knh_ExceptionHandler_setjmp(ctx, _hdr); \
 		/** asm("int3"); gdb info r **/\
 		if(_hdr == NULL) {\
 			_hdr = sfp[hn].hdr;\
@@ -556,10 +538,10 @@ typedef KLRAPI(int) (*klr_Fnext)(Ctx *, knh_sfp_t *, int, knh_class_t);
 /* ------------------------------------------------------------------------ */
 
 struct klr_P_t;
-typedef KLRAPI(void) (*klr_Fprint)(Ctx *, knh_sfp_t*, struct klr_P_t*);
+typedef void (*klr_Fprint)(Ctx *, knh_sfp_t*, struct klr_P_t*);
 #define KLR_P(ctx, fprint, flag, msg, fmt, n) fprint(ctx, sfp, op)
 
-typedef KLRAPI(void) (*klr_Fprobe)(Ctx *, knh_sfp_t*, knh_sfpidx_t n, knh_opline_t *pc);
+typedef void (*klr_Fprobe)(Ctx *, knh_sfp_t*, knh_sfpidx_t n, knh_opline_t *pc);
 
 #define KLR0_PROBE(ctx, fprobe, n) { \
 		fprobe(ctx, sfp, n, pc-1);\
@@ -580,13 +562,13 @@ typedef KLRAPI(void) (*klr_Fprobe)(Ctx *, knh_sfp_t*, knh_sfpidx_t n, knh_opline
 #define KLR_iMUL(ctx, c, a, b)  SFi(c) = (SFi(a) * SFi(b))
 #define KLR_iMULn(ctx, c, a, n) SFi(c) = (SFi(a) * n)
 #define KLR_iDIV(ctx, c, a, b)  { \
-		klr_throw__iZERODIV(SFi(b)); \
+		SYSLOG_iZERODIV(ctx, sfp, SFi(b)); \
 		SFi(c) = (SFi(a) / SFi(b)); \
 	} \
 
 #define KLR_iDIVn(ctx, c, a, n)  SFi(c) = (SFi(a) / n)
 #define KLR_iMOD(ctx, c, a, b)  { \
-		klr_throw__iZERODIV(SFi(b)); \
+		SYSLOG_iZERODIV(ctx, sfp, SFi(b)); \
 		SFi(c) = (SFi(a) % SFi(b)); \
 	} \
 
@@ -631,7 +613,7 @@ typedef KLRAPI(void) (*klr_Fprobe)(Ctx *, knh_sfp_t*, knh_sfpidx_t n, knh_opline
 #define KLR_fMUL(ctx, c, a, b)  SFf(c) = (SFf(a) * SFf(b))
 #define KLR_fMULn(ctx, c, a, n) SFf(c) = (SFf(a) * n)
 #define KLR_fDIV(ctx, c, a, b)  { \
-		klr_throw__fZERODIV(SFf(b)); \
+		SYSLOG_fZERODIV(ctx, sfp, SFf(b)); \
 		SFf(c) = (SFf(a) / SFf(b)); \
 	} \
 
@@ -669,6 +651,25 @@ typedef KLRAPI(void) (*klr_Fprobe)(Ctx *, knh_sfp_t*, knh_sfpidx_t n, knh_opline
 #define klr_array_index(ctx, n, size)   (size_t)n
 #define klr_array_check(n, size) \
 	if(unlikely(n >= size)) SYSLOG_OutOfIndex(ctx, sfp, n, size)
+
+#define KLR_BGETIDXn(ctx, cidx, aidx, N) {\
+		knh_bytes_t *b_ = BA_tobytes(sfp[aidx].ba);\
+		size_t n_ = klr_array_index(ctx, N, b_.len);\
+		klr_array_check(n_, b_.len);\
+		sfp[cidx].ivalue = b_.ustr(n_);\
+	}\
+
+#define KLR_BGETIDX(ctx, cidx, aidx, nidx) KLR_BGETIDXn(ctx, cidx, aidx, sfp[nidx].ivalue)
+
+#define KLR_BSETIDXn(ctx, cidx, aidx, N, vidx) {\
+		knh_bytes_t *b_ = BA_tobytes(sfp[aidx].ba);\
+		size_t n_ = klr_array_index(ctx, N, b_.len);\
+		klr_array_check(n_, b_.len);\
+		b_.ubuf[b_.len] = (knh_uchar_t)sfp[vidx].ivalue;\
+		sfp[cidx].ivalue = sfp[vidx].ivalue;\
+	}\
+
+#define KLR_BSETIDX(ctx, cidx, aidx, nidx, vidx) KLR_BSETIDXn(ctx, cidx, aidx, sfp[nidx].ivalue, vidx)
 
 #define KLR_OGETIDXn(ctx, cidx, aidx, N) {\
 		knh_Array_t *a_ = sfp[aidx].a;\
@@ -710,13 +711,11 @@ typedef KLRAPI(void) (*klr_Fprobe)(Ctx *, knh_sfp_t*, knh_sfpidx_t n, knh_opline
 
 /* ------------------------------------------------------------------------ */
 
-
 #ifndef KONOHA_ON_WINDOWS
 #define KLR_NOP(ctx)  asm("nop")
 #else
 #define KLR_NOP(ctx)
 #endif
-
 
 /* ------------------------------------------------------------------------ */
 
@@ -730,33 +729,6 @@ typedef KLRAPI(void) (*klr_Fprobe)(Ctx *, knh_sfp_t*, knh_sfpidx_t n, knh_opline
 #define LOCAL_NEW(ctx, lsfp, n, T, V, O) \
 	T V = O;\
 	KNH_SETv(ctx, lsfp[n].o, V);\
-
-/* ------------------------------------------------------------------------ */
-
-typedef KLRAPI(void) (*klr_Foeval)(Ctx *ctx, knh_sfp_t *, int, int);
-
-#define KLR_OEVAL(ctx, foeval, c, a)  {\
-		foeval(ctx, sfp, c, a);\
-	}\
-
-typedef KLRAPI(void) (*klr_Fgetidx)(Ctx *, knh_sfp_t *, int, int, size_t);
-typedef KLRAPI(void) (*klr_Fsetidx)(Ctx *, knh_sfp_t *, int, int, int, size_t);
-
-#define KLR_GETIDX(ctx, fgetidx, b, a, n)  {\
-		fgetidx(ctx, sfp, b, a, (size_t)sfp[n].ivalue);\
-	}\
-
-#define KLR_GETIDXn(ctx, fgetidx, b, a, n)  {\
-		fgetidx(ctx, sfp, b, a, (size_t)n);\
-	}\
-
-#define KLR_SETIDX(ctx, fsetidx, c, a, v, n)  {\
-		fsetidx(ctx, sfp, c, a, v, (size_t)sfp[n].ivalue);\
-	}\
-
-#define KLR_SETIDXn(ctx, fsetidx, c, a, v, n)  {\
-		fsetidx(ctx, sfp, c, a, v, (size_t)n);\
-	}\
 
 /* ------------------------------------------------------------------------ */
 

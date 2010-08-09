@@ -73,11 +73,12 @@ void knh_addTranslatorFunc(Ctx *ctx, knh_flag_t flag, knh_type_t stype, knh_type
 
 static TCAST knh_Ftranslator_null(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-	DBG_(
-	knh_Translator_t *trl = sfp[0].casttrl;
-	DBG_P("trl: %s ==> %s", CLASS__(SP(trl)->scid), CLASS__(SP(trl)->tcid));
-	);
-	KNH_THROW__T(ctx, "ClassCast!!");
+	KNH_TODO("null translator");
+//	DBG_(
+//	knh_Translator_t *trl = sfp[0].casttrl;
+//	DBG_P("trl: %s ==> %s", CLASS__(SP(trl)->scid), CLASS__(SP(trl)->tcid));
+//	);
+//	KNH_THROW__T(ctx, "ClassCast!!");
 }
 
 ///* ------------------------------------------------------------------------ */
