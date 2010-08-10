@@ -34,7 +34,7 @@
 //#define USE_bytes_indexOf     1
 //#define USE_bytes_startsWith  1
 //#define USE_cwb_open      1
-#define USE_cwb_tobytes   1
+//#define USE_cwb_tobytes   1
 
 #include"commons.h"
 

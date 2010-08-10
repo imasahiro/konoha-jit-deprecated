@@ -256,7 +256,6 @@ knh_bool_t knh_Method_isAbstract(knh_Method_t *o);
 void knh_Method_toAbstract(Ctx *ctx, knh_Method_t *mtd);
 void knh_Method_setFunc(Ctx *ctx, knh_Method_t *mtd, knh_Fmethod func);
 knh_Method_t* new_Method(Ctx *ctx, knh_flag_t flag, knh_class_t cid, knh_methodn_t mn, knh_Fmethod func);
-knh_Method_t* new_Method__NoSuchMethod(Ctx *ctx, knh_class_t cid, knh_methodn_t mn);
 void knh_Class_addMethod(Ctx *ctx, knh_class_t cid, knh_Method_t *mtd);
 knh_index_t knh_Method_indexOfGetterField(knh_Method_t *o);
 knh_index_t knh_Method_indexOfSetterField(knh_Method_t *o);

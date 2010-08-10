@@ -254,31 +254,6 @@ knh_Method_t* new_Method(Ctx *ctx, knh_flag_t flag, knh_class_t cid, knh_methodn
 }
 
 /* ------------------------------------------------------------------------ */
-
-static METHOD knh_Fmethod_NoSuchMethod(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	knh_Method_t *mtd = sfp[K_MTDIDX].callmtd;
-	KNH_ASSERT(IS_Method(mtd));
-	knh_class_t cid = knh_Method_isStatic(mtd) ? DP(mtd)->cid : knh_Object_cid(sfp[0].o);
-	SYSLOG_NoSuchMethod(ctx, sfp, cid, DP(mtd)->mn);
-}
-
-///* ------------------------------------------------------------------------ */
-//
-//knh_bool_t knh_Method_isNoSuchMethod(knh_Method_t *o)
-//{
-//	return (DP(o)->fproceed == knh_Fmethod_NoSuchMethod);
-//}
-
-/* ------------------------------------------------------------------------ */
-
-knh_Method_t* new_Method__NoSuchMethod(Ctx *ctx, knh_class_t cid, knh_methodn_t mn)
-{
-	knh_Method_t *mtd = new_Method(ctx, 0, cid, mn, knh_Fmethod_NoSuchMethod);
-	return mtd;
-}
-
-/* ------------------------------------------------------------------------ */
 /* [Method] */
 
 void knh_Class_addMethod(Ctx *ctx, knh_class_t cid, knh_Method_t *mtd)
@@ -425,8 +400,6 @@ knh_index_t knh_Method_indexOfGetterField(knh_Method_t *o)
 	return -1;
 }
 
-/* ------------------------------------------------------------------------ */
-
 knh_index_t knh_Method_indexOfSetterField(knh_Method_t *o)
 {
 	knh_Fmethod f = SP(o)->fcall_1;
@@ -438,22 +411,6 @@ knh_index_t knh_Method_indexOfSetterField(knh_Method_t *o)
 
 /* ------------------------------------------------------------------------ */
 
-//static knh_methodn_t knh_methodn_base(Ctx *ctx, knh_methodn_t mn)
-//{
-//	size_t i;
-//	knh_bytes_t n = S_tobytes(knh_getFieldName(ctx, MN_toFN(mn)));
-//	for(i = 0; i < n.len; i++) {
-//		if(n.buf[i] == ':') {
-//			n.len = i;
-//			knh_fieldn_t fn = knh_getfnq(ctx, n, FN_NEWID);
-//			return (fn | ((~K_FLAG_MN_FMT) & mn));
-//		}
-//	}
-//	return mn;
-//}
-
-/* ------------------------------------------------------------------------ */
-
 knh_Method_t* knh_Array_findMethodNULL(Ctx *ctx, knh_Array_t *a, knh_methodn_t mn)
 {
 	size_t i;
@@ -462,6 +419,29 @@ knh_Method_t* knh_Array_findMethodNULL(Ctx *ctx, knh_Array_t *a, knh_methodn_t m
 		if(DP(mtd)->mn == mn) return mtd;
 	}
 	return NULL;
+}
+
+/* ------------------------------------------------------------------------ */
+
+static METHOD knh_Fmethod_NoSuchMethod(Ctx *ctx, knh_sfp_t *sfp, long rix)
+{
+	knh_Method_t *mtd = sfp[K_MTDIDX].callmtd;
+	KNH_ASSERT(IS_Method(mtd));
+	knh_class_t cid = knh_Method_isStatic(mtd) ? DP(mtd)->cid : knh_Object_cid(sfp[0].o);
+	SYSLOG_NoSuchMethod(ctx, sfp, cid, DP(mtd)->mn);
+}
+
+///* ------------------------------------------------------------------------ */
+//
+//knh_bool_t knh_Method_isNoSuchMethod(knh_Method_t *o)
+//{
+//	return (DP(o)->fproceed == knh_Fmethod_NoSuchMethod);
+//}
+
+static knh_Method_t* new_NoSuchMethod(Ctx *ctx, knh_class_t cid, knh_methodn_t mn)
+{
+	knh_Method_t *mtd = new_Method(ctx, 0, cid, mn, knh_Fmethod_NoSuchMethod);
+	return mtd;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -502,8 +482,6 @@ knh_Method_t* knh_findMethodNULL(Ctx *ctx, knh_class_t this_cid, knh_methodn_t m
 			else {
 				knh_Method_t *mtd = new_GetterMethod(ctx, this_cid, mn, cf->type, idx);
 				knh_Class_addMethod(ctx, this_cid, mtd);
-				//				knh_Array_t *methods = ClassTBL(this_cid).methods;
-				//				knh_Array_add(ctx, methods, mtd);
 				return mtd;
 			}
 		}
@@ -521,8 +499,6 @@ knh_Method_t* knh_findMethodNULL(Ctx *ctx, knh_class_t this_cid, knh_methodn_t m
 			else {
 				knh_Method_t *mtd = new_SetterMethod(ctx, this_cid, mn, cf->type, idx);
 				knh_Class_addMethod(ctx, this_cid, mtd);
-				//				knh_Array_t *methods = ClassTBL(this_cid).methods;
-				//				knh_Array_add_(ctx, methods, UPCAST(mtd));
 				return mtd;
 			}
 		}
@@ -543,10 +519,8 @@ knh_Method_t* knh_findMethodNULL(Ctx *ctx, knh_class_t this_cid, knh_methodn_t m
 			return knh_getMethodNULL(ctx, cid, MN__empty);
 		}
 		else {
-			knh_Method_t *mtd = new_Method__NoSuchMethod(ctx, cid, mn);
+			knh_Method_t *mtd = new_NoSuchMethod(ctx, cid, mn);
 			knh_Class_addMethod(ctx, this_cid, mtd);
-			//			knh_Array_t *methods = ClassTBL(this_cid).methods;
-			//			knh_Array_add(ctx, methods, mtd);
 			return mtd;
 		}
 	}
@@ -623,39 +597,6 @@ knh_Method_t *knh_getSystemFormatter(Ctx *ctx, knh_class_t cid, knh_methodn_t mn
 	}
 	return mtd;
 }
-
-///* ------------------------------------------------------------------------ */
-///* [tracer] */
-//
-//
-//METHOD knh_Fmethod_securityTrace(Ctx *ctx, knh_sfp_t *sfp, long rix)
-//{
-//	//knh_Method_t *mtd = sfp[K_MTDIDX].callmtd;
-//
-//}
-
-///* ------------------------------------------------------------------------ */
-//
-//void knh_Method_trace(Ctx *ctx, knh_Method_t *mtd, int trace)
-//{
-////	DP(mtd)->prof_count = 0;
-////	DP(mtd)->prof_time  = 0;
-//	switch(trace) {
-//		case KNH_SECURITYTRACE:
-//			break;
-//		case KNH_AUDITTRACE:
-//			break;
-//		case KNH_PROFILER:
-//			(mtd)->fcall_1 = knh_Fmethod_profiler;
-//			break;
-//		case KNH_STACKTRACE:
-//			(mtd)->fcall_1 = knh_Fmethod_stackTrace;
-//			break;
-//		case KNH_NOTRACE:
-//		default:
-//			(mtd)->fcall_1 = DP(mtd)->fproceed;
-//	}
-//}
 
 /* ------------------------------------------------------------------------ */
 
