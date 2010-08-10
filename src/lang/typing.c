@@ -516,6 +516,7 @@ static knh_Term_t *knh_TokenTYPE_typing(Ctx *ctx, knh_Token_t *tk, knh_type_t re
 	}
 	else {
 		knh_Token_t *tkC = knh_TOKENs_n(DP(tk)->list, 0);
+		knh_dump_token(ctx, KNH_STDOUT, tkC); // DEBUG
 		knh_ParamArray_t *bpa = NULL;
 		DBG_ASSERT(IS_Array(DP(tk)->list));
 		cid = knh_Token_getcid(ctx, tkC, CLASS_Any);

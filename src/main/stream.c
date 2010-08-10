@@ -536,7 +536,7 @@ void knh_write_cap(Ctx *ctx, knh_OutputStream_t *w, knh_bytes_t t)
 /* ======================================================================== */
 /* [String] */
 
-KNHAPI(knh_bool_t) knh_write_ndata(Ctx *ctx, knh_OutputStream_t *w, knh_class_t cid, knh_ndata_t d)
+knh_bool_t knh_write_ndata(Ctx *ctx, knh_OutputStream_t *w, knh_class_t cid, knh_ndata_t d)
 {
 	switch(cid) {
 	case CLASS_Boolean:
@@ -554,7 +554,7 @@ KNHAPI(knh_bool_t) knh_write_ndata(Ctx *ctx, knh_OutputStream_t *w, knh_class_t 
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(void) knh_write_Object(Ctx *ctx, knh_OutputStream_t *w, knh_sfp_t *esp, knh_Method_t **mtdP, knh_Object_t *o)
+void knh_write_Object(Ctx *ctx, knh_OutputStream_t *w, knh_sfp_t *esp, knh_Method_t **mtdP, knh_Object_t *o)
 {
 	knh_class_t cid = knh_Object_cid(o);
 	knh_Method_t *mtd = mtdP[0];

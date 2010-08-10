@@ -147,18 +147,27 @@ static TCAST Object_Iterator(Ctx *ctx, knh_sfp_t *sfp, long rix)
 /* ======================================================================== */
 /* [Iterator] */
 
+//void knh_stack_boxing(Ctx *ctx, knh_sfp_t *sfp)
+//{
+//	knh_class_t bcid = (sfp[0].o)->h.bcid;
+//	if(CLASS_Boolean <= bcid && bcid <= CLASS_Float && sfp[0].data != knh_Object_data(sfp[0].o)) {
+//		klr_mov(ctx, sfp[0].o, new_Object_boxing(ctx, knh_Object_cid(sfp[0].o), sfp));
+//	}
+//}
+
 /* ------------------------------------------------------------------------ */
 //## mapper Iterator Array!;
 
 static TCAST Iterator_Array(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-	knh_Iterator_t *it = sfp[K_TRLIDX].it;
-	knh_Array_t *a = new_Array(ctx, knh_class_p1(it->h.cid), 0);
-	while(it->fnext_1(ctx, sfp, 1)) {
-		knh_stack_boxing(ctx, sfp + 1);
-		knh_Array_add_(ctx, a, sfp[1].o);
-	}
-	RETURN_(a);
+	KNH_TODO("Iterator_Array");
+//	knh_Iterator_t *it = sfp[K_TRLIDX].it;
+//	knh_Array_t *a = new_Array(ctx, knh_class_p1(it->h.cid), 0);
+//	while(it->fnext_1(ctx, sfp, 1)) {
+//		knh_stack_boxing(ctx, sfp + 1);
+//		knh_Array_add_(ctx, a, sfp[1].o);
+//	}
+//	RETURN_(a);
 }
 
 /* ======================================================================== */

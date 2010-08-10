@@ -186,7 +186,6 @@ void knh_traverseAll(Ctx* ctx, knh_Ftraverse ftr);
 const char* knh_sfile(const char *file);
 void dbg_p(const char *file, const char *func, int line, const char *fmt, ...);
 void todo_p(const char *file, const char *func, int line, const char *fmt, ...);
-void knh_write_cline(Ctx *ctx, knh_OutputStream_t *w, char *file, long line);
 void knh_write_uline(Ctx *ctx, knh_OutputStream_t *w, knh_uri_t uri, long line);
 const char* LOG__(int p);
 void knh_makeEvidence(Ctx *ctx, const char *ns, const char *event, int p, const char *fmt, ...);

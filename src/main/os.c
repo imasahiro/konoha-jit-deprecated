@@ -212,9 +212,9 @@ knh_bool_t knh_cwb_isfile(Ctx *ctx, knh_cwb_t *cwb)
 	(void)pathname;
 	return 0;
 #endif
-	if(res == 0) {
-		DBG_P("isfile='%s' NOTFOUND", pathname);
-	}
+//	if(res == 0) {
+//		DBG_P("isfile='%s' NOTFOUND", pathname);
+//	}
 	return res;
 }
 

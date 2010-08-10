@@ -2662,7 +2662,6 @@ void _printStackTrace(Ctx *ctx, knh_sfp_t *sfp, knh_sfpidx_t n, knh_opline_t *pc
 	if(IS_Exception(ctx->e)) {
 		knh_Method_t *mtdf = knh_getSystemFormatter(ctx, CLASS_Exception, MN__dump);
 		knh_write_Object(ctx, KNH_STDERR, sfp, &mtdf, UPCAST(ctx->e));
-		((knh_Context_t*)ctx)->esp = sfp;
 		//KNH_SETv(ctx, ((knh_Context_t*)ctx)->e, KNH_NULL);
 	}
 }

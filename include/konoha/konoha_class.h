@@ -844,9 +844,9 @@ typedef struct knh_OutputStream_t {
 
 //#define knh_write_char(ctx, w, s) knh_write(ctx, w, B(s))
 
-#define knh_write_delim(ctx, w)    knh_write(ctx, w, STEXT(", "))
-#define knh_write_dots(ctx, w)     knh_write(ctx, w, STEXT("..."))
-#define knh_write_fn(ctx, w, fn)   knh_write(ctx, w, B(FN__(fn)))
+#define knh_write_delim(ctx, w)    knh_write_text(ctx, w, ", ")
+#define knh_write_dots(ctx, w)     knh_write_text(ctx, w, "...")
+#define knh_write_fn(ctx, w, fn)   knh_write_text(ctx, w, FN__(fn))
 #define knh_write_type(ctx, w, type)   knh_write_cid(ctx, w, type)
 #define knh_write_ltype(ctx, w, type)  knh_write_cid(ctx, w, type)
 #define knh_write__O(ctx, w, o)    knh_write_Object(ctx, w, MN__k, o)
