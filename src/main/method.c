@@ -501,8 +501,9 @@ knh_Method_t* knh_findMethodNULL(Ctx *ctx, knh_class_t this_cid, knh_methodn_t m
 			}
 			else {
 				knh_Method_t *mtd = new_GetterMethod(ctx, this_cid, mn, cf->type, idx);
-				knh_Array_t *methods = ClassTBL(this_cid).methods;
-				knh_Array_add(ctx, methods, mtd);
+				knh_Class_addMethod(ctx, this_cid, mtd);
+				//				knh_Array_t *methods = ClassTBL(this_cid).methods;
+				//				knh_Array_add(ctx, methods, mtd);
 				return mtd;
 			}
 		}
@@ -519,8 +520,9 @@ knh_Method_t* knh_findMethodNULL(Ctx *ctx, knh_class_t this_cid, knh_methodn_t m
 			}
 			else {
 				knh_Method_t *mtd = new_SetterMethod(ctx, this_cid, mn, cf->type, idx);
-				knh_Array_t *methods = ClassTBL(this_cid).methods;
-				knh_Array_add_(ctx, methods, UPCAST(mtd));
+				knh_Class_addMethod(ctx, this_cid, mtd);
+				//				knh_Array_t *methods = ClassTBL(this_cid).methods;
+				//				knh_Array_add_(ctx, methods, UPCAST(mtd));
 				return mtd;
 			}
 		}
@@ -542,8 +544,9 @@ knh_Method_t* knh_findMethodNULL(Ctx *ctx, knh_class_t this_cid, knh_methodn_t m
 		}
 		else {
 			knh_Method_t *mtd = new_Method__NoSuchMethod(ctx, cid, mn);
-			knh_Array_t *methods = ClassTBL(this_cid).methods;
-			knh_Array_add(ctx, methods, mtd);
+			knh_Class_addMethod(ctx, this_cid, mtd);
+			//			knh_Array_t *methods = ClassTBL(this_cid).methods;
+			//			knh_Array_add(ctx, methods, mtd);
 			return mtd;
 		}
 	}
