@@ -1975,6 +1975,8 @@ static void knh_Token_init(Ctx *ctx, Object *o)
 	tk->type      =  TYPE_var;
 	SP(tk)->uri   =   0;
 	SP(tk)->line  =   0;
+	b->flag0 = 0;
+	b->index = 0;
 	KNH_INITv(b->data, KNH_NULL);
 	tk->b = b;
 }

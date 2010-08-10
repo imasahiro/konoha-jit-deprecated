@@ -145,8 +145,7 @@ class NBodySystem {
 }
 
 void main(String[] args) {
-    int n = (Int)(args[1]);
-
+    int n = 50000; // (Int)(args[1]);
     NBodySystem bodies = new NBodySystem();
     print "energy:", bodies.energy();
     for (int i = 0; i < n; i++)

@@ -280,6 +280,12 @@ void knh_makeEvidence(Ctx *ctx, const char *ns, const char *event, int p, const 
 		knh_cwb_clear(cwb, 0);
 	}
 	va_end(ap);
+	if(p == LOG_EMERG || p == LOG_CRIT) {
+#if defined(K_USING_DEBUG)
+		DBG_ABORT();
+#endif
+		knh_exit(ctx, 0);
+	}
 }
 
 void knh_stack_perror(Ctx *ctx, knh_sfp_t *sfp, const char *ns, const char *event)
