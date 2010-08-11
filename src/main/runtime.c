@@ -39,9 +39,7 @@
 /* ************************************************************************ */
 // added by nakata
 #define USE_cwb_write 1
-//#define USE_bytes_endsWith 1
 #define K_PERROR_LIBNAME "stdc"
-//#define USE_fopen 1
 
 /* ************************************************************************ */
 
@@ -428,9 +426,6 @@ static void knh_showWelcome(Ctx *ctx, knh_OutputStream_t *w)
 	knh_write_text(ctx, w, " thread");
 #endif
 	knh_printf(ctx, w, " used_memory:%d kb\n", (knh_intptr_t)(ctx->stat->usedMemorySize / 1024));
-#ifdef K_PREVIEW
-	knh_printf(ctx, w, "SECURITY ALERT: ** FOR EVALUATION USE ONLY IN DEVELOPMENT **\n\n");
-#endif
 }
 
 static int shell_checkstmt(knh_bytes_t t)
@@ -559,6 +554,32 @@ static const knh_ShellSPI_t shellSPI = {
 	shell_cleanup,
 };
 
+#ifdef K_PREVIEW
+static const char* SecurityAlertMessage =  "** FOR EVALUATION/DEVELOPMENT USE ONLY **";
+#else
+static const char* SecurityAlertMessage = NULL;
+#endif
+
+void knh_setSecurityAlertMessage(const char *msg, int isNeedFree)
+{
+	static int isSecurityAlertNeedFree = 0;
+	if(SecurityAlertMessage != NULL && isSecurityAlertNeedFree) {
+		free((void*)SecurityAlertMessage);
+	}
+	SecurityAlertMessage = msg;
+	isSecurityAlertNeedFree = isNeedFree;
+}
+
+static void knh_showSecurityAlert(Ctx *ctx, knh_OutputStream_t *w)
+{
+	if(SecurityAlertMessage != NULL /*&& knh_Context_isInteractive(ctx)*/) {
+		knh_write_text(ctx, w, "SECURITY ALERT: ");
+		knh_write_text(ctx, w, SecurityAlertMessage);
+		knh_write_EOL(ctx, w); knh_write_EOL(ctx, w);
+		knh_setSecurityAlertMessage(NULL, 0);
+	}
+}
+
 static void knh_shell(Ctx *ctx, const char *filename, const knh_ShellSPI_t *spi, const knh_ShellAPI_t *api)
 {
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
@@ -569,6 +590,7 @@ static void knh_shell(Ctx *ctx, const char *filename, const knh_ShellSPI_t *spi,
 	if(spi == NULL) spi = &shellSPI;
 	if(api == NULL) api = &shellAPI;
 	knh_showWelcome(ctx, cwb->w);
+	knh_showSecurityAlert(ctx, cwb->w);
 	shell_status = spi->shell_init(ctx, knh_cwb_tochar(ctx, cwb), filename);
 	knh_cwb_clear(cwb, 0);
 	while(spi->shell_readstmt(ctx, shell_status, cwb, api)) {
@@ -592,6 +614,7 @@ static void knh_shell(Ctx *ctx, const char *filename, const knh_ShellSPI_t *spi,
 			knh_write_Object(ctx, cwb->w, lsfp+1, &mtdf, o);
 			knh_write_EOL(ctx, cwb->w);
 		}
+		knh_showSecurityAlert(ctx, cwb->w);
 		if(knh_cwb_size(cwb) !=0) {
 			spi->shell_display(ctx, shell_status, knh_cwb_tochar(ctx, cwb), api);
 			knh_cwb_clear(cwb, 0);
@@ -714,9 +737,7 @@ static char *kt_fgets(Ctx *ctx, kt_status_t *kt, char *line, int max)
 	return ret;
 }
 
-
-static
-void kt_truncate_line(char* str)
+static void kt_truncate_line(char* str)
 {
 	size_t len = knh_strlen(str);
 	str[len - 1] = '\0';
