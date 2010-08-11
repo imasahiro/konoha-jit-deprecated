@@ -89,7 +89,7 @@ C{x: 2, y: 3.000000, z: "hello", x: 5, y: 7.000000, z: "hi"}
 ... }
  - [(shell):1]:(errata) unknown class: C ==> Object
 */
-/*
+
 ### Class definition with Method
 >>> class D {
 ... void myPrint(String str) {
@@ -100,7 +100,21 @@ C{x: 2, y: 3.000000, z: "hello", x: 5, y: 7.000000, z: "hi"}
 D
 >>> d.myPrint("hello");
 hello
-*/
+
+### Class definition with Constructer
+>>> class E {
+... int x;
+... E(int n) {
+... this.x = n;
+... }
+... }
+>>> e = new E(3)
+E{x: 3}
+>>> e.x
+3
+
+
+
 /*
 ### Extends [Virtual Method]
 >>> class V extends D {
