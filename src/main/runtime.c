@@ -310,7 +310,28 @@ static knh_optdata_t *knh_getoptdata(const char *name)
 
 /* ----------------------------------------------------------------------- */
 
-KNHAPI(int) konoha_parseopt(konoha_t konoha, int argc, const char **argv)
+knh_bytes_t knh_bytes_nsname(knh_bytes_t t)
+{
+	size_t i, s = 0;
+	for(i = t.len - 1; i > 0; i--) {
+		if(t.ustr[i] == '/' || t.ustr[i] == '\\') {
+			s = i + 1;
+			break;
+		}
+	}
+	for(i = s; i < t.len; i++) {
+		if(t.ustr[i] == '.') {
+			t.ustr = t.ustr + s;
+			t.len = i - s;
+			return t;
+		}
+	}
+	t.ustr = t.ustr + s;
+	t.len = t.len - s;
+	return t;
+}
+
+int konoha_parseopt(konoha_t konoha, int argc, const char **argv)
 {
 	KONOHA_CHECK(konoha, 1);
 	Ctx *ctx = konoha.ctx;
@@ -372,6 +393,7 @@ KNHAPI(int) konoha_parseopt(konoha_t konoha, int argc, const char **argv)
 		if(argc > 0) {
 			knh_String_t *s = new_T(argv[0]);
 			knh_DictMap_set(ctx, DP(ctx->sys)->props, new_T("script.name"), s);
+			s = new_S(ctx, knh_bytes_nsname(S_tobytes(s)));
 			KNH_SETv(ctx, DP(ctx->share->mainns)->nsname, s);
 		}
 	}
