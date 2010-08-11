@@ -694,6 +694,7 @@ static knh_bool_t knh_Stmt_eval(Ctx *ctx, knh_Stmt_t *stmtITR, knh_type_t reqt, 
 	while(stmt != NULL) {
 		knh_Stmt_t *stmtNEXT = DP(stmt)->nextNULL;
 		if(stmtNEXT != NULL) {
+			KNH_SETv(ctx, lsfp[0].o, stmt);
 			KNH_SETv(ctx, lsfp[1].o, stmtNEXT);
 			KNH_FINALv(ctx, DP(stmt)->nextNULL);
 			DP(stmt)->nextNULL = NULL;
