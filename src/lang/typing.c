@@ -3560,23 +3560,8 @@ static void knh_Gamma_initThisM(Ctx *ctx, knh_class_t cid)
 	gamma[goffset].type = TYPE_cid(cid);
 	gamma[goffset].fn   = FN_this;
 	DP(ctx->gma)->espidx = goffset + 1;
-//	typevars[0].type = cid;
 	DP(ctx->gma)->tvsize = 1;
-//	if(ClassTBL(cid).cparam != NULL) {
-//		knh_ParamArray_t *cp = ClassTBL(cid).cparam;
-//		for(i = 0; i < cp->psize; i++) {
-//			knh_param_t *p = knh_ParamArray_get(cp, i);
-//			typevars[i+1].type = p->type;
-//			typevars[i+1].pn = p->fn;
-//		}
-//		for(i = 0; i < cp->rsize; i++) {
-//			knh_param_t *p = knh_ParamArray_rget(cp, i);
-//			typevars[i+1+(cp->psize)].type = p->type;
-//			typevars[i+1+(cp->psize)].pn = p->fn;
-//		}
-//		DP(ctx->gma)->tvsize += (cp->psize + cp->rsize);
-//	}
-	//DBG_P("goffset=%ld, this=%s, tvsize=%d", goffset, CLASS__(cid), (int)DP(ctx->gma)->tvsize);
+//DBG_P("goffset=%ld, this=%s, tvsize=%d", goffset, CLASS__(cid), (int)DP(ctx->gma)->tvsize);
 }
 
 #define CASE_STMT2(XX, ...) case STT_##XX : { \

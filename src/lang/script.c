@@ -562,7 +562,7 @@ static int knh_StmtCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt)
 	if(t->lname == NULL) {
 		t->cflag  = knh_StmtCLASS_flag(ctx, stmt);
 		t->oflag  = FLAG_oflag(t->cflag);
-		if(DP(stmt)->size == 5 && DP(ctx->gma)->dlhdr != NULL) {
+		if(DP(stmt)->size == 4 && DP(ctx->gma)->dlhdr != NULL) {
 			knh_Fclass f = (knh_Fclass)knh_dlsym(ctx, DP(ctx->gma)->dlhdr, S_tochar(DP(tkC)->text), 0/*isRequired*/);
 			if(f != NULL) {
 				knh_ClassData_t *csetup = f();
@@ -601,7 +601,7 @@ static int knh_StmtCLASS_decl(Ctx *ctx, knh_Stmt_t *stmt)
 		knh_NameSpace_setcid(ctx, ns, DP(tkC)->text, cid, 1);
 		KNH_SYSLOG(ctx, LOG_NOTICE, "NEW_CLASS", "*cid=%d, name='%s'", cid, CLASS__(cid));
 	}
-	if(DP(stmt)->size == 5) {
+	if(DP(stmt)->size == 4) {
 		knh_Stmt_done(ctx, stmt);
 	}
 	return 1;
