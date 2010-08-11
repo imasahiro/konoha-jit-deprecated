@@ -1,5 +1,4 @@
 //Class Test
-
 ### Class definition
 >>> class A {
 ... int x;
@@ -13,11 +12,11 @@ main.A
 >>> class A {
 ... String x;
 ... }
- - [(eval):1]:(error) re-definition of A(55)
+ - [(eval):1]:(error) re-definition of A(53)
 
 ### Create instance
 >>> A a = new A();
-A{x: 0, y: 0.00000, z: ""}
+A{x: 0, y: 0.000000, z: ""}
 
 ### Class definition with default value
 >>> class B {
@@ -26,21 +25,21 @@ A{x: 0, y: 0.00000, z: ""}
 ... String z = "hello";
 ... }
 >>> B b = new B();
-B{x: 2, y: 3.00000, z: "hello"}
+B{x: 2, y: 3.000000, z: "hello"}
 
 ### Setter
 >>> a.x = 3;
 3
 >>> a.y = 2.0;
-2.00000
+2.000000
 >>> a.z = "hello"
 "hello"
 >>> a
-A{x: 3, y: 2.00000, z: "hello"}
+A{x: 3, y: 2.000000, z: "hello"}
 
 ### set different type
 >>> a.x = "string"
- - [(eval):2]:(type error) parameter 1 of setX must be konoha.Int, not konoha.String
+ - [(eval):1]:(type error) parameter 1 of setX must be konoha.Int, not konoha.String
 
 ### set undefined variable
 >>> a.a = 0
@@ -50,7 +49,7 @@ A{x: 3, y: 2.00000, z: "hello"}
 >>> a.x
 3
 >>> a.y
-2.00000
+2.000000
 >>> a.z
 "hello"
 
@@ -61,15 +60,15 @@ A{x: 3, y: 2.00000, z: "hello"}
 ... String z = "world";
 ... }
 
-### Extends Class [Create instancd]
+### Extends Class [Create instance]
 >>> c = new C();
-C{x: 2, y: 3.00000, z: "hello", x: 3, y: 5.00000, z: "world"}
+C{x: 2, y: 3.000000, z: "hello", x: 3, y: 5.000000, z: "world"}
 
 ### Extends Class [Getter]
 >>> c.x
 3
 >>> c.y
-5.00000
+5.000000
 >>> c.z
 "world"
 
@@ -77,11 +76,11 @@ C{x: 2, y: 3.00000, z: "hello", x: 3, y: 5.00000, z: "world"}
 >>> c.x = 5;
 5
 >>> c.y = 7.0
-7.00000
+7.000000
 >>> c.z = "hi"
 "hi"
 >>> c
-C{x: 2, y: 3.00000, z: "hello", x: 5, y: 7.00000, z: "hi"}
+C{x: 2, y: 3.000000, z: "hello", x: 5, y: 7.000000, z: "hi"}
 
 /*
 ### Extends of not defined class
@@ -89,7 +88,8 @@ C{x: 2, y: 3.00000, z: "hello", x: 5, y: 7.00000, z: "hi"}
 ... int x;
 ... }
  - [(shell):1]:(errata) unknown class: C ==> Object
-
+*/
+/*
 ### Class definition with Method
 >>> class D {
 ... void myPrint(String str) {

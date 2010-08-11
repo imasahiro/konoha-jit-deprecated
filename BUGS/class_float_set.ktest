@@ -5,4 +5,4 @@
 ... String z = "hello";
 ... }
 >>> B b = new B();
-B{x: 2, y: 3.00000, z: "hello"}
+B{x: 2, y: 3.000000, z: "hello"}

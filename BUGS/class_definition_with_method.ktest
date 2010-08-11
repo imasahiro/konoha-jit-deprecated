@@ -1,0 +1,16 @@
+
+### Class definition
+>>> class A {
+... int x;
+... }
+>>> a = new A()
+A{x: 0}
+>>> a.x
+0
+
+### Class definition with Method
+>>> class B {
+... void myPrint(String str) {
+... OUT << str << EOL;
+... }
+... }
