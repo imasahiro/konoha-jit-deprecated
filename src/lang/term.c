@@ -2976,7 +2976,7 @@ static knh_Stmt_t *new_StmtSTMT1(Ctx *ctx, tkitr_t *itr)
 		CASE_(SCRIPT, _STMT1);
 		CASE_L(INCLUDE, _EXPRs);
 		CASE_L(USING, _USING);
-		CASE_(CLASS, _CLASS, _STMT1);
+		CASE_(CLASS, _CLASS);
 		CASE_L(BREAK, _LABEL);
 		CASE_L(CONTINUE, _LABEL);
 		CASE_L(RETURN, _EXPRs);

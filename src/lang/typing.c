@@ -3387,36 +3387,38 @@ static knh_Term_t *knh_StmtCLASS_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t r
 	knh_Token_t *tkC = DP(stmt)->tokens[0];
 	knh_class_t prev_cid = DP(ctx->gma)->this_cid;
 	knh_class_t this_cid = DP(tkC)->cid;
-	knh_Stmt_t *stmtFIELD = knh_Token_parseStmt(ctx, DP(stmt)->tokens[4]);
-	KNH_SETv(ctx, DP(stmt)->stmts[4], stmtFIELD);
-	if(knh_Gamma_initClassTBLField(ctx, this_cid)) {
+	if(DP(stmt)->size == 5) {
+		knh_Stmt_t *stmtFIELD = knh_Token_parseStmt(ctx, DP(stmt)->tokens[4]);
+		KNH_SETv(ctx, DP(stmt)->stmts[4], stmtFIELD);
+		if(knh_Gamma_initClassTBLField(ctx, this_cid)) {
+			stmtFIELD = DP(stmt)->stmts[4/*instmt*/];
+			while(stmtFIELD != NULL) {
+				knh_Term_t *tm = NULL;
+				knh_Gamma_setLine(ctx, SP(stmtFIELD)->line);
+				switch(STT_(stmtFIELD)) {
+					CASE_STMT(DECL, stmtFIELD, +0, TYPE_void, SCOPE_FIELD);
+					CASE_STMT(LET, stmtFIELD, TYPE_void, SCOPE_FIELD);
+				}
+				stmtFIELD = DP(stmtFIELD)->nextNULL;
+			}
+			knh_Gamma_declareClassField(ctx, this_cid);
+			DBG_ASSERT(IS_String(DP(tkC)->text));
+		}
+
 		stmtFIELD = DP(stmt)->stmts[4/*instmt*/];
 		while(stmtFIELD != NULL) {
 			knh_Term_t *tm = NULL;
+			SP(ctx->gma)->line = SP(stmtFIELD)->line;
 			knh_Gamma_setLine(ctx, SP(stmtFIELD)->line);
 			switch(STT_(stmtFIELD)) {
-				CASE_STMT(DECL, stmtFIELD, +0, TYPE_void, SCOPE_FIELD);
-				CASE_STMT(LET, stmtFIELD, TYPE_void, SCOPE_FIELD);
+				CASE_STMT(METHOD, stmtFIELD, TYPE_void, SCOPE_FIELD);
+				CASE_STMT(FORMAT, stmtFIELD, TYPE_void, SCOPE_FIELD);
+				case STT_DONE: case STT_DECL: case STT_LET: case STT_ERR: break;
+				default:
+					knh_Gamma_perror(ctx, KERR_DWARN, _("don't use %s in class{}"), TT__(STT_(stmtFIELD)));
 			}
 			stmtFIELD = DP(stmtFIELD)->nextNULL;
 		}
-		knh_Gamma_declareClassField(ctx, this_cid);
-		DBG_ASSERT(IS_String(DP(tkC)->text));
-	}
-
-	stmtFIELD = DP(stmt)->stmts[4/*instmt*/];
-	while(stmtFIELD != NULL) {
-		knh_Term_t *tm = NULL;
-		SP(ctx->gma)->line = SP(stmtFIELD)->line;
-		knh_Gamma_setLine(ctx, SP(stmtFIELD)->line);
-		switch(STT_(stmtFIELD)) {
-			CASE_STMT(METHOD, stmtFIELD, TYPE_void, SCOPE_FIELD);
-			CASE_STMT(FORMAT, stmtFIELD, TYPE_void, SCOPE_FIELD);
-			case STT_DONE: case STT_DECL: case STT_LET: case STT_ERR: break;
-			default:
-				knh_Gamma_perror(ctx, KERR_DWARN, _("don't use %s in class{}"), TT__(STT_(stmtFIELD)));
-		}
-		stmtFIELD = DP(stmtFIELD)->nextNULL;
 	}
 	DP(ctx->gma)->this_cid = prev_cid;
 	return TM(stmt);
