@@ -3484,8 +3484,6 @@ static void knh_Stmt_toCALL1(Ctx *ctx, knh_Stmt_t *stmt, knh_Term_t *tm)
 	knh_Stmt_typed(ctx, stmt, tm->type);
 }
 
-#define _isLast(stmt) (knh_Stmt_isEveryLine(stmt) || DP(stmt)->nextNULL == NULL)
-
 static knh_Term_t *knh_StmtITR_typing(Ctx *ctx, knh_Stmt_t *stmtITR, knh_type_t reqt)
 {
 	knh_Stmt_t *stmt = stmtITR;
@@ -3497,21 +3495,23 @@ static knh_Term_t *knh_StmtITR_typing(Ctx *ctx, knh_Stmt_t *stmtITR, knh_type_t 
 			}
 			break;
 		}
-		stmt = knh_Stmt_isEveryLine(stmt) ? NULL : DP(stmt)->nextNULL;
+		stmt = DP(stmt)->nextNULL;
 	}
 	stmt = stmtITR;
 	while(stmt != NULL) {
 		knh_Term_t *tm;
-		knh_type_t rtype = (reqt != TYPE_void) ? knh_Gamma_getReturnType(ctx) : TYPE_void;
-		rtype = (_isLast(stmt)) ? rtype : TYPE_void;
+		knh_type_t return_type = (reqt != TYPE_void) ? knh_Gamma_getReturnType(ctx) : TYPE_void;
+		return_type = (DP(stmt)->nextNULL == NULL) ? return_type : TYPE_void;
 		knh_Gamma_setLine(ctx, SP(stmt)->line);
-		tm = knh_Stmt_typing(ctx, stmt, rtype);
+		tm = knh_Stmt_typing(ctx, stmt, return_type);
 		if(tm == NULL) {
-			knh_Stmt_toERR(ctx, stmtITR, TM(stmt)); return NULL;
+			knh_Stmt_toERR(ctx, stmtITR, TM(stmt));
+			return NULL;
 		}
-		DBG_P("TYPING=%s, TYPED=%s, %s, rtype=%s", TT__(STT_(stmt)), TT__(TT_(tm)), TYPE__(tm->type), TYPE__(rtype));
+		DBG_P("TYPING=%s, TYPED=%s, return_type=%s, typed=%s",
+			TT__(STT_(stmt)), TT__(TT_(tm)), TYPE__(return_type), TYPE__(tm->type));
 		if(IS_Token(tm)) {
-			if(rtype != TYPE_void) {
+			if(return_type != TYPE_void) {
 				knh_Stmt_toCALL1(ctx, stmt, tm);
 			}
 			else {
@@ -3522,18 +3522,24 @@ static knh_Term_t *knh_StmtITR_typing(Ctx *ctx, knh_Stmt_t *stmtITR, knh_type_t 
 		knh_Stmt_setESPIDX(ctx, stmt);
 		DP(ctx->gma)->typeIT = tm->type;
 		DP(ctx->gma)->idxIT = DP(stmt)->espidx;
-		if(rtype != TYPE_void) {
-			if(tm->type == TYPE_void && DP(stmt)->nextNULL == NULL) {
-				if(rtype != TYPE_Any) {
+		if(return_type != TYPE_void) {
+			DBG_ASSERT(DP(stmt)->nextNULL == NULL);
+			if(tm->type == TYPE_void) {
+				if(return_type != TYPE_Any) {
 					KNH_INITv(DP(stmt)->nextNULL, new_Stmt2(ctx, STT_RETURN, NULL));
 				}
 			}
 			else if(knh_stmt_isExpr(STT_(stmt))) {
-				knh_Gamma_inferReturnType(ctx, 0, tm->type);
-				knh_Stmt_setTailReturn(stmt, 1);
+				if(tm->type == return_type || knh_class_instanceof(ctx, tm->type, return_type)) {
+					knh_Gamma_inferReturnType(ctx, 0, tm->type);
+					knh_Stmt_setTailReturn(stmt, 1);
+				}
+				else {
+					KNH_INITv(DP(stmt)->nextNULL, new_Stmt2(ctx, STT_RETURN, NULL));
+				}
 			}
 		}
-		stmt = knh_Stmt_isEveryLine(stmt) ? NULL : DP(stmt)->nextNULL;
+		stmt = DP(stmt)->nextNULL;
 	}
 	stmt = stmtITR;
 	END_BLOCK(espidx);
@@ -3600,7 +3606,7 @@ int knh_StmtITR_scriptTyping(Ctx *ctx, knh_Stmt_t *stmtITR, knh_type_t reqt)
 		if(IS_Token(tm)) {
 			knh_Stmt_done(ctx, stmt);
 		}
-		stmt = knh_Stmt_isEveryLine(stmt) ? NULL : DP(stmt)->nextNULL;
+		stmt = DP(stmt)->nextNULL;
 	}
 	return 1;
 }

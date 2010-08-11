@@ -1122,10 +1122,9 @@ typedef struct knh_Token_t {
 
 /* ------------------------------------------------------------------------ */
 //## @Struct class Stmt Term;
-//## flag Stmt EveryLine  0 DP(%s)->flag0 is set * *;
 //## flag Stmt TailReturn 1 DP(%s)->flag0 is set * *;
-//## flag Stmt Memo1      5 DP(%s)->flag0 is set * *;
-//## flag Stmt Memo2      6 DP(%s)->flag0 is set * *;
+//## flag Stmt Memo1      2 DP(%s)->flag0 is set * *;
+//## flag Stmt Memo2      3 DP(%s)->flag0 is set * *;
 
 /* STT_METHOD*/
 #define knh_Stmt_isVARGs(s)      knh_Stmt_isMemo1(s)

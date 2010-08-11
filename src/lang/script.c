@@ -631,7 +631,7 @@ static knh_bool_t knh_Stmt_eval(Ctx *ctx, knh_Stmt_t *stmtITR, knh_type_t reqt, 
 	knh_bool_t isCONTINUE = 1;
 	BEGIN_LOCAL(ctx, lsfp, 4);
 	knh_Stmt_t *stmt = NULL;
-	KNH_SETv(ctx, lsfp[0].o, stmtITR);
+	KNH_SETv(ctx, lsfp[0].o, stmtITR); // lsfp[1] stmtNEXT
 	SP(ctx->gma)->uri = SP(stmtITR)->uri;
 	stmt = stmtITR;
 	while(stmt != NULL) {
@@ -689,8 +689,15 @@ static knh_bool_t knh_Stmt_eval(Ctx *ctx, knh_Stmt_t *stmtITR, knh_type_t reqt, 
 	if(knh_StmtITR_scriptTyping(ctx, stmtITR, reqt) == 0 && resultsNULL != NULL) {
 		isCONTINUE = 0; goto L_BREAK;
 	}
+
 	stmt = stmtITR;
 	while(stmt != NULL) {
+		knh_Stmt_t *stmtNEXT = DP(stmt)->nextNULL;
+		if(stmtNEXT != NULL) {
+			KNH_SETv(ctx, lsfp[1].o, stmtNEXT);
+			KNH_FINALv(ctx, DP(stmt)->nextNULL);
+			DP(stmt)->nextNULL = NULL;
+		}
 		knh_Gamma_setLine(ctx, SP(stmt)->line);
 		knh_Stmt_scriptAsm(ctx, stmt);
 		if(STT_(stmt) != STT_DONE) {
@@ -700,16 +707,15 @@ static knh_bool_t knh_Stmt_eval(Ctx *ctx, knh_Stmt_t *stmtITR, knh_type_t reqt, 
 			if(STT_(stmt) == STT_ERR) {
 				isCONTINUE = 0; goto L_BREAK;
 			}
-			knh_Stmt_setEveryLine(stmt, 1);
 			knh_Method_asm(ctx, mtd, NULL, stmt, isExpr ? reqt : TYPE_void, knh_Method_typing);
 			if(knh_Method_isAbstract(mtd) || STT_(stmt) == STT_ERR) {
 				isCONTINUE = 0; goto L_BREAK;
 			}
 			if(resultsNULL != NULL) {
-				int rtnidx=3, thisidx = rtnidx + K_CALLDELTA;
+				int rtnidx=3+1, thisidx = rtnidx + K_CALLDELTA;
 				DP(mtd)->uri = SP(stmt)->uri;
-				KNH_SETv(ctx, lsfp[1].o, DP(mtd)->kcode);  // put KCode to avoid GC
-				// lsfp[2] exception handler
+				KNH_SETv(ctx, lsfp[1+1].o, DP(mtd)->kcode);
+				// lsfp[2+1] exception handler
 				lsfp[thisidx+K_PCIDX].pc = NULL;
 				klr_setcallmtd(ctx, lsfp[thisidx+K_MTDIDX], mtd);
 				KNH_SETv(ctx, lsfp[thisidx].o, scr);
@@ -728,7 +734,7 @@ static knh_bool_t knh_Stmt_eval(Ctx *ctx, knh_Stmt_t *stmtITR, knh_type_t reqt, 
 				}
 			}
 		}
-		stmt = DP(stmt)->nextNULL;
+		stmt = stmtNEXT;
 	}
 	L_BREAK:;
 	END_LOCAL(ctx, lsfp);

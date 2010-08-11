@@ -2,8 +2,8 @@
 
 /* ======================================================================== */
 /* MACROS */
-#define K_REVISION                      1785
-#define K_BUILDID                       969
+#define K_REVISION                      1790
+#define K_BUILDID                       970
 
 /* ======================================================================== */
 /* STRUCT */
@@ -802,22 +802,17 @@
 #define knh_Token_isMEMO1(o)  ((DP(o)->flag0 & FLAG_Token_MEMO1) == FLAG_Token_MEMO1)
 
 #define knh_Token_setMEMO1(o,b) if(b) DP(o)->flag0 |= FLAG_Token_MEMO1; else DP(o)->flag0 &= ~(FLAG_Token_MEMO1);
-#define FLAG_Stmt_EveryLine             (knh_flag_t)(1<<0)
-
-#define knh_Stmt_isEveryLine(o)  ((DP(o)->flag0 & FLAG_Stmt_EveryLine) == FLAG_Stmt_EveryLine)
-
-#define knh_Stmt_setEveryLine(o,b) if(b) DP(o)->flag0 |= FLAG_Stmt_EveryLine; else DP(o)->flag0 &= ~(FLAG_Stmt_EveryLine);
 #define FLAG_Stmt_TailReturn            (knh_flag_t)(1<<1)
 
 #define knh_Stmt_isTailReturn(o)  ((DP(o)->flag0 & FLAG_Stmt_TailReturn) == FLAG_Stmt_TailReturn)
 
 #define knh_Stmt_setTailReturn(o,b) if(b) DP(o)->flag0 |= FLAG_Stmt_TailReturn; else DP(o)->flag0 &= ~(FLAG_Stmt_TailReturn);
-#define FLAG_Stmt_Memo1                 (knh_flag_t)(1<<5)
+#define FLAG_Stmt_Memo1                 (knh_flag_t)(1<<2)
 
 #define knh_Stmt_isMemo1(o)  ((DP(o)->flag0 & FLAG_Stmt_Memo1) == FLAG_Stmt_Memo1)
 
 #define knh_Stmt_setMemo1(o,b) if(b) DP(o)->flag0 |= FLAG_Stmt_Memo1; else DP(o)->flag0 &= ~(FLAG_Stmt_Memo1);
-#define FLAG_Stmt_Memo2                 (knh_flag_t)(1<<6)
+#define FLAG_Stmt_Memo2                 (knh_flag_t)(1<<3)
 
 #define knh_Stmt_isMemo2(o)  ((DP(o)->flag0 & FLAG_Stmt_Memo2) == FLAG_Stmt_Memo2)
 

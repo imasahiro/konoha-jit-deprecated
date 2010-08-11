@@ -628,8 +628,6 @@ static void knh_shell(Ctx *ctx, const char *filename, const knh_ShellSPI_t *spi,
 	END_LOCAL(ctx, lsfp);
 }
 
-
-
 #ifdef K_USING_SECURITY_ALERT
 static void knh_askSecurityAlert(Ctx *ctx)
 {

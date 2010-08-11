@@ -2531,13 +2531,11 @@ static void knh_StmtASSERT_asm(Ctx *ctx, knh_Stmt_t *stmt)
 
 /* ------------------------------------------------------------------------ */
 
-#define _isLast(stmt) (knh_Stmt_isEveryLine(stmt) || DP(stmt)->nextNULL == NULL)
-
 static void knh_Stmt_asmBLOCK(Ctx *ctx, knh_Stmt_t *stmtH, knh_type_t reqt)
 {
 	knh_Stmt_t *stmt = stmtH;
 	while(stmt != NULL) {
-		knh_type_t etype = (_isLast(stmt)) ? reqt : TYPE_void;
+		knh_type_t etype = (DP(stmt)->nextNULL == NULL) ? reqt : TYPE_void;
 		knh_Gamma_setLine(ctx, SP(stmt)->line);
 		DP(ctx->gma)->espidx = DP(stmt)->espidx;
 		DBG_P("ASM %s %p etype=%s,%s, espidx=%d", TT__(STT_(stmt)), stmt, TYPE__(etype), TYPE__(stmt->type), DP(ctx->gma)->espidx);
@@ -2575,7 +2573,6 @@ static void knh_Stmt_asmBLOCK(Ctx *ctx, knh_Stmt_t *stmtH, knh_type_t reqt)
 		default:
 			knh_StmtEXPR_asm(ctx, stmt, etype, DP(ctx->gma)->espidx);
 		}
-		if(knh_Stmt_isEveryLine(stmtH)) break;
 		stmt = DP(stmt)->nextNULL;
 	}
 }
