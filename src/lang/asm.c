@@ -1808,7 +1808,7 @@ static knh_Method_t* knh_NameSpace_getFormatterNULL(Ctx *ctx, knh_NameSpace_t *n
 	if(DP(ns)->formattersNULL != NULL) {
 		knh_Array_t *a = DP(ns)->formattersNULL;
 		size_t i;
-		for(i = 0; knh_Array_size(a); i++) {
+		for(i = 0; i < knh_Array_size(a); i++) {
 			knh_Method_t *mtd = a->methods[i];
 			if(DP(mtd)->cid == cid && DP(mtd)->mn == mn) {
 				return mtd;

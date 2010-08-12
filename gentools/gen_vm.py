@@ -542,23 +542,30 @@ def write_exec(f):
 #ifdef K_USING_THREADEDCODE
 #define CASE(x)   L_##x :
 #define NEXT_OP   (pc->codeaddr)
-#define JUMP  *(NEXT_OP)
+#define JUMP      *(NEXT_OP)
 #if (defined(__i386__) || defined(__x86_64__)) && (defined(__GNUC__) && __GNUC__ >= 3)
+#define DISPATCH_ASM
 #define GOTO_NEXT()  asm volatile("jmp *%0;": : "r"(NEXT_OP))
 #else
 #define GOTO_NEXT()  goto *(NEXT_OP)
 #endif
 #define TC(c) 
-#define DISPATCH_START(pc) goto *OPJUMP[pc->opcode];
-#define DISPATCH_END(pc)
-#define GOTO_PC(pc)        goto *(pc->codeaddr);
+#if defined(DISPATCH_ASM) && defined(__i386__)
+#define DISPATCH_INIT()    asm("" :: "r"(&vpc))
 #else
-#define OPJUMP NULL
-#define CASE(x)   case OPCODE_##x :
-#define NEXT_OP L_HEAD
+#define DISPATCH_INIT()
+#endif
+#define DISPATCH_START(pc) goto *OPJUMP[pc->opcode]
+#define DISPATCH_END(pc)
+#define GOTO_PC(pc)        GOTO_NEXT()
+#else
+#define OPJUMP      NULL
+#define CASE(x)     case OPCODE_##x :
+#define NEXT_OP     L_HEAD
 #define GOTO_NEXT() goto NEXT_OP
-#define JUMP L_HEAD
+#define JUMP        L_HEAD
 #define TC(c)
+#define DISPATCH_INIT()
 #define DISPATCH_START(pc) L_HEAD:;switch(pc->opcode) {
 #define DISPATCH_END(pc)   } KNH_SYSLOG(ctx, LOG_CRIT, "VM", "unknown opcode=%d", pc->opcode); 
 #define GOTO_PC(pc)         GOTO_NEXT()
@@ -580,6 +587,7 @@ knh_opline_t* knh_VirtualMachine_run(Ctx *ctx, knh_sfp_t *sfp0, knh_opline_t *pc
 	knh_opline_t* pc = pc0;
 	volatile knh_opline_t* vpc = NULL;
 	volatile knh_intptr_t vshift = 0;
+	DISPATCH_INIT();
 	DISPATCH_START(pc);
 ''')
 	for kc in KCODE_LIST:
