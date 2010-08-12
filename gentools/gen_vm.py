@@ -544,17 +544,13 @@ def write_exec(f):
 #define NEXT_OP   (pc->codeaddr)
 #define JUMP      *(NEXT_OP)
 #if (defined(__i386__) || defined(__x86_64__)) && (defined(__GNUC__) && __GNUC__ >= 3)
-#define DISPATCH_ASM
-#define GOTO_NEXT()  asm volatile("jmp *%0;": : "r"(NEXT_OP))
+#define GOTO_NEXT()     asm volatile("jmp *%0;": : "r"(NEXT_OP))
+#define DISPATCH_INIT() asm("" :: "r"(&vpc))
 #else
-#define GOTO_NEXT()  goto *(NEXT_OP)
-#endif
-#define TC(c) 
-#if defined(DISPATCH_ASM) && defined(__i386__)
-#define DISPATCH_INIT()    asm("" :: "r"(&vpc))
-#else
+#define GOTO_NEXT()     goto *(NEXT_OP)
 #define DISPATCH_INIT()
 #endif
+#define TC(c) 
 #define DISPATCH_START(pc) goto *OPJUMP[pc->opcode]
 #define DISPATCH_END(pc)
 #define GOTO_PC(pc)        GOTO_NEXT()
@@ -599,7 +595,7 @@ knh_opline_t* knh_VirtualMachine_run(Ctx *ctx, knh_sfp_t *sfp0, knh_opline_t *pc
 # DBG_P("%%p %%s", pc-1, knh_opcode_tochar((pc-1)->opcode));
 		f.write('''
 	CASE(%s) {
-		%s%s *op = (%s*)pc;%s; (void)op; VMCOUNT(pc); pc++;
+		%s%s *op = (%s*)pc%s; (void)op; VMCOUNT(pc); pc++;
 		%s;
 		GOTO_NEXT();
 	} ''' % (kc.name, LB, kc.ctype, kc.ctype, LE, getmacro(kc, 'JUMP')))
