@@ -364,10 +364,17 @@ typedef knh_Method_t* (*klr_Fmethod)(Ctx *, knh_sfp_t *, int, knh_Method_t*);
 		pc = NULL; goto L_RETURN;\
 	}\
 
-#define KLR0_THCODE(ctx) { \
-		knh_code_thread(ctx, pc-1, OPJUMP); \
+typedef KLRAPI(void) (*klr_Fth)(Ctx *ctx, knh_opline_t *pc, void**, void**);
+#define KLR0_THCODE(ctx, th) { \
+		th(ctx, pc, OPJUMP, NULL); \
 		goto L_RETURN; \
 	}\
+
+#define KLR0_THCODE2(ctx, th) { \
+		th(ctx, pc, OPJUMP, OPJUMP_E); \
+		goto L_RETURN; \
+	}\
+
 
 /* ------------------------------------------------------------------------- */
 
@@ -430,6 +437,12 @@ typedef void (*klr_Ftr)(Ctx *, knh_sfp_t *, knh_sfpidx_t, knh_class_t);
 		PC; \
 		goto JUMP; \
 	}\
+
+#define KLR_JMP2(ctx, PC, JUMP) {\
+		pc--;\
+		goto *(op->codeaddr); \
+	}\
+
 
 #define KLR_ONCE(ctx, PC, JUMP) { \
 		((klr_ONCE_t*)op)->opcode = OPCODE_JMP;\
