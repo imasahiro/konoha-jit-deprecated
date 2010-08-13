@@ -364,13 +364,13 @@ typedef knh_Method_t* (*klr_Fmethod)(Ctx *, knh_sfp_t *, int, knh_Method_t*);
 		pc = NULL; goto L_RETURN;\
 	}\
 
-typedef KLRAPI(void) (*klr_Fth)(Ctx *ctx, knh_opline_t *pc, void**, void**);
-#define KLR0_THCODE(ctx, th) { \
+typedef void (*klr_Fth)(Ctx *ctx, knh_opline_t *pc, void**, void**);
+#define KLR0_THCODE_OLD(ctx, th) { \
 		th(ctx, pc, OPJUMP, NULL); \
 		goto L_RETURN; \
 	}\
 
-#define KLR0_THCODE2(ctx, th) { \
+#define KLR0_THCODE(ctx, th) { \
 		th(ctx, pc, OPJUMP, OPJUMP_E); \
 		goto L_RETURN; \
 	}\

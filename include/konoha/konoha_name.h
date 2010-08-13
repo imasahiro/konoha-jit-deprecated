@@ -2,13 +2,8 @@
 
 /* ======================================================================== */
 /* MACROS */
-<<<<<<< HEAD
 #define K_REVISION                      1790
 #define K_BUILDID                       970
-=======
-#define K_REVISION                      1767
-#define K_BUILDID                       967
->>>>>>> konoha-jit first commit
 
 /* ======================================================================== */
 /* STRUCT */
@@ -449,16 +444,16 @@
 #define TYPE_T1ITR              CLASS_T1ITR
 
 /* ------------------------------------------------------------------------ */
-/* StringARRAY */
-#define CLASS_StringARRAY       ((knh_class_t)50)
-#define IS_StringARRAY(o)       ((o)->h.cid == CLASS_StringARRAY)
-#define TYPE_StringARRAY        CLASS_StringARRAY
-
-/* ------------------------------------------------------------------------ */
 /* ThisITR */
-#define CLASS_ThisITR           ((knh_class_t)51)
+#define CLASS_ThisITR           ((knh_class_t)50)
 #define IS_ThisITR(o)           ((o)->h.cid == CLASS_ThisITR)
 #define TYPE_ThisITR            CLASS_ThisITR
+
+/* ------------------------------------------------------------------------ */
+/* StringARRAY */
+#define CLASS_StringARRAY       ((knh_class_t)51)
+#define IS_StringARRAY(o)       ((o)->h.cid == CLASS_StringARRAY)
+#define TYPE_StringARRAY        CLASS_StringARRAY
 #define K_CLASS_INITSIZE                53
 
 /* ======================================================================== */

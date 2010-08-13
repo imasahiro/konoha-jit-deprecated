@@ -28,6 +28,7 @@ libkonoha_la_SOURCES += ../src/lang/optimizer.c
 libkonoha_la_SOURCES += ../src/lang/script.c
 libkonoha_la_SOURCES += ../src/lang/ssa.c
 libkonoha_la_SOURCES += ../src/lang/term.c
+libkonoha_la_SOURCES += ../src/lang/tjit.c
 libkonoha_la_SOURCES += ../src/lang/typing.c
 libkonoha_la_SOURCES += ../src/lang/vmcodelibs.c
 libkonoha_la_SOURCES += ../src/lang/vminline.c

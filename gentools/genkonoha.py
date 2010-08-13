@@ -719,6 +719,7 @@ def readdir(dir, data):
             readfile(fpath, data)
 
 def svnrev():
+    return 1790;
     f = os.popen("svn info")
     t = f.read()
     print t
