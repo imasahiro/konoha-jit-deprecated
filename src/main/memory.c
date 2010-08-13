@@ -128,6 +128,45 @@ void knh_vfree(Ctx *ctx, void *block, size_t size)
 	knh_unuseMemory(ctx, size);
 }
 
+static struct mem {
+	void *block;
+	size_t size;
+	size_t pos;
+} memblock[10] = {0};
+static int _index = 0;
+static int _cur = 0;
+
+#define ONE_MB (1024 * 1024)
+/* allocate executable memory */
+void *knh_xmalloc(Ctx *ctx, size_t size)
+{
+	void *block = NULL;
+	if (memblock[_cur].block == NULL) {
+		block = mmap(NULL, ONE_MB, PROT_READ|PROT_WRITE|PROT_EXEC,
+				MAP_PRIVATE | MAP_ANON, -1, 0);
+		//SYSLOG_MallocLargeMemory(ctx, block, ONE_MB);
+		memblock[_cur].block = block;
+		memblock[_cur].size  = ONE_MB;
+		memblock[_cur].pos   = size;
+	} else {
+		if (memblock[_cur].pos + size > memblock[_cur].size) {
+			TODO();
+			exit(1);
+		}
+		block = memblock[_cur].block + memblock[_cur].pos;
+		memblock[_cur].pos += size;
+		DBG_P("block=%p & size=%zd",block, size);
+	}
+	return block;
+}
+
+void knh_xfree(Ctx *ctx, void *block, size_t size)
+{
+	SYSLOG_FreeLargeMemory(ctx, block, size);
+	munmap(block, size);
+}
+
+
 #if defined(K_USING_TRACEMALLOC)
 
 void *TRACE_malloc(Ctx *ctx, size_t size TRACEARG0)

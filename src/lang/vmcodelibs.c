@@ -52,7 +52,7 @@ typedef struct {
 
 static const knh_OPDATA_t OPDATA[] = {
 	{"HALT", 0, { VMT_VOID}}, 
-	{"THCODE", 0, { VMT_VOID}}, 
+	{"THCODE", 1, { VMT_F, VMT_VOID}}, 
 	{"FUNCCALL", 0, { VMT_VOID}}, 
 	{"ENTER", 0, { VMT_VOID}}, 
 	{"PROBE", 2, { VMT_F, VMT_U, VMT_VOID}}, 
@@ -95,6 +95,7 @@ static const knh_OPDATA_t OPDATA[] = {
 	{"TR", 4, { VMT_SFPIDX, VMT_SFPIDX, VMT_CID, VMT_F, VMT_VOID}}, 
 	{"NUL", 2, { VMT_SFPIDX, VMT_SFPIDX, VMT_VOID}}, 
 	{"JMP", 1, { VMT_ADDR, VMT_VOID}}, 
+	{"JMP2", 1, { VMT_ADDR, VMT_VOID}}, 
 	{"JMP", 1, { VMT_ADDR, VMT_VOID}}, 
 	{"JMPF", 2, { VMT_ADDR, VMT_SFPIDX, VMT_VOID}}, 
 	{"DYJMP", 3, { VMT_ADDR, VMT_SFPIDX, VMT_F, VMT_VOID}}, 
@@ -232,6 +233,7 @@ void knh_opcode_check(void)
 	KNH_ASSERT(sizeof(klr_TR_t) <= sizeof(knh_opline_t));
 	KNH_ASSERT(sizeof(klr_NUL_t) <= sizeof(knh_opline_t));
 	KNH_ASSERT(sizeof(klr_JMP_t) <= sizeof(knh_opline_t));
+	KNH_ASSERT(sizeof(klr_JMP2_t) <= sizeof(knh_opline_t));
 	KNH_ASSERT(sizeof(klr_JMP__t) <= sizeof(knh_opline_t));
 	KNH_ASSERT(sizeof(klr_JMPF_t) <= sizeof(knh_opline_t));
 	KNH_ASSERT(sizeof(klr_DYJMP_t) <= sizeof(knh_opline_t));
@@ -504,30 +506,65 @@ knh_opline_t* knh_VirtualMachine_run(Ctx *ctx, knh_sfp_t *sfp0, knh_opline_t *pc
 		&&L_VCALL, &&L_VCALL_, &&L_FASTCALL, &&L_RET, 
 		&&L_SCAST, &&L_TCAST, &&L_ACAST, &&L_iCAST, 
 		&&L_fCAST, &&L_TR, &&L_NUL, &&L_JMP, 
-		&&L_JMP_, &&L_JMPF, &&L_DYJMP, &&L_NEXT, 
-		&&L_TRY, &&L_TRYEND, &&L_THROW, &&L_CATCH, 
-		&&L_bNOT, &&L_iINC, &&L_iDEC, &&L_iNEG, 
-		&&L_iADD, &&L_iSUB, &&L_iMUL, &&L_iDIV, 
-		&&L_iMOD, &&L_iEQ, &&L_iNEQ, &&L_iLT, 
-		&&L_iLTE, &&L_iGT, &&L_iGTE, &&L_iADDn, 
-		&&L_iSUBn, &&L_iMULn, &&L_iDIVn, &&L_iMODn, 
-		&&L_iEQn, &&L_iNEQn, &&L_iLTn, &&L_iLTEn, 
-		&&L_iGTn, &&L_iGTEn, &&L_fNEG, &&L_fADD, 
-		&&L_fSUB, &&L_fMUL, &&L_fDIV, &&L_fEQ, 
-		&&L_fNEQ, &&L_fLT, &&L_fLTE, &&L_fGT, 
-		&&L_fGTE, &&L_fADDn, &&L_fSUBn, &&L_fMULn, 
-		&&L_fDIVn, &&L_fEQn, &&L_fNEQn, &&L_fLTn, 
-		&&L_fLTEn, &&L_fGTn, &&L_fGTEn, &&L_OGETIDX, 
-		&&L_OSETIDX, &&L_OGETIDXn, &&L_OSETIDXn, &&L_NGETIDX, 
-		&&L_NSETIDX, &&L_NGETIDXn, &&L_NSETIDXn, &&L_bJNOT, 
-		&&L_iJEQ, &&L_iJNEQ, &&L_iJLT, &&L_iJLTE, 
-		&&L_iJGT, &&L_iJGTE, &&L_iJEQn, &&L_iJNEQn, 
-		&&L_iJLTn, &&L_iJLTEn, &&L_iJGTn, &&L_iJGTEn, 
-		&&L_fJEQ, &&L_fJNEQ, &&L_fJLT, &&L_fJLTE, 
-		&&L_fJGT, &&L_fJGTE, &&L_fJEQn, &&L_fJNEQn, 
-		&&L_fJLTn, &&L_fJLTEn, &&L_fJGTn, &&L_fJGTEn, 
-		&&L_NOP, 
+		&&L_JMP2, &&L_JMP_, &&L_JMPF, &&L_DYJMP, 
+		&&L_NEXT, &&L_TRY, &&L_TRYEND, &&L_THROW, 
+		&&L_CATCH, &&L_bNOT, &&L_iINC, &&L_iDEC, 
+		&&L_iNEG, &&L_iADD, &&L_iSUB, &&L_iMUL, 
+		&&L_iDIV, &&L_iMOD, &&L_iEQ, &&L_iNEQ, 
+		&&L_iLT, &&L_iLTE, &&L_iGT, &&L_iGTE, 
+		&&L_iADDn, &&L_iSUBn, &&L_iMULn, &&L_iDIVn, 
+		&&L_iMODn, &&L_iEQn, &&L_iNEQn, &&L_iLTn, 
+		&&L_iLTEn, &&L_iGTn, &&L_iGTEn, &&L_fNEG, 
+		&&L_fADD, &&L_fSUB, &&L_fMUL, &&L_fDIV, 
+		&&L_fEQ, &&L_fNEQ, &&L_fLT, &&L_fLTE, 
+		&&L_fGT, &&L_fGTE, &&L_fADDn, &&L_fSUBn, 
+		&&L_fMULn, &&L_fDIVn, &&L_fEQn, &&L_fNEQn, 
+		&&L_fLTn, &&L_fLTEn, &&L_fGTn, &&L_fGTEn, 
+		&&L_OGETIDX, &&L_OSETIDX, &&L_OGETIDXn, &&L_OSETIDXn, 
+		&&L_NGETIDX, &&L_NSETIDX, &&L_NGETIDXn, &&L_NSETIDXn, 
+		&&L_bJNOT, &&L_iJEQ, &&L_iJNEQ, &&L_iJLT, 
+		&&L_iJLTE, &&L_iJGT, &&L_iJGTE, &&L_iJEQn, 
+		&&L_iJNEQn, &&L_iJLTn, &&L_iJLTEn, &&L_iJGTn, 
+		&&L_iJGTEn, &&L_fJEQ, &&L_fJNEQ, &&L_fJLT, 
+		&&L_fJLTE, &&L_fJGT, &&L_fJGTE, &&L_fJEQn, 
+		&&L_fJNEQn, &&L_fJLTn, &&L_fJLTEn, &&L_fJGTn, 
+		&&L_fJGTEn, &&L_NOP, 
 	};
+	static void *OPJUMP_E[] = {
+		&&L_HALT_end, &&L_THCODE_end, &&L_FUNCCALL_end, &&L_ENTER_end, 
+		&&L_PROBE_end, &&L_VEXEC_end, &&L_YEILD_end, &&L_EXIT_end, 
+		&&L_P_end, &&L_OSET_end, &&L_NSET_end, &&L_OMOV_end, 
+		&&L_NMOV_end, &&L_SWAP_end, &&L_UNBOX_end, &&L_ONMOV_end, 
+		&&L_OOMOV_end, &&L_NNMOV_end, &&L_OMOVx_end, &&L_iMOVx_end, 
+		&&L_fMOVx_end, &&L_bMOVx_end, &&L_XMOV_end, &&L_XMOVx_end, 
+		&&L_XOSET_end, &&L_XIMOV_end, &&L_XFMOV_end, &&L_XBMOV_end, 
+		&&L_CHKSTACK_end, &&L_LOADMTD_end, &&L_CALL_end, &&L_SCALL_end, 
+		&&L_VCALL_end, &&L_VCALL__end, &&L_FASTCALL_end, &&L_RET_end, 
+		&&L_SCAST_end, &&L_TCAST_end, &&L_ACAST_end, &&L_iCAST_end, 
+		&&L_fCAST_end, &&L_TR_end, &&L_NUL_end, &&L_JMP_end, 
+		&&L_JMP2_end, &&L_JMP__end, &&L_JMPF_end, &&L_DYJMP_end, 
+		&&L_NEXT_end, &&L_TRY_end, &&L_TRYEND_end, &&L_THROW_end, 
+		&&L_CATCH_end, &&L_bNOT_end, &&L_iINC_end, &&L_iDEC_end, 
+		&&L_iNEG_end, &&L_iADD_end, &&L_iSUB_end, &&L_iMUL_end, 
+		&&L_iDIV_end, &&L_iMOD_end, &&L_iEQ_end, &&L_iNEQ_end, 
+		&&L_iLT_end, &&L_iLTE_end, &&L_iGT_end, &&L_iGTE_end, 
+		&&L_iADDn_end, &&L_iSUBn_end, &&L_iMULn_end, &&L_iDIVn_end, 
+		&&L_iMODn_end, &&L_iEQn_end, &&L_iNEQn_end, &&L_iLTn_end, 
+		&&L_iLTEn_end, &&L_iGTn_end, &&L_iGTEn_end, &&L_fNEG_end, 
+		&&L_fADD_end, &&L_fSUB_end, &&L_fMUL_end, &&L_fDIV_end, 
+		&&L_fEQ_end, &&L_fNEQ_end, &&L_fLT_end, &&L_fLTE_end, 
+		&&L_fGT_end, &&L_fGTE_end, &&L_fADDn_end, &&L_fSUBn_end, 
+		&&L_fMULn_end, &&L_fDIVn_end, &&L_fEQn_end, &&L_fNEQn_end, 
+		&&L_fLTn_end, &&L_fLTEn_end, &&L_fGTn_end, &&L_fGTEn_end, 
+		&&L_OGETIDX_end, &&L_OSETIDX_end, &&L_OGETIDXn_end, &&L_OSETIDXn_end, 
+		&&L_NGETIDX_end, &&L_NSETIDX_end, &&L_NGETIDXn_end, &&L_NSETIDXn_end, 
+		&&L_bJNOT_end, &&L_iJEQ_end, &&L_iJNEQ_end, &&L_iJLT_end, 
+		&&L_iJLTE_end, &&L_iJGT_end, &&L_iJGTE_end, &&L_iJEQn_end, 
+		&&L_iJNEQn_end, &&L_iJLTn_end, &&L_iJLTEn_end, &&L_iJGTn_end, 
+		&&L_iJGTEn_end, &&L_fJEQ_end, &&L_fJNEQ_end, &&L_fJLT_end, 
+		&&L_fJLTE_end, &&L_fJGT_end, &&L_fJGTE_end, &&L_fJEQn_end, 
+		&&L_fJNEQn_end, &&L_fJLTn_end, &&L_fJLTEn_end, &&L_fJGTn_end, 
+		&&L_fJGTEn_end, &&L_NOP_end, };
 #endif
 	knh_sfp_t *sfp = sfp0;
 	knh_opline_t* pc = pc0;
@@ -537,668 +574,807 @@ knh_opline_t* knh_VirtualMachine_run(Ctx *ctx, knh_sfp_t *sfp0, knh_opline_t *pc
 	DISPATCH_START(pc);
 
 	CASE(HALT) {
-		klr_HALT_t *op = (klr_HALT_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_HALT_t *op = (klr_HALT_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR0_HALT(ctx);
+		L_HALT_end:;
 		GOTO_NEXT();
 	} 
 	CASE(THCODE) {
-		klr_THCODE_t *op = (klr_THCODE_t*)pc; (void)op; VMCOUNT(pc); pc++;
-		KLR0_THCODE(ctx);
+		klr_THCODE_t *op = (klr_THCODE_t*)pc;; (void)op; VMCOUNT(pc); pc++;
+		KLR0_THCODE(ctx, op->th);
+		L_THCODE_end:;
 		GOTO_NEXT();
 	} 
 	CASE(FUNCCALL) {
-		klr_FUNCCALL_t *op = (klr_FUNCCALL_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_FUNCCALL_t *op = (klr_FUNCCALL_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR0_FUNCCALL(ctx);
+		L_FUNCCALL_end:;
 		GOTO_NEXT();
 	} 
 	CASE(ENTER) {
-		klr_ENTER_t *op = (klr_ENTER_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_ENTER_t *op = (klr_ENTER_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR0_ENTER(ctx);
+		L_ENTER_end:;
 		GOTO_NEXT();
 	} 
 	CASE(PROBE) {
-		klr_PROBE_t *op = (klr_PROBE_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_PROBE_t *op = (klr_PROBE_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR0_PROBE(ctx, op->probe, op->n);
+		L_PROBE_end:;
 		GOTO_NEXT();
 	} 
 	CASE(VEXEC) {
-		klr_VEXEC_t *op = (klr_VEXEC_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_VEXEC_t *op = (klr_VEXEC_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR0_VEXEC(ctx);
+		L_VEXEC_end:;
 		GOTO_NEXT();
 	} 
 	CASE(YEILD) {
-		klr_YEILD_t *op = (klr_YEILD_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_YEILD_t *op = (klr_YEILD_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR0_YEILD(ctx, op->n);
+		L_YEILD_end:;
 		GOTO_NEXT();
 	} 
 	CASE(EXIT) {
-		klr_EXIT_t *op = (klr_EXIT_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_EXIT_t *op = (klr_EXIT_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR0_EXIT(ctx);
+		L_EXIT_end:;
 		GOTO_NEXT();
 	} 
 	CASE(P) {
-		klr_P_t *op = (klr_P_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_P_t *op = (klr_P_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_P(ctx, op->print, op->flag, op->msg, op->fmt, op->n);
+		L_P_end:;
 		GOTO_NEXT();
 	} 
 	CASE(OSET) {
-		klr_OSET_t *op = (klr_OSET_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_OSET_t *op = (klr_OSET_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_OSET(ctx, op->a, op->o);
+		L_OSET_end:;
 		GOTO_NEXT();
 	} 
 	CASE(NSET) {
-		klr_NSET_t *op = (klr_NSET_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_NSET_t *op = (klr_NSET_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_NSET(ctx, op->a, op->n);
+		L_NSET_end:;
 		GOTO_NEXT();
 	} 
 	CASE(OMOV) {
-		klr_OMOV_t *op = (klr_OMOV_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_OMOV_t *op = (klr_OMOV_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_OMOV(ctx, op->a, op->b);
+		L_OMOV_end:;
 		GOTO_NEXT();
 	} 
 	CASE(NMOV) {
-		klr_NMOV_t *op = (klr_NMOV_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_NMOV_t *op = (klr_NMOV_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_NMOV(ctx, op->a, op->b);
+		L_NMOV_end:;
 		GOTO_NEXT();
 	} 
 	CASE(SWAP) {
-		klr_SWAP_t *op = (klr_SWAP_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_SWAP_t *op = (klr_SWAP_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_SWAP(ctx, op->a, op->b);
+		L_SWAP_end:;
 		GOTO_NEXT();
 	} 
 	CASE(UNBOX) {
-		klr_UNBOX_t *op = (klr_UNBOX_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_UNBOX_t *op = (klr_UNBOX_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_UNBOX(ctx, op->a, op->b);
+		L_UNBOX_end:;
 		GOTO_NEXT();
 	} 
 	CASE(ONMOV) {
-		klr_ONMOV_t *op = (klr_ONMOV_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_ONMOV_t *op = (klr_ONMOV_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_ONMOV(ctx, op->a, op->b, op->c, op->d);
+		L_ONMOV_end:;
 		GOTO_NEXT();
 	} 
 	CASE(OOMOV) {
-		klr_OOMOV_t *op = (klr_OOMOV_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_OOMOV_t *op = (klr_OOMOV_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR2_OOMOV(ctx, op->a, op->b, op->c, op->d);
+		L_OOMOV_end:;
 		GOTO_NEXT();
 	} 
 	CASE(NNMOV) {
-		klr_NNMOV_t *op = (klr_NNMOV_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_NNMOV_t *op = (klr_NNMOV_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR2_NNMOV(ctx, op->a, op->b, op->c, op->d);
+		L_NNMOV_end:;
 		GOTO_NEXT();
 	} 
 	CASE(OMOVx) {
-		klr_OMOVx_t *op = (klr_OMOVx_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_OMOVx_t *op = (klr_OMOVx_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_OMOVx(ctx, op->a, op->b);
+		L_OMOVx_end:;
 		GOTO_NEXT();
 	} 
 	CASE(iMOVx) {
-		klr_iMOVx_t *op = (klr_iMOVx_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_iMOVx_t *op = (klr_iMOVx_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_iMOVx(ctx, op->a, op->b);
+		L_iMOVx_end:;
 		GOTO_NEXT();
 	} 
 	CASE(fMOVx) {
-		klr_fMOVx_t *op = (klr_fMOVx_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_fMOVx_t *op = (klr_fMOVx_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_fMOVx(ctx, op->a, op->b);
+		L_fMOVx_end:;
 		GOTO_NEXT();
 	} 
 	CASE(bMOVx) {
-		klr_bMOVx_t *op = (klr_bMOVx_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_bMOVx_t *op = (klr_bMOVx_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_bMOVx(ctx, op->a, op->b);
+		L_bMOVx_end:;
 		GOTO_NEXT();
 	} 
 	CASE(XMOV) {
-		klr_XMOV_t *op = (klr_XMOV_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_XMOV_t *op = (klr_XMOV_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_XMOV(ctx, op->a, op->b);
+		L_XMOV_end:;
 		GOTO_NEXT();
 	} 
 	CASE(XMOVx) {
-		klr_XMOVx_t *op = (klr_XMOVx_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_XMOVx_t *op = (klr_XMOVx_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_XMOVx(ctx, op->a, op->b);
+		L_XMOVx_end:;
 		GOTO_NEXT();
 	} 
 	CASE(XOSET) {
-		klr_XOSET_t *op = (klr_XOSET_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_XOSET_t *op = (klr_XOSET_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_XOSET(ctx, op->a, op->b);
+		L_XOSET_end:;
 		GOTO_NEXT();
 	} 
 	CASE(XIMOV) {
-		klr_XIMOV_t *op = (klr_XIMOV_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_XIMOV_t *op = (klr_XIMOV_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_XIMOV(ctx, op->a, op->b);
+		L_XIMOV_end:;
 		GOTO_NEXT();
 	} 
 	CASE(XFMOV) {
-		klr_XFMOV_t *op = (klr_XFMOV_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_XFMOV_t *op = (klr_XFMOV_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_XFMOV(ctx, op->a, op->b);
+		L_XFMOV_end:;
 		GOTO_NEXT();
 	} 
 	CASE(XBMOV) {
-		klr_XBMOV_t *op = (klr_XBMOV_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_XBMOV_t *op = (klr_XBMOV_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_XBMOV(ctx, op->a, op->b);
+		L_XBMOV_end:;
 		GOTO_NEXT();
 	} 
 	CASE(CHKSTACK) {
-		klr_CHKSTACK_t *op = (klr_CHKSTACK_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_CHKSTACK_t *op = (klr_CHKSTACK_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_CHKSTACK(ctx, op->n);
+		L_CHKSTACK_end:;
 		GOTO_NEXT();
 	} 
 	CASE(LOADMTD) {
-		klr_LOADMTD_t *op = (klr_LOADMTD_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_LOADMTD_t *op = (klr_LOADMTD_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_LOADMTD(ctx, op->thisidx, op->method, op->callmtd);
+		L_LOADMTD_end:;
 		GOTO_NEXT();
 	} 
 	CASE(CALL) {
-		klr_CALL_t *op = (klr_CALL_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_CALL_t *op = (klr_CALL_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_CALL(ctx, op->thisidx, op->espshift);
+		L_CALL_end:;
 		GOTO_NEXT();
 	} 
 	CASE(SCALL) {
-		klr_SCALL_t *op = (klr_SCALL_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_SCALL_t *op = (klr_SCALL_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR2_SCALL(ctx, op->thisidx, op->espshift, op->callmtd);
+		L_SCALL_end:;
 		GOTO_NEXT();
 	} 
 	CASE(VCALL) {
-		klr_VCALL_t *op = (klr_VCALL_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_VCALL_t *op = (klr_VCALL_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR2_VCALL(ctx, op->thisidx, op->espshift, op->callmtd);
+		L_VCALL_end:;
 		GOTO_NEXT();
 	} 
 	CASE(VCALL_) {
-		klr_VCALL__t *op = (klr_VCALL__t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_VCALL__t *op = (klr_VCALL__t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR2_VCALL_(ctx, op->thisidx, op->espshift, op->callmtd);
+		L_VCALL__end:;
 		GOTO_NEXT();
 	} 
 	CASE(FASTCALL) {
-		klr_FASTCALL_t *op = (klr_FASTCALL_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_FASTCALL_t *op = (klr_FASTCALL_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_FASTCALL(ctx, op->a, op->b, op->fcall);
+		L_FASTCALL_end:;
 		GOTO_NEXT();
 	} 
 	CASE(RET) {
-		klr_RET_t *op = (klr_RET_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_RET_t *op = (klr_RET_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_RET(ctx);
+		L_RET_end:;
 		GOTO_NEXT();
 	} 
 	CASE(SCAST) {
-		klr_SCAST_t *op = (klr_SCAST_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_SCAST_t *op = (klr_SCAST_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_SCAST(ctx, op->a, op->b, op->cast);
+		L_SCAST_end:;
 		GOTO_NEXT();
 	} 
 	CASE(TCAST) {
-		klr_TCAST_t *op = (klr_TCAST_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_TCAST_t *op = (klr_TCAST_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_TCAST(ctx, op->a, op->b, op->cast);
+		L_TCAST_end:;
 		GOTO_NEXT();
 	} 
 	CASE(ACAST) {
-		klr_ACAST_t *op = (klr_ACAST_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_ACAST_t *op = (klr_ACAST_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_ACAST(ctx, op->a, op->b, op->cast);
+		L_ACAST_end:;
 		GOTO_NEXT();
 	} 
 	CASE(iCAST) {
-		klr_iCAST_t *op = (klr_iCAST_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_iCAST_t *op = (klr_iCAST_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_iCAST(ctx, op->a, op->b);
+		L_iCAST_end:;
 		GOTO_NEXT();
 	} 
 	CASE(fCAST) {
-		klr_fCAST_t *op = (klr_fCAST_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_fCAST_t *op = (klr_fCAST_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_fCAST(ctx, op->a, op->b);
+		L_fCAST_end:;
 		GOTO_NEXT();
 	} 
 	CASE(TR) {
-		klr_TR_t *op = (klr_TR_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_TR_t *op = (klr_TR_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_TR(ctx, op->a, op->b, op->cid, op->tr);
+		L_TR_end:;
 		GOTO_NEXT();
 	} 
 	CASE(NUL) {
-		klr_NUL_t *op = (klr_NUL_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_NUL_t *op = (klr_NUL_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_NUL(ctx, op->a, op->b);
+		L_NUL_end:;
 		GOTO_NEXT();
 	} 
 	CASE(JMP) {
-		klr_JMP_t *op = (klr_JMP_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_JMP_t *op = (klr_JMP_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_JMP(ctx, pc = op->jumppc, JUMP);
+		L_JMP_end:;
+		GOTO_NEXT();
+	} 
+	CASE(JMP2) {
+		klr_JMP2_t *op = (klr_JMP2_t*)pc;; (void)op; VMCOUNT(pc); pc++;
+		KLR_JMP2(ctx, pc = op->jumppc, JUMP);
+		L_JMP2_end:;
 		GOTO_NEXT();
 	} 
 	CASE(JMP_) {
-		klr_JMP__t *op = (klr_JMP__t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_JMP__t *op = (klr_JMP__t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR2_JMP_(ctx, pc = op->jumppc, JUMP);
+		L_JMP__end:;
 		GOTO_NEXT();
 	} 
 	CASE(JMPF) {
-		klr_JMPF_t *op = (klr_JMPF_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_JMPF_t *op = (klr_JMPF_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_JMPF(ctx, pc = op->jumppc, JUMP, op->a);
+		L_JMPF_end:;
 		GOTO_NEXT();
 	} 
 	CASE(DYJMP) {
-		klr_DYJMP_t *op = (klr_DYJMP_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_DYJMP_t *op = (klr_DYJMP_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_DYJMP(ctx, pc = op->jumppc, JUMP, op->a, op->chk);
+		L_DYJMP_end:;
 		GOTO_NEXT();
 	} 
 	CASE(NEXT) {
-		klr_NEXT_t *op = (klr_NEXT_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_NEXT_t *op = (klr_NEXT_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_NEXT(ctx, pc = op->jumppc, JUMP, op->a, op->b);
+		L_NEXT_end:;
 		GOTO_NEXT();
 	} 
 	CASE(TRY) {
-		klr_TRY_t *op = (klr_TRY_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_TRY_t *op = (klr_TRY_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_TRY(ctx, pc = op->jumppc, JUMP, op->hn);
+		L_TRY_end:;
 		GOTO_NEXT();
 	} 
 	CASE(TRYEND) {
-		klr_TRYEND_t *op = (klr_TRYEND_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_TRYEND_t *op = (klr_TRYEND_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_TRYEND(ctx, op->hn);
+		L_TRYEND_end:;
 		GOTO_NEXT();
 	} 
 	CASE(THROW) {
-		klr_THROW_t *op = (klr_THROW_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_THROW_t *op = (klr_THROW_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_THROW(ctx, op->start);
+		L_THROW_end:;
 		GOTO_NEXT();
 	} 
 	CASE(CATCH) {
-		klr_CATCH_t *op = (klr_CATCH_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_CATCH_t *op = (klr_CATCH_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_CATCH(ctx, pc = op->jumppc, JUMP, op->en, op->msg);
+		L_CATCH_end:;
 		GOTO_NEXT();
 	} 
 	CASE(bNOT) {
-		klr_bNOT_t *op = (klr_bNOT_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_bNOT_t *op = (klr_bNOT_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_bNOT(ctx, op->c, op->a);
+		L_bNOT_end:;
 		GOTO_NEXT();
 	} 
 	CASE(iINC) {
-		klr_iINC_t *op = (klr_iINC_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_iINC_t *op = (klr_iINC_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR3_iINC(ctx, op->a);
+		L_iINC_end:;
 		GOTO_NEXT();
 	} 
 	CASE(iDEC) {
-		klr_iDEC_t *op = (klr_iDEC_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_iDEC_t *op = (klr_iDEC_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR3_iDEC(ctx, op->a);
+		L_iDEC_end:;
 		GOTO_NEXT();
 	} 
 	CASE(iNEG) {
-		klr_iNEG_t *op = (klr_iNEG_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_iNEG_t *op = (klr_iNEG_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_iNEG(ctx, op->c, op->a);
+		L_iNEG_end:;
 		GOTO_NEXT();
 	} 
 	CASE(iADD) {
-		klr_iADD_t *op = (klr_iADD_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_iADD_t *op = (klr_iADD_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_iADD(ctx, op->c, op->a, op->b);
+		L_iADD_end:;
 		GOTO_NEXT();
 	} 
 	CASE(iSUB) {
-		klr_iSUB_t *op = (klr_iSUB_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_iSUB_t *op = (klr_iSUB_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_iSUB(ctx, op->c, op->a, op->b);
+		L_iSUB_end:;
 		GOTO_NEXT();
 	} 
 	CASE(iMUL) {
-		klr_iMUL_t *op = (klr_iMUL_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_iMUL_t *op = (klr_iMUL_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_iMUL(ctx, op->c, op->a, op->b);
+		L_iMUL_end:;
 		GOTO_NEXT();
 	} 
 	CASE(iDIV) {
-		klr_iDIV_t *op = (klr_iDIV_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_iDIV_t *op = (klr_iDIV_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_iDIV(ctx, op->c, op->a, op->b);
+		L_iDIV_end:;
 		GOTO_NEXT();
 	} 
 	CASE(iMOD) {
-		klr_iMOD_t *op = (klr_iMOD_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_iMOD_t *op = (klr_iMOD_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_iMOD(ctx, op->c, op->a, op->b);
+		L_iMOD_end:;
 		GOTO_NEXT();
 	} 
 	CASE(iEQ) {
-		klr_iEQ_t *op = (klr_iEQ_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_iEQ_t *op = (klr_iEQ_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_iEQ(ctx, op->c, op->a, op->b);
+		L_iEQ_end:;
 		GOTO_NEXT();
 	} 
 	CASE(iNEQ) {
-		klr_iNEQ_t *op = (klr_iNEQ_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_iNEQ_t *op = (klr_iNEQ_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_iNEQ(ctx, op->c, op->a, op->b);
+		L_iNEQ_end:;
 		GOTO_NEXT();
 	} 
 	CASE(iLT) {
-		klr_iLT_t *op = (klr_iLT_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_iLT_t *op = (klr_iLT_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_iLT(ctx, op->c, op->a, op->b);
+		L_iLT_end:;
 		GOTO_NEXT();
 	} 
 	CASE(iLTE) {
-		klr_iLTE_t *op = (klr_iLTE_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_iLTE_t *op = (klr_iLTE_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_iLTE(ctx, op->c, op->a, op->b);
+		L_iLTE_end:;
 		GOTO_NEXT();
 	} 
 	CASE(iGT) {
-		klr_iGT_t *op = (klr_iGT_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_iGT_t *op = (klr_iGT_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_iGT(ctx, op->c, op->a, op->b);
+		L_iGT_end:;
 		GOTO_NEXT();
 	} 
 	CASE(iGTE) {
-		klr_iGTE_t *op = (klr_iGTE_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_iGTE_t *op = (klr_iGTE_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_iGTE(ctx, op->c, op->a, op->b);
+		L_iGTE_end:;
 		GOTO_NEXT();
 	} 
 	CASE(iADDn) {
-		klr_iADDn_t *op = (klr_iADDn_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_iADDn_t *op = (klr_iADDn_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_iADDn(ctx, op->c, op->a, op->n);
+		L_iADDn_end:;
 		GOTO_NEXT();
 	} 
 	CASE(iSUBn) {
-		klr_iSUBn_t *op = (klr_iSUBn_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_iSUBn_t *op = (klr_iSUBn_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_iSUBn(ctx, op->c, op->a, op->n);
+		L_iSUBn_end:;
 		GOTO_NEXT();
 	} 
 	CASE(iMULn) {
-		klr_iMULn_t *op = (klr_iMULn_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_iMULn_t *op = (klr_iMULn_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_iMULn(ctx, op->c, op->a, op->n);
+		L_iMULn_end:;
 		GOTO_NEXT();
 	} 
 	CASE(iDIVn) {
-		klr_iDIVn_t *op = (klr_iDIVn_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_iDIVn_t *op = (klr_iDIVn_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_iDIVn(ctx, op->c, op->a, op->n);
+		L_iDIVn_end:;
 		GOTO_NEXT();
 	} 
 	CASE(iMODn) {
-		klr_iMODn_t *op = (klr_iMODn_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_iMODn_t *op = (klr_iMODn_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_iMODn(ctx, op->c, op->a, op->n);
+		L_iMODn_end:;
 		GOTO_NEXT();
 	} 
 	CASE(iEQn) {
-		klr_iEQn_t *op = (klr_iEQn_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_iEQn_t *op = (klr_iEQn_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_iEQn(ctx, op->c, op->a, op->n);
+		L_iEQn_end:;
 		GOTO_NEXT();
 	} 
 	CASE(iNEQn) {
-		klr_iNEQn_t *op = (klr_iNEQn_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_iNEQn_t *op = (klr_iNEQn_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_iNEQn(ctx, op->c, op->a, op->n);
+		L_iNEQn_end:;
 		GOTO_NEXT();
 	} 
 	CASE(iLTn) {
-		klr_iLTn_t *op = (klr_iLTn_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_iLTn_t *op = (klr_iLTn_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_iLTn(ctx, op->c, op->a, op->n);
+		L_iLTn_end:;
 		GOTO_NEXT();
 	} 
 	CASE(iLTEn) {
-		klr_iLTEn_t *op = (klr_iLTEn_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_iLTEn_t *op = (klr_iLTEn_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_iLTEn(ctx, op->c, op->a, op->n);
+		L_iLTEn_end:;
 		GOTO_NEXT();
 	} 
 	CASE(iGTn) {
-		klr_iGTn_t *op = (klr_iGTn_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_iGTn_t *op = (klr_iGTn_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_iGTn(ctx, op->c, op->a, op->n);
+		L_iGTn_end:;
 		GOTO_NEXT();
 	} 
 	CASE(iGTEn) {
-		klr_iGTEn_t *op = (klr_iGTEn_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_iGTEn_t *op = (klr_iGTEn_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_iGTEn(ctx, op->c, op->a, op->n);
+		L_iGTEn_end:;
 		GOTO_NEXT();
 	} 
 	CASE(fNEG) {
-		klr_fNEG_t *op = (klr_fNEG_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_fNEG_t *op = (klr_fNEG_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_fNEG(ctx, op->c, op->a);
+		L_fNEG_end:;
 		GOTO_NEXT();
 	} 
 	CASE(fADD) {
-		klr_fADD_t *op = (klr_fADD_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_fADD_t *op = (klr_fADD_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_fADD(ctx, op->c, op->a, op->b);
+		L_fADD_end:;
 		GOTO_NEXT();
 	} 
 	CASE(fSUB) {
-		klr_fSUB_t *op = (klr_fSUB_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_fSUB_t *op = (klr_fSUB_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_fSUB(ctx, op->c, op->a, op->b);
+		L_fSUB_end:;
 		GOTO_NEXT();
 	} 
 	CASE(fMUL) {
-		klr_fMUL_t *op = (klr_fMUL_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_fMUL_t *op = (klr_fMUL_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_fMUL(ctx, op->c, op->a, op->b);
+		L_fMUL_end:;
 		GOTO_NEXT();
 	} 
 	CASE(fDIV) {
-		klr_fDIV_t *op = (klr_fDIV_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_fDIV_t *op = (klr_fDIV_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_fDIV(ctx, op->c, op->a, op->b);
+		L_fDIV_end:;
 		GOTO_NEXT();
 	} 
 	CASE(fEQ) {
-		klr_fEQ_t *op = (klr_fEQ_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_fEQ_t *op = (klr_fEQ_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_fEQ(ctx, op->c, op->a, op->b);
+		L_fEQ_end:;
 		GOTO_NEXT();
 	} 
 	CASE(fNEQ) {
-		klr_fNEQ_t *op = (klr_fNEQ_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_fNEQ_t *op = (klr_fNEQ_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_fNEQ(ctx, op->c, op->a, op->b);
+		L_fNEQ_end:;
 		GOTO_NEXT();
 	} 
 	CASE(fLT) {
-		klr_fLT_t *op = (klr_fLT_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_fLT_t *op = (klr_fLT_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_fLT(ctx, op->c, op->a, op->b);
+		L_fLT_end:;
 		GOTO_NEXT();
 	} 
 	CASE(fLTE) {
-		klr_fLTE_t *op = (klr_fLTE_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_fLTE_t *op = (klr_fLTE_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_fLTE(ctx, op->c, op->a, op->b);
+		L_fLTE_end:;
 		GOTO_NEXT();
 	} 
 	CASE(fGT) {
-		klr_fGT_t *op = (klr_fGT_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_fGT_t *op = (klr_fGT_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_fGT(ctx, op->c, op->a, op->b);
+		L_fGT_end:;
 		GOTO_NEXT();
 	} 
 	CASE(fGTE) {
-		klr_fGTE_t *op = (klr_fGTE_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_fGTE_t *op = (klr_fGTE_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_fGTE(ctx, op->c, op->a, op->b);
+		L_fGTE_end:;
 		GOTO_NEXT();
 	} 
 	CASE(fADDn) {
-		klr_fADDn_t *op = (klr_fADDn_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_fADDn_t *op = (klr_fADDn_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_fADDn(ctx, op->c, op->a, op->n);
+		L_fADDn_end:;
 		GOTO_NEXT();
 	} 
 	CASE(fSUBn) {
-		klr_fSUBn_t *op = (klr_fSUBn_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_fSUBn_t *op = (klr_fSUBn_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_fSUBn(ctx, op->c, op->a, op->n);
+		L_fSUBn_end:;
 		GOTO_NEXT();
 	} 
 	CASE(fMULn) {
-		klr_fMULn_t *op = (klr_fMULn_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_fMULn_t *op = (klr_fMULn_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_fMULn(ctx, op->c, op->a, op->n);
+		L_fMULn_end:;
 		GOTO_NEXT();
 	} 
 	CASE(fDIVn) {
-		klr_fDIVn_t *op = (klr_fDIVn_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_fDIVn_t *op = (klr_fDIVn_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_fDIVn(ctx, op->c, op->a, op->n);
+		L_fDIVn_end:;
 		GOTO_NEXT();
 	} 
 	CASE(fEQn) {
-		klr_fEQn_t *op = (klr_fEQn_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_fEQn_t *op = (klr_fEQn_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_fEQn(ctx, op->c, op->a, op->n);
+		L_fEQn_end:;
 		GOTO_NEXT();
 	} 
 	CASE(fNEQn) {
-		klr_fNEQn_t *op = (klr_fNEQn_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_fNEQn_t *op = (klr_fNEQn_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_fNEQn(ctx, op->c, op->a, op->n);
+		L_fNEQn_end:;
 		GOTO_NEXT();
 	} 
 	CASE(fLTn) {
-		klr_fLTn_t *op = (klr_fLTn_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_fLTn_t *op = (klr_fLTn_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_fLTn(ctx, op->c, op->a, op->n);
+		L_fLTn_end:;
 		GOTO_NEXT();
 	} 
 	CASE(fLTEn) {
-		klr_fLTEn_t *op = (klr_fLTEn_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_fLTEn_t *op = (klr_fLTEn_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_fLTEn(ctx, op->c, op->a, op->n);
+		L_fLTEn_end:;
 		GOTO_NEXT();
 	} 
 	CASE(fGTn) {
-		klr_fGTn_t *op = (klr_fGTn_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_fGTn_t *op = (klr_fGTn_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_fGTn(ctx, op->c, op->a, op->n);
+		L_fGTn_end:;
 		GOTO_NEXT();
 	} 
 	CASE(fGTEn) {
-		klr_fGTEn_t *op = (klr_fGTEn_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_fGTEn_t *op = (klr_fGTEn_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_fGTEn(ctx, op->c, op->a, op->n);
+		L_fGTEn_end:;
 		GOTO_NEXT();
 	} 
 	CASE(OGETIDX) {
-		klr_OGETIDX_t *op = (klr_OGETIDX_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_OGETIDX_t *op = (klr_OGETIDX_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_OGETIDX(ctx, op->c, op->a, op->n);
+		L_OGETIDX_end:;
 		GOTO_NEXT();
 	} 
 	CASE(OSETIDX) {
-		klr_OSETIDX_t *op = (klr_OSETIDX_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_OSETIDX_t *op = (klr_OSETIDX_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_OSETIDX(ctx, op->c, op->a, op->n, op->v);
+		L_OSETIDX_end:;
 		GOTO_NEXT();
 	} 
 	CASE(OGETIDXn) {
-		klr_OGETIDXn_t *op = (klr_OGETIDXn_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_OGETIDXn_t *op = (klr_OGETIDXn_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_OGETIDXn(ctx, op->c, op->a, op->n);
+		L_OGETIDXn_end:;
 		GOTO_NEXT();
 	} 
 	CASE(OSETIDXn) {
-		klr_OSETIDXn_t *op = (klr_OSETIDXn_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_OSETIDXn_t *op = (klr_OSETIDXn_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_OSETIDXn(ctx, op->c, op->a, op->n, op->v);
+		L_OSETIDXn_end:;
 		GOTO_NEXT();
 	} 
 	CASE(NGETIDX) {
-		klr_NGETIDX_t *op = (klr_NGETIDX_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_NGETIDX_t *op = (klr_NGETIDX_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_NGETIDX(ctx, op->c, op->a, op->n);
+		L_NGETIDX_end:;
 		GOTO_NEXT();
 	} 
 	CASE(NSETIDX) {
-		klr_NSETIDX_t *op = (klr_NSETIDX_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_NSETIDX_t *op = (klr_NSETIDX_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_NSETIDX(ctx, op->c, op->a, op->v, op->n);
+		L_NSETIDX_end:;
 		GOTO_NEXT();
 	} 
 	CASE(NGETIDXn) {
-		klr_NGETIDXn_t *op = (klr_NGETIDXn_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_NGETIDXn_t *op = (klr_NGETIDXn_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_NGETIDXn(ctx, op->c, op->a, op->n);
+		L_NGETIDXn_end:;
 		GOTO_NEXT();
 	} 
 	CASE(NSETIDXn) {
-		klr_NSETIDXn_t *op = (klr_NSETIDXn_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_NSETIDXn_t *op = (klr_NSETIDXn_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_NSETIDXn(ctx, op->c, op->a, op->v, op->n);
+		L_NSETIDXn_end:;
 		GOTO_NEXT();
 	} 
 	CASE(bJNOT) {
-		klr_bJNOT_t *op = (klr_bJNOT_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_bJNOT_t *op = (klr_bJNOT_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR3_bJNOT(ctx, pc = op->jumppc, JUMP, op->a);
+		L_bJNOT_end:;
 		GOTO_NEXT();
 	} 
 	CASE(iJEQ) {
-		klr_iJEQ_t *op = (klr_iJEQ_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_iJEQ_t *op = (klr_iJEQ_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR3_iJEQ(ctx, pc = op->jumppc, JUMP, op->a, op->b);
+		L_iJEQ_end:;
 		GOTO_NEXT();
 	} 
 	CASE(iJNEQ) {
-		klr_iJNEQ_t *op = (klr_iJNEQ_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_iJNEQ_t *op = (klr_iJNEQ_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR3_iJNEQ(ctx, pc = op->jumppc, JUMP, op->a, op->b);
+		L_iJNEQ_end:;
 		GOTO_NEXT();
 	} 
 	CASE(iJLT) {
-		klr_iJLT_t *op = (klr_iJLT_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_iJLT_t *op = (klr_iJLT_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR3_iJLT(ctx, pc = op->jumppc, JUMP, op->a, op->b);
+		L_iJLT_end:;
 		GOTO_NEXT();
 	} 
 	CASE(iJLTE) {
-		klr_iJLTE_t *op = (klr_iJLTE_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_iJLTE_t *op = (klr_iJLTE_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR3_iJLTE(ctx, pc = op->jumppc, JUMP, op->a, op->b);
+		L_iJLTE_end:;
 		GOTO_NEXT();
 	} 
 	CASE(iJGT) {
-		klr_iJGT_t *op = (klr_iJGT_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_iJGT_t *op = (klr_iJGT_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR3_iJGT(ctx, pc = op->jumppc, JUMP, op->a, op->b);
+		L_iJGT_end:;
 		GOTO_NEXT();
 	} 
 	CASE(iJGTE) {
-		klr_iJGTE_t *op = (klr_iJGTE_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_iJGTE_t *op = (klr_iJGTE_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR3_iJGTE(ctx, pc = op->jumppc, JUMP, op->a, op->b);
+		L_iJGTE_end:;
 		GOTO_NEXT();
 	} 
 	CASE(iJEQn) {
-		klr_iJEQn_t *op = (klr_iJEQn_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_iJEQn_t *op = (klr_iJEQn_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR3_iJEQn(ctx, pc = op->jumppc, JUMP, op->a, op->n);
+		L_iJEQn_end:;
 		GOTO_NEXT();
 	} 
 	CASE(iJNEQn) {
-		klr_iJNEQn_t *op = (klr_iJNEQn_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_iJNEQn_t *op = (klr_iJNEQn_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR3_iJNEQn(ctx, pc = op->jumppc, JUMP, op->a, op->n);
+		L_iJNEQn_end:;
 		GOTO_NEXT();
 	} 
 	CASE(iJLTn) {
-		klr_iJLTn_t *op = (klr_iJLTn_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_iJLTn_t *op = (klr_iJLTn_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR3_iJLTn(ctx, pc = op->jumppc, JUMP, op->a, op->n);
+		L_iJLTn_end:;
 		GOTO_NEXT();
 	} 
 	CASE(iJLTEn) {
-		klr_iJLTEn_t *op = (klr_iJLTEn_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_iJLTEn_t *op = (klr_iJLTEn_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR3_iJLTEn(ctx, pc = op->jumppc, JUMP, op->a, op->n);
+		L_iJLTEn_end:;
 		GOTO_NEXT();
 	} 
 	CASE(iJGTn) {
-		klr_iJGTn_t *op = (klr_iJGTn_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_iJGTn_t *op = (klr_iJGTn_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR3_iJGTn(ctx, pc = op->jumppc, JUMP, op->a, op->n);
+		L_iJGTn_end:;
 		GOTO_NEXT();
 	} 
 	CASE(iJGTEn) {
-		klr_iJGTEn_t *op = (klr_iJGTEn_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_iJGTEn_t *op = (klr_iJGTEn_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR3_iJGTEn(ctx, pc = op->jumppc, JUMP, op->a, op->n);
+		L_iJGTEn_end:;
 		GOTO_NEXT();
 	} 
 	CASE(fJEQ) {
-		klr_fJEQ_t *op = (klr_fJEQ_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_fJEQ_t *op = (klr_fJEQ_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR3_fJEQ(ctx, pc = op->jumppc, JUMP, op->a, op->b);
+		L_fJEQ_end:;
 		GOTO_NEXT();
 	} 
 	CASE(fJNEQ) {
-		klr_fJNEQ_t *op = (klr_fJNEQ_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_fJNEQ_t *op = (klr_fJNEQ_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR3_fJNEQ(ctx, pc = op->jumppc, JUMP, op->a, op->b);
+		L_fJNEQ_end:;
 		GOTO_NEXT();
 	} 
 	CASE(fJLT) {
-		klr_fJLT_t *op = (klr_fJLT_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_fJLT_t *op = (klr_fJLT_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR3_fJLT(ctx, pc = op->jumppc, JUMP, op->a, op->b);
+		L_fJLT_end:;
 		GOTO_NEXT();
 	} 
 	CASE(fJLTE) {
-		klr_fJLTE_t *op = (klr_fJLTE_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_fJLTE_t *op = (klr_fJLTE_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR3_fJLTE(ctx, pc = op->jumppc, JUMP, op->a, op->b);
+		L_fJLTE_end:;
 		GOTO_NEXT();
 	} 
 	CASE(fJGT) {
-		klr_fJGT_t *op = (klr_fJGT_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_fJGT_t *op = (klr_fJGT_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR3_fJGT(ctx, pc = op->jumppc, JUMP, op->a, op->b);
+		L_fJGT_end:;
 		GOTO_NEXT();
 	} 
 	CASE(fJGTE) {
-		klr_fJGTE_t *op = (klr_fJGTE_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_fJGTE_t *op = (klr_fJGTE_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR3_fJGTE(ctx, pc = op->jumppc, JUMP, op->a, op->b);
+		L_fJGTE_end:;
 		GOTO_NEXT();
 	} 
 	CASE(fJEQn) {
-		klr_fJEQn_t *op = (klr_fJEQn_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_fJEQn_t *op = (klr_fJEQn_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR3_fJEQn(ctx, pc = op->jumppc, JUMP, op->a, op->n);
+		L_fJEQn_end:;
 		GOTO_NEXT();
 	} 
 	CASE(fJNEQn) {
-		klr_fJNEQn_t *op = (klr_fJNEQn_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_fJNEQn_t *op = (klr_fJNEQn_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR3_fJNEQn(ctx, pc = op->jumppc, JUMP, op->a, op->n);
+		L_fJNEQn_end:;
 		GOTO_NEXT();
 	} 
 	CASE(fJLTn) {
-		klr_fJLTn_t *op = (klr_fJLTn_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_fJLTn_t *op = (klr_fJLTn_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR3_fJLTn(ctx, pc = op->jumppc, JUMP, op->a, op->n);
+		L_fJLTn_end:;
 		GOTO_NEXT();
 	} 
 	CASE(fJLTEn) {
-		klr_fJLTEn_t *op = (klr_fJLTEn_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_fJLTEn_t *op = (klr_fJLTEn_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR3_fJLTEn(ctx, pc = op->jumppc, JUMP, op->a, op->n);
+		L_fJLTEn_end:;
 		GOTO_NEXT();
 	} 
 	CASE(fJGTn) {
-		klr_fJGTn_t *op = (klr_fJGTn_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_fJGTn_t *op = (klr_fJGTn_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR3_fJGTn(ctx, pc = op->jumppc, JUMP, op->a, op->n);
+		L_fJGTn_end:;
 		GOTO_NEXT();
 	} 
 	CASE(fJGTEn) {
-		klr_fJGTEn_t *op = (klr_fJGTEn_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_fJGTEn_t *op = (klr_fJGTEn_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR3_fJGTEn(ctx, pc = op->jumppc, JUMP, op->a, op->n);
+		L_fJGTEn_end:;
 		GOTO_NEXT();
 	} 
 	CASE(NOP) {
-		klr_NOP_t *op = (klr_NOP_t*)pc; (void)op; VMCOUNT(pc); pc++;
+		klr_NOP_t *op = (klr_NOP_t*)pc;; (void)op; VMCOUNT(pc); pc++;
 		KLR_NOP(ctx);
+		L_NOP_end:;
 		GOTO_NEXT();
 	} 
 	DISPATCH_END(pc);
