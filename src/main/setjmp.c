@@ -35,31 +35,67 @@
 extern "C" {
 #endif
 
-/* ------------------------------------------------------------------------ */
+#if defined(__i386__)
+#define reg(r) "%%e" r
+#elif defined(__x86_64__)
+#define reg(r) "%%r" r
+#endif
+/*
+ * we verified setjmp, longjmp at 
+ *  * MacOSX x86_64 GCC 4.0.1/4.2.1 (-O0/-O1/-O2)
+ *  * MacOSX i386   GCC 4.0.1 (-O2)
+ */
 
+/* ------------------------------------------------------------------------ */
 knh_ExceptionHandler_t* knh_ExceptionHandler_setjmp(Ctx *ctx, knh_ExceptionHandler_t *hdr)
 {
-//	knh_uintptr_t rsp;
-//	__asm__ volatile ("movq %%rsp, %0; " : "=r" (rsp));
+	knh_uintptr_t rsp;
+	asm volatile ("mov " reg("sp") ", %0;" : "=r" (rsp));
 	DP(hdr)->return_address = __builtin_return_address(0);
 	DP(hdr)->frame_address = __builtin_frame_address(1);
-//	DP(hdr)->stack_pointer =rsp;
+#if defined(__i386__)
+	DP(hdr)->stack_pointer = rsp + 0x08;
+#elif defined(__x86_64__)
+	DP(hdr)->stack_pointer = rsp + 0x10;
+#endif
+	asm volatile("int3");
 	return NULL;
 }
 
+/* ------------------------------------------------------------------------ */
 knh_ExceptionHandler_t *knh_ExceptionHandler_longjmp(Ctx *ctx, knh_ExceptionHandler_t *hdr)
 {
-//	knh_uintptr_t rsp = DP(hdr)->stack_pointer;
-	void** rbp = (void**)__builtin_frame_address(0);
-//	fprintf(stderr, "@%s: return_addr=%p, frame_addr=%p\n",
-//			__FUNCTION__, DP(hdr)->return_address, DP(hdr)->frame_address);
-//	fprintf(stderr, " sp[0]=%p, sp[1]=%p, sp[2]=%p, sp[3]=%p, sp[4]=%p\n", sp[0], sp[1], sp[2], sp[3], sp[4]);
-	rbp[1] = DP(hdr)->return_address;
-	KNH_ASSERT(DP(hdr)->return_address == __builtin_return_address(0));
-	DP(hdr)->return_address = NULL;
-	rbp[0] = DP(hdr)->frame_address;
-	KNH_ASSERT(DP(hdr)->frame_address == __builtin_frame_address(1));
-//	__asm__ volatile ("movq %0, %%rsp; " : : "r" (rsp): "%rsp");
+#if defined(__i386__)
+	asm volatile(
+			"pop %%ebp;"
+			"mov 0x10(%%eax),%%esi;" /* esi = DP(hdr) */
+			"mov 0x08(%%esi),%%edx;" /* edx = DP(hdr)->return_address */
+			"mov 0x0c(%%esi),%%ebp;" /* ebp = DP(hdr)->frame_address */
+			"mov 0x10(%%esi),%%esp;" /* esp = DP(hdr)->stack_pointer */
+			"pop %%esi;"
+			"int3;"
+			"jmp *%%edx;"
+			::
+			"a"(hdr)
+			: "%esi", "%edx");
+#elif defined(__x86_64__)
+	asm volatile(
+			"pop %%rbp;"
+			"mov %0,%%rsi;"
+			"mov %%rsi,%%rbp;"
+			"mov %2,%%rsp;"
+			"mov %3,%%rax;"
+			"mov %4, %%rsi;"
+			"mov %%rsi, %%rdi;"
+			"jmp *%1;"
+			::
+			"r"(DP(hdr)->frame_address),
+			"r"(DP(hdr)->return_address),
+			"r"(DP(hdr)->stack_pointer),
+			"r"(hdr),
+			"r"(ctx)
+			: "%rax", "%rsi", "%rdi");
+#endif
 	return hdr;
 }
 
