@@ -22,9 +22,11 @@ sub testSimpleLoop () {
 
 sub testLocalVariable() {
 	my $y = 0;
-	for (my $i=0; $i < 10000000; $i++) {
+	my $i;
+	for ($i=0; $i < 10000000; $i++) {
 		$y = $i;
 	}
+	return $i;
 }
 
 my $global_x;
@@ -32,7 +34,8 @@ my $global_y;
 my $global_z;
 
 sub testGlobalVariable {
-	for (my $i=0; $i < 10000000; $i++) {
+	my $i;
+	for ($i=0; $i < 10000000; $i++) {
 		$global_y = $i;
 	}
 	return $global_y;
@@ -140,90 +143,101 @@ sub mops {
 		return 0;
 	}
 	#return (10000000 / ($score)) / 100.0;
-	return (10000 / ($score)) / 1000;
+	return  (10000000 / ($score)) / 1000;
 }
 
 my ($score, $period, $delta);
 my ($user1, $system, $cursor, $csystem);
 my ($user2, $system2, $cursor2, $csystem2);
 ($user1, $system, $cursor, $csystem) = times;
-testLocalVariable();
+testSimpleLoop();
 ($user2, $system2, $cursor2, $csystem2) = times;
+$user1 = $user1 * 1000;$user2 = $user2 * 1000;
 $period = $user2 - $user1;
 $score = mops($period);
-print "SimpleLoop:$score ", $user2-$user1, "[sec]\n";
+print "SimpleLoop:$score ", $user2-$user1, "[ms]\n";
 $delta = $period;
 
 ($user1, $system, $cursor, $csystem) = times;
 testLocalVariable();
 ($user2, $system2, $cursor2, $csystem2) = times;
+$user1 = $user1 * 1000;$user2 = $user2 * 1000;
 $score = mops($user2-$user1 - $delta);
-print "LocalVariable:$score ", $user2-$user1, "[sec]\n";
-
+print "LocalVariable:$score ", $user2-$user1, "[ms]\n";
 
 ($user1, $system, $cursor, $csystem) = times;
 testGlobalVariable();
 ($user2, $system2, $cursor2, $csystem2) = times;
+$user1 = $user1 * 1000;$user2 = $user2 * 1000;
 $score = mops($user2-$user1 - $delta);
-print "GlobalVariable:$score ", $user2-$user1, "[sec]\n";
+print "GlobalVariable:$score ", $user2-$user1, "[ms]\n";
 
 ($user1, $system, $cursor, $csystem) = times;
 testStringAssignment();
 ($user2, $system2, $cursor2, $csystem2) = times;
+$user1 = $user1 * 1000;$user2 = $user2 * 1000;
 $score = mops($user2-$user1 - $delta);
-print "StringAssignment:$score ", $user2-$user1, "[sec]\n";
+print "StringAssignment:$score ", $user2-$user1, "[ms]\n";
 
 ($user1, $system, $cursor, $csystem) = times;
 testIntegerOperation();
 ($user2, $system2, $cursor2, $csystem2) = times;
+$user1 = $user1 * 1000;$user2 = $user2 * 1000;
 $score = mops($user2-$user1 - $delta);
-print "IntegerOperation:$score ", $user2-$user1, "[sec]\n";
+print "IntegerOperation:$score ", $user2-$user1, "[ms]\n";
 
 ($user1, $system, $cursor, $csystem) = times;
 testFloatOperation();
 ($user2, $system2, $cursor2, $csystem2) = times;
+$user1 = $user1 * 1000;$user2 = $user2 * 1000;
 $score = mops($user2-$user1 - $delta);
-print "FloatOperation:$score ", $user2-$user1, "[sec]\n";
+print "FloatOperation:$score ", $user2-$user1, "[ms]\n";
 
 ($user1, $system, $cursor, $csystem) = times;
 testFunctionCall();
 ($user2, $system2, $cursor2, $csystem2) = times;
+$user1 = $user1 * 1000;$user2 = $user2 * 1000;
 $score = mops($user2-$user1 - $delta);
-print "FunctionCall:$score ", $user2-$user1, "[sec]\n";
+print "FunctionCall:$score ", $user2-$user1, "[ms]\n";
 
 ($user1, $system, $cursor, $csystem) = times;
 testFunctionReturn();
 ($user2, $system2, $cursor2, $csystem2) = times;
-
-print "FunctionReturn:$score ", $user2-$user1, "[sec]\n";
+$user1 = $user1 * 1000;$user2 = $user2 * 1000;
+print "FunctionReturn:$score ", $user2-$user1, "[ms]\n";
 
 ($user1, $system, $cursor, $csystem) = times;
 testMathFabs();
 ($user2, $system2, $cursor2, $csystem2) = times;
+$user1 = $user1 * 1000;$user2 = $user2 * 1000;
 $score = mops($user2-$user1 - $delta);
 print "NativeFunction: (none)\n";
 
 ($user1, $system, $cursor, $csystem) = times;
 testObjectCreation();
 ($user2, $system2, $cursor2, $csystem2) = times;
+$user1 = $user1 * 1000;$user2 = $user2 * 1000;
 $score = mops($user2-$user1 - $delta);
-print "ObjectCreation:$score ", $user2-$user1, "[sec]\n";
+print "ObjectCreation:$score ", $user2-$user1, "[ms]\n";
 
 ($user1, $system, $cursor, $csystem) = times;
 testFieldVariable();
 ($user2, $system2, $cursor2, $csystem2) = times;
+$user1 = $user1 * 1000;$user2 = $user2 * 1000;
 $score = mops($user2-$user1 - $delta);
-print "FieldVariable:$score ", $user2-$user1, "[sec]\n";
+print "FieldVariable:$score ", $user2-$user1, "[ms]\n";
 
 ($user1, $system, $cursor, $csystem) = times;
 testMethodCall();
 ($user2, $system2, $cursor2, $csystem2) = times;
+$user1 = $user1 * 1000;$user2 = $user2 * 1000;
 $score = mops($user2-$user1 - $delta);
-print "MethodCall:$score ", $user2-$user1, "[sec]\n";
+print "MethodCall:$score ", $user2-$user1, "[ms]\n";
 
 ($user1, $system, $cursor, $csystem) = times;
 fibo(36);
 ($user2, $system2, $cursor2, $csystem2) = times;
+$user1 = $user1 * 1000;$user2 = $user2 * 1000;
 $score = ($user2-$user1);
-print "fib(36):$score ", $user2-$user1, "[sec]\n";
+print "fib(36):$score ", $user2-$user1, "[ms]\n";
 
