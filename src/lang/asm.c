@@ -148,7 +148,7 @@ static void knh_Gamma_asm(Ctx *ctx, knh_opline_t *op)
 	}
 	if(DP(bb)->size > 0) {
 		knh_opline_t *opP = DP(bb)->opbuf + (DP(bb)->size - 1);
-		if(op->opcode == opP->opcode) {
+		if(op->opcode == opP->opcode && op->opcode <= OPCODE_TR) {
 			size_t i, size = knh_opcode_size(op->opcode);
 			for(i = 0; i < size; i++) {
 				if(op->data[i] != opP->data[i]) goto L_REMOVE;
