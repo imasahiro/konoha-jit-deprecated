@@ -58,7 +58,6 @@ knh_ExceptionHandler_t* knh_ExceptionHandler_setjmp(Ctx *ctx, knh_ExceptionHandl
 #elif defined(__x86_64__)
 	DP(hdr)->stack_pointer = rsp + 0x10;
 #endif
-	asm volatile("int3");
 	return NULL;
 }
 
@@ -73,7 +72,6 @@ knh_ExceptionHandler_t *knh_ExceptionHandler_longjmp(Ctx *ctx, knh_ExceptionHand
 			"mov 0x0c(%%esi),%%ebp;" /* ebp = DP(hdr)->frame_address */
 			"mov 0x10(%%esi),%%esp;" /* esp = DP(hdr)->stack_pointer */
 			"pop %%esi;"
-			"int3;"
 			"jmp *%%edx;"
 			::
 			"a"(hdr)
