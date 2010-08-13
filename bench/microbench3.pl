@@ -5,8 +5,10 @@ use warnings;
 package Dim;
 sub new {
 	my $class = shift;
-	return bless {x => shift}, $class;
-}	
+	return bless {x => shift, y => shift, z => shift}, $class;
+}
+sub f {
+}
 
 package main;
 
@@ -20,13 +22,14 @@ sub testSimpleLoop () {
 
 sub testLocalVariable() {
 	my $y = 0;
-	my $i = 0;
-	for ($i=0; $i < 10000000; $i++) {
+	for (my $i=0; $i < 10000000; $i++) {
 		$y = $i;
 	}
 }
 
-my ($global_x,$global_y,$global_z);
+my $global_x;
+my $global_y;
+my $global_z;
 
 sub testGlobalVariable {
 	for (my $i=0; $i < 10000000; $i++) {
@@ -37,7 +40,7 @@ sub testGlobalVariable {
 
 sub testStringAssignment {
 	my $s = "";
-	for (my $i=0; $i < 10000000; $i++) {
+	for (my $i = 0; $i < 10000000; $i++) {
 		$s = "A";
 	}
 	return $s;
@@ -71,10 +74,6 @@ sub testFunctionCall {
 	return $i;
 }
 
-sub func1 {
-	return 1;
-}
-
 sub testFunctionReturn {
 	my $res = 0;
 	for (my $i = 0; $i < 10000000; $i++) {
@@ -83,10 +82,14 @@ sub testFunctionReturn {
 	return $res;
 }
 
+sub func1 {
+	return 1;
+}
+
 sub testMathFabs() {
 	my $res = 0.0;
-	my $i;
-	for ($i=0; $i < 10000000; $i++) {
+	my $i = 0;
+	for ($i = 0; $i < 10000000; $i++) {
 		$res = abs(-1.0);
 	}
 	return $i;
@@ -94,6 +97,33 @@ sub testMathFabs() {
 
 sub testCallFunctionObject{
 
+}
+
+sub testObjectCreation {
+	my $i = 0;
+	for ($i=0; $i < 10000000; $i++) {
+		my $d = new Dim();
+	}
+	return $i;
+}
+
+sub testFieldVariable {
+	my $d = new Dim();
+	my $i = 0;
+	for ($i=0; $i < 10000000; $i++) {
+		($d)->{y} = 1;
+	}
+	return $d;
+}
+
+
+sub testMethodCall {
+	my $d = new Dim();
+	my $i = 0;
+	for ($i=0; $i < 10000000; $i++) {
+		($d)->f();
+	}
+	return $d;
 }
 
 sub fibo {
@@ -104,31 +134,14 @@ sub fibo {
 	return fibo($n - 1) + fibo($n - 2);
 }
 
-sub testFieldVariable {
-	my $d = new Dim();
-	for (my $i=0; $i < 10000000; $i++) {
-		($d)->{y} = 1;
-	}
-	return $d;
-}
-
 sub mops {
 	my ($score) = @_;
 	if ($score < 1) {
 		return 0;
 	}
+	#return (10000000 / ($score)) / 100.0;
 	return (10000 / ($score)) / 1000;
-	#return (1000000 / ($score)) / 100.0;
 }
-#use Time::HiRes qw(gettimeofday, tv_interval);
-
-
-#$t0 = Benchmark->new;
-#testSimpleLoop();
-#$t1 = Benchmark->new;
-#$td = timediff($t1, $t0);
-#$score = mops($td);
-#$print "testSimpleLoop:$score", timestr($td), "\n";
 
 my ($score, $period, $delta);
 my ($user1, $system, $cursor, $csystem);
@@ -191,10 +204,22 @@ $score = mops($user2-$user1 - $delta);
 print "NativeFunction: (none)\n";
 
 ($user1, $system, $cursor, $csystem) = times;
+testObjectCreation();
+($user2, $system2, $cursor2, $csystem2) = times;
+$score = mops($user2-$user1 - $delta);
+print "ObjectCreation:$score ", $user2-$user1, "[sec]\n";
+
+($user1, $system, $cursor, $csystem) = times;
 testFieldVariable();
 ($user2, $system2, $cursor2, $csystem2) = times;
 $score = mops($user2-$user1 - $delta);
 print "FieldVariable:$score ", $user2-$user1, "[sec]\n";
+
+($user1, $system, $cursor, $csystem) = times;
+testMethodCall();
+($user2, $system2, $cursor2, $csystem2) = times;
+$score = mops($user2-$user1 - $delta);
+print "MethodCall:$score ", $user2-$user1, "[sec]\n";
 
 ($user1, $system, $cursor, $csystem) = times;
 fibo(36);
