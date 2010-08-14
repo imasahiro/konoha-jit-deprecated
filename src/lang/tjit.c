@@ -217,6 +217,12 @@ static knh_intptr_t knh_jit_write(Ctx *ctx, knh_cwb_t *cwb, knh_opcode_t op, voi
     knh_intptr_t size = end - start;
     DBG_P("%s %p - %p, %d", knh_opcode_tochar(op),
             start, end, size);
+    if (size > 0x100) {
+        DBG_P("**warn template is too big!!!");
+    }
+    if (op == OPCODE_JMP) {
+        size = get_target_template(start, NULL);
+    }
     if (size < 0) {
         DBG_P("%s(%d)", knh_opcode_tochar(op), op);
         need_rewrite = fix_code_template(start, &size);
