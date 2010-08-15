@@ -784,9 +784,9 @@ static void knh_InputStream_skipBLOCKCOMMENT(Ctx *ctx, knh_InputStream_t *in, kn
 		}else if(prev == '/' && ch == '*') {
 			level++;
 		}
-		else if(ch == '\n') {
+//		else if(ch == '\n') {
 			if(ba != NULL) knh_Bytes_putc(ctx, ba, ch);
-		}
+//		}
 		prev = ch;
 	}
 }
