@@ -10,6 +10,7 @@ typedef struct klr_HALT_t {
 #define OPCODE_THCODE ((knh_opcode_t)1)
 typedef struct klr_THCODE_t {
 	KCODE_HEAD;
+	klr_Fth th;
 } klr_THCODE_t;
 
 #define OPCODE_FUNCCALL ((knh_opcode_t)2)

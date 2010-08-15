@@ -52,7 +52,7 @@ typedef struct {
 
 static const knh_OPDATA_t OPDATA[] = {
 	{"HALT", 0, { VMT_VOID}}, 
-	{"THCODE", 0, { VMT_VOID}}, 
+	{"THCODE", 1, { VMT_F, VMT_VOID}}, 
 	{"FUNCCALL", 0, { VMT_VOID}}, 
 	{"ENTER", 0, { VMT_VOID}}, 
 	{"PROBE", 2, { VMT_F, VMT_U, VMT_VOID}}, 
@@ -552,7 +552,7 @@ knh_opline_t* knh_VirtualMachine_run(Ctx *ctx, knh_sfp_t *sfp0, knh_opline_t *pc
 	} 
 	CASE(THCODE) {
 		klr_THCODE_t *op = (klr_THCODE_t*)pc; (void)op; VMCOUNT(pc); pc++;
-		KLR0_THCODE(ctx);
+		KLR0_THCODE(ctx, op->th);
 		GOTO_NEXT();
 	} 
 	CASE(FUNCCALL) {

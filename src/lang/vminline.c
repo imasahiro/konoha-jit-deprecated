@@ -34,18 +34,6 @@ extern "C" {
 
 #ifdef K_USING_VMINLINE
 
-static void knh_code_thread(Ctx *ctx, knh_opline_t *pc, void **codeaddr)
-{
-#ifdef K_USING_THREADEDCODE
-	while(1) {
-		DBG_ASSERT_OPCODE(pc->opcode);
-		pc->codeaddr = codeaddr[pc->opcode];
-		if(pc->opcode == OPCODE_RET) break;
-		pc++;
-	}
-#endif
-}
-
 //static int knh_stack_pushesp(Ctx *ctx, knh_sfp_t *sfp) /* thisidx */
 //{
 //	int i = -1;

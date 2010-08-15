@@ -8,7 +8,7 @@ from pygenlib2 import *
 INSTRUCTIONS = """
 # level 0 instruction 
 HALT      @0
-THCODE    @0
+THCODE    th:f @0
 FUNCCALL  @0
 ENTER     @0
 #ENTER2    @0

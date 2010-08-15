@@ -2612,6 +2612,19 @@ static void knh_Stmt_asmBLOCK(Ctx *ctx, knh_Stmt_t *stmtH, knh_type_t reqt)
 }
 
 /* ------------------------------------------------------------------------ */
+static void knh_code_thread(Ctx *ctx, knh_opline_t *pc, void **codeaddr)
+{
+#ifdef K_USING_THREADEDCODE
+	while(1) {
+		DBG_ASSERT_OPCODE(pc->opcode);
+		pc->codeaddr = codeaddr[pc->opcode];
+		if(pc->opcode == OPCODE_RET) break;
+		pc++;
+	}
+#endif
+}
+
+/* ------------------------------------------------------------------------ */
 
 void knh_Method_asm(Ctx *ctx, knh_Method_t *mtd, knh_Stmt_t *stmtP, knh_Stmt_t *stmtB, knh_type_t reqt, knh_Ftyping typing)
 {
@@ -2630,7 +2643,7 @@ void knh_Method_asm(Ctx *ctx, knh_Method_t *mtd, knh_Stmt_t *stmtP, knh_Stmt_t *
 		knh_Gamma_pushLABEL(ctx, stmtB, lbBEGIN, lbEND);
 		SP(ctx->gma)->line = SP(stmtB)->line;
 		DP(ctx->gma)->bbNC = lbINIT;
-		KNH_ASM(THCODE);
+		KNH_ASM(THCODE, knh_code_thread);
 		if(knh_Method_isStatic(mtd) && knh_Gamma_hasFIELD(ctx->gma)) {
 			KNH_ASM(TR, 0, 0, DP(ctx->gma)->this_cid, _NULVAL);
 		}
@@ -2708,7 +2721,7 @@ void knh_loadSystemKLRCode(Ctx *ctx)
 	KNH_SETv(ctx, lsfp[1].o, ib);
 	KNH_SETv(ctx, lsfp[2].o, ic);
 	KNH_SETv(ctx, lsfp[3].o, id);
-	knh_BasicBlock_add(ctx, ia, THCODE);
+	knh_BasicBlock_add(ctx, ia, THCODE, knh_code_thread);
 	knh_BasicBlock_add(ctx, ia, TRY, NULL/*lb*/, (-4));  // LAUNCH
 	ia->nextNC = ib;
 	ia->jumpNC = ic;
