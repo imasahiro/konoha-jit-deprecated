@@ -29,9 +29,6 @@
 
 #define USE_STEXT 1
 #define USE_B     1
-//#define USE_bytes_strcmp    1
-//#define USE_bytes_parseint  1
-#define USE_cwb_open      1
 
 #include"commons.h"
 
