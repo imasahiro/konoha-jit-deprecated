@@ -49,6 +49,9 @@
 extern "C" {
 #endif
 
+/* ======================================================================== */
+/* [term] */
+
 typedef struct {
 	struct knh_Token_t** ts;
 	int meta;
@@ -56,8 +59,6 @@ typedef struct {
 	int e;
 } tkitr_t;
 
-/* ======================================================================== */
-/* [term] */
 
 knh_Token_t* new_Token(Ctx *ctx, knh_flag_t flag, knh_term_t tt)
 {
@@ -290,8 +291,6 @@ void knh_dump_token(Ctx *ctx, knh_OutputStream_t *w, knh_Token_t *tk)
 	knh_write_EOL(ctx, w);
 }
 
-/* ------------------------------------------------------------------------ */
-
 void knh_dump_stmt(Ctx *ctx, knh_OutputStream_t *w, knh_Stmt_t *stmt, int isNEXT)
 {
 	L_RESTART:;
@@ -360,9 +359,6 @@ static knh_term_t TT_ch(int ch)
 #ifdef TT_SIZE
 		case '|': return TT_SIZE;
 #endif
-//		case '@': return TT_METAN;
-//		case '$': return TT_PROPN;
-//		case ';': return TT_SEMICOLON;
 		case ',': return TT_COMMA;
 		case '"': return TT_STR;
 		case '\'': return TT_TSTR;
@@ -432,8 +428,10 @@ static void knh_Token_add(Ctx *ctx, knh_Token_t *tk, knh_Token_t *tkc)
 		knh_Token_setBOL(tkc, 1);
 	}
 	if(IS_NULL(DP(tk)->data)) {
-		KNH_SETv(ctx, DP(tk)->data, tkc); return;
+		KNH_SETv(ctx, DP(tk)->data, tkc);
+		return;
 	}
+
 	if(IS_Token(DP(tk)->data)) {
 		a = new_Array(ctx, CLASS_Any, 2);
 		tkPREV = DP(tk)->token;
@@ -449,7 +447,7 @@ static void knh_Token_add(Ctx *ctx, knh_Token_t *tk, knh_Token_t *tkc)
 	}
 	knh_Array_add(ctx, a, tkc);
 
-	/* join part */
+	L_JOIN:;
 	if(TT_isSTR(TT_(tkc))) {
 		if(TT_isSTR(TT_(tkPREV)) || TT_(tkPREV) == TT_FMTSTR) {
 			knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
@@ -487,11 +485,11 @@ static void knh_Token_add(Ctx *ctx, knh_Token_t *tk, knh_Token_t *tkc)
 			KNH_SETv(ctx, a->list[prev], new_TokenPTYPE(ctx, CLASS_Iterator, tkPREV));
 			knh_Array_trimSize(ctx, a, prev+1); return;
 		}
-		else if(TT_(tkc) == TT_BRANCET && IS_NULL(DP(tkc)->data)) { // String[]
+		if(TT_(tkc) == TT_BRANCET && IS_NULL(DP(tkc)->data)) { // String[]
 			KNH_SETv(ctx, a->list[prev], new_TokenPTYPE(ctx, CLASS_Array, tkPREV));
 			knh_Array_trimSize(ctx, a, prev+1); return;
 		}
-		else if(TT_(tkc) == TT_GT) { // String>
+		if(TT_(tkc) == TT_GT || TT_(tkc) == TT_RSFT) { // String> or String>>
 			tkitr_t itrbuf, *itr = ITR_new(tk, &itrbuf);
 			if(ITR_findPTYPE(itr)) {
 				knh_Token_t *tkT = new_Token(ctx, 0, TT_TYPE);
@@ -506,7 +504,15 @@ static void knh_Token_add(Ctx *ctx, knh_Token_t *tk, knh_Token_t *tkc)
 					ITR_next(itr);
 				}
 				KNH_SETv(ctx, a->list[prev], tkT);
-				knh_Array_trimSize(ctx, a, prev+1); return;
+				if(TT_(tkc) == TT_RSFT) {
+					TT_(tkc) = TT_GT;
+					tkPREV = tkT;
+					KNH_SETv(ctx, a->list[prev+1], tkc);
+					knh_Array_trimSize(ctx, a, prev+2);
+					goto L_JOIN;
+				}
+				knh_Array_trimSize(ctx, a, prev+1);
+				return;
 			}
 		}
 	}
@@ -795,8 +801,7 @@ static knh_bool_t knh_Bytes_isTupleQuote(knh_Bytes_t *ba, int quote)
 {
 	if(BA_size(ba) > 2 &&
 		ba->bu.ustr[BA_size(ba)-1] == quote
-		&& ba->bu.ustr[BA_size(ba)-2] == quote
-		/*&& ba->bu.ustr[BA_size(ba)-3] == quote*/) return 1;
+		&& ba->bu.ustr[BA_size(ba)-2] == quote) return 1;
 	return 0;
 }
 
@@ -967,7 +972,8 @@ static int knh_bytes_isOPR(knh_bytes_t t, int ch)
 			if(ISB1_(t, '=')) return 1;  /* => */
 			if(ISB1_(t, '>')) return 1;  /* >> */
 		}
-		if(ISB2(t, '>', '>')) return 1;  /* >>> */
+		//if ">>>" added, then check findPTYPE >>>
+		//if(ISB2(t, '>', '>')) return 1;  /* >>> */
 		return 0;
 	case '?':
 		if(ISB1(t, '?')) return 1;  /* ?? */
@@ -1392,7 +1398,6 @@ static void knh_InputStream_parseToken(Ctx *ctx, knh_InputStream_t *in, knh_Toke
 	knh_Token_addBuf(ctx, tk, cwb, TT_CODE, EOF);
 }
 
-/* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
 static void knh_Token_toBLOCK(Ctx *ctx, knh_Token_t *tk)
