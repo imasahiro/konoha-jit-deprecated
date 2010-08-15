@@ -576,7 +576,8 @@ static int knh_Token_startsWithExpr(Ctx *ctx, knh_Token_t *tk)
 	if(tk != NULL) {
 		knh_term_t tt = TT_(tk);
 		if(tt == TT_COMMA || tt == TT_SEMICOLON || tt == TT_COLON) return 1;
-		if(tt == TT_CASE || tt == TT_RETURN || tt == TT_YEILD || tt == TT_PRINT) return 1;
+		if(tt == TT_CASE || tt == TT_RETURN || tt == TT_YEILD
+			|| tt == TT_PRINT || tt == TT_ASSERT) return 1;
 		if(TT_LET <= tt && tt <= TT_TSUB) return 1;
 		return 0;
 	}
@@ -2580,30 +2581,73 @@ static void _DOWHILE(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 	ITR_perror(ctx, itr, stmt, _("do must take {} while"));
 }
 
-static void _CASEEXPR(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
-{
-	int idx = ITR_indexTT(itr, TT_COLON, -1);
-	if(idx == -1) {
-		ITR_perror(ctx, itr, stmt, _("case needs :"));
-	}
-	else {
-		itr->e = idx;
-		_EXPR(ctx, stmt, itr);
-		itr->c = idx + 1;
-	}
-}
-
 static void _CASESTMT(Ctx *ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 {
-	int i;
-	for(i = itr->c; i < itr->e; i++) {
-		knh_term_t tt = TT_(itr->ts[i]);
+	knh_Stmt_t *stmtHEAD = NULL, *stmtLAST = NULL;
+	tkitr_t stmtbuf;
+	if(ITR_is(itr, TT_BLOCK)) {
+		knh_Token_toBLOCK(ctx, ITR_tk(itr));
+	}
+	if(ITR_is(itr, TT_BRACE)) {
+		itr = ITR_new(ITR_nextTK(itr), &stmtbuf);
+	}
+	else {
+		ITR_perror(ctx, itr, stmt, _("switch must take {}"));
+		return;
+	}
+	while(ITR_hasNext(itr)) {
+		knh_term_t tt = TT_(ITR_nextTK(itr));
+		knh_Stmt_t *stmtCASE;
 		if(tt == TT_CASE || tt == TT_DEFAULT) {
-			break;
+			int idx = ITR_indexTT(itr, TT_COLON, -1);
+			if(idx == -1) {
+				ITR_perror(ctx, itr, stmt, _("case/default needs :"));
+				goto L_RETURN;
+			}
+			stmtCASE = new_Stmt2(ctx, STT_CASE, NULL);
+			if(stmtHEAD == NULL) {
+				stmtHEAD = stmtCASE;
+			}
+			else {
+				KNH_INITv(DP(stmtLAST)->nextNULL, stmtCASE);
+			}
+			stmtLAST = stmtCASE;
+			if(tt == TT_CASE) {
+				int e = itr->e;
+				itr->e = idx;
+				_EXPR(ctx, stmtCASE, itr);
+				itr->e = e;
+			}
+			else {
+				_ASIS(ctx, stmtCASE, itr);
+			}
+			{
+				int i, e = itr->e;
+				itr->c = idx + 1;
+				for(i = itr->c; i < itr->e; i++) {
+					tt = TT_(itr->ts[i]);
+					if(tt == TT_CASE || tt == TT_DEFAULT) {
+						itr->e = i;
+						break;
+					}
+				}
+				_STMTs(ctx, stmtCASE, itr);
+				itr->c = i;
+				itr->e = e;
+			}
+		}
+		else {
+			ITR_perror(ctx, itr, stmt, _("switch allows case or default"));
+			goto L_RETURN;
 		}
 	}
-	itr->e = i;
-	_STMTs(ctx, stmt, itr);
+	if(stmtHEAD == NULL) {
+		stmtHEAD = new_Stmt2(ctx, STT_DONE, NULL);
+	}
+	L_RETURN:;
+	if(stmtHEAD != NULL) {
+		knh_Stmt_add(ctx, stmt, stmtHEAD);
+	}
 }
 
 static int ITR_indexINFROM(tkitr_t *itr)
@@ -2990,8 +3034,7 @@ static knh_Stmt_t *new_StmtSTMT1(Ctx *ctx, tkitr_t *itr)
 		CASE_L(PRINT, _EXPRs);
 		CASE_L(YEILD, _EXPRs);
 		CASE_(IF, _PEXPR, _STMT1, _ELSE);
-		CASE_(SWITCH, _PEXPR, _STMT1, _ASIS);  /* it */
-		CASE_(CASE, _CASEEXPR, _CASESTMT);
+		CASE_(SWITCH, _PEXPR, _CASESTMT, _ASIS);  /* it */
 		CASE_(WHILE, _PEXPR, _STMT1);
 		CASE_(DO, _DOWHILE, _PEXPR, _SEMICOLON);
 		CASE_(FOR, _PSTMT3, _STMT1);

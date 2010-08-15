@@ -2087,15 +2087,22 @@ static knh_Term_t *knh_StmtOP_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt
 {
 	size_t i, opsize = DP(stmt)->size - 1;
 	knh_Token_t *tkOP = DP(stmt)->tokens[0];
+	knh_methodn_t mn;
 	knh_class_t mtd_cid = CLASS_Any;
-	knh_methodn_t mn = TT_(tkOP) - TT_LET;
-	if(TT_isBINARY(TT_(tkOP)) && opsize != 2) {
-		knh_Gamma_perror(ctx, KERR_ERR, "%s must be binary operator", knh_getopname(mn));
-		return NULL;
+	if(TT_(tkOP) == TT_MN) {
+		mn = DP(tkOP)->mn;
+		mtd_cid = TERMs_getcid(stmt, 1);
 	}
-	if(TT_(tkOP) == TT_EXISTS) mtd_cid = CLASS_String;
-	for(i = 1; i < opsize + 1; i++) {
-		TYPING(ctx, stmt, i, mtd_cid, 0);
+	else {
+		mn = TT_(tkOP) - TT_LET;
+		if(TT_isBINARY(TT_(tkOP)) && opsize != 2) {
+			knh_Gamma_perror(ctx, KERR_ERR, "%s must be binary operator", knh_getopname(mn));
+			return NULL;
+		}
+		if(TT_(tkOP) == TT_EXISTS) mtd_cid = CLASS_String;
+		for(i = 1; i < opsize + 1; i++) {
+			TYPING(ctx, stmt, i, mtd_cid, 0);
+		}
 	}
 	if(mn == MN_opEQ || mn == MN_opNOTEQ) {
 		knh_term_t tt = TT_TERMs(stmt, 1);
@@ -2121,8 +2128,7 @@ static knh_Term_t *knh_StmtOP_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt
 	}
 	for(i = 1; i < opsize + 1; i++) {
 		if(TT_(DP(stmt)->terms[i]) == TT_NULL) {
-			knh_Gamma_perror(ctx, KERR_ERR,
-				_("undefined behavior for null"));
+			knh_Gamma_perror(ctx, KERR_ERR, _("undefined behavior for null"));
 			return NULL;
 		}
 	}
@@ -2671,48 +2677,78 @@ static knh_Token_t *TERMs_it(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_type_t ty
 	return tkIT;
 }
 
-static knh_Term_t *knh_StmtSWITCH_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
+
+static knh_Stmt_t* new_StmtCASE(Ctx *ctx, knh_Token_t *tkIT, knh_Token_t *tkC)
 {
-	BEGIN_BLOCK(esp);
-	knh_Stmt_t *stmtCASE, *stmtDEFAULT = NULL;
-	knh_Token_t *tkIT = TERMs_it(ctx, stmt, 2/*IT*/, TYPE_Any);
-	int c = 0;
-	TYPING(ctx, stmt, 0, TYPE_Any, _NOTCHECK);
-	stmtCASE = DP(stmt)->stmts[1];
-	while(stmtCASE != NULL) {
-		if(SP(stmtCASE)->stt == STT_CASE) {
-			knh_Stmt_setESPIDX(ctx, stmtCASE);
-			if(TERMs_isASIS(stmtCASE, 0)) {
-				if(stmtDEFAULT != NULL) {
-					knh_Gamma_perror(ctx, KERR_EWARN, _("multiple default in switch"));
-					knh_Stmt_done(ctx, stmtCASE);
-					goto L_NEXT;
-				}
-				stmtDEFAULT = stmtCASE;
-				goto L_STMT;
-			}
-			else if(!TERMs_typing(ctx, stmtCASE, 0, TYPE_Any, _NOTCHECK)) {
-				knh_Stmt_done(ctx, stmtCASE);
-				goto L_NEXT;
-			}
-			{
-				knh_Stmt_t *stmtOP = new_Stmt2(ctx, STT_CALL, new_TokenMN(ctx, MN_opCASE), DP(stmtCASE)->terms[0], tkIT, NULL);
-				KNH_SETv(ctx, DP(stmtCASE)->terms[0], stmtOP);
-				if(!TERMs_typing(ctx, stmtCASE, 0, TYPE_Boolean, _NOTCAST)) {
-					knh_Stmt_done(ctx, stmtCASE);
-					goto L_NEXT;
-				}
-			}
-			L_STMT:;
-			TYPING_STMTs(ctx, stmtCASE, 1, reqt);
-			c++;
-		}
-		L_NEXT:;
-		stmtCASE = DP(stmtCASE)->nextNULL;
+	knh_type_t switch_type = (tkIT)->type;
+	knh_type_t case_type = (tkC)->type;
+	knh_methodn_t mn = MN_opEQ;
+	DBG_P("switch_type=%s, case_type=%s", TYPE__(switch_type), TYPE__(case_type));
+	if(case_type == CLASS_Class) {  // case Object:
+		mn = MN_opOF;
 	}
-	END_BLOCK(esp);
-	if(c == 0) {
-		return knh_Stmt_done(ctx, stmt);
+	if(switch_type == CLASS_String && case_type == CLASS_Regex) {  // case /s/:
+		mn = MN_opHAS;
+	}
+	return new_Stmt2(ctx, STT_OP, new_TokenMN(ctx, mn), tkIT, tkC, NULL);
+}
+
+static knh_Term_t* knh_StmtSWITCH_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
+{
+	TYPING(ctx, stmt, 0, TYPE_Any, _NOTCHECK);
+	if(TT_(DP(stmt)->tokens[0]) == TT_LOCAL) {
+		KNH_SETv(ctx, DP(stmt)->tokens[2], DP(stmt)->tokens[0]);
+	}
+	{
+		BEGIN_BLOCK(esp);
+		knh_type_t type = TERMs_gettype(stmt, 0);
+		knh_Token_t *tkIT = TERMs_it(ctx, stmt, 2/*IT*/, type);
+		int c = 0;
+		knh_Stmt_t *stmtCASE, *stmtDEFAULT = NULL;
+		stmtCASE = DP(stmt)->stmts[1];
+		while(stmtCASE != NULL) {
+			if(SP(stmtCASE)->stt == STT_CASE) {
+				knh_Stmt_setESPIDX(ctx, stmtCASE);
+				if(TERMs_isASIS(stmtCASE, 0)) {
+					if(stmtDEFAULT != NULL) {
+						knh_Gamma_perror(ctx, KERR_EWARN, _("multiple default in switch"));
+						knh_Stmt_done(ctx, stmtCASE);
+						goto L_NEXT;
+					}
+					stmtDEFAULT = stmtCASE;
+					goto L_STMT;
+				}
+				else if(!TERMs_typing(ctx, stmtCASE, 0, type, _NOTCHECK)) {
+					knh_Stmt_done(ctx, stmtCASE);
+					goto L_NEXT;
+				}
+				if(TERMs_isCONST(stmtCASE, 0)) {
+					knh_Stmt_t *stmtOP = new_StmtCASE(ctx, tkIT, DP(stmtCASE)->tokens[0]);
+					KNH_SETv(ctx, DP(stmtCASE)->terms[0], stmtOP);
+					if(!TERMs_typing(ctx, stmtCASE, 0, TYPE_Boolean, _NOTCAST)) {
+						knh_Stmt_done(ctx, stmtCASE);
+						goto L_NEXT;
+					}
+
+				}
+				else {
+					knh_Gamma_perror(ctx, KERR_DWARN, _("case takes a constant value"));
+					knh_Stmt_done(ctx, stmtCASE);
+					goto L_NEXT;
+				}
+//				if(TERMs_isCONST(stmtCASE, 0)){
+//				}
+				L_STMT:;
+				TYPING_STMTs(ctx, stmtCASE, 1, reqt);
+				c++;
+			}
+			L_NEXT:;
+			stmtCASE = DP(stmtCASE)->nextNULL;
+		}
+		if(c == 0) {
+			return knh_Stmt_done(ctx, stmt);
+		}
+		END_BLOCK(esp);
 	}
 	return TM(stmt);
 }

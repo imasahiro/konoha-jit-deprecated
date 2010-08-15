@@ -1866,7 +1866,6 @@ void knh_NameSpace_addFormatter(Ctx *ctx, knh_NameSpace_t *ns, knh_Method_t *mtd
 
 static METHOD knh_Fmethod_dynamic(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-
 }
 
 static knh_Method_t* knh_Gamma_getFormatter(Ctx *ctx, knh_class_t cid, knh_methodn_t mn0)
