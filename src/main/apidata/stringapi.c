@@ -189,7 +189,7 @@ static METHOD String_search(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	knh_index_t loc = -1;
 	const char *str = ctx->api->tochar(ctx, sfp[0].s);  // necessary
 	knh_regmatch_t pmatch[K_REGEX_MATCHSIZE];
-	int res = re->spi->regexec(ctx, re->reg, str, K_REGEX_MATCHSIZE, pmatch, 0);
+	int res = re->spi->regexec(ctx, re->reg, str, K_REGEX_MATCHSIZE, pmatch, re->eflags);
 	if(res == 0) {
 		loc = pmatch[0].rm_so;
 		if (!knh_String_isASCII(sfp[0].s) && loc != -1) {
@@ -214,7 +214,7 @@ static METHOD String_match(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	knh_Regex_t *re = sfp[1].re;
 	const char *str = ctx->api->tochar(ctx, sfp[0].s);  // necessary
 	knh_regmatch_t pmatch[K_REGEX_MATCHSIZE];
-	int res = re->spi->regexec(ctx, re->reg, str, K_REGEX_MATCHSIZE, pmatch, 0);
+	int res = re->spi->regexec(ctx, re->reg, str, K_REGEX_MATCHSIZE, pmatch, re->eflags);
 	knh_Array_t *a = new_Array(ctx, CLASS_String, K_REGEX_MATCHSIZE);
 	if(res == 0) {
 		knh_bytes_t sub = S_tobytes(s0);
@@ -350,7 +350,7 @@ static METHOD String_split(Ctx *ctx, knh_sfp_t *sfp, long rix)
 			if(res == 0) {
 				knh_bytes_t sub = {{str},  pmatch[0].rm_so};
 				knh_Array_add(ctx, a, new_String_(ctx, CLASS_String, sub, s0));
-				str += (pmatch[0].rm_eo + 1);
+				str += (pmatch[0].rm_eo);
 			}
 			else {
 				knh_bytes_t sub = {{str}, knh_strlen(str)};
@@ -436,7 +436,7 @@ static METHOD String_trim(Ctx *ctx, knh_sfp_t *sfp, long rix)
 //{
 //	const char *str = ctx->api->tochar(ctx, s);
 //	knh_regmatch_t pmatch[K_REGEX_MATCHSIZE];
-//	int res = re->spi->regexec(ctx, re->reg, str, K_REGEX_MATCHSIZE, pmatch, 0);
+//	int res = re->spi->regexec(ctx, re->reg, str, K_REGEX_MATCHSIZE, pmatch, re->eflags);
 //	return (res == 0);
 //}
 //
