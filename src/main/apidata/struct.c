@@ -473,27 +473,19 @@ static void knh_String_free(Ctx *ctx, knh_Object_t *o)
 	}
 }
 
-//static int knh_String_compareTo(Ctx *ctx, knh_Object_t *o, knh_Object_t *o2)
-//{
-//	knh_String_t *s1 = (knh_String_t*)o;
-//	knh_String_t *s2 = (knh_String_t*)o2;
-//#if defined(K_USING_SEMANTICS)
-//	if(s1->h.cid == CLASS_String || s2->h.cid == CLASS_String) {
-//		size_t max = KNH_MAX(S_size(s1), S_size(s2));
-//		return knh_strncmp(S_tochar(s1) ,S_tochar(s2), max);
-//	}
-//	else {
-//		if(s1->h.cid == s2->h.cid) {
-//			knh_Semantics_t *u = knh_getSemantics(ctx, s1->h.cid);
-//			return DP(u)->fscmp(u, S_tobytes(s1), S_tobytes(s2));
-//		}
-//		return (int)(s1 - s2);
-//	}
-//#else
-//	size_t max = KNH_MAX(S_size(s1), S_size(s2));
-//	return knh_strncmp(S_tochar(s1) ,S_tochar(s2), max);
-//#endif
-//}
+static int knh_String_compareTo(Ctx *ctx, knh_Object_t *o, knh_Object_t *o2)
+{
+	knh_String_t *s1 = (knh_String_t*)o;
+	knh_String_t *s2 = (knh_String_t*)o2;
+#if defined(K_USING_SEMANTICS)
+	if(s1->h.cid != CLASS_String && s2->h.cid != CLASS_String) {
+		knh_Semantics_t *u = knh_getSemantics(ctx, s1->h.cid);
+		return DP(u)->fscmp(u, S_tobytes(s1), S_tobytes(s2));
+	}
+#else
+	return knh_bytes_strcmp(S_tobytes(s1) ,S_tobytes(s2));
+#endif
+}
 
 //static void* knh_String_hashkey(Ctx *ctx, knh_sfp_t *sfp, int opt)
 //{
@@ -511,7 +503,7 @@ static knh_ObjectSPI_t StringSPI = {
 	"String", 0, CFLAG_String,
 	knh_String_init, DEFAULT_initcopy,
 	knh_String_traverse, knh_String_free,
-	DEFAULT_compareTo,
+	knh_String_compareTo,
 	DEFAULT_getkey, DEFAULT_hashCode,
 	DEFAULT_findTransNULL,
 	DEFAULT_checkin, DEFAULT_checkout,
