@@ -1547,15 +1547,49 @@ static void knh_StmtCALL_asm(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sf
 			else {
 				int an = TERMs_put(ctx, stmt, 2, TYPE_Int, local + 2);
 				if(IS_Tunbox(p1)) {
-					KNH_ASM(NSETIDXn, (sfpidx), (a), an, v);
+					KNH_ASM(NSETIDX, (sfpidx), (a), an, v);
 					KNH_ASM_BOX2(ctx, reqt, p1, sfpidx);
 				}
 				else {
-					KNH_ASM(OSETIDXn, (sfpidx), (a), an, v);
+					KNH_ASM(OSETIDX, (sfpidx), (a), an, v);
 					if(IS_Tnumbox(reqt)) {
 						KNH_ASM(UNBOX, sfpidx, sfpidx);
 					}
 				}
+			}
+			return;
+		}
+	}
+	if(mtd_cid == CLASS_Bytes) {
+		if(mtd_mn == MN_get) {
+			int a = TERMs_put(ctx, stmt, 1, CLASS_Bytes, local + 1);
+			if(TERMs_isCONST(stmt, 2)) {
+				knh_intptr_t n = (knh_intptr_t)TERMs_int(stmt, 2);
+				KNH_ASM(BGETIDXn, (sfpidx), (a), n);
+				KNH_ASM_BOX2(ctx, reqt, CLASS_Int, sfpidx);
+			}
+			else {
+				int an = TERMs_put(ctx, stmt, 2, TYPE_Int, local + 2);
+				KNH_ASM(BGETIDX, (sfpidx), (a), an);
+				KNH_ASM_BOX2(ctx, reqt, CLASS_Int, sfpidx);
+			}
+			return;
+		}
+		if(mtd_mn == MN_set) {
+			int a = TERMs_put(ctx, stmt, 1, CLASS_Bytes, local + 1);
+			int v = TERMs_put(ctx, stmt, 3, CLASS_Int, local + 3);
+			if(TERMs_isCONST(stmt, 2)) {
+				knh_intptr_t n = (knh_intptr_t)TERMs_int(stmt, 2);
+				if(n < 0) {
+					goto L_USECALL;
+				}
+				KNH_ASM(BSETIDXn, (sfpidx), (a), n, v);
+				KNH_ASM_BOX2(ctx, reqt, CLASS_Int, sfpidx);
+			}
+			else {
+				int an = TERMs_put(ctx, stmt, 2, TYPE_Int, local + 2);
+				KNH_ASM(BSETIDX, (sfpidx), (a), an, v);
+				KNH_ASM_BOX2(ctx, reqt, CLASS_Int, sfpidx);
 			}
 			return;
 		}

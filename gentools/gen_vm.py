@@ -142,6 +142,11 @@ NSETIDX    c:sfpidx a:sfpidx v:sfpidx n:sfpidx
 NGETIDXn   c:sfpidx a:sfpidx n:u
 NSETIDXn   c:sfpidx a:sfpidx v:sfpidx n:u
 
+BGETIDX    c:sfpidx a:sfpidx n:sfpidx
+BSETIDX    c:sfpidx a:sfpidx v:sfpidx n:sfpidx
+BGETIDXn   c:sfpidx a:sfpidx n:u
+BSETIDXn   c:sfpidx a:sfpidx v:sfpidx n:u
+
 # level 3 instruction
 
 bJNOT  addr:addr a:sfpidx @3
