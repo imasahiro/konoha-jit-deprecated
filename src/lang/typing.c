@@ -84,34 +84,6 @@ void knh_Gamma_perror(Ctx *ctx, int pe, const char *fmt, ...)
 	va_end(ap);
 }
 
-///* ------------------------------------------------------------------------ */
-///* [TypeVariable] */
-//
-//#define TYPEINF()    TODO()
-//
-//static knh_type_t GMA_newTVAR(Ctx *ctx)
-//{
-//	return TYPE_Any;
-//}
-//
-//
-//static int GMA_isTVAR(Ctx *ctx, knh_type_t type)
-//{
-//	if(type < TYPE_T0) return 0;
-//	type = DP(ctx->gma)->typevars[type - TYPE_T0].type;
-//	if(type == TYPE_var || type == TYPE_Any) return 1;
-//	return 0;
-//}
-//
-//static int GMA_typingTVAR(Ctx *ctx, knh_type_t type, knh_type_t reqt)
-//{
-//	DBG_ASSERT(!(type < TYPE_T0));
-//	if(GMA_isTVAR(ctx, reqt)) {
-//
-//	}
-//	return 1;
-//}
-
 static int GMA_type(Ctx *ctx, knh_type_t type)
 {
 	if(type < TYPE_T0) {
@@ -196,8 +168,6 @@ knh_Token_t* new_TokenTYPED(Ctx *ctx, knh_term_t tt, knh_type_t type, knh_short_
 	return tk;
 }
 
-/* ------------------------------------------------------------------------ */
-
 knh_bool_t knh_StmtMETA_is(Ctx *ctx, knh_Stmt_t *stmt, knh_bytes_t name)
 {
 	if(IS_Map(DP(stmt)->metaDictCaseMap)) {
@@ -219,6 +189,8 @@ static void knh_Stmt_insert_(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_Term_t *t
 	}
 }
 
+/* ------------------------------------------------------------------------ */
+
 static knh_fieldn_t knh_Token_getfnq(Ctx *ctx, knh_Token_t *tk)
 {
 	knh_fieldn_t fn = FN_NONAME;
@@ -239,11 +211,15 @@ static knh_methodn_t knh_Token_getmn(Ctx *ctx, knh_Token_t *tk)
 		DP(tk)->mn = knh_getmn(ctx, TK_tobytes(tk), MN_NEWID);
 	}
 	DBG_ASSERT(TT_(tk) == TT_MN);
-	if(knh_Token_isGetter(tk)) {
+	if(knh_Token_isISBOOL(tk)) {
+		DP(tk)->mn = MN_toISBOOL(MN_toFN(DP(tk)->mn));
+		knh_Token_setISBOOL(tk, 0);
+	}
+	else if(knh_Token_isGetter(tk)) {
 		DP(tk)->mn = MN_toGETTER(MN_toFN(DP(tk)->mn));
 		knh_Token_setGetter(tk, 0);
 	}
-	if(knh_Token_isSetter(tk)) {
+	else if(knh_Token_isSetter(tk)) {
 		DP(tk)->mn = MN_toSETTER(MN_toFN(DP(tk)->mn));
 		knh_Token_setSetter(tk, 0);
 	}
@@ -521,9 +497,7 @@ static knh_Term_t *knh_TokenTYPE_typing(Ctx *ctx, knh_Token_t *tk, knh_type_t re
 		cid = knh_Token_getcid(ctx, tkC, CLASS_Any);
 		bpa = ClassTBL(cid).cparam;
 		if(bpa == NULL) {
-			if(cid != CLASS_Any) {
-				knh_Gamma_perror(ctx, KERR_EWARN, "%C is not parameterized", cid);
-			}
+			knh_Gamma_perror(ctx, KERR_EWARN, "%C is not parameterized", cid);
 		}
 		else {
 			BEGIN_LOCAL(ctx, lsfp, 1);
@@ -533,12 +507,17 @@ static knh_Term_t *knh_TokenTYPE_typing(Ctx *ctx, knh_Token_t *tk, knh_type_t re
 				knh_Token_t *tkT = knh_TOKENs_n(DP(tk)->list, i);
 				if(TT_(tkT) == TT_FUNCARROW) { i++; break; }
 				knh_param_t p = {knh_Token_getcid(ctx, tkT, CLASS_Any), FN_NONAME};
+				if(p.type == TYPE_void) continue;
 				knh_ParamArray_add(ctx, pa, p);
 			}
-			for(; i < knh_Array_size(DP(tk)->list); i++) {
-				knh_Token_t *tkT = knh_TOKENs_n(DP(tk)->list, i);
-				knh_param_t p = {knh_Token_getcid(ctx, tkT, CLASS_Any), FN_NONAME};
-				knh_ParamArray_radd(ctx, pa, p);
+			if(cid == CLASS_Func) {
+				for(; i < knh_Array_size(DP(tk)->list); i++) {
+					knh_Token_t *tkT = knh_TOKENs_n(DP(tk)->list, i);
+					knh_param_t p = {knh_Token_getcid(ctx, tkT, CLASS_Any), FN_NONAME};
+					if(p.type == TYPE_void) break;
+					knh_ParamArray_radd(ctx, pa, p);
+				}
+				if(pa->psize == 0 && pa->rsize == 0) goto L_RETURN;
 			}
 			if((pa)->psize != (bpa)->psize || (pa)->rsize != (bpa)->rsize) {
 				if(cid != CLASS_Func && cid != CLASS_Tuple && cid != CLASS_Iterator) {

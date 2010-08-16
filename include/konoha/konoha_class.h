@@ -1067,7 +1067,7 @@ typedef struct knh_Term_t {
 //## flag Token BOL           0 DP(%s)->flag0 is  set * *;
 //## flag Token DOT           1 DP(%s)->flag0 is  set * *;
 //## flag Token LCASE         2 DP(%s)->flag0 has set * *;
-//## flag Token USCORE        3 DP(%s)->flag0 has set * *;
+//## flag Token ISBOOL        3 DP(%s)->flag0 is set * *;
 //## flag Token Getter        4 DP(%s)->flag0 is set * *;
 //## flag Token Setter        5 DP(%s)->flag0 is set * *;
 //## flag Token ExceptionType 6 DP(%s)->flag0 is set * *;

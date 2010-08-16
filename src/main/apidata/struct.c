@@ -2313,7 +2313,6 @@ static void knh_setDefaultValues(Ctx *ctx)
 #endif
 	// load file/Channel/regex/db drivers
 	knh_loadDriver(ctx);
-//	knh_loadDefaultChannelDriver(ctx);
 	knh_setClassDefaultValue(ctx, CLASS_Context, KNH_NULL, knh_Context_fdefault);
 	knh_setClassDefaultValue(ctx, CLASS_NameSpace, KNH_NULL, knh_NameSpace_fdefault);
 	knh_setClassDefaultValue(ctx, CLASS_System, UPCAST(ctx->sys), NULL);
@@ -2340,19 +2339,12 @@ static void knh_loadFieldNameData0(Ctx *ctx, knh_FieldNameData0_t *data)
 static knh_IntData_t IntConstData0[] = {
 	{"Int.MAX", K_INT_MAX},
 	{"Int.MIN", K_INT_MIN},
-//	{"Method.NOTRACE", KNH_NOTRACE},
-//	{"Method.SECURITY", KNH_SECURITYTRACE},
-//	{"Method.AUDIT", KNH_AUDITTRACE},
-//	{"Method.PROFILE", KNH_PROFILER},
-//	{"Method.STACK", KNH_STACKTRACE},
-//	{"Method.FUNCTION", KNH_FUNCTIONTRACE},
 	{NULL, 0}
 };
 
 static knh_FloatData_t FloatConstData0[] = {
 	{"Float.MAX", K_FLOAT_MAX},
 	{"Float.MIN", K_FLOAT_MIN},
-
 	{NULL, K_FLOAT_ZERO}
 };
 
@@ -2369,7 +2361,7 @@ static knh_data_t CParamData0[] = {
 	DATA_CPARAM, CLASS_Range, 1, 0, TYPE_Any, FN_V,
 	DATA_CPARAM, CLASS_Array, 1, 0, TYPE_Any, FN_V,
 	DATA_CPARAM, CLASS_Map, 2, 0, TYPE_Any, FN_K, TYPE_Any, FN_V,
-	DATA_CPARAM, CLASS_Func, 1, 1, TYPE_Any, FN_P, TYPE_Any, FN_V,
+	DATA_CPARAM, CLASS_Func, 0, 0,
 	0,
 };
 
