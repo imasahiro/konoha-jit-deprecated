@@ -403,7 +403,7 @@ static void knh_ObjectArenaSet_free(Ctx *ctx, knh_ArenaSet_t *t)
 				fprintf(stderr, "async object %p cid=%s(%d), ref=%d ", o, bcid__(o->h.bcid), (int)o->h.cid, (int)o->h.refc);
 				switch(o->h.bcid) {
 				case CLASS_Boolean:
-					fprintf(stderr, "bvalue='%ld' true?=%d false?=%d\n", (int)((knh_Int_t*)o)->n.bvalue, (o == KNH_TRUE), (o == KNH_FALSE));
+					fprintf(stderr, "bvalue='%d' true?=%d false?=%d\n", (int)((knh_Int_t*)o)->n.bvalue, (o == KNH_TRUE), (o == KNH_FALSE));
 				break;
 				case CLASS_Int:
 					fprintf(stderr, "ivalue='%lld'\n", (long long int)((knh_Int_t*)o)->n.ivalue);

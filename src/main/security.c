@@ -281,7 +281,7 @@ static unsigned int getclock(void)
 	pEnumerator->Release();
 	CoUninitialize();
 #elif defined(KONOHA_ON_LINUX)
-	char buf[64] = {'\0'}, *data;
+	char buf[64] = {'\0'}, *data = buf;
 	const char *cpumhz = "cpu MHz";
 	size_t len = strlen(cpumhz);
 	FILE *fp = fopen("/proc/cpuinfo","r");
