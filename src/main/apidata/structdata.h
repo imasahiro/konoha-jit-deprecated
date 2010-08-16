@@ -124,7 +124,7 @@ static knh_data_t ClassData0[] = {
 	DATA_CLASS, _DATA("konoha.Number"), FLAG_Number, CLASS_Number, CLASS_Object, 0 + 0 /*0*/,
 	DATA_CLASS, _DATA("konoha.Int"), FLAG_Int, CLASS_Int, CLASS_Number, 20 + 8 /*1*/,
 	DATA_CLASS, _DATA("konoha.Float"), FLAG_Float, CLASS_Float, CLASS_Number, 13 + 5 /*1*/,
-	DATA_CLASS, _DATA("konoha.String"), FLAG_String, CLASS_String, CLASS_Object, 26 + 2 /*3*/,
+	DATA_CLASS, _DATA("konoha.String"), FLAG_String, CLASS_String, CLASS_Object, 26 + 2 /*4*/,
 	DATA_CLASS, _DATA("konoha.Bytes"), FLAG_Bytes, CLASS_Bytes, CLASS_Object, 13 + 2 /*1*/,
 	DATA_CLASS, _DATA("konoha.Any"), FLAG_Any, CLASS_Any, CLASS_Object, 6 + 1 /*0*/,
 	DATA_CLASS, _DATA("konoha.Iterator"), FLAG_Iterator, CLASS_Iterator, CLASS_Object, 0 + 1 /*1*/,
@@ -629,6 +629,7 @@ static knh_data_t APIData0[] = {
 	DATA_TCAST, CLASS_Object, CLASS_Iterator, FLAG_Translator_Const|FLAG_Translator_Total, _DATA(Object_Iterator),
 	DATA_TCAST, CLASS_Iterator, CLASS_Array, FLAG_Translator_Total, _DATA(Iterator_Array),
 	DATA_TCAST, CLASS_Bytes, CLASS_InputStream, FLAG_Translator_Total, _DATA(Bytes_InputStream),
+	DATA_TCAST, CLASS_String, CLASS_Regex, FLAG_Translator_Const|FLAG_Translator_Total, _DATA(String_Regex),
 	DATA_TCAST, CLASS_InputStream, CLASS_StringITR, FLAG_Translator_Total|FLAG_Translator_Final, _DATA(knh_InputStream_String__),
 	0
 };

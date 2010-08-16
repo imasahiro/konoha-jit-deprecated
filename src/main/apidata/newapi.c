@@ -170,19 +170,19 @@ static METHOD Regex_new(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	RETURN_(sfp[0].o);
 }
 
-///* ------------------------------------------------------------------------ */
-////## @Const mapper String Regex!;
-//
-//static METHOD String_Regex(Ctx *ctx, knh_sfp_t *sfp, long rix)
-//{
-//	knh_Regex_t *re = new_(Regex);
-//	const char *ptn = ctx->api->tochar(ctx, sfp[0].s);
-//	KNH_SETv(ctx, re->pattern, sfp[0].s);
-//	re->reg = re->spi->regmalloc(ctx, sfp[0].s);
-//	re->spi->regcomp(ctx, re->reg, ptn, 0);
-//	re->eflags = 0;
-//	RETURN_(re);
-//}
+/* ------------------------------------------------------------------------ */
+//## @Const mapper String Regex!;
+
+static METHOD String_Regex(Ctx *ctx, knh_sfp_t *sfp, long rix)
+{
+	knh_Regex_t *re = new_(Regex);
+	const char *ptn = ctx->api->tochar(ctx, sfp[0].s);
+	KNH_SETv(ctx, re->pattern, sfp[0].s);
+	re->reg = re->spi->regmalloc(ctx, sfp[0].s);
+	re->spi->regcomp(ctx, re->reg, ptn, 0);
+	re->eflags = 0;
+	RETURN_(re);
+}
 
 ///* ------------------------------------------------------------------------ */
 ///* [Pair, Tuple, Range] */
