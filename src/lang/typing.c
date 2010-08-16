@@ -3230,6 +3230,9 @@ static knh_Term_t* knh_StmtMETHOD_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t 
 						DP(mtd)->cid, mn, ClassTBL(DP(mtd)->cid).supcid, mn);
 				return NULL;
 			}
+			mtd = new_Method(ctx, flag, mtd_cid, mn, NULL);
+			KNH_SETv(ctx, DP(mtd)->mp, mp);
+			knh_Class_addMethod(ctx, mtd_cid, mtd);
 		}
 		if(!knh_StmtMETA_is(ctx, stmt, STEXT("Override")) &&
 				!knh_Method_isAbstract(mtd) && DP(mtd)->mn != MN_main) {
