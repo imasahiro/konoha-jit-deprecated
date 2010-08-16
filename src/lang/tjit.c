@@ -1,11 +1,14 @@
+//#define TJIT
+//#define TJIT_DUMP
+
+#if defined(TJIT)
 #define USE_STEXT 1
 #define USE_cwb_open      1
 #define USE_cwb_tobytes 1
 #define USE_cwb_size
+#endif
 #include"commons.h"
 
-#define TJIT
-//#define TJIT_DUMP
 
 /* ************************************************************************ */
 
@@ -58,7 +61,7 @@ static int canJIT[] = {
     0 /*XOSET*/, 1 /*XIMOV*/, 0 /*XFMOV*/, 0 /*XBMOV*/,
     0 /*CHKSTACK*/, 0 /*LOADMTD*/, 0 /*CALL*/, 1 /*SCALL*/,
     1 /*VCALL*/, 1 /*VCALL_*/, 0 /*FASTCALL*/, 1 /*RET*/,
-    0 /*SCAST*/, 0 /*TCAST*/, 0 /*ACAST*/, 0 /*iCAST*/,
+    1 /*SCAST*/, 1 /*TCAST*/, 1 /*ACAST*/, 1 /*iCAST*/,
     1 /*fCAST*/, 1 /*TR*/, 0 /*NUL*/, 1 /*JMP*/,
     0 /*JMP2*/, 1 /*JMP_*/, 0 /*JMPF*/, 1 /*DYJMP*/,
     0 /*NEXT*/, 0 /*TRY*/, 0 /*TRYEND*/, 0 /*THROW*/,
@@ -75,19 +78,19 @@ static int canJIT[] = {
     1 /*fMULn*/, 1 /*fDIVn*/, 1 /*fEQn*/, 1 /*fNEQn*/,
     1 /*fLTn*/, 1 /*fLTEn*/, 1 /*fGTn*/, 1 /*fGTEn*/,
     0 /*OGETIDX*/, 0 /*OSETIDX*/, 0 /*OGETIDXn*/, 0 /*OSETIDXn*/,
-    0 /*NGETIDX*/, 0 /*NSETIDX*/, 0 /*NGETIDXn*/, 0 /*NSETIDXn*/,
+    1 /*NGETIDX*/, 1 /*NSETIDX*/, 1 /*NGETIDXn*/, 1 /*NSETIDXn*/,
     1 /*bJNOT*/, 1 /*iJEQ*/, 1 /*iJNEQ*/, 1 /*iJLT*/,
     1 /*iJLTE*/, 1 /*iJGT*/, 1 /*iJGTE*/, 1 /*iJEQn*/,
     1 /*iJNEQn*/, 1 /*iJLTn*/, 1 /*iJLTEn*/, 1 /*iJGTn*/,
-    1 /*iJGTEn*/, 0 /*fJEQ*/, 0 /*fJNEQ*/, 0 /*fJLT*/,
-    0 /*fJLTE*/, 0 /*fJGT*/, 0 /*fJGTE*/, 0 /*fJEQn*/,
-    0 /*fJNEQn*/, 0 /*fJLTn*/, 0 /*fJLTEn*/, 0 /*fJGTn*/,
-    0 /*fJGTEn*/, 0 /*NOP*/,
+    1 /*iJGTEn*/, 1 /*fJEQ*/,  1 /*fJNEQ*/,  1 /*fJLT*/,
+    1 /*fJLTE*/ , 1 /*fJGT*/,  1 /*fJGTE*/,  1 /*fJEQn*/,
+    1 /*fJNEQn*/, 1 /*fJLTn*/, 1 /*fJLTEn*/, 1 /*fJGTn*/,
+    1 /*fJGTEn*/, 0 /*NOP*/,
 };
 
 
 /* ----------------------------------------------------------------- */
-static void jit_dump(void *mem, int size)
+void jit_dump(void *mem, int size)
 {
 #if defined(TJIT_DUMP)
     int i = 0;
@@ -113,15 +116,17 @@ struct code_stack {
     unsigned char *target;
     unsigned char *jmp_pos;
     int target_size;
+    int reserved_size;
 } cstack[64] = {};
 int cindex = 0;
 
-#define cstack_push(cstack, c, p, t, j, s) {\
+#define cstack_push(cstack, c, p, t, j, s, r) {\
     cstack[cindex].code_addr   = c; \
     cstack[cindex].code_pos    = p; \
     cstack[cindex].target      = t; \
     cstack[cindex].jmp_pos     = j; \
     cstack[cindex].target_size = s; \
+    cstack[cindex].reserved_size = r; \
     cindex++;\
 }
 #define cstack_pop(cstack, c, p, t, j, s) {\
@@ -168,16 +173,27 @@ static knh_intptr_t get_target_template(unsigned char *code, unsigned char **jmp
             break;
         }
     }
+    DBG_P("code=%p %d", code, size);
     return size;
 }
 /* ----------------------------------------------------------------- */
 static int fix_code_template(unsigned char *code, knh_intptr_t *size)
 {
-    static unsigned char jmp_r[] = {0xff,0xe0};
-    static unsigned char cond[]  = {0x0f,0x80, 0x00, 0x00, 0x00, 0x00};
+    static unsigned char jmp_r[]  = {0xff,0xe0};
+    /* long conditional jmp */
+    static unsigned char cond_l[] = {0x0f,0x80, 0x00, 0x00, 0x00, 0x00};
+    /* short conditional jmp */
+    static unsigned char cond_s[] = {0x77,0x00};
+    static unsigned char fcmp0[]  = {0x66,0x42,0x0f,0x2e,0x04,0x30};
+#if 0
+    /* TODO */
+    static unsigned char fcmp1[]  = {0x66,0x0f,0x2e,0x42,0x28};
+#endif
     int i, need_rewrite = 0;
     assert(sizeof(jmp_r) == 2);
-    assert(sizeof(cond) == 6);
+    assert(sizeof(cond_l) == 6);
+    assert(sizeof(cond_s) == 2);
+    int check_shortcond = 0;
 
     for (i = 0; i < 128; i++) {
         /* check jump instruction with register */
@@ -186,23 +202,49 @@ static int fix_code_template(unsigned char *code, knh_intptr_t *size)
             break;
         }
         /* check conditional branch instruction */
-        if (code[i] == cond[0] && 
+        if (code[i] == cond_l[0] && 
                 (0x84 <= code[i+1] && code[i+1] <= 0x8d)) {
             /* 0x0f 0x87 0xe8 0x08 0x00 0x00 */
             /* 0xe8 0x08 0x00 0x00 => 0x000008e8 */
             knh_intptr_t tsize;
             unsigned char *cur_pos = &code[i+2];
             int32_t pos = ((int32_t*) cur_pos)[0];
-            unsigned char *target = code + i + sizeof(cond) + pos;
+            unsigned char *target = code + i + sizeof(cond_l) + pos;
             unsigned char *jmp_target = NULL;
             //jit_dump(&code[i], 8);
             //jit_dump(target, 16);
             tsize = get_target_template(target, &jmp_target);
-            cstack_push(cstack, code, cur_pos, target, jmp_target, tsize);
+            cstack_push(cstack,code,cur_pos,target,jmp_target,tsize, sizeof(int32_t));
             DBG_P("code=%p, cur_pos=%p diff=%p",
                     code, cur_pos, cur_pos - (intptr_t) code);
             need_rewrite = 1;
         }
+        /* check compare instruction */
+        if (code[i] == fcmp0[0] && code[i+1] == fcmp0[1]) {
+            check_shortcond = 1;
+        }
+        /* check short conditional branch instruction */
+        if (check_shortcond && 0x74 <= code[i] && code[i] <= 0x8f) {
+            knh_intptr_t tsize;
+            unsigned char *cur_pos = &code[i+1];
+            int8_t pos = ((int8_t*) cur_pos)[0];
+            unsigned char *target = code + i + sizeof(cond_s) + pos;
+            unsigned char *jmp_target = NULL;
+            //jit_dump(&code[i], 8);
+            //jit_dump(target, 16);
+            tsize = get_target_template(target, &jmp_target);
+            cstack_push(cstack,code,cur_pos,target,jmp_target,tsize, sizeof(int8_t));
+            DBG_P("code=%p, cur_pos=%p diff=%p pos=%x, t=%p",
+                    code, cur_pos, cur_pos - (intptr_t) code,
+                    pos, target);
+            need_rewrite = 1;
+            /* TODO checking more than one conditional jump */
+            check_shortcond = 0;
+        }
+    }
+    if (need_rewrite == 0) {
+        fprintf(stderr, "??????????????????\n");
+        asm volatile("int3");
     }
     return need_rewrite;
 }
@@ -218,10 +260,12 @@ static knh_intptr_t knh_jit_write(Ctx *ctx, knh_cwb_t *cwb, knh_opcode_t op, voi
     DBG_P("%s %p - %p, %d", knh_opcode_tochar(op),
             start, end, size);
     if (size > 0x100) {
-        DBG_P("**warn template is too big!!!");
+        DBG_P("****warn template is too big!!! %s %p %d", knh_opcode_tochar(op), start, size);
     }
-    if (op == OPCODE_JMP) {
+    if (op == OPCODE_JMP || op == OPCODE_JMP2) {
         size = get_target_template(start, NULL);
+        //fprintf(stderr, "**regenerate template!!! %s %p %d\n", knh_opcode_tochar(op), start, size);
+
     }
     if (size < 0) {
         DBG_P("%s(%d)", knh_opcode_tochar(op), op);
@@ -247,17 +291,30 @@ static unsigned char *write_target_code(unsigned char *code, int len, unsigned c
     memcpy(target, tcode, tsize);
     return target;
 }
-#define icast(a) (intptr_t)(a)
+#define toint(a) (intptr_t)(a)
 #define toaddr(a) (void *)(a)
-#define intadd(a,b) (knh_intptr_t)(a) + (knh_intptr_t)(b)
+#define intadd(a,b) ((knh_intptr_t)(a) + (knh_intptr_t)(b))
 static void rewrite_jmp_target(unsigned char *code, int *len, struct code_stack* cdata)
 {
     int size = *len;
-    intptr_t diff = icast(cdata->code_pos) - icast(cdata->code_addr);
-    unsigned char *p = code + icast(cdata->code) + diff;
+    intptr_t diff = toint(cdata->code_pos) - toint(cdata->code_addr);
+    unsigned char *p = code + toint(cdata->code) + diff;
     unsigned char *target = write_target_code(code, size, cdata->target, cdata->target_size);
-    intptr_t jmp = (intptr_t)target - (intptr_t)p - 4;
-    ((int32_t*) p)[0] = jmp;
+    intptr_t jmp;
+    DBG_P("diff=0x%x, p=%p, target=%p, cdata=%p", diff, p, target, cdata);
+    if(cdata->reserved_size == sizeof(int8_t)) {
+        jmp = (intptr_t)target - (intptr_t)p - 1;
+        //DBG_P("jmp=%p p[0]=0x%x", jmp, ((int8_t*) p)[0]);
+        ((int8_t*) p)[0] = (int8_t) jmp;
+    }
+    else if(cdata->reserved_size == sizeof(int32_t)) {
+        jmp = (intptr_t)target - (intptr_t)p - sizeof(int32_t);
+        ((int32_t*) p)[0] = jmp;
+    }
+    else {
+        jmp = (intptr_t)target - (intptr_t)p - 4;
+        ((int32_t*) p)[0] = jmp;
+    }
     //if (cdata->jmp_pos) 
     //    jit_dump(cdata->jmp_pos, 16);
 
@@ -280,8 +337,10 @@ void knh_code_thread(Ctx *ctx, knh_opline_t *pc, void **codeaddr, void **codeend
     intptr_t curpos = 0;
 L_TRUE:
     while(1) {
-        DBG_P("%s %d %d\n",knh_opcode_tochar(pc->opcode)
-                ,pc->opcode,canJIT[pc->opcode]);
+        //DBG_P("%s %d %d\n",knh_opcode_tochar(pc->opcode)
+        //        ,pc->opcode,canJIT[pc->opcode]);
+        //printf("%s %d %d\n",knh_opcode_tochar(pc->opcode)
+        ///        ,pc->opcode,canJIT[pc->opcode]);
         if (!canJIT[pc->opcode]) {
             /* we can not jit compile because current pc's template
                is broken */
@@ -315,12 +374,12 @@ L_FINAL:
         len = maxlen = codes.len;
         for (i = 0; i < cindex; i++) 
             maxlen += cstack[i].target_size;
-        align = (int) ((uint16_t)(0x8 - maxlen % 0x8));
+        align = (int) ((uint16_t)(0x10 - maxlen % 0x10));
         maxlen += align;
         mem = (unsigned char *) knh_xmalloc(ctx, maxlen);
         memcpy(mem, codes.ubuf, len);
-        DBG_P("len=%d, maxlen=%d, mem=%p align=%d",
-                len, maxlen, mem, align);
+        //DBG_P("len=%d, maxlen=%d, mem=%p align=%d",
+        //        len, maxlen, mem, align);
 
         /* reindexing codeaddr */
         pc = op;
@@ -344,10 +403,10 @@ L_FINAL:
         add_nops((void*)((intptr_t)mem + len), align);
         len += align;
 
-        DBG_P("len=%d, maxlen=%d, mem=%p align=%d",
-                len, maxlen, mem, align);
+        //DBG_P("len=%d, maxlen=%d, mem=%p align=%d",
+        //        len, maxlen, mem, align);
         KNH_ASSERT(len == maxlen);
-        jit_dump(mem, len);
+        DBG_(jit_dump(mem, len););
         /* reset code stack */
         cindex = 0;
         return;
