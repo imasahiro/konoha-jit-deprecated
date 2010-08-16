@@ -430,34 +430,17 @@ static METHOD String_trim(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	RETURN_(s);
 }
 
-///* ------------------------------------------------------------------------ */
-//
-//static int knh_String_opCASE(Ctx *ctx, knh_String_t *s, knh_Regex_t *re)
-//{
-//	const char *str = ctx->api->tochar(ctx, s);
-//	knh_regmatch_t pmatch[K_REGEX_MATCHSIZE];
-//	int res = re->spi->regexec(ctx, re->reg, str, K_REGEX_MATCHSIZE, pmatch, re->eflags);
-//	return (res == 0);
-//}
-//
-///* ------------------------------------------------------------------------ */
-////## method Boolean String.opCASE(Regex! re);
-//
-//static METHOD String_opCASE(Ctx *ctx, knh_sfp_t *sfp, long rix)
-//{
-//	RETURNb_(knh_String_opCASE(ctx, sfp[0].s, (knh_Regex_t*)sfp[1].o));
-//}
-//
-///* ------------------------------------------------------------------------ */
-////## method Boolean Regex.opCASE(String s);
-//
-//static METHOD Regex_opCASE(Ctx *ctx, knh_sfp_t *sfp, long rix)
-//{
-//
-//	RETURNb_(knh_String_opCASE(ctx, sfp[1].s, (knh_Regex_t*)sfp[0].o));
-//}
-
 /* ------------------------------------------------------------------------ */
+//## @Const method Boolean Regex.opHAS(String s);
+
+static METHOD Regex_opHAS(Ctx *ctx, knh_sfp_t *sfp, long rix)
+{
+	knh_Regex_t *re = sfp[0].re;
+	knh_regmatch_t pmatch[K_REGEX_MATCHSIZE];
+	const char *str = ctx->api->tochar(ctx, sfp[1].s);
+	int res = re->spi->regexec(ctx, re->reg, str, K_REGEX_MATCHSIZE, pmatch, re->eflags);
+	RETURNb_(res);
+}
 
 #endif/*K_USING_DEFAULTAPI*/
 

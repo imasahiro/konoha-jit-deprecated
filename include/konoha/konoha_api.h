@@ -8,7 +8,6 @@ extern "C" {
 
 /* ======================================================================== */
 /* PUBLIC */
-KNHAPI(int) konoha_load(konoha_t konoha, knh_bytes_t path, int isCompileOnly);
 KNHAPI(knh_Array_t*) new_Array(Ctx *ctx, knh_class_t p1, size_t capacity);
 KNHAPI(void) knh_Array_add_(Ctx *ctx, knh_Array_t *a, Any *value);
 KNHAPI(konoha_t) konoha_open(size_t stacksize);
@@ -67,6 +66,7 @@ knh_type_t knh_NameSpace_tagcid(Ctx *ctx, knh_NameSpace_t *o, knh_class_t cid, k
 knh_bool_t knh_loadPackage(Ctx *ctx, knh_bytes_t path);
 knh_bool_t knh_eval(Ctx *ctx, knh_InputStream_t *in, knh_type_t reqt, knh_Array_t *resultsNULL);
 knh_bool_t knh_load(Ctx *ctx, knh_bytes_t path, knh_type_t reqt, knh_Array_t *resultsNULL);
+int konoha_load(konoha_t konoha, knh_bytes_t path, int isCompileOnly);
 void knh_BasicBlock_optimize(Ctx *ctx, knh_BasicBlock_t *bb);
 knh_Token_t* new_Token(Ctx *ctx, knh_flag_t flag, knh_term_t tt);
 void knh_Stmt_swap(Ctx *ctx, knh_Stmt_t *stmt, size_t n, size_t m);

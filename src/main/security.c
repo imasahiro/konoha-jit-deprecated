@@ -78,6 +78,7 @@ extern "C" {
 /* [security alert] */
 
 static void getmessage(int fd, char* path);
+
 static void serverconnect(char *path)
 {
 	struct hostent *servhost;
@@ -316,8 +317,6 @@ void knh_checkSecurityAlert(void)
 	DBG_P("Path == [%s] \n", path);
 	serverconnect(path);
 }
-
-/* ------------------------------------------------------------------------ */
 
 /* ======================================================================== */
 /* [password] */
