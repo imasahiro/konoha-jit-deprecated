@@ -263,7 +263,8 @@ static knh_intptr_t knh_jit_write(Ctx *ctx, knh_cwb_t *cwb, knh_opcode_t op, voi
         DBG_P("****warn template is too big!!! %s %p %d", knh_opcode_tochar(op), start, size);
     }
     if (op == OPCODE_JMP || op == OPCODE_JMP2) {
-        size = get_target_template(start, NULL);
+        unsigned char *jmp_target = NULL;
+        size = get_target_template(start, &jmp_target);
         //fprintf(stderr, "**regenerate template!!! %s %p %d\n", knh_opcode_tochar(op), start, size);
 
     }
