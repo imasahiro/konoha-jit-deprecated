@@ -437,6 +437,12 @@ typedef void (*klr_Ftr)(Ctx *, knh_sfp_t *, knh_sfpidx_t, knh_class_t);
 		goto JUMP; \
 	}\
 
+#define KLR_JMP2(ctx, PC, JUMP) {\
+		pc--;\
+		goto *(op->codeaddr); \
+	}\
+
+
 #define KLR_ONCE(ctx, PC, JUMP) { \
 		((klr_ONCE_t*)op)->opcode = OPCODE_JMP;\
 	}\

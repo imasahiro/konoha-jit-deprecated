@@ -65,6 +65,7 @@ NUL     a:sfpidx b:sfpidx
 #fNUL    a:sfpidx b:sfpidx
 
 JMP     addr:addr
+JMP2    addr:addr
 JMP_    addr:addr   @2
 #ONCE    addr:addr
 JMPF    addr:addr a:sfpidx
@@ -537,6 +538,16 @@ def getmacro(kc, label):
 
 def write_exec(f):
 	write_chapter(f, '[exec]')
+##	f.write('''
+##	static int canJIT[] = {''')
+##	c = 0
+##	for kc in KCODE_LIST:
+##		if c % 4 == 0: f.write('\n\t\t')
+##		f.write('''0 /*%s*/, ''' % kc.name)
+##		c += 1
+##	f.write('''
+##	};''');
+
 	f.write('''
 #ifdef K_USING_VMCOUNT
 #define VMCOUNT(op)    ((op)->count)++;
@@ -583,6 +594,13 @@ knh_opline_t* knh_VirtualMachine_run(Ctx *ctx, knh_sfp_t *sfp0, knh_opline_t *pc
 		c += 1
 	f.write('''
 	};
+	static void *OPJUMP_E[] = {''')
+	c = 0
+	for kc in KCODE_LIST:
+		if c % 4 == 0: f.write('\n\t\t')
+		f.write('''&&%s_end, ''' % kc.OPLABEL)
+		c += 1
+	f.write('''};
 #endif
 	knh_sfp_t *sfp = sfp0;
 	knh_opline_t* pc = pc0;
@@ -600,10 +618,11 @@ knh_opline_t* knh_VirtualMachine_run(Ctx *ctx, knh_sfp_t *sfp0, knh_opline_t *pc
 # DBG_P("%%p %%s", pc-1, knh_opcode_tochar((pc-1)->opcode));
 		f.write('''
 	CASE(%s) {
-		%s%s *op = (%s*)pc%s; (void)op; VMCOUNT(pc); pc++;
+		%s%s *op = (%s*)pc;%s; (void)op; VMCOUNT(pc); pc++;
 		%s;
+		L_%s_end:;
 		GOTO_NEXT();
-	} ''' % (kc.name, LB, kc.ctype, kc.ctype, LE, getmacro(kc, 'JUMP')))
+	} ''' % (kc.name, LB, kc.ctype, kc.ctype, LE, getmacro(kc, 'JUMP'),kc.name))
 	f.write('''
 	DISPATCH_END(pc);
 	L_RETURN:;

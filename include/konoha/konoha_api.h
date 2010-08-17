@@ -228,6 +228,8 @@ void *knh_malloc(Ctx *ctx, size_t size);
 void knh_free(Ctx *ctx, void *block, size_t size);
 void *knh_valloc(Ctx *ctx, size_t size);
 void knh_vfree(Ctx *ctx, void *block, size_t size);
+void *knh_xmalloc(Ctx *ctx, size_t size);
+void knh_xfree(Ctx *ctx, void *block, size_t size);
 void *TRACE_malloc(Ctx *ctx, size_t size TRACEARG0);
 void TRACE_free(Ctx *ctx, void *p, size_t size TRACEARG0);
 knh_bool_t knh_isObject(Ctx *ctx, void *p);

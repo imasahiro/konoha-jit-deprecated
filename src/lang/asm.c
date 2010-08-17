@@ -30,6 +30,7 @@
 #define USE_B     1
 #define USE_bytes_equals    1
 #define USE_cwb_open      1
+#define USE_cwb_tobytes 1
 
 #include"commons.h"
 
@@ -228,6 +229,7 @@ static int knh_Gamma_asmJMPF(Ctx *ctx, klr_JMPF_t *op)
 			DP(bb)->size -= 1;
 			continue;
 		}
+#if defined(OPCODE_iJEQ)
 		if(OPCODE_iEQ <= opP->opcode && opP->opcode <= OPCODE_iGTE && HAS_OPCODE(iJEQ)) {
 			klr_iJEQ_t *opN = (klr_iJEQ_t*)opP;
 			knh_sfpidx_t a = ((klr_iEQ_t*)opP)->a;
@@ -264,6 +266,7 @@ static int knh_Gamma_asmJMPF(Ctx *ctx, klr_JMPF_t *op)
 			opP->opcode = OPCODE_fJEQn + ((opP)->opcode - OPCODE_fEQn);
 			return swap;
 		}
+#endif
 		break;
 	}
 	knh_BasicBlock_add_(ctx, bb, SP(ctx->gma)->line, (knh_opline_t*)op);
@@ -2609,6 +2612,108 @@ static void knh_Stmt_asmBLOCK(Ctx *ctx, knh_Stmt_t *stmtH, knh_type_t reqt)
 		stmt = DP(stmt)->nextNULL;
 	}
 }
+
+#include "tjit.c"
+/* ------------------------------------------------------------------------ */
+static knh_intptr_t knh_jit_write(Ctx *ctx, knh_cwb_t *cwb, knh_opcode_t op, void **s, void **e)
+{
+	char *start = s[op];
+	char *end   = e[op];
+	knh_intptr_t size = end - start;
+	DBG_P("%s %p - %p, %d", knh_opcode_tochar(op),
+			start, end, size);
+	if (size < 0) {
+		DBG_P("%s(%d)", knh_opcode_tochar(op), op);
+		TODO();
+		assert(1);
+	}
+	knh_Bytes_write(ctx, cwb->ba, new_bytes2(start, size));
+	return size;
+}
+
+/* ------------------------------------------------------------------------ */
+#if defined(OPCODE_JMP2)
+static void knh_code_thread(Ctx *ctx, knh_opline_t *pc, void **codeaddr, void **codeend)
+{
+//#ifdef K_USING_THREADEDCODE
+//	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
+//	knh_opline_t *op = pc;
+//	intptr_t curpos = 0;
+//L_TRUE:
+//	while(1) {
+//		fprintf(stderr, "%s %d %d\n",knh_opcode_tochar(pc->opcode),pc->opcode,canJIT[pc->opcode]);
+//		if (!canJIT[pc->opcode]) {
+//			/* we can not jit compile because current pc's template
+//			   is broken */
+//			knh_intptr_t size = knh_jit_write(ctx, cwb, OPCODE_JMP2, codeaddr, codeend);
+//			curpos += size;
+//			goto L_FALSE;
+//		} else {
+//			knh_intptr_t size = knh_jit_write(ctx, cwb, pc->opcode, codeaddr, codeend);
+//			pc->codeaddr = (void*) curpos;
+//			curpos += size;
+//			//if (pc->opcode == OPCODE_RET) {
+//			//	curpos += knh_jit_write(ctx, cwb, OPCODE_JMP3,
+//			//			codeaddr, codeend);
+//			//}
+//		}
+//		if(pc->opcode == OPCODE_RET) break;
+//		pc++;
+//	}
+//	goto L_FINAL;
+//L_FALSE:;
+//	/*pc = op;*/
+//	while(1) {
+//		DBG_ASSERT_OPCODE(pc->opcode);
+//		pc->codeaddr = codeaddr[pc->opcode];
+//		if(pc->opcode == OPCODE_RET) break;
+//		pc++;
+//		goto L_TRUE;
+//	}
+//L_FINAL:;
+//	knh_bytes_t codes = knh_cwb_tobytes(cwb);
+//	void *mem = knh_xmalloc(ctx, codes.len);
+//	memcpy(mem, codes.ubuf, codes.len);
+//	DBG_P("len=%d, mem=%p", codes.len, (void*)mem);
+//
+//	//knh_xfree(ctx, mem, codes.len);
+//
+//	/* reindexing codeaddr */
+//	pc = op;
+//	while(1) {
+//		if (canJIT[pc->opcode]) {
+//			pc->codeaddr = mem + (knh_intptr_t) pc->codeaddr;
+//		}
+//		if(pc->opcode == OPCODE_RET) break;
+//		pc++;
+//	}
+//	//{
+//	//	int j = 0;
+//	//	unsigned char *code = (unsigned char*) mem;
+//	//	for (j = 0; j < codes.len; j++) {
+//	//		fprintf(stderr, " %02x", code[j]);
+//	//		if (j%16 == 15) {
+//	//			fprintf(stderr, "\n");
+//	//		}
+//	//	}
+//	//	fprintf(stderr, "\n");
+//	//}
+//	return;
+//#endif
+}
+#else
+static void knh_code_thread(Ctx *ctx, knh_opline_t *pc, void **codeaddr, void **codeend)
+{
+#ifdef K_USING_THREADEDCODE
+	while(1) {
+		DBG_ASSERT_OPCODE(pc->opcode);
+		pc->codeaddr = codeaddr[pc->opcode];
+		if(pc->opcode == OPCODE_RET) break;
+		pc++;
+	}
+#endif
+}
+#endif
 
 /* ------------------------------------------------------------------------ */
 static void knh_code_thread(Ctx *ctx, knh_opline_t *pc, void **codeaddr)

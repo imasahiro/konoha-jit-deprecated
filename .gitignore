@@ -1,0 +1,20 @@
+# /
+build/*.lo
+Makefile
+build/.deps/
+build/.libs/
+build/Makefile
+build/konoha
+build/konoha.o
+build/libkonoha.la
+config.h
+config.log
+config.status
+konoha.pc
+libtool
+stamp-h1
+missing
+ltmain.sh
+aclocal.m4
+autom4te.cache
+config.h.in~
