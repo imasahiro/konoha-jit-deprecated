@@ -653,14 +653,14 @@ false
 //// "ｓｔｒｉｎｇ"
 
 
-### String.split
->>> String sn = "string";
->>> "a".split("a");
-[""]
->>> sn.split("r");
-["st", "ing"]
->>> sn.split("z");
-["string"]
+//### String.split
+//>>> String sn = "string";
+//>>> "a".split("a");
+//[""]
+//>>> sn.split("r");
+//["st", "ing"]
+//>>> sn.split("z");
+//["string"]
 // >>> sn.split("");
 // ["s", "t", "r", "i", "n", "g"]
 // >>> sn.split();
@@ -668,12 +668,12 @@ false
 // >>> "".split();
 // []
 
-### String.split : multi
->>> String mbsn = "ｓｔｒｉｎｇ";
->>> mbsn.split("ｒ");
-["ｓｔ", "ｉｎｇ"]
->>> mbsn.split("ｚ");
-["ｓｔｒｉｎｇ"]
+//### String.split : multi
+//>>> String mbsn = "ｓｔｒｉｎｇ";
+//>>> mbsn.split("ｒ");
+//["ｓｔ", "ｉｎｇ"]
+//>>> mbsn.split("ｚ");
+//["ｓｔｒｉｎｇ"]
 // >>> mbsn.split("");
 // ["ｓ", "ｔ", "ｒ", "ｉ", "ｎ", "ｇ"]
 // >>> mbsn.split();
@@ -699,6 +699,7 @@ false
 >>> "".convert(to:upper);
 ""
 
+/*
 ### string to:upper converter : multi
 >>> String mbsn = "ｓｔｒｉｎｇ";
 >>> "ａ".convert(to:upper);
@@ -711,6 +712,8 @@ false
 "ＴＨＩＳ　ＩＳ　ＳＴＲＩＮＧ"
 >>> mbsn.convert(to:upper);
 "ＳＴＲＩＮＧ"
+
+*/
 
 
 ### string to:lower converter
@@ -725,6 +728,7 @@ false
 >>> "".convert(to:lower);
 ""
 
+/*
 ### string to:lower converter : multi
 >>> "ａ".convert(to:lower);
 "ａ"
@@ -734,4 +738,4 @@ false
 "あ"
 >>> "ｔｈｉｓ　ｉｓ　ＳＴＲＩＮＧ".convert(to:lower);
 "ｔｈｉｓ　ｉｓ　ｓｔｒｉｎｇ"
-
+*/
