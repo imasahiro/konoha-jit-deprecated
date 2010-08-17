@@ -1,279 +1,735 @@
+Tue, 17 Aug 2010 +0900  utrhira
+	* update class/string.ktest
 
+Tue, 17 Aug 2010 +0900  tenine
+	* commit security.c
 
-**** Build of configuration Release for project konoha ****
+Tue, 17 Aug 2010 +0900  kkuramitsu
+	* updated konoha.1
 
-make all 
-Building file: ../src/main/array.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/array.d" -MT"src/main/array.d" -o"src/main/array.o" "../src/main/array.c"
-Finished building: ../src/main/array.c
- 
-Building file: ../src/main/bytes.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/bytes.d" -MT"src/main/bytes.d" -o"src/main/bytes.o" "../src/main/bytes.c"
-Finished building: ../src/main/bytes.c
- 
-Building file: ../src/main/class.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/class.d" -MT"src/main/class.d" -o"src/main/class.o" "../src/main/class.c"
-Finished building: ../src/main/class.c
- 
-Building file: ../src/main/closure.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/closure.d" -MT"src/main/closure.d" -o"src/main/closure.o" "../src/main/closure.c"
-Finished building: ../src/main/closure.c
- 
-Building file: ../src/main/context.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/context.d" -MT"src/main/context.d" -o"src/main/context.o" "../src/main/context.c"
-Finished building: ../src/main/context.c
- 
-Building file: ../src/main/empty.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/empty.d" -MT"src/main/empty.d" -o"src/main/empty.o" "../src/main/empty.c"
-Finished building: ../src/main/empty.c
- 
-Building file: ../src/main/evidence.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/evidence.d" -MT"src/main/evidence.d" -o"src/main/evidence.o" "../src/main/evidence.c"
-Finished building: ../src/main/evidence.c
- 
-Building file: ../src/main/exports.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/exports.d" -MT"src/main/exports.d" -o"src/main/exports.o" "../src/main/exports.c"
-Finished building: ../src/main/exports.c
- 
-Building file: ../src/main/iterator.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/iterator.d" -MT"src/main/iterator.d" -o"src/main/iterator.o" "../src/main/iterator.c"
-Finished building: ../src/main/iterator.c
- 
-Building file: ../src/main/konohaapi.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/konohaapi.d" -MT"src/main/konohaapi.d" -o"src/main/konohaapi.o" "../src/main/konohaapi.c"
-Finished building: ../src/main/konohaapi.c
- 
-Building file: ../src/main/map.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/map.d" -MT"src/main/map.d" -o"src/main/map.o" "../src/main/map.c"
-Finished building: ../src/main/map.c
- 
-Building file: ../src/main/memory.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/memory.d" -MT"src/main/memory.d" -o"src/main/memory.o" "../src/main/memory.c"
-Finished building: ../src/main/memory.c
- 
-Building file: ../src/main/method.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/method.d" -MT"src/main/method.d" -o"src/main/method.o" "../src/main/method.c"
-Finished building: ../src/main/method.c
- 
-Building file: ../src/main/number.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/number.d" -MT"src/main/number.d" -o"src/main/number.o" "../src/main/number.c"
-Finished building: ../src/main/number.c
- 
-Building file: ../src/main/object.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/object.d" -MT"src/main/object.d" -o"src/main/object.o" "../src/main/object.c"
-../src/main/../../include/konoha/inlinelibs.h:26: warning: 'new_bytes2' defined but not used
-Finished building: ../src/main/object.c
- 
-Building file: ../src/main/os.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/os.d" -MT"src/main/os.d" -o"src/main/os.o" "../src/main/os.c"
-Finished building: ../src/main/os.c
- 
-Building file: ../src/main/query.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/query.d" -MT"src/main/query.d" -o"src/main/query.o" "../src/main/query.c"
-Finished building: ../src/main/query.c
- 
-Building file: ../src/main/security.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/security.d" -MT"src/main/security.d" -o"src/main/security.o" "../src/main/security.c"
-Finished building: ../src/main/security.c
- 
-Building file: ../src/main/semantics.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/semantics.d" -MT"src/main/semantics.d" -o"src/main/semantics.o" "../src/main/semantics.c"
-Finished building: ../src/main/semantics.c
- 
-Building file: ../src/main/stack.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/stack.d" -MT"src/main/stack.d" -o"src/main/stack.o" "../src/main/stack.c"
-../src/main/../../include/konoha/inlinelibs.h:26: warning: 'new_bytes2' defined but not used
-../src/main/../../include/konoha/inlinelibs.h:37: warning: 'knh_bytes_indexOf' defined but not used
-../src/main/../../include/konoha/inlinelibs.h:141: warning: 'knh_bytes_last' defined but not used
-Finished building: ../src/main/stack.c
- 
-Building file: ../src/main/stream.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/stream.d" -MT"src/main/stream.d" -o"src/main/stream.o" "../src/main/stream.c"
-Finished building: ../src/main/stream.c
- 
-Building file: ../src/main/string.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/string.d" -MT"src/main/string.d" -o"src/main/string.o" "../src/main/string.c"
-Finished building: ../src/main/string.c
- 
-Building file: ../src/main/system.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/system.d" -MT"src/main/system.d" -o"src/main/system.o" "../src/main/system.c"
-Finished building: ../src/main/system.c
- 
-Building file: ../src/main/thread.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/thread.d" -MT"src/main/thread.d" -o"src/main/thread.o" "../src/main/thread.c"
-Finished building: ../src/main/thread.c
- 
-Building file: ../src/main/time.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/time.d" -MT"src/main/time.d" -o"src/main/time.o" "../src/main/time.c"
-Finished building: ../src/main/time.c
- 
-Building file: ../src/main/translator.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/translator.d" -MT"src/main/translator.d" -o"src/main/translator.o" "../src/main/translator.c"
-Finished building: ../src/main/translator.c
- 
-Building file: ../src/main/tuple.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/tuple.d" -MT"src/main/tuple.d" -o"src/main/tuple.o" "../src/main/tuple.c"
-Finished building: ../src/main/tuple.c
- 
-Building file: ../src/main/apidata/anyapi.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/apidata/anyapi.d" -MT"src/main/apidata/anyapi.d" -o"src/main/apidata/anyapi.o" "../src/main/apidata/anyapi.c"
-Finished building: ../src/main/apidata/anyapi.c
- 
-Building file: ../src/main/apidata/arrayapi.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/apidata/arrayapi.d" -MT"src/main/apidata/arrayapi.d" -o"src/main/apidata/arrayapi.o" "../src/main/apidata/arrayapi.c"
-Finished building: ../src/main/apidata/arrayapi.c
- 
-Building file: ../src/main/apidata/compilerapi.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/apidata/compilerapi.d" -MT"src/main/apidata/compilerapi.d" -o"src/main/apidata/compilerapi.o" "../src/main/apidata/compilerapi.c"
-Finished building: ../src/main/apidata/compilerapi.c
- 
-Building file: ../src/main/apidata/dbapi.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/apidata/dbapi.d" -MT"src/main/apidata/dbapi.d" -o"src/main/apidata/dbapi.o" "../src/main/apidata/dbapi.c"
-Finished building: ../src/main/apidata/dbapi.c
- 
-Building file: ../src/main/apidata/dictapi.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/apidata/dictapi.d" -MT"src/main/apidata/dictapi.d" -o"src/main/apidata/dictapi.o" "../src/main/apidata/dictapi.c"
-Finished building: ../src/main/apidata/dictapi.c
- 
-Building file: ../src/main/apidata/dspi.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/apidata/dspi.d" -MT"src/main/apidata/dspi.d" -o"src/main/apidata/dspi.o" "../src/main/apidata/dspi.c"
-Finished building: ../src/main/apidata/dspi.c
- 
-Building file: ../src/main/apidata/fmtapi.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/apidata/fmtapi.d" -MT"src/main/apidata/fmtapi.d" -o"src/main/apidata/fmtapi.o" "../src/main/apidata/fmtapi.c"
-Finished building: ../src/main/apidata/fmtapi.c
- 
-Building file: ../src/main/apidata/itrapi.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/apidata/itrapi.d" -MT"src/main/apidata/itrapi.d" -o"src/main/apidata/itrapi.o" "../src/main/apidata/itrapi.c"
-Finished building: ../src/main/apidata/itrapi.c
- 
-Building file: ../src/main/apidata/mprapi.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/apidata/mprapi.d" -MT"src/main/apidata/mprapi.d" -o"src/main/apidata/mprapi.o" "../src/main/apidata/mprapi.c"
-Finished building: ../src/main/apidata/mprapi.c
- 
-Building file: ../src/main/apidata/narutoapi.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/apidata/narutoapi.d" -MT"src/main/apidata/narutoapi.d" -o"src/main/apidata/narutoapi.o" "../src/main/apidata/narutoapi.c"
-Finished building: ../src/main/apidata/narutoapi.c
- 
-Building file: ../src/main/apidata/newapi.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/apidata/newapi.d" -MT"src/main/apidata/newapi.d" -o"src/main/apidata/newapi.o" "../src/main/apidata/newapi.c"
-Finished building: ../src/main/apidata/newapi.c
- 
-Building file: ../src/main/apidata/numberapi.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/apidata/numberapi.d" -MT"src/main/apidata/numberapi.d" -o"src/main/apidata/numberapi.o" "../src/main/apidata/numberapi.c"
-Finished building: ../src/main/apidata/numberapi.c
- 
-Building file: ../src/main/apidata/objectapi.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/apidata/objectapi.d" -MT"src/main/apidata/objectapi.d" -o"src/main/apidata/objectapi.o" "../src/main/apidata/objectapi.c"
-Finished building: ../src/main/apidata/objectapi.c
- 
-Building file: ../src/main/apidata/oprapi.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/apidata/oprapi.d" -MT"src/main/apidata/oprapi.d" -o"src/main/apidata/oprapi.o" "../src/main/apidata/oprapi.c"
-Finished building: ../src/main/apidata/oprapi.c
- 
-Building file: ../src/main/apidata/streamapi.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/apidata/streamapi.d" -MT"src/main/apidata/streamapi.d" -o"src/main/apidata/streamapi.o" "../src/main/apidata/streamapi.c"
-Finished building: ../src/main/apidata/streamapi.c
- 
-Building file: ../src/main/apidata/stringapi.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/apidata/stringapi.d" -MT"src/main/apidata/stringapi.d" -o"src/main/apidata/stringapi.o" "../src/main/apidata/stringapi.c"
-Finished building: ../src/main/apidata/stringapi.c
- 
-Building file: ../src/main/apidata/struct.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/apidata/struct.d" -MT"src/main/apidata/struct.d" -o"src/main/apidata/struct.o" "../src/main/apidata/struct.c"
-Finished building: ../src/main/apidata/struct.c
- 
-Building file: ../src/main/apidata/systemapi.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/main/apidata/systemapi.d" -MT"src/main/apidata/systemapi.d" -o"src/main/apidata/systemapi.o" "../src/main/apidata/systemapi.c"
-Finished building: ../src/main/apidata/systemapi.c
- 
-Building file: ../src/lang/asm.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/lang/asm.d" -MT"src/lang/asm.d" -o"src/lang/asm.o" "../src/lang/asm.c"
-Finished building: ../src/lang/asm.c
- 
-Building file: ../src/lang/optimizer.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/lang/optimizer.d" -MT"src/lang/optimizer.d" -o"src/lang/optimizer.o" "../src/lang/optimizer.c"
-Finished building: ../src/lang/optimizer.c
- 
-Building file: ../src/lang/script.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/lang/script.d" -MT"src/lang/script.d" -o"src/lang/script.o" "../src/lang/script.c"
-Finished building: ../src/lang/script.c
- 
-Building file: ../src/lang/term.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/lang/term.d" -MT"src/lang/term.d" -o"src/lang/term.o" "../src/lang/term.c"
-Finished building: ../src/lang/term.c
- 
-Building file: ../src/lang/typing.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/lang/typing.d" -MT"src/lang/typing.d" -o"src/lang/typing.o" "../src/lang/typing.c"
-Finished building: ../src/lang/typing.c
- 
-Building file: ../src/lang/vmcodelibs.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/lang/vmcodelibs.d" -MT"src/lang/vmcodelibs.d" -o"src/lang/vmcodelibs.o" "../src/lang/vmcodelibs.c"
-Finished building: ../src/lang/vmcodelibs.c
- 
-Building file: ../src/lang/vminline.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/lang/vminline.d" -MT"src/lang/vminline.d" -o"src/lang/vminline.o" "../src/lang/vminline.c"
-Finished building: ../src/lang/vminline.c
- 
-Building file: ../src/ext/strlen.c
-Invoking: GCC C Compiler
-gcc -O2 -g -Wall -c -fmessage-length=0 -fprofile-arcs -ftest-coverage -MMD -MP -MF"src/ext/strlen.d" -MT"src/ext/strlen.d" -o"src/ext/strlen.o" "../src/ext/strlen.c"
-Finished building: ../src/ext/strlen.c
- 
-Building target: konoha
-Invoking: MacOS X C Linker
-gcc -coverage -o "konoha"  ./src/main/array.o ./src/main/bytes.o ./src/main/class.o ./src/main/closure.o ./src/main/context.o ./src/main/empty.o ./src/main/evidence.o ./src/main/exports.o ./src/main/iterator.o ./src/main/konohaapi.o ./src/main/map.o ./src/main/memory.o ./src/main/method.o ./src/main/number.o ./src/main/object.o ./src/main/os.o ./src/main/query.o ./src/main/security.o ./src/main/semantics.o ./src/main/stack.o ./src/main/stream.o ./src/main/string.o ./src/main/system.o ./src/main/thread.o ./src/main/time.o ./src/main/translator.o ./src/main/tuple.o  ./src/main/apidata/anyapi.o ./src/main/apidata/arrayapi.o ./src/main/apidata/compilerapi.o ./src/main/apidata/dbapi.o ./src/main/apidata/dictapi.o ./src/main/apidata/dspi.o ./src/main/apidata/fmtapi.o ./src/main/apidata/itrapi.o ./src/main/apidata/mprapi.o ./src/main/apidata/narutoapi.o ./src/main/apidata/newapi.o ./src/main/apidata/numberapi.o ./src/main/apidata/objectapi.o ./src/main/apidata/oprapi.o ./src/main/apidata/streamapi.o ./src/main/apidata/stringapi.o ./src/main/apidata/struct.o ./src/main/apidata/systemapi.o  ./src/lang/asm.o ./src/lang/optimizer.o ./src/lang/script.o ./src/lang/ssa.o ./src/lang/term.o ./src/lang/typing.o ./src/lang/vmcodelibs.o ./src/lang/vminline.o  ./src/konoha.o  ./src/ext/mt19937-64.o ./src/ext/mt19937ar.o ./src/ext/qsort.o ./src/ext/strerror.o ./src/ext/strlen.o   -lgcov -lsqlite3
-Finished building target: konoha
- 
+Tue, 17 Aug 2010 +0900  kkuramitsu
+	* bugs fixed at method overriding
+
+Tue, 17 Aug 2010 +0900  kkuramitsu
+	* Func is redefined as Func<void=>void>
+
+Mon, 16 Aug 2010 +0900  imasahiro
+	* remove warning
+
+Mon, 16 Aug 2010 +0900  kindofbrown
+	* BUGS/class_declare added
+
+Mon, 16 Aug 2010 +0900  kkuramitsu
+	* removed comment out of String_Regex
+
+Mon, 16 Aug 2010 +0900  kkuramitsu
+	* removed opCASE
+
+Mon, 16 Aug 2010 +0900  kkuramitsu
+	* bugs fixed at switch
+
+Mon, 16 Aug 2010 +0900  kkuramitsu
+	* bugs fixed comparison
+
+Mon, 16 Aug 2010 +0900  kkuramitsu
+	* removed warnings
+
+Mon, 16 Aug 2010 +0900  utrhira
+	* update src/main/apidata/stringapi.c: fixed for regex
+
+Mon, 16 Aug 2010 +0900  imasahiro
+	* update configure.ac
+
+Mon, 16 Aug 2010 +0900  kkuramitsu
+	* bugs fixed at Array<Array<A>>
+
+Sun, 15 Aug 2010 +0900  imasahiro
+	* merge register check tool
+
+Sun, 15 Aug 2010 +0900  kkuramitsu
+	* bugs fixed at BUGS/multiline_comment.k 
+
+Sun, 15 Aug 2010 +0900  kkuramitsu
+	* bugs fixed at array setter
+
+Sat, 14 Aug 2010 +0900  imasahiro
+	* add microbench3.lua, fix microbench3.pl
+
+Sat, 14 Aug 2010 +0900  kkuramitsu
+	* add microbench3.py
+
+Sat, 14 Aug 2010 +0900  utrhira
+	* add bench/microbench3.js
+
+Sat, 14 Aug 2010 +0900  imasahiro
+	* add microbench3.pl
+
+Sat, 14 Aug 2010 +0900  kindofbrown
+	* mb3.rb added
+
+Fri, 13 Aug 2010 +0900  imasahiro
+	* remove int3 from setjmp/longjmp
+
+Fri, 13 Aug 2010 +0900  imasahiro
+	* add setjmp.c
+
+Fri, 13 Aug 2010 +0900  kkuramitsu
+	* bugs fixed at peephole optimization
+
+Fri, 13 Aug 2010 +0900  imasahiro
+	* bug fixed at x86_64
+
+Thu, 12 Aug 2010 +0900  imasahiro
+	* update gen_vm.py & bug fixed at knh_NameSpace_getFormatterNULL
+
+Thu, 12 Aug 2010 +0900  goccy
+	* add bench/microbench3.{cpp/java}
+
+Wed, 11 Aug 2010 +0900  kkuramitsu
+	* bugs fixed at class declaration
+
+Wed, 11 Aug 2010 +0900  kkuramitsu
+	* bugs fixed at class
+
+Wed, 11 Aug 2010 +0900  kkuramitsu
+	* beautiful nsname from scriptname
+
+Wed, 11 Aug 2010 +0900  kkuramitsu
+	* added microbench3.k
+
+Wed, 11 Aug 2010 +0900  kindofbrown
+	* BUGS : multiline_comment.k
+
+Wed, 11 Aug 2010 +0900  imasahiro
+	* add microbench2.js & remove BUGS/comment.k
+
+Wed, 11 Aug 2010 +0900  kkuramitsu
+	* bugs fixed DP(stmt)->nextNULL
+
+Wed, 11 Aug 2010 +0900  kkuramitsu
+	* bugs fixed for test3.k
+
+Wed, 11 Aug 2010 +0900  goccy
+	* add BUGS/class_definition_with_method
+
+Wed, 11 Aug 2010 +0900  utrhira
+	* delete BUGS/string_triplequote_single.ktest
+
+Wed, 11 Aug 2010 +0900  kindofbrown
+	* BUGS/test2.k removed
+
+Wed, 11 Aug 2010 +0900  kkuramitsu
+	* added knh_setSecurityAlertMessage
+
+Wed, 11 Aug 2010 +0900  kkuramitsu
+	* checked modification of method.c
+
+Wed, 11 Aug 2010 +0900  kkuramitsu
+	* bugs fixed at Token instatiation
+
+Tue, 10 Aug 2010 +0900  kindofbrown
+	* method.c: fix findMethodNULL with knh_Class_addMethod
+
+Tue, 10 Aug 2010 +0900  kkuramitsu
+	* integrating throw into evidence
+
+Tue, 10 Aug 2010 +0900  kkuramitsu
+	* added BUGS/test2.k
+
+Tue, 10 Aug 2010 +0900  kkuramitsu
+	* removed knh_stack_throw
+
+Mon, 09 Aug 2010 +0900  imasahiro
+	* add BUGS/comment.k
+
+Mon, 09 Aug 2010 +0900  imasahiro
+	* update dispatch code, goto dispatch -> inline asm
+
+Sun, 08 Aug 2010 +0900  kkuramitsu
+	* comment out debug print
+
+Sun, 08 Aug 2010 +0900  kkuramitsu
+	* comment out rsp
+
+Sun, 08 Aug 2010 +0900  kkuramitsu
+	* cannot catch Exception with -O2
+
+Sun, 08 Aug 2010 +0900  imasahiro
+	* regenerate build/Makefile.am
+
+Sun, 08 Aug 2010 +0900  kkuramitsu
+	* catching Exception
+
+Sun, 08 Aug 2010 +0900  kkuramitsu
+	* catching Exception
+
+Sun, 08 Aug 2010 +0900  kkuramitsu
+	* checked throw Exception
+
+Sat, 07 Aug 2010 +0900  kkuramitsu
+	* added setjmp.c
+
+Sat, 07 Aug 2010 +0900  kkuramitsu
+	* bugs fixed at class fields
+
+Sat, 07 Aug 2010 +0900  kkuramitsu
+	* added volatile to vm
+
+Sat, 07 Aug 2010 +0900  kkuramitsu
+	* bugs fixed at loading package
+
+Sat, 07 Aug 2010 +0900  kkuramitsu
+	* bugs fixed at cwb_tochar
+
+Fri, 06 Aug 2010 +0900  imasahiro
+	* update test
+
+Fri, 06 Aug 2010 +0900  kkuramitsu
+	* updated ObjectSPI
+
+Fri, 06 Aug 2010 +0900  kkuramitsu
+	* introduced small object
+
+Fri, 06 Aug 2010 +0900  kkuramitsu
+	* bugs fixed at memory leaks in Boolean
+
+Tue, 03 Aug 2010 +0900  kkuramitsu
+	* bugs fixed
+
+Mon, 02 Aug 2010 +0900  imasahiro
+	* bug fixed setter
+
+Mon, 02 Aug 2010 +0900  imasahiro
+	* update ktest
+
+Mon, 02 Aug 2010 +0900  imasahiro
+	* update Makefile.am, mt19937ar, security.c
+
+Sat, 31 Jul 2010 +0900  wakamori111
+	* implemented function of insert Phi
+
+Fri, 30 Jul 2010 +0900  wakamori111
+	* modified knh_mkdir for windows
+
+Thu, 29 Jul 2010 +0900  wakamori111
+	* modified some errors on Windows
+
+Thu, 29 Jul 2010 +0900  kkuramitsu
+	* bugs fixed at ASM(SCALL)
+
+Wed, 28 Jul 2010 +0900  chihiro
+	* update connection.ktest
+
+Tue, 27 Jul 2010 +0900  tenine
+	* delete updater.c
+
+Tue, 27 Jul 2010 +0900  tenine
+	* commit security.c
+
+Tue, 27 Jul 2010 +0900  kkuramitsu
+	* getting faster
+
+Tue, 27 Jul 2010 +0900  kkuramitsu
+	* getting slower
+
+Tue, 27 Jul 2010 +0900  kkuramitsu
+	* setjmp and longjmp
+
+Tue, 27 Jul 2010 +0900  kkuramitsu
+	* rebuild Exception class
+
+Tue, 27 Jul 2010 +0900  yoan
+	* filepath update
+
+Tue, 27 Jul 2010 +0900  kkuramitsu
+	* modified parser to parse in? correctly
+
+Tue, 27 Jul 2010 +0900  kindofbrown
+	* test-lang : update for comment
+
+Tue, 27 Jul 2010 +0900  yoan
+	* file-pass update
+
+Tue, 27 Jul 2010 +0900  kindofbrown
+	* test-lang : ignore comment for results. and also update if.ktest
+
+Tue, 27 Jul 2010 +0900  imasahiro
+	* update gencoverage.sh
+
+Tue, 27 Jul 2010 +0900  chihiro
+	* update connection.ktest and add test.db
+
+Mon, 26 Jul 2010 +0900  imasahiro
+	* update gencoverage.sh & remove string.split from stringbench.k
+
+Mon, 26 Jul 2010 +0900  imasahiro
+	* bug fixed at String.convert(null)
+
+Mon, 26 Jul 2010 +0900  wakamori111
+	* modified an error
+
+Mon, 26 Jul 2010 +0900  wakamori111
+	* [ssa.c(not in use)] dominator tree implemented
+
+Mon, 26 Jul 2010 +0900  goccy
+	* update float.ktest
+
+Mon, 26 Jul 2010 +0900  imasahiro
+	* bug fix at sqlite3
+
+Mon, 26 Jul 2010 +0900  kkuramitsu
+	* bugs at package loader
+
+Mon, 26 Jul 2010 +0900  kkuramitsu
+	* added namespace in path for the future extension
+
+Mon, 26 Jul 2010 +0900  kindofbrown
+	* test-lang : empty statement bug fixed.
+
+Mon, 26 Jul 2010 +0900  kindofbrown
+	* test-lang : add Empty units handling, remove truncate for statements
+
+Mon, 26 Jul 2010 +0900  kkuramitsu
+	* bugs fixed at knh_Bytes_expand
+
+Mon, 26 Jul 2010 +0900  kkuramitsu
+	* ## can be skip for multiple lines
+
+Mon, 26 Jul 2010 +0900  imasahiro
+	* update float.ktest, remove functions in closure.c
+
+Sun, 25 Jul 2010 +0900  kindofbrown
+	* ktest : int ktest update
+
+Sun, 25 Jul 2010 +0900  kindofbrown
+	* ktest : int.ktest update
+
+Sun, 25 Jul 2010 +0900  kkuramitsu
+	* improved coverages
+
+Sun, 25 Jul 2010 +0900  kindofbrown
+	* ktest : integer update
+
+Sun, 25 Jul 2010 +0900  kindofbrown
+	* test-lang : fix bug for failed sum
+
+Sun, 25 Jul 2010 +0900  kindofbrown
+	* test-lang : test update
+
+Sun, 25 Jul 2010 +0900  kkuramitsu
+	* covering flag
+
+Sun, 25 Jul 2010 +0900  kkuramitsu
+	* covering system.c
+
+Sun, 25 Jul 2010 +0900  kkuramitsu
+	* covering array and class
+
+Sun, 25 Jul 2010 +0900  kkuramitsu
+	* bugs fixed at new byte[80]
+
+Sat, 24 Jul 2010 +0900  imasahiro
+	* bug fixed: InputStream("no such file")
+
+Sat, 24 Jul 2010 +0900  imasahiro
+	* update ktest/class/array_*.ktest, gencoverage.sh
+
+Sat, 24 Jul 2010 +0900  utrhira
+	* update ktest/class/string.ktest
+
+Sat, 24 Jul 2010 +0900  imasahiro
+	* add gencoverage.sh
+
+Sat, 24 Jul 2010 +0900  kkuramitsu
+	* bugs fixed at int operation
+
+Sat, 24 Jul 2010 +0900  kindofbrown
+	* test-lang : update for multiline results
+
+Fri, 23 Jul 2010 +0900  imasahiro
+	* bug fixed: revert knh_stack_reformat, Object__k
+
+Fri, 23 Jul 2010 +0900  kkuramitsu
+	* passed error messages to display() in ktest
+
+Thu, 22 Jul 2010 +0900  kindofbrown
+	* test-lang : clean dbg msg.
+
+Thu, 22 Jul 2010 +0900  kindofbrown
+	* test-lang : update sum count for stmts
+
+Wed, 21 Jul 2010 +0900  kindofbrown
+	* test-lang :  fix bug for sample.ktest
+
+Wed, 21 Jul 2010 +0900  kindofbrown
+	* test-lang: update stmt
+
+Tue, 20 Jul 2010 +0900  imasahiro
+	* bug fixed: String.indexof, String.replace, String.replace
+
+Tue, 20 Jul 2010 +0900  kkuramitsu
+	* dsw2010
+
+Tue, 20 Jul 2010 +0900  kkuramitsu
+	* search formatters
+
+Tue, 20 Jul 2010 +0900  imasahiro
+	* bug fixed "new OutputStream(no such file)"
+
+Mon, 19 Jul 2010 +0900  kkuramitsu
+	* konoha
+
+Mon, 19 Jul 2010 +0900  kkuramitsu
+	* bugs fixed at print
+
+Mon, 19 Jul 2010 +0900  kkuramitsu
+	* formatters were added
+
+Sun, 18 Jul 2010 +0900  kkuramitsu
+	* ** was replaced with typed pass operator
+
+Sun, 18 Jul 2010 +0900  kkuramitsu
+	* forgot % to parse as operator
+
+Sun, 18 Jul 2010 +0900  kkuramitsu
+	* todo for ktest
+
+Sun, 18 Jul 2010 +0900  kkuramitsu
+	* modified messages in ktest
+
+Sun, 18 Jul 2010 +0900  kkuramitsu
+	* supported restart in a shell for virtual machine initialization
+
+Sun, 18 Jul 2010 +0900  kkuramitsu
+	* bugs fixed, reported BUGS/triplequote.k
+
+Sun, 18 Jul 2010 +0900  kkuramitsu
+	* bugs fixed, reported BUGS/float_compare_with_zero
+
+Sun, 18 Jul 2010 +0900  kkuramitsu
+	* bugs fixed, reported BUGS/float_compare_with_zero
+
+Sun, 18 Jul 2010 +0900  kkuramitsu
+	* opps
+
+Sun, 18 Jul 2010 +0900  kkuramitsu
+	* bugs fixed at formatting and new boxing scheme
+
+Sat, 17 Jul 2010 +0900  kkuramitsu
+	* updated int.ktest
+
+Sat, 17 Jul 2010 +0900  kkuramitsu
+	* modified ktest/class/int.ktest
+
+Sat, 17 Jul 2010 +0900  kkuramitsu
+	* modified ktest/class/int.ktest
+
+Sat, 17 Jul 2010 +0900  kkuramitsu
+	* bugs fixed at negative operator
+
+Sat, 17 Jul 2010 +0900  kkuramitsu
+	* string concat is compiled as formatting
+
+Fri, 16 Jul 2010 +0900  goccy
+	* add BUGS/class, float.ktest
+
+Fri, 16 Jul 2010 +0900  kkuramitsu
+	* "%bits"(1) OK
+
+Fri, 16 Jul 2010 +0900  kkuramitsu
+	* *** formatter interface was totally changed ***
+
+Fri, 16 Jul 2010 +0900  kkuramitsu
+	* renovating formatter
+
+Fri, 16 Jul 2010 +0900  kigarashi
+	* update stream.ktest
+
+Fri, 16 Jul 2010 +0900  tenine
+	* ci security
+
+Fri, 16 Jul 2010 +0900  kigarashi
+	* add stream.ktest
+
+Fri, 16 Jul 2010 +0900  mkato06
+	* ktest update: int test
+
+Fri, 16 Jul 2010 +0900  imasahiro
+	* add BUGS/try_catch_* ktest/class/array_*.ktest
+
+Fri, 16 Jul 2010 +0900  kindofbrown
+	* test-lang: strnstr -> strstr
+
+Fri, 16 Jul 2010 +0900  wakamori111
+	* ktest update and bug report
+
+Thu, 15 Jul 2010 +0900  utrhira
+	* add BUGS/string_triplequote_single.ktest
+
+Thu, 15 Jul 2010 +0900  utrhira
+	* move string{,_multi}.ktest ktest/class
+
+Thu, 15 Jul 2010 +0900  mkato06
+	* BUGS: add int bit operate
+
+Thu, 15 Jul 2010 +0900  kindofbrown
+	* test-lang : removed debug message.
+
+Thu, 15 Jul 2010 +0900  kindofbrown
+	* test-lang : mod passed.
+
+Thu, 15 Jul 2010 +0900  goccy
+	* update class.ktest
+
+Thu, 15 Jul 2010 +0900  kindofbrown
+	* test-lang : fix bug.
+
+Thu, 15 Jul 2010 +0900  kindofbrown
+	* test-lang : /* */ comment added
+
+Thu, 15 Jul 2010 +0900  wakamori111
+	* boolean testcase added
+
+Thu, 15 Jul 2010 +0900  kkuramitsu
+	* CC_ to K_CC_
+
+Thu, 15 Jul 2010 +0900  kkuramitsu
+	* parser bugs
+
+Thu, 15 Jul 2010 +0900  kkuramitsu
+	* added ktest/class/object.ktest
+
+Thu, 15 Jul 2010 +0900  wakamori111
+	* comment bug
+
+Thu, 15 Jul 2010 +0900  utrhira
+	* add BUGS/string_*.ktest
+
+Thu, 15 Jul 2010 +0900  wakamori111
+	* upload two bugs
+
+Wed, 14 Jul 2010 +0900  kkuramitsu
+	* bugs fixed at do/while
+
+Wed, 14 Jul 2010 +0900  kindofbrown
+	* test-lang: update display
+
+Wed, 14 Jul 2010 +0900  imasahiro
+	* fix knh_load & configure.ac
+
+Wed, 14 Jul 2010 +0900  kkuramitsu
+	* added CC_TLS
+
+Wed, 14 Jul 2010 +0900  kkuramitsu
+	* modified lock/unlock
+
+Wed, 14 Jul 2010 +0900  goccy
+	* update class.ktest
+
+Tue, 13 Jul 2010 +0900  utrhira
+	* update ktest/method/string.ktest: except lastIndexOf
+
+Tue, 13 Jul 2010 +0900  utrhira
+	* add ktest/method/string{,_multi}.ktest
+
+Tue, 13 Jul 2010 +0900  imasahiro
+	* fix configure.ac (check sqlite3 library), add nullcheck at knh_load, rename "B2 => new_bytes2"
+
+Tue, 13 Jul 2010 +0900  goccy
+	* add class.ktest
+
+Tue, 13 Jul 2010 +0900  kkuramitsu
+	* bugs fixed at boolean
+
+Tue, 13 Jul 2010 +0900  kkuramitsu
+	* bugs fixed at boolean
+
+Tue, 13 Jul 2010 +0900  kkuramitsu
+	* added KNH_LOCK and KNH_UNLOCK
+
+Mon, 12 Jul 2010 +0900  kkuramitsu
+	* sorry for nakata. I fixed up to build on g++
+
+Mon, 12 Jul 2010 +0900  kindofbrown
+	* test-lang: fixed formatter
+
+Mon, 12 Jul 2010 +0900  tenine
+	* fix security.c
+
+Mon, 12 Jul 2010 +0900  imasahiro
+	* bug fixed : remove counting slash
+
+Mon, 12 Jul 2010 +0900  kkuramitsu
+	* rewinded KonohaMiniTest
+
+Mon, 12 Jul 2010 +0900  kkuramitsu
+	* opps
+
+Mon, 12 Jul 2010 +0900  kkuramitsu
+	* bugs fixed at .konoha
+
+Mon, 12 Jul 2010 +0900  kkuramitsu
+	* removed TYPEQN
+
+Mon, 12 Jul 2010 +0900  kkuramitsu
+	* added K_USING_SQLITE3 by default
+
+Mon, 12 Jul 2010 +0900  kindofbrown
+	* test-lang: testlang update
+
+Mon, 12 Jul 2010 +0900  kkuramitsu
+	* removed deprecated cast char* to const char*
+
+Sun, 11 Jul 2010 +0900  tenine
+	* fix updater.c
+
+Sun, 11 Jul 2010 +0900  imasahiro
+	* merge MSGC
+
+Sun, 11 Jul 2010 +0900  tenine
+	* commit updater
+
+Sun, 11 Jul 2010 +0900  tenine
+	* security alert
+
+Sat, 10 Jul 2010 +0900  kkuramitsu
+	* added BUGS
+
+Sat, 10 Jul 2010 +0900  kkuramitsu
+	* removed cwb->ba from BytesInputStream
+
+Sat, 10 Jul 2010 +0900  kkuramitsu
+	* added stdout, stderr to ktest
+
+Sat, 10 Jul 2010 +0900  kkuramitsu
+	* updated boolean.ktest
+
+Sat, 10 Jul 2010 +0900  kindofbrown
+	* ktest update, fix bugs.
+
+Sat, 10 Jul 2010 +0900  kkuramitsu
+	* added boolean test
+
+Sat, 10 Jul 2010 +0900  kkuramitsu
+	* modified test
+
+Fri, 09 Jul 2010 +0900  kkuramitsu
+	* bugs fixed at switch
+
+Fri, 09 Jul 2010 +0900  kkuramitsu
+	* bugs fixed at endless looping in if statement
+
+Thu, 08 Jul 2010 +0900  wakamori111
+	* ktest code modified
+
+Thu, 08 Jul 2010 +0900  kkuramitsu
+	* removed warning message in konohaapi.c
+
+Thu, 08 Jul 2010 +0900  wakamori111
+	* ktest code modified
+
+Thu, 08 Jul 2010 +0900  kkuramitsu
+	* bug fixed s = null
+
+Thu, 08 Jul 2010 +0900  wakamori111
+	* ktest file added
+
+Thu, 08 Jul 2010 +0900  kindofbrown
+	* update konohaapi.c, and add ktest sample
+
+Thu, 08 Jul 2010 +0900  kkuramitsu
+	* ktest modified
+
+Thu, 08 Jul 2010 +0900  kindofbrown
+	* ktest uploaded
+
+Thu, 08 Jul 2010 +0900  kkuramitsu
+	* security alert
+
+Thu, 08 Jul 2010 +0900  kkuramitsu
+	* bugs fixed at foreach
+
+Thu, 08 Jul 2010 +0900  kkuramitsu
+	* insert jmp for BasicBlock_size
+
+Thu, 08 Jul 2010 +0900  kkuramitsu
+	* bugs fixed: memory leaks
+
+Thu, 08 Jul 2010 +0900  kkuramitsu
+	* for(i=0;i<3;i++)
+
+Wed, 07 Jul 2010 +0900  kkuramitsu
+	* for wakamori
+
+Wed, 07 Jul 2010 +0900  kkuramitsu
+	* for wakamori
+
+Tue, 06 Jul 2010 +0900  tenine
+	* Fix Converter
+
+Mon, 05 Jul 2010 +0900  kkuramitsu
+	* bugs fixed at BasicBlock
+
+Mon, 05 Jul 2010 +0900  kkuramitsu
+	* much better not branch
+
+Mon, 05 Jul 2010 +0900  kkuramitsu
+	* bugs fixed at BasicBlock
+
+Mon, 05 Jul 2010 +0900  kkuramitsu
+	* bugs fixed at BasicBlock
+
+Sun, 04 Jul 2010 +0900  kkuramitsu
+	* introduced BasicBlock
+
+Sun, 04 Jul 2010 +0900  kindofbrown
+	* shell_display fixed bug for multiline
+
+Fri, 02 Jul 2010 +0900  kkuramitsu
+	* class A
+
+Fri, 02 Jul 2010 +0900  kkuramitsu
+	* bugs fixed at foreach
+
+Fri, 02 Jul 2010 +0900  kkuramitsu
+	* added KONOHA_SHELL
+
+Fri, 02 Jul 2010 +0900  imasahiro
+	* remove unused configuration(iconv, readline, socket) & file
+
+Fri, 02 Jul 2010 +0900  wakamori111
+	* gen_vm.py fixed
+
+Fri, 02 Jul 2010 +0900  wakamori111
+	* modified for windows and fixed some errors
+
+Fri, 02 Jul 2010 +0900  wakamori111
+	* modified for windows
+
+Fri, 02 Jul 2010 +0900  kkuramitsu
+	* renamed putc to putcAPI
+
+Fri, 02 Jul 2010 +0900  kkuramitsu
+	* bugs fixed at loading regex
+
+Fri, 02 Jul 2010 +0900  kkuramitsu
+	* added knh_CompilerSPI_t
+
+Thu, 01 Jul 2010 +0900  kkuramitsu
+	* bugs fixed at InputStream_read
+
+Thu, 01 Jul 2010 +0900  kkuramitsu
+	* bugs fixed at false or false
+
+Thu, 01 Jul 2010 +0900  kkuramitsu
+	* replaced DictMap, DictSet with Map
+
+Tue, 29 Jun 2010 +0900  kkuramitsu
+	* updated knh_getSystemEncoding
+
+Tue, 29 Jun 2010 +0900  kkuramitsu
+	* changed package path package-0.7 to package/0.7
+
+Tue, 29 Jun 2010 +0900  kkuramitsu
+	* konoha7 moved
+
