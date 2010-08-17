@@ -67,11 +67,11 @@ $CC $CFLAGS bytes.c
 $CC $CFLAGS class.c
 $CC $CFLAGS closure.c
 $CC $CFLAGS context.c
-$CC $CFLAGS empty.c
+$CC $CFLAGS setjmp.c
 $CC $CFLAGS evidence.c
 $CC $CFLAGS exports.c
 $CC $CFLAGS iterator.c
-$CC $CFLAGS konohaapi.c
+$CC $CFLAGS runtime.c
 $CC $CFLAGS map.c
 $CC $CFLAGS memory.c
 $CC $CFLAGS method.c
@@ -112,11 +112,11 @@ $DIR/src/main/bytes.o          \
 $DIR/src/main/class.o          \
 $DIR/src/main/closure.o        \
 $DIR/src/main/context.o        \
-$DIR/src/main/empty.o          \
+$DIR/src/main/setjmp.o          \
 $DIR/src/main/evidence.o       \
 $DIR/src/main/exports.o        \
 $DIR/src/main/iterator.o       \
-$DIR/src/main/konohaapi.o      \
+$DIR/src/main/runtime.o      \
 $DIR/src/main/map.o            \
 $DIR/src/main/memory.o         \
 $DIR/src/main/method.o         \
@@ -200,11 +200,11 @@ $DIR/src/main/bytes.{o,gcno,gcda}          \
 $DIR/src/main/class.{o,gcno,gcda}          \
 $DIR/src/main/closure.{o,gcno,gcda}        \
 $DIR/src/main/context.{o,gcno,gcda}        \
-$DIR/src/main/empty.{o,gcno,gcda}          \
+$DIR/src/main/setjmp.{o,gcno,gcda}          \
 $DIR/src/main/evidence.{o,gcno,gcda}       \
 $DIR/src/main/exports.{o,gcno,gcda}        \
 $DIR/src/main/iterator.{o,gcno,gcda}       \
-$DIR/src/main/konohaapi.{o,gcno,gcda}      \
+$DIR/src/main/runtime.{o,gcno,gcda}      \
 $DIR/src/main/map.{o,gcno,gcda}            \
 $DIR/src/main/memory.{o,gcno,gcda}         \
 $DIR/src/main/method.{o,gcno,gcda}         \
