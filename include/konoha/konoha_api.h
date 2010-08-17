@@ -196,7 +196,7 @@ void knh_perror(Ctx *ctx, knh_uri_t uri, int line, int pe, const char *fmt, ...)
 const knh_ExportsAPI_t *knh_getExportsAPI(void);
 const knh_PackageLoaderAPI_t* knh_getPackageAPI(void);
 void knh_Iterator_close(Ctx *ctx, knh_Iterator_t *it);
-knh_Map_t *new_Map(Ctx *ctx, size_t init, char *path, const knh_MapDSPI_t *dspi);
+knh_Map_t *new_Map(Ctx *ctx, size_t init, const char *path, knh_MapDSPI_t *dspi);
 knh_DictMap_t* new_DictMap0(Ctx *ctx, size_t capacity);
 knh_DictCaseMap_t* new_DictCaseMap0(Ctx *ctx, size_t capacity);
 knh_DictSet_t* new_DictSet0(Ctx *ctx, size_t capacity);
@@ -223,7 +223,7 @@ void knh_DictSet_append(Ctx *ctx, knh_DictSet_t *m, knh_String_t *key, knh_uintp
 void knh_DictSet_set(Ctx *ctx, knh_DictSet_t *m, knh_String_t *key, knh_uintptr_t n);
 void knh_DictCaseSet_set(Ctx *ctx, knh_DictCaseSet_t *m, knh_String_t *key, knh_uintptr_t n);
 void knh_DictCaseSet_append(Ctx *ctx, knh_DictCaseSet_t *m, knh_String_t *key, knh_uintptr_t n);
-void knh_loadDefaultMapDSPI(Ctx *ctx, const knh_MapDSPI_t *dspi);
+void knh_loadDefaultMapDSPI(Ctx *ctx);
 void *knh_malloc(Ctx *ctx, size_t size);
 void knh_free(Ctx *ctx, void *block, size_t size);
 void *knh_valloc(Ctx *ctx, size_t size);
@@ -345,7 +345,6 @@ void knh_write_cap(Ctx *ctx, knh_OutputStream_t *w, knh_bytes_t t);
 knh_bool_t knh_write_ndata(Ctx *ctx, knh_OutputStream_t *w, knh_class_t cid, knh_ndata_t d);
 void knh_write_Object(Ctx *ctx, knh_OutputStream_t *w, knh_sfp_t *esp, knh_Method_t **mtdP, knh_Object_t *o);
 void knh_vprintf(Ctx *ctx, knh_OutputStream_t *w, const char *fmt, va_list ap);
-knh_hashcode_t knh_ustr_hcode(knh_hashcode_t h, knh_ustr_t *buf, size_t len);
 knh_bool_t knh_bytes_checkENCODING(knh_bytes_t s);
 size_t knh_bytes_mlen(knh_bytes_t s);
 knh_bytes_t knh_bytes_mofflen(knh_bytes_t m, size_t moff, size_t mlen);

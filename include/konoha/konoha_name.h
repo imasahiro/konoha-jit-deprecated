@@ -3,7 +3,7 @@
 /* ======================================================================== */
 /* MACROS */
 #define K_REVISION                      1823
-#define K_BUILDID                       974
+#define K_BUILDID                       975
 
 /* ======================================================================== */
 /* STRUCT */
@@ -31,7 +31,7 @@
 #define IS_Number(o)            ((o)->h.cid == CLASS_Number)
 #define IS_bNumber(o)           ((o)->h.bcid == CLASS_Number)
 #define TYPE_Number             CLASS_Number
-#define CFLAG_Number            ((knh_flag_t)0)
+#define CFLAG_Number            ((knh_flag_t)FLAG_Class_Immutable)
 #define FLAG_Number             FLAG_oflag(CFLAG_Number)
 
 /* ------------------------------------------------------------------------ */

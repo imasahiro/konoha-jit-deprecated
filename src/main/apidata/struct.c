@@ -2360,7 +2360,7 @@ static knh_data_t CParamData0[] = {
 	DATA_CPARAM, CLASS_Tuple, 1, 0, TYPE_Any, FN_V,
 	DATA_CPARAM, CLASS_Range, 1, 0, TYPE_Any, FN_V,
 	DATA_CPARAM, CLASS_Array, 1, 0, TYPE_Any, FN_V,
-	DATA_CPARAM, CLASS_Map, 2, 0, TYPE_Any, FN_K, TYPE_Any, FN_V,
+	DATA_CPARAM, CLASS_Map, 2, 0, TYPE_String, FN_K, TYPE_Any, FN_V,
 	DATA_CPARAM, CLASS_Func, 0, 0,
 	0,
 };
@@ -2391,6 +2391,7 @@ void knh_loadSystemData(Ctx *ctx, const knh_PackageLoaderAPI_t *kapi)
 	kapi->loadStringData(ctx, StringConstData0);
 	knh_getURI(ctx, STEXT("(eval)"));  // URI_EVAL
 	knh_setDefaultValues(ctx);
+	knh_loadDefaultMapDSPI(ctx);
 }
 
 void knh_loadSystemMethod(Ctx *ctx, const knh_PackageLoaderAPI_t *kapi)

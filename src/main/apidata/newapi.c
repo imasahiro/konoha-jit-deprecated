@@ -289,7 +289,7 @@ static METHOD Array_new__LIST(Ctx *ctx, knh_sfp_t *sfp, long rix)
 }
 
 /* ------------------------------------------------------------------------ */
-//## method This Map.new(String path);
+//## method This Map.new(Int init, String path);
 
 static METHOD Map_new(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {

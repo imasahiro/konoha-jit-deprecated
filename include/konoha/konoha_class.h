@@ -62,7 +62,6 @@ typedef struct knh_ObjectField_t {
 	knh_hObject_t h;
 	Object  **fields;
 	Object  *smallobject;  // small object
-	//size_t  bsize;
 } knh_ObjectField_t ;
 
 #define IS_NULL(o)     (((o)->h.flag & FLAG_Object_NullObject) == FLAG_Object_NullObject)
@@ -101,7 +100,7 @@ typedef struct knh_Boolean_t {
 #define new_Boolean(ctx, c)    ((c) ? KNH_TRUE : KNH_FALSE)
 
 /* ------------------------------------------------------------------------ */
-//## class Number Object;
+//## @Immutable class Number Object;
 
 typedef struct knh_Number_t {
 	knh_hObject_t h;
@@ -280,7 +279,7 @@ typedef struct knh_Array_t {
 		struct knh_Method_t       **methods;
 		struct knh_Translator_t   **trans;
 		struct knh_Token_t        **tokens;
-		struct knh_Stmt_t        **stmts;
+		struct knh_Stmt_t         **stmts;
 	};
 	size_t size;
 	knh_ArrayAPI_t *api;
@@ -295,7 +294,6 @@ typedef struct knh_Array_t {
 
 ///* ------------------------------------------------------------------------ */
 //## @Cyclic class Map Object;
-//## cparam DictMap 0 V Any;
 
 typedef struct knh_dentry_t {
 	union {
@@ -319,6 +317,7 @@ typedef struct knh_hentry_t {
 	knh_hashcode_t hcode;
 	union {
 		Object *key;
+		knh_String_t *skey;
 		knh_ndata_t dkey;
 	};
 	union {
