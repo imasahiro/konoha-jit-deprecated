@@ -21,17 +21,17 @@
 ... multiln
 ... double
 ... """
-"multiln\ndouble"
+"multiln\ndouble\n"
 >>> '''
 ... multiln
 ... single
 ... '''
-"multiln\nsingle"
+"multiln\nsingle\n"
 >>> ```
 ... multiln
 ... back
 ... ```
-"multiln\nback"
+"multiln\nback\n"
 
 >>> """a"""
 "a"
@@ -109,15 +109,15 @@ konoha.Int
 4096
 
 
-//### string size operator : multi
-//>>> String mbss = "ｓ";
-//>>> String mbsn = "ｓｔｒｉｎｇ";
-//>>> |"ｓｔｒｉｎｇ"|
-//6
-//>>> |mbss|
-//1
-//>>> |mbsn|
-//6
+### string size operator : multi
+>>> String mbss = "ｓ";
+>>> String mbsn = "ｓｔｒｉｎｇ";
+>>> |"ｓｔｒｉｎｇ"|
+6
+>>> |mbss|
+1
+>>> |mbsn|
+6
 
 
 ### string get operator
@@ -454,23 +454,12 @@ true
 "ｓ"
 
 
-### String.concat
->>> String sn = "string";
->>> "".concat();
-""
->>> sn.concat();
-"string"
-
-### String.concat : multi
->>> String mbsn = "ｓｔｒｉｎｇ";
->>> mbsn.concat();
-"ｓｔｒｉｎｇ"
-
-
 ### String.equals
 >>> String sn = "string";
->>> "".equals();
+>>> sn.equals("string");
 true
+>>> "".equals();
+false
 >>> sn.equals();
 false
 
@@ -505,12 +494,16 @@ false
 true
 >>> sn.startsWith("srt");
 false
+>>> "konoha".startsWith("str");
+false
 >>> sn.startsWith("");
 true
->>> sn.startsWith();
+>>> "konoha".startsWith("");
 true
->>> "".startsWith();
-true
+// >>> sn.startsWith();
+// false
+// >>> "".startsWith();
+// false
 
 ### String.startsWith : multi
 >>> String mbsn = "ｓｔｒｉｎｇ";
@@ -520,8 +513,8 @@ true
 false
 >>> mbsn.startsWith("");
 true
->>> mbsn.startsWith();
-true
+// >>> mbsn.startsWith();
+// true
 
 
 ### String.endsWith
@@ -532,10 +525,10 @@ true
 false
 >>> sn.endsWith("");
 true
->>> sn.endsWith();
-true
->>> "".endsWith();
-true
+// >>> sn.endsWith();
+// false
+// >>> "".endsWith();
+// false
 
 ### String.endsWith : multi
 >>> String mbsn = "ｓｔｒｉｎｇ";
@@ -545,8 +538,8 @@ true
 false
 >>> mbsn.endsWith("");
 true
->>> mbsn.endsWith();
-true
+// >>> mbsn.endsWith();
+// true
 
 
 ### String.trim
@@ -583,10 +576,10 @@ false
 0
 >>> "".indexOf("");
 0
->>> sn.indexOf();
--1
->>> "".indexOf();
--1
+// >>> sn.indexOf();
+// -1
+// >>> "".indexOf();
+// -1
 
 ### String.indexOf : multi
 >>> String mbsn = "ｓｔｒｉｎｇ";
@@ -596,16 +589,16 @@ false
 -1
 >>> mbsn.indexOf("");
 0
->>> mbsn.indexOf();
--1
-
-
-// ### String.lastIndexOf
-// >>> String sn = "string";
-// >>> sn.lastIndexOf("r");
-// 2
-// >>> sn.lastIndexOf("z");
+// >>> mbsn.indexOf();
 // -1
+
+
+### String.lastIndexOf
+>>> String sn = "string";
+>>> sn.lastIndexOf("r");
+2
+>>> sn.lastIndexOf("z");
+-1
 // >>> sn.lastIndexOf("");
 // 6
 // >>> "".lastIndexOf("");
@@ -615,12 +608,12 @@ false
 // >>> "".lastIndexOf();
 // 0
 
-// ### String.lastIndexOf : multi
-// >>> String mbsn = "ｓｔｒｉｎｇ";
-// >>> mbsn.lastIndexOf("ｒ");
-// 2
-// >>> mbsn.lastIndexOf("ｚ");
-// -1
+### String.lastIndexOf : multi
+>>> String mbsn = "ｓｔｒｉｎｇ";
+>>> mbsn.lastIndexOf("ｒ");
+2
+>>> mbsn.lastIndexOf("ｚ");
+-1
 // >>> mbsn.lastIndexOf("");
 // 6
 // >>> mbsn.lastIndexOf();
@@ -660,30 +653,28 @@ false
 //// "ｓｔｒｉｎｇ"
 
 
-//### String.split
-//>>> String sn = "string";
-//>>> "a".split("a");
-//["", ""]
-//>>> "a".split("");
-//["a"]
-//>>> sn.split("r");
-//["st", "ing"]
-//>>> sn.split("z");
-//["string"]
-//>>> sn.split("");
-//["s", "t", "r", "i", "n", "g"]
-//>>> sn.split();
-//["s", "t", "r", "i", "n", "g"]
-//>>> "".split();
-//[]
-//
-//### String.split : multi
-//>>> String mbsn = "ｓｔｒｉｎｇ";
-//>>> mbsn.split("ｒ");
-//["ｓｔ", "ｉｎｇ"]
-//>>> mbsn.split("ｚ");
-//["ｓｔｒｉｎｇ"]
-//>>> mbsn.split("");
+### String.split
+>>> String sn = "string";
+>>> "a".split("a");
+[""]
+>>> sn.split("r");
+["st", "ing"]
+>>> sn.split("z");
+["string"]
+// >>> sn.split("");
+// ["s", "t", "r", "i", "n", "g"]
+// >>> sn.split();
+// ["s", "t", "r", "i", "n", "g"]
+// >>> "".split();
+// []
+
+### String.split : multi
+>>> String mbsn = "ｓｔｒｉｎｇ";
+>>> mbsn.split("ｒ");
+["ｓｔ", "ｉｎｇ"]
+>>> mbsn.split("ｚ");
+["ｓｔｒｉｎｇ"]
+// >>> mbsn.split("");
 // ["ｓ", "ｔ", "ｒ", "ｉ", "ｎ", "ｇ"]
 // >>> mbsn.split();
 // ["ｓ", "ｔ", "ｒ", "ｉ", "ｎ", "ｇ"]
@@ -691,18 +682,6 @@ false
 
 //*============================================*/
 // converter
-
-### String.convert
->>> String sn = "string";
->>> sn.convert();
-"string"
->>> "".convert();
-""
-
-### String.convert : multi
->>> String mbsn = "ｓｔｒｉｎｇ";
->>> mbsn.convert();
-"ｓｔｒｉｎｇ"
 
 
 ### string to:upper converter
