@@ -794,17 +794,6 @@ static void knh_Bytes_addCOMMENT(Ctx *ctx, knh_Bytes_t *ba, knh_InputStream_t *i
 	}
 }
 
-//static void knh_Bytes_addLCOMMENT(Ctx *ctx, knh_Bytes_t *ba, knh_InputStream_t *in)
-//{
-//	int ch;
-//	while((ch = knh_InputStream_getc(ctx, in)) != EOF) {
-//		knh_Bytes_putc(ctx, ba, ch);
-//		if(ch == '\n') {
-//			break;
-//		}
-//	}
-//}
-
 static knh_InputStream_t* knh_openPathNULL(Ctx *ctx, knh_bytes_t path)
 {
 	knh_NameSpace_t *ns = DP(ctx->gma)->ns;
@@ -872,44 +861,6 @@ knh_bool_t knh_load(Ctx *ctx, knh_bytes_t path, knh_type_t reqt, knh_Array_t *re
 			prev = ch;
 		}
 	}
-//	if(!knh_InputStream_isClosed(ctx, in)) {
-//		int ch;
-//		int isBLOCK = 0, isSKIP = 0, prev = 0;
-//		linenum = DP(in)->line;
-//		while((ch = knh_InputStream_getc(ctx, in)) != EOF) {
-//			if(ch == '\r') continue;
-//			knh_Bytes_putc(ctx, ba, ch);
-//			if(isBLOCK && (ch == '}' || ch == ']') && prev == 0) {
-//				isBLOCK = 0;
-//			}
-//			if(prev == '/' && ch == '*') {
-//				knh_Bytes_addCOMMENT(ctx, ba, in);
-//				continue;
-//			}
-//			if(prev == '/' && ch == '/') {
-//				knh_Bytes_addLCOMMENT(ctx, ba, in);
-//				continue;
-//			}
-//			if(ch == '\'' || ch == '"' || ch == '`') {
-//				knh_Bytes_addQUOTE(ctx, ba, in, ch);
-//				continue;
-//			}
-//			if(ch == '#' && prev == '#') isSKIP = 1;
-//			if(isSKIP == 1 && ch == '\n') {
-//				isSKIP = 0; prev = 0; continue;
-//			}
-//			if(ch == '\n') {
-//				if(prev == '{' || prev == '[') {
-//					isBLOCK = 1;
-//				}
-//				if(prev == '\\') continue;
-//				if(!isBLOCK) goto L_PARSE;
-//				prev = 0; continue;
-//			}
-//			if(prev != 0 && (ch == ' ' || ch == '\t')) continue;
-//			prev = ch;
-//		}
-//	}
 	L_PARSE:;
 	if(!knh_bytes_isempty(ba->bu)) {
 		knh_BytesInputStream_setpos(ctx, bin, 0, BA_size(ba));
@@ -940,7 +891,7 @@ knh_bool_t knh_load(Ctx *ctx, knh_bytes_t path, knh_type_t reqt, knh_Array_t *re
 
 /* ------------------------------------------------------------------------ */
 
-KNHAPI(int) konoha_load(konoha_t konoha, knh_bytes_t path, int isCompileOnly)
+int konoha_load(konoha_t konoha, knh_bytes_t path, int isCompileOnly)
 {
 	KONOHA_CHECK(konoha, 0);
 	int isCONTINUE;

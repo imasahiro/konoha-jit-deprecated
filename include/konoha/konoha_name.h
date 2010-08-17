@@ -2,8 +2,8 @@
 
 /* ======================================================================== */
 /* MACROS */
-#define K_REVISION                      1790
-#define K_BUILDID                       970
+#define K_REVISION                      1823
+#define K_BUILDID                       975
 
 /* ======================================================================== */
 /* STRUCT */
@@ -31,7 +31,7 @@
 #define IS_Number(o)            ((o)->h.cid == CLASS_Number)
 #define IS_bNumber(o)           ((o)->h.bcid == CLASS_Number)
 #define TYPE_Number             CLASS_Number
-#define CFLAG_Number            ((knh_flag_t)0)
+#define CFLAG_Number            ((knh_flag_t)FLAG_Class_Immutable)
 #define FLAG_Number             FLAG_oflag(CFLAG_Number)
 
 /* ------------------------------------------------------------------------ */
@@ -777,11 +777,11 @@
 #define knh_Token_hasLCASE(o)  ((DP(o)->flag0 & FLAG_Token_LCASE) == FLAG_Token_LCASE)
 
 #define knh_Token_setLCASE(o,b) if(b) DP(o)->flag0 |= FLAG_Token_LCASE; else DP(o)->flag0 &= ~(FLAG_Token_LCASE);
-#define FLAG_Token_USCORE               (knh_flag_t)(1<<3)
+#define FLAG_Token_ISBOOL               (knh_flag_t)(1<<3)
 
-#define knh_Token_hasUSCORE(o)  ((DP(o)->flag0 & FLAG_Token_USCORE) == FLAG_Token_USCORE)
+#define knh_Token_isISBOOL(o)  ((DP(o)->flag0 & FLAG_Token_ISBOOL) == FLAG_Token_ISBOOL)
 
-#define knh_Token_setUSCORE(o,b) if(b) DP(o)->flag0 |= FLAG_Token_USCORE; else DP(o)->flag0 &= ~(FLAG_Token_USCORE);
+#define knh_Token_setISBOOL(o,b) if(b) DP(o)->flag0 |= FLAG_Token_ISBOOL; else DP(o)->flag0 &= ~(FLAG_Token_ISBOOL);
 #define FLAG_Token_Getter               (knh_flag_t)(1<<4)
 
 #define knh_Token_isGetter(o)  ((DP(o)->flag0 & FLAG_Token_Getter) == FLAG_Token_Getter)

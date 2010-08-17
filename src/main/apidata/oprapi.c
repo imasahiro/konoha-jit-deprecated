@@ -221,7 +221,6 @@ static METHOD String_opHAS(Ctx *ctx, knh_sfp_t *sfp, long rix)
 
 ///* ------------------------------------------------------------------------ */
 ////## method Boolean Range.opHAS(Any v);
-////## method Boolean Range.opCASE(Any v);
 //
 //static METHOD Range_opHAS(Ctx *ctx, knh_sfp_t *sfp, long rix)
 //{
@@ -253,7 +252,6 @@ static METHOD String_opHAS(Ctx *ctx, knh_sfp_t *sfp, long rix)
 
 /* ------------------------------------------------------------------------ */
 //## method Boolean Array.opHAS(Any v);
-//## method Boolean Array.opCASE(Any v);
 
 static METHOD Array_opHAS(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
@@ -277,8 +275,7 @@ static METHOD Array_opHAS(Ctx *ctx, knh_sfp_t *sfp, long rix)
 
 ///* ------------------------------------------------------------------------ */
 ////## method Boolean Tuple.opHAS(Any v);
-////## method Boolean Tuple.opCASE(Any v);
-//
+
 //static METHOD Tuple_opHAS(Ctx *ctx, knh_sfp_t *sfp, long rix)
 //{
 //	if(knh_Tuple_isTriple(sfp[0].tuple)) {
@@ -294,49 +291,6 @@ static METHOD Array_opHAS(Ctx *ctx, knh_sfp_t *sfp, long rix)
 //		Array_opHAS(ctx, sfp, rix); // reuse
 //	}
 //}
-
-/* ======================================================================== */
-/* [Case] */
-
-/* ------------------------------------------------------------------------ */
-//## @Const method Boolean Object.opCASE(Any v);
-
-static METHOD Object_opCASE(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	RETURNb_(knh_Object_compareTo(ctx, sfp[0].o, sfp[1].o) == 0);
-}
-
-/* ------------------------------------------------------------------------ */
-//## @Const method Boolean Int.opCASE(Any v);
-
-static METHOD Int_opCASE(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	int res = 0;
-	if(IS_bInt(sfp[1].o)) {
-		knh_int_t n = sfp[1].ivalue;
-		if(knh_Object_cid(sfp[0].o) == CLASS_Int ||
-				knh_Object_bcid(sfp[0].o) == knh_Object_bcid(sfp[0].o)) {
-			res = (n == sfp[0].ivalue);
-		}
-	}
-	RETURNb_(res);
-}
-
-/* ------------------------------------------------------------------------ */
-//## @Const method Boolean Float.opCASE(Any v);
-
-static METHOD Float_opCASE(Ctx *ctx, knh_sfp_t *sfp, long rix)
-{
-	int res = 0;
-	if(IS_bFloat(sfp[1].o)) {
-		knh_float_t n = sfp[1].fvalue;
-		if(knh_Object_cid(sfp[0].o) == CLASS_Float ||
-				knh_Object_bcid(sfp[0].o) == knh_Object_bcid(sfp[0].o)) {
-			res = (n == sfp[0].fvalue);
-		}
-	}
-	RETURNb_(res);
-}
 
 /* ======================================================================== */
 /* [Semantic Comparator] */
@@ -378,6 +332,7 @@ static METHOD Object_opIS(Ctx *ctx, knh_sfp_t *sfp, long rix)
 
 /* ------------------------------------------------------------------------ */
 /* [Int] */
+
 //## @Const method Int Int.opADD(Int v);
 
 static METHOD Int_opADD(Ctx *ctx, knh_sfp_t *sfp, long rix)
@@ -503,6 +458,7 @@ static METHOD String_opSUB(Ctx *ctx, knh_sfp_t *sfp, long rix)
 
 /* ------------------------------------------------------------------------ */
 /* [Any] */
+
 //## method Any Any.opADD(Any value);
 //## method Any Any.opSUB(Any value);
 //## method Any Any.opMUL(Any value);

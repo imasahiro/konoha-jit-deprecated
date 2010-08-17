@@ -176,7 +176,7 @@ typedef const struct _knh_MapDSPI_t {
 	int   type;
 	const char *name;
 	const struct _knh_MapDSPI_t* (*config)(Ctx *, knh_class_t, knh_class_t);
-	knh_map_t* (*init)(Ctx *, size_t, char*, void *);
+	knh_map_t* (*init)(Ctx *, size_t, const char*, void *);
 	void (*ftrmap)(Ctx *, knh_map_t*, knh_Ftraverse ftr);
 	void (*freemap)(Ctx *, knh_map_t*);
 	knh_bool_t (*get)(Ctx *, knh_map_t*, knh_sfp_t*, knh_sfp_t *);

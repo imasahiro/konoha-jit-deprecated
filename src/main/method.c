@@ -29,9 +29,6 @@
 
 #define USE_STEXT 1
 #define USE_B     1
-//#define USE_bytes_strcmp    1
-//#define USE_bytes_parseint  1
-#define USE_cwb_open      1
 
 #include"commons.h"
 
@@ -593,7 +590,7 @@ knh_Method_t *knh_getSystemFormatter(Ctx *ctx, knh_class_t cid, knh_methodn_t mn
 	if(mtd == NULL) {
 		mtd = knh_findFormatter(ctx, cid, mn0);
 		DBG_ASSERT(mtd != NULL);
-		DBG_P("cid=%s.%%%s, mtdf=%s.%%%s", CLASS__(cid), MN__(mn), CLASS__(DP(mtd)->cid), MN__(DP(mtd)->mn));
+		//DBG_P("req=%s.%%%s, mtdf=%s.%%%s", CLASS__(cid), MN__(mn0), CLASS__(DP(mtd)->cid), MN__(DP(mtd)->mn));
 	}
 	return mtd;
 }

@@ -111,7 +111,7 @@ is?  TT_IS             @opIS    @P9  @A2
 instanceof TT_OF       @opOF    @P9  @A2
 isa? TT_ISA            @opISA   @P9  @A2
 in? TT_IN              @opHAS    @P9  @A2
-=~ TT_MATCH            @opCASE @A2   @P9
+##=~ TT_MATCH            @opCASE @A2   @P9
 
 == TT_EQ               @opEQ    @A2   @P9
 != TT_NEQ              @opNOTEQ  @A2   @P9

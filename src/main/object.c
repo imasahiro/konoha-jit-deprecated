@@ -27,7 +27,7 @@
 
 /* ************************************************************************ */
 
-#define USE_STEXT 1
+//#define USE_STEXT 1
 //#define USE_B     1
 //#define USE_bytes_strcmp    1
 //#define USE_bytes_parseint  1
@@ -87,6 +87,7 @@ extern "C" {
 //	KNH_SETv(ctx, lsfp[-1].o, s);
 //	return s;
 //}
+
 /* ------------------------------------------------------------------------ */
 
 int knh_Object_compareTo(Ctx *ctx, Object *o1, Object *o2)

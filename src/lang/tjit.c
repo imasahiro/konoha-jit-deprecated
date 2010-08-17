@@ -1,5 +1,5 @@
-//#define TJIT
-//#define TJIT_DUMP
+#define TJIT
+#define TJIT_DUMP
 
 #if defined(TJIT)
 #define USE_STEXT 1
@@ -63,7 +63,7 @@ static int canJIT[] = {
     1 /*VCALL*/, 1 /*VCALL_*/, 0 /*FASTCALL*/, 1 /*RET*/,
     1 /*SCAST*/, 1 /*TCAST*/, 1 /*ACAST*/, 1 /*iCAST*/,
     1 /*fCAST*/, 1 /*TR*/, 0 /*NUL*/, 1 /*JMP*/,
-    0 /*JMP2*/, 1 /*JMP_*/, 0 /*JMPF*/, 1 /*DYJMP*/,
+    0 /*JMP2*/, 1 /*JMP_*/, 0 /*JMPF*/, 0 /*DYJMP*/,
     0 /*NEXT*/, 0 /*TRY*/, 0 /*TRYEND*/, 0 /*THROW*/,
     0 /*CATCH*/, 0 /*bNOT*/, 1 /*iINC*/, 1 /*iDEC*/,
     1 /*iNEG*/, 1 /*iADD*/, 1 /*iSUB*/, 1 /*iMUL*/,
@@ -185,6 +185,7 @@ static int fix_code_template(unsigned char *code, knh_intptr_t *size)
     /* short conditional jmp */
     static unsigned char cond_s[] = {0x77,0x00};
     static unsigned char fcmp0[]  = {0x66,0x42,0x0f,0x2e,0x04,0x30};
+    static unsigned char test[]   = {0x85,0xc0};
 #if 0
     /* TODO */
     static unsigned char fcmp1[]  = {0x66,0x0f,0x2e,0x42,0x28};
@@ -223,6 +224,11 @@ static int fix_code_template(unsigned char *code, knh_intptr_t *size)
         if (code[i] == fcmp0[0] && code[i+1] == fcmp0[1]) {
             check_shortcond = 1;
         }
+        /* check compare instruction */
+        if (code[i] == test[0] && code[i+1] == test[1]) {
+            check_shortcond = 1;
+        }
+
         /* check short conditional branch instruction */
         if (check_shortcond && 0x74 <= code[i] && code[i] <= 0x8f) {
             knh_intptr_t tsize;
@@ -429,3 +435,4 @@ L_FINAL:
 #ifdef __cplusplus
 }
 #endif
+

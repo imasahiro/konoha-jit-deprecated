@@ -39,15 +39,6 @@ extern "C" {
 
 /* ======================================================================== */
 
-knh_hashcode_t knh_ustr_hcode(knh_hashcode_t h, knh_ustr_t *buf, size_t len)
-{
-	size_t i;
-	for(i = 0; i < len; i++) {
-		h = buf[i] + 31 * h;
-	}
-	return h;
-}
-
 /* ------------------------------------------------------------------------ */
 /* These utf8 functions were originally written by Shinpei Nakata */
 

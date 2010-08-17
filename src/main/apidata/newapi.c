@@ -44,73 +44,71 @@ extern "C" {
 
 static METHOD Object_new(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-	
-	DBG_P("DEFAULT CONSTRUCTOR? %s", O__(sfp[0].o));
 	RETURN_(sfp[0].o);
 }
 
 /* ------------------------------------------------------------------------ */
 
-static void knh_ObjectField_setValue(Ctx *ctx, knh_ObjectField_t *of, knh_index_t idx, knh_type_t type, Object *value)
-{
-	knh_class_t tcid = CLASS_type(type);
-	knh_class_t scid = knh_Object_cid(value);
-	DBG_ASSERT_cid(tcid);
-	DBG_ASSERT_cid(scid);
-	if(scid == tcid || knh_class_instanceof(ctx, scid, tcid)) {
-		goto L_SETVAL;
-	}
-	DBG_P("COERCION %s -> %s", CLASS__(scid), CLASS__(tcid));
-	TODO();
-//		BEGIN_LOCAL(ctx, lsfp);
-//		KNH_LPUSH(ctx, o);
-//		VM_MAP(ctx, tcid);
-//		o = ctx->esp[0].o;
-//		END_LOCAL(ctx, lsfp);
-	return ;
-
-	L_SETVAL:;
-	if(IS_Tint(type)) {
-		knh_int_t *data = (knh_int_t*)(of->fields + idx);
-		data[0] = N_toint(value);
-	}
-	else if(IS_Tfloat(type)) {
-		knh_float_t *data = (knh_float_t*)(of->fields + idx);
-		data[0] = N_tofloat(value);
-	}
-	else if(IS_Tbool(type)) {
-		knh_boolean_t *data = (knh_boolean_t*)(of->fields +idx);
-		data[0] = N_tobool(value);
-	}
-	else {
-		DBG_ASSERT(of->fields[idx] != NULL);
-		KNH_SETv(ctx, of->fields[idx], value);
-	}
-}
+//static void knh_ObjectField_setValue(Ctx *ctx, knh_ObjectField_t *of, knh_index_t idx, knh_type_t type, Object *value)
+//{
+//	knh_class_t tcid = CLASS_type(type);
+//	knh_class_t scid = knh_Object_cid(value);
+//	DBG_ASSERT_cid(tcid);
+//	DBG_ASSERT_cid(scid);
+//	if(scid == tcid || knh_class_instanceof(ctx, scid, tcid)) {
+//		goto L_SETVAL;
+//	}
+//	DBG_P("COERCION %s -> %s", CLASS__(scid), CLASS__(tcid));
+//	TODO();
+////		BEGIN_LOCAL(ctx, lsfp);
+////		KNH_LPUSH(ctx, o);
+////		VM_MAP(ctx, tcid);
+////		o = ctx->esp[0].o;
+////		END_LOCAL(ctx, lsfp);
+//	return ;
+//
+//	L_SETVAL:;
+//	if(IS_Tint(type)) {
+//		knh_int_t *data = (knh_int_t*)(of->fields + idx);
+//		data[0] = N_toint(value);
+//	}
+//	else if(IS_Tfloat(type)) {
+//		knh_float_t *data = (knh_float_t*)(of->fields + idx);
+//		data[0] = N_tofloat(value);
+//	}
+//	else if(IS_Tbool(type)) {
+//		knh_boolean_t *data = (knh_boolean_t*)(of->fields +idx);
+//		data[0] = N_tobool(value);
+//	}
+//	else {
+//		DBG_ASSERT(of->fields[idx] != NULL);
+//		KNH_SETv(ctx, of->fields[idx], value);
+//	}
+//}
 
 /* ------------------------------------------------------------------------ */
 //## @Hidden method This Object.new:MAP(Any value, ...);
 
 static METHOD Object_new__MAP(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {
-	knh_ObjectField_t *of = (knh_ObjectField_t*)sfp[0].o;
-	knh_class_t cid = knh_Object_cid(of);
-	knh_sfp_t *v = sfp + 1;
-	size_t i, ac = knh_stack_argc(ctx, v);
-	for(i = 0; i < ac; i+= 2) {
-		if(IS_bString(v[i].s)) {
-			knh_fieldn_t fn = knh_getfnq(ctx, S_tobytes(v[i].s), FN_NONAME);
-			if(fn == FN_NONAME) continue;
-			knh_index_t idx = knh_Class_queryField(ctx, cid, fn);
-			if(idx == -1) continue;
-			knh_fields_t *cf = knh_Class_fieldAt(ctx, cid, idx);
-			knh_type_t type = knh_type_tocid(ctx, cf->type, cid);
-			if(type == TYPE_void) continue;
-			DBG_P("[%d] %s %s", (int)(idx), TYPE__(type), S_tochar(v[i].s));
-			knh_ObjectField_setValue(ctx, of, idx, type, v[i+1].o);
-		}
-	}
-	RETURN_(of);
+//	knh_ObjectField_t *of = (knh_ObjectField_t*)sfp[0].o;
+//	knh_class_t cid = knh_Object_cid(of);
+//	knh_sfp_t *v = sfp + 1;
+//	size_t i, ac = knh_stack_argc(ctx, v);
+//	for(i = 0; i < ac; i+= 2) {
+//		if(IS_bString(v[i].s)) {
+//			knh_fieldn_t fn = knh_getfnq(ctx, S_tobytes(v[i].s), FN_NONAME);
+//			if(fn == FN_NONAME) continue;
+//			knh_index_t idx = knh_Class_queryField(ctx, cid, fn);
+//			if(idx == -1) continue;
+//			knh_fields_t *cf = knh_Class_fieldAt(ctx, cid, idx);
+//			knh_type_t type = knh_type_tocid(ctx, cf->type, cid);
+//			if(type == TYPE_void) continue;
+//			DBG_P("[%d] %s %s", (int)(idx), TYPE__(type), S_tochar(v[i].s));
+//			knh_ObjectField_setValue(ctx, of, idx, type, v[i+1].o);
+//		}
+//	}
+//	RETURN_(of);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -172,19 +170,19 @@ static METHOD Regex_new(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	RETURN_(sfp[0].o);
 }
 
-///* ------------------------------------------------------------------------ */
-////## @Const mapper String Regex!;
-//
-//static METHOD String_Regex(Ctx *ctx, knh_sfp_t *sfp, long rix)
-//{
-//	knh_Regex_t *re = new_(Regex);
-//	const char *ptn = ctx->api->tochar(ctx, sfp[0].s);
-//	KNH_SETv(ctx, re->pattern, sfp[0].s);
-//	re->reg = re->spi->regmalloc(ctx, sfp[0].s);
-//	re->spi->regcomp(ctx, re->reg, ptn, 0);
-//	re->eflags = 0;
-//	RETURN_(re);
-//}
+/* ------------------------------------------------------------------------ */
+//## @Const mapper String Regex!;
+
+static METHOD String_Regex(Ctx *ctx, knh_sfp_t *sfp, long rix)
+{
+	knh_Regex_t *re = new_(Regex);
+	const char *ptn = ctx->api->tochar(ctx, sfp[0].s);
+	KNH_SETv(ctx, re->pattern, sfp[0].s);
+	re->reg = re->spi->regmalloc(ctx, sfp[0].s);
+	re->spi->regcomp(ctx, re->reg, ptn, 0);
+	re->eflags = 0;
+	RETURN_(re);
+}
 
 ///* ------------------------------------------------------------------------ */
 ///* [Pair, Tuple, Range] */
@@ -291,7 +289,7 @@ static METHOD Array_new__LIST(Ctx *ctx, knh_sfp_t *sfp, long rix)
 }
 
 /* ------------------------------------------------------------------------ */
-//## method This Map.new(String path);
+//## method This Map.new(Int init, String path);
 
 static METHOD Map_new(Ctx *ctx, knh_sfp_t *sfp, long rix)
 {

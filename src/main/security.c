@@ -64,7 +64,11 @@
 #endif
 
 #define UPDATE_HOST "konoha.sourceforge.jp"
-#define UPDATE_PATH "/cgi-bin/security-alert/server?dist=%s&ver=%s&arch=%s(%s)&rev=%d&clock=%u&mem=%u&ncpu=%d"
+#ifdef K_PREVIEW
+#define UPDATE_PATH "/cgi-bin/security-alert/server?dist=%s&ver=%s&arch=%s(%s)&rev=%d&clock=%u&mem=%u&ncpu=%d&prev=yes"
+#else
+#define UPDATE_PATH "/cgi-bin/security-alert/server?dist=%s&ver=%s&arch=%s(%s)&rev=%d&clock=%u&mem=%u&ncpu=%d&prev=no"
+#endif
 #define PORT 80
 #define BUF_LEN 512
 
@@ -78,6 +82,7 @@ extern "C" {
 /* [security alert] */
 
 static void getmessage(int fd, char* path);
+
 static void serverconnect(char *path)
 {
 	struct hostent *servhost;
@@ -280,7 +285,7 @@ static unsigned int getclock(void)
 	pEnumerator->Release();
 	CoUninitialize();
 #elif defined(KONOHA_ON_LINUX)
-	char buf[64] = {'\0'}, *data;
+	char buf[64] = {'\0'}, *data = buf;
 	const char *cpumhz = "cpu MHz";
 	size_t len = strlen(cpumhz);
 	FILE *fp = fopen("/proc/cpuinfo","r");
@@ -316,8 +321,6 @@ void knh_checkSecurityAlert(void)
 	DBG_P("Path == [%s] \n", path);
 	serverconnect(path);
 }
-
-/* ------------------------------------------------------------------------ */
 
 /* ======================================================================== */
 /* [password] */

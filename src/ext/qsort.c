@@ -419,5 +419,5 @@ jump_over:;
     }
 }
 
-#endif K_USING_QSORT
+#endif /* K_USING_QSORT */
 

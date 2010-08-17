@@ -84,34 +84,6 @@ void knh_Gamma_perror(Ctx *ctx, int pe, const char *fmt, ...)
 	va_end(ap);
 }
 
-///* ------------------------------------------------------------------------ */
-///* [TypeVariable] */
-//
-//#define TYPEINF()    TODO()
-//
-//static knh_type_t GMA_newTVAR(Ctx *ctx)
-//{
-//	return TYPE_Any;
-//}
-//
-//
-//static int GMA_isTVAR(Ctx *ctx, knh_type_t type)
-//{
-//	if(type < TYPE_T0) return 0;
-//	type = DP(ctx->gma)->typevars[type - TYPE_T0].type;
-//	if(type == TYPE_var || type == TYPE_Any) return 1;
-//	return 0;
-//}
-//
-//static int GMA_typingTVAR(Ctx *ctx, knh_type_t type, knh_type_t reqt)
-//{
-//	DBG_ASSERT(!(type < TYPE_T0));
-//	if(GMA_isTVAR(ctx, reqt)) {
-//
-//	}
-//	return 1;
-//}
-
 static int GMA_type(Ctx *ctx, knh_type_t type)
 {
 	if(type < TYPE_T0) {
@@ -196,8 +168,6 @@ knh_Token_t* new_TokenTYPED(Ctx *ctx, knh_term_t tt, knh_type_t type, knh_short_
 	return tk;
 }
 
-/* ------------------------------------------------------------------------ */
-
 knh_bool_t knh_StmtMETA_is(Ctx *ctx, knh_Stmt_t *stmt, knh_bytes_t name)
 {
 	if(IS_Map(DP(stmt)->metaDictCaseMap)) {
@@ -219,6 +189,8 @@ static void knh_Stmt_insert_(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_Term_t *t
 	}
 }
 
+/* ------------------------------------------------------------------------ */
+
 static knh_fieldn_t knh_Token_getfnq(Ctx *ctx, knh_Token_t *tk)
 {
 	knh_fieldn_t fn = FN_NONAME;
@@ -239,11 +211,15 @@ static knh_methodn_t knh_Token_getmn(Ctx *ctx, knh_Token_t *tk)
 		DP(tk)->mn = knh_getmn(ctx, TK_tobytes(tk), MN_NEWID);
 	}
 	DBG_ASSERT(TT_(tk) == TT_MN);
-	if(knh_Token_isGetter(tk)) {
+	if(knh_Token_isISBOOL(tk)) {
+		DP(tk)->mn = MN_toISBOOL(MN_toFN(DP(tk)->mn));
+		knh_Token_setISBOOL(tk, 0);
+	}
+	else if(knh_Token_isGetter(tk)) {
 		DP(tk)->mn = MN_toGETTER(MN_toFN(DP(tk)->mn));
 		knh_Token_setGetter(tk, 0);
 	}
-	if(knh_Token_isSetter(tk)) {
+	else if(knh_Token_isSetter(tk)) {
 		DP(tk)->mn = MN_toSETTER(MN_toFN(DP(tk)->mn));
 		knh_Token_setSetter(tk, 0);
 	}
@@ -521,9 +497,7 @@ static knh_Term_t *knh_TokenTYPE_typing(Ctx *ctx, knh_Token_t *tk, knh_type_t re
 		cid = knh_Token_getcid(ctx, tkC, CLASS_Any);
 		bpa = ClassTBL(cid).cparam;
 		if(bpa == NULL) {
-			if(cid != CLASS_Any) {
-				knh_Gamma_perror(ctx, KERR_EWARN, "%C is not parameterized", cid);
-			}
+			knh_Gamma_perror(ctx, KERR_EWARN, "%C is not parameterized", cid);
 		}
 		else {
 			BEGIN_LOCAL(ctx, lsfp, 1);
@@ -533,12 +507,17 @@ static knh_Term_t *knh_TokenTYPE_typing(Ctx *ctx, knh_Token_t *tk, knh_type_t re
 				knh_Token_t *tkT = knh_TOKENs_n(DP(tk)->list, i);
 				if(TT_(tkT) == TT_FUNCARROW) { i++; break; }
 				knh_param_t p = {knh_Token_getcid(ctx, tkT, CLASS_Any), FN_NONAME};
+				if(p.type == TYPE_void) continue;
 				knh_ParamArray_add(ctx, pa, p);
 			}
-			for(; i < knh_Array_size(DP(tk)->list); i++) {
-				knh_Token_t *tkT = knh_TOKENs_n(DP(tk)->list, i);
-				knh_param_t p = {knh_Token_getcid(ctx, tkT, CLASS_Any), FN_NONAME};
-				knh_ParamArray_radd(ctx, pa, p);
+			if(cid == CLASS_Func) {
+				for(; i < knh_Array_size(DP(tk)->list); i++) {
+					knh_Token_t *tkT = knh_TOKENs_n(DP(tk)->list, i);
+					knh_param_t p = {knh_Token_getcid(ctx, tkT, CLASS_Any), FN_NONAME};
+					if(p.type == TYPE_void) break;
+					knh_ParamArray_radd(ctx, pa, p);
+				}
+				if(pa->psize == 0 && pa->rsize == 0) goto L_RETURN;
 			}
 			if((pa)->psize != (bpa)->psize || (pa)->rsize != (bpa)->rsize) {
 				if(cid != CLASS_Func && cid != CLASS_Tuple && cid != CLASS_Iterator) {
@@ -2087,15 +2066,22 @@ static knh_Term_t *knh_StmtOP_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt
 {
 	size_t i, opsize = DP(stmt)->size - 1;
 	knh_Token_t *tkOP = DP(stmt)->tokens[0];
+	knh_methodn_t mn;
 	knh_class_t mtd_cid = CLASS_Any;
-	knh_methodn_t mn = TT_(tkOP) - TT_LET;
-	if(TT_isBINARY(TT_(tkOP)) && opsize != 2) {
-		knh_Gamma_perror(ctx, KERR_ERR, "%s must be binary operator", knh_getopname(mn));
-		return NULL;
+	if(TT_(tkOP) == TT_MN) {
+		mn = DP(tkOP)->mn;
+		mtd_cid = TERMs_getcid(stmt, 1);
 	}
-	if(TT_(tkOP) == TT_EXISTS) mtd_cid = CLASS_String;
-	for(i = 1; i < opsize + 1; i++) {
-		TYPING(ctx, stmt, i, mtd_cid, 0);
+	else {
+		mn = TT_(tkOP) - TT_LET;
+		if(TT_isBINARY(TT_(tkOP)) && opsize != 2) {
+			knh_Gamma_perror(ctx, KERR_ERR, "%s must be binary operator", knh_getopname(mn));
+			return NULL;
+		}
+		if(TT_(tkOP) == TT_EXISTS) mtd_cid = CLASS_String;
+		for(i = 1; i < opsize + 1; i++) {
+			TYPING(ctx, stmt, i, mtd_cid, 0);
+		}
 	}
 	if(mn == MN_opEQ || mn == MN_opNOTEQ) {
 		knh_term_t tt = TT_TERMs(stmt, 1);
@@ -2121,8 +2107,7 @@ static knh_Term_t *knh_StmtOP_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt
 	}
 	for(i = 1; i < opsize + 1; i++) {
 		if(TT_(DP(stmt)->terms[i]) == TT_NULL) {
-			knh_Gamma_perror(ctx, KERR_ERR,
-				_("undefined behavior for null"));
+			knh_Gamma_perror(ctx, KERR_ERR, _("undefined behavior for null"));
 			return NULL;
 		}
 	}
@@ -2591,7 +2576,7 @@ static int TERMs_typing(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_type_t reqt, k
 	knh_Stmt_toERR(ctx, stmt, NULL);
 
 	L_RETURN:;
-	DP(ctx->gma)->flag = flag;
+	DP(ctx->gma)->flag |= flag;
 	return res;
 }
 
@@ -2671,48 +2656,78 @@ static knh_Token_t *TERMs_it(Ctx *ctx, knh_Stmt_t *stmt, size_t n, knh_type_t ty
 	return tkIT;
 }
 
-static knh_Term_t *knh_StmtSWITCH_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
+
+static knh_Stmt_t* new_StmtCASE(Ctx *ctx, knh_Token_t *tkIT, knh_Token_t *tkC)
 {
-	BEGIN_BLOCK(esp);
-	knh_Stmt_t *stmtCASE, *stmtDEFAULT = NULL;
-	knh_Token_t *tkIT = TERMs_it(ctx, stmt, 2/*IT*/, TYPE_Any);
-	int c = 0;
-	TYPING(ctx, stmt, 0, TYPE_Any, _NOTCHECK);
-	stmtCASE = DP(stmt)->stmts[1];
-	while(stmtCASE != NULL) {
-		if(SP(stmtCASE)->stt == STT_CASE) {
-			knh_Stmt_setESPIDX(ctx, stmtCASE);
-			if(TERMs_isASIS(stmtCASE, 0)) {
-				if(stmtDEFAULT != NULL) {
-					knh_Gamma_perror(ctx, KERR_EWARN, _("multiple default in switch"));
-					knh_Stmt_done(ctx, stmtCASE);
-					goto L_NEXT;
-				}
-				stmtDEFAULT = stmtCASE;
-				goto L_STMT;
-			}
-			else if(!TERMs_typing(ctx, stmtCASE, 0, TYPE_Any, _NOTCHECK)) {
-				knh_Stmt_done(ctx, stmtCASE);
-				goto L_NEXT;
-			}
-			{
-				knh_Stmt_t *stmtOP = new_Stmt2(ctx, STT_CALL, new_TokenMN(ctx, MN_opCASE), DP(stmtCASE)->terms[0], tkIT, NULL);
-				KNH_SETv(ctx, DP(stmtCASE)->terms[0], stmtOP);
-				if(!TERMs_typing(ctx, stmtCASE, 0, TYPE_Boolean, _NOTCAST)) {
-					knh_Stmt_done(ctx, stmtCASE);
-					goto L_NEXT;
-				}
-			}
-			L_STMT:;
-			TYPING_STMTs(ctx, stmtCASE, 1, reqt);
-			c++;
-		}
-		L_NEXT:;
-		stmtCASE = DP(stmtCASE)->nextNULL;
+	knh_type_t switch_type = (tkIT)->type;
+	knh_type_t case_type = (tkC)->type;
+	knh_methodn_t mn = MN_opEQ;
+	DBG_P("switch_type=%s, case_type=%s", TYPE__(switch_type), TYPE__(case_type));
+	if(case_type == CLASS_Class) {  // case Object:
+		mn = MN_opOF;
 	}
-	END_BLOCK(esp);
-	if(c == 0) {
-		return knh_Stmt_done(ctx, stmt);
+	if(switch_type == CLASS_String && case_type == CLASS_Regex) {  // case /s/:
+		mn = MN_opHAS;
+	}
+	return new_Stmt2(ctx, STT_OP, new_TokenMN(ctx, mn), tkIT, tkC, NULL);
+}
+
+static knh_Term_t* knh_StmtSWITCH_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t reqt)
+{
+	TYPING(ctx, stmt, 0, TYPE_Any, _NOTCHECK);
+	if(TT_(DP(stmt)->tokens[0]) == TT_LOCAL) {
+		KNH_SETv(ctx, DP(stmt)->tokens[2], DP(stmt)->tokens[0]);
+	}
+	{
+		BEGIN_BLOCK(esp);
+		knh_type_t type = TERMs_gettype(stmt, 0);
+		knh_Token_t *tkIT = TERMs_it(ctx, stmt, 2/*IT*/, type);
+		int c = 0;
+		knh_Stmt_t *stmtCASE, *stmtDEFAULT = NULL;
+		stmtCASE = DP(stmt)->stmts[1];
+		while(stmtCASE != NULL) {
+			if(SP(stmtCASE)->stt == STT_CASE) {
+				knh_Stmt_setESPIDX(ctx, stmtCASE);
+				if(TERMs_isASIS(stmtCASE, 0)) {
+					if(stmtDEFAULT != NULL) {
+						knh_Gamma_perror(ctx, KERR_EWARN, _("multiple default in switch"));
+						knh_Stmt_done(ctx, stmtCASE);
+						goto L_NEXT;
+					}
+					stmtDEFAULT = stmtCASE;
+					goto L_STMT;
+				}
+				else if(!TERMs_typing(ctx, stmtCASE, 0, type, _NOTCHECK)) {
+					knh_Stmt_done(ctx, stmtCASE);
+					goto L_NEXT;
+				}
+				if(TERMs_isCONST(stmtCASE, 0)) {
+					knh_Stmt_t *stmtOP = new_StmtCASE(ctx, tkIT, DP(stmtCASE)->tokens[0]);
+					KNH_SETv(ctx, DP(stmtCASE)->terms[0], stmtOP);
+					if(!TERMs_typing(ctx, stmtCASE, 0, TYPE_Boolean, _NOTCAST)) {
+						knh_Stmt_done(ctx, stmtCASE);
+						goto L_NEXT;
+					}
+
+				}
+				else {
+					knh_Gamma_perror(ctx, KERR_DWARN, _("case takes a constant value"));
+					knh_Stmt_done(ctx, stmtCASE);
+					goto L_NEXT;
+				}
+//				if(TERMs_isCONST(stmtCASE, 0)){
+//				}
+				L_STMT:;
+				TYPING_STMTs(ctx, stmtCASE, 1, reqt);
+				c++;
+			}
+			L_NEXT:;
+			stmtCASE = DP(stmtCASE)->nextNULL;
+		}
+		if(c == 0) {
+			return knh_Stmt_done(ctx, stmt);
+		}
+		END_BLOCK(esp);
 	}
 	return TM(stmt);
 }
@@ -3215,6 +3230,9 @@ static knh_Term_t* knh_StmtMETHOD_typing(Ctx *ctx, knh_Stmt_t *stmt, knh_type_t 
 						DP(mtd)->cid, mn, ClassTBL(DP(mtd)->cid).supcid, mn);
 				return NULL;
 			}
+			mtd = new_Method(ctx, flag, mtd_cid, mn, NULL);
+			KNH_SETv(ctx, DP(mtd)->mp, mp);
+			knh_Class_addMethod(ctx, mtd_cid, mtd);
 		}
 		if(!knh_StmtMETA_is(ctx, stmt, STEXT("Override")) &&
 				!knh_Method_isAbstract(mtd) && DP(mtd)->mn != MN_main) {

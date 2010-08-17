@@ -611,6 +611,8 @@ LIBTHREAD
 WITH_THREAD_01
 LIBSQLITE3
 LIBOBJS
+AM_BACKSLASH
+AM_DEFAULT_VERBOSITY
 CPP
 OTOOL64
 OTOOL
@@ -727,6 +729,7 @@ with_pic
 enable_fast_install
 with_gnu_ld
 enable_libtool_lock
+enable_silent_rules
 enable_rcgc
 enable_debug
 enable_int32
@@ -1369,6 +1372,8 @@ Optional Features:
   --enable-fast-install[=PKGS]
                           optimize for fast installation [default=yes]
   --disable-libtool-lock  avoid locking (might break parallel builds)
+  --enable-silent-rules          less verbose build output (undo: `make V=1')
+  --disable-silent-rules         verbose build output (undo: `make V=0')
   --enable-rcgc           referencing counting mode [[default=no]]
   --enable-debug          debug mode [[default=no]]
   --enable-int32          int32 mode [[default=no]]
@@ -10895,6 +10900,19 @@ CC="$lt_save_CC"
 
 # Only expand once:
 
+
+
+# Check whether --enable-silent-rules was given.
+if test "${enable_silent_rules+set}" = set; then :
+  enableval=$enable_silent_rules;
+fi
+
+case $enable_silent_rules in
+yes) AM_DEFAULT_VERBOSITY=0;;
+no)  AM_DEFAULT_VERBOSITY=1;;
+*)   AM_DEFAULT_VERBOSITY=0;;
+esac
+AM_BACKSLASH='\'
 
 
 # Checks for libraries.

@@ -8,7 +8,7 @@ from pygenlib2 import *
 INSTRUCTIONS = """
 # level 0 instruction 
 HALT      @0
-THCODE  th:f @0
+THCODE    th:f @0
 FUNCCALL  @0
 ENTER     @0
 #ENTER2    @0
@@ -142,6 +142,11 @@ NGETIDX    c:sfpidx a:sfpidx n:sfpidx
 NSETIDX    c:sfpidx a:sfpidx v:sfpidx n:sfpidx
 NGETIDXn   c:sfpidx a:sfpidx n:u
 NSETIDXn   c:sfpidx a:sfpidx v:sfpidx n:u
+
+BGETIDX    c:sfpidx a:sfpidx n:sfpidx
+BSETIDX    c:sfpidx a:sfpidx v:sfpidx n:sfpidx
+BGETIDXn   c:sfpidx a:sfpidx n:u
+BSETIDXn   c:sfpidx a:sfpidx v:sfpidx n:u
 
 # level 3 instruction
 

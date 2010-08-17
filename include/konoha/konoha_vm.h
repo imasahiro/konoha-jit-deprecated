@@ -364,17 +364,16 @@ typedef knh_Method_t* (*klr_Fmethod)(Ctx *, knh_sfp_t *, int, knh_Method_t*);
 		pc = NULL; goto L_RETURN;\
 	}\
 
-typedef void (*klr_Fth)(Ctx *ctx, knh_opline_t *pc, void**, void**);
 #define KLR0_THCODE_OLD(ctx, th) { \
-		th(ctx, pc, OPJUMP, NULL); \
+		knh_code_thread(ctx, pc-1, OPJUMP); \
 		goto L_RETURN; \
 	}\
 
+typedef void (*klr_Fth)(Ctx *ctx, knh_opline_t *pc, void**, void**);
 #define KLR0_THCODE(ctx, th) { \
 		th(ctx, pc, OPJUMP, OPJUMP_E); \
 		goto L_RETURN; \
 	}\
-
 
 /* ------------------------------------------------------------------------- */
 
@@ -666,16 +665,16 @@ typedef void (*klr_Fprobe)(Ctx *, knh_sfp_t*, knh_sfpidx_t n, knh_opline_t *pc);
 	if(unlikely(n >= size)) SYSLOG_OutOfIndex(ctx, sfp, n, size)
 
 #define KLR_BGETIDXn(ctx, cidx, aidx, N) {\
-		knh_bytes_t *b_ = BA_tobytes(sfp[aidx].ba);\
+		knh_bytes_t b_ = BA_tobytes(sfp[aidx].ba);\
 		size_t n_ = klr_array_index(ctx, N, b_.len);\
 		klr_array_check(n_, b_.len);\
-		sfp[cidx].ivalue = b_.ustr(n_);\
+		sfp[cidx].ivalue = b_.ustr[n_];\
 	}\
 
 #define KLR_BGETIDX(ctx, cidx, aidx, nidx) KLR_BGETIDXn(ctx, cidx, aidx, sfp[nidx].ivalue)
 
 #define KLR_BSETIDXn(ctx, cidx, aidx, N, vidx) {\
-		knh_bytes_t *b_ = BA_tobytes(sfp[aidx].ba);\
+		knh_bytes_t b_ = BA_tobytes(sfp[aidx].ba);\
 		size_t n_ = klr_array_index(ctx, N, b_.len);\
 		klr_array_check(n_, b_.len);\
 		b_.ubuf[b_.len] = (knh_uchar_t)sfp[vidx].ivalue;\

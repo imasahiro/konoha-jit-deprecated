@@ -132,8 +132,8 @@ static struct mem {
 	void *block;
 	size_t size;
 	size_t pos;
-} memblock[10] = {0};
-static int _index = 0;
+} memblock[10] = {};
+//static int _index = 0;
 static int _cur = 0;
 
 #define ONE_MB (1024 * 1024)
@@ -153,7 +153,7 @@ void *knh_xmalloc(Ctx *ctx, size_t size)
 			TODO();
 			exit(1);
 		}
-		block = memblock[_cur].block + memblock[_cur].pos;
+		block = (void*)((intptr_t)memblock[_cur].block + memblock[_cur].pos);
 		memblock[_cur].pos += size;
 		DBG_P("block=%p & size=%zd",block, size);
 	}

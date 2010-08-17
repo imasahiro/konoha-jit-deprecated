@@ -239,6 +239,19 @@ static int knh_bytes_parsefloat(knh_bytes_t t, knh_float_t *value)
 }
 #endif
 
+
+#if defined(USE_hash)
+static knh_hashcode_t knh_hash(knh_hashcode_t h, const char *p, size_t len)
+{
+	// TODO: Looking for good hash http://burtleburtle.net/bob/hash/doobs.html
+	size_t i;
+	for(i = 0; i < len; i++) {
+		h = p[i] + 31 * h;
+	}
+	return h;
+}
+#endif
+
 /* ------------------------------------------------------------------------ */
 /* [cwb] */
 

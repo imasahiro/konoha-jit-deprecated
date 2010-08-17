@@ -52,6 +52,12 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = config.h
 CONFIG_CLEAN_FILES = konoha.pc
 CONFIG_CLEAN_VPATH_FILES =
+AM_V_GEN = $(am__v_GEN_$(V))
+am__v_GEN_ = $(am__v_GEN_$(AM_DEFAULT_VERBOSITY))
+am__v_GEN_0 = @echo "  GEN   " $@;
+AM_V_at = $(am__v_at_$(V))
+am__v_at_ = $(am__v_at_$(AM_DEFAULT_VERBOSITY))
+am__v_at_0 = @
 SOURCES =
 DIST_SOURCES =
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
@@ -107,6 +113,7 @@ distuninstallcheck_listfiles = find . -type f -print
 distcleancheck_listfiles = find . -type f -print
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
+AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
 AR = @AR@
 AS = @AS@
 AUTOCONF = @AUTOCONF@
@@ -722,15 +729,31 @@ uninstall-am:
 	ps ps-am tags tags-recursive uninstall uninstall-am
 
 
-debug:
-	-rm -f ./debug/
-	cp -rf ./src/  ./debug
-	$(CC) -O0 -Wall -g3  ./debug/*/*.c ./debug/konoha.c \
-		-DHAVE_CONFIG_H -I. -I.. -I./include -o ./debug/konoha \
-	$(AM_LDFLAGS) $(LDFLAGS) $(LIBS)
-
 test: ./build/konoha
-	konoha ./test/run.k ./build/konoha ./test/
+	./build/konoha -t \
+		./ktest/class/array_F.ktest       \
+		./ktest/class/boolean.ktest       \
+		./ktest/class/float.ktest         \
+		./ktest/class/int.ktest           \
+		./ktest/class/stream.ktest        \
+		./ktest/class/system.ktest        \
+		./ktest/class/connection.ktest    \
+		./ktest/class/string.ktest        \
+		./ktest/statement/auxiliary.ktest \
+		./ktest/statement/for.ktest       \
+		./ktest/statement/if.ktest        \
+		./ktest/statement/while.ktest
+	./build/konoha -t \
+		./ktest/path/file.ktest           \
+		./ktest/path/dir.ktest            \
+		./ktest/path/lib.ktest            \
+		./ktest/path/script.ktest         \
+		./ktest/path/charset.ktest        \
+		./ktest/path/class.ktest
+
+	./build/konoha -t ./ktest/class/array_I.ktest
+	./build/konoha -t ./ktest/class/array_S.ktest
+	./build/konoha -t ./ktest/class/object.ktest
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

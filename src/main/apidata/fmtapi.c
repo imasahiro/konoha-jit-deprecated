@@ -905,7 +905,6 @@ static METHOD Exception__dump(Ctx *ctx, knh_sfp_t *sfp, long rix)
 //	case MN_opTO:    return "x[m to n]";
 //	case MN_opUNTIL: return "x[m until n]";
 //	case MN_opEXPAND:          return "a,b = x";
-//	case MN_opCASE :      return "x =~ y";
 //	}
 //	return NULL;
 //}

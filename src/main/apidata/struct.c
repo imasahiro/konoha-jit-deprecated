@@ -473,27 +473,19 @@ static void knh_String_free(Ctx *ctx, knh_Object_t *o)
 	}
 }
 
-//static int knh_String_compareTo(Ctx *ctx, knh_Object_t *o, knh_Object_t *o2)
-//{
-//	knh_String_t *s1 = (knh_String_t*)o;
-//	knh_String_t *s2 = (knh_String_t*)o2;
-//#if defined(K_USING_SEMANTICS)
-//	if(s1->h.cid == CLASS_String || s2->h.cid == CLASS_String) {
-//		size_t max = KNH_MAX(S_size(s1), S_size(s2));
-//		return knh_strncmp(S_tochar(s1) ,S_tochar(s2), max);
-//	}
-//	else {
-//		if(s1->h.cid == s2->h.cid) {
-//			knh_Semantics_t *u = knh_getSemantics(ctx, s1->h.cid);
-//			return DP(u)->fscmp(u, S_tobytes(s1), S_tobytes(s2));
-//		}
-//		return (int)(s1 - s2);
-//	}
-//#else
-//	size_t max = KNH_MAX(S_size(s1), S_size(s2));
-//	return knh_strncmp(S_tochar(s1) ,S_tochar(s2), max);
-//#endif
-//}
+static int knh_String_compareTo(Ctx *ctx, knh_Object_t *o, knh_Object_t *o2)
+{
+	knh_String_t *s1 = (knh_String_t*)o;
+	knh_String_t *s2 = (knh_String_t*)o2;
+#if defined(K_USING_SEMANTICS)
+	if(s1->h.cid != CLASS_String && s2->h.cid != CLASS_String) {
+		knh_Semantics_t *u = knh_getSemantics(ctx, s1->h.cid);
+		return DP(u)->fscmp(u, S_tobytes(s1), S_tobytes(s2));
+	}
+#else
+	return knh_bytes_strcmp(S_tobytes(s1) ,S_tobytes(s2));
+#endif
+}
 
 //static void* knh_String_hashkey(Ctx *ctx, knh_sfp_t *sfp, int opt)
 //{
@@ -511,7 +503,7 @@ static knh_ObjectSPI_t StringSPI = {
 	"String", 0, CFLAG_String,
 	knh_String_init, DEFAULT_initcopy,
 	knh_String_traverse, knh_String_free,
-	DEFAULT_compareTo,
+	knh_String_compareTo,
 	DEFAULT_getkey, DEFAULT_hashCode,
 	DEFAULT_findTransNULL,
 	DEFAULT_checkin, DEFAULT_checkout,
@@ -2321,7 +2313,6 @@ static void knh_setDefaultValues(Ctx *ctx)
 #endif
 	// load file/Channel/regex/db drivers
 	knh_loadDriver(ctx);
-//	knh_loadDefaultChannelDriver(ctx);
 	knh_setClassDefaultValue(ctx, CLASS_Context, KNH_NULL, knh_Context_fdefault);
 	knh_setClassDefaultValue(ctx, CLASS_NameSpace, KNH_NULL, knh_NameSpace_fdefault);
 	knh_setClassDefaultValue(ctx, CLASS_System, UPCAST(ctx->sys), NULL);
@@ -2348,19 +2339,12 @@ static void knh_loadFieldNameData0(Ctx *ctx, knh_FieldNameData0_t *data)
 static knh_IntData_t IntConstData0[] = {
 	{"Int.MAX", K_INT_MAX},
 	{"Int.MIN", K_INT_MIN},
-//	{"Method.NOTRACE", KNH_NOTRACE},
-//	{"Method.SECURITY", KNH_SECURITYTRACE},
-//	{"Method.AUDIT", KNH_AUDITTRACE},
-//	{"Method.PROFILE", KNH_PROFILER},
-//	{"Method.STACK", KNH_STACKTRACE},
-//	{"Method.FUNCTION", KNH_FUNCTIONTRACE},
 	{NULL, 0}
 };
 
 static knh_FloatData_t FloatConstData0[] = {
 	{"Float.MAX", K_FLOAT_MAX},
 	{"Float.MIN", K_FLOAT_MIN},
-
 	{NULL, K_FLOAT_ZERO}
 };
 
@@ -2376,8 +2360,8 @@ static knh_data_t CParamData0[] = {
 	DATA_CPARAM, CLASS_Tuple, 1, 0, TYPE_Any, FN_V,
 	DATA_CPARAM, CLASS_Range, 1, 0, TYPE_Any, FN_V,
 	DATA_CPARAM, CLASS_Array, 1, 0, TYPE_Any, FN_V,
-	DATA_CPARAM, CLASS_Map, 2, 0, TYPE_Any, FN_K, TYPE_Any, FN_V,
-	DATA_CPARAM, CLASS_Func, 1, 1, TYPE_Any, FN_P, TYPE_Any, FN_V,
+	DATA_CPARAM, CLASS_Map, 2, 0, TYPE_String, FN_K, TYPE_Any, FN_V,
+	DATA_CPARAM, CLASS_Func, 0, 0,
 	0,
 };
 
@@ -2407,6 +2391,7 @@ void knh_loadSystemData(Ctx *ctx, const knh_PackageLoaderAPI_t *kapi)
 	kapi->loadStringData(ctx, StringConstData0);
 	knh_getURI(ctx, STEXT("(eval)"));  // URI_EVAL
 	knh_setDefaultValues(ctx);
+	knh_loadDefaultMapDSPI(ctx);
 }
 
 void knh_loadSystemMethod(Ctx *ctx, const knh_PackageLoaderAPI_t *kapi)

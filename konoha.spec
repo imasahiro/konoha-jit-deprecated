@@ -16,24 +16,16 @@ Release:        %{release}
 License:        LGPL
 Group:          Development/Languages
 URL:            http://konoha.sourceforge.jp/
-Source0:        http://haskell.org/ghc/dist/%{version}/ghc-%{version}-src.tar.bz2
-Source1:        http://haskell.org/ghc/dist/%{version}/ghc-%{version}-src-extralibs.tar.bz2
-Packager:       Masahiro Ide <imasahiro@>
+Source0:        http://sourceforge.jp/projects/konoha/downloads/40309/konoha-%{version}.tar.gz
+Packager:       Masahiro Ide <imasahiro@gmail.com>
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 PreReq:         update-alternatives
 Requires:       readline
-Provides:       haskell
 Summary:        konoha - a newly designed object-oriented scripting language
-
 %description
 Konoha is a newly designed object-oriented scripting language, providing hybrid 
 type system for static/dynamic typing, mappable class, and various experimental
 features.
-
-Haskell is the standard lazy purely functional programming language.
-The current language version is Haskell 98, agreed in December 1998,
-with a revised version published in January 2003.
-
 %prep
 %setup
 
