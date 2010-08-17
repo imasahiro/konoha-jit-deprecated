@@ -64,7 +64,11 @@
 #endif
 
 #define UPDATE_HOST "konoha.sourceforge.jp"
-#define UPDATE_PATH "/cgi-bin/security-alert/server?dist=%s&ver=%s&arch=%s(%s)&rev=%d&clock=%u&mem=%u&ncpu=%d"
+#ifdef K_PREVIEW
+#define UPDATE_PATH "/cgi-bin/security-alert/server?dist=%s&ver=%s&arch=%s(%s)&rev=%d&clock=%u&mem=%u&ncpu=%d&prev=yes"
+#else
+#define UPDATE_PATH "/cgi-bin/security-alert/server?dist=%s&ver=%s&arch=%s(%s)&rev=%d&clock=%u&mem=%u&ncpu=%d&prev=no"
+#endif
 #define PORT 80
 #define BUF_LEN 512
 
