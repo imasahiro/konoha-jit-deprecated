@@ -51,41 +51,43 @@ static void add_nops(void *insns, unsigned int len)
         len -= noplen;
     }
 }
+
 static int canJIT[] = {
-    0 /*HALT*/, 0 /*THCODE*/, 1 /*FUNCCALL*/, 1 /*ENTER*/,
-    1 /*PROBE*/, 1 /*VEXEC*/, 0 /*YEILD*/, 0 /*EXIT*/,
-    1 /*P*/, 1 /*OSET*/, 1 /*NSET*/, 1 /*OMOV*/,
-    1 /*NMOV*/, 1 /*SWAP*/, 0 /*UNBOX*/, 0 /*ONMOV*/,
-    0 /*OOMOV*/, 0 /*NNMOV*/, 0 /*OMOVx*/, 1 /*iMOVx*/,
-    1 /*fMOVx*/, 1 /*bMOVx*/, 0 /*XMOV*/, 0 /*XMOVx*/,
-    0 /*XOSET*/, 1 /*XIMOV*/, 0 /*XFMOV*/, 0 /*XBMOV*/,
-    0 /*CHKSTACK*/, 0 /*LOADMTD*/, 0 /*CALL*/, 1 /*SCALL*/,
-    1 /*VCALL*/, 1 /*VCALL_*/, 0 /*FASTCALL*/, 1 /*RET*/,
-    1 /*SCAST*/, 1 /*TCAST*/, 1 /*ACAST*/, 1 /*iCAST*/,
-    1 /*fCAST*/, 1 /*TR*/, 0 /*NUL*/, 1 /*JMP*/,
-    0 /*JMP2*/, 1 /*JMP_*/, 0 /*JMPF*/, 0 /*DYJMP*/,
-    0 /*NEXT*/, 0 /*TRY*/, 0 /*TRYEND*/, 0 /*THROW*/,
-    0 /*CATCH*/, 0 /*bNOT*/, 1 /*iINC*/, 1 /*iDEC*/,
-    1 /*iNEG*/, 1 /*iADD*/, 1 /*iSUB*/, 1 /*iMUL*/,
-    1 /*iDIV*/, 1 /*iMOD*/, 1 /*iEQ*/, 1 /*iNEQ*/,
-    1 /*iLT*/, 1 /*iLTE*/, 1 /*iGT*/, 1 /*iGTE*/,
-    1 /*iADDn*/, 1 /*iSUBn*/, 1 /*iMULn*/, 1 /*iDIVn*/,
-    1 /*iMODn*/, 1 /*iEQn*/, 1 /*iNEQn*/, 1 /*iLTn*/,
-    1 /*iLTEn*/, 1 /*iGTn*/, 1 /*iGTEn*/, 1 /*fNEG*/,
-    1 /*fADD*/, 1 /*fSUB*/, 1 /*fMUL*/, 1 /*fDIV*/,
-    1 /*fEQ*/, 1 /*fNEQ*/, 1 /*fLT*/, 1 /*fLTE*/,
-    1 /*fGT*/, 1 /*fGTE*/, 1 /*fADDn*/, 1 /*fSUBn*/,
-    1 /*fMULn*/, 1 /*fDIVn*/, 1 /*fEQn*/, 1 /*fNEQn*/,
-    1 /*fLTn*/, 1 /*fLTEn*/, 1 /*fGTn*/, 1 /*fGTEn*/,
-    0 /*OGETIDX*/, 0 /*OSETIDX*/, 0 /*OGETIDXn*/, 0 /*OSETIDXn*/,
-    1 /*NGETIDX*/, 1 /*NSETIDX*/, 1 /*NGETIDXn*/, 1 /*NSETIDXn*/,
-    1 /*bJNOT*/, 1 /*iJEQ*/, 1 /*iJNEQ*/, 1 /*iJLT*/,
-    1 /*iJLTE*/, 1 /*iJGT*/, 1 /*iJGTE*/, 1 /*iJEQn*/,
-    1 /*iJNEQn*/, 1 /*iJLTn*/, 1 /*iJLTEn*/, 1 /*iJGTn*/,
-    1 /*iJGTEn*/, 1 /*fJEQ*/,  1 /*fJNEQ*/,  1 /*fJLT*/,
-    1 /*fJLTE*/ , 1 /*fJGT*/,  1 /*fJGTE*/,  1 /*fJEQn*/,
-    1 /*fJNEQn*/, 1 /*fJLTn*/, 1 /*fJLTEn*/, 1 /*fJGTn*/,
-    1 /*fJGTEn*/, 0 /*NOP*/,
+    0 /*HALT*/ , 0 /*THCODE*/, 1 /*FUNCCALL*/, 1 /*ENTER*/, 
+    1 /*PROBE*/, 0 /*VEXEC*/ , 1 /*YEILD*/   , 0 /*EXIT*/, 
+    1 /*P*/    , 0 /*OSET*/  , 1 /*NSET*/    , 1 /*OMOV*/, 
+    1 /*NMOV*/ , 1 /*SWAP*/  , 1 /*UNBOX*/   , 1 /*ONMOV*/, 
+    1 /*OOMOV*/, 1 /*NNMOV*/ , 1 /*OMOVx*/   , 1 /*iMOVx*/, 
+    1 /*fMOVx*/, 1 /*bMOVx*/ , 1 /*XMOV*/    , 1 /*XMOVx*/, 
+    1 /*XOSET*/, 1 /*XIMOV*/ , 1 /*XFMOV*/   , 1 /*XBMOV*/, 
+    1 /*CHKSTACK*/, 0 /*LOADMTD*/, 0 /*CALL*/, 1 /*SCALL*/, 
+    1 /*VCALL*/, 1 /*VCALL_*/, 1 /*FASTCALL*/, 1 /*RET*/, 
+    1 /*SCAST*/, 1 /*TCAST*/ , 1 /*ACAST*/   , 1 /*iCAST*/, 
+    1 /*fCAST*/, 1 /*TR*/    , 1 /*NUL*/     , 1 /*JMP*/, 
+    0 /*JMP2*/ , 1 /*JMP_*/  , 1 /*JMPF*/    , 0 /*DYJMP*/, 
+    0 /*NEXT*/ , 0 /*TRY*/   , 0 /*TRYEND*/  , 1 /*THROW*/, 
+    0 /*CATCH*/, 1 /*bNOT*/  , 1 /*iINC*/    , 1 /*iDEC*/, 
+    1 /*iNEG*/ , 1 /*iADD*/  , 1 /*iSUB*/    , 1 /*iMUL*/, 
+    1 /*iDIV*/ , 1 /*iMOD*/  , 1 /*iEQ*/     , 1 /*iNEQ*/, 
+    1 /*iLT*/  , 1 /*iLTE*/  , 1 /*iGT*/     , 1 /*iGTE*/, 
+    1 /*iADDn*/, 1 /*iSUBn*/ , 1 /*iMULn*/   , 1 /*iDIVn*/, 
+    1 /*iMODn*/, 1 /*iEQn*/  , 1 /*iNEQn*/   , 1 /*iLTn*/, 
+    1 /*iLTEn*/, 1 /*iGTn*/  , 1 /*iGTEn*/   , 1 /*fNEG*/, 
+    1 /*fADD*/ , 1 /*fSUB*/  , 1 /*fMUL*/    , 1 /*fDIV*/, 
+    1 /*fEQ*/  , 1 /*fNEQ*/  , 1 /*fLT*/     , 1 /*fLTE*/, 
+    1 /*fGT*/  , 1 /*fGTE*/  , 1 /*fADDn*/   , 1 /*fSUBn*/, 
+    1 /*fMULn*/, 1 /*fDIVn*/ , 1 /*fEQn*/    , 1 /*fNEQn*/, 
+    1 /*fLTn*/ , 1 /*fLTEn*/ , 1 /*fGTn*/    , 1 /*fGTEn*/, 
+    0 /*OGETIDX*/, 0 /*OSETIDX*/, 0 /*OGETIDXn*/, 0 /*OSETIDXn*/, 
+    1 /*NGETIDX*/, 1 /*NSETIDX*/, 0 /*NGETIDXn*/, 0 /*NSETIDXn*/, 
+    0 /*BGETIDX*/, 0 /*BSETIDX*/, 0 /*BGETIDXn*/, 0 /*BSETIDXn*/, 
+    1 /*bJNOT*/  , 1 /*iJEQ*/   , 1 /*iJNEQ*/   , 1 /*iJLT*/, 
+    1 /*iJLTE*/  , 1 /*iJGT*/   , 1 /*iJGTE*/   , 1 /*iJEQn*/, 
+    1 /*iJNEQn*/ , 1 /*iJLTn*/  , 1 /*iJLTEn*/  , 1 /*iJGTn*/, 
+    1 /*iJGTEn*/ , 1 /*fJEQ*/   , 1 /*fJNEQ*/   , 1 /*fJLT*/, 
+    1 /*fJLTE*/  , 1 /*fJGT*/   , 1 /*fJGTE*/   , 1 /*fJEQn*/, 
+    1 /*fJNEQn*/ , 1 /*fJLTn*/  , 1 /*fJLTEn*/  , 1 /*fJGTn*/, 
+    1 /*fJGTEn*/ , 1 /*NOP*/, 
 };
 
 
@@ -250,6 +252,7 @@ static int fix_code_template(unsigned char *code, knh_intptr_t *size)
     }
     if (need_rewrite == 0) {
         fprintf(stderr, "??????????????????\n");
+        jit_dump(code, 0x40);
         asm volatile("int3");
     }
     return need_rewrite;
@@ -265,15 +268,18 @@ static knh_intptr_t knh_jit_write(Ctx *ctx, knh_cwb_t *cwb, knh_opcode_t op, voi
     knh_intptr_t size = end - start;
     DBG_P("%s %p - %p, %d", knh_opcode_tochar(op),
             start, end, size);
-    if (size > 0x100) {
-        DBG_P("****warn template is too big!!! %s %p %d", knh_opcode_tochar(op), start, size);
-    }
     if (op == OPCODE_JMP || op == OPCODE_JMP2) {
         unsigned char *jmp_target = NULL;
         size = get_target_template(start, &jmp_target);
         //fprintf(stderr, "**regenerate template!!! %s %p %d\n", knh_opcode_tochar(op), start, size);
 
     }
+    if (size > 0x100) {
+        DBG_P("****warn template is too big!!! %s %p %d", knh_opcode_tochar(op), start, size);
+        jit_dump(start, 0x100);
+        asm volatile("int3");
+    }
+
     if (size < 0) {
         DBG_P("%s(%d)", knh_opcode_tochar(op), op);
         need_rewrite = fix_code_template(start, &size);
@@ -358,6 +364,7 @@ L_TRUE:
         } else {
             knh_intptr_t size = knh_jit_write(ctx, cwb, pc->opcode, codeaddr, codeend);
             pc->codeaddr = toaddr(curpos);
+            DBG_(jit_dump(codeaddr[pc->opcode], size););
             curpos += size;
         }
         if(pc->opcode == OPCODE_RET) break;
