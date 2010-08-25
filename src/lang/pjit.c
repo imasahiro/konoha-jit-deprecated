@@ -100,6 +100,8 @@ typedef knh_BasicBlock_t bb_t;
 #define PCODE_ADDRM (OPCODE_MAX + 23)
 #define PCODE_ADDRN (OPCODE_MAX + 24)
 #define PCODE_ADDMM (OPCODE_MAX + 25)
+#define PCODE_SUBRN (OPCODE_MAX + 26)
+#define PCODE_SUBMM (OPCODE_MAX + 27)
 struct pcode_data {
     int opcode;
     const char *name;
@@ -115,6 +117,7 @@ struct pcode_data {
 #define PTYPE_SFP  8
 #define PTYPE_FUNC 9
 #define PTYPE_IDX  10
+#define PTYPE_SELF 11
 #define NOP  PTYPE_NOP
 #define REG  PTYPE_REG
 #define OBJ  PTYPE_OBJ
@@ -126,6 +129,7 @@ struct pcode_data {
 #define SFP  PTYPE_SFP
 #define FUNC PTYPE_FUNC
 #define IDX  PTYPE_IDX
+#define SELF PTYPE_SELF
 
 } PCODEDATA[] = {
     // init
@@ -180,11 +184,21 @@ struct pcode_data {
     {PCODE_ADDRN, "add_rn", {PTYPE_REG, PTYPE_DATA}},
     // add memory data to memory data
     {PCODE_ADDMM, "add_mm", {PTYPE_NDAT, PTYPE_NDAT}},
+    // sub ndata to r1
+    {PCODE_ADDRN, "sub_rn", {PTYPE_REG, PTYPE_DATA}},
+    // sub memory data to memory data
+    {PCODE_ADDMM, "sub_mm", {PTYPE_NDAT, PTYPE_NDAT}},
+
 };
 #define RSFP r14
 #define RCTX r15
 
+#define PJIT_RELOCATION_SYMBOL 0x0abadc0de /* a bad code! must rewrite it. */
+#define PJIT_RELOCATION_SYMBOL_FUNC 0x1abadc0de /* a bad code! must rewrite it. */
+#define PJIT_RELOCATION_SYMBOL_SELF 0x2abadc0de /* a bad code! must rewrite it. */
+
 static void pcode_dump(pcode_t *op);
+static void pjit_addRelocationCode(struct pjit *pjit, size_t size, int type, knh_uintptr_t target);
 #define _dump(op)  if(pjit->state == PJIT_EMIT) { pcode_dump(op); }
 //#define pcode_setline(op, pjit) if(pjit->state == PJIT_INIT) { op->pos = pjit->cur_pos; } fprintf(stderr, "op[%x] ", op->pos); pcode_dump(op);
 #define pcode_setline(op, pjit) if(pjit->state == PJIT_INIT) { op->pos = pjit->cur_pos; }
@@ -361,15 +375,19 @@ static void pasm_jump(struct pjit *pjit, pcode_t *op)
     jump(pjit, bb, 0);
     _dump(op);
 }
-
 static void pasm_call(struct pjit *pjit, pcode_t *op)
 {
     knh_intptr_t func = op->a.data;
+    knh_intptr_t flag = op->b.data;
     pcode_setline(op, pjit);
     movi(pjit, PREG0, func);
-    //int_(pjit);
+    if (flag == PJIT_RELOCATION_SYMBOL_FUNC && pjit->state == PJIT_EMIT) {
+        pjit_addRelocationCode(pjit, sizeof(void*), FUNC, func);
+    }
+    else if (flag == PJIT_RELOCATION_SYMBOL_SELF && pjit->state == PJIT_EMIT) {
+        pjit_addRelocationCode(pjit, sizeof(void*), SELF, 0);
+    }
     call_r(pjit);
-    //int_(pjit);
     _dump(op);
 }
 
@@ -431,7 +449,7 @@ static void pasm_add_rr(struct pjit *pjit, pcode_t *op)
     reg_t r1 = op->a.reg;
     reg_t r2 = op->b.reg;
     pcode_setline(op, pjit);
-    add(pjit, r1, r2);
+    addr(pjit, r1, r2);
     _dump(op);
 }
 
@@ -457,7 +475,21 @@ static void pasm_add_mm(struct pjit *pjit, pcode_t *op)
     TODO();
     _dump(op);
 }
+static void pasm_sub_rn(struct pjit *pjit, pcode_t *op)
+{
+    reg_t r1 = op->a.reg;
+    knh_int_t data = op->b.data;
+    pcode_setline(op, pjit);
+    subi(pjit, data, r1);
+    _dump(op);
+}
 
+static void pasm_sub_mm(struct pjit *pjit, pcode_t *op)
+{
+    pcode_setline(op, pjit);
+    TODO();
+    _dump(op);
+}
 typedef void (*pemit_t)(struct pjit *, pcode_t *);
 static const pemit_t PCODE_EMIT[] = {
     pasm_init,
@@ -486,6 +518,8 @@ static const pemit_t PCODE_EMIT[] = {
     pasm_add_rm,
     pasm_add_rn,
     pasm_add_mm,
+    pasm_sub_rn,
+    pasm_sub_mm,
 };
 #define EMIT(pjit, op) PCODE_EMIT[opcode(op->opcode)](pjit, op)
 
@@ -854,7 +888,7 @@ static int reg_isLoaded(pindex_t *regTable, knh_sfpidx_t a)
     return 0;
 }
 
-static void BasicBlock_setPcode(Ctx *ctx, knh_Array_t *bbList, pindex_t *regTable)
+static void BasicBlock_setPcode(Ctx *ctx, knh_Method_t *mtd, knh_Array_t *bbList, pindex_t *regTable)
 {
     int i , j;
     knh_BasicBlock_t* bb = (knh_BasicBlock_t*) knh_Array_n(bbList, 0);
@@ -968,7 +1002,6 @@ static void BasicBlock_setPcode(Ctx *ctx, knh_Array_t *bbList, pindex_t *regTabl
                     r  = regalloc(regTable, OBJ, op_->a);
                     PASM(LOADR , reg(r), obj(op_->b));
                 }
-                fprintf(stderr, "swap: sfp[%d].o=>sfp[%d].o\n", op_->a, op_->b);
                 break;
             }
 
@@ -989,10 +1022,29 @@ static void BasicBlock_setPcode(Ctx *ctx, knh_Array_t *bbList, pindex_t *regTabl
                 }
                 break;
             }
-
             OPCASE(JMP_) OPCASE(RET) {
                 store_regs(ctx, bb, regTable);
                 PASM(EXIT, nop(), nop());
+                break;
+            }
+            OPCASE(VCALL) OPCASE(VCALL_) {
+                klr_VCALL_t *op_ = (klr_VCALL_t*) op;
+                knh_sfpidx_t thisidx  = op_->thisidx;
+                //knh_sfpidx_t espshift = op_->espshift;
+                knh_Method_t *callmtd = op_->callmtd;
+                store_regs(ctx, bb, regTable);
+                PASM(MOVRR, reg(RSFP) , reg(PARG1));
+                PASM(ADDRN, reg(PARG1), data(thisidx * 0x10));
+                PASM(LOADN, reg(PARG2), data(K_RTNIDX));
+                if (mtd == callmtd) {
+                    PASM(CALL , func(NULL), data(PJIT_RELOCATION_SYMBOL_SELF));
+                } else if (callmtd->fcall_1 == knh_Fmethod_runVM) {
+                    /* TODO klr_setesp */
+                    PASM(STOREN, obj(thisidx + K_MTDIDX), data(callmtd));
+                    PASM(CALL , func(callmtd->fcall_1), nop());
+                } else {
+                    PASM(CALL , func(callmtd->fcall_1), nop());
+                }
                 break;
             }
             OPCASE(SCALL) {
@@ -1007,8 +1059,6 @@ static void BasicBlock_setPcode(Ctx *ctx, knh_Array_t *bbList, pindex_t *regTabl
                 /* TODO klr_setesp */
                 /* TODO sfp_[K_MTDIDX].callmtd = mtd_ */
                 PASM(CALL , func(callmtd->fcall_1), nop());
-                //fprintf(stderr, "a=%x, a10=%x\n", op_->thisidx, op_->thisidx * 0x10);
-                //asm volatile("int3");
                 break;
             }
             OPCASE(TR) {
@@ -1020,8 +1070,6 @@ static void BasicBlock_setPcode(Ctx *ctx, knh_Array_t *bbList, pindex_t *regTabl
                 PASM(LOADN, reg(PARG2), data(diff));
                 PASM(LOADN, reg(PARG3), data(op_->cid));
                 PASM(CALL , func(op_->tr), nop());
-                //fprintf(stderr, "a=%x, a10=%x\n", op_->a, op_->a * 0x10);
-                //asm volatile("int3");
                 break;
             }
             OPCASE(iMOVx) {
@@ -1089,6 +1137,24 @@ static void BasicBlock_setPcode(Ctx *ctx, knh_Array_t *bbList, pindex_t *regTabl
                 }
                 break;
             }
+            OPCASE(iSUBn) {
+                klr_iSUBn_t *op_ = (klr_iSUBn_t*) op;
+                reg_t r, r2;
+                if (reg_isLoaded(regTable, op_->a)) {
+                    r2 = regalloc(regTable, NDAT, op_->a);
+                    r  = regalloc(regTable, NDAT, op_->c);
+                    if (r2 == PREG_NOP) {
+                        TODO();
+                    }
+                    PASM(MOVRR, reg(r2), reg(r));
+                    PASM(SUBRN, reg(r), data(op_->n));
+                } else {
+                    r  = regalloc(regTable, NDAT, op_->c);
+                    PASM(LOADR, reg(r), ndat(op_->a));
+                    PASM(SUBRN, reg(r), data(op_->n));
+                }
+                break;
+            }
             OPCASE(iADDn) {
                 klr_iADDn_t *op_ = (klr_iADDn_t*) op;
                 reg_t r, r2;
@@ -1152,6 +1218,67 @@ static void pcode_optimize(Ctx *ctx, knh_Array_t *bbList, pindex_t *regTable)
 #endif
 }
 
+static struct pjit *new_pjit(Ctx *ctx, knh_cwb_t *cwb)
+{
+    struct pjit *pjit = (struct pjit*)KNH_MALLOC(ctx, sizeof(struct pjit));
+    pjit->state = PJIT_INIT;
+    pjit->cwb   = cwb;
+    pjit->ctx   = ctx;
+    pjit->cur_pos = 0;
+    pjit->symbolList = new_Array(ctx, CLASS_Int, 0);
+    return pjit;
+}
+
+static void pjit_delete(Ctx *ctx, struct pjit *pjit)
+{
+    KNH_FINALv(ctx, pjit->symbolList);
+    KNH_FREE(ctx, pjit, sizeof(struct pjit));
+}
+static void IArray_add(Ctx *ctx, knh_Array_t *a, knh_int_t v)
+{
+    BEGIN_LOCAL(ctx, lsfp, 1);
+    lsfp[0].ivalue = v;
+    a->api->add(ctx, a, lsfp);
+    END_LOCAL(ctx, lsfp);
+}
+static void pjit_addRelocationCode(struct pjit *pjit, size_t size, int type, knh_uintptr_t target)
+{
+    Ctx *ctx = pjit->ctx;
+    knh_Array_t *symbolList = pjit->symbolList;
+    IArray_add(ctx, symbolList, type);
+    IArray_add(ctx, symbolList, target);
+    IArray_add(ctx, symbolList, size);
+    IArray_add(ctx, symbolList, pjit->cur_pos);
+}
+static void pjit_rewrite_symbols(struct pjit *pjit, unsigned char *mem)
+{
+#define IArray_get(a, i)             ((a)->ilist[i])
+    knh_Array_t *symbolList = pjit->symbolList;
+    int i;
+    for (i = 0; i < knh_Array_size(symbolList); i+=4) {
+        knh_int_t type = IArray_get(symbolList, i + 0);
+        knh_int_t sym  = IArray_get(symbolList, i + 1);
+        knh_int_t size = IArray_get(symbolList, i + 2);
+        knh_int_t pos  = IArray_get(symbolList, i + 3);
+        //fprintf(stderr, "type=%lld\n", type);
+        //fprintf(stderr, "sym =%lld\n", sym);
+        //fprintf(stderr, "size=%lld\n", size);
+        //fprintf(stderr, "pos =%lld\n", pos);
+        union {
+            unsigned char code[sizeof(knh_int_t)];
+            knh_int_t target;
+        } code;
+        if (type == FUNC) {
+            code.target = sym;
+        }
+        else if (type == SELF) {
+            code.target = (knh_int_t) mem; /* + sym */
+        }
+        __write(code.code, sizeof(code));
+        assert(sizeof(code) == size);
+        memcpy(mem + pos - size, code.code, size);
+    }
+}
 static void *_gencode(Ctx *ctx, struct pjit *pjit)
 {
     knh_bytes_t codes = knh_cwb_tobytes(pjit->cwb);
@@ -1161,24 +1288,14 @@ static void *_gencode(Ctx *ctx, struct pjit *pjit)
     mem = (unsigned char *) knh_xmalloc(ctx, len);
     memcpy(mem, codes.ubuf, len);
     add_nops((void*)((intptr_t)mem + len), align);
-    //rewrite_jmp_targe(mem);
-    KNH_FREE(ctx, pjit, sizeof(struct pjit));
+    pjit_rewrite_symbols(pjit, mem);
+    pjit_delete(ctx, pjit);
 #ifdef PCODE_DUMP
-    //jit_dump(mem, len);
+    jit_dump(mem, len);
 #endif
     //knh_xfree(ctx, mem, len);
     //return NULL;
     return mem;
-}
-
-static struct pjit *new_pjit(Ctx *ctx, knh_cwb_t *cwb)
-{
-    struct pjit *pjit = (struct pjit*)KNH_MALLOC(ctx, sizeof(struct pjit));
-    pjit->state = PJIT_INIT;
-    pjit->cwb   = cwb;
-    pjit->ctx   = ctx;
-    pjit->cur_pos = 0;
-    return pjit;
 }
 
 static void *pcode_gencode(Ctx *ctx, knh_Array_t *bbList, pindex_t *regTable)
@@ -1230,7 +1347,7 @@ void pjit_compile(Ctx *ctx, knh_Method_t *mtd)
         LOCAL_NEW(ctx, lsfp, 0, knh_Array_t *, bbList, KLRCode_toBasicBlock(ctx, kcode, &max));
         pindex_t *regTable;
         regTable = createRegisterTable(ctx, max);
-        BasicBlock_setPcode(ctx, bbList, regTable);
+        BasicBlock_setPcode(ctx, mtd, bbList, regTable);
         pcode_optimize(ctx, bbList, regTable);
         func = pcode_gencode(ctx, bbList, regTable);
         if (func)

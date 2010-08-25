@@ -169,29 +169,29 @@ float mops(int score) {
     //score = t - delta;
     //print "FloatOperation[mops,ms]:", mops(score), t;
     // 
-    //s = System.getTime();
-    //testFunctionCall();
-    //t = System.getTime() - s;
-    //score = t - delta;
-    //print "FunctionCall[mops,ms]:", mops(score), t;
-    ////
-    //s = System.getTime();
-    //testFunctionReturn();
-    //t = System.getTime() - s;
-    //score = t - delta;
-    //print "FunctionReturn[mops,ms]:", mops(score), t;
-    ////
+    s = System.getTime();
+    testFunctionCall();
+    t = System.getTime() - s;
+    score = t - delta;
+    print "FunctionCall[mops,ms]:", mops(score), t;
+    //
+    s = System.getTime();
+    testFunctionReturn();
+    t = System.getTime() - s;
+    score = t - delta;
+    print "FunctionReturn[mops,ms]:", mops(score), t;
+    //
     s = System.getTime();
     testMathFabs();
     t = System.getTime() - s;
     score = t - delta;
     print "NativeFunction[mops,ms]:", mops(score), t;
     //
-    //s = System.getTime();
-    //testCallFunctionObject();
-    //t = System.getTime() - s;
-    //score = t - delta;
-    //print "CallFunctionObject[mops,ms]:", mops(score), t;
+    s = System.getTime();
+    testCallFunctionObject();
+    t = System.getTime() - s;
+    score = t - delta;
+    print "CallFunctionObject[mops,ms]:", mops(score), t;
     //
     print "Object-Oriented Programming";
     s = System.getTime();
@@ -205,19 +205,19 @@ float mops(int score) {
     t = System.getTime() -s ;
     score = t - delta;
     print "FieldVariable[mops,ms]:", mops(score), t;
-    ////
-    //s = System.getTime();
-    //testMethodCall();
-    //t = System.getTime() -s ;
-    //score = t - delta;
-    //print "MethodCall[mops,ms]:", mops(score), t;
-    ////
-    //print "MISC (this is not microbench)";
-    //s = System.getTime();
-    //fibo(36);
-    //t = System.getTime() - s;
-    //score = t;
-    //print "fibonacci(36)[mops,ms]:", mops(score), t;
+    //
+    s = System.getTime();
+    testMethodCall();
+    t = System.getTime() -s ;
+    score = t - delta;
+    print "MethodCall[mops,ms]:", mops(score), t;
+    //
+    print "MISC (this is not microbench)";
+    s = System.getTime();
+    fibo(36);
+    t = System.getTime() - s;
+    score = t;
+    print "fibonacci(36)[mops,ms]:", mops(score), t;
 }
 
 OUT << "JIT mode" << EOL;
@@ -229,7 +229,11 @@ testMathFabs.setJITCode();
 testIntegerOperation.setJITCode();
 testObjectCreation.setJITCode();
 testFieldVariable.setJITCode();
-
+testFunctionCall.setJITCode();
+testFunctionReturn.setJITCode();
+testMethodCall.setJITCode();
+testCallFunctionObject.setJITCode();
+fibo.setJITCode();
 {
     s = System.getTime();
     testSimpleLoop();
@@ -268,29 +272,29 @@ testFieldVariable.setJITCode();
     //score = t - delta;
     //print "FloatOperation[mops,ms]:", mops(score), t;
     // 
-    //s = System.getTime();
-    //testFunctionCall();
-    //t = System.getTime() - s;
-    //score = t - delta;
-    //print "FunctionCall[mops,ms]:", mops(score), t;
-    ////
-    //s = System.getTime();
-    //testFunctionReturn();
-    //t = System.getTime() - s;
-    //score = t - delta;
-    //print "FunctionReturn[mops,ms]:", mops(score), t;
-    ////
+    s = System.getTime();
+    testFunctionCall();
+    t = System.getTime() - s;
+    score = t - delta;
+    print "FunctionCall[mops,ms]:", mops(score), t;
+    //
+    s = System.getTime();
+    testFunctionReturn();
+    t = System.getTime() - s;
+    score = t - delta;
+    print "FunctionReturn[mops,ms]:", mops(score), t;
+    //
     s = System.getTime();
     testMathFabs();
     t = System.getTime() - s;
     score = t - delta;
     print "NativeFunction[mops,ms]:", mops(score), t;
     //
-    //s = System.getTime();
-    //testCallFunctionObject();
-    //t = System.getTime() - s;
-    //score = t - delta;
-    //print "CallFunctionObject[mops,ms]:", mops(score), t;
+    s = System.getTime();
+    testCallFunctionObject();
+    t = System.getTime() - s;
+    score = t - delta;
+    print "CallFunctionObject[mops,ms]:", mops(score), t;
     //
     print "Object-Oriented Programming";
     s = System.getTime();
@@ -304,19 +308,19 @@ testFieldVariable.setJITCode();
     t = System.getTime() -s ;
     score = t - delta;
     print "FieldVariable[mops,ms]:", mops(score), t;
-    ////
-    //s = System.getTime();
-    //testMethodCall();
-    //t = System.getTime() -s ;
-    //score = t - delta;
-    //print "MethodCall[mops,ms]:", mops(score), t;
-    ////
-    //print "MISC (this is not microbench)";
-    //s = System.getTime();
-    //fibo(36);
-    //t = System.getTime() - s;
-    //score = t;
-    //print "fibonacci(36)[mops,ms]:", mops(score), t;
+    //
+    s = System.getTime();
+    testMethodCall();
+    t = System.getTime() -s ;
+    score = t - delta;
+    print "MethodCall[mops,ms]:", mops(score), t;
+    //
+    print "MISC (this is not microbench)";
+    s = System.getTime();
+    fibo(36);
+    t = System.getTime() - s;
+    score = t;
+    print "fibonacci(36)[mops,ms]:", mops(score), t;
 }
 
 

@@ -26,6 +26,7 @@ struct pjit {
     Ctx *ctx;
     knh_cwb_t *cwb;
     size_t cur_pos;
+    knh_Array_t *symbolList;
 };
 
 typedef struct {
@@ -125,7 +126,12 @@ static int mov1(struct pjit *pjit, int n, reg_t r1, reg_t r2)
 static int mov2(struct pjit *pjit, reg_t r1, int n, reg_t r2)
 {
     unsigned char suffix = 0xff;
-    int ret = 3;
+    int ret = 3, over80 = 0;
+    union {
+        unsigned char code[sizeof(int32_t)];
+        int32_t ival;
+    } code;
+
     if (r1 < 8) {
         if (r2 < 8) {
             __put(0x48);
@@ -152,13 +158,19 @@ static int mov2(struct pjit *pjit, reg_t r1, int n, reg_t r2)
         __put(0x40 | (r1 << 3) | (r2 << 0));
     } else {
         __put(0x80 | (r1 << 3) | (r2 << 0));
-        ret += 4;
+        over80 = 1;
     }
     if(suffix != 0xff) {
         __put(0x24);
         ret += 1;
     }
-    __put(n);
+    if (over80) {
+        ret += 4;
+        code.ival = n;
+        __write(code.code, sizeof(code));
+    } else {
+        __put(n);
+    }
     return ret;
 }
 
@@ -233,10 +245,10 @@ static int _add_sub(struct pjit *pjit, unsigned char opcode, reg_t r1, reg_t r2)
     return 3;
 }
 
-#define add(pjit, r1, r2) _add_sub(pjit, 0x01, r1, r2)
-#define sub(pjit, r1, r2) _add_sub(pjit, 0x29, r1, r2)
+#define addr(pjit, r1, r2) _add_sub(pjit, 0x01, r1, r2)
+#define subr(pjit, r1, r2) _add_sub(pjit, 0x29, r1, r2)
 
-static int _addi_subi(struct pjit *pjit, unsigned char opcode, knh_int_t data, reg_t r1)
+static int _addi_subi(struct pjit *pjit, unsigned char opcode1, unsigned char opcode2, knh_int_t data, reg_t r1)
 {
     unsigned char op = 0x48;
     union {
@@ -251,14 +263,10 @@ static int _addi_subi(struct pjit *pjit, unsigned char opcode, knh_int_t data, r
     }
     __put(op);
     if (isRax) {
-        if (opcode == 0xc0) {
-            __put(0x05);
-        } else {
-            __put(0x2d);
-        }
+        __put(opcode2);
     } else {
         __put(0x81);
-        __put((opcode | r1));
+        __put((opcode1 | r1));
         ret += 1;
     }
     code.ival = data;
@@ -266,8 +274,8 @@ static int _addi_subi(struct pjit *pjit, unsigned char opcode, knh_int_t data, r
     return ret;
 }
 
-#define addi(pjit, data, r1) _addi_subi(pjit, 0xc0, data, r1)
-#define subi(pjit, data, r1) _addi_subi(pjit, 0xe8, data, r1)
+#define addi(pjit, data, r1) _addi_subi(pjit, 0xc0, 0x05, data, r1)
+#define subi(pjit, data, r1) _addi_subi(pjit, 0xe8, 0x2d, data, r1)
 
 #define mul(r1, r2) {\
     reg_t _r1 = r1;\
