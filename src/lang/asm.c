@@ -104,7 +104,7 @@ static void knh_ftraverse_inc(Ctx* ctx, Object *o)
 }
 #endif
 
-static void knh_BasicBlock_add_(Ctx *ctx, knh_BasicBlock_t *bb, int line, knh_opline_t *op)
+void knh_BasicBlock_add_(Ctx *ctx, knh_BasicBlock_t *bb, int line, knh_opline_t *op)
 {
 	if(DP(bb)->capacity == 0) {
 		DP(bb)->opbuf = (knh_opline_t*)KNH_MALLOC(ctx, sizeof(knh_opline_t));

@@ -43,7 +43,14 @@ extern "C" {
 /* ======================================================================== */
 /* [Stmt] */
 
-
+/* ------------------------------------------------------------------------ */
+//## method void Func.setJITCode();
+static METHOD Func_setJITCode(Ctx *ctx, knh_sfp_t *sfp, long rix)
+{
+    knh_Func_t *o = (knh_Func_t*) sfp[0].o;
+    pjit_compile(ctx, o->mtd);
+    RETURNvoid_();
+}
 /* ------------------------------------------------------------------------ */
 
 #endif/*K_USING_DEFAULTAPI*/

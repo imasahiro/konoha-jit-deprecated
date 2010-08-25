@@ -1186,7 +1186,7 @@ static int knh_strregex_regexec(Ctx *ctx, knh_regex_t *reg, const char *str, siz
 	const char *po = strstr(str, S_tochar(ptn));
 	if(po != NULL) {
 		p[e].rm_so = po - str;
-		p[e].rm_eo = p[e].rm_so + knh_strlen(str);
+		p[e].rm_eo = p[e].rm_so + S_size(ptn);;
 		p[e].rm_name.ubuf = NULL;
 		p[e].rm_name.len = 0;
 		e++;
@@ -1196,7 +1196,7 @@ static int knh_strregex_regexec(Ctx *ctx, knh_regex_t *reg, const char *str, siz
 	p[e].rm_eo = -1;
 	p[e].rm_name.ubuf = NULL;
 	p[e].rm_name.len = 0;
-	return 0;
+	return (po) ? 0 : -1;
 }
 
 static void knh_strregex_regfree(Ctx *ctx, knh_regex_t *reg)

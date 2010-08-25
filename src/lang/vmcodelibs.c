@@ -369,7 +369,15 @@ const char *knh_opcode_tochar(knh_opcode_t opcode)
 		return "OPCODE_??";
 	}
 }
-
+/* ------------------------------------------------------------------------ */
+knh_bool_t knh_opcode_usedef(knh_opcode_t opcode, int i)
+{
+	knh_ushort_t type = OPDATA[opcode].types[i];
+	if ((type == VMT_SFPIDX) || (type == VMT_SFX)) {
+		return 1;
+	}
+	return 0;
+}
 /* ------------------------------------------------------------------------ */
 size_t knh_opcode_size(knh_opcode_t opcode)
 {

@@ -1,11 +1,12 @@
-#define TJIT
-#define TJIT_DUMP
+//#define TJIT
+//#define TJIT_DUMP
 
 #if defined(TJIT)
 #define USE_STEXT 1
 #define USE_cwb_open      1
 #define USE_cwb_tobytes 1
 #define USE_cwb_size
+#define USE_NOPTABLE
 #endif
 #include"commons.h"
 
@@ -16,7 +17,7 @@
 extern "C" {
 #endif
 
-#if defined(TJIT)
+#ifdef USE_NOPTABLE
 #define ASM_NOP_MAX 7
 static const unsigned char x86nops[] = {
     /* 1byte nop */ 0x90,
@@ -51,7 +52,9 @@ static void add_nops(void *insns, unsigned int len)
         len -= noplen;
     }
 }
+#endif
 
+#if defined(TJIT)
 static int canJIT[] = {
     0 /*HALT*/ , 0 /*THCODE*/, 1 /*FUNCCALL*/, 1 /*ENTER*/, 
     1 /*PROBE*/, 0 /*VEXEC*/ , 1 /*YEILD*/   , 0 /*EXIT*/, 
@@ -92,7 +95,7 @@ static int canJIT[] = {
 
 
 /* ----------------------------------------------------------------- */
-void jit_dump(void *mem, int size)
+static void jit_dump(void *mem, int size)
 {
 #if defined(TJIT_DUMP)
     int i = 0;
@@ -339,12 +342,8 @@ static void rewrite_jmp_target(unsigned char *code, int *len, struct code_stack*
     cstack_clear(cdata);
 }
 
-#endif /* TJIT */
-
 void knh_code_thread(Ctx *ctx, knh_opline_t *pc, void **codeaddr, void **codeend)
 {
-#if defined(TJIT)
-#ifdef K_USING_THREADEDCODE
     knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
     knh_opline_t *op = pc;
     intptr_t curpos = 0;
@@ -425,8 +424,10 @@ L_FINAL:
         cindex = 0;
         return;
     }
-#endif
-#else
+}
+#else /* TJIT */
+void knh_code_thread(Ctx *ctx, knh_opline_t *pc, void **codeaddr, void **codeend)
+{
 #ifdef K_USING_THREADEDCODE
     while(1) {
         DBG_ASSERT_OPCODE(pc->opcode);
@@ -435,8 +436,8 @@ L_FINAL:
         pc++;
     }
 #endif
-#endif /* TJIT */
 }
+#endif
 
 /* ----------------------------------------------------------------- */
 #ifdef __cplusplus

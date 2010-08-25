@@ -87,8 +87,8 @@ am_libkonoha_la_OBJECTS = libkonoha_la-mt19937-64.lo \
 	libkonoha_la-mt19937ar.lo libkonoha_la-qsort.lo \
 	libkonoha_la-strerror.lo libkonoha_la-strlen.lo \
 	libkonoha_la-asm.lo libkonoha_la-optimizer.lo \
-	libkonoha_la-script.lo libkonoha_la-ssa.lo \
-	libkonoha_la-term.lo libkonoha_la-tjit.lo \
+	libkonoha_la-pjit.lo libkonoha_la-script.lo \
+	libkonoha_la-ssa.lo libkonoha_la-term.lo libkonoha_la-tjit.lo \
 	libkonoha_la-typing.lo libkonoha_la-vmcodelibs.lo \
 	libkonoha_la-vminline.lo libkonoha_la-struct.lo \
 	libkonoha_la-array.lo libkonoha_la-bytes.lo \
@@ -287,21 +287,21 @@ AM_CPPFLAGS = -I../include
 #endif
 libkonoha_la_SOURCES = ../src/ext/mt19937-64.c ../src/ext/mt19937ar.c \
 	../src/ext/qsort.c ../src/ext/strerror.c ../src/ext/strlen.c \
-	../src/lang/asm.c ../src/lang/optimizer.c ../src/lang/script.c \
-	../src/lang/ssa.c ../src/lang/term.c ../src/lang/tjit.c \
-	../src/lang/typing.c ../src/lang/vmcodelibs.c \
-	../src/lang/vminline.c ../src/main/apidata/struct.c \
-	../src/main/array.c ../src/main/bytes.c ../src/main/class.c \
-	../src/main/closure.c ../src/main/context.c \
-	../src/main/evidence.c ../src/main/exports.c \
-	../src/main/iterator.c ../src/main/map.c ../src/main/memory.c \
-	../src/main/method.c ../src/main/number.c ../src/main/object.c \
-	../src/main/os.c ../src/main/query.c ../src/main/runtime.c \
-	../src/main/security.c ../src/main/semantics.c \
-	../src/main/setjmp.c ../src/main/stack.c ../src/main/stream.c \
-	../src/main/string.c ../src/main/system.c ../src/main/thread.c \
-	../src/main/time.c ../src/main/translator.c \
-	../src/main/tuple.c
+	../src/lang/asm.c ../src/lang/optimizer.c ../src/lang/pjit.c \
+	../src/lang/script.c ../src/lang/ssa.c ../src/lang/term.c \
+	../src/lang/tjit.c ../src/lang/typing.c \
+	../src/lang/vmcodelibs.c ../src/lang/vminline.c \
+	../src/main/apidata/struct.c ../src/main/array.c \
+	../src/main/bytes.c ../src/main/class.c ../src/main/closure.c \
+	../src/main/context.c ../src/main/evidence.c \
+	../src/main/exports.c ../src/main/iterator.c ../src/main/map.c \
+	../src/main/memory.c ../src/main/method.c ../src/main/number.c \
+	../src/main/object.c ../src/main/os.c ../src/main/query.c \
+	../src/main/runtime.c ../src/main/security.c \
+	../src/main/semantics.c ../src/main/setjmp.c \
+	../src/main/stack.c ../src/main/stream.c ../src/main/string.c \
+	../src/main/system.c ../src/main/thread.c ../src/main/time.c \
+	../src/main/translator.c ../src/main/tuple.c
 libkonoha_la_includedir = $(includedir)
 libkonoha_la_include_HEADERS = ../include/konoha.h
 libkonoha_la_includekonohadir = $(includedir)/../include/konoha
@@ -573,6 +573,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-object.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-optimizer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-os.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-pjit.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-qsort.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-query.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libkonoha_la-runtime.Plo@am__quote@
@@ -677,6 +678,14 @@ libkonoha_la-optimizer.lo: ../src/lang/optimizer.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/lang/optimizer.c' object='libkonoha_la-optimizer.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libkonoha_la_CFLAGS) $(CFLAGS) -c -o libkonoha_la-optimizer.lo `test -f '../src/lang/optimizer.c' || echo '$(srcdir)/'`../src/lang/optimizer.c
+
+libkonoha_la-pjit.lo: ../src/lang/pjit.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libkonoha_la_CFLAGS) $(CFLAGS) -MT libkonoha_la-pjit.lo -MD -MP -MF $(DEPDIR)/libkonoha_la-pjit.Tpo -c -o libkonoha_la-pjit.lo `test -f '../src/lang/pjit.c' || echo '$(srcdir)/'`../src/lang/pjit.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libkonoha_la-pjit.Tpo $(DEPDIR)/libkonoha_la-pjit.Plo
+@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../src/lang/pjit.c' object='libkonoha_la-pjit.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libkonoha_la_CFLAGS) $(CFLAGS) -c -o libkonoha_la-pjit.lo `test -f '../src/lang/pjit.c' || echo '$(srcdir)/'`../src/lang/pjit.c
 
 libkonoha_la-script.lo: ../src/lang/script.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libkonoha_la_CFLAGS) $(CFLAGS) -MT libkonoha_la-script.lo -MD -MP -MF $(DEPDIR)/libkonoha_la-script.Tpo -c -o libkonoha_la-script.lo `test -f '../src/lang/script.c' || echo '$(srcdir)/'`../src/lang/script.c

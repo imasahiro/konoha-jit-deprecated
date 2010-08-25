@@ -25,6 +25,7 @@ libkonoha_la_SOURCES += ../src/ext/strerror.c
 libkonoha_la_SOURCES += ../src/ext/strlen.c
 libkonoha_la_SOURCES += ../src/lang/asm.c
 libkonoha_la_SOURCES += ../src/lang/optimizer.c
+libkonoha_la_SOURCES += ../src/lang/pjit.c
 libkonoha_la_SOURCES += ../src/lang/script.c
 libkonoha_la_SOURCES += ../src/lang/ssa.c
 libkonoha_la_SOURCES += ../src/lang/term.c

@@ -52,11 +52,13 @@ KNHAPI(knh_Translator_t*) new_Translator(Ctx *ctx, knh_flag_t flag, knh_class_t 
 
 /* ======================================================================== */
 /* DEVELOPERS API */
+void knh_BasicBlock_add_(Ctx *ctx, knh_BasicBlock_t *bb, int line, knh_opline_t *op);
 METHOD knh_Fmethod_runVM(Ctx *ctx, knh_sfp_t *sfp, long rix);
 void knh_NameSpace_addFormatter(Ctx *ctx, knh_NameSpace_t *ns, knh_Method_t *mtd);
 void knh_Method_asm(Ctx *ctx, knh_Method_t *mtd, knh_Stmt_t *stmtP, knh_Stmt_t *stmtB, knh_type_t reqt, knh_Ftyping typing);
 void knh_loadSystemKLRCode(Ctx *ctx);
 void knh_write_vmfunc(Ctx *ctx, knh_OutputStream_t *w, void *f);
+void pjit_compile(Ctx *ctx, knh_Method_t *mtd);
 knh_NameSpace_t* new_NameSpace(Ctx *ctx, knh_NameSpace_t *nsNULL);
 knh_class_t knh_NameSpace_getcid(Ctx *ctx, knh_NameSpace_t *ns, knh_bytes_t sname);
 knh_flag_t knh_Stmt_flag_(Ctx *ctx, knh_Stmt_t *stmt, knh_bytes_t name, knh_flag_t flag);
@@ -84,6 +86,8 @@ knh_Stmt_t *knh_Stmt_tail(Ctx *ctx, knh_Stmt_t *o);
 knh_Stmt_t *knh_InputStream_parseStmt(Ctx *ctx, knh_InputStream_t *in);
 knh_Stmt_t *knh_Token_parseStmt(Ctx *ctx, knh_Token_t *tk);
 knh_bool_t knh_String_parseFMT(Ctx *ctx, knh_String_t *fmt, knh_Array_t *a, knh_uri_t uri, int line);
+void knh_code_thread(Ctx *ctx, knh_opline_t *pc, void **codeaddr, void **codeend);
+void knh_code_thread(Ctx *ctx, knh_opline_t *pc, void **codeaddr, void **codeend);
 void knh_Gamma_perror(Ctx *ctx, int pe, const char *fmt, ...);
 knh_Term_t* knh_Token_toTYPED(Ctx *ctx, knh_Token_t *tk, knh_term_t tt, knh_type_t type, knh_short_t nn);
 knh_Token_t* new_TokenTYPED(Ctx *ctx, knh_term_t tt, knh_type_t type, knh_short_t nn);
@@ -98,6 +102,7 @@ void knh_opcode_check(void);
 void knh_opcode_stat(Ctx *ctx);
 void knh_opcode_count(Ctx *ctx, knh_opline_t *c);
 const char *knh_opcode_tochar(knh_opcode_t opcode);
+knh_bool_t knh_opcode_usedef(knh_opcode_t opcode, int i);
 size_t knh_opcode_size(knh_opcode_t opcode);
 knh_bool_t knh_opcode_hasjump(knh_opcode_t opcode);
 void knh_opline_traverse(Ctx *ctx, knh_opline_t *c, knh_Ftraverse ftr);
@@ -196,7 +201,6 @@ void knh_perror(Ctx *ctx, knh_uri_t uri, int line, int pe, const char *fmt, ...)
 const knh_ExportsAPI_t *knh_getExportsAPI(void);
 const knh_PackageLoaderAPI_t* knh_getPackageAPI(void);
 void knh_Iterator_close(Ctx *ctx, knh_Iterator_t *it);
-knh_Map_t *new_Map(Ctx *ctx, size_t init, const char *path, knh_MapDSPI_t *dspi);
 knh_DictMap_t* new_DictMap0(Ctx *ctx, size_t capacity);
 knh_DictCaseMap_t* new_DictCaseMap0(Ctx *ctx, size_t capacity);
 knh_DictSet_t* new_DictSet0(Ctx *ctx, size_t capacity);
