@@ -438,32 +438,33 @@ static void pasm_load_fr(struct pjit *pjit, pcode_t *op)
     fmov1(pjit, idx, r1, PFREG0);
     _dump(op);
 }
+#define asm_f(pjit, op, func) {\
+    reg_t r1 = op->a.reg;\
+    knh_int_t data = op->b.data;\
+    func(pjit, data, r1, PFREG0);\
+}
 static void pasm_add_f(struct pjit *pjit, pcode_t *op)
 {
-    reg_t r1 = op->a.reg;
-    knh_int_t data = op->b.data;
     pcode_setline(op, pjit);
-    fadd1(pjit, data, r1, PFREG0);
+    asm_f(pjit, op, fadd1);
     _dump(op);
 }
 static void pasm_sub_f(struct pjit *pjit, pcode_t *op)
 {
-    reg_t r1 = op->a.reg;
-    knh_int_t data = op->b.data;
     pcode_setline(op, pjit);
-    fsub1(pjit, data, r1, PFREG0);
+    asm_f(pjit, op, fsub1);
     _dump(op);
 }
 static void pasm_mul_f(struct pjit *pjit, pcode_t *op)
 {
     pcode_setline(op, pjit);
-    TODO();
+    asm_f(pjit, op, fmul1);
     _dump(op);
 }
 static void pasm_div_f(struct pjit *pjit, pcode_t *op)
 {
     pcode_setline(op, pjit);
-    TODO();
+    asm_f(pjit, op, fdiv1);
     _dump(op);
 }
 #define asm_fn(pjit, op, func) {\
@@ -1099,12 +1100,12 @@ static void BasicBlock_setPcode(Ctx *ctx, knh_Method_t *mtd, knh_Array_t *bbList
                 }
                 r = regalloc(regTable, NDAT, op_->a);
                 assert(r != PREG0);
-                if (r2 != PREG0) {
-                    PASM(MOVRR , reg(r2), reg(PREG0));
-                }
+                //if (r2 != PREG0) {
+                //    PASM(MOVRR, reg(PREG0), reg(r2));
+                //}
                 PASM(GETIDX, reg(r2), data(0x20));  /* sfp[b.i].ox->fields */
                 PASM(GETIDX, reg(PREG0), data(pos));/* sfp[b.i].ox->fields[a] */
-                PASM(MOVRR , reg(r), reg(r2));
+                PASM(MOVRR , reg(r), reg(PREG0));
                 break;
             }
             OPCASE(XIMOV) OPCASE(XFMOV) {
@@ -1185,12 +1186,8 @@ static void BasicBlock_setPcode(Ctx *ctx, knh_Method_t *mtd, knh_Array_t *bbList
             OPCASE(fADD) OPCASE(fSUB) OPCASE(fMUL) OPCASE(fDIV) {
                 klr_fADD_t *op_ = (klr_fADD_t*) op;
                 PASM(LOADFR, reg(RSFP), data(op_->a * 0x10));
-                if (op_->opcode == OPCODE_fADD) {
-                    // add  %ftmp0 += 0x00(%r)
-                    PASM(ADDF, reg(RSFP), data(op_->b * 0x10));
-                } else if (op_->opcode == OPCODE_fSUB) {
-                    PASM(SUBF, reg(RSFP), data(op_->b * 0x10));
-                }
+                int opcode = op_->opcode - OPCODE_fADD + PCODE_ADDF;
+                PASM_(opcode, reg(RSFP), data(op_->b * 0x10));
                 // store 0x00(%r) = %ftmp0
                 PASM(STOREF, reg(RSFP), data(op_->c * 0x10));
                 break;

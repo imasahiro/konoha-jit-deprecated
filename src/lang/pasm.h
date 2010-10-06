@@ -219,9 +219,7 @@ static int mov(struct pjit *pjit, reg_t r1, reg_t r2)
             __put(0x4c);
         }
         else {
-            iprintf("not surpport yet");
-            TODO();
-            exit(1);
+            __put(0x4d);
         }
         r1 = r1 - 8;
     }
