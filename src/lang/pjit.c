@@ -14,6 +14,9 @@
 #if defined(K_USING_DEBUG) || 0
 #define PCODE_DUMP
 #endif
+
+#undef TODO
+#define TODO() asm volatile("int3");
 #include "pasm.h"
 #ifdef USE_NOPTABLE
 #define ASM_NOP_MAX 7
@@ -73,39 +76,12 @@ void jit_dump(void *mem, int size)
 knh_bool_t knh_opcode_usedef(knh_opcode_t opcode, int i);
 typedef knh_BasicBlock_t bb_t;
 
+typedef union {
+    knh_int_t i;
+    knh_float_t f;
+} ndata_t;
+
 #define opcode(code) (code - OPCODE_MAX)
-#define PCODE_INIT (OPCODE_MAX + 0)
-#define PCODE_EXIT (OPCODE_MAX + 1)
-#define PCODE_NOP (OPCODE_MAX + 2)
-#define PCODE_HALT (OPCODE_MAX + 3)
-#define PCODE_LOADR (OPCODE_MAX + 4)
-#define PCODE_LOADN (OPCODE_MAX + 5)
-#define PCODE_STORER (OPCODE_MAX + 6)
-#define PCODE_STOREN (OPCODE_MAX + 7)
-#define PCODE_STOREM (OPCODE_MAX + 8)
-#define PCODE_GETIDX (OPCODE_MAX + 9)
-#define PCODE_SETIDX (OPCODE_MAX + 10)
-#define PCODE_CMPN (OPCODE_MAX + 11)
-#define PCODE_CMPM (OPCODE_MAX + 12)
-#define PCODE_CMPR (OPCODE_MAX + 13)
-#define PCODE_COND (OPCODE_MAX + 14)
-#define PCODE_JMP (OPCODE_MAX + 15)
-#define PCODE_CALL (OPCODE_MAX + 16)
-#define PCODE_INCREF (OPCODE_MAX + 17)
-#define PCODE_DECREF (OPCODE_MAX + 18)
-#define PCODE_INC (OPCODE_MAX + 19)
-#define PCODE_DEC (OPCODE_MAX + 20)
-#define PCODE_MOVRR (OPCODE_MAX + 21)
-#define PCODE_ADDRR (OPCODE_MAX + 22)
-#define PCODE_ADDRM (OPCODE_MAX + 23)
-#define PCODE_ADDRN (OPCODE_MAX + 24)
-#define PCODE_ADDMM (OPCODE_MAX + 25)
-#define PCODE_SUBRN (OPCODE_MAX + 26)
-#define PCODE_SUBMM (OPCODE_MAX + 27)
-struct pcode_data {
-    int opcode;
-    const char *name;
-    int types[2];
 #define PTYPE_NOP  0
 #define PTYPE_REG  1
 #define PTYPE_OBJ  2
@@ -118,6 +94,7 @@ struct pcode_data {
 #define PTYPE_FUNC 9
 #define PTYPE_IDX  10
 #define PTYPE_SELF 11
+#define PTYPE_FLAT 12
 #define NOP  PTYPE_NOP
 #define REG  PTYPE_REG
 #define OBJ  PTYPE_OBJ
@@ -130,66 +107,8 @@ struct pcode_data {
 #define FUNC PTYPE_FUNC
 #define IDX  PTYPE_IDX
 #define SELF PTYPE_SELF
+#define FLAT PTYPE_FLAT
 
-} PCODEDATA[] = {
-    // init
-    {PCODE_INIT, "init", {PTYPE_NOP, PTYPE_NOP}},
-    // exit
-    {PCODE_EXIT, "exit", {PTYPE_NOP, PTYPE_NOP}},
-    // nop
-    {PCODE_NOP, "nop", {PTYPE_NOP, PTYPE_NOP}},
-    // halt
-    {PCODE_HALT, "halt", {PTYPE_NOP, PTYPE_NOP}},
-    // load memory data to r1 
-    {PCODE_LOADR, "load_r", {PTYPE_REG, PTYPE_SFP}},
-    // load ndata to r1
-    {PCODE_LOADN, "load_n", {PTYPE_REG, PTYPE_DATA}},
-    // store data on register to memory
-    {PCODE_STORER, "store_r", {PTYPE_SFP, PTYPE_REG}},
-    // store ndata to memory
-    {PCODE_STOREN, "store_n", {PTYPE_SFP, PTYPE_DATA}},
-    // store memory to memory
-    {PCODE_STOREM, "store_m", {PTYPE_SFP, PTYPE_SFP}},
-    // load data
-    {PCODE_GETIDX, "getidx", {PTYPE_REG, PTYPE_DATA}},
-    // store data
-    {PCODE_SETIDX, "setidx", {PTYPE_REG, PTYPE_DATA}},
-    // compare r1 to ndata
-    {PCODE_CMPN, "cmp_n", {PTYPE_REG, PTYPE_DATA}},
-    // compare r1 to memory
-    {PCODE_CMPM, "cmp_m", {PTYPE_REG, PTYPE_SFP}},
-    // compare r1 to r2
-    {PCODE_CMPR, "cmp_r", {PTYPE_REG, PTYPE_SFP}},
-    // conditional jump(op=i1) to b1
-    {PCODE_COND, "cond", {PTYPE_BB, PTYPE_COND}},
-    // jump to b1
-    {PCODE_JMP, "jump", {PTYPE_BB, PTYPE_NOP}},
-    // call mtd1
-    {PCODE_CALL, "call", {PTYPE_FUNC, PTYPE_NOP}},
-    // increment r1's ref
-    {PCODE_INCREF, "incref", {PTYPE_REG, PTYPE_OBJ}},
-    // decrement r1's ref and free if r1's ref == 0.
-    {PCODE_DECREF, "decref", {PTYPE_REG, PTYPE_OBJ}},
-    // increment r1
-    {PCODE_INC, "inc", {PTYPE_REG, PTYPE_NOP}},
-    // decrement r1
-    {PCODE_DEC, "dec", {PTYPE_REG, PTYPE_NOP}},
-    // copy r2 to r1
-    {PCODE_MOVRR, "mov_rr", {PTYPE_REG, PTYPE_REG}},
-    // add r2 to r1
-    {PCODE_ADDRR, "add_rr", {PTYPE_REG, PTYPE_REG}},
-    // add memory data to r1
-    {PCODE_ADDRM, "add_rm", {PTYPE_REG, PTYPE_NDAT}},
-    // add ndata to r1
-    {PCODE_ADDRN, "add_rn", {PTYPE_REG, PTYPE_DATA}},
-    // add memory data to memory data
-    {PCODE_ADDMM, "add_mm", {PTYPE_NDAT, PTYPE_NDAT}},
-    // sub ndata to r1
-    {PCODE_ADDRN, "sub_rn", {PTYPE_REG, PTYPE_DATA}},
-    // sub memory data to memory data
-    {PCODE_ADDMM, "sub_mm", {PTYPE_NDAT, PTYPE_NDAT}},
-
-};
 #define RSFP r14
 #define RCTX r15
 
@@ -202,8 +121,8 @@ static void pjit_addRelocationCode(struct pjit *pjit, size_t size, int type, knh
 #define _dump(op)  if(pjit->state == PJIT_EMIT) { pcode_dump(op); }
 //#define pcode_setline(op, pjit) if(pjit->state == PJIT_INIT) { op->pos = pjit->cur_pos; } fprintf(stderr, "op[%x] ", op->pos); pcode_dump(op);
 #define pcode_setline(op, pjit) if(pjit->state == PJIT_INIT) { op->pos = pjit->cur_pos; }
-static
-void pasm_init(struct pjit *pjit, pcode_t *op)
+
+static void pasm_init(struct pjit *pjit, pcode_t *op)
 {
     pcode_setline(op, pjit);
     push(pjit, rbp);
@@ -300,7 +219,6 @@ static void pasm_store_n(struct pjit *pjit, pcode_t *op)
     }
     _dump(op);
 }
-
 static void pasm_store_m(struct pjit *pjit, pcode_t *op)
 {
     pcode_setline(op, pjit);
@@ -324,8 +242,6 @@ static void pasm_setidx(struct pjit *pjit, pcode_t *op)
     mov2(pjit, r, data, PREG0);
     _dump(op);
 }
-
-
 static void pasm_cmp_n(struct pjit *pjit, pcode_t *op)
 {
     reg_t r = op->a.reg;
@@ -353,7 +269,6 @@ static void pasm_cmp_r(struct pjit *pjit, pcode_t *op)
     TODO();
     _dump(op);
 }
-
 static void pasm_cond(struct pjit *pjit, pcode_t *op)
 {
     knh_BasicBlock_t *bb = op->a.bb;
@@ -367,7 +282,6 @@ static void pasm_cond(struct pjit *pjit, pcode_t *op)
     }
     _dump(op);
 }
-
 static void pasm_jump(struct pjit *pjit, pcode_t *op)
 {
     knh_BasicBlock_t *bb = op->a.bb;
@@ -390,7 +304,6 @@ static void pasm_call(struct pjit *pjit, pcode_t *op)
     call_r(pjit);
     _dump(op);
 }
-
 static void pasm_incref(struct pjit *pjit, pcode_t *op)
 {
     reg_t r = op->a.reg;
@@ -402,7 +315,6 @@ static void pasm_incref(struct pjit *pjit, pcode_t *op)
     inc2(pjit, r, 0x10);
     _dump(op);
 }
-
 static void pasm_decref(struct pjit *pjit, pcode_t *op)
 {
     reg_t r = op->a.reg;
@@ -412,13 +324,11 @@ static void pasm_decref(struct pjit *pjit, pcode_t *op)
         int shift = b * 0x10 + 0x08;
         mov1(pjit, shift, RSFP, r);
     } else {
-        //dec2(pjit, r, 0x10);
         asm volatile("int3");
     }
     dec2(pjit, r, 0x10);
     _dump(op);
 }
-
 static void pasm_inc(struct pjit *pjit, pcode_t *op)
 {
     reg_t r = op->a.reg;
@@ -426,7 +336,6 @@ static void pasm_inc(struct pjit *pjit, pcode_t *op)
     inc(pjit, r);
     _dump(op);
 }
-
 static void pasm_dec(struct pjit *pjit, pcode_t *op)
 {
     reg_t r = op->a.reg;
@@ -434,32 +343,26 @@ static void pasm_dec(struct pjit *pjit, pcode_t *op)
     dec(pjit, r);
     _dump(op);
 }
-
 static void pasm_mov_rr(struct pjit *pjit, pcode_t *op)
 {
     reg_t r1 = op->a.reg;
     reg_t r2 = op->b.reg;
     pcode_setline(op, pjit);
-    mov(pjit, r1, r2);
+    mov(pjit, r2, r1);
     _dump(op);
 }
-
-static void pasm_add_rr(struct pjit *pjit, pcode_t *op)
-{
-    reg_t r1 = op->a.reg;
-    reg_t r2 = op->b.reg;
-    pcode_setline(op, pjit);
-    addr(pjit, r1, r2);
-    _dump(op);
-}
-
 static void pasm_add_rm(struct pjit *pjit, pcode_t *op)
 {
     pcode_setline(op, pjit);
     TODO();
     _dump(op);
 }
-
+static void pasm_add_mm(struct pjit *pjit, pcode_t *op)
+{
+    pcode_setline(op, pjit);
+    TODO();
+    _dump(op);
+}
 static void pasm_add_rn(struct pjit *pjit, pcode_t *op)
 {
     reg_t r1 = op->a.reg;
@@ -468,11 +371,12 @@ static void pasm_add_rn(struct pjit *pjit, pcode_t *op)
     addi(pjit, data, r1);
     _dump(op);
 }
-
-static void pasm_add_mm(struct pjit *pjit, pcode_t *op)
+static void pasm_add_rr(struct pjit *pjit, pcode_t *op)
 {
+    reg_t r1 = op->a.reg;
+    reg_t r2 = op->b.reg;
     pcode_setline(op, pjit);
-    TODO();
+    addr(pjit, r1, r2);
     _dump(op);
 }
 static void pasm_sub_rn(struct pjit *pjit, pcode_t *op)
@@ -483,45 +387,127 @@ static void pasm_sub_rn(struct pjit *pjit, pcode_t *op)
     subi(pjit, data, r1);
     _dump(op);
 }
-
-static void pasm_sub_mm(struct pjit *pjit, pcode_t *op)
+static void pasm_sub_rr(struct pjit *pjit, pcode_t *op)
 {
     pcode_setline(op, pjit);
     TODO();
     _dump(op);
 }
+static void pasm_mul_rn(struct pjit *pjit, pcode_t *op)
+{
+    //reg_t r1 = op->a.reg;
+    //knh_int_t data = op->b.data;
+    pcode_setline(op, pjit);
+    //subi(pjit, data, r1);
+    TODO();
+    _dump(op);
+}
+static void pasm_mul_rr(struct pjit *pjit, pcode_t *op)
+{
+    pcode_setline(op, pjit);
+    TODO();
+    _dump(op);
+}
+static void pasm_store_f(struct pjit *pjit, pcode_t *op)
+{
+    reg_t r1 = op->a.reg;
+    knh_int_t data = op->b.data;
+    pcode_setline(op, pjit);
+    fmov2(pjit, PFREG0, data, r1);
+    _dump(op);
+}
+static void pasm_load_fn(struct pjit *pjit, pcode_t *op)
+{
+    reg_t r1 = op->a.reg;
+    knh_int_t data = op->b.data;
+    pcode_setline(op, pjit);
+    movi(pjit, PREG0, data);
+    if (r1 == rsp) {
+        mov2sp(pjit, PREG0, 0x00, r1);
+    } else {
+        TODO();
+    }
+    fmov1(pjit, 0x00, r1, PFREG0);
+    _dump(op);
+}
+static void pasm_load_fr(struct pjit *pjit, pcode_t *op)
+{
+    reg_t r1 = op->a.reg;
+    knh_int_t idx = op->b.data;
+    pcode_setline(op, pjit);
+    fmov1(pjit, idx, r1, PFREG0);
+    _dump(op);
+}
+static void pasm_add_f(struct pjit *pjit, pcode_t *op)
+{
+    reg_t r1 = op->a.reg;
+    knh_int_t data = op->b.data;
+    pcode_setline(op, pjit);
+    fadd1(pjit, data, r1, PFREG0);
+    _dump(op);
+}
+static void pasm_sub_f(struct pjit *pjit, pcode_t *op)
+{
+    reg_t r1 = op->a.reg;
+    knh_int_t data = op->b.data;
+    pcode_setline(op, pjit);
+    fsub1(pjit, data, r1, PFREG0);
+    _dump(op);
+}
+static void pasm_mul_f(struct pjit *pjit, pcode_t *op)
+{
+    pcode_setline(op, pjit);
+    TODO();
+    _dump(op);
+}
+static void pasm_div_f(struct pjit *pjit, pcode_t *op)
+{
+    pcode_setline(op, pjit);
+    TODO();
+    _dump(op);
+}
+#define asm_fn(pjit, op, func) {\
+    reg_t r1 = op->a.reg;\
+    knh_int_t data = op->b.data;\
+    movi(pjit, PREG0, data);\
+    if (r1 == rsp) {\
+        mov2sp(pjit, PREG0, 0x00, r1);\
+    } else {\
+        TODO();\
+    }\
+    func(pjit, 0x00, r1, PFREG0);\
+}
+static void pasm_add_fn(struct pjit *pjit, pcode_t *op)
+{
+    pcode_setline(op, pjit);
+    asm_fn(pjit, op, fadd1);
+    _dump(op);
+}
+static void pasm_sub_fn(struct pjit *pjit, pcode_t *op)
+{
+    pcode_setline(op, pjit);
+    asm_fn(pjit, op, fsub1);
+    _dump(op);
+}
+static void pasm_mul_fn(struct pjit *pjit, pcode_t *op)
+{
+    pcode_setline(op, pjit);
+    asm_fn(pjit, op, fmul1);
+    _dump(op);
+}
+static void pasm_div_fn(struct pjit *pjit, pcode_t *op)
+{
+    pcode_setline(op, pjit);
+    asm_fn(pjit, op, fdiv1);
+    _dump(op);
+}
+
 typedef void (*pemit_t)(struct pjit *, pcode_t *);
-static const pemit_t PCODE_EMIT[] = {
-    pasm_init,
-    pasm_exit,
-    pasm_nop,
-    pasm_halt,
-    pasm_load_r,
-    pasm_load_n,
-    pasm_store_r,
-    pasm_store_n,
-    pasm_store_m,
-    pasm_getidx,
-    pasm_setidx,
-    pasm_cmp_n,
-    pasm_cmp_m,
-    pasm_cmp_r,
-    pasm_cond,
-    pasm_jump,
-    pasm_call,
-    pasm_incref,
-    pasm_decref,
-    pasm_inc,
-    pasm_dec,
-    pasm_mov_rr,
-    pasm_add_rr,
-    pasm_add_rm,
-    pasm_add_rn,
-    pasm_add_mm,
-    pasm_sub_rn,
-    pasm_sub_mm,
-};
-#define EMIT(pjit, op) PCODE_EMIT[opcode(op->opcode)](pjit, op)
+#include "opcode.h"
+//static const pemit_t PCODE_EMIT[] = {
+//#include "opcode_emit.c"
+//};
+#define EMIT(pjit, op) PCODEDATA[opcode(op->opcode)].emit(pjit, op)
 
 #define JE  0x74
 #define JNE 0x75
@@ -542,9 +528,10 @@ static const pemit_t PCODE_EMIT[] = {
 #define data(n) {DAT,  {(void*)(0ULL + n)}}
 #define objp(p) {OBJP, {(void*)p}}
 #define bb(b,i) {BB,   {(b)}}
-#define cond(c) {COND, {(void*)(c)}}
+#define cond(c) {COND, {(void*)(0ULL + c)}}
 #define func(f) {FUNC, {(void*)(f)}}
 #define idx(i)  {IDX,  {(void*)(0ULL + i)}}
+#define flat(f) {FLAT, {(void*)(0ULL + (knh_ndata_t)f)}}
 
 static void pcode_dump(pcode_t *op)
 {
@@ -575,6 +562,13 @@ static void pcode_dump(pcode_t *op)
         case PTYPE_BB:
             fprintf(stderr, "bb[%d] ", DP(p[i].bb)->id);
             break;
+        case PTYPE_FLAT:
+            {
+                ndata_t v;
+                v.i = p[i].data;
+                fprintf(stderr, "%f ", v.f);
+                break;
+            }
         case PTYPE_IDX:
             fprintf(stderr, "op[+%ld] ", p[i].index);
             break;
@@ -610,6 +604,7 @@ static void pcode_add_(Ctx *ctx, knh_BasicBlock_t *bb, pcode_t *op)
 {
     pcode_t *pc;
     pdata_t *pdata = (pdata_t*) DP(bb)->code;
+
     if(pdata->capacity == 0) {
         pdata->opbuf = (pcode_t*)KNH_MALLOC(ctx, sizeof(pcode_t));
         pdata->capacity = 1;
@@ -732,10 +727,16 @@ static knh_Array_t *KLRCode_toBasicBlock(Ctx *ctx, knh_KLRCode_t *kcode, int *ma
 //static void *spill_at_interval(kvc_t *kvc, knh_Array_t *interval, knh_Array_t *active, int i)
 
 static void pcode_add_(Ctx *ctx, knh_BasicBlock_t *bb, pcode_t *op);
+#define PASM_(opcode, a, b) { \
+    pcode_t __op = {opcode, 0, a, b};\
+    pcode_add_(ctx, bb, (&__op));\
+}
+
 #define PASM(T, a, b) { \
     pcode_t __op = {PCODE_##T, 0, a, b};\
     pcode_add_(ctx, bb, (&__op));\
 }
+
 
 #define OPCASE(op) case OPCODE_##op : 
 //static void table_tochar(pindex_t *t)
@@ -842,7 +843,8 @@ static void store_regs(Ctx *ctx, knh_BasicBlock_t *bb, pindex_t *regTable)
                 PASM(STORER, obj(reg_table[i].use), reg(r));
                 /* obj(reg_table[i].use) is loaded to PREG0 
                  * by DECREF op. */
-                PASM(MOVRR, reg(PREG0), reg(PARG1));
+                /* TODO */
+                PASM(MOVRR , reg(PREG0), reg(PARG1));
                 PASM(GETIDX, reg(PREG0), data(0x10));
                 PASM(CMPN, reg(PREG0), data(0));
                 PASM(COND, idx(2), cond(JNE));
@@ -927,9 +929,11 @@ static void BasicBlock_setPcode(Ctx *ctx, knh_Method_t *mtd, knh_Array_t *bbList
                 //PASM(INCREF, reg(r), nop());
                 break;
             }
-            OPCASE(iJLTn) {
+            OPCASE(iJEQn)OPCASE(iJNEQn)OPCASE(iJLTn)OPCASE(iJLTEn)OPCASE(iJGTn)OPCASE(iJGTEn) {
                 klr_iJLTn_t *op_ = (klr_iJLTn_t*) op;
                 int isLoaded = reg_isLoaded(regTable, op_->a);
+                int opcode = op_->opcode - OPCODE_iJEQn;
+                static int condop[] = {JNE, JE, JGE, JG, JLE, JE};
                 reg_t r = regalloc(regTable, NDAT, op_->a);
                 knh_int_t n = op_->n;
                 knh_BasicBlock_t *targetBB = knh_opline_getTargetBB(bbList, op_->jumppc);
@@ -951,7 +955,7 @@ static void BasicBlock_setPcode(Ctx *ctx, knh_Method_t *mtd, knh_Array_t *bbList
                 }
                 //fprintf(stderr, "targetBB bb=%d\n", DP(targetBB)->id);
                 store_regs(ctx, bb, regTable);
-                PASM(COND, bb(targetBB,0), cond(JGE));
+                PASM(COND, bb(targetBB,0), cond(condop[opcode]));
                 break;
             }
             OPCASE(iINC) {
@@ -962,6 +966,16 @@ static void BasicBlock_setPcode(Ctx *ctx, knh_Method_t *mtd, knh_Array_t *bbList
                     PASM(LOADR, reg(r), ndat(op_->a));
                 }
                 PASM(INC, reg(r), nop());
+                break;
+            }
+            OPCASE(iDEC) {
+                klr_iDEC_t *op_ = (klr_iDEC_t*) op;
+                int isLoaded = reg_isLoaded(regTable, op_->a);
+                reg_t r = regalloc(regTable, NDAT, op_->a);
+                if (!isLoaded) {
+                    PASM(LOADR, reg(r), ndat(op_->a));
+                }
+                PASM(DEC, reg(r), nop());
                 break;
             }
             OPCASE(JMP) {
@@ -1033,7 +1047,7 @@ static void BasicBlock_setPcode(Ctx *ctx, knh_Method_t *mtd, knh_Array_t *bbList
                 //knh_sfpidx_t espshift = op_->espshift;
                 knh_Method_t *callmtd = op_->callmtd;
                 store_regs(ctx, bb, regTable);
-                PASM(MOVRR, reg(RSFP) , reg(PARG1));
+                PASM(MOVRR, reg(PARG1), reg(RSFP));
                 PASM(ADDRN, reg(PARG1), data(thisidx * 0x10));
                 PASM(LOADN, reg(PARG2), data(K_RTNIDX));
                 if (mtd == callmtd) {
@@ -1053,7 +1067,7 @@ static void BasicBlock_setPcode(Ctx *ctx, knh_Method_t *mtd, knh_Array_t *bbList
                 //knh_sfpidx_t espshift = op_->espshift;
                 knh_Method_t *callmtd = op_->callmtd;
                 store_regs(ctx, bb, regTable);
-                PASM(MOVRR, reg(RSFP) , reg(PARG1));
+                PASM(MOVRR, reg(PARG1), reg(RSFP));
                 PASM(ADDRN, reg(PARG1), data(thisidx * 0x10));
                 PASM(LOADN, reg(PARG2), data(K_RTNIDX));
                 /* TODO klr_setesp */
@@ -1065,21 +1079,22 @@ static void BasicBlock_setPcode(Ctx *ctx, knh_Method_t *mtd, knh_Array_t *bbList
                 klr_TR_t *op_ = (klr_TR_t*) op;
                 knh_sfpidx_t diff = op_->a - op_->b;
                 store_regs(ctx, bb, regTable);
-                PASM(MOVRR, reg(RSFP) , reg(PARG1));
+                PASM(MOVRR, reg(PARG1), reg(RSFP));
                 PASM(ADDRN, reg(PARG1), data(op_->a * 0x10));
                 PASM(LOADN, reg(PARG2), data(diff));
                 PASM(LOADN, reg(PARG3), data(op_->cid));
                 PASM(CALL , func(op_->tr), nop());
                 break;
             }
-            OPCASE(iMOVx) {
+            OPCASE(iMOVx) OPCASE(fMOVx) {
                 klr_iMOVx_t *op_ = (klr_iMOVx_t*) op;
                 reg_t r, r2;
                 int pos = sizeof(knh_int_t) * op_->b.n;
                 if (reg_isLoaded(regTable, op_->b.i)) {
                     r2 = regalloc(regTable, OBJ, op_->b.i);
                 } else {
-                    r2 = PREG0;
+                    r2 = regalloc(regTable, OBJ, op_->b.i);
+                    //r2 = PREG0;
                     PASM(LOADR , reg(r2), obj(op_->b.i)); /* sfp[b.i].ox */
                 }
                 r = regalloc(regTable, NDAT, op_->a);
@@ -1089,10 +1104,10 @@ static void BasicBlock_setPcode(Ctx *ctx, knh_Method_t *mtd, knh_Array_t *bbList
                 }
                 PASM(GETIDX, reg(r2), data(0x20));  /* sfp[b.i].ox->fields */
                 PASM(GETIDX, reg(PREG0), data(pos));/* sfp[b.i].ox->fields[a] */
-                PASM(MOVRR , reg(r2), reg(r));
+                PASM(MOVRR , reg(r), reg(r2));
                 break;
             }
-            OPCASE(XIMOV) {
+            OPCASE(XIMOV) OPCASE(XFMOV) {
                 klr_XIMOV_t *op_ = (klr_XIMOV_t*) op;
                 reg_t r, r2;
                 int pos = sizeof(knh_int_t) * op_->a.n;
@@ -1114,7 +1129,7 @@ static void BasicBlock_setPcode(Ctx *ctx, knh_Method_t *mtd, knh_Array_t *bbList
                 PASM(SETIDX, reg(r2), data(pos));/* sfp[b.i].ox->fields[a] */
                 break;
             }
-            OPCASE(iADD) {
+            OPCASE(iADD)OPCASE(iSUB)OPCASE(iMUL) {
                 klr_iADD_t *op_ = (klr_iADD_t*) op;
                 reg_t r, r2, r3;
                 if (reg_isLoaded(regTable, op_->b)) {
@@ -1128,50 +1143,76 @@ static void BasicBlock_setPcode(Ctx *ctx, knh_Method_t *mtd, knh_Array_t *bbList
                         TODO();
                     }
                     PASM(MOVRR, reg(r2), reg(r));
+                } else {
+                    r  = regalloc(regTable, NDAT, op_->c);
+                    r3 =  PREG0;
+                    PASM(LOADR, reg(r), ndat(op_->a));
+                    PASM(LOADR, reg(r3), ndat(op_->b));
+                }
+                if (op_->opcode == OPCODE_iADD) {
                     PASM(ADDRR, reg(r3), reg(r));
-                } else {
-                    r  = regalloc(regTable, NDAT, op_->c);
-                    PASM(LOADR, reg(r), ndat(op_->a));
-                    PASM(LOADR, reg(PREG0), ndat(op_->b));
-                    PASM(ADDRR, reg(PREG0), reg(r));
+                } else if (op_->opcode == OPCODE_iSUB) {
+                    PASM(SUBRR, reg(r3), reg(r));
+                } else if (op_->opcode == OPCODE_iMUL) {
+                    PASM(MULRR, reg(r3), reg(r));
                 }
                 break;
             }
-            OPCASE(iSUBn) {
-                klr_iSUBn_t *op_ = (klr_iSUBn_t*) op;
-                reg_t r, r2;
-                if (reg_isLoaded(regTable, op_->a)) {
-                    r2 = regalloc(regTable, NDAT, op_->a);
-                    r  = regalloc(regTable, NDAT, op_->c);
-                    if (r2 == PREG_NOP) {
-                        TODO();
-                    }
-                    PASM(MOVRR, reg(r2), reg(r));
-                    PASM(SUBRN, reg(r), data(op_->n));
-                } else {
-                    r  = regalloc(regTable, NDAT, op_->c);
-                    PASM(LOADR, reg(r), ndat(op_->a));
-                    PASM(SUBRN, reg(r), data(op_->n));
-                }
-                break;
-            }
-            OPCASE(iADDn) {
+            OPCASE(iADDn)OPCASE(iSUBn) {
                 klr_iADDn_t *op_ = (klr_iADDn_t*) op;
                 reg_t r, r2;
                 if (reg_isLoaded(regTable, op_->a)) {
+                    // c = a + n
                     r2 = regalloc(regTable, NDAT, op_->a);
                     r  = regalloc(regTable, NDAT, op_->c);
                     if (r2 == PREG_NOP) {
                         TODO();
                     }
-                    PASM(MOVRR, reg(r2), reg(r));
-                    PASM(ADDRN, reg(r), data(op_->n));
+                    PASM(MOVRR, reg(r), reg(r2));
                 } else {
                     r  = regalloc(regTable, NDAT, op_->c);
                     PASM(LOADR, reg(r), ndat(op_->a));
+                }
+                if (op_->opcode == OPCODE_iADDn) {
                     PASM(ADDRN, reg(r), data(op_->n));
+                } else if (op_->opcode == OPCODE_iSUBn) {
+                    PASM(SUBRN, reg(r), data(op_->n));
+                } else if (op_->opcode == OPCODE_iMULn) {
+                    PASM(MULRN, reg(r), data(op_->n));
                 }
                 break;
+            }
+            OPCASE(fADD) OPCASE(fSUB) OPCASE(fMUL) OPCASE(fDIV) {
+                klr_fADD_t *op_ = (klr_fADD_t*) op;
+                PASM(LOADFR, reg(RSFP), data(op_->a * 0x10));
+                if (op_->opcode == OPCODE_fADD) {
+                    // add  %ftmp0 += 0x00(%r)
+                    PASM(ADDF, reg(RSFP), data(op_->b * 0x10));
+                } else if (op_->opcode == OPCODE_fSUB) {
+                    PASM(SUBF, reg(RSFP), data(op_->b * 0x10));
+                }
+                // store 0x00(%r) = %ftmp0
+                PASM(STOREF, reg(RSFP), data(op_->c * 0x10));
+                break;
+            }
+            OPCASE(fADDn) OPCASE(fSUBn) OPCASE(fMULn) OPCASE(fDIVn) {
+                klr_fADDn_t *op_ = (klr_fADDn_t*) op;
+                ndata_t v;
+                v.f = op_->n;
+                int opcode = op_->opcode - OPCODE_fADDn + PCODE_ADDFN;
+                PASM(LOADR, reg(RSFP), data(op_->a * 0x10));
+                PASM_(opcode, reg(rsp), flat(v.i));
+                // store 0x00(%r) = %ftmp0
+                PASM(STOREF, reg(RSFP), data(op_->c * 0x10));
+                break;
+            }
+            OPCASE(HALT) OPCASE(THCODE) {
+                iprintf("JIT compile error at %s(%d) at %d",
+                        knh_opcode_tochar(op->opcode),
+                        op->opcode, op->line);
+                asm volatile("int3");
+                break;
+
             }
             default :
                 iprintf("not surpport yet %s(%d)",
@@ -1205,6 +1246,8 @@ static void pcode_optimize(Ctx *ctx, knh_Array_t *bbList, pindex_t *regTable)
                     op->opcode = PCODE_NOP;
                     opP->a.type = op->a.type;
                     opP->a.data = op->a.data;
+                    op->a.type = NOP;
+                    op->b.type = NOP;
                 }
             }
             if (opP->opcode == PCODE_ADDRN) {
@@ -1359,34 +1402,34 @@ void pjit_compile(Ctx *ctx, knh_Method_t *mtd)
         END_LOCAL(ctx, lsfp);
     }
 }
-void checkrefc(knh_Object_t *o, knh_Object_t *o2, knh_Object_t *o3, knh_Object_t *o4)
-{
-    fprintf(stderr, "(o1=%p,refc=%ld,", o , o->h.refc);
-    if (o->h.cid == CLASS_String) {
-        fprintf(stderr, "'%s')\n", ((knh_String_t*)o)->str.text);
-    } else {
-        fprintf(stderr, ")\n");
-    }
-    fprintf(stderr, "(o2=%p,refc=%ld,", o2, o2->h.refc);
-    if (o2->h.cid == CLASS_String) {
-        fprintf(stderr, "'%s')\n", ((knh_String_t*)o2)->str.text);
-    } else {
-        fprintf(stderr, ")\n");
-    }
-
-    fprintf(stderr, "(o3=%p,refc=%ld,", o3, o3->h.refc);
-    if (o3->h.cid == CLASS_String) {
-        fprintf(stderr, "'%s')\n", ((knh_String_t*)o3)->str.text);
-    } else {
-        fprintf(stderr, ")\n");
-    }
-
-    fprintf(stderr, "(o4=%p,refc=%ld,", o4, o4->h.refc);
-    if (o4->h.cid == CLASS_String) {
-        fprintf(stderr, "'%s')\n", ((knh_String_t*)o4)->str.text);
-    } else {
-        fprintf(stderr, ")\n");
-    }
-
-}
+//static void checkrefc(knh_Object_t *o, knh_Object_t *o2, knh_Object_t *o3, knh_Object_t *o4)
+//{
+//    fprintf(stderr, "(o1=%p,refc=%ld,", o , o->h.refc);
+//    if (o->h.cid == CLASS_String) {
+//        fprintf(stderr, "'%s')\n", ((knh_String_t*)o)->str.text);
+//    } else {
+//        fprintf(stderr, ")\n");
+//    }
+//    fprintf(stderr, "(o2=%p,refc=%ld,", o2, o2->h.refc);
+//    if (o2->h.cid == CLASS_String) {
+//        fprintf(stderr, "'%s')\n", ((knh_String_t*)o2)->str.text);
+//    } else {
+//        fprintf(stderr, ")\n");
+//    }
+//
+//    fprintf(stderr, "(o3=%p,refc=%ld,", o3, o3->h.refc);
+//    if (o3->h.cid == CLASS_String) {
+//        fprintf(stderr, "'%s')\n", ((knh_String_t*)o3)->str.text);
+//    } else {
+//        fprintf(stderr, ")\n");
+//    }
+//
+//    fprintf(stderr, "(o4=%p,refc=%ld,", o4, o4->h.refc);
+//    if (o4->h.cid == CLASS_String) {
+//        fprintf(stderr, "'%s')\n", ((knh_String_t*)o4)->str.text);
+//    } else {
+//        fprintf(stderr, ")\n");
+//    }
+//
+//}
 #endif

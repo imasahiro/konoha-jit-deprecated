@@ -72,6 +72,11 @@ static const reg_t r12  = {12};
 static const reg_t r13  = {13};
 static const reg_t r14  = {14};
 static const reg_t r15  = {15};
+static const reg_t xmmx0 = {0};
+static const reg_t xmmx1 = {1};
+static const reg_t xmmx2 = {2};
+static const reg_t xmmx3 = {3};
+static const reg_t xmmx4 = {4};
 
 #define PREG_NOP rnon
 #define PREG0    rax
@@ -87,6 +92,8 @@ static const reg_t r15  = {15};
 #define PARG2    rdx
 #define PARG3    rcx
 #define PARG4    r8
+#define PFREG0   xmmx0
+#define PFREG1   xmmx1
 
 static int mov1(struct pjit *pjit, int n, reg_t r1, reg_t r2)
 {
@@ -213,6 +220,7 @@ static int mov(struct pjit *pjit, reg_t r1, reg_t r2)
         }
         else {
             iprintf("not surpport yet");
+            TODO();
             exit(1);
         }
         r1 = r1 - 8;
@@ -391,6 +399,37 @@ static int movi2(struct pjit *pjit, knh_int_t data, int n, reg_t r1)
     return 0;
 }
 
+static int mov2sp(struct pjit *pjit, reg_t r1, int n, reg_t r2)
+{
+    if (r1 < 8) {
+        __put(0x48);
+    } else {
+        iprintf("not surpport yet");
+        exit(1);
+    }
+    if (r2 != rsp) {
+        iprintf("not surpport yet");
+        exit(1);
+    }
+    __put(0x89);
+    if (n == 0) {
+        __put(0x04);
+    } else {
+        __put(0x44);
+    }
+    //if (r1 == rax) {
+    //    __put(0x04);
+    //    //__put((r1 << 3) | rbp);
+    //} else {
+    //    TODO();
+    //}
+    __put(0x24);
+    if (n == 0) {
+    } else {
+        __put(n);
+    }
+    return 0;
+}
 static int mov2bp(struct pjit *pjit, reg_t r1, int n, reg_t r2)
 {
     if (r1 < 8) {
@@ -642,6 +681,113 @@ static int testq(struct pjit *pjit, reg_t r1, reg_t r2)
     __put(0x85);
     __put(0xc0 | (r1 << 3) | (r2 << 0));
     return 3;
+}
+#define IS_FloatReg(r) (1)
+// f2 0f 10 44 24 10
+// f2 0f 10 84 24 80 00 00 00
+static int fmov1(struct pjit *pjit, int32_t n, reg_t r1, reg_t r2)
+{
+    union {
+        unsigned char code[sizeof(int32_t)];
+        int32_t ival;
+    } code;
+    int ret = 4;
+    int over80 = (n >= 0x80)? 1 : 0;
+    assert(IS_FloatReg(r2));
+    __put(0xf2);
+    if (r1 >= 8) {
+        __put(0x41);
+        r1 = r1 - 8;
+        ret += 1;
+    }
+    __put(0x0f);
+    __put(0x10);
+    if (r1 == rsp) {
+        if (!over80) {
+            __put((0x00 | (r2 << 3) | r1));
+        } else {
+            __put((0x80 | (r2 << 3) | r1));
+        }
+        ret += 1;
+        __put(0x24);
+    } else {
+        __put((0x80 | (r2 << 3) | r1));
+        code.ival = n;
+        __write(code.code, sizeof(code));
+        ret += 1 + sizeof(code);
+    }
+    return ret;
+}
+//static int fadd1(struct pjit *pjit, int32_t n, reg_t r1, reg_t r2)
+//{
+//    reg_t _r1 = r1;
+//    union {
+//        unsigned char code[sizeof(int32_t)];
+//        int32_t ival;
+//    } code;
+//    int ret = 5 + sizeof(code);
+//    assert(IS_FloatReg(r2));
+//    __put(0xf2);
+//    if (r1 >= 8) {
+//        __put(0x41);
+//        _r1 = _r1 - 8;
+//        ret += 1;
+//    }
+//    __put(0x0f);
+//    __put(0x58);
+//    __put((0x80 | (r2 << 3) | _r1));
+//    code.ival = n;
+//    __write(code.code, sizeof(code));
+//    return ret;
+//}
+static int fcalc1(struct pjit *pjit, unsigned char op, int32_t n, reg_t r1, reg_t r2)
+{
+    reg_t _r1 = r1;
+    union {
+        unsigned char code[sizeof(int32_t)];
+        int32_t ival;
+    } code;
+    int ret = 5 + sizeof(code);
+    assert(IS_FloatReg(r2));
+    __put(0xf2);
+    if (r1 >= 8) {
+        __put(0x41);
+        _r1 = _r1 - 8;
+        ret += 1;
+    }
+    __put(0x0f);
+    __put(op);
+    __put((0x80 | (r2 << 3) | _r1));
+    code.ival = n;
+    __write(code.code, sizeof(code));
+    return ret;
+}
+#define fadd1(pjit, n, r1, r2) fcalc1(pjit, 0x58, n, r1, r2)
+#define fsub1(pjit, n, r1, r2) fcalc1(pjit, 0x5c, n, r1, r2)
+#define fmul1(pjit, n, r1, r2) fcalc1(pjit, 0x59, n, r1, r2)
+#define fdiv1(pjit, n, r1, r2) fcalc1(pjit, 0x5e, n, r1, r2)
+
+static int fmov2(struct pjit *pjit, reg_t r1, int32_t n, reg_t r2)
+{
+    reg_t _r2 = r2;
+    union {
+        unsigned char code[sizeof(int32_t)];
+        int32_t ival;
+    } code;
+    int ret = 5 + sizeof(code);
+    assert(IS_FloatReg(r1));
+    __put(0xf2);
+    if (r2 >= 8) {
+        __put(0x41);
+        _r2 = _r2 - 8;
+        ret += 1;
+    }
+    __put(0x0f);
+    __put(0x11);
+    __put((0x80 | (r1 << 3) | _r2));
+    code.ival = n;
+    __write(code.code, sizeof(code));
+    return ret;
 }
 
 #if 0

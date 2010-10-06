@@ -162,13 +162,13 @@ float mops(int score) {
     t = System.getTime() -s ;
     score = t - delta;
     print "IntegerOperation[mops,ms]:", mops(score), t;	
-    //
-    //s = System.getTime();
-    //testFloatOperation();
-    //t = System.getTime() -s ;
-    //score = t - delta;
-    //print "FloatOperation[mops,ms]:", mops(score), t;
-    // 
+    
+    s = System.getTime();
+    testFloatOperation();
+    t = System.getTime() -s ;
+    score = t - delta;
+    print "FloatOperation[mops,ms]:", mops(score), t;
+     
     s = System.getTime();
     testFunctionCall();
     t = System.getTime() - s;
@@ -228,6 +228,7 @@ testStringAssignment.setJITCode();
 testMathFabs.setJITCode();
 testIntegerOperation.setJITCode();
 testObjectCreation.setJITCode();
+testFloatOperation.setJITCode();
 testFieldVariable.setJITCode();
 testFunctionCall.setJITCode();
 testFunctionReturn.setJITCode();
@@ -265,13 +266,13 @@ fibo.setJITCode();
     t = System.getTime() -s ;
     score = t - delta;
     print "IntegerOperation[mops,ms]:", mops(score), t;	
-    //
-    //s = System.getTime();
-    //testFloatOperation();
-    //t = System.getTime() -s ;
-    //score = t - delta;
-    //print "FloatOperation[mops,ms]:", mops(score), t;
-    // 
+    
+    s = System.getTime();
+    testFloatOperation();
+    t = System.getTime() -s ;
+    score = t - delta;
+    print "FloatOperation[mops,ms]:", mops(score), t;
+     
     s = System.getTime();
     testFunctionCall();
     t = System.getTime() - s;

@@ -18,3 +18,10 @@ ltmain.sh
 aclocal.m4
 autom4te.cache
 config.h.in~
+gentools/*.pyc
+*.o
+GPATH
+GRTAGS
+GSYMS
+GTAGS
+
