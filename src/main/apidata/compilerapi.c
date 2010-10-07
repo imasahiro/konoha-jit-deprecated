@@ -52,6 +52,15 @@ static METHOD Func_setJITCode(Ctx *ctx, knh_sfp_t *sfp, long rix)
     RETURNvoid_();
 }
 /* ------------------------------------------------------------------------ */
+//## method void Class.setJITCode();
+static METHOD Class_setJITCode(Ctx *ctx, knh_sfp_t *sfp, long rix)
+{
+    knh_Class_t *o = (knh_Class_t*) sfp[0].o;
+    knh_Method_t *mtd = knh_lookupMethod(ctx, o->cid, FN_new);
+    pjit_compile(ctx, mtd);
+    RETURNvoid_();
+}
+/* ------------------------------------------------------------------------ */
 
 #endif/*K_USING_DEFAULTAPI*/
 

@@ -58,6 +58,7 @@ void knh_NameSpace_addFormatter(Ctx *ctx, knh_NameSpace_t *ns, knh_Method_t *mtd
 void knh_Method_asm(Ctx *ctx, knh_Method_t *mtd, knh_Stmt_t *stmtP, knh_Stmt_t *stmtB, knh_type_t reqt, knh_Ftyping typing);
 void knh_loadSystemKLRCode(Ctx *ctx);
 void knh_write_vmfunc(Ctx *ctx, knh_OutputStream_t *w, void *f);
+void jit_dump(void *mem, int size);
 void pjit_compile(Ctx *ctx, knh_Method_t *mtd);
 knh_NameSpace_t* new_NameSpace(Ctx *ctx, knh_NameSpace_t *nsNULL);
 knh_class_t knh_NameSpace_getcid(Ctx *ctx, knh_NameSpace_t *ns, knh_bytes_t sname);

@@ -84,5 +84,9 @@ struct pcode_data {
     {PCODE_MULFN, "mul_fn", {PTYPE_REG, PTYPE_DATA}, pasm_mul_fn},
     {PCODE_DIVFN, "div_fn", {PTYPE_REG, PTYPE_DATA}, pasm_div_fn},
 
+    // cast int data to float data
+    {PCODE_FCASTR, "fcast_r", {PTYPE_REG, PTYPE_REG}, pasm_fcast_r},
+    // cast float data to int data
+    {PCODE_ICASTR, "icast_r", {PTYPE_REG, PTYPE_REG}, pasm_icast_r},
 };
 

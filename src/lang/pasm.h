@@ -120,7 +120,7 @@ static int mov1(struct pjit *pjit, int n, reg_t r1, reg_t r2)
     if (n < 0x80) {
         __put(0x40 | (r2 << 3) | (r1 << 0));
     } else {
-        asm volatile("int3");
+        __put(0x80 | (r2 << 3) | (r1 << 0));
     }
     if(suffix != 0xff) {
         __put(0x24);
@@ -152,7 +152,6 @@ static int mov2(struct pjit *pjit, reg_t r1, int n, reg_t r2)
             asm volatile("int3");
         }
         if (r2 < 8) {
-            asm volatile("int3");
             __put(0x4c);
         } else if (r2 >= 8) {
             __put(0x4d);
@@ -220,6 +219,7 @@ static int mov(struct pjit *pjit, reg_t r1, reg_t r2)
         }
         else {
             __put(0x4d);
+            r2 = r2 - 8;
         }
         r1 = r1 - 8;
     }
@@ -422,8 +422,7 @@ static int mov2sp(struct pjit *pjit, reg_t r1, int n, reg_t r2)
     //    TODO();
     //}
     __put(0x24);
-    if (n == 0) {
-    } else {
+    if (n != 0) {
         __put(n);
     }
     return 0;
@@ -745,7 +744,7 @@ static int fcalc1(struct pjit *pjit, unsigned char op, int32_t n, reg_t r1, reg_
         unsigned char code[sizeof(int32_t)];
         int32_t ival;
     } code;
-    int ret = 5 + sizeof(code);
+    int ret = 5;
     assert(IS_FloatReg(r2));
     __put(0xf2);
     if (r1 >= 8) {
@@ -755,9 +754,17 @@ static int fcalc1(struct pjit *pjit, unsigned char op, int32_t n, reg_t r1, reg_
     }
     __put(0x0f);
     __put(op);
-    __put((0x80 | (r2 << 3) | _r1));
-    code.ival = n;
-    __write(code.code, sizeof(code));
+    if (n == 0) {
+        __put((0x00 | (r2 << 3) | _r1));
+        __put(0x24);
+        // f2 0f 59 04 24
+        ret += 1;
+    } else {
+        __put((0x80 | (r2 << 3) | _r1));
+        code.ival = n;
+        __write(code.code, sizeof(code));
+        ret += sizeof(code);
+    }
     return ret;
 }
 #define fadd1(pjit, n, r1, r2) fcalc1(pjit, 0x58, n, r1, r2)
@@ -787,6 +794,25 @@ static int fmov2(struct pjit *pjit, reg_t r1, int32_t n, reg_t r2)
     __write(code.code, sizeof(code));
     return ret;
 }
+
+static int cast_(struct pjit *pjit, reg_t r1, reg_t r2, unsigned char opcode)
+{
+    unsigned char op = 0x48;
+    int ret = 5;
+    if (r1 >= 8) {
+        op = 0x49;
+        r1 = r1 - 8;
+    }
+    __put(0xf2);
+    __put(op);
+    __put(0x0f);
+    __put(opcode);
+    __put((0xc0 | (r2 << 3) | (r1)));
+    return ret;
+}
+
+#define fcast(pjit, r1, r2) cast_(pjit, r1, r2, 0x2a)
+#define icast(pjit, r1, r2) cast_(pjit, r1, r2, 0x2c)
 
 #if 0
 int main(int argc, char **argv)
