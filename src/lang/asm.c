@@ -177,7 +177,7 @@ static void knh_Gamma_asm(Ctx *ctx, knh_opline_t *op)
 			}
 		}
 		if(op->opcode == OPCODE_NMOV) {
-#if 0
+#if 1
 			if(opP->opcode == OPCODE_NMOV && HAS_OPCODE(NNMOV)) {
 				klr_NNMOV_t *opMOV = (klr_NNMOV_t*)opP;
 				opMOV->c = ((klr_NMOV_t*)op)->a;

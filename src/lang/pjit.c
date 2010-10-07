@@ -1088,6 +1088,35 @@ static void BasicBlock_setPcode(Ctx *ctx, knh_Method_t *mtd, knh_Array_t *bbList
                 PASM(JMP, bb(targetBB,0), nop());
                 break;
             }
+            OPCASE(NNMOV) {
+                klr_NNMOV_t *op_ = (klr_NNMOV_t*) op;
+                reg_t r, r2;
+                if (reg_isLoaded(regTable, op_->b)) {
+                    r2 = regalloc(regTable, NDAT, op_->b);
+                    r  = regalloc(regTable, NDAT, op_->a);
+                    if (r2 == PREG_NOP) {
+                        TODO();
+                    }
+                    PASM(MOVRR, reg(r), reg(r2));
+                } else {
+                    r  = regalloc(regTable, NDAT, op_->a);
+                    PASM(LOADR, reg(r), ndat(op_->b));
+                }
+
+                if (reg_isLoaded(regTable, op_->d)) {
+                    r2 = regalloc(regTable, NDAT, op_->d);
+                    r  = regalloc(regTable, NDAT, op_->c);
+                    if (r2 == PREG_NOP) {
+                        TODO();
+                    }
+                    PASM(MOVRR, reg(r), reg(r2));
+                } else {
+                    r  = regalloc(regTable, NDAT, op_->d);
+                    PASM(LOADR, reg(r), ndat(op_->c));
+                }
+                break;
+            }
+
             OPCASE(NMOV) {
                 klr_NMOV_t *op_ = (klr_NMOV_t*) op;
                 reg_t r, r2;
@@ -1120,7 +1149,33 @@ static void BasicBlock_setPcode(Ctx *ctx, knh_Method_t *mtd, knh_Array_t *bbList
                 }
                 break;
             }
-
+            OPCASE(OOMOV) {
+                klr_OOMOV_t *op_ = (klr_OOMOV_t*) op;
+                reg_t r, r2;
+                if (reg_isLoaded(regTable, op_->b)) {
+                    r2 = regalloc(regTable, OBJ, op_->b);
+                    r  = regalloc(regTable, OBJ, op_->a);
+                    if (r2 == PREG_NOP) {
+                        TODO();
+                    }
+                    PASM(MOVRR, reg(r), reg(r2));
+                } else {
+                    r  = regalloc(regTable, OBJ, op_->a);
+                    PASM(LOADR , reg(r), obj(op_->b));
+                }
+                if (reg_isLoaded(regTable, op_->d)) {
+                    r2 = regalloc(regTable, OBJ, op_->d);
+                    r  = regalloc(regTable, OBJ, op_->c);
+                    if (r2 == PREG_NOP) {
+                        TODO();
+                    }
+                    PASM(MOVRR, reg(r), reg(r2));
+                } else {
+                    r  = regalloc(regTable, OBJ, op_->c);
+                    PASM(LOADR , reg(r), obj(op_->d));
+                }
+                break;
+            }
             OPCASE(OMOV) {
                 klr_OMOV_t *op_ = (klr_OMOV_t*) op;
                 reg_t r, r2;
