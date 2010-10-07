@@ -815,6 +815,17 @@ static void init_regtable(void)
 static reg_t regalloc(pindex_t *regTable, int type, knh_sfpidx_t a)
 {
     int i;
+    for (i = 1; i < ARRAY_SIZE(reg_table); i++) {
+        if (reg_table[i].use == a) return reg_table[i].r;
+    }
+
+    for (i = 1; i < ARRAY_SIZE(reg_table); i++) {
+        if (reg_table[i].use == REG_UNUSE)
+            break;
+    }
+    assert(i < ARRAY_SIZE(reg_table));
+    reg_table[i].use  = a;
+    reg_table[i].type = type;
     //int size = regtable_size(regTable);
     //fprintf(stderr, "regtable: ");
     //for (i = 0; i < size; i++) {
@@ -823,70 +834,125 @@ static reg_t regalloc(pindex_t *regTable, int type, knh_sfpidx_t a)
     //}
     //fprintf(stderr, "\n");
     //fprintf(stderr, "a=%ld\n", a);
-    for (i = 1; i < ARRAY_SIZE(reg_table); i++) {
-        if (reg_table[i].use == a)
-            break;
-        if (reg_table[i].use == REG_UNUSE)
-            break;
-    }
-    assert(i < ARRAY_SIZE(reg_table));
-    reg_table[i].use  = a;
-    reg_table[i].type = type;
+    //if (0 <= a && a <= regtable_size(regTable)) {
+    //    regTable[a].type  = type;
+    //    regTable[a].index = a;
+    //}
     return reg_table[i].r;
+}
+#define CLEAR_REG(r) {\
+    r.use  = REG_UNUSE;\
+    r.type = NOP;\
 }
 static void clear_reg(reg_t r)
 {
     int i;
     for (i = 1; i < ARRAY_SIZE(reg_table); i++) {
         if (reg_table[i].r == r) {
-            reg_table[i].use  = REG_UNUSE;
-            reg_table[i].type = NOP;
+            CLEAR_REG(reg_table[i]);
         }
     }
 }
 
+static knh_sfpidx_t search_source(knh_BasicBlock_t *bb, reg_t r)
+{
+    if (r == PREG0) {
+        return -1;
+    } else {
+        int i;
+        pdata_t *pdata = (pdata_t*) DP(bb)->code;
+        pcode_t *op;
+        for (i = pdata->size - 1; i >= 0; i--) {
+            op = pdata->opbuf + i;
+            if (op->opcode == PCODE_GETIDX) {
+                continue;
+            }
+            if (op->a.type == REG && op->a.reg == r) {
+                return op->b.index;
+            }
+        }
+    }
+    return -1;
+}
+
+static void store_reg_ndat(Ctx *ctx, knh_BasicBlock_t *bb, pindex_t *regTable, int i)
+{
+    reg_t r  = reg_table[i].r;
+    PASM(STORER, ndat(reg_table[i].use), reg(r));
+    //int size = regtable_size(regTable);
+}
+static void store_reg_obj(Ctx *ctx, knh_BasicBlock_t *bb, pindex_t *regTable, int i)
+{
+    reg_t r  = reg_table[i].r;
+    knh_sfpidx_t use = reg_table[i].use;
+    knh_sfpidx_t source = search_source(bb, r);
+    if (source == use)
+        return;
+    PASM(INCREF, reg(r), nop());
+    PASM(DECREF, reg(PREG0), obj(reg_table[i].use));
+    PASM(STORER, obj(reg_table[i].use), reg(r));
+    /* obj(reg_table[i].use) is loaded to PREG0 
+     * by DECREF op. */
+    /* TODO */
+    PASM(MOVRR , reg(PARG1), reg(PREG0));
+    PASM(GETIDX, reg(PREG0), data(0x10));
+    PASM(CMPN, reg(PREG0), data(0));
+    PASM(COND, idx(2), cond(JNE));
+    /* TODO write fast path Object_free */ 
+    PASM(CALL , func(knh_Object_free), nop());
+    PASM(NOP , nop(), nop());
+}
+static void store_reg_objp(Ctx *ctx, knh_BasicBlock_t *bb, pindex_t *regTable, int i)
+{
+    asm volatile("int3");
+}
 static void store_reg_(Ctx *ctx, knh_BasicBlock_t *bb, pindex_t *regTable, int i)
 {
     int type = reg_table[i].type;
-    reg_t r  = reg_table[i].r;
     if (type == NDAT) {
-        PASM(STORER, ndat(reg_table[i].use), reg(r));
+        store_reg_ndat(ctx, bb, regTable, i);
+    } else if (type == OBJ) {
+        store_reg_obj(ctx, bb, regTable, i);
+    } else if (type == OBJP) {
+        store_reg_objp(ctx, bb, regTable, i);
     }
-    if (type == OBJ) {
-        //int size = regtable_size(regTable);
-        PASM(INCREF, reg(r), nop());
-        PASM(DECREF, reg(PREG0), obj(reg_table[i].use));
-        PASM(STORER, obj(reg_table[i].use), reg(r));
-        /* obj(reg_table[i].use) is loaded to PREG0 
-         * by DECREF op. */
-        /* TODO */
-        PASM(MOVRR , reg(PARG1), reg(PREG0));
-        PASM(GETIDX, reg(PREG0), data(0x10));
-        PASM(CMPN, reg(PREG0), data(0));
-        PASM(COND, idx(2), cond(JNE));
-        /* TODO write fast path Object_free */ 
-        PASM(CALL , func(knh_Object_free), nop());
-        PASM(NOP , nop(), nop());
-    }
-    else if (type == OBJP) {
-        asm volatile("int3");
-    }
-    reg_table[i].use  = REG_UNUSE;
-    reg_table[i].type = NOP;
+
 }
 
-static void store_regs(Ctx *ctx, knh_BasicBlock_t *bb, pindex_t *regTable)
+#define BLOCKEND 0
+#define FUNCEND  1
+static void store_regs(Ctx *ctx, knh_BasicBlock_t *bb, pindex_t *regTable, int end)
 {
     int i;
     for (i = 1; i < ARRAY_SIZE(reg_table); i++) {
-        if (reg_table[i].use != REG_UNUSE) {
-            store_reg_(ctx, bb, regTable, i);
+        int type = reg_table[i].type;
+        knh_sfpidx_t use = reg_table[i].use;
+        if (use != REG_UNUSE && type == NDAT) {
+            if (end == BLOCKEND) {
+                store_reg_ndat(ctx, bb, regTable, i);
+            }
+            CLEAR_REG(reg_table[i]);
+        }
+    }
+    for (i = 1; i < ARRAY_SIZE(reg_table); i++) {
+        int type = reg_table[i].type;
+        knh_sfpidx_t use = reg_table[i].use;
+        if (use != REG_UNUSE && type == OBJ) {
+            store_reg_obj(ctx, bb, regTable, i);
+            CLEAR_REG(reg_table[i]);
+        }
+    }
+    for (i = 1; i < ARRAY_SIZE(reg_table); i++) {
+        int type = reg_table[i].type;
+        knh_sfpidx_t use = reg_table[i].use;
+        if (use != REG_UNUSE && type == OBJP) {
+            store_reg_objp(ctx, bb, regTable, i);
+            CLEAR_REG(reg_table[i]);
         }
     }
 }
 
-static
-knh_BasicBlock_t *knh_opline_getTargetBB(knh_Array_t *bbList, knh_opline_t *target)
+static knh_BasicBlock_t *knh_opline_getTargetBB(knh_Array_t *bbList, knh_opline_t *target)
 {
     int i , j;
     knh_BasicBlock_t* bb;
@@ -986,7 +1052,7 @@ static void BasicBlock_setPcode(Ctx *ctx, knh_Method_t *mtd, knh_Array_t *bbList
                     clear_reg(r);
                 }
                 //fprintf(stderr, "targetBB bb=(%p,id:%d)\n", targetBB, DP(targetBB)->id);
-                store_regs(ctx, bb, regTable);
+                store_regs(ctx, bb, regTable, BLOCKEND);
                 PASM(COND, bb(targetBB,0), cond(condop[opcode]));
                 break;
             }
@@ -1013,7 +1079,7 @@ static void BasicBlock_setPcode(Ctx *ctx, knh_Method_t *mtd, knh_Array_t *bbList
             OPCASE(JMP) {
                 klr_JMP_t *op_ = (klr_JMP_t*) op;
                 knh_BasicBlock_t *targetBB = knh_opline_getTargetBB(bbList, op_->jumppc);
-                store_regs(ctx, bb, regTable);
+                store_regs(ctx, bb, regTable, BLOCKEND);
                 //fprintf(stderr, "targetBB bb=%d\n", DP(targetBB)->id);
                 PASM(JMP, bb(targetBB,0), nop());
                 break;
@@ -1069,7 +1135,7 @@ static void BasicBlock_setPcode(Ctx *ctx, knh_Method_t *mtd, knh_Array_t *bbList
                 break;
             }
             OPCASE(JMP_) OPCASE(RET) {
-                store_regs(ctx, bb, regTable);
+                store_regs(ctx, bb, regTable, FUNCEND);
                 PASM(EXIT, nop(), nop());
                 //fprintf(stderr, "bb bb=(%p,id:%d)\n", bb, DP(bb)->id);
                 break;
@@ -1079,7 +1145,7 @@ static void BasicBlock_setPcode(Ctx *ctx, knh_Method_t *mtd, knh_Array_t *bbList
                 knh_sfpidx_t thisidx  = op_->thisidx;
                 //knh_sfpidx_t espshift = op_->espshift;
                 knh_Method_t *callmtd = op_->callmtd;
-                store_regs(ctx, bb, regTable);
+                store_regs(ctx, bb, regTable, BLOCKEND);
                 PASM(MOVRR, reg(PARG1), reg(RSFP));
                 PASM(ADDRN, reg(PARG1), data(thisidx * 0x10));
                 PASM(LOADN, reg(PARG2), data(K_RTNIDX));
@@ -1099,7 +1165,7 @@ static void BasicBlock_setPcode(Ctx *ctx, knh_Method_t *mtd, knh_Array_t *bbList
                 knh_sfpidx_t thisidx  = op_->thisidx;
                 //knh_sfpidx_t espshift = op_->espshift;
                 knh_Method_t *callmtd = op_->callmtd;
-                store_regs(ctx, bb, regTable);
+                store_regs(ctx, bb, regTable, BLOCKEND);
                 PASM(MOVRR, reg(PARG1), reg(RSFP));
                 PASM(ADDRN, reg(PARG1), data(thisidx * 0x10));
                 PASM(LOADN, reg(PARG2), data(K_RTNIDX));
@@ -1111,7 +1177,7 @@ static void BasicBlock_setPcode(Ctx *ctx, knh_Method_t *mtd, knh_Array_t *bbList
             OPCASE(TR) {
                 klr_TR_t *op_ = (klr_TR_t*) op;
                 knh_sfpidx_t diff = op_->a - op_->b;
-                store_regs(ctx, bb, regTable);
+                store_regs(ctx, bb, regTable, BLOCKEND);
                 PASM(MOVRR, reg(PARG1), reg(RSFP));
                 PASM(ADDRN, reg(PARG1), data(op_->a * 0x10));
                 PASM(LOADN, reg(PARG2), data(diff));
@@ -1218,12 +1284,15 @@ static void BasicBlock_setPcode(Ctx *ctx, knh_Method_t *mtd, knh_Array_t *bbList
             OPCASE(fADD) OPCASE(fSUB) OPCASE(fMUL) OPCASE(fDIV) {
                 klr_fADD_t *op_ = (klr_fADD_t*) op;
                 if (reg_isLoaded(regTable, op_->a)) {
+                    reg_t r = regalloc(regTable, NDAT, op_->a);
                     reg_store_(ctx, bb, regTable, op_->a);
+                    clear_reg(r);
                 }
                 if (reg_isLoaded(regTable, op_->b)) {
+                    reg_t r = regalloc(regTable, NDAT, op_->b);
                     reg_store_(ctx, bb, regTable, op_->b);
+                    clear_reg(r);
                 }
-
                 PASM(LOADFR, reg(RSFP), data(op_->a * 0x10));
                 int opcode = op_->opcode - OPCODE_fADD + PCODE_ADDF;
                 PASM_(opcode, reg(RSFP), data(op_->b * 0x10));
@@ -1286,7 +1355,7 @@ static void BasicBlock_setPcode(Ctx *ctx, knh_Method_t *mtd, knh_Array_t *bbList
             //    break;
             }
         }
-        store_regs(ctx, bb, regTable);
+        store_regs(ctx, bb, regTable, BLOCKEND);
         //PASM(HALT, nop(), nop());
     }
 }
@@ -1410,8 +1479,13 @@ static void pcode_gen1(struct pjit *pjit, pdata_t *pdata, knh_BasicBlock_t *bb)
     for (j = 0; j < pdata->size; j++) {
         pcode_t *op = pdata->opbuf + j;
 #ifdef PCODE_DUMP
-        if (pjit->state == PJIT_EMIT)
-            fprintf(stderr, "bb[%d] ", DP(bb)->id);
+        static int opnum = 0;
+        if (pjit->state == PJIT_EMIT) {
+            if (op->opcode != PCODE_NOP) {
+                opnum++;
+            }
+            fprintf(stderr, "[%2d] bb[%d] ", opnum, DP(bb)->id);
+        }
 #else
         (void)bb;
 #endif
@@ -1458,8 +1532,7 @@ void pjit_compile(Ctx *ctx, knh_Method_t *mtd)
         BEGIN_LOCAL(ctx, lsfp, 1);
         knh_KLRCode_t *kcode = DP(mtd)->kcode;
         LOCAL_NEW(ctx, lsfp, 0, knh_Array_t *, bbList, KLRCode_toBasicBlock(ctx, kcode, &max));
-        pindex_t *regTable;
-        regTable = createRegisterTable(ctx, max);
+        pindex_t *regTable = createRegisterTable(ctx, max);
         BasicBlock_setPcode(ctx, mtd, bbList, regTable);
         pcode_optimize(ctx, bbList, regTable);
         func = pcode_gencode(ctx, bbList, regTable);
