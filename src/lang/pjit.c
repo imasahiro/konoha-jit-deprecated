@@ -920,15 +920,19 @@ static void store_reg_(Ctx *ctx, knh_BasicBlock_t *bb, pindex_t *regTable, int i
 }
 
 #define BLOCKEND 0
-#define FUNCEND  1
-static void store_regs(Ctx *ctx, knh_BasicBlock_t *bb, pindex_t *regTable, int end)
+#define MTDEND   1
+#define FUNCCALL 2
+static void store_regs(Ctx *ctx, knh_BasicBlock_t *bb, pindex_t *regTable, knh_sfpidx_t this, int end)
 {
     int i;
     for (i = 1; i < ARRAY_SIZE(reg_table); i++) {
         int type = reg_table[i].type;
         knh_sfpidx_t use = reg_table[i].use;
         if (use != REG_UNUSE && type == NDAT) {
-            if (end == BLOCKEND) {
+            if (end == BLOCKEND || end == FUNCCALL) {
+                store_reg_ndat(ctx, bb, regTable, i);
+            }
+            else if (end == MTDEND && this > use) {
                 store_reg_ndat(ctx, bb, regTable, i);
             }
             CLEAR_REG(reg_table[i]);
@@ -1052,7 +1056,7 @@ static void BasicBlock_setPcode(Ctx *ctx, knh_Method_t *mtd, knh_Array_t *bbList
                     clear_reg(r);
                 }
                 //fprintf(stderr, "targetBB bb=(%p,id:%d)\n", targetBB, DP(targetBB)->id);
-                store_regs(ctx, bb, regTable, BLOCKEND);
+                store_regs(ctx, bb, regTable, 0, BLOCKEND);
                 PASM(COND, bb(targetBB,0), cond(condop[opcode]));
                 break;
             }
@@ -1079,7 +1083,7 @@ static void BasicBlock_setPcode(Ctx *ctx, knh_Method_t *mtd, knh_Array_t *bbList
             OPCASE(JMP) {
                 klr_JMP_t *op_ = (klr_JMP_t*) op;
                 knh_BasicBlock_t *targetBB = knh_opline_getTargetBB(bbList, op_->jumppc);
-                store_regs(ctx, bb, regTable, BLOCKEND);
+                store_regs(ctx, bb, regTable, 0, BLOCKEND);
                 //fprintf(stderr, "targetBB bb=%d\n", DP(targetBB)->id);
                 PASM(JMP, bb(targetBB,0), nop());
                 break;
@@ -1135,7 +1139,7 @@ static void BasicBlock_setPcode(Ctx *ctx, knh_Method_t *mtd, knh_Array_t *bbList
                 break;
             }
             OPCASE(JMP_) OPCASE(RET) {
-                store_regs(ctx, bb, regTable, FUNCEND);
+                store_regs(ctx, bb, regTable, 0, MTDEND);
                 PASM(EXIT, nop(), nop());
                 //fprintf(stderr, "bb bb=(%p,id:%d)\n", bb, DP(bb)->id);
                 break;
@@ -1145,17 +1149,15 @@ static void BasicBlock_setPcode(Ctx *ctx, knh_Method_t *mtd, knh_Array_t *bbList
                 knh_sfpidx_t thisidx  = op_->thisidx;
                 //knh_sfpidx_t espshift = op_->espshift;
                 knh_Method_t *callmtd = op_->callmtd;
-                store_regs(ctx, bb, regTable, BLOCKEND);
+                store_regs(ctx, bb, regTable, thisidx+K_RTNIDX, FUNCCALL);
                 PASM(MOVRR, reg(PARG1), reg(RSFP));
                 PASM(ADDRN, reg(PARG1), data(thisidx * 0x10));
                 PASM(LOADN, reg(PARG2), data(K_RTNIDX));
                 if (mtd == callmtd) {
                     PASM(CALL , func(NULL), data(PJIT_RELOCATION_SYMBOL_SELF));
-                } else if (callmtd->fcall_1 == knh_Fmethod_runVM) {
+                } else {
                     /* TODO klr_setesp */
                     PASM(STOREN, obj(thisidx + K_MTDIDX), data(callmtd));
-                    PASM(CALL , func(callmtd->fcall_1), nop());
-                } else {
                     PASM(CALL , func(callmtd->fcall_1), nop());
                 }
                 break;
@@ -1165,7 +1167,7 @@ static void BasicBlock_setPcode(Ctx *ctx, knh_Method_t *mtd, knh_Array_t *bbList
                 knh_sfpidx_t thisidx  = op_->thisidx;
                 //knh_sfpidx_t espshift = op_->espshift;
                 knh_Method_t *callmtd = op_->callmtd;
-                store_regs(ctx, bb, regTable, BLOCKEND);
+                store_regs(ctx, bb, regTable, thisidx+K_RTNIDX, FUNCCALL);
                 PASM(MOVRR, reg(PARG1), reg(RSFP));
                 PASM(ADDRN, reg(PARG1), data(thisidx * 0x10));
                 PASM(LOADN, reg(PARG2), data(K_RTNIDX));
@@ -1177,7 +1179,8 @@ static void BasicBlock_setPcode(Ctx *ctx, knh_Method_t *mtd, knh_Array_t *bbList
             OPCASE(TR) {
                 klr_TR_t *op_ = (klr_TR_t*) op;
                 knh_sfpidx_t diff = op_->a - op_->b;
-                store_regs(ctx, bb, regTable, BLOCKEND);
+                /* XXX check out store_regs, op_->a, op_->b */
+                store_regs(ctx, bb, regTable, op_->a, FUNCCALL);
                 PASM(MOVRR, reg(PARG1), reg(RSFP));
                 PASM(ADDRN, reg(PARG1), data(op_->a * 0x10));
                 PASM(LOADN, reg(PARG2), data(diff));
@@ -1355,7 +1358,7 @@ static void BasicBlock_setPcode(Ctx *ctx, knh_Method_t *mtd, knh_Array_t *bbList
             //    break;
             }
         }
-        store_regs(ctx, bb, regTable, BLOCKEND);
+        store_regs(ctx, bb, regTable, 0, BLOCKEND);
         //PASM(HALT, nop(), nop());
     }
 }
