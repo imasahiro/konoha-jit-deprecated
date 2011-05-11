@@ -85,6 +85,8 @@ static IRBuilder<> *LLVM_BUILDER(CTX ctx)
 	knh_Array_t *a = DP(ctx->gma)->insts;
 	return (IRBuilder<>*)a->ilist[LLVM_IDX_BUILDER];
 }
+#define PUSH_LABEL(ctx, ...) /*TODO*/
+#define POP_LABEL(ctx)       /*TODO*/
 
 #ifdef K_USING_RBP_
 #define NC_(sfpidx)    (((sfpidx) * 2) + 1)
@@ -673,13 +675,64 @@ static inline void Tn_asmBLOCK(CTX ctx, knh_Stmt_t *stmt, size_t n, knh_type_t r
 
 static int _IF_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx _UNUSED_)
 {
-	LLVM_TODO("IF");
+	Value *cond = NULL;//expr
+	int local = DP(ctx->gma)->espidx;
+	Module *m = LLVM_MODULE(ctx);
+	IRBuilder<> *builder = LLVM_BUILDER(ctx);
+	BasicBlock *bbThen  = BasicBlock::Create(m->getContext(), "then");
+	BasicBlock *bbElse  = BasicBlock::Create(m->getContext(), "else");
+	BasicBlock *bbMerge = BasicBlock::Create(m->getContext(), "ifcont");
+
+	//Tn_JMPIF(ctx, stmt, 0, 0/*FALSE*/, ElseBB, local);
+	_EXPR_asm(ctx, stmt, TYPE_void, local);
+	cond = ValueStack_get(ctx, local);
+	builder->CreateCondBr(cond, bbThen, bbElse);
+
+	builder->SetInsertPoint(bbThen);
+	Tn_asmBLOCK(ctx, stmt, 1, reqt);
+	builder->CreateBr(bbMerge);
+
+	builder->SetInsertPoint(bbElse);
+	Tn_asmBLOCK(ctx, stmt, 1, reqt);
+	builder->CreateBr(bbMerge);
+	builder->SetInsertPoint(bbMerge);
 	return 0;
 }
 
 static int _SWITCH_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 {
-	LLVM_TODO("SWITCH");
+	knh_Stmt_t *stmtCASE;
+	Value *cond = NULL;
+	Module *m = LLVM_MODULE(ctx);
+	IRBuilder<> *builder = LLVM_BUILDER(ctx);
+	//BasicBlock *bbContinue = BasicBlock::Create(m->getContext(), "continue");
+	BasicBlock *bbBreak    = BasicBlock::Create(m->getContext(), "break");
+	BasicBlock *bbCase     = BasicBlock::Create(m->getContext(), "case");
+	BasicBlock *bbDefault  = BasicBlock::Create(m->getContext(), "default");
+
+	knh_Token_t *tkIT = Tn_it(stmt, 2);
+	PUSH_LABEL(ctx, stmt, bbContinue, bbBreak);
+	Tn_asm(ctx, stmt, 0, SP(tkIT)->type, Token_index(tkIT));
+	cond = ValueStack_get(ctx, Token_index(tkIT));
+
+	SwitchInst *SwInst = builder->CreateSwitch(cond, bbDefault, 10);
+	// 10 is a hint for the number of cases
+
+	stmtCASE = stmtNN(stmt, 1);
+	while (stmtCASE != NULL) {
+		if (STT_(stmtCASE) == STT_CASE && !Tn_isASIS(stmtCASE, 0)) {
+			LLVM_TODO("switch-case");
+			DP(ctx->gma)->espidx = DP(stmtCASE)->espidx + DP(ctx->gma)->ebpidx;
+			builder->SetInsertPoint(bbCase);
+			SwInst->addCase((ConstantInt*)cond, bbCase);
+			Tn_asmBLOCK(ctx, stmtCASE, 1, reqt);
+			bbCase = BasicBlock::Create(m->getContext(), "case");
+			builder->CreateBr(bbCase);
+		}
+		stmtCASE = DP(stmtCASE)->nextNULL;
+	}
+	builder->SetInsertPoint(bbBreak);
+	POP_LABEL(ctx);
 	return 0;
 }
 
@@ -702,19 +755,85 @@ static int _BREAK_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt _UNUSED_, int s
 
 static int _WHILE_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt _UNUSED_, int sfpidx _UNUSED_)
 {
-	LLVM_TODO("WHILE");
+	int local = DP(ctx->gma)->espidx;
+	Value *cond;
+	Module *m = LLVM_MODULE(ctx);
+	IRBuilder<> *builder = LLVM_BUILDER(ctx);
+	BasicBlock *bbContinue = BasicBlock::Create(m->getContext());
+	BasicBlock *bbBreak    = BasicBlock::Create(m->getContext());
+	BasicBlock *bbBlock    = BasicBlock::Create(m->getContext());
+	PUSH_LABEL(ctx, stmt, bbContinue, bbBreak);
+	builder->SetInsertPoint(bbContinue);
+	if (!Tn_isTRUE(stmt, 0)) {
+		LLVM_TODO("while loop");
+		_EXPR_asm(ctx, stmt, 0, local);
+	}
+	cond = ValueStack_get(ctx, local);
+	builder->CreateCondBr(cond, bbBlock, bbBreak);
+	builder->SetInsertPoint(bbBlock);
+	Tn_asmBLOCK(ctx, stmt, 1, TYPE_void);
+	builder->CreateBr(bbContinue);
+	builder->SetInsertPoint(bbBreak);
+	POP_LABEL(ctx);
 	return 0;
 }
 
 static int _DO_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt _UNUSED_, int sfpidx _UNUSED_)
 {
-	LLVM_TODO("DO");
+	Value *cond = NULL;//expr
+	int local = DP(ctx->gma)->espidx;
+	Module *m = LLVM_MODULE(ctx);
+	IRBuilder<> *builder = LLVM_BUILDER(ctx);
+	BasicBlock *bbContinue = BasicBlock::Create(m->getContext());
+	BasicBlock *bbBreak    = BasicBlock::Create(m->getContext());
+	PUSH_LABEL(ctx, stmt, bbContinue, bbBreak);
+
+	builder->SetInsertPoint(bbContinue);
+	/* body */
+	Tn_asmBLOCK(ctx, stmt, 0, TYPE_void);
+
+	/* cond */
+	_EXPR_asm(ctx, stmt, 1, local);
+	cond = ValueStack_get(ctx, local);
+
+	builder->CreateCondBr(cond, bbContinue, bbBreak);
+	builder->SetInsertPoint(bbBreak);
+	POP_LABEL(ctx);
+
 	return 0;
 }
 
 static int _FOR_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt _UNUSED_, int sfpidx _UNUSED_)
 {
-	LLVM_TODO("FOR");
+	Value *cond = NULL;//expr
+	int local = DP(ctx->gma)->espidx;
+	Module *m = LLVM_MODULE(ctx);
+	IRBuilder<> *builder = LLVM_BUILDER(ctx);
+	BasicBlock *bbContinue = BasicBlock::Create(m->getContext());
+	BasicBlock *bbBreak = BasicBlock::Create(m->getContext());
+	BasicBlock *bbRedo = BasicBlock::Create(m->getContext());
+	BasicBlock *bbBlock = BasicBlock::Create(m->getContext());
+	PUSH_LABEL(ctx, stmt, bbContinue, bbBreak);
+	// i = 1 part
+	Tn_asmBLOCK(ctx, stmt, 0, TYPE_void);
+	builder->CreateBr(bbRedo);
+	// i++ part
+	builder->SetInsertPoint(bbContinue);
+	Tn_asmBLOCK(ctx, stmt, 1, TYPE_void);
+	builder->CreateBr(bbRedo);
+	// i < 10 part
+	builder->SetInsertPoint(bbRedo);
+	_EXPR_asm(ctx, stmt, 2, local);
+	cond = ValueStack_get(ctx, local);
+	builder->CreateCondBr(cond, bbBlock, bbBreak);
+	// block
+	builder->SetInsertPoint(bbBlock);
+	Tn_asmBLOCK(ctx, stmt, 3, TYPE_void);
+	builder->CreateBr(bbContinue);
+
+	builder->SetInsertPoint(bbBreak);
+	POP_LABEL(ctx);
+
 	return 0;
 }
 
