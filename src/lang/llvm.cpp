@@ -13,23 +13,20 @@
  *  GNU General Public License for more details.
  *
  ****************************************************************************/
-#include <llvm/LLVMContext.h>
-#include <llvm/Module.h>
-#include <llvm/DerivedTypes.h>
-#include <llvm/Constants.h>
-#include <llvm/GlobalVariable.h>
-#include <llvm/Function.h>
-#include <llvm/CallingConv.h>
-#include <llvm/BasicBlock.h>
-#include <llvm/Instructions.h>
-#include <llvm/InlineAsm.h>
-#include <llvm/Support/FormattedStream.h>
-#include <llvm/Support/MathExtras.h>
-#include <llvm/Pass.h>
-#include <llvm/PassManager.h>
-#include <llvm/ADT/SmallVector.h>
-#include <llvm/Analysis/Verifier.h>
-#include <llvm/Assembly/PrintModulePass.h>
+#include "llvm/LLVMContext.h"
+#include "llvm/Module.h"
+#include "llvm/Constants.h"
+#include "llvm/GlobalVariable.h"
+#include "llvm/Function.h"
+#include "llvm/BasicBlock.h"
+#include "llvm/Instructions.h"
+#include "llvm/Pass.h"
+#include "llvm/PassManager.h"
+#include "llvm/Analysis/Verifier.h"
+#include "llvm/Support/IRBuilder.h"
+#include "llvm/ExecutionEngine/JIT.h"
+#include "llvm/ExecutionEngine/Interpreter.h"
+#include "llvm/Target/TargetSelect.h"
 #include <vector>
 
 #undef HAVE_SYS_TYPES_H
@@ -57,6 +54,37 @@ namespace llvmasm {
 #define ASMop(X, ...)
 static void Tn_asm(CTX ctx, knh_Stmt_t *stmt, size_t n, knh_type_t reqt, int local);
 static int _BLOCK_asm(CTX ctx, knh_Stmt_t *stmtH, knh_type_t reqt, int sfpidx);
+
+struct llvm_context {
+	Module *m;
+	Function *curFunc;
+	BasicBlock *curBB;
+	IRBuilder<> *builder;
+};
+#define LLVM_IDX_MODULE    (0)
+#define LLVM_IDX_FUNCTION  (1)
+#define LLVM_IDX_BB        (2)
+#define LLVM_IDX_BUILDER   (3)
+static Module *LLVM_MODULE(CTX ctx)
+{
+	knh_Array_t *a = DP(ctx->gma)->insts;
+	return (Module*)a->ilist[LLVM_IDX_MODULE];
+}
+static Function *LLVM_FUNCTION(CTX ctx)
+{
+	knh_Array_t *a = DP(ctx->gma)->insts;
+	return (Function*)a->ilist[LLVM_IDX_FUNCTION];
+}
+static BasicBlock *LLVM_BB(CTX ctx)
+{
+	knh_Array_t *a = DP(ctx->gma)->insts;
+	return (BasicBlock*)a->ilist[LLVM_IDX_BB];
+}
+static IRBuilder<> *LLVM_BUILDER(CTX ctx)
+{
+	knh_Array_t *a = DP(ctx->gma)->insts;
+	return (IRBuilder<>*)a->ilist[LLVM_IDX_BUILDER];
+}
 
 #ifdef K_USING_RBP_
 #define NC_(sfpidx)    (((sfpidx) * 2) + 1)
@@ -164,7 +192,7 @@ static void ValueStack_set(CTX ctx, int index, Value *v)
 	knh_Array_t *lstacks = DP(ctx->gma)->lstacks;
 	knh_sfp_t lsfp = {};
 	index = index + (-1 * K_RTNIDX);
-	if (knh_Array_capacity(lstacks) < index) {
+	if ((int)knh_Array_capacity(lstacks) < index) {
 		knh_Array_grow(ctx, lstacks, index, index);
 	}
 	lsfp.ndata = (knh_ndata_t) v;
@@ -759,9 +787,9 @@ static int _RETURN_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt _UNUSED_, int 
 		_EXPR_asm(ctx, DP(stmt)->stmtPOST, Tn_type(stmt, 0), DP(DP(stmt)->stmtPOST)->espidx+1);
 	}
 	if(!Stmt_isImplicit(stmt)) {
-		LLVM_WARN("Implicit Return");
+		Value *v = ValueStack_get(ctx, K_RTNIDX);
+		LLVM_BUILDER(ctx)->CreateRet(v);
 	}
-
 	return 0;
 }
 
@@ -841,6 +869,58 @@ static int _BLOCK_asm(CTX ctx, knh_Stmt_t *stmtH, knh_type_t reqt, int sfpidx _U
 	return 0;
 }
 
+static const Type *LLVMTYPE_Object;
+static const Type *convert_type(knh_class_t cid)
+{
+	switch (cid) {
+		case TYPE_Boolean:
+			return LLVMTYPE_Bool;
+		case TYPE_Int:
+			return LLVMTYPE_Int;
+		case TYPE_Float:
+			return LLVMTYPE_Float;
+	}
+	return LLVMTYPE_Object;
+}
+
+static Function *build_function(CTX ctx, Module *m, knh_Method_t *mtd)
+{
+	size_t i;
+	knh_ParamArray_t *pa = DP(mtd)->mp;
+	knh_class_t retTy = knh_ParamArray_rtype(pa);;
+	std::vector<const Type*> argsTy;
+	char const *name = knh_getmnname(ctx, SP(mtd)->mn);
+	for (i = 0; i < pa->psize; i++) {
+		knh_type_t type = knh_ParamArray_getptype(pa, i);
+		argsTy.push_back(convert_type(type));
+	}
+	FunctionType *fnTy = FunctionType::get(convert_type(retTy), argsTy, false);
+	return cast<Function>(m->getOrInsertFunction(name, fnTy));
+}
+
+static void Init(CTX ctx, knh_Method_t *mtd, knh_Array_t *a)
+{
+	Module *m = new Module("test", LLVM_CONTEXT());
+	Function *func = build_function(ctx, m, mtd);
+	BasicBlock *bb = BasicBlock::Create(LLVM_CONTEXT(), "EntryBlock", func);
+	IRBuilder<> *builder = new IRBuilder<>(bb);
+	a->ilist[LLVM_IDX_MODULE] = (knh_int_t) m;
+	a->ilist[LLVM_IDX_FUNCTION] = (knh_int_t) func;
+	a->ilist[LLVM_IDX_BB] = (knh_int_t) bb;
+	a->ilist[LLVM_IDX_BUILDER] = (knh_int_t) builder;
+}
+
+void Finish(CTX ctx, knh_Method_t *mtd, knh_Array_t *a)
+{
+	knh_Fmethod f;
+	Module *m = LLVM_MODULE(ctx);
+	Function *func = LLVM_FUNCTION(ctx);
+	ExecutionEngine *ee = EngineBuilder(m).setEngineKind(EngineKind::JIT).create();
+	(*m).dump();
+	f = (knh_Fmethod) ee->getPointerToFunction(func);
+	knh_Method_setFunc(ctx, mtd, f);
+}
+
 #define _ALLOW_asm _EXPR_asm
 #define _DENY_asm _EXPR_asm
 #define _CASE_asm _EXPR_asm
@@ -848,6 +928,7 @@ static int _BLOCK_asm(CTX ctx, knh_Stmt_t *stmtH, knh_type_t reqt, int sfpidx _U
 #define _DECL_asm _EXPR_asm
 #define _ACALL_asm _EXPR_asm
 #include "codeasm.h"
+
 } /* namespace llvm */
 
 
@@ -857,21 +938,39 @@ extern "C" {
 
 void LLVMMethod_asm(CTX ctx, knh_Method_t *mtd, knh_Stmt_t *stmtP, knh_type_t ittype, knh_Stmt_t *stmtB, knh_Ftyping typing)
 {
-	knh_Array_t *lstack_org, *lstack;
-	lstack = new_Array(ctx, CLASS_Int, 8);
-	lstack_org = DP(ctx->gma)->lstacks;
-	BEGIN_LOCAL(ctx, lsfp, 3);
-	KNH_SETv(ctx, lsfp[0].o, lstack);
-	KNH_SETv(ctx, lsfp[1].o, lstack_org);
-	KNH_SETv(ctx, DP(ctx->gma)->lstacks, lstack);
-	typing(ctx, mtd, stmtP, ittype, stmtB);
-	DBG_ASSERT(knh_Array_size(DP(ctx->gma)->insts) == 0);
-	SP(ctx->gma)->uline = SP(stmtB)->uline;
-	if(Method_isStatic(mtd) && Gamma_hasFIELD(ctx->gma)) {
-		ASM(TR, OC_(0), SFP_(0), RIX_(0), ClassTBL(DP(ctx->gma)->this_cid), _NULVAL);
+	static int LLVM_IS_INITED = 0;
+	if (!LLVM_IS_INITED) {
+		llvm::InitializeNativeTarget();
+		LLVM_IS_INITED = 1;
 	}
-	llvmasm::_BLOCK_asm(ctx, stmtB, knh_ParamArray_rtype(DP(mtd)->mp), 0);
-	ASM(RET);
+	knh_Array_t *lstack_org, *lstack;
+	knh_Array_t *insts_org, *insts;
+	insts     = new_Array(ctx, CLASS_Int, 8);
+	lstack    = new_Array(ctx, CLASS_Int, 8);
+	insts_org  = DP(ctx->gma)->insts;
+	lstack_org = DP(ctx->gma)->lstacks;
+	BEGIN_LOCAL(ctx, lsfp, 4);
+	KNH_SETv(ctx, lsfp[0].o, insts);
+	KNH_SETv(ctx, lsfp[1].o, insts_org);
+	KNH_SETv(ctx, lsfp[2].o, lstack);
+	KNH_SETv(ctx, lsfp[3].o, lstack_org);
+	KNH_SETv(ctx, DP(ctx->gma)->insts, insts);
+	KNH_SETv(ctx, DP(ctx->gma)->lstacks, lstack);
+
+	{
+		typing(ctx, mtd, stmtP, ittype, stmtB);
+		DBG_ASSERT(knh_Array_size(DP(ctx->gma)->insts) == 0);
+		SP(ctx->gma)->uline = SP(stmtB)->uline;
+		llvmasm::Init(ctx, mtd, insts);
+		if(Method_isStatic(mtd) && Gamma_hasFIELD(ctx->gma)) {
+			ASM(TR, OC_(0), SFP_(0), RIX_(0), ClassTBL(DP(ctx->gma)->this_cid), _NULVAL);
+		}
+		llvmasm::_BLOCK_asm(ctx, stmtB, knh_ParamArray_rtype(DP(mtd)->mp), 0);
+		ASM(RET);
+		llvmasm::Finish(ctx, mtd, insts);
+	}
+
+	KNH_SETv(ctx, DP(ctx->gma)->insts, insts_org);
 	KNH_SETv(ctx, DP(ctx->gma)->lstacks, lstack_org);
 	END_LOCAL_NONGC(ctx, lsfp);
 }

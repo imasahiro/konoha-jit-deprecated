@@ -239,15 +239,26 @@ if(USE_LLVM)
 			OUTPUT_STRIP_TRAILING_WHITESPACE
 			)
 	execute_process(
-		COMMAND ${LLVM_CONFIG} --libs core jit native linker ipo
+		COMMAND ${LLVM_CONFIG} --libs core jit native linker ipo engine interpreter
 		OUTPUT_VARIABLE LLVM_JIT_LIBS
 		OUTPUT_STRIP_TRAILING_WHITESPACE
 		)
-	set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} ${LLVM_CFLAGS})
-	set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} ${LLVM_CXXFLAGS})
+	execute_process(
+			COMMAND ${LLVM_CONFIG} --libdir
+			OUTPUT_VARIABLE LLVM_LIBDIR
+			OUTPUT_STRIP_TRAILING_WHITESPACE
+			)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${LLVM_CFLAGS}")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${LLVM_CXXFLAGS}")
 	set(KONOHA_SRC ${KONOHA_SRC} src/lang/llvm.cpp)
 	string(REPLACE " " ";" v ${LLVM_JIT_LIBS})
-	set(ExtraLibs ${ExtraLibs} ${v})
+	find_library(HAVE_LIBFFI   NAMES ffi)
+	if("${HAVE_LIBFFI}" STREQUAL "")
+		message(FATAL_ERROR "libffi not found. please install libffi-dev")
+	endif()
+	set(ExtraLibs ${ExtraLibs} ${v} ${HAVE_LIBFFI})
+	link_directories(${LINK_DIRECTORIES} ${LLVM_LIBDIR})
+
 endif()
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake 
