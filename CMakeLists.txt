@@ -245,8 +245,9 @@ if(USE_LLVM)
 		)
 	set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} ${LLVM_CFLAGS})
 	set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} ${LLVM_CXXFLAGS})
-	set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_LD_FLAGS} "${LLVM_LDFLAGS} ${LLVM_JIT_LIBS}")
 	set(KONOHA_SRC ${KONOHA_SRC} src/lang/llvm.cpp)
+	string(REPLACE " " ";" v ${LLVM_JIT_LIBS})
+	set(ExtraLibs ${ExtraLibs} ${v})
 endif()
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake 

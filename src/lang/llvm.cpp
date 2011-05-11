@@ -30,24 +30,26 @@
 #include <llvm/ADT/SmallVector.h>
 #include <llvm/Analysis/Verifier.h>
 #include <llvm/Assembly/PrintModulePass.h>
-#include <algorithm>
+#include <vector>
 
 #undef HAVE_SYS_TYPES_H
 #include "commons.h"
 #define ASM_PREFIX llvmasm::
 #define LLVM_TODO(str) {\
+	fprintf(stderr, "(TODO: %s %d):", __func__, __LINE__);\
 	fprintf(stderr, "%s\n", str);\
 	asm volatile("int3");\
+}
+#define LLVM_WARN(str) {\
+	fprintf(stderr, "(WARN: %s %d):", __func__, __LINE__);\
+	fprintf(stderr, "%s\n", str);\
 }
 #define _UNUSED_ __attribute__((unused))
 
 /* ************************************************************************ */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 namespace llvmasm {
+	using namespace llvm;
 /* ------------------------------------------------------------------------ */
 /* kcode */
 
@@ -69,13 +71,6 @@ static int _BLOCK_asm(CTX ctx, knh_Stmt_t *stmtH, knh_type_t reqt, int sfpidx);
 #define RIX_(rix)      rix
 
 /* ------------------------------------------------------------------------ */
-
-static void ASM_RET(CTX ctx, knh_Stmt_t *stmt)
-{
-	LLVM_TODO("ASM_RET");
-}
-
-/* ------------------------------------------------------------------------ */
 /* [Gamma] */
 
 #define TT_isSFPIDX(tk)   (TT_(tk) == TT_LOCAL || TT_(tk) == TT_FUNCVAR)
@@ -87,7 +82,29 @@ static int Token_index_(CTX ctx, knh_Token_t *tk)
 
 static void ASM_BOX2(CTX ctx, knh_type_t reqt, knh_type_t atype, int a)
 {
-	LLVM_TODO("ASM_BOX2");
+	knh_class_t cid = CLASS_t(atype);
+	knh_class_t bcid = ClassTBL(cid)->bcid;
+	if(bcid == CLASS_Boolean || bcid == CLASS_Int || bcid == CLASS_Float) {
+		knh_class_t rcid = ClassTBL(CLASS_t(reqt))->bcid;
+		if(rcid != bcid && reqt != TYPE_void) {
+			if(cid == CLASS_Boolean) {
+				//ASM(TR, OC_(a), SFP_(a), RIX_(a-a), ClassTBL(cid), _bBOX);
+			}
+			else if (IS_Tnumbox(reqt)) {
+				Object *v = (cid == CLASS_Int) ? UPCAST(KNH_INT0) : UPCAST(KNH_FLOAT0);
+				ASM(OSET, OC_(a), v);
+			}
+			else {
+				ASM(TR, OC_(a), SFP_(a), RIX_(a-a), ClassTBL(cid), _BOX);
+			}
+		}
+	}
+	else if(atype == CLASS_Tdynamic && IS_Tnumbox(reqt)) {
+		ASM(UNBOX, NC_(a), OC_(a), ClassTBL(reqt));
+	}
+	else if(IS_Tnumbox(atype) && reqt == CLASS_Tdynamic) {
+		ASM(TR, OC_(a), SFP_(a), RIX_(a-a), ClassTBL(atype), _OBOX);
+	}
 }
 
 static void ASM_UNBOX(CTX ctx, knh_type_t atype, int a)
@@ -132,6 +149,32 @@ static void ASM_SMOVx(CTX ctx, knh_type_t atype, int a, knh_type_t btype, knh_sf
 	}
 }
 
+static Value *ValueStack_get(CTX ctx, int index)
+{
+	knh_Array_t *lstacks = DP(ctx->gma)->lstacks;
+	knh_sfp_t lsfp = {};
+	index = index + (-1 * K_RTNIDX);
+	lsfp.a = lstacks;
+	lstacks->api->get(ctx, &lsfp, index, 0);
+	return (Value*) lsfp.ndata;
+}
+#define knh_Array_capacity(a) ((a)->dim->capacity)
+static void ValueStack_set(CTX ctx, int index, Value *v)
+{
+	knh_Array_t *lstacks = DP(ctx->gma)->lstacks;
+	knh_sfp_t lsfp = {};
+	index = index + (-1 * K_RTNIDX);
+	if (knh_Array_capacity(lstacks) < index) {
+		knh_Array_grow(ctx, lstacks, index, index);
+	}
+	lsfp.ndata = (knh_ndata_t) v;
+	lstacks->api->set(ctx, lstacks, index, &lsfp);
+}
+
+#define LLVM_CONTEXT() (llvm::getGlobalContext())
+#define LLVMTYPE_Bool  (Type::getInt1Ty(LLVM_CONTEXT()))
+#define LLVMTYPE_Int   (Type::getInt64Ty(LLVM_CONTEXT()))
+#define LLVMTYPE_Float (Type::getDoubleTy(LLVM_CONTEXT()))
 static void ASM_SMOV(CTX ctx, knh_type_t atype, int a/*flocal*/, knh_Token_t *tkb)
 {
 	knh_type_t btype = SP(tkb)->type;
@@ -151,12 +194,22 @@ static void ASM_SMOV(CTX ctx, knh_type_t atype, int a/*flocal*/, knh_Token_t *tk
 		case TT_CID:
 			KNH_SETv(ctx, (tkb)->data, new_Type(ctx, (tkb)->cid));
 		case TT_CONST: L_CONST:; {
-			Object *v = (tkb)->data;
+			Object *o = (tkb)->data;
 			if(IS_Tunbox(atype)) {
-				ASM(NSET, NC_(a), O_data((tkb)->data));
+				Value *v = NULL;
+				if (IS_Tint(atype)) {
+					v = ConstantInt::get(LLVMTYPE_Int, O_data(o));
+				}
+				else if (IS_Tfloat(atype)) {
+					v = ConstantInt::get(LLVMTYPE_Float, O_data(o));
+				}
+				else if (IS_Tbool(atype)) {
+					v = ConstantInt::get(LLVMTYPE_Bool, O_data(o));
+				}
+				ValueStack_set(ctx, a, v);
 			}
 			else if(IS_Tnumbox(atype)) {
-				ASM(NSET, NC_(a), O_data((tkb)->data));
+				ASM(NSET, NC_(a), O_data((o)));
 				ASM(OSET, OC_(a), v);
 			}
 			else {
@@ -169,8 +222,8 @@ static void ASM_SMOV(CTX ctx, knh_type_t atype, int a/*flocal*/, knh_Token_t *tk
 			int b = Token_index(tkb);
 			knh_type_t btype = SP(tkb)->type;
 			if(IS_Tunbox(btype)) {
-				ASM(NMOV, NC_(a), NC_(b));
-				ASM_BOX2(ctx, atype, btype, a);
+				Value *v = ValueStack_get(ctx, b);
+				ValueStack_set(ctx, a, v);
 			}
 			else {
 				ASM(OMOV, OC_(a), OC_(b));
@@ -451,9 +504,33 @@ static int _TRI_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 	return 0;
 }
 
+#define ASML(idx) ((idx < DP(ctx->gma)->espidx) ? (DP(ctx->gma)->espidx) : idx)
 static int _LET_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 {
-	LLVM_TODO("LET");
+	knh_Token_t *tkL = tkNN(stmt, 1);
+	if(TT_(tkL) == TT_LOCAL || TT_(tkL) == TT_FUNCVAR) {
+		int index = Token_index(tkL);
+		Tn_asm(ctx, stmt, 2, SP(tkL)->type, index);
+	}
+	else if(IS_Token(tkNN(stmt, 2))) {
+		ASM_MOV(ctx, tkL, tkNN(stmt, 2));
+	}
+	else {
+		int local = ASML(sfpidx);
+		knh_term_t tt = TT_(tkL); /* NOTE: tkL is reused inside stmt */
+		knh_short_t index = (tkL)->index;
+		Tn_asm(ctx, stmt, 2, SP(tkL)->type, local);
+		TT_(tkL) = tt;
+		(tkL)->index = index;
+		ASM_MOV(ctx, tkL, tkNN(stmt, 2));
+		if(local == sfpidx)
+			// we do not need to let variable.
+			return 0;
+	}
+	if(stmt->type != TYPE_void && reqt != TYPE_void) {
+		ASM_SMOV(ctx, reqt, sfpidx, tkL);
+	}
+
 	return 0;
 }
 
@@ -667,7 +744,24 @@ static int _THROW_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt _UNUSED_, int s
 static int _RETURN_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt _UNUSED_, int sfpidx _UNUSED_)
 {
 	ASM_FINALLY(ctx);
-	LLVM_TODO("RETURN");
+	//LLVM_TODO("RETURN");
+	size_t size = DP(stmt)->size;
+	if(size == 1) {
+		knh_type_t rtype = Tn_type(stmt, 0);
+		Tn_asm(ctx, stmt, 0, rtype, K_RTNIDX);
+		if(IS_Tunbox(rtype)) {
+			knh_ParamArray_t *pa = DP(DP(ctx->gma)->mtd)->mp;
+			knh_param_t *p = knh_ParamArray_rget(pa, 0);
+			ASM_BOX2(ctx, knh_type_tocid(ctx, p->type, DP(ctx->gma)->this_cid), rtype, K_RTNIDX);
+		}
+	}
+	if(IS_Stmt(DP(stmt)->stmtPOST)) {
+		_EXPR_asm(ctx, DP(stmt)->stmtPOST, Tn_type(stmt, 0), DP(DP(stmt)->stmtPOST)->espidx+1);
+	}
+	if(!Stmt_isImplicit(stmt)) {
+		LLVM_WARN("Implicit Return");
+	}
+
 	return 0;
 }
 
@@ -757,8 +851,19 @@ static int _BLOCK_asm(CTX ctx, knh_Stmt_t *stmtH, knh_type_t reqt, int sfpidx _U
 } /* namespace llvm */
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void LLVMMethod_asm(CTX ctx, knh_Method_t *mtd, knh_Stmt_t *stmtP, knh_type_t ittype, knh_Stmt_t *stmtB, knh_Ftyping typing)
 {
+	knh_Array_t *lstack_org, *lstack;
+	lstack = new_Array(ctx, CLASS_Int, 8);
+	lstack_org = DP(ctx->gma)->lstacks;
+	BEGIN_LOCAL(ctx, lsfp, 3);
+	KNH_SETv(ctx, lsfp[0].o, lstack);
+	KNH_SETv(ctx, lsfp[1].o, lstack_org);
+	KNH_SETv(ctx, DP(ctx->gma)->lstacks, lstack);
 	typing(ctx, mtd, stmtP, ittype, stmtB);
 	DBG_ASSERT(knh_Array_size(DP(ctx->gma)->insts) == 0);
 	SP(ctx->gma)->uline = SP(stmtB)->uline;
@@ -767,6 +872,8 @@ void LLVMMethod_asm(CTX ctx, knh_Method_t *mtd, knh_Stmt_t *stmtP, knh_type_t it
 	}
 	llvmasm::_BLOCK_asm(ctx, stmtB, knh_ParamArray_rtype(DP(mtd)->mp), 0);
 	ASM(RET);
+	KNH_SETv(ctx, DP(ctx->gma)->lstacks, lstack_org);
+	END_LOCAL_NONGC(ctx, lsfp);
 }
 
 #ifdef __cplusplus
