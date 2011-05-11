@@ -24,4 +24,5 @@ GPATH
 GRTAGS
 GSYMS
 GTAGS
-
+dist/.svn
+dist/script/.svn
