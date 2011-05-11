@@ -65,22 +65,22 @@ struct llvm_context {
 #define LLVM_IDX_FUNCTION  (1)
 #define LLVM_IDX_BB        (2)
 #define LLVM_IDX_BUILDER   (3)
-static Module *LLVM_MODULE(CTX ctx)
+static inline Module *LLVM_MODULE(CTX ctx)
 {
 	knh_Array_t *a = DP(ctx->gma)->insts;
 	return (Module*)a->ilist[LLVM_IDX_MODULE];
 }
-static Function *LLVM_FUNCTION(CTX ctx)
+static inline Function *LLVM_FUNCTION(CTX ctx)
 {
 	knh_Array_t *a = DP(ctx->gma)->insts;
 	return (Function*)a->ilist[LLVM_IDX_FUNCTION];
 }
-static BasicBlock *LLVM_BB(CTX ctx)
+static inline BasicBlock *LLVM_BB(CTX ctx)
 {
 	knh_Array_t *a = DP(ctx->gma)->insts;
 	return (BasicBlock*)a->ilist[LLVM_IDX_BB];
 }
-static IRBuilder<> *LLVM_BUILDER(CTX ctx)
+static inline IRBuilder<> *LLVM_BUILDER(CTX ctx)
 {
 	knh_Array_t *a = DP(ctx->gma)->insts;
 	return (IRBuilder<>*)a->ilist[LLVM_IDX_BUILDER];
@@ -121,8 +121,9 @@ static void ASM_BOX2(CTX ctx, knh_type_t reqt, knh_type_t atype, int a)
 				//ASM(TR, OC_(a), SFP_(a), RIX_(a-a), ClassTBL(cid), _bBOX);
 			}
 			else if (IS_Tnumbox(reqt)) {
-				Object *v = (cid == CLASS_Int) ? UPCAST(KNH_INT0) : UPCAST(KNH_FLOAT0);
-				ASM(OSET, OC_(a), v);
+				LLVM_TODO("Boxing");
+				//Object *v = (cid == CLASS_Int) ? UPCAST(KNH_INT0) : UPCAST(KNH_FLOAT0);
+				//ASM(OSET, OC_(a), v);
 			}
 			else {
 				ASM(TR, OC_(a), SFP_(a), RIX_(a-a), ClassTBL(cid), _BOX);
@@ -891,7 +892,6 @@ static int _THROW_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt _UNUSED_, int s
 static int _RETURN_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt _UNUSED_, int sfpidx _UNUSED_)
 {
 	ASM_FINALLY(ctx);
-	//LLVM_TODO("RETURN");
 	size_t size = DP(stmt)->size;
 	if(size == 1) {
 		knh_type_t rtype = Tn_type(stmt, 0);
@@ -1027,6 +1027,15 @@ static void Init(CTX ctx, knh_Method_t *mtd, knh_Array_t *a)
 	a->ilist[LLVM_IDX_FUNCTION] = (knh_int_t) func;
 	a->ilist[LLVM_IDX_BB] = (knh_int_t) bb;
 	a->ilist[LLVM_IDX_BUILDER] = (knh_int_t) builder;
+
+	size_t i;
+	Function::arg_iterator args = func->arg_begin();
+	for (i = 0; i < DP(mtd)->mp->psize; i++) {
+		knh_param_t *p = knh_ParamArray_get(DP(mtd)->mp, i);
+		Value *arg = args++;
+		arg->setName(FN__(p->fn));
+		ValueStack_set(ctx, i+1, arg);
+	}
 }
 
 void Finish(CTX ctx, knh_Method_t *mtd, knh_Array_t *a)
@@ -1049,7 +1058,6 @@ void Finish(CTX ctx, knh_Method_t *mtd, knh_Array_t *a)
 #include "codeasm.h"
 
 } /* namespace llvm */
-
 
 #ifdef __cplusplus
 extern "C" {
