@@ -52,6 +52,7 @@ namespace llvmasm {
 
 #define ASM(X, ...)
 #define ASMop(X, ...)
+#define ASML(idx) ((idx < DP(ctx->gma)->espidx) ? (DP(ctx->gma)->espidx) : idx)
 static void Tn_asm(CTX ctx, knh_Stmt_t *stmt, size_t n, knh_type_t reqt, int local);
 static int _BLOCK_asm(CTX ctx, knh_Stmt_t *stmtH, knh_type_t reqt, int sfpidx);
 
@@ -103,6 +104,28 @@ static inline IRBuilder<> *LLVM_BUILDER(CTX ctx)
 /* ------------------------------------------------------------------------ */
 /* [Gamma] */
 
+static Value *ValueStack_get(CTX ctx, int index)
+{
+	knh_Array_t *lstacks = DP(ctx->gma)->lstacks;
+	knh_sfp_t lsfp = {};
+	index = index + (-1 * K_RTNIDX);
+	lsfp.a = lstacks;
+	lstacks->api->get(ctx, &lsfp, index, 0);
+	return (Value*) lsfp.ndata;
+}
+#define knh_Array_capacity(a) ((a)->dim->capacity)
+static void ValueStack_set(CTX ctx, int index, Value *v)
+{
+	knh_Array_t *lstacks = DP(ctx->gma)->lstacks;
+	knh_sfp_t lsfp = {};
+	index = index + (-1 * K_RTNIDX);
+	if ((int)knh_Array_capacity(lstacks) < index) {
+		knh_Array_grow(ctx, lstacks, index, index);
+	}
+	lsfp.ndata = (knh_ndata_t) v;
+	lstacks->api->set(ctx, lstacks, index, &lsfp);
+}
+
 #define TT_isSFPIDX(tk)   (TT_(tk) == TT_LOCAL || TT_(tk) == TT_FUNCVAR)
 #define Token_index(tk)   Token_index_(ctx, tk)
 static int Token_index_(CTX ctx, knh_Token_t *tk)
@@ -145,9 +168,11 @@ static void ASM_UNBOX(CTX ctx, knh_type_t atype, int a)
 
 static void ASM_MOVL(CTX ctx, knh_type_t reqt, int sfpidx, knh_type_t ltype, int local)
 {
-	LLVM_TODO("ASM_MOVL");
+	if(sfpidx < DP(ctx->gma)->espidx) {
+		Value *v = ValueStack_get(ctx, local);
+		ValueStack_set(ctx, sfpidx, v);
+	}
 }
-
 static int Tn_put(CTX ctx, knh_Stmt_t *stmt, size_t n, knh_type_t reqt, int sfpidx)
 {
 	knh_Token_t *tk = tkNN(stmt, n);
@@ -180,28 +205,6 @@ static void ASM_SMOVx(CTX ctx, knh_type_t atype, int a, knh_type_t btype, knh_sf
 	}
 }
 
-static Value *ValueStack_get(CTX ctx, int index)
-{
-	knh_Array_t *lstacks = DP(ctx->gma)->lstacks;
-	knh_sfp_t lsfp = {};
-	index = index + (-1 * K_RTNIDX);
-	lsfp.a = lstacks;
-	lstacks->api->get(ctx, &lsfp, index, 0);
-	return (Value*) lsfp.ndata;
-}
-#define knh_Array_capacity(a) ((a)->dim->capacity)
-static void ValueStack_set(CTX ctx, int index, Value *v)
-{
-	knh_Array_t *lstacks = DP(ctx->gma)->lstacks;
-	knh_sfp_t lsfp = {};
-	index = index + (-1 * K_RTNIDX);
-	if ((int)knh_Array_capacity(lstacks) < index) {
-		knh_Array_grow(ctx, lstacks, index, index);
-	}
-	lsfp.ndata = (knh_ndata_t) v;
-	lstacks->api->set(ctx, lstacks, index, &lsfp);
-}
-
 #define LLVM_CONTEXT() (llvm::getGlobalContext())
 #define LLVMTYPE_Bool  (Type::getInt1Ty(LLVM_CONTEXT()))
 #define LLVMTYPE_Int   (Type::getInt64Ty(LLVM_CONTEXT()))
@@ -214,12 +217,12 @@ static void ASM_SMOV(CTX ctx, knh_type_t atype, int a/*flocal*/, knh_Token_t *tk
 			break;
 		case TT_NULL/*DEFVAL*/: {
 			knh_class_t cid = (tkb)->cid;
-			knh_Object_t *v = KNH_NULVAL(cid);
-			if(v != ClassTBL(cid)->defnull) {
+			knh_Object_t *o = KNH_NULVAL(cid);
+			if(o != ClassTBL(cid)->defnull) {
 				ASM(TR, OC_(a), SFP_(a), RIX_(a-a), ClassTBL(cid), _NULVAL);
 				break;
 			}
-			KNH_SETv(ctx, (tkb)->data, v);
+			KNH_SETv(ctx, (tkb)->data, o);
 			goto L_CONST;
 		}
 		case TT_CID:
@@ -475,7 +478,17 @@ static knh_type_t Tn_ptype(CTX ctx, knh_Stmt_t *stmt, size_t n, knh_class_t cid,
 
 static int CALLPARAMs_asm(CTX ctx, knh_Stmt_t *stmt, size_t s, int local, knh_class_t cid, knh_Method_t *mtd)
 {
-	LLVM_TODO("CALLPARAMs");
+	size_t i;
+	if(s == 1 && Method_isStatic(mtd))
+		// ignoring static caller, like Script
+		s = 2;
+	if(DP(stmt)->size + DP(ctx->gma)->espidx > 32) {
+		LLVM_TODO("check stack");
+	}
+	for(i = s; i < DP(stmt)->size; i++) {
+		knh_type_t reqt = Tn_ptype(ctx, stmt, i, cid, mtd);
+		Tn_asm(ctx, stmt, i, reqt, local + i + (K_CALLDELTA-1));
+	}
 	return 1;
 }
 
@@ -495,19 +508,72 @@ static int _EXPR_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx);
 
 static int _CALL1_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 {
-	LLVM_TODO("CALL1");
+	if(IS_Stmt(DP(stmt)->stmtPOST)) {  /* a++ */
+		int local = ASML(sfpidx);
+		Tn_asm(ctx, stmt, 0, reqt, local);
+		_EXPR_asm(ctx, DP(stmt)->stmtPOST, reqt, local+1);
+		ASM_MOVL(ctx, reqt, sfpidx, SP(stmt)->type, local);
+	}
+	else {
+		Tn_asm(ctx, stmt, 0, reqt, sfpidx);
+	}
 	return 0;
 }
 
 static int _NEW_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 {
+	//int local = ASML(sfpidx), thisidx = local + K_CALLDELTA;
+	//knh_Method_t *mtd = (tkNN(stmt, 0))->mtd;
+	//knh_class_t cid = (tkNN(stmt, 1))->cid;
+	//if(DP(stmt)->size == 2 && (mtd)->cid == CLASS_Object && (mtd)->mn == MN_new) {
+	//	ASM(TR, OC_(sfpidx), SFP_(thisidx), RIX_(sfpidx-thisidx), ClassTBL(cid), TR_NEW);
+	//}
+	//else {
+	//	ASM(TR, OC_(thisidx), SFP_(thisidx), RIX_(thisidx-thisidx), ClassTBL(cid), TR_NEW);
+	//	CALLPARAMs_asm(ctx, stmt, 2, local, cid, mtd);
+	//	//ASM_CALL(ctx, reqt, local, cid, mtd, 1, DP(stmt)->size - 2);
+	//	ASM_MOVL(ctx, cid, sfpidx, SP(stmt)->type, local);
+	//}
 	LLVM_TODO("NEW");
 	return 0;
 }
 
 static int _TCAST_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 {
-	LLVM_TODO("TCAST");
+	knh_type_t srct = Tn_type(stmt, 1);
+	if(srct != reqt) {
+		int local = ASML(sfpidx);
+		knh_Token_t *tkC = tkNN(stmt, 0);
+		knh_TypeMap_t *trl = (tkC)->mpr;
+		Tn_asm(ctx, stmt, 1, srct, local);
+		if(IS_TypeMap(trl)) {
+			knh_class_t scid = SP(trl)->scid, tcid = SP(trl)->tcid;
+			if(1/*TypeMap_isFinal(trl)*/) {
+				if(scid == CLASS_Int && tcid == CLASS_Float) {
+					Value *v = ValueStack_get(ctx, local);
+					v = LLVM_BUILDER(ctx)->CreateSIToFP(v, LLVMTYPE_Float, "fcast");
+					ValueStack_set(ctx, local, v);
+				}
+				else if(scid == CLASS_Float && tcid == CLASS_Int) {
+					Value *v = ValueStack_get(ctx, local);
+					v = LLVM_BUILDER(ctx)->CreateSIToFP(v, LLVMTYPE_Int, "icast");
+					ValueStack_set(ctx, local, v);
+				}
+				else {
+					LLVM_TODO("SCAST");
+					ASM_BOX2(ctx, TYPE_Object, srct, local);
+					ASM(SCAST, RTNIDX_(ctx, local, stmt->type), SFP_(local), RIX_(local-local), trl);
+				}
+			}
+			else {
+				LLVM_TODO("!TypeMap_isFinal(trl)");
+			}
+		}
+		else {
+			LLVM_TODO("ACAST");
+		}
+		ASM_MOVL(ctx, reqt, sfpidx, SP(stmt)->type, local);
+	}
 	return 0;
 }
 
@@ -535,7 +601,6 @@ static int _TRI_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 	return 0;
 }
 
-#define ASML(idx) ((idx < DP(ctx->gma)->espidx) ? (DP(ctx->gma)->espidx) : idx)
 static int _LET_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 {
 	knh_Token_t *tkL = tkNN(stmt, 1);
