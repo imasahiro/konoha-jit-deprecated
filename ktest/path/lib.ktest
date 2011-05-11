@@ -1,9 +1,0 @@
-### lib path
->>> lib:no_such_lib
-false
->>> lib:m
-true
->>> lib:m.sin
-true
->>> lib:m.konoha_sin
-false

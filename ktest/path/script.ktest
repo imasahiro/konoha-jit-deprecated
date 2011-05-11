@@ -1,6 +1,0 @@
-## script path
->>> exists script:./bench/microbench2.k
-true
->>> script:./bench/microbench2.k
-'script:./bench/microbench2.k'
-
