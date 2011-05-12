@@ -628,7 +628,7 @@ static int _OPR_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 			}
 			opcode = OPCODE_fmn(mn, (OPCODE_fADDC - OPCODE_fADD));
 			Value *va = ValueStack_get(ctx, a);
-			Value *vb = ConstantInt::get(LLVMTYPE_Float, b);
+			Value *vb = ConstantFP::get(LLVMTYPE_Float, b);
 			ASMfop(ctx, opcode, va, vb, sfpidx);
 		}
 		else {
@@ -900,6 +900,30 @@ static void Tn_asm(CTX ctx, knh_Stmt_t *stmt, size_t n, knh_type_t reqt, int loc
 /* ------------------------------------------------------------------------ */
 /* [IF, WHILE, DO, FOR, FOREACH]  */
 
+static int Tn_CondAsm(CTX ctx, knh_Stmt_t *stmt, size_t n, int isTRUE, int flocal)
+{
+	knh_Token_t *tk = tkNN(stmt, n);
+	if(TT_(tk) == TT_CONST) {
+		int isTRUE2 = IS_TRUE((tk)->data);
+		ASM_SMOV(ctx, TYPE_Boolean, flocal, tk);
+		return flocal;
+	}
+	if(TT_(tk) == TT_LOCAL || TT_(tk) == TT_FUNCVAR) {
+		int index = Token_index(tk);
+		if(isTRUE) {
+			ASM(bNOT, NC_(index), NC_(index));
+		}
+		return index;
+	}
+	else {
+		Tn_asm(ctx, stmt, n, TYPE_Boolean, flocal);
+		if(isTRUE) {
+			ASM(bNOT, NC_(flocal), NC_(flocal));
+		}
+		return flocal;
+	}
+}
+
 static knh_Token_t *Tn_it(knh_Stmt_t *stmt, size_t n)
 {
 	DBG_ASSERT(n < DP(stmt)->size);
@@ -925,8 +949,8 @@ static int _IF_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx _UNUSE
 	BasicBlock *bbMerge = BasicBlock::Create(m->getContext(), "ifcont");
 
 	//Tn_JMPIF(ctx, stmt, 0, 0/*FALSE*/, ElseBB, local);
-	_EXPR_asm(ctx, stmt, TYPE_void, local);
-	cond = ValueStack_get(ctx, local);
+	int a = Tn_CondAsm(ctx, stmt, 0, 0, local);
+	cond = ValueStack_get(ctx, a);
 	builder->CreateCondBr(cond, bbThen, bbElse);
 
 	builder->SetInsertPoint(bbThen);
@@ -934,9 +958,10 @@ static int _IF_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx _UNUSE
 	builder->CreateBr(bbMerge);
 
 	builder->SetInsertPoint(bbElse);
-	Tn_asmBLOCK(ctx, stmt, 1, reqt);
+	Tn_asmBLOCK(ctx, stmt, 2, reqt);
 	builder->CreateBr(bbMerge);
 	builder->SetInsertPoint(bbMerge);
+	builder->CreateRet(NULL);
 	return 0;
 }
 
