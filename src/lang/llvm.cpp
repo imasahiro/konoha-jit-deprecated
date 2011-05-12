@@ -584,7 +584,7 @@ static int _OPR_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 			int b = Tn_put(ctx, stmt, 2, TYPE_Int, local + 2);
 			Value *va = ValueStack_get(ctx, a);
 			Value *vb = ValueStack_get(ctx, b);
-			ASM_op(ctx, opcode - OPCODE_iADD, va, vb, local);
+			ASM_op(ctx, opcode - OPCODE_iADD, va, vb, sfpidx);
 		}
 	}
 	if (cid == CLASS_Float && ((opcode = OPCODE_fmn(mn, 0)) != OPCODE_NOP)) {
@@ -604,16 +604,14 @@ static int _OPR_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 			opcode = OPCODE_fmn(mn, (OPCODE_fADDC - OPCODE_fADD));
 			Value *va = ValueStack_get(ctx, local + 1);
 			Value *vb = ConstantInt::get(LLVMTYPE_Float, b);
-			ASM_op(ctx, opcode - OPCODE_fADDC, va, vb, local);
+			ASM_op(ctx, opcode - OPCODE_fADDC, va, vb, sfpidx);
 		}
 		else {
 			Value *va = ValueStack_get(ctx, local + 1);
 			Value *vb = ValueStack_get(ctx, local + 1);
-			ASM_op(ctx, opcode - OPCODE_fADD, va, vb, local);
+			ASM_op(ctx, opcode - OPCODE_fADD, va, vb, sfpidx);
 		}
 	}
-
-
 	return 0;
 }
 
