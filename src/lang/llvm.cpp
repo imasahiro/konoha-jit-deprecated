@@ -1201,17 +1201,18 @@ static int _THROW_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt _UNUSED_, int s
 	return 0;
 }
 
-static void ASM_RET(CTX ctx, knh_Stmt_t *stmt)
+static void ASM_LastRET(CTX ctx, knh_Stmt_t *stmt)
 {
-//	while(DP(stmt)->nextNULL != NULL) {
-//		stmt = DP(stmt)->nextNULL;
-//		if(STT_(stmt) == STT_CHKOUT) {
-//			CHKOUT_asm(ctx, stmt);
-//		}
-//	}
-//	{
-//	}
+	//while(DP(stmt)->nextNULL != NULL) {
+	//	stmt = DP(stmt)->nextNULL;
+	//	if(STT_(stmt) == STT_CHKOUT) {
+	//		CHKOUT_asm(ctx, stmt);
+	//	}
+	//}
+	BasicBlock *bb = LLVM_BUILDER(ctx)->GetInsertBlock();
+	if (bb->size() == 0) {
 		LLVM_BUILDER(ctx)->CreateRet(NULL);
+	}
 }
 
 
@@ -1554,7 +1555,7 @@ static void Finish(CTX ctx, knh_Method_t *mtd, knh_Array_t *a, knh_Stmt_t *stmt)
 	knh_Fmethod f;
 	Module *m = LLVM_MODULE(ctx);
 	Function *func = LLVM_FUNCTION(ctx);
-	//ASM_RET(ctx, stmt);
+	ASM_LastRET(ctx, stmt);
 	/* asm for script function is done. */
 
 	/* build wrapper function and compile to native code. */
