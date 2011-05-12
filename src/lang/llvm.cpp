@@ -89,15 +89,9 @@ static inline IRBuilder<> *LLVM_BUILDER(CTX ctx)
 #define PUSH_LABEL(ctx, ...) /*TODO*/
 #define POP_LABEL(ctx)       /*TODO*/
 
-#ifdef K_USING_RBP_
 #define NC_(sfpidx)    (((sfpidx) * 2) + 1)
 #define OC_(sfpidx)    ((sfpidx) * 2)
 #define SFP_(sfpidx)   ((sfpidx) * 2)
-#else
-#define NC_(sfpidx)    sfpidx
-#define OC_(sfpidx)    sfpidx
-#define SFP_(sfpidx)   sfpidx
-#endif
 
 #define RIX_(rix)      rix
 
@@ -1340,7 +1334,6 @@ static void ConstructObjectStruct(Module *m)
 	// Type Definitions
 	const Type *longTy , *shortTy;
 	const Type *voidTy  = Type::getVoidTy(m->getContext());
-	const Type *voidPtr = PointerType::get(voidTy, 0);
 	const Type *hObjectTy, *objectPtr;
 	StructType* structTy;
 #if defined(SIZEOF_VOIDP) && (SIZEOF_VOIDP == 4)
@@ -1350,6 +1343,7 @@ static void ConstructObjectStruct(Module *m)
 	longTy  = Type::getInt64Ty(m->getContext());
 	shortTy = Type::getInt32Ty(m->getContext());
 #endif
+	const Type *voidPtr = PointerType::get(longTy, 0);
 
 	/* hObject */
 	std::vector<const Type*>fields;
@@ -1383,8 +1377,9 @@ static void ConstructObjectStruct(Module *m)
 	fields.clear();
 
 	/* sfp */
-	fields.push_back(LLVMTYPE_Int);
 	fields.push_back(objectPtr);
+	//fields.push_back(LLVMTYPE_Int);
+	fields.push_back(LLVMTYPE_Float);
 	structTy = StructType::get(m->getContext(), fields, /*isPacked=*/false);
 	const Type *sfpPtr = PointerType::get(structTy, 0);
 	m->addTypeName("knh_sfp_t", sfpPtr);
@@ -1455,7 +1450,7 @@ static Function *build_function(CTX ctx, Module *m, knh_Method_t *mtd)
 	return cast<Function>(m->getOrInsertFunction(name, fnTy));
 }
 
-#define TC_(type, i) ((IS_Tnumbox(type))?(NC_(i)):(OC_(i)))
+#define TC_(type, i) ((IS_Tunbox(type))?(NC_(i)):(OC_(i)))
 
 //static Value *build_sfp2value(CTX ctx, IRBuilder<> *builder, knh_type_t type, Value *v)
 //{
@@ -1480,8 +1475,8 @@ static Value *create_loadsfp(CTX ctx, IRBuilder<> *builder, Value *v, knh_type_t
 	//vec.push_back(idx1);
 	//v = GetElementPtrInst::Create(v, vec.begin(), vec.end(), "get");
 	v = builder->CreateConstGEP2_32(v, (unsigned)idx0, (unsigned)idx, "gep");
-	if (IS_Tfloat(type)) {
-		v = builder->CreateBitCast(v, LLVMTYPE_Float, "fcast");
+	if (IS_Tint(type) || IS_Tbool(type)) {
+		v = builder->CreateBitCast(v, PointerType::get(convert_type(ctx, type), 0), "cast");
 	}
 	return v;
 }
