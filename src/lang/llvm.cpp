@@ -762,13 +762,65 @@ static int _ALT_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 
 static int _OR_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 {
-	LLVM_TODO("x OR y");
+	int i, local = ASML(sfpidx),  size = DP(stmt)->size;
+	Module *m = LLVM_MODULE(ctx);
+	IRBuilder<> *builder = LLVM_BUILDER(ctx);
+	BasicBlock *lbTrue = BasicBlock::Create(m->getContext(), "true", LLVM_FUNCTION(ctx));
+	BasicBlock *lbNext = BasicBlock::Create(m->getContext(), "next", LLVM_FUNCTION(ctx));
+	std::vector<BasicBlock *> blocks;
+
+	for(i = 0; i < size; i++){
+		int n = Tn_put(ctx, stmt, i, TYPE_Boolean, local + 1);
+		Value *cond = ValueStack_get(ctx, n);
+		builder->CreateCondBr(cond, lbTrue, lbNext);
+
+		blocks.push_back(builder->GetInsertBlock());
+		builder->SetInsertPoint(lbNext);
+		if(i + 1 != size)
+			lbNext = BasicBlock::Create(m->getContext(), "next", LLVM_FUNCTION(ctx));
+	}
+	builder->CreateBr(lbTrue);
+	builder->SetInsertPoint(lbTrue);
+
+	PHINode *phi = builder->CreatePHI(LLVMTYPE_Bool, "or_result");
+	phi->addIncoming(ConstantInt::get(LLVMTYPE_Bool, 0), lbNext);
+
+	std::vector<BasicBlock*>::iterator itr;
+	for (itr = blocks.begin(); itr != blocks.end(); itr++) {
+		phi->addIncoming(ConstantInt::get(LLVMTYPE_Bool, 1), *itr);
+	}
+	ValueStack_set(ctx, sfpidx, phi);
+
 	return 0;
 }
 
 static int _AND_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 {
-	LLVM_TODO("x AND y");
+	int i, local = ASML(sfpidx), size = DP(stmt)->size;
+	Module *m = LLVM_MODULE(ctx);
+	IRBuilder<> *builder = LLVM_BUILDER(ctx);
+	BasicBlock *lbFalse = BasicBlock::Create(m->getContext(), "false", LLVM_FUNCTION(ctx));
+	BasicBlock *lbNext = BasicBlock::Create(m->getContext(), "next", LLVM_FUNCTION(ctx));
+	std::vector<BasicBlock *> blocks;
+	for(i = 0; i < size; i++){
+		int n = Tn_put(ctx, stmt, i, TYPE_Boolean, local + 1);
+		Value *cond = ValueStack_get(ctx, n);
+		builder->CreateCondBr(cond, lbNext, lbFalse);
+		blocks.push_back(builder->GetInsertBlock());
+		builder->SetInsertPoint(lbNext);
+		if(i + 1 != size)
+			lbNext = BasicBlock::Create(m->getContext(), "next", LLVM_FUNCTION(ctx));
+	}
+	builder->CreateBr(lbFalse);
+	builder->SetInsertPoint(lbFalse);
+
+	PHINode *phi = builder->CreatePHI(LLVMTYPE_Bool, "and_result");
+	phi->addIncoming(ConstantInt::get(LLVMTYPE_Bool, 1), lbNext);
+	std::vector<BasicBlock*>::iterator itr;
+	for (itr = blocks.begin(); itr != blocks.end(); itr++) {
+		phi->addIncoming(ConstantInt::get(LLVMTYPE_Bool, 1), *itr);
+	}
+	ValueStack_set(ctx, sfpidx, phi);
 	return 0;
 }
 
