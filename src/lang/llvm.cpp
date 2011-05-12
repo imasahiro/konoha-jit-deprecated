@@ -460,10 +460,160 @@ static knh_float_t Tn_float(knh_Stmt_t *stmt, size_t n)
 }
 
 static int _CALL_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx);
+static knh_opcode_t OPCODE_imn(knh_methodn_t mn, int diff)
+{
+	switch(mn) {
+	case MN_opNEG: return OPCODE_iNEG;
+	case MN_opADD: return OPCODE_iADD + diff;
+	case MN_opSUB: return OPCODE_iSUB + diff;
+	case MN_opMUL: return OPCODE_iMUL + diff;
+	case MN_opDIV: return OPCODE_iDIV+ diff;
+	case MN_opMOD: return OPCODE_iMOD+ diff;
+	case MN_opEQ:  return OPCODE_iEQ+ diff;
+	case MN_opNOTEQ: return OPCODE_iNEQ+ diff;
+	case MN_opLT:  return OPCODE_iLT+ diff;
+	case MN_opLTE: return OPCODE_iLTE+ diff;
+	case MN_opGT:  return OPCODE_iGT+ diff;
+	case MN_opGTE: return OPCODE_iGTE+ diff;
+#ifdef OPCODE_iAND
+	case MN_opLAND :  return OPCODE_iAND  + diff;
+	case MN_opLOR  :  return OPCODE_iOR   + diff;
+	case MN_opLXOR :  return OPCODE_iXOR  + diff;
+	case MN_opLSFT:  return OPCODE_iLSFT  + diff;
+	case MN_opRSFT:  return OPCODE_iRSFT  + diff;
+#endif
+	}
+	return OPCODE_NOP;
+}
+
+static knh_opcode_t OPCODE_fmn(knh_methodn_t mn, int diff)
+{
+	switch(mn) {
+	case MN_opNEG: return OPCODE_fNEG;
+	case MN_opADD: return OPCODE_fADD + diff;
+	case MN_opSUB: return OPCODE_fSUB + diff;
+	case MN_opMUL: return OPCODE_fMUL + diff;
+	case MN_opDIV: return OPCODE_fDIV + diff;
+	case MN_opEQ:  return OPCODE_fEQ + diff;
+	case MN_opNOTEQ: return OPCODE_fNEQ + diff;
+	case MN_opLT:  return OPCODE_fLT + diff;
+	case MN_opLTE: return OPCODE_fLTE + diff;
+	case MN_opGT:  return OPCODE_fGT + diff;
+	case MN_opGTE: return OPCODE_fGTE + diff;
+	}
+	return OPCODE_NOP;
+}
+static knh_bool_t OPR_hasCONST(CTX ctx, knh_Stmt_t *stmt, knh_methodn_t *mn, int swap)
+{
+	int isCONST = (TT_(tmNN(stmt, 2)) == TT_CONST);
+	if(swap == 1 && TT_(tmNN(stmt, 1)) == TT_CONST) {
+		knh_methodn_t newmn = *mn;
+		knh_Stmt_swap(ctx, stmt, 1, 2);
+		if(*mn == MN_opLT) newmn = MN_opGT;  /* 1 < n ==> n > 1 */
+		else if(*mn == MN_opLTE) newmn = MN_opGTE; /* 1 <= n => n >= 1 */
+		else if(*mn == MN_opGT) newmn = MN_opLT;
+		else if(*mn == MN_opGTE) newmn = MN_opLTE;
+		//DBG_P("swap %s ==> %s", MN__(*mn), MN__(newmn));
+		*mn = newmn;
+		isCONST = 1;
+	}
+	return isCONST;
+}
+static int ASM_op(CTX ctx, knh_opcode_t opcode, Value *va, Value *vb, int local)
+{
+	Module *m = LLVM_MODULE(ctx);
+	IRBuilder<> *builder = LLVM_BUILDER(ctx);
+	switch(opcode) {
+		case 0:
+			ValueStack_set(ctx, local, builder->CreateAdd(va, vb, "addtemp"));
+			break;
+		case 1:
+			ValueStack_set(ctx, local, builder->CreateAdd(va, vb, "subtemp"));
+			break;
+		case 2:
+			ValueStack_set(ctx, local, builder->CreateMul(va, vb, "multemp"));
+			break;
+		case 3:
+			ValueStack_set(ctx, local, builder->CreateSDiv(va, vb, "divtemp"));
+			break;
+	}
+	return 1;
+}
 
 static int _OPR_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 {
-	LLVM_TODO("Operator");
+	int local = ASML(sfpidx);
+	knh_Method_t *mtd = (tkNN(stmt, 0))->mtd;
+	if (IS_NULL(mtd)) return 0;
+	knh_methodn_t mn = (mtd)->mn;
+	knh_class_t cid = CLASS_t(SP(tkNN(stmt, 1))->type);
+	knh_opcode_t opcode;
+	if(cid == CLASS_Boolean && mn == MN_opNOT) {
+		LLVM_TODO("boolean not op");
+		//int a = Tn_put(ctx, stmt, 1, TYPE_Boolean, local + 1);
+		//Value *va = ValueStack_get(ctx, a);
+		//va = LLVM_BUILDER(ctx)->CreateNeg(va, "negtmp", true/*??? TODO*/, false/*TODO ???*/);
+		//ValueStack_set(ctx, sfpidx, va);
+		return 1;
+	}
+	if (cid == CLASS_Int && ((opcode = OPCODE_imn(mn, 0)) != OPCODE_NOP)) {
+		int swap = 1;
+		if (mn == MN_opNEG) {
+			int a = Tn_put(ctx, stmt, 1, TYPE_Int, local + 1);
+			Value *va = ValueStack_get(ctx, a);
+			va = LLVM_BUILDER(ctx)->CreateNeg(va, "negtmp", true/*??? TODO*/, false/*TODO ???*/);
+			ASM (iNEG, NC_(sfpidx), NC_(a));
+			ValueStack_set(ctx, sfpidx, va);
+			return 1;
+		}
+		if (mn == MN_opSUB || mn == MN_opDIV || mn == MN_opMOD) swap =0;
+		if (OPR_hasCONST(ctx, stmt, &mn, swap)) {
+			int a = Tn_put(ctx, stmt, 1, TYPE_Int, local + 1);
+			knh_int_t b = Tn_int(stmt, 2);
+			if (b == 0 && mn == MN_opDIV) {
+				b = 1;
+				WarningDividedByZero(ctx);
+			}
+			opcode = OPCODE_imn(mn, (OPCODE_iADDC - OPCODE_iADD));
+			Value *va = ValueStack_get(ctx, a);
+			Value *vb = ConstantInt::get(LLVMTYPE_Int, b);
+			ASM_op(ctx, opcode - OPCODE_iADDC, va, vb, local);
+		}
+		else {
+			int a = Tn_put(ctx, stmt, 1, TYPE_Int, local + 1);
+			int b = Tn_put(ctx, stmt, 2, TYPE_Int, local + 2);
+			Value *va = ValueStack_get(ctx, a);
+			Value *vb = ValueStack_get(ctx, b);
+			ASM_op(ctx, opcode - OPCODE_iADD, va, vb, local);
+		}
+	}
+	if (cid == CLASS_Float && ((opcode = OPCODE_fmn(mn, 0)) != OPCODE_NOP)) {
+		int swap = 1;
+		if (mn == MN_opNEG) {
+			int a = Tn_put(ctx, stmt, 1, TYPE_Float, local + 1);
+			ASM (fNEG, NC_(sfpidx), NC_(a));
+			return 1;
+		}
+		if (mn == MN_opSUB || mn == MN_opDIV || mn == MN_opMOD) swap =0;
+		if (OPR_hasCONST(ctx, stmt, &mn, swap)) {
+			knh_float_t b = Tn_float(stmt, 2);
+			if (b == K_FLOAT_ZERO && mn == MN_opDIV) {
+				b = K_FLOAT_ONE;
+				WarningDividedByZero(ctx);
+			}
+			opcode = OPCODE_fmn(mn, (OPCODE_fADDC - OPCODE_fADD));
+			Value *va = ValueStack_get(ctx, local + 1);
+			Value *vb = ConstantInt::get(LLVMTYPE_Float, b);
+			ASM_op(ctx, opcode - OPCODE_fADDC, va, vb, local);
+		}
+		else {
+			Value *va = ValueStack_get(ctx, local + 1);
+			Value *vb = ValueStack_get(ctx, local + 1);
+			ASM_op(ctx, opcode - OPCODE_fADD, va, vb, local);
+		}
+	}
+
+
 	return 0;
 }
 
