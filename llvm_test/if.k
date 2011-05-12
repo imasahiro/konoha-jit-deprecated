@@ -5,10 +5,10 @@ int f0(int x, int y) {
         return y;
     }
 }
-int f1(int x) {
-    if (x < 10) {
-        return x;
-    } else {
-        return 20;
-    }
-}
+//int f1(int x) {
+//    if (x < 10) {
+//        return x;
+//    } else {
+//        return 20;
+//    }
+//}

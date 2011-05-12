@@ -204,7 +204,26 @@ static void ASM_SMOVx(CTX ctx, knh_type_t atype, int a, knh_type_t btype, knh_sf
 #define LLVMTYPE_Bool  (Type::getInt1Ty(LLVM_CONTEXT()))
 #define LLVMTYPE_Int   (Type::getInt64Ty(LLVM_CONTEXT()))
 #define LLVMTYPE_Float (Type::getDoubleTy(LLVM_CONTEXT()))
-#define LLVMTYPE_Object (LLVM_MODULE(ctx)->getTypeByName("Object"))
+static const Type *LLVMTYPE_Object = NULL;
+static const Type *LLVMTYPE_context = NULL;
+static const Type *LLVMTYPE_fcall = NULL;
+static const Type *LLVMTYPE_sfp   = NULL;
+static const Type *convert_type(CTX ctx, knh_class_t cid)
+{
+	switch (cid) {
+		case TYPE_void:
+			return LLVMTYPE_Void;
+		case TYPE_Boolean:
+			return LLVMTYPE_Bool;
+		case TYPE_Int:
+			return LLVMTYPE_Int;
+		case TYPE_Float:
+			return LLVMTYPE_Float;
+	}
+	return LLVMTYPE_Object;
+}
+
+
 static void ASM_SMOV(CTX ctx, knh_type_t atype, int a/*flocal*/, knh_Token_t *tkb)
 {
 	knh_type_t btype = SP(tkb)->type;
@@ -286,7 +305,8 @@ static void ASM_SMOV(CTX ctx, knh_type_t atype, int a/*flocal*/, knh_Token_t *tk
 		case TT_SYSVAL: {
 			size_t sysid = (tkb)->index;
 			KNH_ASSERT(sysid < K_SYSVAL_MAX);
-			ASM(FASTCALL0, SFP_(a), SFP_(a), 0, SYSVAL_MTD[sysid]);
+			Value *arg_ctx = getctx(ctx);
+			//SYSVAL_LOAD_INSTS[sysid](ctx, a);
 			break;
 		}
 		case TT_PROPN: {
@@ -643,9 +663,32 @@ static int _OPR_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 
 static knh_type_t Tn_ptype(CTX ctx, knh_Stmt_t *stmt, size_t n, knh_class_t cid, knh_Method_t *mtd)
 {
-	LLVM_TODO("Tn_ptype");
-	return TYPE_void;
+	if(!IS_Method(mtd)) {
+		return TYPE_dyn;  // boxing
+	}
+	if(n == 1) { // base
+		if(IS_Tunbox(cid) && cid != (mtd)->cid) {
+			/* Object, Number, dynamic */
+			cid = (mtd)->cid;
+		}
+		DBG_(
+		if(cid != (mtd)->cid) {
+			DBG_P("** WATCH OUT ** mtd_cid=%s, (mtd)->cid=%s", CLASS__(cid), CLASS__((mtd)->cid));
+		});
+		return cid;
+	}
+	else {
+		knh_type_t ptype = knh_ParamArray_getptype(DP(mtd)->mp, n - 2);
+		return knh_type_tocid(ctx, ptype, cid);
+	}
 }
+static Value *getsfp(CTX ctx)
+{
+		Function::arg_iterator args = LLVM_FUNCTION(ctx)->arg_begin();
+		args++;/* ctx */
+		return args;
+}
+static Value *create_loadsfp(CTX ctx, IRBuilder<> *builder, Value *v, knh_type_t type, int idx0);
 
 static int CALLPARAMs_asm(CTX ctx, knh_Stmt_t *stmt, size_t s, int local, knh_class_t cid, knh_Method_t *mtd)
 {
@@ -656,16 +699,113 @@ static int CALLPARAMs_asm(CTX ctx, knh_Stmt_t *stmt, size_t s, int local, knh_cl
 	if(DP(stmt)->size + DP(ctx->gma)->espidx > 32) {
 		LLVM_TODO("check stack");
 	}
+	Value *arg_sfp = getsfp(ctx);
+	IRBuilder<> *builder = LLVM_BUILDER(ctx);
 	for(i = s; i < DP(stmt)->size; i++) {
 		knh_type_t reqt = Tn_ptype(ctx, stmt, i, cid, mtd);
-		Tn_asm(ctx, stmt, i, reqt, local + i + (K_CALLDELTA-1));
+		int a = local + i + (K_CALLDELTA-1);
+		asm volatile("int3");
+		Tn_asm(ctx, stmt, i, reqt, a);
+		Value *v = ValueStack_get(ctx, a);
+		Value *ptr = create_loadsfp(ctx, builder, arg_sfp, reqt, a);
+		builder->CreateStore(v, ptr, "store");
 	}
 	return 1;
 }
 
+static void _CALL(CTX ctx, knh_type_t reqt, int sfpidx, knh_type_t rtype, knh_Method_t *mtd, int isStatic)
+{
+	int thisidx = sfpidx + K_CALLDELTA;
+	DBG_ASSERT(IS_Method(mtd));
+	KNH_ASSERT(sfpidx >= DP(ctx->gma)->espidx);
+	if(Method_isFinal(mtd) || isStatic) {
+		if(Method_isKonohaCode(mtd) || DP(ctx->gma)->mtd == mtd) {
+		LLVM_TODO("KonohaCode");
+		}
+		else {
+			knh_Fmethod func = mtd->fcall_1;
+			Value *v;
+			std::vector<Value*> params;
+			Function::arg_iterator arg = LLVM_FUNCTION(ctx)->arg_begin();
+			params.push_back(arg++);
+			params.push_back(arg);
+			params.push_back(ConstantInt::get(LLVMTYPE_Int, K_RTNIDX));
+			v = ConstantInt::get(LLVMTYPE_Int, (knh_int_t)func);
+			v = LLVM_BUILDER(ctx)->CreateIntToPtr(v, LLVMTYPE_fcall);
+			Value *call = LLVM_BUILDER(ctx)->CreateCall(v, params.begin(), params.end(), "call");
+			//ValueStack_set(ctx, sfpidx, call);
+		}
+	}
+	else {
+		LLVM_TODO("LOADMTD");
+	}
+}
+
 static int _CALL_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 {
-	LLVM_TODO("CALL");
+	int local = ASML(sfpidx);
+	knh_Token_t *tkMTD = tkNN(stmt, 0);
+	knh_Method_t *mtd = (tkMTD)->mtd;
+	knh_class_t cid = Tn_cid(stmt, 1);
+	if(!IS_Method(mtd)) {
+		LLVM_TODO("LOADMTD");
+		return 0;
+	}
+	knh_class_t mtd_cid = (mtd)->cid;
+	knh_methodn_t mtd_mn = (mtd)->mn;
+	if(mtd_cid == CLASS_Array) {
+		LLVM_TODO("CALL Array get/set");
+	}
+#if defined(OPCODE_BGETIDX)
+	if(mtd_cid == CLASS_Bytes) {
+		LLVM_TODO("CALL Bytes get/set");
+	}
+#endif
+#ifdef OPCODE_bNUL
+	if(mtd_cid == CLASS_Object) {
+		LLVM_TODO("Object null check");
+	}
+#endif
+	{
+		knh_index_t deltaidx = knh_Method_indexOfGetterField(mtd);
+		if(deltaidx != -1) {
+			LLVM_TODO("Getter");
+		}
+		deltaidx = knh_Method_indexOfSetterField(mtd);
+		if(deltaidx != -1) {
+			LLVM_TODO("Setter");
+		}
+	}
+	L_USECALL:;
+	{
+#ifdef OPCODE_FASTCALL0
+		//knh_type_t rtype = knh_type_tocid(ctx, knh_ParamArray_rtype(DP(mtd)->mp), cid);
+		//if(DP(stmt)->size == 2 && Method_isFASTCALL0(ctx, mtd)) {
+		//	int a = local;
+		//	if(!Method_isStatic(mtd)) {
+		//		a = Tn_put(ctx, stmt, 1, TYPE_cid(mtd_cid), local + 1);
+		//	}
+		//	//KNH_P("FASTCALL %s.%s", CLASS__((mtd)->cid), MN__((mtd)->mn));
+		//	ASM(FASTCALL0, RTNIDX_(ctx, sfpidx, rtype), SFP_(a), RIX_(sfpidx - a), SP(mtd)->fcall_1, mtd);
+		//	return;
+		//}
+		//if(DP(stmt)->size == 3 && Method_isStatic(mtd) && Method_isFASTCALL0(ctx, mtd)) {
+		//	knh_param_t *p = knh_ParamArray_get(DP(mtd)->mp, 0);
+		//	knh_type_t ptype = knh_type_tocid(ctx, p->type, mtd_cid);
+		//	int a = Tn_put(ctx, stmt, 2, ptype, local + 2);
+		//	//KNH_P("STATIC FASTCALL %s.%s", CLASS__((mtd)->cid), MN__((mtd)->mn));
+		//	ASM(FASTCALL0, RTNIDX_(ctx, sfpidx, rtype), SFP_(a - 1), RIX_(sfpidx - (a - 1)), SP(mtd)->fcall_1, mtd);
+		//	return;
+		//}
+#endif
+		if(CALLPARAMs_asm(ctx, stmt, 1, local, cid, mtd)) {
+			knh_type_t rtype = knh_type_tocid(ctx, knh_ParamArray_rtype(DP(mtd)->mp), cid);
+			int isStatic = Method_isStatic(mtd);
+			_CALL(ctx, reqt, local, rtype, mtd, isStatic);
+			ASM_MOVL(ctx, reqt, sfpidx, SP(stmt)->type, local);
+		}
+	}
+
 	return 0;
 }
 
@@ -1315,21 +1455,6 @@ static int _BLOCK_asm(CTX ctx, knh_Stmt_t *stmtH, knh_type_t reqt, int sfpidx _U
 	return 0;
 }
 
-static const Type *convert_type(CTX ctx, knh_class_t cid)
-{
-	switch (cid) {
-		case TYPE_void:
-			return LLVMTYPE_Void;
-		case TYPE_Boolean:
-			return LLVMTYPE_Bool;
-		case TYPE_Int:
-			return LLVMTYPE_Int;
-		case TYPE_Float:
-			return LLVMTYPE_Float;
-	}
-	return LLVMTYPE_Object;
-}
-
 static void ConstructObjectStruct(Module *m)
 {
 	// Type Definitions
@@ -1366,6 +1491,7 @@ static void ConstructObjectStruct(Module *m)
 	fields.push_back(voidPtr);
 	structTy = StructType::get(m->getContext(), fields, /*isPacked=*/false);
 	objectPtr = PointerType::get(structTy, 0);
+	LLVMTYPE_Object = objectPtr;
 	m->addTypeName("Object", objectPtr);
 	fields.clear();
 
@@ -1384,6 +1510,7 @@ static void ConstructObjectStruct(Module *m)
 	structTy = StructType::get(m->getContext(), fields, /*isPacked=*/false);
 	const Type *sfpPtr = PointerType::get(structTy, 0);
 	m->addTypeName("knh_sfp_t", sfpPtr);
+	LLVMTYPE_sfp = sfpPtr;
 	fields.clear();
 
 	/* InputStream */
@@ -1426,6 +1553,7 @@ static void ConstructObjectStruct(Module *m)
 	structTy = StructType::get(m->getContext(), fields, /*isPacked=*/false);
 	const Type *ctxPtr = PointerType::get(structTy, 0);
 	m->addTypeName("ctx", ctxPtr);
+	LLVMTYPE_context = ctxPtr;
 
 	// Pointer Definitions
 	std::vector<const Type*>args;
@@ -1433,6 +1561,7 @@ static void ConstructObjectStruct(Module *m)
 	args.push_back(sfpPtr);
 	args.push_back(longTy);
 	FunctionType* callTy = FunctionType::get(/*Result=*/voidTy,/*Params=*/args,/*isVarArg=*/false);
+	LLVMTYPE_fcall = PointerType::get(callTy, 0);
 	m->addTypeName("fcall", callTy);
 }
 
@@ -1443,6 +1572,9 @@ static Function *build_function(CTX ctx, Module *m, knh_Method_t *mtd)
 	knh_class_t retTy = knh_ParamArray_rtype(pa);;
 	std::vector<const Type*> argsTy;
 	char const *name = knh_getmnname(ctx, SP(mtd)->mn);
+
+	argsTy.push_back(LLVMTYPE_context);
+	argsTy.push_back(LLVMTYPE_sfp);
 	for (i = 0; i < pa->psize; i++) {
 		knh_type_t type = knh_ParamArray_getptype(pa, i);
 		argsTy.push_back(convert_type(ctx, type));
@@ -1453,20 +1585,6 @@ static Function *build_function(CTX ctx, Module *m, knh_Method_t *mtd)
 
 #define TC_(type, i) ((IS_Tunbox(type))?(NC_(i)):(OC_(i)))
 
-//static Value *build_sfp2value(CTX ctx, IRBuilder<> *builder, knh_type_t type, Value *v)
-//{
-//	Value *one  = ConstantInt::get(Type::getInt64Ty(LLVM_CONTEXT()), 1);
-//	switch (type) {
-//		case TYPE_Boolean:
-//			return builder->CreateInBoundsGEP(v, idx, one, "gep");
-//		case TYPE_Int:
-//			return builder->CreateInBoundsGEP(v, idx, one, "gep");
-//		case TYPE_Float:
-//			return builder->CreateInBoundsGEP(v, idx, one, "gep");
-//		default:
-//			return builder->CreateInBoundsGEP(v, idx, one, "gep");
-//	}
-//}
 static Value *create_loadsfp(CTX ctx, IRBuilder<> *builder, Value *v, knh_type_t type, int idx0)
 {
 	unsigned int idx = TC_(type, 0);
@@ -1505,6 +1623,8 @@ static Function *build_wrapper_func(CTX ctx, Module *m, knh_Method_t *mtd, Funct
 
 	/* load konoha args from sfp and build call params*/
 	std::vector<Value*> params;
+	params.push_back(arg_ctx);
+	params.push_back(arg_sfp);
 	for (i = 0; i < pa->psize; i++) {
 		knh_param_t *p = knh_ParamArray_get(DP(mtd)->mp, i);
 		Value *v = arg_sfp;
@@ -1530,10 +1650,14 @@ static Function *build_wrapper_func(CTX ctx, Module *m, knh_Method_t *mtd, Funct
 static void Init(CTX ctx, knh_Method_t *mtd, knh_Array_t *a)
 {
 	Module *m = new Module("test", LLVM_CONTEXT());
-	Function *func = build_function(ctx, m, mtd);
-	BasicBlock *bb = BasicBlock::Create(LLVM_CONTEXT(), "EntryBlock", func);
-	IRBuilder<> *builder = new IRBuilder<>(bb);
+	Function *func;
+	BasicBlock *bb;
+	IRBuilder<> *builder;
+
 	ConstructObjectStruct(m);
+	func = build_function(ctx, m, mtd);
+	bb = BasicBlock::Create(LLVM_CONTEXT(), "EntryBlock", func);
+	builder = new IRBuilder<>(bb);
 
 	a->ilist[LLVM_IDX_MODULE] = (knh_int_t) m;
 	a->ilist[LLVM_IDX_FUNCTION] = (knh_int_t) func;
@@ -1542,6 +1666,8 @@ static void Init(CTX ctx, knh_Method_t *mtd, knh_Array_t *a)
 
 	size_t i;
 	Function::arg_iterator args = func->arg_begin();
+	args++;/*ctx*/
+	args++;/*sfp*/
 	for (i = 0; i < DP(mtd)->mp->psize; i++) {
 		knh_param_t *p = knh_ParamArray_get(DP(mtd)->mp, i);
 		Value *arg = args++;
