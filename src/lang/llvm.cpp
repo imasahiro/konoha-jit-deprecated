@@ -206,9 +206,11 @@ static void ASM_SMOVx(CTX ctx, knh_type_t atype, int a, knh_type_t btype, knh_sf
 }
 
 #define LLVM_CONTEXT() (llvm::getGlobalContext())
+#define LLVMTYPE_Void  (Type::getVoidTy(LLVM_CONTEXT()))
 #define LLVMTYPE_Bool  (Type::getInt1Ty(LLVM_CONTEXT()))
 #define LLVMTYPE_Int   (Type::getInt64Ty(LLVM_CONTEXT()))
 #define LLVMTYPE_Float (Type::getDoubleTy(LLVM_CONTEXT()))
+#define LLVMTYPE_Object (LLVM_MODULE(ctx)->getTypeByName("Object"))
 static void ASM_SMOV(CTX ctx, knh_type_t atype, int a/*flocal*/, knh_Token_t *tkb)
 {
 	knh_type_t btype = SP(tkb)->type;
@@ -1266,10 +1268,11 @@ static int _BLOCK_asm(CTX ctx, knh_Stmt_t *stmtH, knh_type_t reqt, int sfpidx _U
 	return 0;
 }
 
-static const Type *LLVMTYPE_Object;
-static const Type *convert_type(knh_class_t cid)
+static const Type *convert_type(CTX ctx, knh_class_t cid)
 {
 	switch (cid) {
+		case TYPE_void:
+			return LLVMTYPE_Void;
 		case TYPE_Boolean:
 			return LLVMTYPE_Bool;
 		case TYPE_Int:
@@ -1278,6 +1281,111 @@ static const Type *convert_type(knh_class_t cid)
 			return LLVMTYPE_Float;
 	}
 	return LLVMTYPE_Object;
+}
+
+static void ConstructObjectStruct(Module *m)
+{
+	// Type Definitions
+	const Type *longTy , *shortTy;
+	const Type *voidTy  = Type::getVoidTy(m->getContext());
+	const Type *voidPtr = PointerType::get(voidTy, 0);
+	const Type *hObjectTy, *objectPtr;
+	StructType* structTy;
+#if defined(SIZEOF_VOIDP) && (SIZEOF_VOIDP == 4)
+	longTy  = Type::getInt32Ty(m->getContext());
+	shortTy = Type::getInt16Ty(m->getContext());
+#else
+	longTy  = Type::getInt64Ty(m->getContext());
+	shortTy = Type::getInt32Ty(m->getContext());
+#endif
+
+	/* hObject */
+	std::vector<const Type*>fields;
+	fields.push_back(longTy);  /* magicflag */
+	fields.push_back(voidPtr); /* cTBL */
+	fields.push_back(longTy);  /* refc */
+	fields.push_back(voidPtr); /* meta */
+
+	structTy = StructType::get(m->getContext(), fields, /*isPacked=*/false);
+	m->addTypeName("struct.hObject", structTy);
+	hObjectTy = structTy;
+	fields.clear();
+
+	/* Object */
+	fields.push_back(structTy);
+	fields.push_back(voidPtr);
+	fields.push_back(voidPtr);
+	fields.push_back(voidPtr);
+	fields.push_back(voidPtr);
+	structTy = StructType::get(m->getContext(), fields, /*isPacked=*/false);
+	objectPtr = PointerType::get(structTy, 0);
+	m->addTypeName("Object", objectPtr);
+	fields.clear();
+
+	/* ObjectField */
+	fields.push_back(hObjectTy);
+	fields.push_back(objectPtr);
+	fields.push_back(PointerType::get(objectPtr, 0));
+	structTy = StructType::get(m->getContext(), fields, /*isPacked=*/false);
+	m->addTypeName("ObjectField", PointerType::get(structTy, 0));
+	fields.clear();
+
+	/* sfp */
+	fields.push_back(LLVMTYPE_Int);
+	fields.push_back(objectPtr);
+	structTy = StructType::get(m->getContext(), fields, /*isPacked=*/false);
+	const Type *sfpPtr = PointerType::get(structTy, 0);
+	m->addTypeName("knh_sfp_t", sfpPtr);
+	fields.clear();
+
+	/* InputStream */
+	/* System */
+	/* SystemEX */
+	fields.push_back(longTy);  // knh_uintptr_t sysid;
+	fields.push_back(longTy);  // size_t     ctxcount;
+	fields.push_back(voidPtr); // struct knh_DictMap_t*      props;
+	fields.push_back(objectPtr/*TODO*/);  // struct knh_InputStream_t*  in;
+	fields.push_back(objectPtr/*TODO*/);  // struct knh_OutputStream_t* out;
+	fields.push_back(objectPtr/*TODO*/);  // struct knh_OutputStream_t* err;
+	fields.push_back(objectPtr/*TODO*/);  // struct knh_String_t*       enc;
+	fields.push_back(voidPtr); // struct knh_DictSet_t       *tokenDictSet;
+	fields.push_back(voidPtr); // struct knh_DictSet_t   *nameDictCaseSet;
+	fields.push_back(longTy);  // size_t                      namecapacity;
+	fields.push_back(voidPtr); // knh_nameinfo_t             *nameinfo;
+	fields.push_back(voidPtr); // struct knh_DictSet_t      *urnDictSet;
+	fields.push_back(voidPtr); // struct knh_Array_t        *urns;
+	fields.push_back(voidPtr); // struct knh_DictSet_t      *ClassNameDictSet;
+	fields.push_back(voidPtr); // struct knh_DictSet_t  *EventDictCaseSet;
+	fields.push_back(voidPtr); // struct knh_DictMap_t      *PackageDictMap;
+	fields.push_back(voidPtr); // struct knh_DictMap_t      *URNAliasDictMap;
+	fields.push_back(voidPtr); // struct knh_DictSet_t      *dspiDictSet;
+
+	structTy = StructType::get(m->getContext(), fields, /*isPacked=*/false);
+	fields.clear();
+	fields.push_back(hObjectTy);
+	fields.push_back(structTy);
+	structTy = StructType::get(m->getContext(), fields, /*isPacked=*/false);
+	const Type *sysPtr = PointerType::get(structTy, 0);
+	m->addTypeName("System", sysPtr);
+	fields.clear();
+
+	/* ctx */
+	fields.push_back(voidPtr);   /* share */
+	fields.push_back(voidPtr);   /* stat */
+	fields.push_back(voidPtr);   /* spi */
+	fields.push_back(sysPtr);    /* sys */
+	fields.push_back(voidPtr); /* script */
+	structTy = StructType::get(m->getContext(), fields, /*isPacked=*/false);
+	const Type *ctxPtr = PointerType::get(structTy, 0);
+	m->addTypeName("ctx", ctxPtr);
+
+	// Pointer Definitions
+	std::vector<const Type*>args;
+	args.push_back(ctxPtr);
+	args.push_back(sfpPtr);
+	args.push_back(longTy);
+	FunctionType* callTy = FunctionType::get(/*Result=*/voidTy,/*Params=*/args,/*isVarArg=*/false);
+	m->addTypeName("fcall", callTy);
 }
 
 static Function *build_function(CTX ctx, Module *m, knh_Method_t *mtd)
@@ -1289,10 +1397,86 @@ static Function *build_function(CTX ctx, Module *m, knh_Method_t *mtd)
 	char const *name = knh_getmnname(ctx, SP(mtd)->mn);
 	for (i = 0; i < pa->psize; i++) {
 		knh_type_t type = knh_ParamArray_getptype(pa, i);
-		argsTy.push_back(convert_type(type));
+		argsTy.push_back(convert_type(ctx, type));
 	}
-	FunctionType *fnTy = FunctionType::get(convert_type(retTy), argsTy, false);
+	FunctionType *fnTy = FunctionType::get(convert_type(ctx, retTy), argsTy, false);
 	return cast<Function>(m->getOrInsertFunction(name, fnTy));
+}
+
+#define TC_(type, i) ((IS_Tnumbox(type))?(NC_(i)):(OC_(i)))
+
+//static Value *build_sfp2value(CTX ctx, IRBuilder<> *builder, knh_type_t type, Value *v)
+//{
+//	Value *one  = ConstantInt::get(Type::getInt64Ty(LLVM_CONTEXT()), 1);
+//	switch (type) {
+//		case TYPE_Boolean:
+//			return builder->CreateInBoundsGEP(v, idx, one, "gep");
+//		case TYPE_Int:
+//			return builder->CreateInBoundsGEP(v, idx, one, "gep");
+//		case TYPE_Float:
+//			return builder->CreateInBoundsGEP(v, idx, one, "gep");
+//		default:
+//			return builder->CreateInBoundsGEP(v, idx, one, "gep");
+//	}
+//}
+static Value *create_loadsfp(CTX ctx, IRBuilder<> *builder, Value *v, knh_type_t type, int idx0)
+{
+	unsigned int idx = TC_(type, 0);
+	//Value *idx1  = ConstantInt::get(Type::getInt64Ty(LLVM_CONTEXT()), idx);
+	//std::vector<Value*> vec;
+	//vec.push_back(idx0);
+	//vec.push_back(idx1);
+	//v = GetElementPtrInst::Create(v, vec.begin(), vec.end(), "get");
+	v = builder->CreateConstGEP2_32(v, (unsigned)idx0, (unsigned)idx, "gep");
+	if (IS_Tfloat(type)) {
+		v = builder->CreateBitCast(v, LLVMTYPE_Float, "fcast");
+	}
+	return v;
+}
+
+static Function *build_wrapper_func(CTX ctx, Module *m, knh_Method_t *mtd, Function *orig_func)
+{
+	size_t i;
+	knh_ParamArray_t *pa = DP(mtd)->mp;
+	knh_class_t retTy = knh_ParamArray_rtype(pa);
+	std::string name(knh_getmnname(ctx, SP(mtd)->mn));
+	const FunctionType *fnTy = cast<FunctionType>(m->getTypeByName("fcall"));
+	Function *f = cast<Function>(m->getOrInsertFunction(name+"_wrapper", fnTy));
+	BasicBlock *bb = BasicBlock::Create(LLVM_CONTEXT(), "EntryBlock", f);
+	IRBuilder<> *builder = new IRBuilder<>(bb);
+
+	Function::arg_iterator args = f->arg_begin();
+	Value *arg_ctx = args++;
+	arg_ctx->setName("ctx");
+	Value *arg_sfp = args++;
+	arg_sfp->setName("sfp");
+	Value *arg_rix = args++;
+	arg_rix->setName("rix");
+
+	builder->SetInsertPoint(bb);
+
+	/* load konoha args from sfp and build call params*/
+	std::vector<Value*> params;
+	for (i = 0; i < pa->psize; i++) {
+		knh_param_t *p = knh_ParamArray_get(DP(mtd)->mp, i);
+		Value *v = arg_sfp;
+		//Value *idx = ConstantInt::get(LLVMTYPE_Int, i+1);
+		v = create_loadsfp(ctx, builder, v, p->type, i+1);
+		v = builder->CreateLoad(v, "load");
+		params.push_back(v);
+	}
+
+	/* call function and  set return values */
+	{
+		Value *callinst = builder->CreateCall(orig_func, params.begin(), params.end(), "call");
+		if (retTy != TYPE_void) {
+			Value *v = arg_sfp;
+			v = create_loadsfp(ctx, builder, v, retTy, K_RTNIDX);
+			builder->CreateStore(callinst, v, "store");
+		}
+		builder->CreateRetVoid();
+	}
+	return f;
 }
 
 static void Init(CTX ctx, knh_Method_t *mtd, knh_Array_t *a)
@@ -1301,6 +1485,8 @@ static void Init(CTX ctx, knh_Method_t *mtd, knh_Array_t *a)
 	Function *func = build_function(ctx, m, mtd);
 	BasicBlock *bb = BasicBlock::Create(LLVM_CONTEXT(), "EntryBlock", func);
 	IRBuilder<> *builder = new IRBuilder<>(bb);
+	ConstructObjectStruct(m);
+
 	a->ilist[LLVM_IDX_MODULE] = (knh_int_t) m;
 	a->ilist[LLVM_IDX_FUNCTION] = (knh_int_t) func;
 	a->ilist[LLVM_IDX_BB] = (knh_int_t) bb;
@@ -1316,15 +1502,19 @@ static void Init(CTX ctx, knh_Method_t *mtd, knh_Array_t *a)
 	}
 }
 
-void Finish(CTX ctx, knh_Method_t *mtd, knh_Array_t *a, knh_Stmt_t *stmt)
+static void Finish(CTX ctx, knh_Method_t *mtd, knh_Array_t *a, knh_Stmt_t *stmt)
 {
 	knh_Fmethod f;
 	Module *m = LLVM_MODULE(ctx);
 	Function *func = LLVM_FUNCTION(ctx);
+	//ASM_RET(ctx, stmt);
+	/* asm for script function is done. */
+
+	/* build wrapper function and compile to native code. */
 	ExecutionEngine *ee = EngineBuilder(m).setEngineKind(EngineKind::JIT).create();
-	ASM_RET(ctx, stmt);
+	Function *func1 = build_wrapper_func(ctx, m, mtd, func);
 	(*m).dump();
-	f = (knh_Fmethod) ee->getPointerToFunction(func);
+	f = (knh_Fmethod) ee->getPointerToFunction(func1);
 	knh_Method_setFunc(ctx, mtd, f);
 }
 
