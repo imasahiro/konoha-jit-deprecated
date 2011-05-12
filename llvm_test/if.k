@@ -1,7 +1,7 @@
 int f(int x, int y) {
     if (x < y) {
-        return 10;
+        return x;
     } else {
-        return 20;
+        return y;
     }
 }

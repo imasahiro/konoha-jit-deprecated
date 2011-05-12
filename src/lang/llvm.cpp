@@ -944,9 +944,9 @@ static int _IF_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx _UNUSE
 	int local = DP(ctx->gma)->espidx;
 	Module *m = LLVM_MODULE(ctx);
 	IRBuilder<> *builder = LLVM_BUILDER(ctx);
-	BasicBlock *bbThen  = BasicBlock::Create(m->getContext(), "then");
-	BasicBlock *bbElse  = BasicBlock::Create(m->getContext(), "else");
-	BasicBlock *bbMerge = BasicBlock::Create(m->getContext(), "ifcont");
+	BasicBlock *bbThen  = BasicBlock::Create(m->getContext(), "then", LLVM_FUNCTION(ctx));
+	BasicBlock *bbElse  = BasicBlock::Create(m->getContext(), "else", LLVM_FUNCTION(ctx));
+	BasicBlock *bbMerge = BasicBlock::Create(m->getContext(), "ifcont", LLVM_FUNCTION(ctx));
 
 	//Tn_JMPIF(ctx, stmt, 0, 0/*FALSE*/, ElseBB, local);
 	int a = Tn_CondAsm(ctx, stmt, 0, 0, local);
@@ -961,7 +961,6 @@ static int _IF_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx _UNUSE
 	Tn_asmBLOCK(ctx, stmt, 2, reqt);
 	builder->CreateBr(bbMerge);
 	builder->SetInsertPoint(bbMerge);
-	builder->CreateRet(NULL);
 	return 0;
 }
 
@@ -1154,6 +1153,20 @@ static int _THROW_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt _UNUSED_, int s
 	return 0;
 }
 
+static void ASM_RET(CTX ctx, knh_Stmt_t *stmt)
+{
+//	while(DP(stmt)->nextNULL != NULL) {
+//		stmt = DP(stmt)->nextNULL;
+//		if(STT_(stmt) == STT_CHKOUT) {
+//			CHKOUT_asm(ctx, stmt);
+//		}
+//	}
+//	{
+//	}
+		LLVM_BUILDER(ctx)->CreateRet(NULL);
+}
+
+
 static int _RETURN_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt _UNUSED_, int sfpidx _UNUSED_)
 {
 	ASM_FINALLY(ctx);
@@ -1303,12 +1316,13 @@ static void Init(CTX ctx, knh_Method_t *mtd, knh_Array_t *a)
 	}
 }
 
-void Finish(CTX ctx, knh_Method_t *mtd, knh_Array_t *a)
+void Finish(CTX ctx, knh_Method_t *mtd, knh_Array_t *a, knh_Stmt_t *stmt)
 {
 	knh_Fmethod f;
 	Module *m = LLVM_MODULE(ctx);
 	Function *func = LLVM_FUNCTION(ctx);
 	ExecutionEngine *ee = EngineBuilder(m).setEngineKind(EngineKind::JIT).create();
+	ASM_RET(ctx, stmt);
 	(*m).dump();
 	f = (knh_Fmethod) ee->getPointerToFunction(func);
 	knh_Method_setFunc(ctx, mtd, f);
@@ -1358,8 +1372,7 @@ void LLVMMethod_asm(CTX ctx, knh_Method_t *mtd, knh_Stmt_t *stmtP, knh_type_t it
 			ASM(TR, OC_(0), SFP_(0), RIX_(0), ClassTBL(DP(ctx->gma)->this_cid), _NULVAL);
 		}
 		llvmasm::_BLOCK_asm(ctx, stmtB, knh_ParamArray_rtype(DP(mtd)->mp), 0);
-		ASM(RET);
-		llvmasm::Finish(ctx, mtd, insts);
+		llvmasm::Finish(ctx, mtd, insts, stmtB);
 	}
 
 	KNH_SETv(ctx, DP(ctx->gma)->insts, insts_org);
