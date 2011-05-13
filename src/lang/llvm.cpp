@@ -223,6 +223,66 @@ static const Type *convert_type(CTX ctx, knh_class_t cid)
 	return LLVMTYPE_Object;
 }
 
+static Value *Fset_CTX(CTX ctx, int a, Value *arg_ctx)
+{
+	//RETURN_((Object*)toContext(ctx));
+}
+static Value *Fset_CTXIN(CTX ctx, int a, Value *arg_ctx)
+{
+	//RETURN_(ctx->in);
+}
+static Value *Fset_CTXOUT(CTX ctx, int a, Value *arg_ctx)
+{
+	//RETURN_(ctx->out);
+}
+static Value *Fset_CTXERR(CTX ctx, int a, Value *arg_ctx)
+{
+	//RETURN_(ctx->err);
+}
+static Value *Fset_STDIN(CTX ctx, int a, Value *arg_ctx)
+{
+	//RETURN_(DP(ctx->sys)->in);
+}
+static Value *Fset_STDOUT(CTX ctx, int a, Value *arg_ctx)
+{
+	//RETURN_(DP(ctx->sys)->out);
+}
+static Value *Fset_STDERR(CTX ctx, int a, Value *arg_ctx)
+{
+	//RETURN_(DP(ctx->sys)->err);
+}
+static Value *Fset_SYS(CTX ctx, int a, Value *arg_ctx)
+{
+	//RETURN_(ctx->sys);
+}
+static Value *Fset_SCRIPT(CTX ctx, int a, Value *arg_ctx)
+{
+	//RETURN_(ctx->script);
+}
+typedef Value* (*Fset)(CTX, int, Value*);
+static Fset SYSVAL_LOAD_INSTS[] = {
+	Fset_CTX,
+	Fset_CTXIN,
+	Fset_CTXOUT,
+	Fset_CTXERR,
+	Fset_STDIN,
+	Fset_STDOUT,
+	Fset_STDERR,
+	Fset_SYS,
+	Fset_SCRIPT,
+};
+
+static Value *getctx(CTX ctx)
+{
+		Function::arg_iterator args = LLVM_FUNCTION(ctx)->arg_begin();
+		return args;
+}
+static Value *getsfp(CTX ctx)
+{
+		Function::arg_iterator args = LLVM_FUNCTION(ctx)->arg_begin();
+		args++;/* ctx */
+		return args;
+}
 
 static void ASM_SMOV(CTX ctx, knh_type_t atype, int a/*flocal*/, knh_Token_t *tkb)
 {
@@ -305,8 +365,10 @@ static void ASM_SMOV(CTX ctx, knh_type_t atype, int a/*flocal*/, knh_Token_t *tk
 		case TT_SYSVAL: {
 			size_t sysid = (tkb)->index;
 			KNH_ASSERT(sysid < K_SYSVAL_MAX);
+			LLVM_TODO("SYSVAL");
 			Value *arg_ctx = getctx(ctx);
-			//SYSVAL_LOAD_INSTS[sysid](ctx, a);
+			Value *v = SYSVAL_LOAD_INSTS[sysid](ctx, a, arg_ctx);
+			ValueStack_set(ctx, a, v);
 			break;
 		}
 		case TT_PROPN: {
@@ -681,12 +743,6 @@ static knh_type_t Tn_ptype(CTX ctx, knh_Stmt_t *stmt, size_t n, knh_class_t cid,
 		knh_type_t ptype = knh_ParamArray_getptype(DP(mtd)->mp, n - 2);
 		return knh_type_tocid(ctx, ptype, cid);
 	}
-}
-static Value *getsfp(CTX ctx)
-{
-		Function::arg_iterator args = LLVM_FUNCTION(ctx)->arg_begin();
-		args++;/* ctx */
-		return args;
 }
 static Value *create_loadsfp(CTX ctx, IRBuilder<> *builder, Value *v, knh_type_t type, int idx0);
 
