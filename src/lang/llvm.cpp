@@ -730,7 +730,6 @@ static int _OPR_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 				b = K_FLOAT_ONE;
 				WarningDividedByZero(ctx);
 			}
-			opcode = OPCODE_fmn(mn, (OPCODE_fADDC - OPCODE_fADD));
 			Value *va = ValueStack_get(ctx, a);
 			Value *vb = ConstantFP::get(LLVMTYPE_Float, b);
 			ASMfop(ctx, opcode, va, vb, sfpidx);
@@ -1054,15 +1053,42 @@ static int _AND_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 	phi->addIncoming(ConstantInt::get(LLVMTYPE_Bool, 1), lbNext);
 	std::vector<BasicBlock*>::iterator itr;
 	for (itr = blocks.begin(); itr != blocks.end(); itr++) {
-		phi->addIncoming(ConstantInt::get(LLVMTYPE_Bool, 1), *itr);
+		phi->addIncoming(ConstantInt::get(LLVMTYPE_Bool, 0), *itr);
 	}
 	ValueStack_set(ctx, sfpidx, phi);
 	return 0;
 }
 
+static int Tn_CondAsm(CTX ctx, knh_Stmt_t *stmt, size_t n, int isTRUE, int flocal);
+
 static int _TRI_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 {
-	LLVM_TODO("TRI (x)?y:z");
+	int local = DP(ctx->gma)->espidx;
+	Module *m = LLVM_MODULE(ctx);
+	IRBuilder<> *builder = LLVM_BUILDER(ctx);
+	BasicBlock *bbThen  = BasicBlock::Create(m->getContext(), "then", LLVM_FUNCTION(ctx));
+	BasicBlock *bbElse  = BasicBlock::Create(m->getContext(), "else", LLVM_FUNCTION(ctx));
+	BasicBlock *bbMerge = BasicBlock::Create(m->getContext(), "merge",LLVM_FUNCTION(ctx));
+
+	int a = Tn_CondAsm(ctx, stmt, 0, 0, sfpidx);
+	Value *cond = ValueStack_get(ctx, a);
+	builder->CreateCondBr(cond, bbThen, bbElse);
+
+	builder->SetInsertPoint(bbThen);
+	int b = Tn_put(ctx, stmt, 1, reqt, local);
+	Value* vb = ValueStack_get(ctx, b);
+	builder->CreateBr(bbMerge);
+
+	builder->SetInsertPoint(bbElse);
+	int c = Tn_put(ctx, stmt, 2, reqt, local);
+	Value* vc = ValueStack_get(ctx, c);
+	builder->CreateBr(bbMerge);
+
+	builder->SetInsertPoint(bbMerge);
+	PHINode *phi = builder->CreatePHI(convert_type(ctx, reqt), "tri_result");
+	phi->addIncoming(vb, bbThen);
+	phi->addIncoming(vc, bbElse);
+	ValueStack_set(ctx, sfpidx, phi);
 	return 0;
 }
 
@@ -1314,14 +1340,17 @@ static int _WHILE_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt _UNUSED_, int s
 	Value *cond;
 	Module *m = LLVM_MODULE(ctx);
 	IRBuilder<> *builder = LLVM_BUILDER(ctx);
-	BasicBlock *bbContinue = BasicBlock::Create(m->getContext());
-	BasicBlock *bbBreak    = BasicBlock::Create(m->getContext());
-	BasicBlock *bbBlock    = BasicBlock::Create(m->getContext());
+	BasicBlock *bbContinue = BasicBlock::Create(m->getContext(), "continue", LLVM_FUNCTION(ctx));
+	BasicBlock *bbBreak    = BasicBlock::Create(m->getContext(), "break", LLVM_FUNCTION(ctx));
+	BasicBlock *bbBlock    = BasicBlock::Create(m->getContext(), "block", LLVM_FUNCTION(ctx));
+
 	PUSH_LABEL(ctx, stmt, bbContinue, bbBreak);
-	builder->SetInsertPoint(bbContinue);
+	builder->CreateBr(bbContinue);
 	if (!Tn_isTRUE(stmt, 0)) {
-		LLVM_TODO("while loop");
-		_EXPR_asm(ctx, stmt, 0, local);
+		int n = Tn_put(ctx, stmt, 0, TYPE_Boolean, local);
+		cond = ValueStack_get(ctx, n);
+	} else {
+		cond = ConstantInt::get(LLVMTYPE_Bool, 1);
 	}
 	cond = ValueStack_get(ctx, local);
 	builder->CreateCondBr(cond, bbBlock, bbBreak);
@@ -1339,17 +1368,17 @@ static int _DO_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt _UNUSED_, int sfpi
 	int local = DP(ctx->gma)->espidx;
 	Module *m = LLVM_MODULE(ctx);
 	IRBuilder<> *builder = LLVM_BUILDER(ctx);
-	BasicBlock *bbContinue = BasicBlock::Create(m->getContext());
-	BasicBlock *bbBreak    = BasicBlock::Create(m->getContext());
+	BasicBlock *bbContinue = BasicBlock::Create(m->getContext(), "continue", LLVM_FUNCTION(ctx));
+	BasicBlock *bbBreak    = BasicBlock::Create(m->getContext(), "break", LLVM_FUNCTION(ctx));
 	PUSH_LABEL(ctx, stmt, bbContinue, bbBreak);
 
-	builder->SetInsertPoint(bbContinue);
+	builder->CreateBr(bbContinue);
 	/* body */
 	Tn_asmBLOCK(ctx, stmt, 0, TYPE_void);
 
 	/* cond */
-	_EXPR_asm(ctx, stmt, 1, local);
-	cond = ValueStack_get(ctx, local);
+	int n = Tn_put(ctx, stmt, 1, TYPE_Boolean, local);
+	cond = ValueStack_get(ctx, n);
 
 	builder->CreateCondBr(cond, bbContinue, bbBreak);
 	builder->SetInsertPoint(bbBreak);
@@ -1617,7 +1646,7 @@ static void ConstructObjectStruct(Module *m)
 	structTy = StructType::get(m->getContext(), fields, /*isPacked=*/false);
 	const Type *sfpPtr = PointerType::get(structTy, 0);
 	m->addTypeName("struct.knh_sfp_t", structTy);
-	m->addTypeName("knh_sfp_t*", sfpPtr);
+	m->addTypeName("knh_sfp_t_ptr", sfpPtr);
 	LLVMTYPE_sfp = sfpPtr;
 	fields.clear();
 
@@ -1711,6 +1740,7 @@ static void ConstructObjectStruct(Module *m)
 
 	structTy = StructType::get(m->getContext(), fields, /*isPacked=*/false);
 	const Type *ctxPtr = PointerType::get(structTy, 0);
+	m->addTypeName("struct.context", structTy);
 	m->addTypeName("ctx", ctxPtr);
 	LLVMTYPE_context = ctxPtr;
 
