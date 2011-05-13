@@ -223,43 +223,66 @@ static const Type *convert_type(CTX ctx, knh_class_t cid)
 	return LLVMTYPE_Object;
 }
 
-static Value *Fset_CTX(CTX ctx, int a, Value *arg_ctx)
+static Value *Fset_CTX(CTX ctx, Value *arg_ctx)
 {
-	//RETURN_((Object*)toContext(ctx));
+	LLVM_TODO("SYSVAL ctx");
 }
-static Value *Fset_CTXIN(CTX ctx, int a, Value *arg_ctx)
+static Value *Fset_CTXIN(CTX ctx, Value *arg_ctx)
 {
-	//RETURN_(ctx->in);
+	IRBuilder<> *builder = LLVM_BUILDER(ctx);
+	Value *v = builder->CreateConstGEP2_32(arg_ctx, 0, 27, "gep");
+	v = builder->CreateLoad(v, "l1");
+	return v;
 }
-static Value *Fset_CTXOUT(CTX ctx, int a, Value *arg_ctx)
+static Value *Fset_CTXOUT(CTX ctx, Value *arg_ctx)
 {
-	//RETURN_(ctx->out);
+	IRBuilder<> *builder = LLVM_BUILDER(ctx);
+	Value *v = builder->CreateConstGEP2_32(arg_ctx, 0, 28, "gep");
+	v = builder->CreateLoad(v, "l1");
+	return v;
 }
-static Value *Fset_CTXERR(CTX ctx, int a, Value *arg_ctx)
+static Value *Fset_CTXERR(CTX ctx, Value *arg_ctx)
 {
-	//RETURN_(ctx->err);
+	IRBuilder<> *builder = LLVM_BUILDER(ctx);
+	Value *v = builder->CreateConstGEP2_32(arg_ctx, 0, 29, "gep");
+	v = builder->CreateLoad(v, "l1");
+	return v;
 }
-static Value *Fset_STDIN(CTX ctx, int a, Value *arg_ctx)
+static Value *Fset_STDIN(CTX ctx, Value *arg_ctx)
 {
-	//RETURN_(DP(ctx->sys)->in);
+	IRBuilder<> *builder = LLVM_BUILDER(ctx);
+	Value *v = builder->CreateConstGEP2_32(arg_ctx, 0, 3, "gep");
+	v = builder->CreateLoad(v, "l1");
+	v = builder->CreateConstGEP2_32(v, 0, 1);
+	return builder->CreateConstGEP2_32(v, 0, 3, "gep");
 }
-static Value *Fset_STDOUT(CTX ctx, int a, Value *arg_ctx)
+static Value *Fset_STDOUT(CTX ctx, Value *arg_ctx)
 {
-	//RETURN_(DP(ctx->sys)->out);
+	IRBuilder<> *builder = LLVM_BUILDER(ctx);
+	Value *v = builder->CreateConstGEP2_32(arg_ctx, 0, 3, "gep");
+	v = builder->CreateLoad(v, "l1");
+	v = builder->CreateConstGEP2_32(v, 0, 1);
+	return builder->CreateConstGEP2_32(v, 0, 4, "gep");
 }
-static Value *Fset_STDERR(CTX ctx, int a, Value *arg_ctx)
+static Value *Fset_STDERR(CTX ctx, Value *arg_ctx)
 {
-	//RETURN_(DP(ctx->sys)->err);
+	IRBuilder<> *builder = LLVM_BUILDER(ctx);
+	Value *v = builder->CreateConstGEP2_32(arg_ctx, 0, 3, "gep");
+	v = builder->CreateLoad(v, "l1");
+	v = builder->CreateConstGEP2_32(v, 0, 1);
+	return builder->CreateConstGEP2_32(v, 0, 5, "gep");
 }
-static Value *Fset_SYS(CTX ctx, int a, Value *arg_ctx)
+static Value *Fset_SYS(CTX ctx, Value *arg_ctx)
 {
-	//RETURN_(ctx->sys);
+	IRBuilder<> *builder = LLVM_BUILDER(ctx);
+	return builder->CreateConstGEP2_32(arg_ctx, 0, 3, "gep");
 }
-static Value *Fset_SCRIPT(CTX ctx, int a, Value *arg_ctx)
+static Value *Fset_SCRIPT(CTX ctx, Value *arg_ctx)
 {
-	//RETURN_(ctx->script);
+	IRBuilder<> *builder = LLVM_BUILDER(ctx);
+	return builder->CreateConstGEP2_32(arg_ctx, 0, 4, "gep");
 }
-typedef Value* (*Fset)(CTX, int, Value*);
+typedef Value* (*Fset)(CTX, Value*);
 static Fset SYSVAL_LOAD_INSTS[] = {
 	Fset_CTX,
 	Fset_CTXIN,
@@ -318,11 +341,15 @@ static void ASM_SMOV(CTX ctx, knh_type_t atype, int a/*flocal*/, knh_Token_t *tk
 				ValueStack_set(ctx, a, v);
 			}
 			else if(IS_Tnumbox(atype)) {
-				ASM(NSET, NC_(a), O_data((o)));
-				ASM(OSET, OC_(a), v);
+				Value *v = ConstantInt::get(LLVMTYPE_Int, (knh_int_t)o);
+				v = LLVM_BUILDER(ctx)->CreateIntToPtr(v, LLVMTYPE_Object);
+				LLVM_TODO("NumBox type");
+				ValueStack_set(ctx, a, v);
 			}
 			else {
-				ASM(OSET, OC_(a), v);
+				Value *v = ConstantInt::get(LLVMTYPE_Int, (knh_int_t)o);
+				v = LLVM_BUILDER(ctx)->CreateIntToPtr(v, LLVMTYPE_Object);
+				ValueStack_set(ctx, a, v);
 			}
 			break;
 		}
@@ -365,9 +392,8 @@ static void ASM_SMOV(CTX ctx, knh_type_t atype, int a/*flocal*/, knh_Token_t *tk
 		case TT_SYSVAL: {
 			size_t sysid = (tkb)->index;
 			KNH_ASSERT(sysid < K_SYSVAL_MAX);
-			LLVM_TODO("SYSVAL");
 			Value *arg_ctx = getctx(ctx);
-			Value *v = SYSVAL_LOAD_INSTS[sysid](ctx, a, arg_ctx);
+			Value *v = SYSVAL_LOAD_INSTS[sysid](ctx, arg_ctx);
 			ValueStack_set(ctx, a, v);
 			break;
 		}
@@ -760,18 +786,33 @@ static int CALLPARAMs_asm(CTX ctx, knh_Stmt_t *stmt, size_t s, int local, knh_cl
 	for(i = s; i < DP(stmt)->size; i++) {
 		knh_type_t reqt = Tn_ptype(ctx, stmt, i, cid, mtd);
 		int a = local + i + (K_CALLDELTA-1);
-		asm volatile("int3");
 		Tn_asm(ctx, stmt, i, reqt, a);
 		Value *v = ValueStack_get(ctx, a);
 		Value *ptr = create_loadsfp(ctx, builder, arg_sfp, reqt, a);
-		builder->CreateStore(v, ptr, "store");
+		builder->CreateStore(v, ptr, false/*isVolatile*/);
 	}
 	return 1;
 }
 
-static void _CALL(CTX ctx, knh_type_t reqt, int sfpidx, knh_type_t rtype, knh_Method_t *mtd, int isStatic)
+/* for debug */
+static const char* getname(CTX ctx, const Type *v)
+{
+	return LLVM_MODULE(ctx)->getTypeName(v).c_str();
+}
+
+static void asm_shift_esp(CTX ctx, Value *vctx, Value *vsfp, size_t idx)
+{
+	IRBuilder<> *builder = LLVM_BUILDER(ctx);
+	Value *vsfp_, *vesp;
+	vesp = builder->CreateConstInBoundsGEP2_32(vctx, 0, 6, "gep"); /* esp */
+	vsfp_ = builder->CreateConstInBoundsGEP1_32(vsfp, idx);
+	builder->CreateStore(vsfp_, vesp, false);
+}
+
+static void _CALL(CTX ctx, knh_type_t reqt, int sfpidx, knh_type_t rtype, knh_Method_t *mtd, int isStatic, size_t argc)
 {
 	int thisidx = sfpidx + K_CALLDELTA;
+	IRBuilder<> *builder = LLVM_BUILDER(ctx);
 	DBG_ASSERT(IS_Method(mtd));
 	KNH_ASSERT(sfpidx >= DP(ctx->gma)->espidx);
 	if(Method_isFinal(mtd) || isStatic) {
@@ -780,15 +821,20 @@ static void _CALL(CTX ctx, knh_type_t reqt, int sfpidx, knh_type_t rtype, knh_Me
 		}
 		else {
 			knh_Fmethod func = mtd->fcall_1;
-			Value *v;
+			Value *v, *idx, *vctx, *vsfp;
 			std::vector<Value*> params;
 			Function::arg_iterator arg = LLVM_FUNCTION(ctx)->arg_begin();
-			params.push_back(arg++);
-			params.push_back(arg);
+			idx = ConstantInt::get(LLVMTYPE_Int, thisidx);
+			vctx = arg++;
+			vsfp = arg++;
+			params.push_back(vctx);
+			params.push_back(builder->CreateGEP(vsfp, idx, "sfpsft"));
 			params.push_back(ConstantInt::get(LLVMTYPE_Int, K_RTNIDX));
+
+			asm_shift_esp(ctx, vctx, vsfp, argc+1+thisidx);
 			v = ConstantInt::get(LLVMTYPE_Int, (knh_int_t)func);
-			v = LLVM_BUILDER(ctx)->CreateIntToPtr(v, LLVMTYPE_fcall);
-			Value *call = LLVM_BUILDER(ctx)->CreateCall(v, params.begin(), params.end(), "call");
+			v = builder->CreateIntToPtr(v, LLVMTYPE_fcall);
+			Value *call = builder->CreateCall(v, params.begin(), params.end());
 			//ValueStack_set(ctx, sfpidx, call);
 		}
 	}
@@ -857,7 +903,7 @@ static int _CALL_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 		if(CALLPARAMs_asm(ctx, stmt, 1, local, cid, mtd)) {
 			knh_type_t rtype = knh_type_tocid(ctx, knh_ParamArray_rtype(DP(mtd)->mp), cid);
 			int isStatic = Method_isStatic(mtd);
-			_CALL(ctx, reqt, local, rtype, mtd, isStatic);
+			_CALL(ctx, reqt, local, rtype, mtd, isStatic, DP(stmt)->size - 2);
 			ASM_MOVL(ctx, reqt, sfpidx, SP(stmt)->type, local);
 		}
 	}
@@ -1406,9 +1452,14 @@ static void ASM_LastRET(CTX ctx, knh_Stmt_t *stmt)
 	//	}
 	//}
 	BasicBlock *bb = LLVM_BUILDER(ctx)->GetInsertBlock();
-	if (bb->size() == 0) {
-		LLVM_BUILDER(ctx)->CreateRet(NULL);
+	BasicBlock::iterator itr;
+	for (itr = bb->begin(); itr != bb->end(); itr++) {
+		Instruction &inst = *itr;
+		if (ReturnInst::classof(&inst)) {
+			return;
+		}
 	}
+	LLVM_BUILDER(ctx)->CreateRet(NULL);
 }
 
 
@@ -1565,7 +1616,8 @@ static void ConstructObjectStruct(Module *m)
 	fields.push_back(LLVMTYPE_Float);
 	structTy = StructType::get(m->getContext(), fields, /*isPacked=*/false);
 	const Type *sfpPtr = PointerType::get(structTy, 0);
-	m->addTypeName("knh_sfp_t", sfpPtr);
+	m->addTypeName("struct.knh_sfp_t", structTy);
+	m->addTypeName("knh_sfp_t*", sfpPtr);
 	LLVMTYPE_sfp = sfpPtr;
 	fields.clear();
 
@@ -1601,11 +1653,62 @@ static void ConstructObjectStruct(Module *m)
 	fields.clear();
 
 	/* ctx */
-	fields.push_back(voidPtr);   /* share */
-	fields.push_back(voidPtr);   /* stat */
-	fields.push_back(voidPtr);   /* spi */
-	fields.push_back(sysPtr);    /* sys */
-	fields.push_back(voidPtr); /* script */
+	/* 00 */fields.push_back(voidPtr);   /* share */
+	/* 01 */fields.push_back(voidPtr);   /* stat */
+	/* 02 */fields.push_back(voidPtr);   /* spi */
+	/* 03 */fields.push_back(sysPtr);    /* sys */
+	/* 04 */fields.push_back(voidPtr); /* script */
+	/* stack */
+	/* 05 */fields.push_back(sfpPtr); //knh_sfp_t*                   stack;
+	/* 06 */fields.push_back(sfpPtr); //knh_sfp_t*                   esp;
+	/* 07 */fields.push_back(longTy); //size_t                       stacksize;
+	/* 08 */fields.push_back(sfpPtr); //knh_sfp_t*                   stacktop;
+	/* 09 */fields.push_back(voidPtr); //void*                        cstack_bottom;
+	/* 10 */fields.push_back(objectPtr); //struct knh_Exception_t      *e;
+	/* 11 */fields.push_back(objectPtr); //struct knh_Monitor_t        *mon;
+	/* memory */
+	/* 12 */fields.push_back(objectPtr); //knh_Object_t                *freeObjectList;
+	/* 13 */fields.push_back(objectPtr); //knh_Object_t                *freeObjectTail;
+	/* 14 */fields.push_back(longTy); //size_t                       freeObjectListSize;
+	/* 15 */fields.push_back(longTy); //knh_uintptr_t                mscheck;
+	/* 16 */fields.push_back(voidPtr); //knh_fastmem_t               *freeMemoryList;
+	/* 17 */fields.push_back(voidPtr); //knh_fastmem_t               *freeMemoryTail;
+
+	/* cache */
+	/* 18 */fields.push_back(voidPtr); //knh_mtdcache_t              *mtdcache;
+	/* 19 */fields.push_back(voidPtr); //knh_tmrcache_t             *tmrcache;
+	/* 20 */fields.push_back(voidPtr); //struct knh_Object_t        **refs;
+	/* 21 */fields.push_back(longTy); //size_t                       ref_size;
+	/* 22 */fields.push_back(voidPtr); //struct knh_Object_t        **ref_buf;
+	/* 23 */fields.push_back(longTy); //size_t                       ref_capacity;
+	/* 24 */fields.push_back(voidPtr); //struct knh_Object_t        **queue;
+	/* 25 */fields.push_back(longTy); //size_t                       queue_capacity;
+
+	/* 26 */fields.push_back(objectPtr); //struct knh_String_t*         enc;
+	/* 27 */fields.push_back(objectPtr); //struct knh_InputStream_t*    in;
+	/* 28 */fields.push_back(objectPtr); //struct knh_OutputStream_t*   out;
+	/* 29 */fields.push_back(objectPtr); //struct knh_OutputStream_t*   err;
+	/* 30 */fields.push_back(objectPtr); //struct knh_Bytes_t*          bufa;
+	/* 31 */fields.push_back(objectPtr); //struct knh_OutputStream_t*   bufw;
+	/* 32 */fields.push_back(objectPtr); //struct knh_Gamma_t*          gma;
+	/* 33 */fields.push_back(objectPtr); //struct knh_DictMap_t*        symbolDictMap;
+	/* 34 */fields.push_back(objectPtr); //struct knh_Array_t*          constPools;
+
+	fields.push_back(shortTy);   //knh_flag_t                   flag;
+	fields.push_back(shortTy);   //knh_ushort_t                 ctxid;
+	fields.push_back(voidPtr);   //struct knh_Context_t        *ctxobjNC;
+	fields.push_back(voidPtr);   //struct knh_context_t        *parent;
+	fields.push_back(voidPtr);   //knh_mutex_t                 *ctxlock;
+
+	fields.push_back(voidPtr);   //const struct _knh_ExportsAPI_t *api;
+	fields.push_back(voidPtr);   //const struct knh_api2_t        *api2;
+	fields.push_back(voidPtr);   //char                            trace[16];
+	fields.push_back(voidPtr);   //knh_uint_t                      seq;
+	// add here for new entry
+	fields.push_back(voidPtr);   //struct knh_ExceptionHandler_t  *ehdrNC;
+	fields.push_back(voidPtr);   //struct knh_Object_t            *evaled;
+
+
 	structTy = StructType::get(m->getContext(), fields, /*isPacked=*/false);
 	const Type *ctxPtr = PointerType::get(structTy, 0);
 	m->addTypeName("ctx", ctxPtr);
@@ -1692,11 +1795,11 @@ static Function *build_wrapper_func(CTX ctx, Module *m, knh_Method_t *mtd, Funct
 
 	/* call function and  set return values */
 	{
-		Value *callinst = builder->CreateCall(orig_func, params.begin(), params.end(), "call");
+		Value *callinst = builder->CreateCall(orig_func, params.begin(), params.end());
 		if (retTy != TYPE_void) {
 			Value *v = arg_sfp;
 			v = create_loadsfp(ctx, builder, v, retTy, K_RTNIDX);
-			builder->CreateStore(callinst, v, "store");
+			builder->CreateStore(callinst, v, false/*isVolatile*/);
 		}
 		builder->CreateRetVoid();
 	}
