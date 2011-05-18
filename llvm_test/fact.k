@@ -6,6 +6,7 @@ int fact(int n){
 }
 
 void main(void){
-	int v = fact(10);
+    int v = fact(3);
+    OUT.println(v);
 }
 

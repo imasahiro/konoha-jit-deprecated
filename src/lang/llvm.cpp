@@ -788,7 +788,16 @@ static int CALLPARAMs_asm(CTX ctx, knh_Stmt_t *stmt, size_t s, int local, knh_cl
 		int a = local + i + (K_CALLDELTA-1);
 		Tn_asm(ctx, stmt, i, reqt, a);
 		Value *v = ValueStack_get(ctx, a);
+		const Type *ty = v->getType();
+	if (reqt == TYPE_dyn && ty == LLVMTYPE_Int) {
+		reqt = TYPE_Int;
+	} else if (reqt == TYPE_dyn && ty == LLVMTYPE_Bool) {
+		reqt = TYPE_Boolean;
+	}
+
 		Value *ptr = create_loadsfp(ctx, builder, arg_sfp, reqt, a);
+		const Type *pty = cast<PointerType>(ptr->getType())->getElementType();
+		const Type *vty = v->getType();
 		builder->CreateStore(v, ptr, false/*isVolatile*/);
 	}
 	return 1;
@@ -858,12 +867,11 @@ static void _CALL(CTX ctx, knh_type_t reqt, int sfpidx, knh_type_t rtype, knh_Me
 			v = ConstantInt::get(LLVMTYPE_Int, (knh_int_t)func);
 			v = builder->CreateIntToPtr(v, LLVMTYPE_fcall);
 			Value *call = builder->CreateCall(v, params.begin(), params.end());
-			knh_ParamArray_t *pa = DP(mtd)->mp;
-			knh_class_t retTy = knh_ParamArray_rtype(pa);
+			knh_class_t retTy = knh_ParamArray_rtype(DP(mtd)->mp);
 			if(retTy != TYPE_void){
 				Value *ptr = create_loadsfp(ctx, builder, vsfp, retTy, thisidx+K_RTNIDX);
 				Value *ret_v = builder->CreateLoad(ptr, "ret_v");
-				ValueStack_set(ctx, sfpidx, ret_v);//call);
+				ValueStack_set(ctx, thisidx+K_RTNIDX, ret_v);//call);
 			}
 		}
 	}
