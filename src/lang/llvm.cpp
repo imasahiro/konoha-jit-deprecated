@@ -205,6 +205,7 @@ static void ASM_SMOVx(CTX ctx, knh_type_t atype, int a, knh_type_t btype, knh_sf
 #define LLVMTYPE_Int   (Type::getInt64Ty(LLVM_CONTEXT()))
 #define LLVMTYPE_Float (Type::getDoubleTy(LLVM_CONTEXT()))
 static const Type *LLVMTYPE_Object = NULL;
+static const Type *LLVMTYPE_Method = NULL;
 static const Type *LLVMTYPE_context = NULL;
 static const Type *LLVMTYPE_fcall = NULL;
 static const Type *LLVMTYPE_sfp   = NULL;
@@ -253,7 +254,7 @@ static Value *Fset_STDIN(CTX ctx, Value *arg_ctx)
 	IRBuilder<> *builder = LLVM_BUILDER(ctx);
 	Value *v = builder->CreateConstGEP2_32(arg_ctx, 0, 3, "gep");
 	v = builder->CreateLoad(v, "l1");
-	v = builder->CreateConstGEP2_32(v, 0, 1);
+	v = builder->CreateConstGEP2_32(v, 0, 1, "gep_");
 	return builder->CreateConstGEP2_32(v, 0, 3, "gep");
 }
 static Value *Fset_STDOUT(CTX ctx, Value *arg_ctx)
@@ -816,7 +817,30 @@ static void _CALL(CTX ctx, knh_type_t reqt, int sfpidx, knh_type_t rtype, knh_Me
 	KNH_ASSERT(sfpidx >= DP(ctx->gma)->espidx);
 	if(Method_isFinal(mtd) || isStatic) {
 		if(Method_isKonohaCode(mtd) || DP(ctx->gma)->mtd == mtd) {
-		LLVM_TODO("KonohaCode");
+			Value *idx, *vctx, *vsfp;
+			std::vector<Value*> params;
+			Function::arg_iterator arg = LLVM_FUNCTION(ctx)->arg_begin();
+			vctx = arg++;
+			vsfp = arg++;
+			idx = ConstantInt::get(LLVMTYPE_Int, thisidx);
+			params.push_back(vctx);
+			params.push_back(builder->CreateGEP(vsfp, idx, "sfpsft"));
+			params.push_back(ConstantInt::get(LLVMTYPE_Int, K_RTNIDX));
+
+			asm_shift_esp(ctx, vctx, vsfp, argc+1+thisidx);
+
+			Value *v = ConstantInt::get(LLVMTYPE_Int, (knh_int_t) mtd);
+			v = builder->CreateIntToPtr(v, LLVMTYPE_Method);
+			v = builder->CreateConstGEP2_32(v, 0, 4, "mtdgep");
+			v = builder->CreateLoad(v, "fcall");
+
+			Value *call = builder->CreateCall(v, params.begin(), params.end());
+			knh_class_t retTy = knh_ParamArray_rtype(DP(mtd)->mp);
+			if(retTy != TYPE_void){
+				Value *ptr = create_loadsfp(ctx, builder, vsfp, retTy, K_RTNIDX);
+				Value *ret_v = builder->CreateLoad(ptr, "ret_v");
+				ValueStack_set(ctx, sfpidx, ret_v);
+			}
 		}
 		else {
 			knh_Fmethod func = mtd->fcall_1;
@@ -834,7 +858,13 @@ static void _CALL(CTX ctx, knh_type_t reqt, int sfpidx, knh_type_t rtype, knh_Me
 			v = ConstantInt::get(LLVMTYPE_Int, (knh_int_t)func);
 			v = builder->CreateIntToPtr(v, LLVMTYPE_fcall);
 			Value *call = builder->CreateCall(v, params.begin(), params.end());
-			//ValueStack_set(ctx, sfpidx, call);
+			knh_ParamArray_t *pa = DP(mtd)->mp;
+			knh_class_t retTy = knh_ParamArray_rtype(pa);
+			if(retTy != TYPE_void){
+				Value *ptr = create_loadsfp(ctx, builder, vsfp, retTy, thisidx+K_RTNIDX);
+				Value *ret_v = builder->CreateLoad(ptr, "ret_v");
+				ValueStack_set(ctx, sfpidx, ret_v);//call);
+			}
 		}
 	}
 	else {
@@ -1743,6 +1773,7 @@ static void ConstructObjectStruct(Module *m)
 	m->addTypeName("struct.context", structTy);
 	m->addTypeName("ctx", ctxPtr);
 	LLVMTYPE_context = ctxPtr;
+	fields.clear();
 
 	// Pointer Definitions
 	std::vector<const Type*>args;
@@ -1752,6 +1783,18 @@ static void ConstructObjectStruct(Module *m)
 	FunctionType* callTy = FunctionType::get(/*Result=*/voidTy,/*Params=*/args,/*isVarArg=*/false);
 	LLVMTYPE_fcall = PointerType::get(callTy, 0);
 	m->addTypeName("fcall", callTy);
+
+	/* ObjectField */
+	fields.push_back(hObjectTy);
+	fields.push_back(voidPtr);
+	fields.push_back(shortTy);
+	fields.push_back(shortTy);
+	fields.push_back(LLVMTYPE_fcall);
+	structTy = StructType::get(m->getContext(), fields, /*isPacked=*/false);
+	LLVMTYPE_Method = PointerType::get(structTy, 0);
+	m->addTypeName("Method", LLVMTYPE_Method);
+	fields.clear();
+
 }
 
 static Function *build_function(CTX ctx, Module *m, knh_Method_t *mtd)
@@ -1760,7 +1803,7 @@ static Function *build_function(CTX ctx, Module *m, knh_Method_t *mtd)
 	knh_ParamArray_t *pa = DP(mtd)->mp;
 	knh_class_t retTy = knh_ParamArray_rtype(pa);;
 	std::vector<const Type*> argsTy;
-	char const *name = knh_getmnname(ctx, SP(mtd)->mn);
+	std::string name(knh_getmnname(ctx, SP(mtd)->mn));
 
 	argsTy.push_back(LLVMTYPE_context);
 	argsTy.push_back(LLVMTYPE_sfp);
