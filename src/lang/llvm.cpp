@@ -846,7 +846,7 @@ static void _CALL(CTX ctx, knh_type_t reqt, int sfpidx, knh_type_t rtype, knh_Me
 			Value *call = builder->CreateCall(v, params.begin(), params.end());
 			knh_class_t retTy = knh_ParamArray_rtype(DP(mtd)->mp);
 			if(retTy != TYPE_void){
-				Value *ptr = create_loadsfp(ctx, builder, vsfp, retTy, K_RTNIDX);
+				Value *ptr = create_loadsfp(ctx, builder, vsfp, retTy, thisidx+K_RTNIDX);
 				Value *ret_v = builder->CreateLoad(ptr, "ret_v");
 				ValueStack_set(ctx, sfpidx, ret_v);
 			}
@@ -1253,6 +1253,18 @@ static void Tn_asm(CTX ctx, knh_Stmt_t *stmt, size_t n, knh_type_t reqt, int loc
 
 /* ------------------------------------------------------------------------ */
 /* [IF, WHILE, DO, FOR, FOREACH]  */
+static void ASM_BBLAST(CTX ctx, void *ptr, void (*func)(CTX, void*))
+{
+	BasicBlock *bb = LLVM_BUILDER(ctx)->GetInsertBlock();
+	BasicBlock::iterator itr;
+	for(itr = bb->begin(); itr != bb->end(); itr++) {
+		Instruction &inst = *itr;
+		if(ReturnInst::classof(&inst)){
+			return;
+		}
+	}
+	func(ctx, ptr);
+}
 
 static int Tn_CondAsm(CTX ctx, knh_Stmt_t *stmt, size_t n, int isTRUE, int flocal)
 {
@@ -1292,6 +1304,17 @@ static inline void Tn_asmBLOCK(CTX ctx, knh_Stmt_t *stmt, size_t n, knh_type_t r
 	_BLOCK_asm(ctx, stmtNN(stmt, n), reqt, 0);
 }
 
+static void __asm_br(CTX ctx, void *ptr)
+{
+	BasicBlock *bbMerge = (BasicBlock*) ptr;
+	LLVM_BUILDER(ctx)->CreateBr(bbMerge);
+}
+//static void __asm_ret(CTX ctx, void *ptr)
+//{
+//	BasicBlock *bbMerge = (BasicBlock*) ptr;
+//	LLVM_BUILDER(ctx)->CreateBr(bbMerge);
+//}
+
 static int _IF_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx _UNUSED_)
 {
 	Value *cond = NULL;//expr
@@ -1309,11 +1332,11 @@ static int _IF_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx _UNUSE
 
 	builder->SetInsertPoint(bbThen);
 	Tn_asmBLOCK(ctx, stmt, 1, reqt);
-	builder->CreateBr(bbMerge);
+	ASM_BBLAST(ctx, (void*)bbMerge, __asm_br);
 
 	builder->SetInsertPoint(bbElse);
 	Tn_asmBLOCK(ctx, stmt, 2, reqt);
-	builder->CreateBr(bbMerge);
+	ASM_BBLAST(ctx, (void*)bbMerge, __asm_br);
 	builder->SetInsertPoint(bbMerge);
 	return 0;
 }
@@ -1927,7 +1950,9 @@ static void Finish(CTX ctx, knh_Method_t *mtd, knh_Array_t *a, knh_Stmt_t *stmt)
 	/* build wrapper function and compile to native code. */
 	ExecutionEngine *ee = EngineBuilder(m).setEngineKind(EngineKind::JIT).create();
 	Function *func1 = build_wrapper_func(ctx, m, mtd, func);
+#ifdef K_USING_DEBUG
 	(*m).dump();
+#endif
 	f = (knh_Fmethod) ee->getPointerToFunction(func1);
 	knh_Method_setFunc(ctx, mtd, f);
 }

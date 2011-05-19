@@ -7,11 +7,12 @@ int fib(int n){
 }
 
 void main(void){
-	int v = fib(36);
-	OUT.println("finish");
-	if(fib(10) == 55){
-		OUT.println("call ok");
-	}
+    OUT.println("finish");
+    if(fib(40) == 102334155){
+        OUT.println("call ok");
+    } else {
+        OUT.println("call fail");
+    }
 	return;
 }
 
