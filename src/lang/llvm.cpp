@@ -29,6 +29,7 @@
 #include "llvm/Target/TargetSelect.h"
 #include <vector>
 
+#define USE_STEXT 1
 #undef HAVE_SYS_TYPES_H
 #include "commons.h"
 #define ASM_PREFIX llvmasm::
@@ -341,7 +342,9 @@ static void ASM_SMOV(CTX ctx, knh_type_t atype, int a/*flocal*/, knh_Token_t *tk
 					v = ConstantInt::get(LLVMTYPE_Int, O_data(o));
 				}
 				else if (IS_Tfloat(atype)) {
-					v = ConstantInt::get(LLVMTYPE_Float, O_data(o));
+					knh_num_t num;
+					num.data = O_data(o);
+					v = ConstantFP::get(LLVMTYPE_Float, num.fvalue);
 				}
 				else if (IS_Tbool(atype)) {
 					v = ConstantInt::get(LLVMTYPE_Bool, O_data(o));
@@ -364,21 +367,22 @@ static void ASM_SMOV(CTX ctx, knh_type_t atype, int a/*flocal*/, knh_Token_t *tk
 		case TT_FUNCVAR:
 		case TT_LOCAL: {
 			int b = Token_index(tkb);
-			knh_type_t btype = SP(tkb)->type;
 			if(IS_Tunbox(btype)) {
 				Value *v = ValueStack_get(ctx, b);
 				ValueStack_set(ctx, a, v);
 			}
 			else {
-				ASM(OMOV, OC_(a), OC_(b));
-				if(IS_Tnumbox(btype)) {
-					if(IS_Tnumbox(atype)) {
-						ASM(NMOV, NC_(a), NC_(b));
-					}
-					else {
-						ASM(TR, OC_(a), SFP_(b), RIX_(a-b), ClassTBL(atype), _OBOX);
-					}
-				}
+				Value *v = ValueStack_get(ctx, b);
+				ValueStack_set(ctx, a, v);
+				//ASM(OMOV, OC_(a), OC_(b));
+				//if(IS_Tnumbox(btype)) {
+				//	if(IS_Tnumbox(atype)) {
+				//		ASM(NMOV, NC_(a), NC_(b));
+				//	}
+				//	else {
+				//		ASM(TR, OC_(a), SFP_(b), RIX_(a-b), ClassTBL(atype), _OBOX);
+				//	}
+				//}
 			}
 			break;
 		}
@@ -1345,8 +1349,7 @@ static void __asm_br(CTX ctx, void *ptr)
 }
 static void __asm_ret(CTX ctx, void *ptr)
 {
-	BasicBlock *bbMerge = (BasicBlock*) ptr;
-	LLVM_BUILDER(ctx)->CreateBr(bbMerge);
+	LLVM_BUILDER(ctx)->CreateRetVoid();
 }
 
 static int PHI_asm(CTX ctx, knh_Array_t *prev, knh_Array_t *thenArray, knh_Array_t *elseArray, BasicBlock *bbThen, BasicBlock *bbElse)
@@ -1696,9 +1699,126 @@ static int _ERR_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt _UNUSED_, int sfp
 	return 0;
 }
 
+static knh_flag_t PRINT_flag(CTX ctx, knh_Stmt_t *o)
+{
+	knh_flag_t flag = 0;
+	if(IS_Map(DP(o)->metaDictCaseMap)) {
+		Object *v = knh_DictMap_getNULL(ctx,  DP(o)->metaDictCaseMap, STEXT("Time"));
+		if(v != NULL) {
+			flag |= K_FLAG_PF_TIME;
+		}
+	}
+	return flag;
+}
+
+static Function *PRINT_func(CTX ctx, const char *name, knh_class_t cid)
+{
+	Module *m = LLVM_MODULE(ctx);
+	std::vector<const Type*>args_list;
+	args_list.push_back(LLVMTYPE_context);
+	args_list.push_back(LLVMTYPE_sfp);
+	args_list.push_back(LLVMTYPE_Int); /* flag */
+	args_list.push_back(LLVMTYPE_Int); /* uline */
+	args_list.push_back(LLVMTYPE_Object); /* msg */
+	args_list.push_back(convert_type(ctx, cid));
+	FunctionType* fnTy = FunctionType::get(LLVMTYPE_Void, args_list, false);
+	Function *func = cast<Function>(m->getOrInsertFunction(name, fnTy));
+	return func;
+}
+
+struct print_data {
+	knh_class_t cid;
+	const char *name;
+};
+static struct print_data PRINT_DATA[] = {
+	{CLASS_Boolean, "llvm_PRINTb"},
+	{CLASS_Int,     "llvm_PRINTi"},
+	{CLASS_Float,   "llvm_PRINTf"},
+	{CLASS_Object,  "llvm_PRINT"},
+};
+
+#define ARRAY_SIZE(a) (sizeof(a)/sizeof(a[0]))
+static void init_print_func(CTX ctx)
+{
+	Module *m = LLVM_MODULE(ctx);
+	Function* func;
+	std::vector<const Type*>args;
+	int i;
+	for (i = 0; i < ARRAY_SIZE(PRINT_DATA); i++) {
+		knh_class_t cid = PRINT_DATA[i].cid;
+		const char *name = PRINT_DATA[i].name;
+		args.push_back(LLVMTYPE_context);
+		args.push_back(LLVMTYPE_sfp);
+		args.push_back(LLVMTYPE_Int); /* flag */
+		args.push_back(LLVMTYPE_Int); /* uline */
+		args.push_back(LLVMTYPE_Object); /* msg */
+		args.push_back(convert_type(ctx, cid));
+
+		FunctionType* fnTy = FunctionType::get(LLVMTYPE_Void, args, false);
+		func = Function::Create(fnTy, GlobalValue::ExternalLinkage, name, m);
+		func->setCallingConv(CallingConv::C);
+		args.clear();
+	}
+}
+
+static void ASM_P(CTX ctx, const char *name, knh_flag_t flag, knh_uline_t line, knh_String_t *msg, knh_class_t cid, Value *v)
+{
+	Function *f = PRINT_func(ctx, name, cid);
+	Function::arg_iterator args = LLVM_FUNCTION(ctx)->arg_begin();
+	IRBuilder<> *builder = LLVM_BUILDER(ctx);
+	Value *arg_ctx = args++;
+	Value *arg_sfp = args;
+	std::vector<Value*> params;
+	params.push_back(arg_ctx);
+	params.push_back(arg_sfp);
+	params.push_back(ConstantInt::get(LLVMTYPE_Int, flag));
+	params.push_back(ConstantInt::get(LLVMTYPE_Int, line));
+	Value *vmsg = ConstantInt::get(LLVMTYPE_Int, (knh_int_t) msg);
+	params.push_back(builder->CreateIntToPtr(vmsg, LLVMTYPE_Object)); /* msg */
+	params.push_back(v);
+	builder->CreateCall(f, params.begin(), params.end());
+}
+
 static int _PRINT_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt _UNUSED_, int sfpidx _UNUSED_)
 {
-	LLVM_TODO("PRINT");
+	knh_flag_t flag = PRINT_flag(ctx, stmt) | K_FLAG_PF_BOL | K_FLAG_PF_LINE;
+	long i, espidx = DP(ctx->gma)->espidx;
+	for(i = 0; i < DP(stmt)->size; i++) {
+		knh_Token_t *tkn = tkNN(stmt, i);
+		if(TT_(tkn) != TT_CONST || !IS_String((tkn)->data)) {
+			knh_class_t cid = Tn_cid(stmt, i);
+			Tn_asm(ctx, stmt, i, cid, espidx + i);
+		}
+	}
+	for(i = 0; i < DP(stmt)->size; i++) {
+		knh_flag_t mask = 0;
+		knh_String_t *msg = (knh_String_t*)KNH_NULL;
+		L_REDO:;
+		knh_Token_t *tkn = tkNN(stmt, i);
+		if(i == (long)DP(stmt)->size - 1) {
+			mask |= K_FLAG_PF_EOL;
+		}
+		if(TT_(tkn) == TT_CONST && IS_String((tkn)->data)) {
+			if(Token_isPNAME(tkn)) { /* name= */
+				msg = (tkn)->text;
+				mask |= K_FLAG_PF_NAME; i++;
+				goto L_REDO;
+			}
+			DBG_ASSERT(stmt->uline == ctx->gma->uline);
+			//ASM(P, _PRINTm, flag | mask, (tkn)->text, 0); flag = 0;
+		}
+		else {
+			knh_class_t cid = Tn_cid(stmt, i);
+			Value *v = ValueStack_get(ctx, espidx+i);
+			const char *fname;
+			if(IS_Tint(cid))        fname = "llvm_PRINTi";
+			else if(IS_Tfloat(cid)) fname = "llvm_PRINTf";
+			else if(IS_Tbool(cid))  fname = "llvm_PRINTb";
+			else                    fname = "llvm_PRINT";
+			ASM_P(ctx, fname, flag | mask, tkNN(stmt, i)->uline, msg, cid, v);
+			flag=0;
+		}
+	}
 	return 0;
 }
 
@@ -2022,6 +2142,7 @@ static void init_first(CTX ctx)
 	Module *m = new Module("test", LLVM_CONTEXT());
 	ConstructObjectStruct(m);
 	LLVM_MODULE_SET(ctx, m);
+	init_print_func(ctx);
 }
 
 static void Init(CTX ctx, knh_Method_t *mtd, knh_Array_t *a)
@@ -2122,6 +2243,78 @@ void LLVMMethod_asm(CTX ctx, knh_Method_t *mtd, knh_Stmt_t *stmtP, knh_type_t it
 	KNH_SETv(ctx, DP(ctx->gma)->insts, insts_org);
 	KNH_SETv(ctx, DP(ctx->gma)->lstacks, lstack_org);
 	END_LOCAL_NONGC(ctx, lsfp);
+}
+static void llvm_PRINTh(CTX ctx, knh_sfp_t *sfp, knh_OutputStream_t *w, knh_flag_t flag, knh_uline_t uline, knh_String_t *msg)
+{
+	knh_write_ascii(ctx, w, TERM_BNOTE(ctx, LOG_NOTICE));
+	if(FLAG_is(flag, K_FLAG_PF_BOL) && FLAG_is(flag, K_FLAG_PF_LINE)) {
+		knh_Method_t *mtd = sfp[-1].mtdNC;
+		DBG_ASSERT(IS_Method(mtd));
+		ULINE_setURI(uline, DP(mtd)->uri);
+		knh_write_uline(ctx, w, uline);
+	}
+	if(IS_bString(msg)) {
+		if((msg)->str.len > 0) {
+			knh_write_utf8(ctx, w, S_tobytes(msg), !String_isASCII(msg));
+		}
+	}
+	if(FLAG_is(flag, K_FLAG_PF_NAME)) {
+		knh_putc(ctx, w, '=');
+	}
+}
+
+static void llvm_PRINTln(CTX ctx, knh_sfp_t *sfp, knh_OutputStream_t *w, knh_flag_t flag)
+{
+	if(FLAG_is(flag, K_FLAG_PF_EOL)) {
+		knh_write_ascii(ctx, w, TERM_ENOTE(ctx, LOG_NOTICE));
+		knh_write_EOL(ctx, w);
+	}
+	else {
+		knh_putc(ctx, w, ',');
+		knh_putc(ctx, w, ' ');
+	}
+}
+
+void llvm_PRINT(CTX ctx, knh_sfp_t *sfp, knh_flag_t flag, knh_uline_t uline, knh_String_t *msg, knh_Object_t *o)
+{
+	knh_OutputStream_t *w = KNH_STDOUT;
+	llvm_PRINTh(ctx, sfp, w, flag, uline, msg);
+	knh_write_Object(ctx, w, o, FMT_data);
+	llvm_PRINTln(ctx, sfp, w, flag);
+}
+
+void llvm_PRINTm(CTX ctx, knh_sfp_t *sfp, knh_String_t *msg, knh_flag_t flag, knh_uline_t uline)
+{
+	knh_OutputStream_t *w = KNH_STDOUT;
+	llvm_PRINTh(ctx, sfp, w, flag, uline, msg);
+	if(FLAG_is(flag, K_FLAG_PF_EOL)) {
+		knh_write_ascii(ctx, w, TERM_ENOTE(ctx, LOG_NOTICE));
+		knh_write_EOL(ctx, w);
+	}
+}
+
+void llvm_PRINTi(CTX ctx, knh_sfp_t *sfp, knh_flag_t flag, knh_uline_t uline, knh_String_t *msg, knh_int_t n)
+{
+	knh_OutputStream_t *w = KNH_STDOUT;
+	llvm_PRINTh(ctx, sfp, w, flag, uline, msg);
+	knh_write_ifmt(ctx, w, K_INT_FMT, n);
+	llvm_PRINTln(ctx, sfp, w, flag);
+}
+
+void llvm_PRINTf(CTX ctx, knh_sfp_t *sfp, knh_flag_t flag, knh_uline_t uline, knh_String_t *msg, knh_float_t f)
+{
+	knh_OutputStream_t *w = KNH_STDOUT;
+	llvm_PRINTh(ctx, sfp, w, flag, uline, msg);
+	knh_write_ffmt(ctx, w, K_FLOAT_FMT, f);
+	llvm_PRINTln(ctx, sfp, w, flag);
+}
+
+void llvm_PRINTb(CTX ctx, knh_sfp_t *sfp, knh_flag_t flag, knh_uline_t uline, knh_String_t *msg, knh_bool_t b)
+{
+	knh_OutputStream_t *w = KNH_STDOUT;
+	llvm_PRINTh(ctx, sfp, w, flag, uline, msg);
+	knh_write_bool(ctx, w, b);
+	llvm_PRINTln(ctx, sfp, w, flag);
 }
 
 #ifdef __cplusplus
