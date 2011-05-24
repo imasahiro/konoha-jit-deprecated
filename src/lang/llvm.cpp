@@ -194,24 +194,12 @@ static knh_Token_t* Tn_putTK(CTX ctx, knh_Stmt_t *stmt, size_t n, knh_type_t req
 	return tk;
 }
 
-
-static void ASM_SMOVx(CTX ctx, knh_type_t atype, int a, knh_type_t btype, knh_sfx_t bx)
-{
-	if(IS_Tunbox(btype)) {
-		ASM(NMOVx, NC_(a), bx)
-		ASM_BOX2(ctx, atype, btype, (a));
-	}
-	else {
-		ASM(OMOVx, OC_(a), bx);
-		ASM_UNBOX(ctx, btype, a);
-	}
-}
-
 #define LLVM_CONTEXT() (llvm::getGlobalContext())
 #define LLVMTYPE_Void  (Type::getVoidTy(LLVM_CONTEXT()))
 #define LLVMTYPE_Bool  (Type::getInt1Ty(LLVM_CONTEXT()))
 #define LLVMTYPE_Int   (Type::getInt64Ty(LLVM_CONTEXT()))
 #define LLVMTYPE_Float (Type::getDoubleTy(LLVM_CONTEXT()))
+static const Type *LLVMTYPE_ObjectField = NULL;
 static const Type *LLVMTYPE_Object = NULL;
 static const Type *LLVMTYPE_Method = NULL;
 static const Type *LLVMTYPE_context = NULL;
@@ -230,6 +218,28 @@ static const Type *convert_type(CTX ctx, knh_class_t cid)
 			return LLVMTYPE_Float;
 	}
 	return LLVMTYPE_Object;
+}
+
+static void ASM_SMOVx(CTX ctx, knh_type_t atype, int a, knh_type_t btype, knh_sfx_t bx)
+{
+	Value *v = ValueStack_get(ctx, bx.i);
+	IRBuilder<> *builder = LLVM_BUILDER(ctx);
+	if(IS_Tunbox(btype)) {
+		const Type *ty = convert_type(ctx, atype);
+		v = builder->CreateBitCast(v, LLVMTYPE_ObjectField, "cast");
+		v = builder->CreateStructGEP(v, 1, "gep");
+		v = builder->CreateBitCast(v, PointerType::get(ty, 0), "cast");
+		v = builder->CreateConstInBoundsGEP1_32(v, bx.n, "get_");
+		v = builder->CreateLoad(v);
+		ValueStack_set(ctx, a, v);
+		ASM_BOX2(ctx, atype, btype, (a)); /* TODO */
+	}
+	else {
+		asm volatile("int3");
+		fprintf(stderr, "IS_Tunbox(type)=%d\n", IS_Tunbox(btype));
+		ASM(OMOVx, OC_(a), bx);
+		ASM_UNBOX(ctx, btype, a);
+	}
 }
 
 static Value *Fset_CTX(CTX ctx, Value *arg_ctx)
@@ -454,6 +464,7 @@ static void ASM_XMOVx(CTX ctx, knh_type_t atype, knh_sfx_t ax, knh_type_t btype,
 
 static void ASM_XMOV(CTX ctx, knh_type_t atype, int a, size_t an, knh_Token_t *tkb)
 {
+	IRBuilder<> *builder = LLVM_BUILDER(ctx);
 	knh_sfx_t ax = {OC_(a), an};
 	knh_type_t btype = SP(tkb)->type;
 	long espidx = -1;
@@ -473,9 +484,19 @@ static void ASM_XMOV(CTX ctx, knh_type_t atype, int a, size_t an, knh_Token_t *t
 		case TT_CID:
 			KNH_SETv(ctx, (tkb)->data, new_Type(ctx, (tkb)->cid));
 		case TT_CONST: L_CONST:; {
-			Object *v = (tkb)->data;
+			Object *o = (tkb)->data;
 			if(IS_Tunbox(atype)) {
-				ASM(XNSET, ax, O_data(v));
+				Value *vdata = ConstantInt::get(LLVMTYPE_Int, O_data(o));
+				const Type *ty = convert_type(ctx, atype);
+				Value *v = ValueStack_get(ctx, a);
+				v = builder->CreateBitCast(v, LLVMTYPE_ObjectField, "cast");
+				v = builder->CreateConstInBoundsGEP2_32(v, 0, 1, "gep");
+				v = builder->CreateBitCast(v, PointerType::get(ty, 0), "cast");
+				v = builder->CreateConstInBoundsGEP1_32(v, an, "get_");
+				const Type *tp = cast<PointerType>(v->getType())->getElementType();
+				builder->CreateStore(vdata, v, false);
+				asm volatile("int3");
+				//ASM(XNSET, ax, O_data(o));
 			}
 			else {
 				ASM(XOSET, ax, v);
@@ -487,9 +508,11 @@ static void ASM_XMOV(CTX ctx, knh_type_t atype, int a, size_t an, knh_Token_t *t
 			int b = Token_index(tkb);
 			ASM_BOX2(ctx, atype, btype, b);
 			if(IS_Tunbox(atype)) {
+				asm volatile("int3");
 				ASM(XNMOV, ax, NC_(b));
 			}
 			else {
+				asm volatile("int3");
 				ASM(XMOV, ax, OC_(b));
 			}
 			break;
@@ -500,6 +523,7 @@ static void ASM_XMOV(CTX ctx, knh_type_t atype, int a, size_t an, knh_Token_t *t
 			if(IS_Token(tkb->token) && TT_isSFPIDX(tkb->token)) {
 				bx.i = OC_(Token_index(tkb->token));
 			}
+			asm volatile("int3");
 			ASM_XMOVx(ctx, atype, ax, btype, bx);
 			break;
 		}
@@ -946,11 +970,21 @@ static int _CALL_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 	{
 		knh_index_t deltaidx = knh_Method_indexOfGetterField(mtd);
 		if(deltaidx != -1) {
-			LLVM_TODO("Getter");
+			int b = Tn_put(ctx, stmt, 1, mtd_cid, local + 1);
+			knh_type_t type = knh_ParamArray_rtype(DP(mtd)->mp);
+			knh_sfx_t bx = {b, deltaidx};
+			ASM_SMOVx(ctx, reqt, sfpidx, type, bx);
+			return 0;
 		}
 		deltaidx = knh_Method_indexOfSetterField(mtd);
 		if(deltaidx != -1) {
-			LLVM_TODO("Setter");
+			int b = Tn_put(ctx, stmt, 1, mtd_cid, local + 1);
+			knh_type_t reqt2 = knh_Method_ptype(ctx, mtd, cid, 0);
+			knh_Token_t *tkV = Tn_putTK(ctx, stmt, 2, reqt, local + 2);
+			ASM_XMOV(ctx, reqt2, b, deltaidx, tkV);
+			if(reqt != TYPE_void) {
+				ASM_SMOV(ctx, reqt, sfpidx, tkV);
+			}
 		}
 	}
 	L_USECALL:;
@@ -1924,7 +1958,8 @@ static void ConstructObjectStruct(Module *m)
 	fields.push_back(objectPtr);
 	fields.push_back(PointerType::get(objectPtr, 0));
 	structTy = StructType::get(m->getContext(), fields, /*isPacked=*/false);
-	m->addTypeName("ObjectField", PointerType::get(structTy, 0));
+	LLVMTYPE_ObjectField = PointerType::get(structTy, 0);
+	m->addTypeName("ObjectField", LLVMTYPE_ObjectField);
 	fields.clear();
 
 	/* sfp */

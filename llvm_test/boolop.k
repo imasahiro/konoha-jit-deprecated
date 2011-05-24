@@ -11,4 +11,6 @@ boolean f3(boolean a, boolean b, boolean c)
 {
 	return a and b and c;
 }
-
+boolean f4(boolean x) {
+    return !x;
+}
