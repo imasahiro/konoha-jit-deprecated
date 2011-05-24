@@ -900,7 +900,34 @@ static int _CALL_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 	knh_class_t mtd_cid = (mtd)->cid;
 	knh_methodn_t mtd_mn = (mtd)->mn;
 	if(mtd_cid == CLASS_Array) {
-		LLVM_TODO("CALL Array get/set");
+		IRBuilder<> *builder = LLVM_BUILDER(ctx);
+		int obj = Tn_put(ctx, stmt, 1, cid, local+1);
+		Value *vobj = ValueStack_get(ctx, obj);
+		const Type *type = convert_type(ctx, knh_class_p1(cid));
+		const Type *ptype = PointerType::get(type, 0);
+		if(Tn_isCONST(stmt, 2)) {
+			knh_intptr_t n = (knh_intptr_t)Tn_int(stmt, 2);
+			if(n < 0) {
+				goto L_USECALL;
+			}
+			Value *nlist_ptr = builder->CreateConstGEP2_32(vobj, 0, 1, "nlist_ptr");
+			Value *nlist = builder->CreateLoad(nlist_ptr, "nlist");
+			nlist = builder->CreateBitCast(nlist, ptype, "cast");
+			Value *v_ptr = builder->CreateConstInBoundsGEP2_32(nlist, 0, n, "v_ptr");
+			Value *v = builder->CreateLoad(v_ptr, "v");
+			ValueStack_set(ctx, sfpidx, v);
+
+		} else {
+			int n = Tn_put(ctx, stmt, 2, TYPE_Int, local+2);
+			Value *vn = ValueStack_get(ctx, n);
+			Value *nlist_ptr = builder->CreateConstGEP2_32(vobj, 0, 1, "nlist_ptr");
+			Value *nlist = builder->CreateLoad(nlist_ptr, "nlist");
+			nlist = builder->CreateBitCast(nlist, ptype, "cast");
+			Value *v_ptr = builder->CreateGEP(nlist, vn, "v_ptr");
+			Value *v = builder->CreateLoad(v_ptr, "v");
+			ValueStack_set(ctx, sfpidx, v);
+		}
+		return 0;
 	}
 #if defined(OPCODE_BGETIDX)
 	if(mtd_cid == CLASS_Bytes) {
