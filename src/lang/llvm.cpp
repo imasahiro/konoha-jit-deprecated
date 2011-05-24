@@ -68,8 +68,12 @@ struct llvm_context {
 #define LLVM_IDX_BUILDER   (3)
 static inline Module *LLVM_MODULE(CTX ctx)
 {
-	knh_Array_t *a = DP(ctx->gma)->insts;
-	return (Module*)a->ilist[LLVM_IDX_MODULE];
+	Module *m = (Module*) DP(ctx->gma)->bbNC;
+	return m;
+}
+static inline void LLVM_MODULE_SET(CTX ctx, Module *m)
+{
+	DP(ctx->gma)->bbNC = (knh_BasicBlock_t*) m;
 }
 static inline Function *LLVM_FUNCTION(CTX ctx)
 {
@@ -102,16 +106,19 @@ static Value *ValueStack_get(CTX ctx, int index)
 {
 	knh_Array_t *lstacks = DP(ctx->gma)->lstacks;
 	knh_sfp_t lsfp = {};
+	int idx = index;
 	index = index + (-1 * K_RTNIDX);
 	lsfp.a = lstacks;
 	lstacks->api->get(ctx, &lsfp, index, 0);
-	return (Value*) lsfp.ndata;
+	Value *v = (Value*) lsfp.ndata;
+	return v;
 }
 #define knh_Array_capacity(a) ((a)->dim->capacity)
 static void ValueStack_set(CTX ctx, int index, Value *v)
 {
 	knh_Array_t *lstacks = DP(ctx->gma)->lstacks;
 	knh_sfp_t lsfp = {};
+	int idx = index;
 	index = index + (-1 * K_RTNIDX);
 	if ((int)knh_Array_capacity(lstacks) < index) {
 		knh_Array_grow(ctx, lstacks, index, index);
@@ -1309,11 +1316,37 @@ static void __asm_br(CTX ctx, void *ptr)
 	BasicBlock *bbMerge = (BasicBlock*) ptr;
 	LLVM_BUILDER(ctx)->CreateBr(bbMerge);
 }
-//static void __asm_ret(CTX ctx, void *ptr)
-//{
-//	BasicBlock *bbMerge = (BasicBlock*) ptr;
-//	LLVM_BUILDER(ctx)->CreateBr(bbMerge);
-//}
+static void __asm_ret(CTX ctx, void *ptr)
+{
+	BasicBlock *bbMerge = (BasicBlock*) ptr;
+	LLVM_BUILDER(ctx)->CreateBr(bbMerge);
+}
+
+static int PHI_asm(CTX ctx, knh_Array_t *prev, knh_Array_t *thenArray, knh_Array_t *elseArray, BasicBlock *bbThen, BasicBlock *bbElse)
+{
+	int i, size;
+	size = knh_Array_capacity(prev) + K_RTNIDX;
+	for(i=0; i<size; i++){
+		Value *vp = (Value *)prev->nlist[i - K_RTNIDX];
+		if(vp == NULL) continue;
+		Value *v1 = (Value *)thenArray->nlist[i - K_RTNIDX];
+		Value *v2 = (Value *)elseArray->nlist[i - K_RTNIDX];
+		if(vp != v1 || vp != v2){
+			PHINode *phi = LLVM_BUILDER(ctx)->CreatePHI(v1->getType(), "phi");
+			phi->addIncoming(v1, bbThen);
+			phi->addIncoming(v2, bbElse);//bbElse);
+			prev->nlist[i - K_RTNIDX] = (knh_ndata_t)phi;
+		}
+	}
+	return 1;
+}
+
+static knh_Array_t *ValueStack_copy(CTX ctx, knh_Array_t *lstacks){
+	int size = (int)knh_Array_capacity(lstacks);
+	knh_Array_t *newlstacks = new_Array(ctx, CLASS_Int, size);
+	memcpy(newlstacks->nlist, lstacks->nlist, sizeof(knh_ndata_t) * size);
+	return newlstacks;
+}
 
 static int _IF_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx _UNUSED_)
 {
@@ -1330,14 +1363,31 @@ static int _IF_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx _UNUSE
 	cond = ValueStack_get(ctx, a);
 	builder->CreateCondBr(cond, bbThen, bbElse);
 
+	knh_Array_t *prev = DP(ctx->gma)->lstacks;
+	knh_Array_t *st1 = ValueStack_copy(ctx, prev);
+	knh_Array_t *st2 = ValueStack_copy(ctx, prev);
+	BEGIN_LOCAL(ctx, lsfp, 3);
+	KNH_SETv(ctx, lsfp[0].o, prev);
+	KNH_SETv(ctx, lsfp[1].o, st1);
+	KNH_SETv(ctx, lsfp[2].o, st2);
+
 	builder->SetInsertPoint(bbThen);
+	DP(ctx->gma)->lstacks = st1;
 	Tn_asmBLOCK(ctx, stmt, 1, reqt);
 	ASM_BBLAST(ctx, (void*)bbMerge, __asm_br);
+	bbThen = builder->GetInsertBlock();
 
 	builder->SetInsertPoint(bbElse);
+	DP(ctx->gma)->lstacks = st2;
 	Tn_asmBLOCK(ctx, stmt, 2, reqt);
 	ASM_BBLAST(ctx, (void*)bbMerge, __asm_br);
+	bbElse = builder->GetInsertBlock();
+
 	builder->SetInsertPoint(bbMerge);
+	PHI_asm(ctx, prev, st1, st2, bbThen, bbElse);
+	DP(ctx->gma)->lstacks = prev;
+	END_LOCAL_NONGC(ctx, lsfp);
+
 	return 0;
 }
 
@@ -1404,22 +1454,59 @@ static int _WHILE_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt _UNUSED_, int s
 	BasicBlock *bbContinue = BasicBlock::Create(m->getContext(), "continue", LLVM_FUNCTION(ctx));
 	BasicBlock *bbBreak    = BasicBlock::Create(m->getContext(), "break", LLVM_FUNCTION(ctx));
 	BasicBlock *bbBlock    = BasicBlock::Create(m->getContext(), "block", LLVM_FUNCTION(ctx));
+	BasicBlock *bbPrev     = builder->GetInsertBlock();
 
 	PUSH_LABEL(ctx, stmt, bbContinue, bbBreak);
 	builder->CreateBr(bbContinue);
+	builder->SetInsertPoint(bbContinue);
+
+	knh_Array_t *prev = DP(ctx->gma)->lstacks;
+	// replace phi
+	int i, size;
+	size = knh_Array_capacity(prev) + K_RTNIDX;
+	for(i=0; i<size; i++){
+		Value *v = (Value *)prev->nlist[i - K_RTNIDX];
+		if(v != NULL){
+			PHINode *phi = builder->CreatePHI(v->getType(), "phi");
+			phi->addIncoming(v, bbPrev);
+			prev->nlist[i - K_RTNIDX] = (knh_ndata_t)phi;
+		}
+	}
+	knh_Array_t *stCon = ValueStack_copy(ctx, prev);
+	BEGIN_LOCAL(ctx, lsfp, 3);
+	KNH_SETv(ctx, lsfp[0].o, prev);
+	KNH_SETv(ctx, lsfp[1].o, stCon);
+
+	DP(ctx->gma)->lstacks = stCon;
 	if (!Tn_isTRUE(stmt, 0)) {
 		int n = Tn_put(ctx, stmt, 0, TYPE_Boolean, local);
 		cond = ValueStack_get(ctx, n);
 	} else {
 		cond = ConstantInt::get(LLVMTYPE_Bool, 1);
 	}
-	cond = ValueStack_get(ctx, local);
 	builder->CreateCondBr(cond, bbBlock, bbBreak);
+
+	knh_Array_t *stBlock = ValueStack_copy(ctx, stCon);
+	KNH_SETv(ctx, lsfp[2].o, stBlock);
+	DP(ctx->gma)->lstacks = stBlock;
+
 	builder->SetInsertPoint(bbBlock);
 	Tn_asmBLOCK(ctx, stmt, 1, TYPE_void);
 	builder->CreateBr(bbContinue);
+	// add phi
+	for(i=0; i<size; i++){
+		Value *v = (Value *)stBlock->nlist[i - K_RTNIDX];
+		PHINode *phi = (PHINode *)prev->nlist[i - K_RTNIDX];
+		if(phi != NULL && v != phi){
+			phi->addIncoming(v, bbBlock);
+		}
+	}
+
+	DP(ctx->gma)->lstacks = stCon;
+
 	builder->SetInsertPoint(bbBreak);
 	POP_LABEL(ctx);
+	END_LOCAL_NONGC(ctx, lsfp);
 	return 0;
 }
 
@@ -1542,14 +1629,7 @@ static void ASM_LastRET(CTX ctx, knh_Stmt_t *stmt)
 	//	}
 	//}
 	BasicBlock *bb = LLVM_BUILDER(ctx)->GetInsertBlock();
-	BasicBlock::iterator itr;
-	for (itr = bb->begin(); itr != bb->end(); itr++) {
-		Instruction &inst = *itr;
-		if (ReturnInst::classof(&inst)) {
-			return;
-		}
-	}
-	LLVM_BUILDER(ctx)->CreateRet(NULL);
+	ASM_BBLAST(ctx, (void*)bb, __asm_ret);
 }
 
 
@@ -1910,14 +1990,20 @@ static Function *build_wrapper_func(CTX ctx, Module *m, knh_Method_t *mtd, Funct
 	return f;
 }
 
-static void Init(CTX ctx, knh_Method_t *mtd, knh_Array_t *a)
+static void init_first(CTX ctx)
 {
 	Module *m = new Module("test", LLVM_CONTEXT());
+	ConstructObjectStruct(m);
+	LLVM_MODULE_SET(ctx, m);
+}
+
+static void Init(CTX ctx, knh_Method_t *mtd, knh_Array_t *a)
+{
+	Module *m = LLVM_MODULE(ctx);
 	Function *func;
 	BasicBlock *bb;
 	IRBuilder<> *builder;
 
-	ConstructObjectStruct(m);
 	func = build_function(ctx, m, mtd);
 	bb = BasicBlock::Create(LLVM_CONTEXT(), "EntryBlock", func);
 	builder = new IRBuilder<>(bb);
@@ -1955,6 +2041,7 @@ static void Finish(CTX ctx, knh_Method_t *mtd, knh_Array_t *a, knh_Stmt_t *stmt)
 #endif
 	f = (knh_Fmethod) ee->getPointerToFunction(func1);
 	knh_Method_setFunc(ctx, mtd, f);
+	delete LLVM_BUILDER(ctx);
 }
 
 #define _ALLOW_asm _EXPR_asm
@@ -1977,6 +2064,7 @@ void LLVMMethod_asm(CTX ctx, knh_Method_t *mtd, knh_Stmt_t *stmtP, knh_type_t it
 	if (!LLVM_IS_INITED) {
 		llvm::InitializeNativeTarget();
 		LLVM_IS_INITED = 1;
+		llvmasm::init_first(ctx);
 	}
 	knh_Array_t *lstack_org, *lstack;
 	knh_Array_t *insts_org, *insts;
