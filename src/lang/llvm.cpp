@@ -998,6 +998,27 @@ static void ASM_ARRAY_SET(CTX ctx, int a, knh_class_t cid, int sfpidx, Value *n,
 	vptr->dump();
 	builder->CreateStore(v, vptr, false);
 }
+static void ASM_Object_checkNULL(CTX ctx, int sfpidx, int a, int isNULL)
+{
+	IRBuilder<> *builder = LLVM_BUILDER(ctx);
+	Value *idx[] = {
+				ConstantInt::get(Type::getInt64Ty(LLVM_CONTEXT()), 0),
+				ConstantInt::get(Type::getInt32Ty(LLVM_CONTEXT()), 0),
+				ConstantInt::get(Type::getInt32Ty(LLVM_CONTEXT()), 0)
+	};
+	SmallVector<Value*, 3> idxs(idx, idx+3);
+	Value *vflg = ConstantInt::get(LLVMTYPE_Int, 1);
+	Value *v = ValueStack_get(ctx, a);
+	v = builder->CreateInBoundsGEP(v, idxs.begin(), idxs.end(), "flg");
+	v = builder->CreateLoad(v);
+	v = builder->CreateLShr(v, ConstantInt::get(LLVMTYPE_Int, 1));
+	v = builder->CreateAnd(v, vflg);
+	if (!isNULL) {
+		v = builder->CreateXor(v, ConstantInt::get(LLVMTYPE_Int, 1));
+	}
+	v = builder->CreateTrunc(v, LLVMTYPE_Bool);
+	ValueStack_set(ctx, sfpidx, v);
+}
 static int _CALL_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 {
 	int local = ASML(sfpidx);
@@ -1051,7 +1072,18 @@ static int _CALL_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 #endif
 #ifdef OPCODE_bNUL
 	if(mtd_cid == CLASS_Object) {
-		LLVM_TODO("Object null check");
+		if (mtd_mn == MN_isNull) {
+			int a = Tn_put(ctx, stmt, 1, cid, local + 1);
+			// TODO
+			//ASM_BOX2;
+			ASM_Object_checkNULL(ctx, sfpidx, a, 1/*isNULL*/);
+			return 0;
+		}
+		else if (mtd_mn == MN_isNotNull) {
+			int a = Tn_put(ctx, stmt, 1, cid, local + 1);
+			ASM_Object_checkNULL(ctx, sfpidx, a, 0/*isNotNULL*/);
+			return 0;
+		}
 	}
 #endif
 	{
@@ -1917,6 +1949,7 @@ static void ASM_P(CTX ctx, const char *name, knh_flag_t flag, knh_uline_t line, 
 	Value *vmsg = ConstantInt::get(LLVMTYPE_Int, (knh_int_t) msg);
 	params.push_back(builder->CreateIntToPtr(vmsg, LLVMTYPE_Object)); /* msg */
 	params.push_back(v);
+	v->dump();
 	builder->CreateCall(f, params.begin(), params.end());
 }
 
