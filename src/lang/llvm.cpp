@@ -107,25 +107,29 @@ static Value *ValueStack_get(CTX ctx, int index)
 {
 	knh_Array_t *lstacks = DP(ctx->gma)->lstacks;
 	knh_sfp_t lsfp = {};
-	int idx = index;
 	index = index + (-1 * K_RTNIDX);
 	lsfp.a = lstacks;
 	lstacks->api->get(ctx, &lsfp, index, 0);
-	Value *v = (Value*) lsfp.ndata;
-	return v;
+	return (Value*) lsfp.ndata;
 }
 #define knh_Array_capacity(a) ((a)->dim->capacity)
 static void ValueStack_set(CTX ctx, int index, Value *v)
 {
 	knh_Array_t *lstacks = DP(ctx->gma)->lstacks;
 	knh_sfp_t lsfp = {};
-	int idx = index;
 	index = index + (-1 * K_RTNIDX);
 	if ((int)knh_Array_capacity(lstacks) < index) {
 		knh_Array_grow(ctx, lstacks, index, index);
 	}
 	lsfp.ndata = (knh_ndata_t) v;
 	lstacks->api->set(ctx, lstacks, index, &lsfp);
+}
+static knh_Array_t *ValueStack_copy(CTX ctx, knh_Array_t *a)
+{
+	const knh_ClassTBL_t *ct = O_cTBL(a);
+	knh_Array_t *newlstacks = (knh_Array_t*) new_hObject_(ctx, ct);
+	ct->ospi->initcopy(ctx, UPCAST(newlstacks), UPCAST(a));
+	return newlstacks;
 }
 
 #define TT_isSFPIDX(tk)   (TT_(tk) == TT_LOCAL || TT_(tk) == TT_FUNCVAR)
@@ -206,6 +210,7 @@ static const Type *LLVMTYPE_Method = NULL;
 static const Type *LLVMTYPE_context = NULL;
 static const Type *LLVMTYPE_fcall = NULL;
 static const Type *LLVMTYPE_sfp   = NULL;
+
 static const Type *convert_type(CTX ctx, knh_class_t cid)
 {
 	switch (cid) {
@@ -247,55 +252,49 @@ static Value *Fset_CTX(CTX ctx, Value *arg_ctx)
 {
 	LLVM_TODO("SYSVAL ctx");
 }
-static Value *Fset_CTXIN(CTX ctx, Value *arg_ctx)
+static Value *GetCTX_IO(CTX ctx, Value *arg_ctx, int idx)
 {
 	IRBuilder<> *builder = LLVM_BUILDER(ctx);
-	Value *v = builder->CreateConstGEP2_32(arg_ctx, 0, 27, "gep");
+	Value *v = builder->CreateConstGEP2_32(arg_ctx, 0, idx, "gep");
 	v = builder->CreateLoad(v, "l1");
 	return v;
+}
+static Value *Fset_CTXIN(CTX ctx, Value *arg_ctx)
+{
+	return GetCTX_IO(ctx, arg_ctx, 27);
 }
 static Value *Fset_CTXOUT(CTX ctx, Value *arg_ctx)
 {
-	IRBuilder<> *builder = LLVM_BUILDER(ctx);
-	Value *v = builder->CreateConstGEP2_32(arg_ctx, 0, 28, "gep");
-	v = builder->CreateLoad(v, "l1");
-	return v;
+	return GetCTX_IO(ctx, arg_ctx, 28);
 }
 static Value *Fset_CTXERR(CTX ctx, Value *arg_ctx)
 {
-	IRBuilder<> *builder = LLVM_BUILDER(ctx);
-	Value *v = builder->CreateConstGEP2_32(arg_ctx, 0, 29, "gep");
-	v = builder->CreateLoad(v, "l1");
-	return v;
-}
-static Value *Fset_STDIN(CTX ctx, Value *arg_ctx)
-{
-	IRBuilder<> *builder = LLVM_BUILDER(ctx);
-	Value *v = builder->CreateConstGEP2_32(arg_ctx, 0, 3, "gep");
-	v = builder->CreateLoad(v, "l1");
-	v = builder->CreateConstGEP2_32(v, 0, 1, "gep_");
-	return builder->CreateConstGEP2_32(v, 0, 3, "gep");
-}
-static Value *Fset_STDOUT(CTX ctx, Value *arg_ctx)
-{
-	IRBuilder<> *builder = LLVM_BUILDER(ctx);
-	Value *v = builder->CreateConstGEP2_32(arg_ctx, 0, 3, "gep");
-	v = builder->CreateLoad(v, "l1");
-	v = builder->CreateConstGEP2_32(v, 0, 1);
-	return builder->CreateConstGEP2_32(v, 0, 4, "gep");
-}
-static Value *Fset_STDERR(CTX ctx, Value *arg_ctx)
-{
-	IRBuilder<> *builder = LLVM_BUILDER(ctx);
-	Value *v = builder->CreateConstGEP2_32(arg_ctx, 0, 3, "gep");
-	v = builder->CreateLoad(v, "l1");
-	v = builder->CreateConstGEP2_32(v, 0, 1);
-	return builder->CreateConstGEP2_32(v, 0, 5, "gep");
+	return GetCTX_IO(ctx, arg_ctx, 29);
 }
 static Value *Fset_SYS(CTX ctx, Value *arg_ctx)
 {
 	IRBuilder<> *builder = LLVM_BUILDER(ctx);
 	return builder->CreateConstGEP2_32(arg_ctx, 0, 3, "gep");
+}
+static Value *GetSTD_IO(CTX ctx, Value *arg_ctx, int idx)
+{
+	IRBuilder<> *builder = LLVM_BUILDER(ctx);
+	Value *v = Fset_SYS(ctx, arg_ctx);
+	v = builder->CreateLoad(v, "l1");
+	v = builder->CreateConstGEP2_32(v, 0, 1, "gep_");
+	return builder->CreateConstGEP2_32(v, 0, idx, "gep");
+}
+static Value *Fset_STDIN(CTX ctx, Value *arg_ctx)
+{
+	return GetSTD_IO(ctx, arg_ctx, 3);
+}
+static Value *Fset_STDOUT(CTX ctx, Value *arg_ctx)
+{
+	return GetSTD_IO(ctx, arg_ctx, 4);
+}
+static Value *Fset_STDERR(CTX ctx, Value *arg_ctx)
+{
+	return GetSTD_IO(ctx, arg_ctx, 5);
 }
 static Value *Fset_SCRIPT(CTX ctx, Value *arg_ctx)
 {
@@ -1108,26 +1107,6 @@ static int _CALL_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 	}
 	L_USECALL:;
 	{
-#ifdef OPCODE_FASTCALL0
-		//knh_type_t rtype = knh_type_tocid(ctx, knh_ParamArray_rtype(DP(mtd)->mp), cid);
-		//if(DP(stmt)->size == 2 && Method_isFASTCALL0(ctx, mtd)) {
-		//	int a = local;
-		//	if(!Method_isStatic(mtd)) {
-		//		a = Tn_put(ctx, stmt, 1, TYPE_cid(mtd_cid), local + 1);
-		//	}
-		//	//KNH_P("FASTCALL %s.%s", CLASS__((mtd)->cid), MN__((mtd)->mn));
-		//	ASM(FASTCALL0, RTNIDX_(ctx, sfpidx, rtype), SFP_(a), RIX_(sfpidx - a), SP(mtd)->fcall_1, mtd);
-		//	return;
-		//}
-		//if(DP(stmt)->size == 3 && Method_isStatic(mtd) && Method_isFASTCALL0(ctx, mtd)) {
-		//	knh_param_t *p = knh_ParamArray_get(DP(mtd)->mp, 0);
-		//	knh_type_t ptype = knh_type_tocid(ctx, p->type, mtd_cid);
-		//	int a = Tn_put(ctx, stmt, 2, ptype, local + 2);
-		//	//KNH_P("STATIC FASTCALL %s.%s", CLASS__((mtd)->cid), MN__((mtd)->mn));
-		//	ASM(FASTCALL0, RTNIDX_(ctx, sfpidx, rtype), SFP_(a - 1), RIX_(sfpidx - (a - 1)), SP(mtd)->fcall_1, mtd);
-		//	return;
-		//}
-#endif
 		if(CALLPARAMs_asm(ctx, stmt, 1, local, cid, mtd)) {
 			knh_type_t rtype = knh_type_tocid(ctx, knh_ParamArray_rtype(DP(mtd)->mp), cid);
 			int isStatic = Method_isStatic(mtd);
@@ -1249,25 +1228,25 @@ static int _OR_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 	int i, local = ASML(sfpidx),  size = DP(stmt)->size;
 	Module *m = LLVM_MODULE(ctx);
 	IRBuilder<> *builder = LLVM_BUILDER(ctx);
-	BasicBlock *lbTrue = BasicBlock::Create(m->getContext(), "true", LLVM_FUNCTION(ctx));
-	BasicBlock *lbNext = BasicBlock::Create(m->getContext(), "next", LLVM_FUNCTION(ctx));
+	BasicBlock *bbTrue = BasicBlock::Create(m->getContext(), "true", LLVM_FUNCTION(ctx));
+	BasicBlock *bbNext = BasicBlock::Create(m->getContext(), "next", LLVM_FUNCTION(ctx));
 	std::vector<BasicBlock *> blocks;
 
 	for(i = 0; i < size; i++){
 		int n = Tn_put(ctx, stmt, i, TYPE_Boolean, local + 1);
 		Value *cond = ValueStack_get(ctx, n);
-		builder->CreateCondBr(cond, lbTrue, lbNext);
+		builder->CreateCondBr(cond, bbTrue, bbNext);
 
 		blocks.push_back(builder->GetInsertBlock());
-		builder->SetInsertPoint(lbNext);
+		builder->SetInsertPoint(bbNext);
 		if(i + 1 != size)
-			lbNext = BasicBlock::Create(m->getContext(), "next", LLVM_FUNCTION(ctx));
+			bbNext = BasicBlock::Create(m->getContext(), "next", LLVM_FUNCTION(ctx));
 	}
-	builder->CreateBr(lbTrue);
-	builder->SetInsertPoint(lbTrue);
+	builder->CreateBr(bbTrue);
+	builder->SetInsertPoint(bbTrue);
 
 	PHINode *phi = builder->CreatePHI(LLVMTYPE_Bool, "or_result");
-	phi->addIncoming(ConstantInt::get(LLVMTYPE_Bool, 0), lbNext);
+	phi->addIncoming(ConstantInt::get(LLVMTYPE_Bool, 0), bbNext);
 
 	std::vector<BasicBlock*>::iterator itr;
 	for (itr = blocks.begin(); itr != blocks.end(); itr++) {
@@ -1283,23 +1262,23 @@ static int _AND_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 	int i, local = ASML(sfpidx), size = DP(stmt)->size;
 	Module *m = LLVM_MODULE(ctx);
 	IRBuilder<> *builder = LLVM_BUILDER(ctx);
-	BasicBlock *lbFalse = BasicBlock::Create(m->getContext(), "false", LLVM_FUNCTION(ctx));
-	BasicBlock *lbNext = BasicBlock::Create(m->getContext(), "next", LLVM_FUNCTION(ctx));
+	BasicBlock *bbFalse = BasicBlock::Create(m->getContext(), "false", LLVM_FUNCTION(ctx));
+	BasicBlock *bbNext = BasicBlock::Create(m->getContext(), "next", LLVM_FUNCTION(ctx));
 	std::vector<BasicBlock *> blocks;
 	for(i = 0; i < size; i++){
 		int n = Tn_put(ctx, stmt, i, TYPE_Boolean, local + 1);
 		Value *cond = ValueStack_get(ctx, n);
-		builder->CreateCondBr(cond, lbNext, lbFalse);
+		builder->CreateCondBr(cond, bbNext, bbFalse);
 		blocks.push_back(builder->GetInsertBlock());
-		builder->SetInsertPoint(lbNext);
+		builder->SetInsertPoint(bbNext);
 		if(i + 1 != size)
-			lbNext = BasicBlock::Create(m->getContext(), "next", LLVM_FUNCTION(ctx));
+			bbNext = BasicBlock::Create(m->getContext(), "next", LLVM_FUNCTION(ctx));
 	}
-	builder->CreateBr(lbFalse);
-	builder->SetInsertPoint(lbFalse);
+	builder->CreateBr(bbFalse);
+	builder->SetInsertPoint(bbFalse);
 
 	PHINode *phi = builder->CreatePHI(LLVMTYPE_Bool, "and_result");
-	phi->addIncoming(ConstantInt::get(LLVMTYPE_Bool, 1), lbNext);
+	phi->addIncoming(ConstantInt::get(LLVMTYPE_Bool, 1), bbNext);
 	std::vector<BasicBlock*>::iterator itr;
 	for (itr = blocks.begin(); itr != blocks.end(); itr++) {
 		phi->addIncoming(ConstantInt::get(LLVMTYPE_Bool, 0), *itr);
@@ -1313,11 +1292,11 @@ static int Tn_CondAsm(CTX ctx, knh_Stmt_t *stmt, size_t n, int isTRUE, int floca
 static int _TRI_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 {
 	int local = DP(ctx->gma)->espidx;
-	Module *m = LLVM_MODULE(ctx);
 	IRBuilder<> *builder = LLVM_BUILDER(ctx);
-	BasicBlock *bbThen  = BasicBlock::Create(m->getContext(), "then", LLVM_FUNCTION(ctx));
-	BasicBlock *bbElse  = BasicBlock::Create(m->getContext(), "else", LLVM_FUNCTION(ctx));
-	BasicBlock *bbMerge = BasicBlock::Create(m->getContext(), "merge",LLVM_FUNCTION(ctx));
+	Function *f = LLVM_FUNCTION(ctx);
+	BasicBlock *bbThen  = BasicBlock::Create(LLVM_CONTEXT(), "then",  f);
+	BasicBlock *bbElse  = BasicBlock::Create(LLVM_CONTEXT(), "else",  f);
+	BasicBlock *bbMerge = BasicBlock::Create(LLVM_CONTEXT(), "merge", f);
 
 	int a = Tn_CondAsm(ctx, stmt, 0, 0, sfpidx);
 	Value *cond = ValueStack_get(ctx, a);
@@ -1542,13 +1521,6 @@ static int PHI_asm(CTX ctx, knh_Array_t *prev, knh_Array_t *thenArray, knh_Array
 		}
 	}
 	return 1;
-}
-
-static knh_Array_t *ValueStack_copy(CTX ctx, knh_Array_t *lstacks){
-	int size = (int)knh_Array_capacity(lstacks);
-	knh_Array_t *newlstacks = new_Array(ctx, CLASS_Int, size);
-	memcpy(newlstacks->nlist, lstacks->nlist, sizeof(knh_ndata_t) * size);
-	return newlstacks;
 }
 
 static int _IF_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx _UNUSED_)
