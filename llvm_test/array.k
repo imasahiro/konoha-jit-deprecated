@@ -1,18 +1,21 @@
 
-int f0(int[] a, int n){
+String f0(String[] a, int n){
 	return a[n];
 }
 
-int f1(int[] a){
-	return a[3];
+String f1(String[] a){
+	return a[0];
 }
 
-String f2(String[] a, int n){
+Int f2(Int[] a, int n){
 	return a[n];
 }
 
-//void main(String[] a){
-//	OUT.println(a[0]);
-//	return;
-//}
+void main(String[] args){
+    print args;
+    print args[0];
+    print f0(args, 0)
+    print f1(args)
+    return;
+}
 

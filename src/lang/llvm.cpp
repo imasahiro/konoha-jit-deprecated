@@ -201,6 +201,7 @@ static knh_Token_t* Tn_putTK(CTX ctx, knh_Stmt_t *stmt, size_t n, knh_type_t req
 #define LLVMTYPE_Float (Type::getDoubleTy(LLVM_CONTEXT()))
 static const Type *LLVMTYPE_ObjectField = NULL;
 static const Type *LLVMTYPE_Object = NULL;
+static const Type *LLVMTYPE_Array = NULL;
 static const Type *LLVMTYPE_Method = NULL;
 static const Type *LLVMTYPE_context = NULL;
 static const Type *LLVMTYPE_fcall = NULL;
@@ -914,7 +915,89 @@ static void _CALL(CTX ctx, knh_type_t reqt, int sfpidx, knh_type_t rtype, knh_Me
 		LLVM_TODO("LOADMTD");
 	}
 }
+static const Type *getLongTy(Module *m)
+{
+#if defined(SIZEOF_VOIDP) && (SIZEOF_VOIDP == 4)
+	return Type::getInt32Ty(m->getContext());
+#else
+	return Type::getInt64Ty(m->getContext());
+#endif
+}
+static const Type *getShortTy(Module *m)
+{
+#if defined(SIZEOF_VOIDP) && (SIZEOF_VOIDP == 4)
+	return Type::getInt16Ty(m->getContext());
+#else
+	return Type::getInt32Ty(m->getContext());
+#endif
+}
+static void check_array_boundary(CTX ctx, Value *a, Value *n)
+{
+	Module *m = LLVM_MODULE(ctx);
+	IRBuilder<> *builder = LLVM_BUILDER(ctx);
+	BasicBlock *bb1 = BasicBlock::Create(m->getContext(), "OutOfIDX", LLVM_FUNCTION(ctx));
+	BasicBlock *bb2 = BasicBlock::Create(m->getContext(), "bb", LLVM_FUNCTION(ctx));
+	Value *size = builder->CreateStructGEP(a, 2, "size");
+	size = builder->CreateLoad(size);
 
+	Value *cond = builder->CreateICmpSLE(size, n, "le");
+	builder->CreateCondBr(cond, bb1, bb2);
+	builder->SetInsertPoint(bb1);
+
+	/* throw out of index */
+	std::vector<Value*> params;
+	Function::arg_iterator args = LLVM_FUNCTION(ctx)->arg_begin();
+
+	std::vector<const Type*> argsTy;
+	argsTy.push_back(LLVMTYPE_context);
+	argsTy.push_back(LLVMTYPE_sfp);
+	argsTy.push_back(getLongTy(m));
+	argsTy.push_back(getLongTy(m));
+
+	params.push_back(args++);
+	params.push_back(args);
+	params.push_back(n);
+	params.push_back(size);
+	FunctionType *fnTy = FunctionType::get(LLVMTYPE_Void, argsTy, false);
+	Function *f = cast<Function>(m->getOrInsertFunction("THROW_OutOfRange", fnTy));
+	builder->CreateCall(f, params.begin(), params.end());
+	builder->CreateBr(bb2);
+	builder->SetInsertPoint(bb2);
+}
+
+static void ASM_ARRAY_GET(CTX ctx, int a, knh_class_t cid, int sfpidx, Value *n)
+{
+	IRBuilder<> *builder = LLVM_BUILDER(ctx);
+	Value *vobj = ValueStack_get(ctx, a);
+	const Type *type = convert_type(ctx, knh_class_p1(cid));
+	const Type *ptype = PointerType::get(type, 0);
+
+	Value *array = builder->CreateBitCast(vobj, LLVMTYPE_Array, "array");
+	check_array_boundary(ctx, array, n);
+	Value *lptr = builder->CreateStructGEP(array, 1, "listptr");
+	Value *list = builder->CreateLoad(lptr, "list");
+	list = builder->CreateBitCast(list, ptype, "cast");
+	Value *vptr = builder->CreateInBoundsGEP(list, n, "vptr");
+	Value *v = builder->CreateLoad(vptr, "v");
+	ValueStack_set(ctx, sfpidx, v);
+}
+static void ASM_ARRAY_SET(CTX ctx, int a, knh_class_t cid, int sfpidx, Value *n, Value *v)
+{
+	IRBuilder<> *builder = LLVM_BUILDER(ctx);
+	Value *vobj = ValueStack_get(ctx, a);
+	const Type *type = convert_type(ctx, knh_class_p1(cid));
+	const Type *ptype = PointerType::get(type, 0);
+
+	Value *array = builder->CreateBitCast(vobj, LLVMTYPE_Array, "array");
+	check_array_boundary(ctx, array, n);
+	Value *lptr = builder->CreateStructGEP(array, 1, "listptr");
+	Value *list = builder->CreateLoad(lptr, "list");
+	list = builder->CreateBitCast(list, ptype, "cast");
+	Value *vptr = builder->CreateInBoundsGEP(list, n, "vptr");
+	v->dump();
+	vptr->dump();
+	builder->CreateStore(v, vptr, false);
+}
 static int _CALL_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 {
 	int local = ASML(sfpidx);
@@ -928,32 +1011,36 @@ static int _CALL_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 	knh_class_t mtd_cid = (mtd)->cid;
 	knh_methodn_t mtd_mn = (mtd)->mn;
 	if(mtd_cid == CLASS_Array) {
-		IRBuilder<> *builder = LLVM_BUILDER(ctx);
-		int obj = Tn_put(ctx, stmt, 1, cid, local+1);
-		Value *vobj = ValueStack_get(ctx, obj);
-		const Type *type = convert_type(ctx, knh_class_p1(cid));
-		const Type *ptype = PointerType::get(type, 0);
-		if(Tn_isCONST(stmt, 2)) {
-			knh_intptr_t n = (knh_intptr_t)Tn_int(stmt, 2);
-			if(n < 0) {
-				goto L_USECALL;
+		Value *n;
+		if (mtd_mn == MN_get) {
+			int a = Tn_put(ctx, stmt, 1, cid, local + 1);
+			if(Tn_isCONST(stmt, 2)) {
+				knh_intptr_t n = (knh_intptr_t)Tn_int(stmt, 2);
+				if(n < 0) {
+					goto L_USECALL;
+				}
+				ASM_ARRAY_GET(ctx, a, cid, sfpidx, ConstantInt::get(LLVMTYPE_Int, n));
+			} else {
+				int n = Tn_put(ctx, stmt, 2, TYPE_Int, local + 2);
+				ASM_ARRAY_GET(ctx, a, cid, sfpidx, ValueStack_get(ctx, n));
 			}
-			Value *nlist_ptr = builder->CreateConstGEP2_32(vobj, 0, 1, "nlist_ptr");
-			Value *nlist = builder->CreateLoad(nlist_ptr, "nlist");
-			nlist = builder->CreateBitCast(nlist, ptype, "cast");
-			Value *v_ptr = builder->CreateConstInBoundsGEP2_32(nlist, 0, n, "v_ptr");
-			Value *v = builder->CreateLoad(v_ptr, "v");
-			ValueStack_set(ctx, sfpidx, v);
-
-		} else {
-			int n = Tn_put(ctx, stmt, 2, TYPE_Int, local+2);
-			Value *vn = ValueStack_get(ctx, n);
-			Value *nlist_ptr = builder->CreateConstGEP2_32(vobj, 0, 1, "nlist_ptr");
-			Value *nlist = builder->CreateLoad(nlist_ptr, "nlist");
-			nlist = builder->CreateBitCast(nlist, ptype, "cast");
-			Value *v_ptr = builder->CreateGEP(nlist, vn, "v_ptr");
-			Value *v = builder->CreateLoad(v_ptr, "v");
-			ValueStack_set(ctx, sfpidx, v);
+		}
+		else if (mtd_mn == MN_set) {
+			int a = Tn_put(ctx, stmt, 1, cid, local + 1);
+			knh_type_t ptype = knh_Method_ptype(ctx, mtd, cid, 1);
+			int v = Tn_put(ctx, stmt, 3, ptype, local + 3);
+			Value *value = ValueStack_get(ctx, v);
+			if(Tn_isCONST(stmt, 2)){
+				knh_intptr_t n = (knh_intptr_t)Tn_int(stmt, 2);
+				if(n < 0) {
+					goto L_USECALL;
+				}
+				ASM_ARRAY_SET(ctx, a, cid, sfpidx, ConstantInt::get(LLVMTYPE_Int, n), value);
+			}
+			else {
+				int n = Tn_put(ctx, stmt, 2, TYPE_Int, local + 2);
+				ASM_ARRAY_SET(ctx, a, cid, sfpidx, ValueStack_get(ctx, n), value);
+			}
 		}
 		return 0;
 	}
@@ -1042,21 +1129,41 @@ static int _CALL1_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 	return 0;
 }
 
+static void ASM_TR_NEW(CTX ctx, int thisidx, int sfpidx, knh_class_t cid)
+{
+	std::vector<const Type*> argsTy;
+	argsTy.push_back(LLVMTYPE_context);
+	argsTy.push_back(LLVMTYPE_sfp);
+	argsTy.push_back(LLVMTYPE_Int);
+	argsTy.push_back(LLVMTYPE_Int);
+	FunctionType *fnTy = FunctionType::get(LLVMTYPE_Void, argsTy, false);
+	std::vector<Value*> params;
+	Value *vsfp;
+	Function::arg_iterator arg = LLVM_FUNCTION(ctx)->arg_begin();
+
+	params.push_back(arg++);
+	vsfp = LLVM_BUILDER(ctx)->CreateConstGEP1_32(arg, sfpidx, "sfpsft");
+	params.push_back(vsfp);
+	params.push_back(ConstantInt::get(LLVMTYPE_Int, RIX_(sfpidx-thisidx)));
+	params.push_back(ConstantInt::get(LLVMTYPE_Int, (knh_int_t)ClassTBL(cid)));
+	Function *func = cast<Function>(LLVM_MODULE(ctx)->getOrInsertFunction("TR_NEW", fnTy));
+	LLVM_BUILDER(ctx)->CreateCall(func, params.begin(), params.end());
+}
+
 static int _NEW_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 {
-	//int local = ASML(sfpidx), thisidx = local + K_CALLDELTA;
-	//knh_Method_t *mtd = (tkNN(stmt, 0))->mtd;
-	//knh_class_t cid = (tkNN(stmt, 1))->cid;
-	//if(DP(stmt)->size == 2 && (mtd)->cid == CLASS_Object && (mtd)->mn == MN_new) {
-	//	ASM(TR, OC_(sfpidx), SFP_(thisidx), RIX_(sfpidx-thisidx), ClassTBL(cid), TR_NEW);
-	//}
-	//else {
-	//	ASM(TR, OC_(thisidx), SFP_(thisidx), RIX_(thisidx-thisidx), ClassTBL(cid), TR_NEW);
-	//	CALLPARAMs_asm(ctx, stmt, 2, local, cid, mtd);
-	//	//ASM_CALL(ctx, reqt, local, cid, mtd, 1, DP(stmt)->size - 2);
-	//	ASM_MOVL(ctx, cid, sfpidx, SP(stmt)->type, local);
-	//}
-	LLVM_TODO("NEW");
+	int local = ASML(sfpidx), thisidx = local + K_CALLDELTA;
+	knh_Method_t *mtd = (tkNN(stmt, 0))->mtd;
+	knh_class_t cid = (tkNN(stmt, 1))->cid;
+	if(DP(stmt)->size == 2 && (mtd)->cid == CLASS_Object && (mtd)->mn == MN_new) {
+		ASM_TR_NEW(ctx, thisidx, sfpidx, cid);
+	}
+	else {
+		ASM_TR_NEW(ctx, thisidx, thisidx, cid);
+		CALLPARAMs_asm(ctx, stmt, 2, local, cid, mtd);
+		_CALL(ctx, reqt, local, cid, mtd, 1, DP(stmt)->size - 2);
+		ASM_MOVL(ctx, cid, sfpidx, SP(stmt)->type, local);
+	}
 	return 0;
 }
 
@@ -1920,13 +2027,8 @@ static void ConstructObjectStruct(Module *m)
 	const Type *voidTy  = Type::getVoidTy(m->getContext());
 	const Type *hObjectTy, *objectPtr;
 	StructType* structTy;
-#if defined(SIZEOF_VOIDP) && (SIZEOF_VOIDP == 4)
-	longTy  = Type::getInt32Ty(m->getContext());
-	shortTy = Type::getInt16Ty(m->getContext());
-#else
-	longTy  = Type::getInt64Ty(m->getContext());
-	shortTy = Type::getInt32Ty(m->getContext());
-#endif
+	longTy  = getLongTy(m);
+	shortTy = getShortTy(m);
 	const Type *voidPtr = PointerType::get(longTy, 0);
 
 	/* hObject */
@@ -2077,7 +2179,7 @@ static void ConstructObjectStruct(Module *m)
 	LLVMTYPE_fcall = PointerType::get(callTy, 0);
 	m->addTypeName("fcall", callTy);
 
-	/* ObjectField */
+	/* Method */
 	fields.push_back(hObjectTy);
 	fields.push_back(voidPtr);
 	fields.push_back(shortTy);
@@ -2086,6 +2188,17 @@ static void ConstructObjectStruct(Module *m)
 	structTy = StructType::get(m->getContext(), fields, /*isPacked=*/false);
 	LLVMTYPE_Method = PointerType::get(structTy, 0);
 	m->addTypeName("Method", LLVMTYPE_Method);
+	fields.clear();
+
+	/* Array */
+	fields.push_back(hObjectTy);
+	fields.push_back(voidPtr);
+	fields.push_back(longTy); /* size */
+	fields.push_back(voidPtr);/* dim */
+	fields.push_back(voidPtr);/* api */
+	structTy = StructType::get(LLVM_CONTEXT(), fields, false);
+	LLVMTYPE_Array = PointerType::get(structTy, 0);
+	m->addTypeName("Array", LLVMTYPE_Array);
 	fields.clear();
 
 }
