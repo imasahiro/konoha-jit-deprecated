@@ -490,12 +490,10 @@ static void ASM_XMOV(CTX ctx, knh_type_t atype, int a, size_t an, knh_Token_t *t
 				const Type *ty = convert_type(ctx, atype);
 				Value *v = ValueStack_get(ctx, a);
 				v = builder->CreateBitCast(v, LLVMTYPE_ObjectField, "cast");
-				v = builder->CreateConstInBoundsGEP2_32(v, 0, 1, "gep");
+				v = builder->CreateStructGEP(v, 1, "gep");
 				v = builder->CreateBitCast(v, PointerType::get(ty, 0), "cast");
 				v = builder->CreateConstInBoundsGEP1_32(v, an, "get_");
-				const Type *tp = cast<PointerType>(v->getType())->getElementType();
 				builder->CreateStore(vdata, v, false);
-				asm volatile("int3");
 				//ASM(XNSET, ax, O_data(o));
 			}
 			else {
@@ -831,8 +829,6 @@ static int CALLPARAMs_asm(CTX ctx, knh_Stmt_t *stmt, size_t s, int local, knh_cl
 	}
 
 		Value *ptr = create_loadsfp(ctx, builder, arg_sfp, reqt, a);
-		const Type *pty = cast<PointerType>(ptr->getType())->getElementType();
-		const Type *vty = v->getType();
 		builder->CreateStore(v, ptr, false/*isVolatile*/);
 	}
 	return 1;
@@ -878,7 +874,7 @@ static void _CALL(CTX ctx, knh_type_t reqt, int sfpidx, knh_type_t rtype, knh_Me
 			v = builder->CreateConstGEP2_32(v, 0, 4, "mtdgep");
 			v = builder->CreateLoad(v, "fcall");
 
-			Value *call = builder->CreateCall(v, params.begin(), params.end());
+			builder->CreateCall(v, params.begin(), params.end());
 			knh_class_t retTy = knh_ParamArray_rtype(DP(mtd)->mp);
 			if(retTy != TYPE_void){
 				Value *ptr = create_loadsfp(ctx, builder, vsfp, retTy, thisidx+K_RTNIDX);
@@ -901,7 +897,7 @@ static void _CALL(CTX ctx, knh_type_t reqt, int sfpidx, knh_type_t rtype, knh_Me
 			asm_shift_esp(ctx, vctx, vsfp, argc+1+thisidx);
 			v = ConstantInt::get(LLVMTYPE_Int, (knh_int_t)func);
 			v = builder->CreateIntToPtr(v, LLVMTYPE_fcall);
-			Value *call = builder->CreateCall(v, params.begin(), params.end());
+			builder->CreateCall(v, params.begin(), params.end());
 			knh_class_t retTy = knh_ParamArray_rtype(DP(mtd)->mp);
 			if(retTy != TYPE_void){
 				Value *ptr = create_loadsfp(ctx, builder, vsfp, retTy, thisidx+K_RTNIDX);
@@ -1031,7 +1027,6 @@ static int _CALL_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 	knh_class_t mtd_cid = (mtd)->cid;
 	knh_methodn_t mtd_mn = (mtd)->mn;
 	if(mtd_cid == CLASS_Array) {
-		Value *n;
 		if (mtd_mn == MN_get) {
 			int a = Tn_put(ctx, stmt, 1, cid, local + 1);
 			if(Tn_isCONST(stmt, 2)) {
@@ -1687,60 +1682,102 @@ static int _WHILE_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt _UNUSED_, int s
 
 static int _DO_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt _UNUSED_, int sfpidx _UNUSED_)
 {
-	Value *cond = NULL;//expr
 	int local = DP(ctx->gma)->espidx;
+	Value *cond;
 	Module *m = LLVM_MODULE(ctx);
 	IRBuilder<> *builder = LLVM_BUILDER(ctx);
 	BasicBlock *bbContinue = BasicBlock::Create(m->getContext(), "continue", LLVM_FUNCTION(ctx));
 	BasicBlock *bbBreak    = BasicBlock::Create(m->getContext(), "break", LLVM_FUNCTION(ctx));
-	PUSH_LABEL(ctx, stmt, bbContinue, bbBreak);
+	BasicBlock *bbBlock    = BasicBlock::Create(m->getContext(), "block", LLVM_FUNCTION(ctx));
+	BasicBlock *bbPrev     = builder->GetInsertBlock();
 
-	builder->CreateBr(bbContinue);
-	/* body */
+	PUSH_LABEL(ctx, stmt, bbhContinue, bbBreak);
+	builder->CreateBr(bbBlock);
+	builder->SetInsertPoint(bbBlock);
+
+	knh_Array_t *prev = DP(ctx->gma)->lstacks;
+	replace_PHI(ctx, prev, bbPrev);
+	knh_Array_t *stBlock = ValueStack_copy(ctx, prev);
+	BEGIN_LOCAL(ctx, lsfp, 3);
+	KNH_SETv(ctx, lsfp[0].o, prev);
+	KNH_SETv(ctx, lsfp[1].o, stBlock);
+
+	DP(ctx->gma)->lstacks = stBlock;
 	Tn_asmBLOCK(ctx, stmt, 0, TYPE_void);
+	builder->CreateBr(bbContinue);
+	knh_Array_t *stCon = ValueStack_copy(ctx, stBlock);
+	KNH_SETv(ctx, lsfp[2].o, stCon);
+	DP(ctx->gma)->lstacks = stCon;
 
-	/* cond */
-	int n = Tn_put(ctx, stmt, 1, TYPE_Boolean, local);
-	cond = ValueStack_get(ctx, n);
+	builder->SetInsertPoint(bbContinue);
+	if (!Tn_isTRUE(stmt, 1)) {
+		int n = Tn_put(ctx, stmt, 1, TYPE_Boolean, local);
+		cond = ValueStack_get(ctx, n);
+	}
+	else {
+		cond = ConstantInt::get(LLVMTYPE_Bool, 1);
+	}
+	builder->CreateCondBr(cond, bbBlock, bbBreak);
 
-	builder->CreateCondBr(cond, bbContinue, bbBreak);
+	add_PHI(ctx, prev, stCon, bbContinue);
+
 	builder->SetInsertPoint(bbBreak);
 	POP_LABEL(ctx);
-
+	END_LOCAL_NONGC(ctx, lsfp);
 	return 0;
+
 }
 
 static int _FOR_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt _UNUSED_, int sfpidx _UNUSED_)
 {
-	Value *cond = NULL;//expr
 	int local = DP(ctx->gma)->espidx;
+	Value *cond;
 	Module *m = LLVM_MODULE(ctx);
 	IRBuilder<> *builder = LLVM_BUILDER(ctx);
-	BasicBlock *bbContinue = BasicBlock::Create(m->getContext());
-	BasicBlock *bbBreak = BasicBlock::Create(m->getContext());
-	BasicBlock *bbRedo = BasicBlock::Create(m->getContext());
-	BasicBlock *bbBlock = BasicBlock::Create(m->getContext());
+	BasicBlock *bbContinue = BasicBlock::Create(m->getContext(), "continue", LLVM_FUNCTION(ctx));
+	BasicBlock *bbBreak    = BasicBlock::Create(m->getContext(), "break", LLVM_FUNCTION(ctx));
+	BasicBlock *bbBlock    = BasicBlock::Create(m->getContext(), "block", LLVM_FUNCTION(ctx));
+	BasicBlock *bbPrev     = builder->GetInsertBlock();
+
 	PUSH_LABEL(ctx, stmt, bbContinue, bbBreak);
-	// i = 1 part
 	Tn_asmBLOCK(ctx, stmt, 0, TYPE_void);
-	builder->CreateBr(bbRedo);
-	// i++ part
+	builder->CreateBr(bbContinue);
 	builder->SetInsertPoint(bbContinue);
-	Tn_asmBLOCK(ctx, stmt, 1, TYPE_void);
-	builder->CreateBr(bbRedo);
-	// i < 10 part
-	builder->SetInsertPoint(bbRedo);
-	_EXPR_asm(ctx, stmt, 2, local);
-	cond = ValueStack_get(ctx, local);
+
+	knh_Array_t *prev = DP(ctx->gma)->lstacks;
+
+	replace_PHI(ctx, prev, bbPrev);
+
+	knh_Array_t *stCon = ValueStack_copy(ctx, prev);
+	BEGIN_LOCAL(ctx, lsfp, 3);
+	KNH_SETv(ctx, lsfp[0].o, prev);
+	KNH_SETv(ctx, lsfp[1].o, stCon);
+
+	DP(ctx->gma)->lstacks = stCon;
+	if (!Tn_isTRUE(stmt, 1)) {
+		int n = Tn_put(ctx, stmt, 1, TYPE_Boolean, local);
+		cond = ValueStack_get(ctx, n);
+	} else {
+		cond = ConstantInt::get(LLVMTYPE_Bool, 1);
+	}
 	builder->CreateCondBr(cond, bbBlock, bbBreak);
-	// block
+
+	knh_Array_t *stBlock = ValueStack_copy(ctx, stCon);
+	KNH_SETv(ctx, lsfp[2].o, stBlock);
+	DP(ctx->gma)->lstacks = stBlock;
+
 	builder->SetInsertPoint(bbBlock);
 	Tn_asmBLOCK(ctx, stmt, 3, TYPE_void);
+	Tn_asmBLOCK(ctx, stmt, 2, TYPE_void);
 	builder->CreateBr(bbContinue);
+
+	add_PHI(ctx, prev, stBlock, bbBlock);
+
+	DP(ctx->gma)->lstacks = stCon;
 
 	builder->SetInsertPoint(bbBreak);
 	POP_LABEL(ctx);
-
+	END_LOCAL_NONGC(ctx, lsfp);
 	return 0;
 }
 
