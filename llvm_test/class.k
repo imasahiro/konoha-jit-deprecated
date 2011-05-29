@@ -1,11 +1,16 @@
-class A {
-    int x;
-    int y;
-    int z;
+class A{
+	int x;
+	int y;
+	
+	A(int x, int y){
+		_x = x;
+		_y = y;
+	}
 }
-void main (String[] args)
-{
-    A a;
-    //a.y = 100;
-    print a.y;
+
+void main(){
+	A a = new A(12, 30);
+	print a;
+	//print a.x;
+	//print a.y;
 }
