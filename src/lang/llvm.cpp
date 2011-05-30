@@ -796,7 +796,9 @@ static int _OPR_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 			Value *vb = ValueStack_get(ctx, b);
 			ASMfop(ctx, opcode, va, vb, sfpidx);
 		}
+		return 1;
 	}
+	_CALL_asm(ctx, stmt, reqt, sfpidx);
 	return 0;
 }
 
@@ -2061,7 +2063,6 @@ static int _PRINT_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt _UNUSED_, int s
 			else if(IS_Tfloat(cid)) fname = "llvm_PRINTf";
 			else if(IS_Tbool(cid))  fname = "llvm_PRINTb";
 			else                    fname = "llvm_PRINT";
-			asm volatile("int3");
 			ASM_P(ctx, fname, flag | mask, tkNN(stmt, i)->uline, msg, cid, v);
 			flag=0;
 		}
