@@ -271,6 +271,7 @@ static void ASM_SMOVx(CTX ctx, knh_type_t atype, int a, knh_type_t btype, knh_sf
 	const Type *ty = convert_type(ctx, btype);
 	v = builder->CreateBitCast(v, LLVMTYPE_ObjectField, "cast");
 	v = builder->CreateStructGEP(v, 1, "gep");
+	v = builder->CreateLoad(v, "load");
 	v = builder->CreateBitCast(v, PointerType::get(ty, 0), "cast");
 	v = builder->CreateConstInBoundsGEP1_32(v, bx.n, "get_");
 	v = builder->CreateLoad(v);
@@ -465,11 +466,9 @@ static void ASM_XMOVx(CTX ctx, knh_type_t atype, knh_sfx_t ax, knh_type_t btype,
 	int espidx = DP(ctx->gma)->espidx;
 	if(IS_Tunbox(atype)) {
 		if(IS_Tunbox(btype)) {
-			fprintf(stderr, "case1\n");
 			ASM(XNMOVx, ax, bx);
 		}
 		else {
-			fprintf(stderr, "case2\n");
 			ASM(OMOVx, NC_(espidx), bx);
 			ASM_UNBOX(ctx, atype, espidx);
 			ASM(XNMOV, ax, NC_(espidx));
@@ -478,13 +477,11 @@ static void ASM_XMOVx(CTX ctx, knh_type_t atype, knh_sfx_t ax, knh_type_t btype,
 	else {
 		DBG_ASSERT(atype == TYPE_dyn || IS_Tnumbox(atype));
 		if(IS_Tunbox(btype)) { // dynamic a = b; // int b;
-			fprintf(stderr, "case3\n");
 			ASM(NMOVx, NC_(espidx), bx);
 			ASM(TR, OC_(espidx), SFP_(espidx), RIX_(espidx-espidx), ClassTBL(CLASS_t(btype)), _BOX);
 			ASM(XMOV, ax, OC_(espidx));
 		}
 		else {
-			fprintf(stderr, "case4\n");
 			ASM(XMOVx, ax, bx);
 		}
 	}
@@ -523,9 +520,10 @@ static void ASM_XMOV(CTX ctx, knh_type_t atype, int a, size_t an, knh_Token_t *t
 			}
 
 			const Type *ty = convert_type(ctx, atype);
-			Value *v = ValueStack_get(ctx, a);
+			Value *v = ValueStack_get_or_load(ctx, a);
 			v = builder->CreateBitCast(v, LLVMTYPE_ObjectField, "cast");
 			v = builder->CreateStructGEP(v, 1, "gep");
+			v = builder->CreateLoad(v, "ox");
 			v = builder->CreateBitCast(v, PointerType::get(ty, 0), "cast");
 			v = builder->CreateConstInBoundsGEP1_32(v, an, "set_");
 			builder->CreateStore(vdata, v, false);
@@ -540,6 +538,7 @@ static void ASM_XMOV(CTX ctx, knh_type_t atype, int a, size_t an, knh_Token_t *t
 			Value *val = ValueStack_get(ctx, b);
 			v = builder->CreateBitCast(v, LLVMTYPE_ObjectField, "cast");
 			v = builder->CreateStructGEP(v, 1, "oxp");
+			v = builder->CreateLoad(v, "load");
 			v = builder->CreateBitCast(v, ptype, "v");
 			v = builder->CreateConstInBoundsGEP1_32(v, an, "p");
 			builder->CreateStore(val, v, false);
@@ -549,7 +548,7 @@ static void ASM_XMOV(CTX ctx, knh_type_t atype, int a, size_t an, knh_Token_t *t
 			int b = (int)(tkb)->index;
 			knh_sfx_t bx = {OC_(0), (size_t)b};
 			if(IS_Token(tkb->token) && TT_isSFPIDX(tkb->token)) {
-				bx.i = OC_(Token_index(tkb->token));
+				bx.i = Token_index(tkb->token);//OC_(Token_index(tkb->token));
 			}
 			ASM_XMOVx(ctx, atype, ax, btype, bx);
 			break;
@@ -708,8 +707,8 @@ static int ASMiop(CTX ctx, knh_opcode_t opcode, Value *va, Value *vb, int local)
 	case OPCODE_iAND : VSET(ctx, local, CreateAnd(va, vb, "and"));break;
 	case OPCODE_iOR  : VSET(ctx, local, CreateOr(va, vb, "or"));break;
 	case OPCODE_iXOR : VSET(ctx, local, CreateXor(va, vb, "xor"));break;
-	case OPCODE_iLSFT: VSET(ctx, local, CreateLShr(va, vb, "lshr"));break;
-	case OPCODE_iRSFT: VSET(ctx, local, CreateAShr(va, vb, "rshr"));break;
+	case OPCODE_iLSFT: VSET(ctx, local, CreateShl(vb, va, "lshr"));break;
+	case OPCODE_iRSFT: VSET(ctx, local, CreateAShr(vb, va, "rshr"));break;
 #endif
 #undef VSET
 	}
@@ -1196,6 +1195,8 @@ static int _NEW_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 	knh_class_t cid = (tkNN(stmt, 1))->cid;
 	if(DP(stmt)->size == 2 && (mtd)->cid == CLASS_Object && (mtd)->mn == MN_new) {
 		ASM_TR_NEW(ctx, thisidx, sfpidx, cid);
+		Value *v = ValueStack_get_or_load(ctx, thisidx);
+		ValueStack_set(ctx, sfpidx, v);
 	}
 	else {
 		ASM_TR_NEW(ctx, thisidx, thisidx, cid);
@@ -1224,7 +1225,7 @@ static int _TCAST_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 				}
 				else if(scid == CLASS_Float && tcid == CLASS_Int) {
 					Value *v = ValueStack_get(ctx, local);
-					v = LLVM_BUILDER(ctx)->CreateSIToFP(v, LLVMTYPE_Int, "icast");
+					v = LLVM_BUILDER(ctx)->CreateFPToSI(v, LLVMTYPE_Int, "icast");
 					ValueStack_set(ctx, local, v);
 				}
 				else {
