@@ -264,6 +264,15 @@ static const Type *convert_type(CTX ctx, knh_class_t cid)
 	return LLVMTYPE_Object;
 }
 
+static void asm_nulval(CTX ctx, int a, knh_class_t cid)
+{
+	knh_Object_t *o = KNH_NULVAL(cid);
+	knh_Object_t *o2 = ClassTBL(cid)->defnull;
+	Value *v = ConstantInt::get(LLVMTYPE_Int, (knh_int_t)o);
+	v = LLVM_BUILDER(ctx)->CreateIntToPtr(v, LLVMTYPE_Object);
+	ValueStack_set(ctx, a, v);
+}
+
 static void ASM_SMOVx(CTX ctx, knh_type_t atype, int a, knh_type_t btype, knh_sfx_t bx)
 {
 	IRBuilder<> *builder = LLVM_BUILDER(ctx);
@@ -515,7 +524,7 @@ static void ASM_XMOV(CTX ctx, knh_type_t atype, int a, size_t an, knh_Token_t *t
 				vdata = ConstantInt::get(LLVMTYPE_Int, O_data(o));
 			}
 			else {
-				vdata = ConstantInt::get(LLVMTYPE_Int, O_data(o));
+				vdata = ConstantInt::get(LLVMTYPE_Int, (knh_int_t)(o));
 				vdata = builder->CreateIntToPtr(vdata, LLVMTYPE_Object);
 			}
 
@@ -2507,7 +2516,7 @@ void LLVMMethod_asm(CTX ctx, knh_Method_t *mtd, knh_Stmt_t *stmtP, knh_type_t it
 		SP(ctx->gma)->uline = SP(stmtB)->uline;
 		llvmasm::Init(ctx, mtd, insts);
 		if(Method_isStatic(mtd) && Gamma_hasFIELD(ctx->gma)) {
-			ASM(TR, OC_(0), SFP_(0), RIX_(0), ClassTBL(DP(ctx->gma)->this_cid), _NULVAL);
+			llvmasm::asm_nulval(ctx, 0, DP(ctx->gma)->this_cid);
 		}
 		llvmasm::_BLOCK_asm(ctx, stmtB, knh_ParamArray_rtype(DP(mtd)->mp), 0);
 		llvmasm::Finish(ctx, mtd, insts, stmtB);
