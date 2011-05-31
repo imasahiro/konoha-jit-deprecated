@@ -25,7 +25,7 @@
  *
  ****************************************************************************/
 
-#include<konoha1.h>
+#include "konoha1.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,9 +34,9 @@ extern "C" {
 int main(int argc, const char **argv)
 {
 	konoha_t konoha = konoha_open(4096);
-	int res = konoha_main(konoha, argc, argv);
+	konoha_main(konoha, argc, argv);
 	konoha_close(konoha);
-	return res;
+	return 0;
 }
 
 #ifdef __cplusplus

@@ -140,12 +140,12 @@ static Value *ValueStack_get(CTX ctx, int index)
 	lstacks->api->get(ctx, &lsfp, index, 0);
 	return (Value*) lsfp.ndata;
 }
-static Value *ValueStack_get_or_load(CTX ctx, int index)
+static Value *ValueStack_get_or_load(CTX ctx, int index, knh_class_t cid)
 {
 	Value *v = ValueStack_get(ctx, index);
 	if (!v) {
 		IRBuilder<> *builder = LLVM_BUILDER(ctx);
-		v = create_loadsfp(ctx, builder, getsfp(ctx), CLASS_Object, index);
+		v = create_loadsfp(ctx, builder, getsfp(ctx), cid, index);
 		v = builder->CreateLoad(v);
 	}
 	return v;
@@ -238,8 +238,8 @@ static knh_Token_t* Tn_putTK(CTX ctx, knh_Stmt_t *stmt, size_t n, knh_type_t req
 
 #define LLVM_CONTEXT() (llvm::getGlobalContext())
 #define LLVMTYPE_Void  (Type::getVoidTy(LLVM_CONTEXT()))
-#define LLVMTYPE_Bool  (Type::getInt1Ty(LLVM_CONTEXT()))
 #define LLVMTYPE_Int   (Type::getInt64Ty(LLVM_CONTEXT()))
+#define LLVMTYPE_Bool  (Type::getInt64Ty(LLVM_CONTEXT()))
 #define LLVMTYPE_Float (Type::getDoubleTy(LLVM_CONTEXT()))
 static const Type *LLVMTYPE_ObjectField = NULL;
 static const Type *LLVMTYPE_Object = NULL;
@@ -267,7 +267,6 @@ static const Type *convert_type(CTX ctx, knh_class_t cid)
 static void asm_nulval(CTX ctx, int a, knh_class_t cid)
 {
 	knh_Object_t *o = KNH_NULVAL(cid);
-	knh_Object_t *o2 = ClassTBL(cid)->defnull;
 	Value *v = ConstantInt::get(LLVMTYPE_Int, (knh_int_t)o);
 	v = LLVM_BUILDER(ctx)->CreateIntToPtr(v, LLVMTYPE_Object);
 	ValueStack_set(ctx, a, v);
@@ -276,7 +275,7 @@ static void asm_nulval(CTX ctx, int a, knh_class_t cid)
 static void ASM_SMOVx(CTX ctx, knh_type_t atype, int a, knh_type_t btype, knh_sfx_t bx)
 {
 	IRBuilder<> *builder = LLVM_BUILDER(ctx);
-	Value *v = ValueStack_get_or_load(ctx, bx.i);
+	Value *v = ValueStack_get_or_load(ctx, bx.i, btype);
 	const Type *ty = convert_type(ctx, btype);
 	v = builder->CreateBitCast(v, LLVMTYPE_ObjectField, "cast");
 	v = builder->CreateStructGEP(v, 1, "gep");
@@ -499,7 +498,7 @@ static void ASM_XMOVx(CTX ctx, knh_type_t atype, knh_sfx_t ax, knh_type_t btype,
 static void ASM_XMOV_local(CTX ctx, IRBuilder<> *builder, knh_class_t ty, knh_sfx_t ax, Value *val)
 {
 	const Type *ptype = PointerType::get(convert_type(ctx, ty), 0);
-	Value *v = ValueStack_get_or_load(ctx, ax.i);
+	Value *v = ValueStack_get_or_load(ctx, ax.i, CLASS_Object);
 	v = builder->CreateBitCast(v, LLVMTYPE_ObjectField, "cast");
 	v = builder->CreateStructGEP(v, 1, "oxp");
 	v = builder->CreateLoad(v, "load");
@@ -511,7 +510,7 @@ static void ASM_XMOV_local(CTX ctx, IRBuilder<> *builder, knh_class_t ty, knh_sf
 static void ASM_XMOV(CTX ctx, knh_type_t atype, int a, size_t an, knh_Token_t *tkb)
 {
 	IRBuilder<> *builder = LLVM_BUILDER(ctx);
-	knh_sfx_t ax = {OC_(a), an};
+	knh_sfx_t ax = {a, an};
 	knh_type_t btype = SP(tkb)->type;
 	long espidx = -1;
 	DBG_ASSERT(DP(ctx->gma)->espidx != -1);
@@ -544,17 +543,17 @@ static void ASM_XMOV(CTX ctx, knh_type_t atype, int a, size_t an, knh_Token_t *t
 		}
 		case TT_FUNCVAR:
 		case TT_LOCAL: {
-			Value *v = ValueStack_get_or_load(ctx, a);
 			int b = Token_index(tkb);
+			Value *v = ValueStack_get(ctx, b);
 			//ASM_BOX2(ctx, atype, btype, b);
 			ASM_XMOV_local(ctx, builder, atype, ax, v);
 			break;
 		}
 		case TT_FIELD: {
 			int b = (int)(tkb)->index;
-			knh_sfx_t bx = {OC_(0), (size_t)b};
+			knh_sfx_t bx = {0, (size_t)b};
 			if(IS_Token(tkb->token) && TT_isSFPIDX(tkb->token)) {
-				bx.i = Token_index(tkb->token);//OC_(Token_index(tkb->token));
+				bx.i = Token_index(tkb->token);
 			}
 			ASM_XMOVx(ctx, atype, ax, btype, bx);
 			break;
@@ -852,7 +851,7 @@ static int CALLPARAMs_asm(CTX ctx, knh_Stmt_t *stmt, size_t s, int local, knh_cl
 		knh_type_t reqt = Tn_ptype(ctx, stmt, i, cid, mtd);
 		int a = local + i + (K_CALLDELTA-1);
 		Tn_asm(ctx, stmt, i, reqt, a);
-		Value *v = ValueStack_get(ctx, a);
+		Value *v = ValueStack_get_or_load(ctx, a, cid);
 		const Type *ty = v->getType();
 	if (reqt == TYPE_dyn && ty == LLVMTYPE_Int) {
 		reqt = TYPE_Int;
@@ -1000,8 +999,6 @@ static void ASM_ARRAY_SET(CTX ctx, int a, knh_class_t cid, int sfpidx, Value *n,
 	Value *list = builder->CreateLoad(lptr, "list");
 	list = builder->CreateBitCast(list, ptype, "cast");
 	Value *vptr = builder->CreateInBoundsGEP(list, n, "vptr");
-	v->dump();
-	vptr->dump();
 	builder->CreateStore(v, vptr, false);
 }
 static void ASM_Object_checkNULL(CTX ctx, int sfpidx, int a, int isNULL)
@@ -1050,6 +1047,7 @@ static int _CALL_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 				int n = Tn_put(ctx, stmt, 2, TYPE_Int, local + 2);
 				ASM_ARRAY_GET(ctx, a, cid, sfpidx, ValueStack_get(ctx, n));
 			}
+			return 0;
 		}
 		else if (mtd_mn == MN_set) {
 			int a = Tn_put(ctx, stmt, 1, cid, local + 1);
@@ -1067,8 +1065,8 @@ static int _CALL_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 				int n = Tn_put(ctx, stmt, 2, TYPE_Int, local + 2);
 				ASM_ARRAY_SET(ctx, a, cid, sfpidx, ValueStack_get(ctx, n), value);
 			}
+			return 0;
 		}
-		return 0;
 	}
 #if defined(OPCODE_BGETIDX)
 	if(mtd_cid == CLASS_Bytes) {
@@ -1177,8 +1175,8 @@ static int _NEW_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 	knh_class_t cid = (tkNN(stmt, 1))->cid;
 	if(DP(stmt)->size == 2 && (mtd)->cid == CLASS_Object && (mtd)->mn == MN_new) {
 		ASM_TR_NEW(ctx, thisidx, sfpidx, cid);
-		Value *v = ValueStack_get_or_load(ctx, thisidx);
-		ValueStack_set(ctx, sfpidx, v);
+		Value *v = ValueStack_get_or_load(ctx, thisidx, reqt);
+		ValueStack_set(ctx, sfpidx+thisidx, v);
 	}
 	else {
 		ASM_TR_NEW(ctx, thisidx, thisidx, cid);
@@ -1512,7 +1510,9 @@ static void __asm_br(CTX ctx, void *ptr)
 }
 static void __asm_ret(CTX ctx, void *ptr)
 {
-	Value *v = ValueStack_get_or_load(ctx, K_RTNIDX);
+	knh_ParamArray_t *pa = DP(DP(ctx->gma)->mtd)->mp;
+	knh_class_t rtype = knh_ParamArray_rtype(pa);
+	Value *v = ValueStack_get_or_load(ctx, K_RTNIDX, rtype);
 	const Type *retTy = LLVM_FUNCTION(ctx)->getReturnType();
 	if (retTy != LLVMTYPE_Void) {
 		LLVM_BUILDER(ctx)->CreateRet(v);
@@ -1565,13 +1565,13 @@ static int _IF_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx _UNUSE
 	builder->SetInsertPoint(bbThen);
 	KNH_SETv(ctx, DP(ctx->gma)->lstacks, st1);
 	Tn_asmBLOCK(ctx, stmt, 1, reqt);
-	ASM_BBLAST(ctx, (void*)bbThen, __asm_br);
+	ASM_BBLAST(ctx, (void*)bbMerge, __asm_br);
 	bbThen = builder->GetInsertBlock();
 
 	builder->SetInsertPoint(bbElse);
 	KNH_SETv(ctx, DP(ctx->gma)->lstacks, st2);
 	Tn_asmBLOCK(ctx, stmt, 2, reqt);
-	ASM_BBLAST(ctx, (void*)bbElse, __asm_br);
+	ASM_BBLAST(ctx, (void*)bbMerge, __asm_br);
 	bbElse = builder->GetInsertBlock();
 
 	builder->SetInsertPoint(bbMerge);
@@ -1902,9 +1902,9 @@ static int _RETURN_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt _UNUSED_, int 
 		Value *v = NULL;
 		if (rtype != TYPE_void) {
 			if (SP(DP(ctx->gma)->mtd)->mn == MN_new) {
-				v = ValueStack_get_or_load(ctx, 0);
+				v = ValueStack_get_or_load(ctx, 0, reqt);
 			} else {
-				v = ValueStack_get_or_load(ctx, K_RTNIDX);
+				v = ValueStack_get_or_load(ctx, K_RTNIDX, reqt);
 			}
 		}
 		LLVM_BUILDER(ctx)->CreateRet(v);
@@ -2002,7 +2002,6 @@ static void ASM_P(CTX ctx, const char *name, knh_flag_t flag, knh_uline_t line, 
 	Value *vmsg = ConstantInt::get(LLVMTYPE_Int, (knh_int_t) msg);
 	params.push_back(builder->CreateIntToPtr(vmsg, LLVMTYPE_Object)); /* msg */
 	params.push_back(v);
-	v->dump();
 	builder->CreateCall(f, params.begin(), params.end());
 }
 
@@ -2440,7 +2439,7 @@ static void Finish(CTX ctx, knh_Method_t *mtd, knh_Array_t *a, knh_Stmt_t *stmt)
 	//if (verifyFunction(*func1)) OurFPM.run(*func1);
 
 #ifdef K_USING_DEBUG
-	(*m).dump();
+	//(*m).dump();
 #endif
 	f = (knh_Fmethod) ee->getPointerToFunction(func1);
 	knh_Method_setFunc(ctx, mtd, f);
