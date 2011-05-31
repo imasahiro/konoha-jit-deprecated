@@ -5,6 +5,7 @@ int f0(int x, int y) {
         return y;
     }
 }
+
 int f1(int n){
     int x = n;
     if (n > 0){
@@ -14,4 +15,10 @@ int f1(int n){
         x = -x;
     }
     return x + 1;
+}
+
+void main (String[] args)
+{
+    print f0(10, 20);
+    print f1(10);
 }

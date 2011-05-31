@@ -1266,13 +1266,21 @@ static int _OR_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 	return 0;
 }
 
+static BasicBlock *BB_CREATE(CTX ctx, const char *bbName)
+{
+	Module *m = LLVM_MODULE(ctx);
+	LLVMContext &llvmctx = m->getContext();
+	Function *f = LLVM_FUNCTION(ctx);
+	return BasicBlock::Create(llvmctx, bbName, f);
+}
+
 static int _AND_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 {
 	int i, local = ASML(sfpidx), size = DP(stmt)->size;
 	Module *m = LLVM_MODULE(ctx);
 	IRBuilder<> *builder = LLVM_BUILDER(ctx);
-	BasicBlock *bbFalse = BasicBlock::Create(m->getContext(), "false", LLVM_FUNCTION(ctx));
-	BasicBlock *bbNext = BasicBlock::Create(m->getContext(), "next", LLVM_FUNCTION(ctx));
+	BasicBlock *bbFalse = BB_CREATE(ctx, "false");
+	BasicBlock *bbNext  = BB_CREATE(ctx, "next");
 	std::vector<BasicBlock *> blocks;
 	for(i = 0; i < size; i++){
 		int n = Tn_put(ctx, stmt, i, TYPE_Boolean, local + 1);
@@ -1281,7 +1289,7 @@ static int _AND_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 		blocks.push_back(builder->GetInsertBlock());
 		builder->SetInsertPoint(bbNext);
 		if(i + 1 != size)
-			bbNext = BasicBlock::Create(m->getContext(), "next", LLVM_FUNCTION(ctx));
+			bbNext = BB_CREATE(ctx, "next");
 	}
 	builder->CreateBr(bbFalse);
 	builder->SetInsertPoint(bbFalse);
@@ -1464,7 +1472,17 @@ static void ASM_BBLAST(CTX ctx, void *ptr, void (*func)(CTX, void*))
 	}
 	func(ctx, ptr);
 }
-
+static bool BB_hasReturn(BasicBlock *bb)
+{
+	BasicBlock::iterator itr;
+	for(itr = bb->begin(); itr != bb->end(); itr++) {
+		Instruction &inst = *itr;
+		if(ReturnInst::classof(&inst)){
+			return true;
+		}
+	}
+	return false;
+}
 static int Tn_CondAsm(CTX ctx, knh_Stmt_t *stmt, size_t n, int isTRUE, int flocal)
 {
 	knh_Token_t *tk = tkNN(stmt, n);
@@ -1521,20 +1539,50 @@ static void __asm_ret(CTX ctx, void *ptr)
 	}
 }
 
+static void phi_nop(CTX ctx, knh_Array_t *a, int i, Value *v1, Value *v2, BasicBlock *bb1, BasicBlock *bb2)
+{
+	(void)a;(void)v1;(void)v2;(void)i;
+	(void)bb1;(void)bb2;
+}
+static void phi_then(CTX ctx, knh_Array_t *a, int i, Value *v1, Value *v2, BasicBlock *bb1, BasicBlock *bb2)
+{
+	a->nlist[i - K_RTNIDX] = (knh_ndata_t)v1;
+}
+static void phi_else(CTX ctx, knh_Array_t *a, int i, Value *v1, Value *v2, BasicBlock *bb1, BasicBlock *bb2)
+{
+	a->nlist[i - K_RTNIDX] = (knh_ndata_t)v2;
+}
+
+static void phi_phi(CTX ctx, knh_Array_t *a, int i, Value *v1, Value *v2, BasicBlock *bb1, BasicBlock *bb2)
+{
+	PHINode *phi = LLVM_BUILDER(ctx)->CreatePHI(v1->getType(), "phi");
+	phi->addIncoming(v1, bb1);
+	phi->addIncoming(v2, bb2);
+	a->nlist[i - K_RTNIDX] = (knh_ndata_t)phi;
+}
+
+typedef void (*fphi_t)(CTX ctx, knh_Array_t *a, int i, Value *, Value *, BasicBlock *, BasicBlock *);
+
 static int PHI_asm(CTX ctx, knh_Array_t *prev, knh_Array_t *thenArray, knh_Array_t *elseArray, BasicBlock *bbThen, BasicBlock *bbElse)
 {
-	int i, size;
-	size = knh_Array_capacity(prev) + K_RTNIDX;
-	for(i=0; i<size; i++){
+	int i, size = knh_Array_capacity(prev) + K_RTNIDX;
+	fphi_t fphi = NULL;
+	if (BB_hasReturn(bbThen) && BB_hasReturn(bbElse)) {
+		fphi = phi_nop;
+	} else if (BB_hasReturn(bbThen)) {
+		fphi = phi_else;
+	} else if (BB_hasReturn(bbElse)) {
+		fphi = phi_then;
+	} else {
+		fphi = phi_phi;
+	}
+	for (i = 0; i < size; i++) {
 		Value *vp = (Value *)prev->nlist[i - K_RTNIDX];
 		if(vp == NULL) continue;
 		Value *v1 = (Value *)thenArray->nlist[i - K_RTNIDX];
 		Value *v2 = (Value *)elseArray->nlist[i - K_RTNIDX];
 		if(vp != v1 || vp != v2){
-			PHINode *phi = LLVM_BUILDER(ctx)->CreatePHI(v1->getType(), "phi");
-			phi->addIncoming(v1, bbThen);
-			phi->addIncoming(v2, bbElse);
-			prev->nlist[i - K_RTNIDX] = (knh_ndata_t)phi;
+			fphi(ctx, prev, i, v1, v2, bbThen, bbElse);
 		}
 	}
 	return 1;
@@ -1553,6 +1601,7 @@ static int _IF_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx _UNUSE
 	//Tn_JMPIF(ctx, stmt, 0, 0/*FALSE*/, ElseBB, local);
 	int a = Tn_CondAsm(ctx, stmt, 0, 0, local);
 	cond = ValueStack_get(ctx, a);
+	cond = builder->CreateTrunc(cond, Type::getInt1Ty(LLVM_CONTEXT()), "cond");
 	builder->CreateCondBr(cond, bbThen, bbElse);
 	knh_Array_t *prev = DP(ctx->gma)->lstacks;
 	knh_Array_t *st1 = ValueStack_copy(ctx, prev);
@@ -2439,7 +2488,7 @@ static void Finish(CTX ctx, knh_Method_t *mtd, knh_Array_t *a, knh_Stmt_t *stmt)
 	//if (verifyFunction(*func1)) OurFPM.run(*func1);
 
 #ifdef K_USING_DEBUG
-	//(*m).dump();
+	(*m).dump();
 #endif
 	f = (knh_Fmethod) ee->getPointerToFunction(func1);
 	knh_Method_setFunc(ctx, mtd, f);
