@@ -419,11 +419,11 @@ static void ASM_SMOV(CTX ctx, knh_type_t atype, int a/*flocal*/, knh_Token_t *tk
 		case TT_LOCAL: {
 			int b = Token_index(tkb);
 			if(IS_Tunbox(btype)) {
-				Value *v = ValueStack_get_or_load(ctx, b);
+				Value *v = ValueStack_get_or_load(ctx, b, btype);
 				ValueStack_set(ctx, a, v);
 			}
 			else {
-				Value *v = ValueStack_get_or_load(ctx, b);
+				Value *v = ValueStack_get_or_load(ctx, b, btype);
 				ValueStack_set(ctx, a, v);
 				//ASM(OMOV, OC_(a), OC_(b));
 				//if(IS_Tnumbox(btype)) {
@@ -700,45 +700,47 @@ static knh_bool_t OPR_hasCONST(CTX ctx, knh_Stmt_t *stmt, knh_methodn_t *mn, int
 }
 
 #define VSET(ctx, local, create) ValueStack_set(ctx, local, LLVM_BUILDER(ctx)->create)
-static int ASMiop(CTX ctx, knh_opcode_t opcode, Value *va, Value *vb, int local)
+static int ASMiop(CTX ctx, knh_methodn_t mn, Value *va, Value *vb, int local)
 {
-	switch(opcode) {
-	case OPCODE_iNEG:  VSET(ctx, local, CreateNeg(va, "neg"));break;
-	case OPCODE_iADD:  VSET(ctx, local, CreateAdd(va, vb, "add"));break;
-	case OPCODE_iSUB:  VSET(ctx, local, CreateSub(va, vb, "sub"));break;
-	case OPCODE_iMUL:  VSET(ctx, local, CreateMul(va, vb, "mul"));break;
-	case OPCODE_iDIV:  VSET(ctx, local, CreateSDiv(va, vb, "div"));break;
-	case OPCODE_iMOD:  VSET(ctx, local, CreateSRem(va, vb, "mod"));break;
-	case OPCODE_iEQ :  VSET(ctx, local, CreateICmpEQ(va, vb, "eq"));break;
-	case OPCODE_iNEQ:  VSET(ctx, local, CreateICmpNE(va, vb, "ne"));break;
-	case OPCODE_iLT :  VSET(ctx, local, CreateICmpSLT(va, vb, "lt"));break;
-	case OPCODE_iLTE:  VSET(ctx, local, CreateICmpSLE(va, vb, "le"));break;
-	case OPCODE_iGT :  VSET(ctx, local, CreateICmpSGT(va, vb, "gt"));break;
-	case OPCODE_iGTE:  VSET(ctx, local, CreateICmpSGE(va, vb, "ge"));break;
+	switch(mn) {
+	case MN_opNEG:  VSET(ctx, local, CreateNeg(va, "neg"));break;
+	case MN_opADD:  VSET(ctx, local, CreateAdd(va, vb, "add"));break;
+	case MN_opSUB:  VSET(ctx, local, CreateSub(va, vb, "sub"));break;
+	case MN_opMUL:  VSET(ctx, local, CreateMul(va, vb, "mul"));break;
+	case MN_opDIV:  VSET(ctx, local, CreateSDiv(va, vb, "div"));break;
+	case MN_opMOD:  VSET(ctx, local, CreateSRem(va, vb, "mod"));break;
+	case MN_opEQ :  VSET(ctx, local, CreateICmpEQ(va, vb, "eq"));break;
+	case MN_opNOTEQ:  VSET(ctx, local, CreateICmpNE(va, vb, "ne"));break;
+	case MN_opLT :  VSET(ctx, local, CreateICmpSLT(va, vb, "lt"));break;
+	case MN_opLTE:  VSET(ctx, local, CreateICmpSLE(va, vb, "le"));break;
+	case MN_opGT :  VSET(ctx, local, CreateICmpSGT(va, vb, "gt"));break;
+	case MN_opGTE:  VSET(ctx, local, CreateICmpSGE(va, vb, "ge"));break;
 #ifdef OPCODE_iAND
-	case OPCODE_iAND : VSET(ctx, local, CreateAnd(va, vb, "and"));break;
-	case OPCODE_iOR  : VSET(ctx, local, CreateOr(va, vb, "or"));break;
-	case OPCODE_iXOR : VSET(ctx, local, CreateXor(va, vb, "xor"));break;
-	case OPCODE_iLSFT: VSET(ctx, local, CreateShl(vb, va, "lshr"));break;
-	case OPCODE_iRSFT: VSET(ctx, local, CreateAShr(vb, va, "rshr"));break;
+	case MN_opLAND : VSET(ctx, local, CreateAnd(va, vb, "and"));break;
+	case MN_opLOR  : VSET(ctx, local, CreateOr(va, vb, "or"));break;
+	case MN_opLXOR : VSET(ctx, local, CreateXor(va, vb, "xor"));break;
+	case MN_opLSFT: VSET(ctx, local, CreateShl(vb, va, "lshr"));break;
+	case MN_opRSFT: VSET(ctx, local, CreateAShr(vb, va, "rshr"));break;
 #endif
 	}
+	Value *v = ValueStack_get(ctx, local);
+	v->dump();
 	return 1;
 }
-static int ASMfop(CTX ctx, knh_opcode_t opcode, Value *va, Value *vb, int local)
+static int ASMfop(CTX ctx, knh_methodn_t mn, Value *va, Value *vb, int local)
 {
-	switch(opcode) {
-	case OPCODE_fNEG:  VSET(ctx, local, CreateFNeg   (va, "neg"));break;
-	case OPCODE_fADD:  VSET(ctx, local, CreateFAdd   (va, vb, "add"));break;
-	case OPCODE_fSUB:  VSET(ctx, local, CreateFSub   (va, vb, "sub"));break;
-	case OPCODE_fMUL:  VSET(ctx, local, CreateFMul   (va, vb, "mul"));break;
-	case OPCODE_fDIV:  VSET(ctx, local, CreateFDiv   (va, vb, "div"));break;
-	case OPCODE_fEQ :  VSET(ctx, local, CreateFCmpOEQ(va, vb, "eq"));break;
-	case OPCODE_fNEQ:  VSET(ctx, local, CreateFCmpONE(va, vb, "ne"));break;
-	case OPCODE_fLT :  VSET(ctx, local, CreateFCmpOLT(va, vb, "lt"));break;
-	case OPCODE_fLTE:  VSET(ctx, local, CreateFCmpOLE(va, vb, "le"));break;
-	case OPCODE_fGT :  VSET(ctx, local, CreateFCmpOGT(va, vb, "gt"));break;
-	case OPCODE_fGTE:  VSET(ctx, local, CreateFCmpOGE(va, vb, "ge"));break;
+	switch(mn) {
+	case MN_opNEG:  VSET(ctx, local, CreateFNeg   (va, "neg"));break;
+	case MN_opADD:  VSET(ctx, local, CreateFAdd   (va, vb, "add"));break;
+	case MN_opSUB:  VSET(ctx, local, CreateFSub   (va, vb, "sub"));break;
+	case MN_opMUL:  VSET(ctx, local, CreateFMul   (va, vb, "mul"));break;
+	case MN_opDIV:  VSET(ctx, local, CreateFDiv   (va, vb, "div"));break;
+	case MN_opEQ :  VSET(ctx, local, CreateFCmpOEQ(va, vb, "eq"));break;
+	case MN_opNOTEQ:  VSET(ctx, local, CreateFCmpONE(va, vb, "ne"));break;
+	case MN_opLT :  VSET(ctx, local, CreateFCmpOLT(va, vb, "lt"));break;
+	case MN_opLTE:  VSET(ctx, local, CreateFCmpOLE(va, vb, "le"));break;
+	case MN_opGT :  VSET(ctx, local, CreateFCmpOGT(va, vb, "gt"));break;
+	case MN_opGTE:  VSET(ctx, local, CreateFCmpOGE(va, vb, "ge"));break;
 	}
 	return 1;
 }
@@ -775,14 +777,14 @@ static int _OPR_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 			}
 			Value *va = ValueStack_get(ctx, a);
 			Value *vb = ConstantInt::get(LLVMTYPE_Int, b);
-			ASMiop(ctx, opcode, va, vb, sfpidx);
+			ASMiop(ctx, mn, va, vb, sfpidx);
 		}
 		else {
 			int a = Tn_put(ctx, stmt, 1, TYPE_Int, local + 1);
 			int b = Tn_put(ctx, stmt, 2, TYPE_Int, local + 2);
 			Value *va = ValueStack_get(ctx, a);
 			Value *vb = ValueStack_get(ctx, b);
-			ASMiop(ctx, opcode, va, vb, sfpidx);
+			ASMiop(ctx, mn, va, vb, sfpidx);
 		}
 		return 1;
 	}
@@ -791,7 +793,7 @@ static int _OPR_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 		if (mn == MN_opNEG) {
 			int a = Tn_put(ctx, stmt, 1, TYPE_Float, local + 1);
 			Value *va = ValueStack_get(ctx, a);
-			ASMfop(ctx, OPCODE_fNEG, va, NULL, sfpidx);
+			ASMfop(ctx, MN_opNEG, va, NULL, sfpidx);
 			return 1;
 		}
 		if (mn == MN_opSUB || mn == MN_opDIV || mn == MN_opMOD) swap =0;
@@ -804,14 +806,14 @@ static int _OPR_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 			}
 			Value *va = ValueStack_get(ctx, a);
 			Value *vb = ConstantFP::get(LLVMTYPE_Float, b);
-			ASMfop(ctx, opcode, va, vb, sfpidx);
+			ASMfop(ctx, mn, va, vb, sfpidx);
 		}
 		else {
 			int a = Tn_put(ctx, stmt, 1, TYPE_Float, local + 1);
 			int b = Tn_put(ctx, stmt, 2, TYPE_Float, local + 2);
 			Value *va = ValueStack_get(ctx, a);
 			Value *vb = ValueStack_get(ctx, b);
-			ASMfop(ctx, opcode, va, vb, sfpidx);
+			ASMfop(ctx, mn, va, vb, sfpidx);
 		}
 		return 1;
 	}
