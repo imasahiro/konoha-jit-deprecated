@@ -1339,7 +1339,7 @@ static knh_TypeMap_t *new_TypeMapNested(CTX ctx, knh_TypeMap_t *tmr, knh_TypeMap
 
 static knh_TypeMap_t *knh_findParam1TypeMapNULL(CTX ctx, const knh_ClassTBL_t *sct, const knh_ClassTBL_t *tct, int isT)
 {
-	if(sct->p1 == tct->p2) { // Iterator<T> => Array<T>
+	if(sct->p1 == tct->p1) { // Iterator<T> => Array<T>
 		return knh_findTypeMap1NULL(ctx, sct->baseTBL, tct->bcid, isT);
 	}
 	else if(sct->bcid == tct->bcid) { // Array<S> => Array<T>
