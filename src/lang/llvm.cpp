@@ -1733,11 +1733,11 @@ static int add_PHI(CTX ctx, knh_Array_t *prev, knh_Array_t *block, BasicBlock *b
 	size = knh_Array_capacity(prev);
 	for (i = (-K_RTNIDX); i < size; i++) {
 		Value *v = (Value *)knh_Array_n(block, i);
-		//Value *v = (Value *)block->nlist[i - K_RTNIDX];
 		PHINode *phi = (PHINode *)knh_Array_n(prev, i);
-		//PHINode *phi = (PHINode *)prev->nlist[i - K_RTNIDX];
 		if(phi != NULL && v != NULL && v != phi){
-			phi->addIncoming(v, bbBlock);
+			if (v->getType() == phi->getType()) {
+				phi->addIncoming(v, bbBlock);
+			}
 		}
 	}
 	return 0;
@@ -2575,7 +2575,7 @@ static void Finish(CTX ctx, knh_Method_t *mtd, knh_Array_t *a, knh_Stmt_t *stmt)
 	Function *func1 = build_wrapper_func(ctx, m, mtd, func);
 
 	/* optimization */
-	//FunctionPassManager OurFPM(m);
+	FunctionPassManager OurFPM(m);
 	//OurFPM.add(new TargetData(*ee->getTargetData()));
 	//OurFPM.add(createBasicAliasAnalysisPass());
 	//OurFPM.add(createInstructionCombiningPass());
@@ -2583,8 +2583,8 @@ static void Finish(CTX ctx, knh_Method_t *mtd, knh_Array_t *a, knh_Stmt_t *stmt)
 	//OurFPM.add(createGVNPass());
 	//OurFPM.add(createCFGSimplificationPass());
 	//OurFPM.doInitialization();
-	//if (verifyFunction(*func))  OurFPM.run(*func);
-	//if (verifyFunction(*func1)) OurFPM.run(*func1);
+	if (verifyFunction(*func))  OurFPM.run(*func);
+	if (verifyFunction(*func1)) OurFPM.run(*func1);
 
 #ifdef K_USING_DEBUG
 	(*m).dump();
