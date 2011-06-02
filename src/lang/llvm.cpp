@@ -275,7 +275,7 @@ static void asm_nulval(CTX ctx, int a, knh_class_t cid)
 static void ASM_SMOVx(CTX ctx, knh_type_t atype, int a, knh_type_t btype, knh_sfx_t bx)
 {
 	IRBuilder<> *builder = LLVM_BUILDER(ctx);
-	Value *v = ValueStack_get_or_load(ctx, bx.i, btype);
+	Value *v = ValueStack_get_or_load(ctx, bx.i, CLASS_Object);
 	const Type *ty = convert_type(ctx, btype);
 	v = builder->CreateBitCast(v, LLVMTYPE_ObjectField, "cast");
 	v = builder->CreateStructGEP(v, 1, "gep");
@@ -1158,7 +1158,7 @@ static void ASM_TR_NEW(CTX ctx, int thisidx, int sfpidx, knh_class_t cid)
 
 	params.push_back(arg++);
 	vsfp  = arg;
-	vsfp_ = LLVM_BUILDER(ctx)->CreateConstGEP1_32(vsfp, sfpidx, "sfpsft");
+	vsfp_ = LLVM_BUILDER(ctx)->CreateConstGEP1_32(vsfp, thisidx, "sfpsft");
 	params.push_back(vsfp_);
 	params.push_back(ConstantInt::get(LLVMTYPE_Int, RIX_(sfpidx-thisidx)));
 	params.push_back(ConstantInt::get(LLVMTYPE_Int, (knh_int_t)ClassTBL(cid)));
@@ -1166,6 +1166,9 @@ static void ASM_TR_NEW(CTX ctx, int thisidx, int sfpidx, knh_class_t cid)
 	Function *func = cast<Function>(LLVM_MODULE(ctx)->getOrInsertFunction("TR_NEW", fnTy));
 	builder->CreateCall(func, params.begin(), params.end());
 
+	/* TODO */
+	Value *v = ValueStack_get_or_load(ctx, sfpidx, cid);
+	ValueStack_set(ctx, sfpidx, v);
 }
 
 static int _NEW_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
@@ -1175,8 +1178,6 @@ static int _NEW_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 	knh_class_t cid = (tkNN(stmt, 1))->cid;
 	if(DP(stmt)->size == 2 && (mtd)->cid == CLASS_Object && (mtd)->mn == MN_new) {
 		ASM_TR_NEW(ctx, thisidx, sfpidx, cid);
-		Value *v = ValueStack_get_or_load(ctx, thisidx, reqt);
-		ValueStack_set(ctx, sfpidx+thisidx, v);
 	}
 	else {
 		ASM_TR_NEW(ctx, thisidx, thisidx, cid);
