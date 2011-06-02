@@ -764,7 +764,7 @@ static int _OPR_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 		if (mn == MN_opNEG) {
 			int a = Tn_put(ctx, stmt, 1, TYPE_Int, local + 1);
 			Value *va = ValueStack_get(ctx, a);
-			ASMiop(ctx, OPCODE_iNEG, va, NULL, sfpidx);
+			ASMiop(ctx, MN_opNEG, va, NULL, sfpidx);
 			return 1;
 		}
 		if (mn == MN_opSUB || mn == MN_opDIV || mn == MN_opMOD) swap =0;
@@ -1327,6 +1327,7 @@ static int _TRI_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 
 	int a = Tn_CondAsm(ctx, stmt, 0, 0, sfpidx);
 	Value *cond = ValueStack_get(ctx, a);
+	cond = builder->CreateTrunc(cond, Type::getInt1Ty(LLVM_CONTEXT()), "cond");
 	builder->CreateCondBr(cond, bbThen, bbElse);
 
 	builder->SetInsertPoint(bbThen);
