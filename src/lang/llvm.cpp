@@ -130,6 +130,18 @@ static Value *VNAME_(Value *v, const char *name)
 
 static Value *create_loadsfp(CTX ctx, IRBuilder<> *builder, Value *v, knh_type_t type, int idx0);
 
+#define LLVM_CONTEXT() (llvm::getGlobalContext())
+#define LLVMTYPE_Void  (Type::getVoidTy(LLVM_CONTEXT()))
+#define LLVMTYPE_Int   (Type::getInt64Ty(LLVM_CONTEXT()))
+#define LLVMTYPE_Bool  (Type::getInt64Ty(LLVM_CONTEXT()))
+#define LLVMTYPE_Float (Type::getDoubleTy(LLVM_CONTEXT()))
+static const Type *LLVMTYPE_ObjectField = NULL;
+static const Type *LLVMTYPE_Object = NULL;
+static const Type *LLVMTYPE_Array = NULL;
+static const Type *LLVMTYPE_Method = NULL;
+static const Type *LLVMTYPE_context = NULL;
+static const Type *LLVMTYPE_fcall = NULL;
+static const Type *LLVMTYPE_sfp   = NULL;
 
 static Value *ValueStack_get(CTX ctx, int index)
 {
@@ -140,13 +152,18 @@ static Value *ValueStack_get(CTX ctx, int index)
 	lstacks->api->get(ctx, &lsfp, index, 0);
 	return (Value*) lsfp.ndata;
 }
+static Value *ValueStack_load(CTX ctx, int index, knh_class_t cid)
+{
+	IRBuilder<> *builder = LLVM_BUILDER(ctx);
+	Value *v = create_loadsfp(ctx, builder, getsfp(ctx), cid, index);
+	v = builder->CreateLoad(v);
+	return v;
+}
 static Value *ValueStack_get_or_load(CTX ctx, int index, knh_class_t cid)
 {
 	Value *v = ValueStack_get(ctx, index);
 	if (!v) {
-		IRBuilder<> *builder = LLVM_BUILDER(ctx);
-		v = create_loadsfp(ctx, builder, getsfp(ctx), cid, index);
-		v = builder->CreateLoad(v);
+		v = ValueStack_load(ctx, index, cid);
 	}
 	return v;
 }
@@ -156,6 +173,9 @@ static void ValueStack_set(CTX ctx, int index, Value *v)
 	knh_Array_t *lstacks = DP(ctx->gma)->lstacks;
 	knh_sfp_t lsfp = {};
 	index = index + (-1 * K_RTNIDX);
+	if (v->getType() == Type::getInt1Ty(LLVM_CONTEXT())) {
+		v = LLVM_BUILDER(ctx)->CreateZExt(v, LLVMTYPE_Int);
+	}
 	if ((int)knh_Array_capacity(lstacks) < index) {
 		knh_Array_grow(ctx, lstacks, index, index);
 	}
@@ -235,19 +255,6 @@ static knh_Token_t* Tn_putTK(CTX ctx, knh_Stmt_t *stmt, size_t n, knh_type_t req
 	}
 	return tk;
 }
-
-#define LLVM_CONTEXT() (llvm::getGlobalContext())
-#define LLVMTYPE_Void  (Type::getVoidTy(LLVM_CONTEXT()))
-#define LLVMTYPE_Int   (Type::getInt64Ty(LLVM_CONTEXT()))
-#define LLVMTYPE_Bool  (Type::getInt64Ty(LLVM_CONTEXT()))
-#define LLVMTYPE_Float (Type::getDoubleTy(LLVM_CONTEXT()))
-static const Type *LLVMTYPE_ObjectField = NULL;
-static const Type *LLVMTYPE_Object = NULL;
-static const Type *LLVMTYPE_Array = NULL;
-static const Type *LLVMTYPE_Method = NULL;
-static const Type *LLVMTYPE_context = NULL;
-static const Type *LLVMTYPE_fcall = NULL;
-static const Type *LLVMTYPE_sfp   = NULL;
 
 static const Type *convert_type(CTX ctx, knh_class_t cid)
 {
@@ -412,11 +419,11 @@ static void ASM_SMOV(CTX ctx, knh_type_t atype, int a/*flocal*/, knh_Token_t *tk
 		case TT_LOCAL: {
 			int b = Token_index(tkb);
 			if(IS_Tunbox(btype)) {
-				Value *v = ValueStack_get(ctx, b);
+				Value *v = ValueStack_get_or_load(ctx, b);
 				ValueStack_set(ctx, a, v);
 			}
 			else {
-				Value *v = ValueStack_get(ctx, b);
+				Value *v = ValueStack_get_or_load(ctx, b);
 				ValueStack_set(ctx, a, v);
 				//ASM(OMOV, OC_(a), OC_(b));
 				//if(IS_Tnumbox(btype)) {
@@ -1167,7 +1174,7 @@ static void ASM_TR_NEW(CTX ctx, int thisidx, int sfpidx, knh_class_t cid)
 	builder->CreateCall(func, params.begin(), params.end());
 
 	/* TODO */
-	Value *v = ValueStack_get_or_load(ctx, sfpidx, cid);
+	Value *v = ValueStack_load(ctx, sfpidx, cid);
 	ValueStack_set(ctx, sfpidx, v);
 }
 
@@ -1710,7 +1717,7 @@ static int add_PHI(CTX ctx, knh_Array_t *prev, knh_Array_t *block, BasicBlock *b
 		//Value *v = (Value *)block->nlist[i - K_RTNIDX];
 		PHINode *phi = (PHINode *)knh_Array_n(prev, i);
 		//PHINode *phi = (PHINode *)prev->nlist[i - K_RTNIDX];
-		if(phi != NULL && v != phi){
+		if(phi != NULL && v != NULL && v != phi){
 			phi->addIncoming(v, bbBlock);
 		}
 	}
@@ -1841,7 +1848,7 @@ static int _FOR_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt _UNUSED_, int sfp
 
 	DP(ctx->gma)->lstacks = stCon;
 	if (!Tn_isTRUE(stmt, 1)) {
-		int n = Tn_put(ctx, stmt, 1, TYPE_Boolean, local);
+		int n = Tn_CondAsm(ctx, stmt, 1, 0, local+1);
 		cond = ValueStack_get(ctx, n);
 	} else {
 		cond = ConstantInt::get(LLVMTYPE_Bool, 1);
