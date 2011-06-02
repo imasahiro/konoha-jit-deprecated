@@ -549,7 +549,13 @@ static void ASM_XMOV(CTX ctx, knh_type_t atype, int a, size_t an, knh_Token_t *t
 			Object *o = (tkb)->data;
 			Value *vdata;
 			if(IS_Tunbox(atype)) {
-				vdata = ConstantInt::get(LLVMTYPE_Int, O_data(o));
+				if (IS_Tfloat(atype)) {
+					knh_num_t num;
+					num.data = O_data(o);
+					vdata = ConstantFP::get(convert_type(ctx, atype), num.fvalue);
+				} else {
+					vdata = ConstantInt::get(convert_type(ctx, atype), O_data(o));
+				}
 			}
 			else {
 				vdata = ConstantInt::get(LLVMTYPE_Int, (knh_int_t)(o));
@@ -1258,6 +1264,7 @@ static int _OR_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 	for(i = 0; i < size; i++){
 		int n = Tn_put(ctx, stmt, i, TYPE_Boolean, local + 1);
 		Value *cond = ValueStack_get(ctx, n);
+		cond = builder->CreateTrunc(cond, Type::getInt1Ty(LLVM_CONTEXT()), "cond");
 		builder->CreateCondBr(cond, bbTrue, bbNext);
 
 		blocks.push_back(builder->GetInsertBlock());
@@ -1555,29 +1562,33 @@ static void __asm_ret(CTX ctx, void *ptr)
 	}
 }
 
-static void phi_nop(CTX ctx, knh_Array_t *a, int i, Value *v1, Value *v2, BasicBlock *bb1, BasicBlock *bb2)
+static void phi_nop(CTX ctx, knh_Array_t *a, int i, Value *v0, Value *v1, Value *v2, BasicBlock *bb1, BasicBlock *bb2)
 {
 	(void)a;(void)v1;(void)v2;(void)i;
 	(void)bb1;(void)bb2;
 }
-static void phi_then(CTX ctx, knh_Array_t *a, int i, Value *v1, Value *v2, BasicBlock *bb1, BasicBlock *bb2)
+static void phi_then(CTX ctx, knh_Array_t *a, int i, Value *v0, Value *v1, Value *v2, BasicBlock *bb1, BasicBlock *bb2)
 {
 	a->nlist[i - K_RTNIDX] = (knh_ndata_t)v1;
 }
-static void phi_else(CTX ctx, knh_Array_t *a, int i, Value *v1, Value *v2, BasicBlock *bb1, BasicBlock *bb2)
+static void phi_else(CTX ctx, knh_Array_t *a, int i, Value *v0, Value *v1, Value *v2, BasicBlock *bb1, BasicBlock *bb2)
 {
 	a->nlist[i - K_RTNIDX] = (knh_ndata_t)v2;
 }
 
-static void phi_phi(CTX ctx, knh_Array_t *a, int i, Value *v1, Value *v2, BasicBlock *bb1, BasicBlock *bb2)
+static void phi_phi(CTX ctx, knh_Array_t *a, int i, Value *v0, Value *v1, Value *v2, BasicBlock *bb1, BasicBlock *bb2)
 {
+	if (v0 == v1 || v0 == v2) {
+		DBG_P("WARN:: v1 or v2 is default value or null");
+		return;
+	}
 	PHINode *phi = LLVM_BUILDER(ctx)->CreatePHI(v1->getType(), "phi");
 	phi->addIncoming(v1, bb1);
 	phi->addIncoming(v2, bb2);
 	a->nlist[i - K_RTNIDX] = (knh_ndata_t)phi;
 }
 
-typedef void (*fphi_t)(CTX ctx, knh_Array_t *a, int i, Value *, Value *, BasicBlock *, BasicBlock *);
+typedef void (*fphi_t)(CTX ctx, knh_Array_t *a, int i, Value *, Value *, Value *, BasicBlock *, BasicBlock *);
 
 static int PHI_asm(CTX ctx, knh_Array_t *prev, knh_Array_t *thenArray, knh_Array_t *elseArray, BasicBlock *bbThen, BasicBlock *bbElse)
 {
@@ -1598,7 +1609,7 @@ static int PHI_asm(CTX ctx, knh_Array_t *prev, knh_Array_t *thenArray, knh_Array
 		Value *v1 = (Value *)thenArray->nlist[i - K_RTNIDX];
 		Value *v2 = (Value *)elseArray->nlist[i - K_RTNIDX];
 		if(vp != v1 || vp != v2){
-			fphi(ctx, prev, i, v1, v2, bbThen, bbElse);
+			fphi(ctx, prev, i, vp, v1, v2, bbThen, bbElse);
 		}
 	}
 	return 1;
@@ -1861,6 +1872,7 @@ static int _FOR_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt _UNUSED_, int sfp
 	} else {
 		cond = ConstantInt::get(LLVMTYPE_Bool, 1);
 	}
+	cond = builder->CreateTrunc(cond, Type::getInt1Ty(LLVM_CONTEXT()), "cond");
 	builder->CreateCondBr(cond, bbBlock, bbBreak);
 
 	knh_Array_t *stBlock = ValueStack_copy(ctx, stCon);
