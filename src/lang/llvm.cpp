@@ -464,8 +464,7 @@ static void ASM_SMOV(CTX ctx, knh_type_t atype, int a/*flocal*/, knh_Token_t *tk
 		case TT_SYSVAL: {
 			size_t sysid = (tkb)->index;
 			KNH_ASSERT(sysid < K_SYSVAL_MAX);
-			Value *arg_ctx = getctx(ctx);
-			Value *v = SYSVAL_LOAD_INSTS[sysid](ctx, arg_ctx);
+			Value *v = SYSVAL_LOAD_INSTS[sysid](ctx, getctx(ctx));
 			ValueStack_set(ctx, a, v);
 			break;
 		}
@@ -1247,6 +1246,24 @@ static int _TCAST_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 	return 0;
 }
 
+#define VBOOL(v) (VBOOL_(ctx, v))
+static Value *VBOOL_(CTX ctx, Value *v)
+{
+	if (v->getType() == Type::getInt1Ty(LLVM_CONTEXT())) {
+		return v;
+	}
+	DBG_ASSERT(v->getType() == LLVMTYPE_Bool);
+	return LLVM_BUILDER(ctx)->CreateTrunc(v, Type::getInt1Ty(LLVM_CONTEXT()), "cond");
+}
+
+static BasicBlock *BB_CREATE(CTX ctx, const char *bbName)
+{
+	Module *m = LLVM_MODULE(ctx);
+	LLVMContext &llvmctx = m->getContext();
+	Function *f = LLVM_FUNCTION(ctx);
+	return BasicBlock::Create(llvmctx, bbName, f);
+}
+
 static int _ALT_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 {
 	DBG_ABORT("TODO: ALT");
@@ -1258,15 +1275,14 @@ static int _OR_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 	int i, local = ASML(sfpidx),  size = DP(stmt)->size;
 	Module *m = LLVM_MODULE(ctx);
 	IRBuilder<> *builder = LLVM_BUILDER(ctx);
-	BasicBlock *bbTrue = BasicBlock::Create(m->getContext(), "true", LLVM_FUNCTION(ctx));
-	BasicBlock *bbNext = BasicBlock::Create(m->getContext(), "next", LLVM_FUNCTION(ctx));
+	BasicBlock *bbTrue = BB_CREATE(ctx, "true");
+	BasicBlock *bbNext = BB_CREATE(ctx, "next");
 	std::vector<BasicBlock *> blocks;
 
 	for(i = 0; i < size; i++){
 		int n = Tn_put(ctx, stmt, i, TYPE_Boolean, local + 1);
 		Value *cond = ValueStack_get(ctx, n);
-		cond = builder->CreateTrunc(cond, Type::getInt1Ty(LLVM_CONTEXT()), "cond");
-		builder->CreateCondBr(cond, bbTrue, bbNext);
+		builder->CreateCondBr(VBOOL(cond), bbTrue, bbNext);
 
 		blocks.push_back(builder->GetInsertBlock());
 		builder->SetInsertPoint(bbNext);
@@ -1288,14 +1304,6 @@ static int _OR_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 	return 0;
 }
 
-static BasicBlock *BB_CREATE(CTX ctx, const char *bbName)
-{
-	Module *m = LLVM_MODULE(ctx);
-	LLVMContext &llvmctx = m->getContext();
-	Function *f = LLVM_FUNCTION(ctx);
-	return BasicBlock::Create(llvmctx, bbName, f);
-}
-
 static int _AND_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 {
 	int i, local = ASML(sfpidx), size = DP(stmt)->size;
@@ -1307,8 +1315,7 @@ static int _AND_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 	for(i = 0; i < size; i++){
 		int n = Tn_put(ctx, stmt, i, TYPE_Boolean, local + 1);
 		Value *cond = ValueStack_get(ctx, n);
-		cond = builder->CreateTrunc(cond, Type::getInt1Ty(LLVM_CONTEXT()), "cond");
-		builder->CreateCondBr(cond, bbNext, bbFalse);
+		builder->CreateCondBr(VBOOL(cond), bbNext, bbFalse);
 		blocks.push_back(builder->GetInsertBlock());
 		builder->SetInsertPoint(bbNext);
 		if(i + 1 != size)
@@ -1333,15 +1340,13 @@ static int _TRI_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 {
 	int local = DP(ctx->gma)->espidx;
 	IRBuilder<> *builder = LLVM_BUILDER(ctx);
-	Function *f = LLVM_FUNCTION(ctx);
-	BasicBlock *bbThen  = BasicBlock::Create(LLVM_CONTEXT(), "then",  f);
-	BasicBlock *bbElse  = BasicBlock::Create(LLVM_CONTEXT(), "else",  f);
-	BasicBlock *bbMerge = BasicBlock::Create(LLVM_CONTEXT(), "merge", f);
+	BasicBlock *bbThen  = BB_CREATE(ctx, "then");
+	BasicBlock *bbElse  = BB_CREATE(ctx, "else");
+	BasicBlock *bbMerge = BB_CREATE(ctx, "merge");
 
 	int a = Tn_CondAsm(ctx, stmt, 0, 0, sfpidx);
 	Value *cond = ValueStack_get(ctx, a);
-	cond = builder->CreateTrunc(cond, Type::getInt1Ty(LLVM_CONTEXT()), "cond");
-	builder->CreateCondBr(cond, bbThen, bbElse);
+	builder->CreateCondBr(VBOOL(cond), bbThen, bbElse);
 
 	builder->SetInsertPoint(bbThen);
 	int b = Tn_put(ctx, stmt, 1, reqt, local);
@@ -1625,8 +1630,7 @@ static int _IF_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx _UNUSE
 	//Tn_JMPIF(ctx, stmt, 0, 0/*FALSE*/, ElseBB, local);
 	int a = Tn_CondAsm(ctx, stmt, 0, 0, local);
 	cond = ValueStack_get(ctx, a);
-	cond = builder->CreateTrunc(cond, Type::getInt1Ty(LLVM_CONTEXT()), "cond");
-	builder->CreateCondBr(cond, bbThen, bbElse);
+	builder->CreateCondBr(VBOOL(cond), bbThen, bbElse);
 	knh_Array_t *prev = DP(ctx->gma)->lstacks;
 	knh_Array_t *st1 = ValueStack_copy(ctx, prev);
 	knh_Array_t *st2 = ValueStack_copy(ctx, prev);
@@ -1660,12 +1664,11 @@ static int _SWITCH_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 {
 	knh_Stmt_t *stmtCASE;
 	Value *cond = NULL;
-	Module *m = LLVM_MODULE(ctx);
 	IRBuilder<> *builder = LLVM_BUILDER(ctx);
-	//BasicBlock *bbContinue = BasicBlock::Create(m->getContext(), "continue");
-	BasicBlock *bbBreak    = BasicBlock::Create(m->getContext(), "break");
-	BasicBlock *bbCase     = BasicBlock::Create(m->getContext(), "case");
-	BasicBlock *bbDefault  = BasicBlock::Create(m->getContext(), "default");
+	BasicBlock *bbContinue = BB_CREATE(ctx, "continue");
+	BasicBlock *bbBreak    = BB_CREATE(ctx, "break");
+	BasicBlock *bbCase     = BB_CREATE(ctx, "case");
+	BasicBlock *bbDefault  = BB_CREATE(ctx, "default");
 
 	knh_Token_t *tkIT = Tn_it(stmt, 2);
 	PUSH_LABEL(ctx, stmt, bbContinue, bbBreak);
@@ -1683,7 +1686,7 @@ static int _SWITCH_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 			builder->SetInsertPoint(bbCase);
 			SwInst->addCase((ConstantInt*)cond, bbCase);
 			Tn_asmBLOCK(ctx, stmtCASE, 1, reqt);
-			bbCase = BasicBlock::Create(m->getContext(), "case");
+			bbCase = BB_CREATE(ctx, "case");
 			builder->CreateBr(bbCase);
 		}
 		stmtCASE = DP(stmtCASE)->nextNULL;
@@ -1772,7 +1775,7 @@ static int _WHILE_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt _UNUSED_, int s
 	} else {
 		cond = ConstantInt::get(LLVMTYPE_Bool, 1);
 	}
-	builder->CreateCondBr(cond, bbBlock, bbBreak);
+	builder->CreateCondBr(VBOOL(cond), bbBlock, bbBreak);
 
 	knh_Array_t *stBlock = ValueStack_copy(ctx, stCon);
 	KNH_SETv(ctx, lsfp[2].o, stBlock);
@@ -1871,8 +1874,7 @@ static int _FOR_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt _UNUSED_, int sfp
 	} else {
 		cond = ConstantInt::get(LLVMTYPE_Bool, 1);
 	}
-	cond = builder->CreateTrunc(cond, Type::getInt1Ty(LLVM_CONTEXT()), "cond");
-	builder->CreateCondBr(cond, bbBlock, bbBreak);
+	builder->CreateCondBr(VBOOL(cond), bbBlock, bbBreak);
 
 	knh_Array_t *stBlock = ValueStack_copy(ctx, stCon);
 	KNH_SETv(ctx, lsfp[2].o, stBlock);
@@ -1940,10 +1942,9 @@ static int _FOREACH_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt _UNUSED_, int
 	params.push_back(ConstantInt::get(LLVMTYPE_Int, varidx-itridx));
 	
 	cond = builder->CreateCall(v, params.begin(), params.end());
-	cond = builder->CreateTrunc(cond, Type::getInt1Ty(LLVM_CONTEXT()), "cond");
 
 	v = ValueStack_load_set(ctx, varidx, (tkN)->type);
-	builder->CreateCondBr(cond, bbBlock, bbBreak);
+	builder->CreateCondBr(VBOOL(cond), bbBlock, bbBreak);
 
 	builder->SetInsertPoint(bbBlock);
 	Tn_asmBLOCK(ctx, stmt, 2, TYPE_void);
@@ -2490,7 +2491,7 @@ static Function *build_wrapper_func(CTX ctx, Module *m, knh_Method_t *mtd, Funct
 	std::string name = build_function_name(ctx, mtd, "_wrapper");
 	const FunctionType *fnTy = cast<FunctionType>(m->getTypeByName("fcall"));
 	Function *f = cast<Function>(m->getOrInsertFunction(name, fnTy));
-	BasicBlock *bb = BasicBlock::Create(LLVM_CONTEXT(), "EntryBlock", f);
+	BasicBlock *bb = BB_CREATE(ctx, "EntryBlock");
 	IRBuilder<> *builder = new IRBuilder<>(bb);
 
 	Function::arg_iterator args = f->arg_begin();
