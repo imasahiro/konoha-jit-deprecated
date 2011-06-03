@@ -1002,6 +1002,7 @@ static Value *ASM_ARRAY_N(CTX ctx, int a, knh_class_t cid, int sfpidx, Value *n)
 	Value *list = builder->CreateLoad(lptr, "list");
 	list = builder->CreateBitCast(list, ptype, "cast");
 	Value *vptr = builder->CreateInBoundsGEP(list, n, "vptr");
+	return vptr;
 }
 static void ASM_ARRAY_GET(CTX ctx, int a, knh_class_t cid, int sfpidx, Value *n)
 {
@@ -1578,10 +1579,6 @@ static void phi_else(CTX ctx, knh_Array_t *a, int i, Value *v0, Value *v1, Value
 
 static void phi_phi(CTX ctx, knh_Array_t *a, int i, Value *v0, Value *v1, Value *v2, BasicBlock *bb1, BasicBlock *bb2)
 {
-	if (v0 == v1 || v0 == v2) {
-		DBG_P("WARN:: v1 or v2 is default value or null");
-		return;
-	}
 	PHINode *phi = LLVM_BUILDER(ctx)->CreatePHI(v1->getType(), "phi");
 	phi->addIncoming(v1, bb1);
 	phi->addIncoming(v2, bb2);
@@ -1592,7 +1589,7 @@ typedef void (*fphi_t)(CTX ctx, knh_Array_t *a, int i, Value *, Value *, Value *
 
 static int PHI_asm(CTX ctx, knh_Array_t *prev, knh_Array_t *thenArray, knh_Array_t *elseArray, BasicBlock *bbThen, BasicBlock *bbElse)
 {
-	int i, size = knh_Array_capacity(prev) + K_RTNIDX;
+	int i, size = DP(ctx->gma)->espidx + K_RTNIDX;
 	fphi_t fphi = NULL;
 	if (BB_hasReturn(bbThen) && BB_hasReturn(bbElse)) {
 		fphi = phi_nop;
@@ -1734,7 +1731,7 @@ static int add_PHI(CTX ctx, knh_Array_t *prev, knh_Array_t *block, BasicBlock *b
 	for (i = (-K_RTNIDX); i < size; i++) {
 		Value *v = (Value *)knh_Array_n(block, i);
 		PHINode *phi = (PHINode *)knh_Array_n(prev, i);
-		if(phi != NULL && v != NULL && v != phi){
+		if (phi != NULL && v != NULL) {
 			if (v->getType() == phi->getType()) {
 				phi->addIncoming(v, bbBlock);
 			}
