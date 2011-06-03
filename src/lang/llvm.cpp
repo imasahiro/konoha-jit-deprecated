@@ -280,11 +280,15 @@ static const Type *convert_type(CTX ctx, knh_class_t cid)
 	return LLVMTYPE_Object;
 }
 
+#define LLVMBool(v)   (ConstantInt::get(LLVMTYPE_Bool, (v)))
+#define LLVMInt(v)    (ConstantInt::get(LLVMTYPE_Int, (v)))
+#define LLVMFloat(v)  (ConstantFP::get(LLVMTYPE_Float, (v)))
+
 static void asm_nulval(CTX ctx, int a, knh_class_t cid)
 {
 	knh_Object_t *o = KNH_NULVAL(cid);
 	Value *v;
-	v = ConstantInt::get(LLVMTYPE_Int, (knh_int_t)o);
+	v = LLVMInt((knh_int_t)o);
 	v = LLVM_BUILDER(ctx)->CreateIntToPtr(v, LLVMTYPE_Object);
 	ValueStack_set(ctx, a, v);
 }
@@ -400,26 +404,26 @@ static void ASM_SMOV(CTX ctx, knh_type_t atype, int a/*flocal*/, knh_Token_t *tk
 			if(IS_Tunbox(atype)) {
 				Value *v = NULL;
 				if (IS_Tint(atype)) {
-					v = ConstantInt::get(LLVMTYPE_Int, O_data(o));
+					v = LLVMInt(O_data(o));
 				}
 				else if (IS_Tfloat(atype)) {
 					knh_num_t num;
 					num.data = O_data(o);
-					v = ConstantFP::get(LLVMTYPE_Float, num.fvalue);
+					v = LLVMFloat(num.fvalue);
 				}
 				else if (IS_Tbool(atype)) {
-					v = ConstantInt::get(LLVMTYPE_Bool, O_data(o));
+					v = LLVMBool(O_data(o));
 				}
 				ValueStack_set(ctx, a, v);
 			}
 			else if(IS_Tnumbox(atype)) {
-				Value *v = ConstantInt::get(LLVMTYPE_Int, (knh_int_t)o);
+				Value *v = LLVMInt((knh_int_t)o);
 				v = LLVM_BUILDER(ctx)->CreateIntToPtr(v, LLVMTYPE_Object);
 				LLVM_TODO("NumBox type");
 				ValueStack_set(ctx, a, v);
 			}
 			else {
-				Value *v = ConstantInt::get(LLVMTYPE_Int, (knh_int_t)o);
+				Value *v = LLVMInt((knh_int_t)o);
 				v = LLVM_BUILDER(ctx)->CreateIntToPtr(v, LLVMTYPE_Object);
 				ValueStack_set(ctx, a, v);
 			}
@@ -557,7 +561,7 @@ static void ASM_XMOV(CTX ctx, knh_type_t atype, int a, size_t an, knh_Token_t *t
 				}
 			}
 			else {
-				vdata = ConstantInt::get(LLVMTYPE_Int, (knh_int_t)(o));
+				vdata = LLVMInt((knh_int_t)(o));
 				vdata = builder->CreateIntToPtr(vdata, LLVMTYPE_Object);
 			}
 			ASM_XMOV_local(ctx, builder, atype, ax, vdata);
@@ -789,7 +793,7 @@ static int _OPR_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 				WarningDividedByZero(ctx);
 			}
 			Value *va = ValueStack_get(ctx, a);
-			Value *vb = ConstantInt::get(LLVMTYPE_Int, b);
+			Value *vb = LLVMInt(b);
 			ASMiop(ctx, mn, va, vb, sfpidx);
 		}
 		else {
@@ -818,7 +822,7 @@ static int _OPR_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 				WarningDividedByZero(ctx);
 			}
 			Value *va = ValueStack_get(ctx, a);
-			Value *vb = ConstantFP::get(LLVMTYPE_Float, b);
+			Value *vb = LLVMFloat(b);
 			ASMfop(ctx, mn, va, vb, sfpidx);
 		}
 		else {
@@ -910,10 +914,10 @@ static void _CALL(CTX ctx, knh_type_t reqt, int sfpidx, knh_type_t rtype, knh_Me
 		std::vector<Value*> params;
 
 		param_setCtxSfp(ctx, params, thisidx);
-		params.push_back(ConstantInt::get(LLVMTYPE_Int, K_RTNIDX));
+		params.push_back(LLVMInt(K_RTNIDX));
 		asm_shift_esp(ctx, argc+1+thisidx);
 		if(Method_isKonohaCode(mtd) || DP(ctx->gma)->mtd == mtd) {
-			vfunc = ConstantInt::get(LLVMTYPE_Int, (knh_int_t) mtd);
+			vfunc = LLVMInt((knh_int_t) mtd);
 			vfunc = builder->CreateIntToPtr(vfunc, LLVMTYPE_Method);
 			vfunc = builder->CreateConstGEP2_32(vfunc, 0, 4, "mtdgep");
 			vfunc = builder->CreateLoad(vfunc, "fcall");
@@ -921,7 +925,7 @@ static void _CALL(CTX ctx, knh_type_t reqt, int sfpidx, knh_type_t rtype, knh_Me
 		}
 		else {
 			knh_Fmethod func = mtd->fcall_1;
-			vfunc = ConstantInt::get(LLVMTYPE_Int, (knh_int_t)func);
+			vfunc = LLVMInt((knh_int_t)func);
 			vfunc = builder->CreateIntToPtr(vfunc, LLVMTYPE_fcall);
 			retIdx = thisidx+K_RTNIDX;
 		}
@@ -1024,14 +1028,14 @@ static void ASM_Object_checkNULL(CTX ctx, int sfpidx, int a, int isNULL)
 				ConstantInt::get(Type::getInt32Ty(LLVM_CONTEXT()), 0)
 	};
 	SmallVector<Value*, 3> idxs(idx, idx+3);
-	Value *vflg = ConstantInt::get(LLVMTYPE_Int, 1);
+	Value *vflg = LLVMInt(1);
 	Value *v = ValueStack_get(ctx, a);
 	v = builder->CreateInBoundsGEP(v, idxs.begin(), idxs.end(), "flg");
 	v = builder->CreateLoad(v);
-	v = builder->CreateLShr(v, ConstantInt::get(LLVMTYPE_Int, 1));
+	v = builder->CreateLShr(v, LLVMInt(1));
 	v = builder->CreateAnd(v, vflg);
 	if (!isNULL) {
-		v = builder->CreateXor(v, ConstantInt::get(LLVMTYPE_Int, 1));
+		v = builder->CreateXor(v, LLVMInt(1));
 	}
 	v = builder->CreateTrunc(v, LLVMTYPE_Bool);
 	ValueStack_set(ctx, sfpidx, v);
@@ -1056,7 +1060,7 @@ static int _CALL_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 				if(n < 0) {
 					goto L_USECALL;
 				}
-				ASM_ARRAY_GET(ctx, a, cid, sfpidx, ConstantInt::get(LLVMTYPE_Int, n));
+				ASM_ARRAY_GET(ctx, a, cid, sfpidx, LLVMInt(n));
 			} else {
 				int n = Tn_put(ctx, stmt, 2, TYPE_Int, local + 2);
 				ASM_ARRAY_GET(ctx, a, cid, sfpidx, ValueStack_get(ctx, n));
@@ -1073,7 +1077,7 @@ static int _CALL_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 				if(n < 0) {
 					goto L_USECALL;
 				}
-				ASM_ARRAY_SET(ctx, a, cid, sfpidx, ConstantInt::get(LLVMTYPE_Int, n), value);
+				ASM_ARRAY_SET(ctx, a, cid, sfpidx, LLVMInt(n), value);
 			}
 			else {
 				int n = Tn_put(ctx, stmt, 2, TYPE_Int, local + 2);
@@ -1168,8 +1172,8 @@ static void ASM_TR_NEW(CTX ctx, int thisidx, int sfpidx, knh_class_t cid)
 	FunctionType *fnTy = FunctionType::get(LLVMTYPE_Void, argsTy, false);
 	std::vector<Value*> params;
 	param_setCtxSfp(ctx, params, thisidx);
-	params.push_back(ConstantInt::get(LLVMTYPE_Int, RIX_(sfpidx-thisidx)));
-	params.push_back(ConstantInt::get(LLVMTYPE_Int, (knh_int_t)ClassTBL(cid)));
+	params.push_back(LLVMInt(RIX_(sfpidx-thisidx)));
+	params.push_back(LLVMInt((knh_int_t)ClassTBL(cid)));
 
 	Function *func = cast<Function>(LLVM_MODULE(ctx)->getOrInsertFunction("TR_NEW", fnTy));
 	builder->CreateCall(func, params.begin(), params.end());
@@ -1221,12 +1225,12 @@ static int _TCAST_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 				}
 				else {
 					Value *v, *val = ValueStack_get(ctx, local);
-					Value *func = ConstantInt::get(LLVMTYPE_Int, (knh_int_t)trl->ftypemap_1);
+					Value *func = LLVMInt((knh_int_t)trl->ftypemap_1);
 					func = builder->CreateIntToPtr(func, LLVMTYPE_fcall);
 					sfp_store(ctx, local, scid, val);
 					std::vector<Value*> params;
 					param_setCtxSfp(ctx, params, local);
-					params.push_back(ConstantInt::get(LLVMTYPE_Int, 0));
+					params.push_back(LLVMInt(0));
 					builder->CreateCall(func, params.begin(), params.end());
 					v = ValueStack_load_set(ctx, local, (stmt)->type);
 
@@ -1293,11 +1297,11 @@ static int _OR_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 	builder->SetInsertPoint(bbTrue);
 
 	PHINode *phi = builder->CreatePHI(LLVMTYPE_Bool, "or_result");
-	phi->addIncoming(ConstantInt::get(LLVMTYPE_Bool, 0), bbNext);
+	phi->addIncoming(LLVMBool(0), bbNext);
 
 	std::vector<BasicBlock*>::iterator itr;
 	for (itr = blocks.begin(); itr != blocks.end(); itr++) {
-		phi->addIncoming(ConstantInt::get(LLVMTYPE_Bool, 1), *itr);
+		phi->addIncoming(LLVMBool(1), *itr);
 	}
 	ValueStack_set(ctx, sfpidx, phi);
 
@@ -1325,10 +1329,10 @@ static int _AND_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt, int sfpidx)
 	builder->SetInsertPoint(bbFalse);
 
 	PHINode *phi = builder->CreatePHI(LLVMTYPE_Bool, "and_result");
-	phi->addIncoming(ConstantInt::get(LLVMTYPE_Bool, 1), bbNext);
+	phi->addIncoming(LLVMBool(1), bbNext);
 	std::vector<BasicBlock*>::iterator itr;
 	for (itr = blocks.begin(); itr != blocks.end(); itr++) {
-		phi->addIncoming(ConstantInt::get(LLVMTYPE_Bool, 0), *itr);
+		phi->addIncoming(LLVMBool(0), *itr);
 	}
 	ValueStack_set(ctx, sfpidx, phi);
 	return 0;
@@ -1773,7 +1777,7 @@ static int _WHILE_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt _UNUSED_, int s
 		int n = Tn_put(ctx, stmt, 0, TYPE_Boolean, local);
 		cond = ValueStack_get(ctx, n);
 	} else {
-		cond = ConstantInt::get(LLVMTYPE_Bool, 1);
+		cond = LLVMBool(1);
 	}
 	builder->CreateCondBr(VBOOL(cond), bbBlock, bbBreak);
 
@@ -1829,7 +1833,7 @@ static int _DO_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt _UNUSED_, int sfpi
 		cond = ValueStack_get(ctx, n);
 	}
 	else {
-		cond = ConstantInt::get(LLVMTYPE_Bool, 1);
+		cond = LLVMBool(1);
 	}
 	builder->CreateCondBr(cond, bbBlock, bbBreak);
 
@@ -1872,7 +1876,7 @@ static int _FOR_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt _UNUSED_, int sfp
 		int n = Tn_CondAsm(ctx, stmt, 1, 0, local+1);
 		cond = ValueStack_get(ctx, n);
 	} else {
-		cond = ConstantInt::get(LLVMTYPE_Bool, 1);
+		cond = LLVMBool(1);
 	}
 	builder->CreateCondBr(VBOOL(cond), bbBlock, bbBreak);
 
@@ -1901,7 +1905,7 @@ static void param_setCtxSfp(CTX ctx, std::vector<Value*> &params, int sfpidx)
 	Function::arg_iterator args = LLVM_FUNCTION(ctx)->arg_begin();
 	Value *arg_ctx = args++;
 	Value *arg_sfp = args;
-	Value *idx = ConstantInt::get(LLVMTYPE_Int, sfpidx);
+	Value *idx = LLVMInt(sfpidx);
 	params.push_back(arg_ctx);
 	params.push_back(builder->CreateGEP(arg_sfp, idx, "sfpsft"));
 }
@@ -1939,7 +1943,7 @@ static int _FOREACH_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt _UNUSED_, int
 	sfp_store(ctx, itridx, CLASS_Iterator, vitr);
 	std::vector<Value*> params;
 	param_setCtxSfp(ctx, params, itridx);
-	params.push_back(ConstantInt::get(LLVMTYPE_Int, varidx-itridx));
+	params.push_back(LLVMInt(varidx-itridx));
 	
 	cond = builder->CreateCall(v, params.begin(), params.end());
 
@@ -2126,9 +2130,9 @@ static void ASM_P(CTX ctx, const char *name, knh_flag_t flag, knh_uline_t line, 
 	std::vector<Value*> params;
 	params.push_back(arg_ctx);
 	params.push_back(arg_sfp);
-	params.push_back(ConstantInt::get(LLVMTYPE_Int, flag));
-	params.push_back(ConstantInt::get(LLVMTYPE_Int, line));
-	Value *vmsg = ConstantInt::get(LLVMTYPE_Int, (knh_int_t) msg);
+	params.push_back(LLVMInt(flag));
+	params.push_back(LLVMInt(line));
+	Value *vmsg = LLVMInt((knh_int_t) msg);
 	params.push_back(builder->CreateIntToPtr(vmsg, LLVMTYPE_Object)); /* msg */
 	params.push_back(v);
 	builder->CreateCall(f, params.begin(), params.end());
@@ -2508,7 +2512,7 @@ static Function *build_wrapper_func(CTX ctx, Module *m, knh_Method_t *mtd, Funct
 	for (i = 0; i < pa->psize; i++) {
 		knh_param_t *p = knh_ParamArray_get(DP(mtd)->mp, i);
 		Value *v = arg_sfp;
-		//Value *idx = ConstantInt::get(LLVMTYPE_Int, i+1);
+		//Value *idx = LLVMInt(i+1);
 		v = create_loadsfp(ctx, builder, v, p->type, i+1);
 		v = builder->CreateLoad(v, "load");
 		params.push_back(v);
