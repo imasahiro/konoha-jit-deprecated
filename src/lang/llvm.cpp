@@ -1734,6 +1734,8 @@ static int add_PHI(CTX ctx, knh_Array_t *prev, knh_Array_t *block, BasicBlock *b
 		if (phi != NULL && v != NULL) {
 			if (v->getType() == phi->getType()) {
 				phi->addIncoming(v, bbBlock);
+			} else {
+				phi->addIncoming(phi, bbBlock);
 			}
 		}
 	}
@@ -1746,9 +1748,9 @@ static int _WHILE_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt _UNUSED_, int s
 	Value *cond;
 	Module *m = LLVM_MODULE(ctx);
 	IRBuilder<> *builder = LLVM_BUILDER(ctx);
-	BasicBlock *bbContinue = BasicBlock::Create(m->getContext(), "continue", LLVM_FUNCTION(ctx));
-	BasicBlock *bbBreak    = BasicBlock::Create(m->getContext(), "break", LLVM_FUNCTION(ctx));
-	BasicBlock *bbBlock    = BasicBlock::Create(m->getContext(), "block", LLVM_FUNCTION(ctx));
+	BasicBlock *bbContinue = BB_CREATE(ctx, "continue");
+	BasicBlock *bbBreak    = BB_CREATE(ctx, "break");
+	BasicBlock *bbBlock    = BB_CREATE(ctx, "block");
 	BasicBlock *bbPrev     = builder->GetInsertBlock();
 
 	PUSH_LABEL(ctx, stmt, bbContinue, bbBreak);
@@ -1795,9 +1797,9 @@ static int _DO_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt _UNUSED_, int sfpi
 	Value *cond;
 	Module *m = LLVM_MODULE(ctx);
 	IRBuilder<> *builder = LLVM_BUILDER(ctx);
-	BasicBlock *bbContinue = BasicBlock::Create(m->getContext(), "continue", LLVM_FUNCTION(ctx));
-	BasicBlock *bbBreak    = BasicBlock::Create(m->getContext(), "break", LLVM_FUNCTION(ctx));
-	BasicBlock *bbBlock    = BasicBlock::Create(m->getContext(), "block", LLVM_FUNCTION(ctx));
+	BasicBlock *bbContinue = BB_CREATE(ctx, "continue");
+	BasicBlock *bbBreak    = BB_CREATE(ctx, "break");
+	BasicBlock *bbBlock    = BB_CREATE(ctx, "block");
 	BasicBlock *bbPrev     = builder->GetInsertBlock();
 
 	PUSH_LABEL(ctx, stmt, bbhContinue, bbBreak);
@@ -1843,9 +1845,9 @@ static int _FOR_asm(CTX ctx, knh_Stmt_t *stmt, knh_type_t reqt _UNUSED_, int sfp
 	Value *cond;
 	Module *m = LLVM_MODULE(ctx);
 	IRBuilder<> *builder = LLVM_BUILDER(ctx);
-	BasicBlock *bbContinue = BasicBlock::Create(m->getContext(), "continue", LLVM_FUNCTION(ctx));
-	BasicBlock *bbBreak    = BasicBlock::Create(m->getContext(), "break", LLVM_FUNCTION(ctx));
-	BasicBlock *bbBlock    = BasicBlock::Create(m->getContext(), "block", LLVM_FUNCTION(ctx));
+	BasicBlock *bbContinue = BB_CREATE(ctx, "continue");
+	BasicBlock *bbBreak    = BB_CREATE(ctx, "break");
+	BasicBlock *bbBlock    = BB_CREATE(ctx, "block");
 	BasicBlock *bbPrev     = builder->GetInsertBlock();
 
 	PUSH_LABEL(ctx, stmt, bbContinue, bbBreak);
@@ -2571,21 +2573,22 @@ static void Finish(CTX ctx, knh_Method_t *mtd, knh_Array_t *a, knh_Stmt_t *stmt)
 	ExecutionEngine *ee = EngineBuilder(m).setEngineKind(EngineKind::JIT).create();
 	Function *func1 = build_wrapper_func(ctx, m, mtd, func);
 
-	/* optimization */
-	FunctionPassManager OurFPM(m);
-	//OurFPM.add(new TargetData(*ee->getTargetData()));
-	//OurFPM.add(createBasicAliasAnalysisPass());
-	//OurFPM.add(createInstructionCombiningPass());
-	//OurFPM.add(createReassociatePass());
-	//OurFPM.add(createGVNPass());
-	//OurFPM.add(createCFGSimplificationPass());
-	//OurFPM.doInitialization();
-	if (verifyFunction(*func))  OurFPM.run(*func);
-	if (verifyFunction(*func1)) OurFPM.run(*func1);
-
 #ifdef K_USING_DEBUG
 	(*m).dump();
 #endif
+
+	/* optimization */
+	FunctionPassManager OurFPM(m);
+	OurFPM.add(new TargetData(*ee->getTargetData()));
+	OurFPM.add(createBasicAliasAnalysisPass());
+	OurFPM.add(createInstructionCombiningPass());
+	OurFPM.add(createReassociatePass());
+	OurFPM.add(createGVNPass());
+	OurFPM.add(createCFGSimplificationPass());
+	OurFPM.doInitialization();
+	if (verifyFunction(*func))  OurFPM.run(*func);
+	if (verifyFunction(*func1)) OurFPM.run(*func1);
+
 	f = (knh_Fmethod) ee->getPointerToFunction(func1);
 	knh_Method_setFunc(ctx, mtd, f);
 	delete LLVM_BUILDER(ctx);
