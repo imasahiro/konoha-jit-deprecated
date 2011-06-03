@@ -2495,7 +2495,7 @@ static Function *build_wrapper_func(CTX ctx, Module *m, knh_Method_t *mtd, Funct
 	std::string name = build_function_name(ctx, mtd, "_wrapper");
 	const FunctionType *fnTy = cast<FunctionType>(m->getTypeByName("fcall"));
 	Function *f = cast<Function>(m->getOrInsertFunction(name, fnTy));
-	BasicBlock *bb = BB_CREATE(ctx, "EntryBlock");
+	BasicBlock *bb = BasicBlock::Create(LLVM_CONTEXT(), "EntryBlock", f);
 	IRBuilder<> *builder = new IRBuilder<>(bb);
 
 	Function::arg_iterator args = f->arg_begin();
