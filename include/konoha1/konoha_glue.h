@@ -35,22 +35,6 @@ extern "C" {
 #endif
 
 /* ------------------------------------------------------------------------ */
-/* UTILS_API */
-
-typedef const struct _knh_ExportsAPI_t {
-	// memory
-	void* (*malloc)(CTX, size_t);
-	void  (*free)(CTX, void *, size_t);
-	// stack operation
-	void  (*setsfp)(CTX, knh_sfp_t *, void *);
-	void  (*closeIterator)(CTX, knh_Iterator_t *);
-	// evidence
-	void  (*trace)(CTX, knh_sfp_t *, int, const char*, const char*, int, const char*, ...);
-	void  (*dbg_p)(const char*, const char*, int, const char*, ...);
-	void  (*todo_p)(const char*, const char*, int, const char*, ...);
-} knh_ExportsAPI_t;
-
-/* ------------------------------------------------------------------------ */
 /* driver */
 
 typedef const struct {
@@ -72,20 +56,6 @@ typedef const struct {
 /* ------------------------------------------------------------------------ */
 /* K_DSPI_PATH */
 
-#define K_PATHHEAD_MAXSIZ   32
-//#define PATH_found          1
-//#define PATH_unknown        ((knh_bool_t)(-1))
-//#define PATH_hasType(cid)   (cid == CLASS_Boolean || cid == CLASS_String)
-
-typedef struct knh_PathDSPI_t {
-	int   type;
-	const char *name;
-	knh_class_t cid;  knh_class_t itrcid;
-	void *thunk; // nullable
-	knh_bool_t    (*hasType)(CTX, knh_class_t, void*);
-	knh_bool_t    (*exists)(CTX, knh_NameSpace_t *, knh_bytes_t, void *);
-	Object*       (*newObjectNULL)(CTX, knh_NameSpace_t *, knh_class_t, knh_String_t *, void*);
-} knh_PathDSPI_t;
 
 /* ------------------------------------------------------------------------ */
 /* K_BCONV_DSPI */
@@ -113,17 +83,16 @@ typedef struct knh_ConvDSPI_t {
 
 #define K_OUTBUF_MAXSIZ      (512L * 1024 * 1024)  // 512Mb
 
-typedef struct knh_StreamDSPI_t {
+typedef struct knh_StreamDPI_t {
 	int type;
 	const char *name;
-	knh_bool_t (*realpath)(CTX, knh_NameSpace_t *ns, knh_path_t*);
-	knh_io_t (*fopen)(CTX, knh_path_t*, const char *, struct knh_Monitor_t *);
-	knh_io_t (*wopen)(CTX, knh_path_t*, const char *, struct knh_Monitor_t *);
-	knh_intptr_t (*fread)(CTX, knh_io_t, char *, size_t, struct knh_Monitor_t *);
 	size_t wbufsiz;  // write bufsize
-	knh_intptr_t (*fwrite)(CTX, knh_io_t, const char *, size_t, struct knh_Monitor_t *);
-	void   (*fclose)(CTX, knh_io_t);
-} knh_StreamDSPI_t;
+	knh_io_t (*fopenSPI)(CTX, const char*, const char *);
+	knh_io_t (*wopenSPI)(CTX, const char*, const char *);
+	knh_intptr_t (*freadSPI)(CTX, knh_io_t, char *, size_t);
+	knh_intptr_t (*fwriteSPI)(CTX, knh_io_t, const char *, size_t);
+	void (*fcloseSPI)(CTX, knh_io_t);
+} knh_StreamDPI_t;
 
 /* ------------------------------------------------------------------------ */
 /* K_DSPI_QUERY */
@@ -231,28 +200,37 @@ typedef struct knh_PackageLoaderAPI_t {
 	void (*loadIntData)(CTX, knh_NameSpace_t *ns, const knh_IntData_t *);
 	void (*loadFloatData)(CTX, knh_NameSpace_t *ns, const knh_FloatData_t *);
 	void (*loadStringData)(CTX, knh_NameSpace_t *ns, const knh_StringData_t *);
+	void (*loadIntClassConst)(CTX, knh_class_t cid, const knh_IntData_t *);
+	void (*loadFloatClassConst)(CTX, knh_class_t cid, const knh_FloatData_t *);
+	void (*loadStringClassConst)(CTX, knh_class_t cid, const knh_StringData_t *);
+	void (*setPackageProperty)(CTX, const char*, const char*);
+	void (*setPackageIntProperty)(CTX, const char*, knh_int_t);
+	void (*setPackageFloatProperty)(CTX, const char*, knh_float_t);
 	/* namespace */
 //	void (*setRegexSPI)(CTX, knh_NameSpace_t *ns, const knh_RegexSPI_t *);
-	void (*addPathDSPI)(CTX, knh_NameSpace_t *ns, const char*, const knh_PathDSPI_t *);
-	void (*addStreamDSPI)(CTX, knh_NameSpace_t *ns, const char*, const knh_StreamDSPI_t *);
+	void (*addLinkDPI)(CTX, knh_NameSpace_t *ns, const char*, const knh_LinkDPI_t *);
+	void (*addStreamDPI)(CTX, knh_NameSpace_t *ns, const char*, const knh_StreamDPI_t *);
 	void (*addQueryDSPI)(CTX, knh_NameSpace_t *ns, const char *, const knh_QueryDSPI_t *);
 	void (*addConvDSPI)(CTX, knh_NameSpace_t *ns, const char *, const knh_ConvDSPI_t*);
 } knh_PackageLoaderAPI_t;
 
-#define KNH_PKGINFO(NAME, VERSION, URL, INFO) {K_BUILDID, K_API2_CRC32, NAME, VERSION, INFO, URL}
+#define RETURN_PKGINFO(NAME) {\
+		static const knh_PackageDef_t pkginfo_ = {K_BUILDID, K_API2_CRC32, NAME};\
+		return &pkginfo_;\
+	}\
 
 typedef struct {
 	size_t buildid;
 	size_t crc32;
 	const char *name;     /* pacakge name */
-	const char *version;  /* pacakge version*/
-	const char *info;     /* package info */
-	const char *url;      /* package url */
 } knh_PackageDef_t;
 
-typedef const knh_PackageDef_t* (*knh_Fpkginit)(CTX);
+typedef const knh_PackageDef_t* (*knh_Fpkginit)(CTX, const knh_PackageLoaderAPI_t *);
 typedef void (*knh_Fpkgload)(CTX, const knh_PackageLoaderAPI_t *, knh_NameSpace_t *ns);
-typedef const knh_ClassDef_t* (*knh_Fclass)(CTX);
+typedef void (*knh_Fclassdef)(CTX, knh_class_t, knh_ClassDef_t*);
+typedef void (*knh_Fconstdef)(CTX, knh_class_t, const knh_PackageLoaderAPI_t*);
+
+typedef const knh_LinkDPI_t* (*knh_Flinkdef)(CTX);
 
 /* ------------------------------------------------------------------------ */
 /* new version */
@@ -262,59 +240,99 @@ typedef const knh_ClassDef_t* (*knh_Fclass)(CTX);
 #define Float_to(T, a)             ((T)a.fvalue)
 #define String_to(T, a)            ((T)S_tochar(a.s))
 #define StringNull_to(T, a, def)   ((T)(IS_bString(a.o) ? S_tochar(a.s) : def))
-#define RawPtr_to(T, a)            ((T)((a.p)->ptr))
-#define RawPtrNull_to(T, a, def)   (IS_bRawPtr(a.o) ? ((T)((a.p)->ptr)) : (def))
+#define RawPtr_to(T, a)            ((T)((a.p)->rawptr))
+//#define RawPtrNull_to(T, a, def)   (IS_bRawPtr(a.o) ? ((T)((a.p)->rawptr)) : (def))
 #define Class_tocid(a)             ((a.c)->cid)
+
+/* ------------------------------------------------------------------------ */
+/* closure macros, added by @shinpei_NKT */
+#define CLOSURE_start(argc)			   \
+  CTX lctx = (CTX)knh_getCurrentContext(); \
+  knh_intptr_t thisidx = K_CALLDELTA; \
+  BEGIN_LOCAL(lctx, lsfp, thisidx + argc + 1);
+
+
+#define CLOSURE_putInt(idx, val) \
+  lsfp[idx].ivalue = val
+
+#define CLOSURE_putFloat(idx, val) \
+  lsfp[idx].fvalue = val
+
+#define CLOSURE_putArg(idx, type, val) \
+  CLOSURE_put##type(idx, val)
+
+
+#define CLOSURE_call(fo) \
+  if (fo->baseNULL != NULL) {					\
+	KNH_SETv(lctx, fo, fo->baseNULL);			\
+  }												\
+  klr_setmtdNC(lctx, lsfp[K_MTDIDX], fo->mtd);	\
+  KNH_SELFCALL(lctx, lsfp, fo->mtd, K_RTNIDX);
+
+
+#define CLOSURE_getInt() \
+  lsfp[K_RTNIDX].ivalue
+
+#define CLOSURE_getFloat() \
+  lsfp[K_RTNIDX].fvalue
+
+#define CLOSURE_getReturn(type) \
+  CLOSURE_get##type()
+
+
+#define CLOSURE_end(exp) \
+  END_LOCAL_(lctx, lsfp); \
+  exp
 
 /* ------------------------------------------------------------------------ */
 
 #ifdef K_EXPORTS
 
 #define RETURN_(vv) {\
-		ctx->api->setsfp(ctx, sfp+rix, vv);\
+		ctx->spi->setsfpSPI(ctx, sfp+_rix, vv);\
 		return; \
 	}\
 
 #define RETURNa_(v) {\
 		Object *vv_ = (Object*)v;\
-		ctx->api->setsfp(ctx, sfp+rix, vv_);\
-		sfp[rix].ndata = O_data(vv_);\
+		ctx->spi->setsfpSPI(ctx, sfp+_rix, vv_);\
+		sfp[_rix].ndata = O_data(vv_);\
 		return; \
 	}\
 
 #else
 
 #define RETURN_(vv) {\
-		KNH_SETv(ctx, sfp[rix].o, vv);\
+		KNH_SETv(ctx, sfp[_rix].o, vv);\
 		return; \
 	}\
 
 #define RETURNa_(v) {\
 		Object *vv_ = (Object*)v;\
-		KNH_SETv(ctx, sfp[rix].o, vv_);\
-		sfp[rix].ndata = O_data(vv_);\
+		KNH_SETv(ctx, sfp[_rix].o, vv_);\
+		sfp[_rix].ndata = O_data(vv_);\
 		return; \
 	}\
 
 #endif
 
 #define RETURNd_(d) {\
-		sfp[rix].ndata = d; \
+		sfp[_rix].ndata = d; \
 		return; \
 	}\
 
 #define RETURNb_(c) {\
-		sfp[rix].bvalue = c; \
+		sfp[_rix].bvalue = c; \
 		return; \
 	}\
 
 #define RETURNi_(c) {\
-		sfp[rix].ivalue = c; \
+		sfp[_rix].ivalue = c; \
 		return; \
 	}\
 
 #define RETURNf_(c) {\
-		sfp[rix].fvalue = c; \
+		sfp[_rix].fvalue = c; \
 		return; \
 	}\
 
@@ -323,39 +341,44 @@ typedef const knh_ClassDef_t* (*knh_Fclass)(CTX);
 	}\
 
 
+#ifdef K_EXPORTS
+
 #define ITREND_() {\
-		ctx->api->closeIterator(ctx, sfp[0].it);\
+		ctx->spi->closeItrSPI(ctx, sfp[0].it);\
 		return 0; \
 	}\
 
-#ifdef K_EXPORTS
-
 #define ITRNEXT_(vv) {\
-		ctx->api->setsfp(ctx, sfp+rtnidx, vv);\
+		ctx->spi->setsfpSPI(ctx, sfp+rix_, vv);\
 		return 1; \
 	}\
 
 #else
 
+#define ITREND_() {\
+		knh_Iterator_close(ctx, sfp[0].it);\
+		return 0; \
+	}\
+
 #define ITRNEXT_(vv) {\
-		KNH_SETv(ctx, sfp[rtnidx].o, vv);\
+		KNH_SETv(ctx, sfp[_rix].o, vv);\
 		return 1; \
 	}\
 
 #endif
 
 #define ITRNEXTd_(d) {\
-		sfp[rtnidx].ndata = d;\
+		sfp[_rix].ndata = d;\
 		return 1; \
 	}\
 
 #define ITRNEXTi_(n) {\
-		sfp[rtnidx].ivalue = n;\
+		sfp[_rix].ivalue = n;\
 		return 1; \
 	}\
 
 #define ITRNEXTf_(n) {\
-		sfp[rtnidx].fvalue = n;\
+		sfp[_rix].fvalue = n;\
 		return 1; \
 	}\
 

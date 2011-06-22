@@ -200,12 +200,12 @@ extern "C" {
 
 #define KLR_CHKSTACK(ctx, n) \
 	if(unlikely(SFP(rshift(rbp, n)) > ctx->stacktop)) {\
-		rbp = RBP(knh_stack_initexpand(ctx, SFP(rbp), n));\
+		rbp = RBP(knh_stack_initexpand(ctx, SFP(rbp), 0));\
 	}\
 
 #define KLR_SCALL(ctx, rtnidx, thisidx, espshift, mtdO) { \
 		knh_Method_t *mtd_ = mtdO;\
-		prefetch((mtd_)->fcall_1);\
+		/*prefetch((mtd_)->fcall_1);*/\
 		knh_sfp_t *sfp_ = SFP(rshift(rbp, thisidx)); \
 		sfp_[K_SHIFTIDX].shift = thisidx; \
 		sfp_[K_PCIDX].pc = PC_NEXT(pc);\
@@ -215,7 +215,8 @@ extern "C" {
 		sfp_[K_MTDIDX].mtdNC = NULL;\
 	} \
 
-#define KLR_FASTCALL0(ctx, c, thisidx, rix, fcall, mtdO) { \
+#define KLR_FASTCALL0(ctx, c, thisidx, rix, espidx, fcall) { \
+		klr_setesp(ctx, SFP(rshift(rbp, espidx)));\
 		fcall(ctx, SFP(rshift(rbp, thisidx)), (long)rix);\
 	} \
 
@@ -226,10 +227,10 @@ extern "C" {
 		knh_Method_t *mtd_ = mtdO;\
 		prefetch((mtd_)->pc_start);\
 		klr_setesp(ctx, SFP(rshift(rbp, espshift)));\
-		rbp = rshift(rbp, thisidx);\
 		if(unlikely(SFP(rbp) > ctx->stacktop)) {\
 			rbp = RBP(knh_stack_initexpand(ctx, SFP(rbp), 0));\
 		}\
+		rbp = rshift(rbp, thisidx);\
 		rbp[K_SHIFTIDX2].shift = thisidx;\
 		rbp[K_PCIDX2].pc = PC_NEXT(pc);\
 		rbp[K_MTDIDX2].mtdNC = mtd_;\
@@ -265,12 +266,8 @@ extern "C" {
 		goto L_RETURN;\
 	}\
 
-#define KLR_LOADMTD(ctx, thisidx, fmtd, mtdO) { \
-		knh_Method_t *mtd_ = fmtd(ctx, SFP(rbp), SFPIDX(thisidx), mtdO);\
-		if(mtd_ != mtdO) { \
-			((klr_LOADMTD_t*)op)->mtdNC = mtd_;\
-		}\
-		klr_setmtdNC(ctx, rbp[thisidx+K_MTDIDX2], mtd_);\
+#define KLR_LDMTD(ctx, thisidx, ldmtd, hc, mtdO) { \
+		ldmtd(ctx, SFP(rbp), op);\
 	} \
 
 #define KLR_CALL(ctx, rtnidx, thisidx, espshift) { \
@@ -284,6 +281,7 @@ extern "C" {
 		GOTO_PC(pc); \
 	} \
 
+/**
 #define KLR_VINVOKE(ctx, rtnidx, thisidx, espshift) { \
 		knh_Method_t *mtd_ = (rbp[thisidx].fo)->mtd;\
 		prefetch((mtd_)->pc_start);\
@@ -295,6 +293,7 @@ extern "C" {
 		pc = (mtd_)->pc_start;\
 		GOTO_PC(pc); \
 	} \
+**/
 
 #define KLR_THUNK(ctx, rtnidx, thisidx, espshift, mtdO) { \
 		knh_Method_t *mtd_ = mtdO == NULL ? rbp[thisidx+K_MTDIDX2].mtdNC : mtdO;\
@@ -345,30 +344,33 @@ extern "C" {
 	Rf_(c) = (knh_float_t)Ri_(a); \
 }\
 
-#define KLR_SCAST(ctx, rtnidx, thisidx, rix, tmr)  { \
+#define KLR_SCAST(ctx, rtnidx, thisidx, rix, espidx, tmr)  { \
+		klr_setesp(ctx, SFP(rshift(rbp, espidx)));\
 		knh_TypeMap_exec(ctx, tmr, SFP(rshift(rbp,thisidx)), rix); \
 	} \
 
-#define KLR_TCAST(ctx, rtnidx, thisidx, rix, tmr)  { \
+#define KLR_TCAST(ctx, rtnidx, thisidx, rix, espidx, tmr)  { \
 		knh_TypeMap_t *tmr_ = tmr; \
 		knh_sfp_t *sfp_ = SFP(rshift(rbp,thisidx));\
 		knh_class_t scid = SP(tmr_)->scid, this_cid = O_cid(sfp_[0].o);\
 		if(this_cid != scid) {\
-			tmr_ = knh_findTypeMap(ctx, scid, SP(tmr)->tcid);\
+			tmr_ = knh_findTypeMapNULL(ctx, scid, SP(tmr)->tcid, 1);\
 			KNH_SETv(ctx, ((klr_TCAST_t*)op)->cast, tmr_);\
 		}\
+		klr_setesp(ctx, SFP(rshift(rbp, espidx)));\
 		knh_TypeMap_exec(ctx, tmr_, sfp_, rix); \
 	} \
 
-#define KLR_ACAST(ctx, rtnidx, thisidx, rix, tmr)  { \
+#define KLR_ACAST(ctx, rtnidx, thisidx, rix, espidx, tmr)  { \
 		knh_TypeMap_t *tmr_ = tmr; \
 		knh_class_t tcid = SP(tmr_)->tcid, this_cid = O_cid(Ro_(thisidx));\
 		if(!class_isa(this_cid, tcid)) {\
 			knh_class_t scid = SP(tmr_)->scid;\
 			if(this_cid != scid) {\
-				tmr_ = knh_findTypeMap(ctx, scid, tcid);\
+				tmr_ = knh_findTypeMapNULL(ctx, scid, tcid, 0);\
 				KNH_SETv(ctx, ((klr_ACAST_t*)op)->cast, tmr_);\
 			}\
+			/*klr_setesp(ctx, SFP(rshift(rbp, espidx)));*/\
 			knh_TypeMap_exec(ctx, tmr_, SFP(rshift(rbp,thisidx)), rix); \
 		}\
 	} \
@@ -404,9 +406,10 @@ extern "C" {
 
 /* ------------------------------------------------------------------------- */
 
-#define KLR_NEXT(ctx, PC, JUMP, rtnidx, ib, rix) { \
+#define KLR_NEXT(ctx, PC, JUMP, rtnidx, ib, rix, espidx) { \
 	knh_sfp_t *itrsfp_ = SFP(rshift(rbp, ib)); \
 	DBG_ASSERT(IS_bIterator(itrsfp_[0].it));\
+	klr_setesp(ctx, SFP(rshift(rbp, espidx)));\
 	if(!((itrsfp_[0].it)->fnext_1(ctx, itrsfp_, rix))) { \
 		KLR_JMP(ctx, PC, JUMP); \
 	} \
@@ -490,7 +493,7 @@ extern "C" {
 } \
 
 #define KLR_ERROR(ctx, start, msg) { \
-	knh_Exception_t *e_ = new_Error(ctx, EBI_SourceCode, msg);\
+	knh_Exception_t *e_ = new_Error(ctx, 0, msg);\
 	CTX_setThrowingException(ctx, e_);\
 	knh_throw(ctx, SFP(rbp), SFPIDX(start)); \
 } \
@@ -505,22 +508,22 @@ extern "C" {
 
 #define KLR_CHKIN(ctx, on, fcheckin)  {\
 		knh_Object_t *o_ = Ro_(on);\
-		fcheckin(ctx, SFP(rbp), o_);\
+		fcheckin(ctx, SFP(rbp), RAWPTR(o_));\
 		Context_push(ctx, o_);\
 	}\
 
 #define KLR_CHKOUT(ctx, on, fcheckout)  {\
 		knh_Object_t *o_ = Context_pop(ctx);\
 		DBG_ASSERT(o_ == Ro_(on));\
-		fcheckout(ctx, o_, 0);\
+		fcheckout(ctx, RAWPTR(o_), 0);\
 	}\
 
 /* ------------------------------------------------------------------------ */
 
 #define KLR_P(ctx, fprint, flag, msg, n) fprint(ctx, SFP(rbp), op)
 
-#define KLR_PROBE(ctx, fprobe, n) { \
-	fprobe(ctx, SFP(rbp), n, pc);\
+#define KLR_PROBE(ctx, sfpidx, fprobe, n, ns) { \
+	fprobe(ctx, SFP(rbp), op);\
 }\
 
 /* ------------------------------------------------------------------------ */

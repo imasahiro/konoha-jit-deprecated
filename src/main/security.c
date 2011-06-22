@@ -27,16 +27,13 @@
 
 /* ************************************************************************ */
 
-#define USE_STEXT 1
-#define USE_cwb_open      1
-
 #include"commons.h"
 
 #if K_USING_WIN32_
 #include <winsock2.h>
 #define _WIN32_DCOM
 
-#ifdef K_USING_MINGW
+#ifdef K_USING_MINGW_
 #include <windows.h>
 #include <winsock.h>
 #include <process.h>
@@ -213,7 +210,7 @@ extern "C" {
 //	size_t length = sizeof(int);
 //	sysctl(mem_sels, 2, &mem, &length, NULL, 0);
 //	mem = (unsigned int) mem / ONE_MB;
-//#elif defined(K_USING_WIN32_) && !defined(K_USING_MINGW)
+//#elif defined(K_USING_WIN32_) && !defined(K_USING_MINGW_)
 //	MEMORYSTATUSEX stat;
 //	GlobalMemoryStatusEx(&stat);
 //	mem = (unsigned int) stat.ullTotalPhys / ONE_MB;
@@ -235,7 +232,7 @@ extern "C" {
 //	size_t len = sizeof(int);
 //	sysctl(cpu_sels, 2, &clock, &len, NULL, 0);
 //	clock = (unsigned int) clock / (1000 * 1000);
-//#elif defined(K_USING_WIN32_) && !defined(K_USING_MINGW)
+//#elif defined(K_USING_WIN32_) && !defined(K_USING_MINGW_)
 //	HRESULT hres;
 //	hres = CoInitializeEx(0, COINIT_MULTITHREADED);
 //	hres = CoInitializeSecurity(
@@ -422,7 +419,7 @@ void knh_checkSecurityManager(CTX ctx, knh_sfp_t *sfp)
 //	while(ctx->stack < sp) {
 //		if(IS_Method(sp[0].mtd)) {
 //			if(!URI_ISTRUSTED(DP(sp[0].mtd)->uri)) {
-//				char buf[FILEPATH_BUFSIZ];
+//				char buf[K_PATHMAX];
 //				knh_snprintf(buf, sizeof(buf), "Security!!: untrusted domain='%s'", URI__(DP(sp[0].mtd)->uri));
 //				KNH_THROW__T(ctx, buf);
 //			}

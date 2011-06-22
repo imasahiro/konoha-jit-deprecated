@@ -27,10 +27,6 @@
 
 /* ************************************************************************ */
 
-#define USE_B 1
-#define USE_bytes_rindex 1
-#define USE_bytes_first  1
-
 #include"commons.h"
 
 /* ************************************************************************ */
@@ -40,42 +36,13 @@ extern "C" {
 #endif
 
 /* ------------------------------------------------------------------------ */
-
-static void knh_setsfp(CTX ctx, knh_sfp_t *sfp, void *v)
-{
-	knh_Object_t *o = (knh_Object_t*)v;
-	DBG_ASSERT_ISOBJECT(o);
-	knh_Object_RCinc(o);
-	knh_Object_RCdec(sfp[0].o);
-	if(Object_isRC0(sfp[0].o)) {
-		knh_Object_RCfree(ctx, sfp[0].o);
-	}
-	sfp[0].o = o;
-}
-
-KNHAPI2(knh_text_t*) knh_cwb_tochar(CTX ctx, knh_cwb_t *cwb)
-{
-	return knh_Bytes_ensureZero(ctx, cwb->ba) + cwb->pos;
-}
-
-const knh_ExportsAPI_t *knh_getExportsAPI(void)
-{
-	static knh_ExportsAPI_t exports = {
-		knh_fastmalloc, knh_fastfree, /* memory.c */
-		knh_setsfp, knh_Iterator_close,
-		knh_trace, dbg_p, todo_p,
-	};
-	return &exports;
-}
-
-/* ------------------------------------------------------------------------ */
 /* [CONST/PROPERTY DATA] */
 
-static void knh_addConstData(CTX ctx, knh_NameSpace_t *ns, const char *dname, Object *value)
+static void loadData(CTX ctx, knh_NameSpace_t *ns, const char *dname, Object *value)
 {
 	if(dname[0] == '$') {
 		knh_String_t *n = new_T(dname + 1);
-		DictMap_set_(ctx, DP(ctx->sys)->props, n, value);
+		knh_DictMap_set_(ctx, DP(ctx->sys)->props, n, value);
 	}
 	else {
 		knh_bytes_t n = {{dname}, knh_strlen(dname)};
@@ -85,7 +52,7 @@ static void knh_addConstData(CTX ctx, knh_NameSpace_t *ns, const char *dname, Ob
 		if(loc != -1) {
 			cid = knh_NameSpace_getcid(ctx, ns, knh_bytes_first(n, loc));
 			if(cid == CLASS_unknown) {
-				KNH_WARN(ctx, "unknown class constant: %s", dname);
+				KNH_LOG("unknown class constant: %s", dname);
 				cid = CLASS_Tdynamic;
 			}
 		}
@@ -93,32 +60,84 @@ static void knh_addConstData(CTX ctx, knh_NameSpace_t *ns, const char *dname, Ob
 	}
 }
 
-static void knh_loadScriptIntData(CTX ctx, knh_NameSpace_t *ns, const knh_IntData_t *data)
+static void loadIntData(CTX ctx, knh_NameSpace_t *ns, const knh_IntData_t *data)
 {
 	while(data->name != NULL) {
-		Object *value = UPCAST(new_Int(ctx, CLASS_Int, data->ivalue));
-		knh_addConstData(ctx, ns, data->name, value);
+		Object *value = UPCAST(new_Int(ctx, data->ivalue));
+		loadData(ctx, ns, data->name, value);
 		data++;
 	}
 }
 
-static void knh_loadScriptFloatData(CTX ctx, knh_NameSpace_t *ns, const knh_FloatData_t *data)
+static void loadFloatData(CTX ctx, knh_NameSpace_t *ns, const knh_FloatData_t *data)
 {
 	while(data->name != NULL) {
-		Object *value = UPCAST(new_Float(ctx, CLASS_Float, data->fvalue));
-		knh_addConstData(ctx, ns, data->name, value);
+		Object *value = UPCAST(new_Float(ctx, data->fvalue));
+		loadData(ctx, ns, data->name, value);
 		data++;
 	}
 }
 
-static void knh_loadScriptStringData(CTX ctx, knh_NameSpace_t *ns, const knh_StringData_t *data)
+static void loadStringData(CTX ctx, knh_NameSpace_t *ns, const knh_StringData_t *data)
 {
 	while(data->name != NULL) {
 		Object *value = UPCAST(new_T(data->value));
-		knh_addConstData(ctx, ns, data->name, value);
+		loadData(ctx, ns, data->name, value);
 		data++;
 	}
 }
+
+static void loadIntClassConst(CTX ctx, knh_class_t cid, const knh_IntData_t *data)
+{
+	while(data->name != NULL) {
+		Object *value = UPCAST(new_Int(ctx, data->ivalue));
+		knh_addClassConst(ctx, cid, new_T(data->name), value);
+		data++;
+	}
+}
+
+static void loadFloatClassConst(CTX ctx, knh_class_t cid, const knh_FloatData_t *data)
+{
+	while(data->name != NULL) {
+		Object *value = UPCAST(new_Float(ctx, data->fvalue));
+		knh_addClassConst(ctx, cid, new_T(data->name), value);
+		data++;
+	}
+}
+
+static void loadStringClassConst(CTX ctx, knh_class_t cid, const knh_StringData_t *data)
+{
+	while(data->name != NULL) {
+		Object *value = UPCAST(new_T(data->value));
+		knh_addClassConst(ctx, cid, new_T(data->name), value);
+		data++;
+	}
+}
+
+static void setProperty(CTX ctx, const char *name, const char *data)
+{
+	char pname[256];
+	const char *nsn = S_tochar(DP(ctx->gma->scr->ns)->nsname);
+	knh_snprintf(pname, sizeof(pname), "%s.%s", nsn, name);
+	knh_DictMap_set(ctx, DP(ctx->sys)->props, new_String(ctx, pname), new_T(data));
+}
+
+static void setIntProperty(CTX ctx, const char *name, knh_int_t data)
+{
+	char pname[256];
+	const char *nsn = S_tochar(DP(ctx->gma->scr->ns)->nsname);
+	knh_snprintf(pname, sizeof(pname), "%s.%s", nsn, name);
+	knh_DictMap_set(ctx, DP(ctx->sys)->props, new_String(ctx, pname), new_Int(ctx, data));
+}
+
+static void setFloatProperty(CTX ctx, const char *name, knh_float_t data)
+{
+	char pname[256];
+	const char *nsn = S_tochar(DP(ctx->gma->scr->ns)->nsname);
+	knh_snprintf(pname, sizeof(pname), "%s.%s", nsn, name);
+	knh_DictMap_set(ctx, DP(ctx->sys)->props, new_String(ctx, pname), new_Float(ctx, data));
+}
+
 
 /* ------------------------------------------------------------------------ */
 
@@ -154,9 +173,9 @@ static knh_ParamArray_t *knh_loadScriptParamArray(CTX ctx, const knh_data_t **d,
 }
 
 #define _CID(d)  (d < _MAX) ? (knh_class_t)(d) : knh_NameSpace_getcid(ctx, K_GMANS, knh_data_tobytes(d))
-#define _EXPTID(d)  (d < _MAX) ? (knh_ebi_t)(d) : knh_geteid(ctx, knh_data_tobytes(d), EBI_newid)
+#define _EXPTID(d)  (d < _MAX) ? (knh_event_t)(d) : knh_geteid(ctx, knh_data_tobytes(d))
 
-static void knh_loadScriptData(CTX ctx, const knh_data_t *data, knh_ParamArray_t **buf)
+static void knh_loadSystemData(CTX ctx, const knh_data_t *data, knh_ParamArray_t **buf)
 {
 	size_t c = 0;
 	while(1) {
@@ -181,40 +200,45 @@ static void knh_loadScriptData(CTX ctx, const knh_data_t *data, knh_ParamArray_t
 		case DATA_CLASS0: {
 			knh_class_t cid0 = _CID(data[0]);
 			char *name = (char*)data[1];
-			knh_ClassTBL_t *t = varClassTBL(cid0);
-			if(t == NULL) {
+			knh_ClassTBL_t *ct = varClassTBL(cid0);
+			if(ct == NULL) {
 				knh_class_t cid = new_ClassId(ctx);
-				t = varClassTBL(cid0);
+				ct = varClassTBL(cid0);
 				KNH_ASSERT(cid == cid0);
 			}
-			t->cflag = (knh_flag_t)data[2];
-			t->magicflag = KNH_MAGICFLAG(t->cflag);
-			t->bcid = _CID(data[3]);
-			t->baseTBL = ClassTBL(t->bcid);
-			if(cid0 != t->bcid) {
-				knh_setClassDef(t, ClassTBL(t->bcid)->ospi);
+			ct->cflag = (knh_flag_t)data[2];
+			ct->magicflag = KNH_MAGICFLAG(ct->cflag);
+			ct->bcid = _CID(data[3]);
+			ct->baseTBL = ClassTBL(ct->bcid);
+			if(cid0 != ct->bcid) {
+				knh_setClassDef(ct, ClassTBL(ct->bcid)->cdef);
 			}
-			DBG_ASSERT(t->ospi != NULL);
-			t->supcid = _CID(data[4]);
-			t->supTBL = ClassTBL(t->supcid);
+			DBG_ASSERT(ct->cdef != NULL);
+			ct->supcid = _CID(data[4]);
+			ct->supTBL = ClassTBL(ct->supcid);
 			knh_setClassName(ctx, cid0, new_T(name), NULL);
-			DBG_ASSERT(t->methods == NULL);
-			if(data[5] > 0 || cid0 == CLASS_Tuple) {
-				KNH_INITv(t->methods, new_Array0(ctx, data[5]));
+			DBG_ASSERT(ct->methods == NULL);
+			if(data[5] > 0/* || cid0 == CLASS_Tvoid*/) {
+				KNH_INITv(ct->methods, new_Array0(ctx, data[5]));
 			}
 			else {
-				KNH_INITv(t->methods, K_EMPTYARRAY);
+				KNH_INITv(ct->methods, K_EMPTYARRAY);
 			}
-			if(t->typemaps == NULL) {
-				KNH_INITv(t->typemaps, K_EMPTYARRAY);
+			if(ct->typemaps == NULL) {
+				KNH_INITv(ct->typemaps, K_EMPTYARRAY);
 			}
 			data += 6;
 			break;
 		}
 		case DATA_CPARAM: {
 			knh_class_t cid = _CID(data[0]);
-			knh_ParamArray_t *pa = knh_loadScriptParamArray(ctx, &data, 0/*hflag*/, +1);
-			knh_setClassParam(ctx, varClassTBL(cid), pa);
+			const char *lname = (const char*)data[1];
+			//const char *sname = (const char*)data[2];
+			knh_ClassTBL_t *ct = varClassTBL(cid);
+			knh_ParamArray_t *pa = knh_loadScriptParamArray(ctx, &data, 0/*hflag*/, +3);
+			knh_setClassParam(ctx, ct, pa);
+			KNH_SETv(ctx, ct->lname, new_T(lname));
+			//KNH_SETv(ctx, ct->sname, new_T(sname));
 			break;
 		}
 		case DATA_GENERICS: {
@@ -226,9 +250,9 @@ static void knh_loadScriptData(CTX ctx, const knh_data_t *data, knh_ParamArray_t
 		case DATA_EXPT: {
 			char *name = (char*)data[0];
 			knh_flag_t flag = (knh_flag_t)data[1];
-			knh_ebi_t eid = _EXPTID(data[2]);
-			knh_ebi_t pid = _EXPTID(data[3]);
-			knh_addEvent(ctx, flag, eid, new_T(name), pid);
+//			knh_event_t eid = _EXPTID(data[2]);
+			knh_event_t pid = _EXPTID(data[3]);
+			knh_addEvent(ctx, flag, new_T(name), pid);
 			data += 4;
 			break;
 		}
@@ -276,25 +300,19 @@ static void knh_loadScriptData(CTX ctx, const knh_data_t *data, knh_ParamArray_t
 			break;
 		}/*case DATA_PARAM*/
 		default :
-			KNH_PANIC(ctx, "loading Data unknown dataype=%d", (int)datatype);
+			KNH_DIE("unknown datatype=%d", (int)datatype);
 		}/*switch*/
 	}
 }
 
 /* ------------------------------------------------------------------------ */
 
-//static void knh_setRegexSPI(CTX ctx, knh_NameSpace_t *ns, const knh_RegexSPI_t *spi)
-//{
-//	KNH_ASSERT(ns != NULL);
-//	ns->regexSPI = spi;
-//}
-
-static void knh_addPathDSPI(CTX ctx, knh_NameSpace_t *ns, const char *scheme, const knh_PathDSPI_t *d)
+static void addLinkDPI(CTX ctx, knh_NameSpace_t *ns, const char *scheme, const knh_LinkDPI_t *d)
 {
-	knh_NameSpace_addDSPI(ctx, ns, scheme, (knh_DSPI_t*)d);
+	knh_NameSpace_setLink(ctx, ns, new_Link(ctx, new_T(scheme), d));
 }
 
-static void knh_addStreamDSPI(CTX ctx, knh_NameSpace_t *ns, const char *scheme, const knh_StreamDSPI_t *d)
+static void knh_addStreamDPI(CTX ctx, knh_NameSpace_t *ns, const char *scheme, const knh_StreamDPI_t *d)
 {
 	knh_NameSpace_addDSPI(ctx, ns, scheme, (knh_DSPI_t*)d);
 }
@@ -309,15 +327,16 @@ static void knh_addConvDSPI(CTX ctx, knh_NameSpace_t *ns, const char *scheme, co
 	knh_NameSpace_addDSPI(ctx, ns, scheme, (knh_DSPI_t*)d);
 }
 
-
 const knh_PackageLoaderAPI_t* knh_getPackageLoaderAPI(void)
 {
-	static knh_PackageLoaderAPI_t exports = {
-		knh_loadScriptData,
-		knh_loadScriptIntData, knh_loadScriptFloatData, knh_loadScriptStringData,
-		knh_addPathDSPI, knh_addStreamDSPI, knh_addQueryDSPI, knh_addConvDSPI,
+	static knh_PackageLoaderAPI_t pkgapi = {
+		knh_loadSystemData,
+		loadIntData, loadFloatData, loadStringData,
+		loadIntClassConst, loadFloatClassConst, loadStringClassConst,
+		setProperty, setIntProperty, setFloatProperty,
+		addLinkDPI, knh_addStreamDPI, knh_addQueryDSPI, knh_addConvDSPI,
 	};
-	return &exports;
+	return &pkgapi;
 }
 
 /* ------------------------------------------------------------------------ */

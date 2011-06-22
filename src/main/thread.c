@@ -47,7 +47,7 @@
 #include <process.h>
 #endif
 
-#ifdef K_USING_MINGW
+#ifdef K_USING_MINGW_
 #undef K_USING_WINTHREAD_
 #endif
 
@@ -336,7 +336,8 @@ knh_mutex_t *knh_mutex_malloc(CTX ctx)
 	knh_mutex_t *m = (knh_mutex_t*)KNH_MALLOC(ctx, sizeof(knh_mutex_t));
 	knh_bzero(m, sizeof(knh_mutex_t));
 	if(knh_mutex_init(m) != 0) {
-		KNH_PANIC(ctx, "uninitialized_mutex=%p", m);
+		LOGSFPDATA = {pDATA("mutex", m)};
+		CRIT_Failed("mutex_init", "Thread!!");
 	}
 	return m;
 }
@@ -344,7 +345,8 @@ knh_mutex_t *knh_mutex_malloc(CTX ctx)
 void knh_mutex_free(CTX ctx, knh_mutex_t *m)
 {
 	if(knh_mutex_destroy(m) != 0) {
-		KNH_WARN(ctx, "*unlocked_mutex=%p", m);
+		LOGSFPDATA = {pDATA("mutex", m)};
+		LIB_Failed("mutex_destroy", "Thread!!");
 	}
 	KNH_FREE(ctx, m, sizeof(knh_mutex_t));
 }

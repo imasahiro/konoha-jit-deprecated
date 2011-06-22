@@ -27,9 +27,6 @@
 
 /* ************************************************************************ */
 
-#define USE_TIME_H
-#define USE_getTimeMilliSecond
-
 #include"commons.h"
 #ifdef HAVE_MMAP
 #include <sys/mman.h>
@@ -40,6 +37,17 @@
 #ifndef knh_mlock
 #define knh_mlock(p, size)
 #define knh_unmlock(p)
+#endif
+
+#ifdef K_USING_DEBUG
+#define K_USING_CTRACE 1
+#endif
+
+#ifdef K_USING_CTRACE
+#define _GNU_SOURCE
+#define __USE_GNU
+#include <dlfcn.h>
+#include <execinfo.h>
 #endif
 
 /* ************************************************************************ */
@@ -54,11 +62,6 @@ extern "C" {
 
 /* ------------------------------------------------------------------------ */
 /* [malloc] */
-
-static void THROW_OutOfMemory(CTX ctx, size_t size)
-{
-	KNH_THROW(ctx, NULL, LOG_CRIT, "OutOfMemory!!", "OutOfMemory!!: requested=%dbytes, used=%dbytes", size, ctx->stat->usedMemorySize);
-}
 
 /* ------------------------------------------------------------------------ */
 
@@ -110,7 +113,7 @@ void *knh_valloc(CTX ctx, size_t size)
 		THROW_OutOfMemory(ctx, size);
 	}
 	return block;
-#elif defined(K_USING_WINDOWS)
+#elif defined(K_USING_WINDOWS_)
 	void *block = VirtualAlloc(NULL, size, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
 	if (unlikely(block == NULL)) {
 		THROW_OutOfMemory(ctx, size);
@@ -150,7 +153,7 @@ void knh_vfree(CTX ctx, void *block, size_t size)
 #elif defined(HAVE_MEMALIGN)
 	free(block);
 	STAT_unuseMemory(ctx, size);
-#elif defined(K_USING_WINDOWS)
+#elif defined(K_USING_WINDOWS_)
 	VirtualFree(block, 0, MEM_RELEASE);
 	STAT_unuseMemory(ctx, size);
 #else
@@ -279,7 +282,7 @@ static knh_fastmem_t *new_FastMemoryList(CTX ctx)
 			mslot->ref = (mslot + 1);
 		}
 		(mslot-1)->ref = NULL;
-		KNH_MEMINFO(ctx, "allocated MemoryArena id=%d region=(%p-%p)", pageindex, at->head, at->bottom);
+		MEM_LOG("Allocated MemoryArena id=%d region=(%p-%p)", pageindex, at->head, at->bottom);
 	}
 	return ctx->freeMemoryList;
 }
@@ -377,12 +380,13 @@ void knh_fastfree(CTX ctx, void *block, size_t size)
 {
 	if(size <= K_FASTMALLOC_SIZE) {
 		knh_fastmem_t *m = (knh_fastmem_t*)block;
-		knh_bzero(m, K_FASTMALLOC_SIZE);
+		KNH_FREEZERO(m, K_FASTMALLOC_SIZE);
 		m->ref = ctx->freeMemoryList;
 		((knh_context_t*)ctx)->freeMemoryList = m;
 	}
 	else {
 		prefetch(ctx->stat);
+		KNH_FREEZERO(block, size);
 		free(block);
 		STAT_unuseMemory(ctx, size);
 	}
@@ -535,7 +539,7 @@ static knh_Object_t *new_ObjectArena(CTX ctx, size_t arenasize)
 	DBG_ASSERT(sizeof(knh_ObjectPage_t) == K_PAGESIZE);
 	oat = &ctxshare->ObjectArenaTBL[pageindex];
 	ObjectArenaTBL_init(ctx, oat, arenasize);
-	KNH_MEMINFO(ctx, "allocated object arena id=%d region=(%p-%p), %d objects", pageindex, oat->head, oat->bottom, ((oat->bottom - oat->head) * K_PAGEOBJECTSIZE));
+	MEM_LOG("Allocated object arena id=%d region=(%p-%p), %d objects", pageindex, oat->head, oat->bottom, ((oat->bottom - oat->head) * K_PAGEOBJECTSIZE));
 	{
 		knh_Object_t *p = oat->head->slots;
 		p->ref4_tail = &(((knh_Object_t*)(oat->bottom))[-1]);
@@ -555,6 +559,56 @@ knh_bool_t knh_isObject(CTX ctx, void *p)
 	}
 	return 0;
 }
+
+/* ------------------------------------------------------------------------ */
+/* [cstack trace] */
+#ifdef K_USING_CTRACE
+#define K_TRACE_LENGTH 128
+static const char* addr_to_name(void* p)
+{
+	Dl_info info;
+	if (dladdr(p, &info) != 0) {
+		return info.dli_sname;
+	}
+	return NULL;
+}
+
+static void dumpObject(CTX ctx, knh_uintptr_t* p)
+{
+	knh_Object_t* o = (knh_Object_t*)(*p);
+	if (knh_isObject(ctx, (void*) o) && O_cTBL(o) != NULL) {
+		if (O_cid(o) < K_CLASS_INITSIZE) {
+			knh_putc(ctx, KNH_STDERR, '\t');
+			knh_write_Object(ctx, KNH_STDERR, o, FMT_s);
+		}
+		else {
+			knh_printf(ctx, KNH_STDERR, "\t%p %p %s\n", p, o, S_tochar(O_cTBL(o)->sname));
+		}
+	}
+}
+
+static void knh_dump_cstack(CTX ctx)
+{
+	void *trace[K_TRACE_LENGTH];
+	int i = 1;
+	backtrace(trace, K_TRACE_LENGTH);
+	void* bottom = ctx->cstack_bottom;
+	void* stack = __builtin_frame_address(0);
+	knh_printf(ctx, KNH_STDERR, "========== backtrace start ==========\n");
+	for (; stack < bottom; stack++) {
+		knh_uintptr_t** ptr = (knh_uintptr_t**) stack;
+		dumpObject(ctx, (knh_uintptr_t*) ptr);
+		if (trace[i] == *ptr) {
+			knh_printf(ctx, KNH_STDERR, "TRACE: %p %s\n", trace[i], addr_to_name(trace[i]));
+			i++;
+		}
+	}
+	knh_printf(ctx, KNH_STDERR, "========== backtrace end ==========\n");
+	knh_flush(ctx, KNH_STDERR);
+}
+#endif /* K_USING_CTRACE */
+/* ------------------------------------------------------------------------ */
+
 
 #ifdef K_USING_DEBUG
 #define DBG_CHECK_ONARENA(ctx, p) DBG_checkOnArena(ctx, p K_TRACEPOINT)
@@ -650,6 +704,16 @@ knh_Object_t *new_hObject_(CTX ctx, const knh_ClassTBL_t *ct)
 	return o;
 }
 
+KNHAPI2(knh_RawPtr_t*) new_RawPtr(CTX ctx, knh_RawPtr_t *po, void *rawptr)
+{
+	knh_RawPtr_t *npo = (knh_RawPtr_t*)new_hObject_(ctx, O_cTBL(po));
+	npo->rawptr = rawptr;
+	if(rawptr == NULL) {
+		knh_Object_toNULL(ctx, npo);
+	}
+	return npo;
+}
+
 knh_Object_t *new_Object_init2(CTX ctx, const knh_ClassTBL_t *ct)
 {
 	knh_Object_t *o = NULL;
@@ -658,7 +722,7 @@ knh_Object_t *new_Object_init2(CTX ctx, const knh_ClassTBL_t *ct)
 	o->h.magicflag = ct->magicflag;
 	knh_Object_RCset(o, K_RCGC_INIT);
 	o->h.cTBL = ct;
-	ct->ospi->init(ctx, o);
+	ct->cdef->init(ctx, RAWPTR(o));
 	createClassObject(ct);
 	knh_useObject(ctx, 1);
 	O_unset_tenure(o); // collectable
@@ -689,7 +753,7 @@ void TR_NEW(CTX ctx, knh_sfp_t *sfp, knh_sfpidx_t c, const knh_ClassTBL_t *ct)
 	o->h.magicflag = ct->magicflag;
 	knh_Object_RCset(o, K_RCGC_INIT);
 	o->h.cTBL = ct;
-	ct->ospi->init(ctx, o);
+	ct->cdef->init(ctx, RAWPTR(o));
 	createClassObject(ct);
 	knh_useObject(ctx, 1);
 	O_unset_tenure(o); // collectable
@@ -702,15 +766,13 @@ static void knh_Object_finalfree(CTX ctx, knh_Object_t *o)
 {
 	const knh_ClassTBL_t *ct = O_cTBL(o);
 	RCGC_(DBG_ASSERT(Object_isRC0(o)));
-	ct->ospi->free(ctx, o);
+	ct->cdef->free(ctx, RAWPTR(o));
 	//o->h.magicflag = 0;
 	OBJECT_REUSE(o);
 	knh_unuseObject(ctx, 1);
 	disposeClassObject(ct);
 	O_set_tenure(o); // uncollectable
 }
-
-#ifndef K_USING_CSTACK_TRAVERSE_
 
 typedef struct knh_ostack_t {
 	knh_Object_t **stack;
@@ -724,6 +786,7 @@ static knh_ostack_t *ostack_init(CTX ctx, knh_ostack_t *ostack)
 {
 	ostack->capacity = ctx->queue_capacity;
 	ostack->stack = ctx->queue;
+	ostack->log2  = ctx->queue_log2;
 	if(ostack->capacity == 0) {
 		ostack->capacity = K_PAGESIZE - 1;
 		ostack->log2 = 12; /* K_PAGESIZE == 1 << 12 */
@@ -740,11 +803,9 @@ static void ostack_push(CTX ctx, knh_ostack_t *ostack, knh_Object_t *ref)
 	if(unlikely(ntail == ostack->cur)) {
 		size_t capacity = 1 << ostack->log2;
 		ostack->stack = (knh_Object_t**)KNH_REALLOC(ctx, "ostack", ostack->stack, capacity, capacity * 2, sizeof(knh_Object_t*));
-		knh_memcpy(ostack->stack + capacity, ostack->stack, sizeof(knh_Object_t*) * ostack->tail);
-		ntail += capacity;
-		ostack->tail += capacity;
 		ostack->log2 += 1;
 		ostack->capacity = (1 << ostack->log2) - 1;
+		ntail = (ostack->tail + 1) & ostack->capacity;
 	}
 	ostack->stack[ostack->tail] = ref;
 	ostack->tail = ntail;
@@ -770,6 +831,7 @@ static void ostack_free(CTX ctx, knh_ostack_t *ostack)
 	knh_context_t *wctx = (knh_context_t*)ctx;
 	wctx->queue_capacity = ostack->capacity;
 	wctx->queue = ostack->stack;
+	wctx->queue_log2 = ostack->log2;
 }
 
 knh_Object_t** knh_ensurerefs(CTX ctx, knh_Object_t** tail, size_t size)
@@ -783,13 +845,12 @@ knh_Object_t** knh_ensurerefs(CTX ctx, knh_Object_t** tail, size_t size)
 		}
 		wctx->ref_buf = (knh_Object_t**)KNH_REALLOC(ctx, "ctx->ref_buf", ctx->ref_buf, ctx->ref_capacity, newsize, sizeof(knh_Object_t*));
 		wctx->ref_capacity = newsize;
+		wctx->refs = ctx->ref_buf;
 		tail = ctx->ref_buf + ref_size;
 	}
 	return tail;
 }
-#endif/*K_USING_CSTACK_TRAVERSE_*/
-
-#if defined(K_USING_RCGC) && !defined(K_USING_CSTACK_TRAVERSE_)
+#if defined(K_USING_RCGC)
 static void deref_ostack(CTX ctx, knh_Object_t *ref, knh_ostack_t *ostack)
 {
 	if (knh_Object_RCdec(ref) == 1) {
@@ -805,19 +866,6 @@ static void deref_ostack(CTX ctx, knh_Object_t *ref, knh_ostack_t *ostack)
 #if defined(K_USING_RCGC)
 void knh_Object_RCfree(CTX ctx, Object *o)
 {
-#ifdef K_USING_CSTACK_TRAVERSE_
-	const knh_ClassTBL_t *ct = O_cTBL(o);
-	DBG_ASSERT(o->h.magic != 0);
-	if(unlikely(o->h.magic == 0)) return;
-	O_set_tenure(o);
-	RCGC_(DBG_ASSERT(Object_isRC0(o)));
-	o->h.magic = 0;
-	ct->ospi->reftrace(ctx, o, knh_Object_RCsweep);
-	ct->ospi->free(ctx, o);
-	OBJECT_REUSE(o);
-	knh_unuseObject(ctx, 1);
-	disposeClassObject(ct);
-#else
 #define ctx_update_refs(ctx, buf, size) \
 		((knh_context_t*)ctx)->refs = buf;\
 		((knh_context_t*)ctx)->ref_size = size;
@@ -829,7 +877,7 @@ void knh_Object_RCfree(CTX ctx, Object *o)
 	ostack_push(ctx, ostack, o);
 	while((ref = ostack_next(ostack)) != NULL) {
 		ctx_update_refs(ctx, ctx->ref_buf, 0);
-		O_cTBL(ref)->ospi->reftrace(ctx, ref, ctx->refs);
+		O_cTBL(ref)->cdef->reftrace(ctx, ref, ctx->refs);
 		if (ctx->ref_size > 0) {
 			for(i = ctx->ref_size - 1; prefetch(ctx->refs[i-1]), i >= 0; i--)
 			//for (i = 0; prefetch(ctx->refs[i+1]), i < ctx->ref_size; i++) /* slow */
@@ -840,7 +888,6 @@ void knh_Object_RCfree(CTX ctx, Object *o)
 		knh_Object_finalfree(ctx, ref);
 	}
 	ostack_free(ctx, ostack);
-#endif
 }
 
 void knh_Object_RCsweep(CTX ctx, Object *o)
@@ -987,23 +1034,6 @@ static void gc_init(CTX ctx)
 	STAT_(ctx->stat->markedObject = 0;)
 }
 
-#ifdef K_USING_CSTACK_TRAVERSE_
-static void Object_mark1(CTX ctx, Object *o)
-{
-	DBG_ASSERT(o->h.magic == K_OBJECT_MAGIC);
-	knh_ObjectPage_t *opage = K_OPAGE(o);
-	knh_uintptr_t *b = opage->h.bitmap;
-	size_t n = K_OPAGEOFFSET(o, opage);
-	DBG_ASSERT(n < (K_PAGESIZE / sizeof(knh_Object_t)));
-	DBG_ASSERT(&(opage->slots[n-1]) == o);
-	if(!(bit_test_and_set(b, n))) {
-		STAT_(ctx->stat->markedObject++;)
-		O_cTBL(o)->ospi->reftrace(ctx, o, Object_mark1);
-	}
-}
-
-#else
-
 static void mark_ostack(CTX ctx, knh_Object_t *ref, knh_ostack_t *ostack)
 {
 	knh_ObjectPage_t *opage = K_OPAGE(ref);
@@ -1017,14 +1047,11 @@ static void mark_ostack(CTX ctx, knh_Object_t *ref, knh_ostack_t *ostack)
 		}
 	}
 }
-#endif
 
 static void gc_mark(CTX ctx)
 {
-#ifdef K_USING_CSTACK_TRAVERSE_
-	knh_reftraceAll(ctx, Object_mark1);
-#else
 	long i;
+	const knh_ClassTBL_t *cTBL;
 	knh_ostack_t ostackbuf, *ostack = ostack_init(ctx, &ostackbuf);
 	knh_Object_t *ref = NULL;
 	knh_ensurerefs(ctx, ctx->ref_buf, K_PAGESIZE);
@@ -1034,11 +1061,11 @@ static void gc_mark(CTX ctx)
 	//fprintf(stderr, "%s first refs %ld\n", __FUNCTION__, ctx->ref_size);
 	goto L_INLOOP;
 	while((ref = ostack_next(ostack)) != NULL) {
-		const knh_ClassTBL_t *cTBL = O_cTBL(ref);
+		cTBL = O_cTBL(ref);
 		DBG_ASSERT(O_hasRef(ref));
 		((knh_context_t*)ctx)->refs = ctx->ref_buf;
 		((knh_context_t*)ctx)->ref_size = 0;
-		cTBL->ospi->reftrace(ctx, ref, ctx->refs);
+		cTBL->cdef->reftrace(ctx, RAWPTR(ref), ctx->refs);
 		if(ctx->ref_size > 0) {
 			L_INLOOP:;
 			prefetch(ctx->refs[0]);
@@ -1048,14 +1075,13 @@ static void gc_mark(CTX ctx)
 		}
 	}
 	ostack_free(ctx, ostack);
-#endif
 }
 
 static inline void Object_MSfree(CTX ctx, knh_Object_t *o)
 {
 	const knh_ClassTBL_t *ct = O_cTBL(o);
-	//prefetch_tenure(o);
-	ct->ospi->free(ctx, o);
+	DBG_P("sweep %p %s", o, CLASS__(O_cid(o)));
+	ct->cdef->free(ctx, RAWPTR(o));
 	OBJECT_REUSE(o);
 	disposeClassObject(ct);
 	O_set_tenure(o); // uncollectable
@@ -1148,12 +1174,9 @@ static void gc_extendObjectArena(CTX ctx)
 			p->ref = newobj;
 			((knh_context_t*)ctx)->freeObjectTail = newobj->ref4_tail;
 		}
-		if(knh_isSystemVerbose()) {
-			KNH_MEMINFO(ctx, "EXTEND_ARENA: %d times newarena=%dMb, total=%d",
-					(int)(ctx->share->sizeObjectArenaTBL - 1),
-					(int)(arenasize) / MB_,
-					(int)(ctx->stat->usedMemorySize / MB_));
-		}
+		MEM_LOG("EXTEND_ARENA: %d times newarena=%dMb, used_memory=%dMb",
+				(int)(ctx->share->sizeObjectArenaTBL - 1),
+				(int)(arenasize) / MB_, (int)(ctx->stat->usedMemorySize / MB_));
 	}
 }
 #endif
@@ -1166,6 +1189,11 @@ void knh_System_gc(CTX ctx)
 	knh_stat_t *ctxstat = ctx->stat;
 	size_t used = ctxstat->usedObjectSize;
 	knh_uint64_t stime = knh_getTimeMilliSecond(), mtime = 0, ctime = 0;
+
+#ifdef K_USING_CTRACE
+	knh_dump_cstack(ctx);
+#endif
+
 	gc_init(ctx);
 	MTGC_(((knh_context_t*)ctx)->mscheck = 1);
 	gc_mark(ctx);
@@ -1178,9 +1206,9 @@ void knh_System_gc(CTX ctx)
 	mtime = knh_getTimeMilliSecond();
 	gc_sweep(ctx);
 	ctime = knh_getTimeMilliSecond();
-	if(knh_isSystemVerbose()) {
+	if(knh_isVerboseGC()) {
 		STAT_(
-		KNH_MEMINFO(ctx, "GC(%dMb): marked=%d, collected=%d, used=%d=>%d, marking_time=%dms, sweeping_time=%dms",
+		MEM_LOG("GC(%dMb): marked=%d, collected=%d, used=%d=>%d, marking_time=%dms, sweeping_time=%dms",
 				(int)(ctxstat->usedMemorySize/ MB_),
 				(int)ctxstat->markedObject, (int)ctxstat->collectedObject,
 				(int)used, (int)ctxstat->usedObjectSize, (int)(mtime-stime), (int)(ctime-mtime));)

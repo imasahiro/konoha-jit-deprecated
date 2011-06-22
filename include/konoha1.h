@@ -65,7 +65,7 @@
 
 #ifndef K_INTERNAL
 konoha_t konoha_open(size_t stacksize);
-int konoha_main(konoha_t, int, const char**);
+void konoha_main(konoha_t, int, const char**);
 void konoha_close(konoha_t konoha);
 #endif
 

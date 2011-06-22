@@ -66,7 +66,6 @@ static knh_context_t* new_hcontext(CTX ctx0)
 	ctx->freeObjectList = NULL;
 	ctx->freeMemoryList = NULL;
 	ctx->parent = (knh_context_t*)ctx;
-	ctx->api = knh_getExportsAPI();
 	ctx->api2 = getapi2();
 	{
 		knh_uintptr_t i = 0, ch;
@@ -134,11 +133,7 @@ static knh_Object_t** knh_CommonContext_reftrace(CTX ctx, knh_context_t *ctxo FT
 		}
 	}
 #endif
-#ifdef K_USING_CSTACK_TRAVERSE_
-	return NULL;
-#else
 	return tail_;
-#endif
 }
 
 static void knh_CommonContext_free(CTX ctx, knh_context_t *ctxo)
@@ -153,7 +148,10 @@ static void knh_CommonContext_free(CTX ctx, knh_context_t *ctxo)
 	ctxo->mtdcache  = NULL;
 	ctxo->tmrcache = NULL;
 	if(ctxo->queue_capacity > 0) {
-		KNH_FREE(ctx, ctxo->queue,  ctxo->queue_capacity * sizeof(knh_Object_t*));
+		/* XXX(@imasahiro) */
+		/* to remove memory leaks, queue_capacity must increment */
+		/* see src/main/memory.c ostack_init() */
+		KNH_FREE(ctx, ctxo->queue,  (ctxo->queue_capacity + 1) * sizeof(knh_Object_t*));
 		ctxo->queue_capacity = 0;
 	}
 	if(ctx->ref_capacity > 0) {
@@ -307,39 +305,8 @@ static knh_context_t* new_RootContext(void)
 	knh_loadScriptTokenData(ctx);
 	knh_loadScriptAliasTokenData(ctx);
 	share->ctx0 = ctx;
+	knh_Gamma_init(ctx);  // initalize gamma->gf, reported by uh
 	return ctx;
-}
-
-static const char* LOG__(int p)
-{
-	switch(p) {
-	case LOG_EMERG:   return "PANIC ";
-	case LOG_ALERT:   return "ALERT ";
-	case LOG_CRIT:    return "CRIT ";
-	case LOG_ERR:     return "ERROR ";
-	case LOG_WARNING: return "WARNING ";
-	case LOG_NOTICE:  return "NOTICE ";
-	case LOG_INFO:    return "INFO ";
-	case LOG_DEBUG:   return "DEBUG ";
-	}
-	return "DEBUG2 ";
-}
-
-void pseudo_vsyslog(int p, const char *fmt, va_list ap)
-{
-	fprintf(stderr, "%s", LOG__(p));
-	vfprintf(stderr, fmt, ap);
-	fprintf(stderr, "\n");
-}
-
-void pseudo_syslog(int p, const char *fmt, ...)
-{
-	va_list ap;
-	va_start(ap , fmt);
-	fprintf(stderr, "%s", LOG__(p));
-	vfprintf(stderr, fmt, ap);
-	fprintf(stderr, "\n");
-	va_end(ap);
 }
 
 static int _lock(knh_mutex_t *m DBG_TRACE)
@@ -370,6 +337,18 @@ int iconv_close(iconv_t i)
 }
 #endif
 
+static void _setsfp(CTX ctx, knh_sfp_t *sfp, void *v)
+{
+	knh_Object_t *o = (knh_Object_t*)v;
+	DBG_ASSERT_ISOBJECT(o);
+	knh_Object_RCinc(o);
+	knh_Object_RCdec(sfp[0].o);
+	if(Object_isRC0(sfp[0].o)) {
+		knh_Object_RCfree(ctx, sfp[0].o);
+	}
+	sfp[0].o = o;
+}
+
 static void initServiceSPI(knh_ServiceSPI_t *spi)
 {
 	spi->syncspi = "nothread";
@@ -386,6 +365,12 @@ static void initServiceSPI(knh_ServiceSPI_t *spi)
 #else
 	spi->iconvspi = "noiconv";
 #endif
+	spi->mallocSPI = knh_fastmalloc;
+	spi->freeSPI = knh_fastfree;
+	spi->setsfpSPI = _setsfp;
+	spi->closeItrSPI = knh_Iterator_close;
+	spi->recordSPI = knh_record;
+	spi->pSPI = dbg_p;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -401,6 +386,8 @@ static knh_Object_t **knh_share_reftrace(CTX ctx, knh_share_t *share FTRARG)
 	KNH_ADDREF(ctx, (share->emptyArray));
 	KNH_ADDREF(ctx, (ctx->sys));
 	KNH_ADDREF(ctx, (share->rootns));
+	KNH_ADDNNREF(ctx, (share->sysAliasDictMapNULL));
+
 	KNH_ENSUREREF(ctx, K_TSTRING_SIZE);
 	for(i = 0; i < K_TSTRING_SIZE; i++) {
 		KNH_ADDREF(ctx, (share->tString[i]));
@@ -414,25 +401,21 @@ static knh_Object_t **knh_share_reftrace(CTX ctx, knh_share_t *share FTRARG)
 	/* tclass */
 	KNH_ENSUREREF(ctx, share->sizeClassTBL * 10);
 	for(i = 0; i < share->sizeClassTBL; i++) {
-		const knh_ClassTBL_t *t = ClassTBL(i);
-		DBG_ASSERT(t->lname != NULL);
-		KNH_ADDNNREF(ctx,  (t->typeNULL));
-		KNH_ADDREF(ctx, (t->methods));
-		KNH_ADDREF(ctx, t->typemaps);
-		KNH_ADDNNREF(ctx,  t->cparam);
-		KNH_ADDNNREF(ctx,  t->defnull);
-		KNH_ADDNNREF(ctx,  t->constDictCaseMapNULL);
-		KNH_ADDREF(ctx, t->sname);
-		KNH_ADDREF(ctx, t->lname);
-		if(t->bcid == CLASS_Object && t->cid > t->bcid) {
-			KNH_ADDREF(ctx, t->protoNULL);
+		const knh_ClassTBL_t *ct = ClassTBL(i);
+		DBG_ASSERT(ct->lname != NULL);
+		KNH_ADDNNREF(ctx,  (ct->typeNULL));
+		KNH_ADDREF(ctx, (ct->methods));
+		KNH_ADDREF(ctx, ct->typemaps);
+		KNH_ADDNNREF(ctx,  ct->cparam);
+		KNH_ADDNNREF(ctx,  ct->defnull);
+		KNH_ADDNNREF(ctx,  ct->constDictCaseMapNULL);
+		KNH_ADDREF(ctx, ct->sname);
+		KNH_ADDREF(ctx, ct->lname);
+		if(ct->bcid == CLASS_Object && ct->cid > ct->bcid) {
+			KNH_ADDREF(ctx, ct->protoNULL);
 		}
 	}
-#ifdef K_USING_CSTACK_TRAVERSE_
-	return NULL;
-#else
 	return tail_;
-#endif
 }
 
 static void knh_share_free(CTX ctx, knh_share_t *share)
@@ -442,20 +425,22 @@ static void knh_share_free(CTX ctx, knh_share_t *share)
 	share->EventTBL = NULL;
 	KNH_FREE(ctx, share->tString, SIZEOF_TSTRING);
 	share->tString = NULL;
-	//((knh_context_t*)ctx)->fsweep = knh_Object_finalSweep;
-
 	DBG_ASSERT(share->ObjectArenaTBL != NULL);
 	for(i = 0; i < share->sizeObjectArenaTBL; i++) {
 		knh_ObjectArenaTBL_t *t = share->ObjectArenaTBL + i;
 		knh_ObjectObjectArenaTBL_free(ctx, t);
 	}
 	for(i = 0; i < share->sizeClassTBL; i++) {
-		knh_ClassTBL_t *t = varClassTBL(i);
-		if(t->fcapacity > 0) {
-			KNH_FREE(ctx, t->fields, sizeof(knh_fields_t) * t->fcapacity);
-			t->fields = NULL;
+		knh_ClassTBL_t *ct = varClassTBL(i);
+		if(ct->cdef->asize > 0) {
+			DBG_P("freeing ClassDef cid=%d %s", i, ct->cdef->name);
+			KNH_FREE(ctx, (void*)ct->cdef, ct->cdef->asize);
 		}
-		KNH_FREE(ctx, t, sizeof(knh_ClassTBL_t));
+		if(ct->fcapacity > 0) {
+			KNH_FREE(ctx, ct->fields, sizeof(knh_fields_t) * ct->fcapacity);
+			ct->fields = NULL;
+		}
+		KNH_FREE(ctx, ct, sizeof(knh_ClassTBL_t));
 	}
 	KNH_FREE(ctx, (void*)share->ClassTBL, sizeof(knh_ClassTBL_t*)*(share->capacityClassTBL));
 	share->ClassTBL = NULL;
@@ -490,13 +475,8 @@ static void knh_share_free(CTX ctx, knh_share_t *share)
 	KNH_FREE(ctx, share->Memory256ArenaTBL, share->capacityMemory256ArenaTBL * sizeof(knh_Memory256ArenaTBL_t));
 	share->Memory256ArenaTBL = NULL;
 #endif
-	if(ctx->stat->gcCount > 0) {
-		KNH_MEMINFO(ctx, "GC %d times, marking_time=%dms, sweeping_time=%dms total=%fs",
-				(int)ctx->stat->gcCount, (int)ctx->stat->markingTime, (int)ctx->stat->sweepingTime,
-				((double)ctx->stat->gcTime) / 1000.0);
-	}
 	if(ctx->stat->usedMemorySize != 0) {
-		KNH_WARN(ctx, "memory leaking size=%ldbytes", (long)ctx->stat->usedMemorySize);
+		knh_logprintf("memory leaking size=%ldbytes", (long)ctx->stat->usedMemorySize);
 	}
 	knh_bzero(share, sizeof(knh_share_t) + sizeof(knh_stat_t) + sizeof(knh_ServiceSPI_t));
 	free(share);
@@ -525,18 +505,11 @@ static knh_context_t* knh_getRootContext(CTX ctx)
 
 void knh_context_reftrace(CTX ctx, knh_context_t *o FTRARG)
 {
-#ifdef K_USING_CSTACK_TRAVERSE_
-	knh_CommonContext_reftrace(ctx, (knh_context_t*)o FTRDATA);
-	if(knh_getRootContext(ctx) == (CTX)o) {
-		knh_share_reftrace(ctx, (knh_share_t*)o->share FTRDATA);
-	}
-#else
 	tail_ = knh_CommonContext_reftrace(ctx, (knh_context_t*)o FTRDATA);
 	if(knh_getRootContext(ctx) == (CTX)o) {
 		tail_ = knh_share_reftrace(ctx, (knh_share_t*)o->share FTRDATA);
 	}
 	KNH_SIZEREF(ctx);
-#endif
 }
 
 void knh_Context_free(CTX ctx, knh_context_t* ctxo)
@@ -586,22 +559,22 @@ void konoha_close(konoha_t konoha)
 	CTX ctx = (knh_context_t*)konoha.ctx;
 	KONOHA_CHECK_(konoha);
 	if(ctx->share->threadCounter > 1) {
-		KNH_WARN(ctx, "still %d thread(s) running", (int)ctx->share->threadCounter);
+		LOGSFPDATA = {LOGMSG("stil threads running"), iDATA("threads", ctx->share->threadCounter)};
+		LIB_Failed("konoha_close", NULL);
 		return;
 	}
 	knh_showMemoryStat(ctx);
 #ifdef K_USING_RCGC
-#ifdef K_USING_CSTACK_TRAVERSE_
-#define ARG knh_Object_RCsweep
-#else
-#define ARG ctx->ref_buf
-#endif
-	knh_context_reftrace(ctx, (knh_context_t*)ctx, ARG);
-#ifndef K_USING_CSTACK_TRAVERSE_
+	knh_context_reftrace(ctx, (knh_context_t*)ctx, ctx->ref_buf);
 	//knh_RefTraverse(ctx, knh_Object_RCsweep);
 #endif
-#undef ARG
-#endif
+	{
+		LOGSFPDATA = {uDATA("gc_count", ctx->stat->gcCount),
+				uDATA("marking_time(ms)", ctx->stat->markingTime),
+				uDATA("sweeping_time(ms)", ctx->stat->sweepingTime),
+				uDATA("total_time(ms)", ctx->stat->gcTime)};
+		NOTE_OK("GC");
+	}
 	((knh_context_t*)ctx)->bufa = NULL; // necessary for KNH_SYSLOG
 	knh_Context_free(ctx, (knh_context_t*)ctx);
 }

@@ -29,8 +29,6 @@
 
 #ifndef K_INCLUDE_BUILTINAPI
 
-#define USE_array_index  1
-
 #include"commons.h"
 
 /* ************************************************************************ */
@@ -202,7 +200,7 @@ void knh_Array_initAPI(CTX ctx, knh_Array_t *a)
 /* ------------------------------------------------------------------------ */
 /* Iterator */
 
-static ITRNEXT Fitrnext_end(CTX ctx, knh_sfp_t *sfp, long rtnidx)
+static ITRNEXT Fitrnext_end(CTX ctx, knh_sfp_t *sfp _RIX)
 {
 	ITREND_();
 }
@@ -240,7 +238,7 @@ KNHAPI2(knh_Iterator_t*) new_Iterator(CTX ctx, knh_class_t p1, knh_Object_t *sou
 /* ------------------------------------------------------------------------ */
 /* [ArrayIterator] */
 
-static ITRNEXT Array_nextO(CTX ctx, knh_sfp_t *sfp, long rtnidx)
+static ITRNEXT Array_nextO(CTX ctx, knh_sfp_t *sfp _RIX)
 {
 	DBG_ASSERT(IS_bIterator(sfp[0].it));
 	knh_Iterator_t *itr = ITR(sfp);
@@ -253,7 +251,7 @@ static ITRNEXT Array_nextO(CTX ctx, knh_sfp_t *sfp, long rtnidx)
 	ITREND_();
 }
 
-static ITRNEXT Array_nextN(CTX ctx, knh_sfp_t *sfp, long rtnidx)
+static ITRNEXT Array_nextN(CTX ctx, knh_sfp_t *sfp _RIX)
 {
 	DBG_ASSERT(IS_bIterator(sfp[0].it));
 	knh_Iterator_t *itr = ITR(sfp);
@@ -299,19 +297,17 @@ knh_Array_t* knh_Iterator_toArray(CTX ctx, knh_Iterator_t *itr)
 #else /*K_INCLUDE_BUILTINAPI*/
 
 /* ------------------------------------------------------------------------ */
-//## method T1 Array.get(Int n);
-//## method T1 ArrayIm.get(Int n);
+//## @Immutable method T1 Array.get(Int n);
 
 static METHOD Array_get(CTX ctx, knh_sfp_t *sfp _RIX)
 {
 	knh_Array_t *a = sfp[0].a;
-	size_t n2 = a->api->index(ctx, sfp, Int_to(size_t, ctx->esp[-1]), a->size);
-	a->api->get(ctx, sfp, n2, rix);
+	size_t n2 = a->api->index(ctx, sfp, Int_to(knh_int_t, ctx->esp[-1]), a->size);
+	a->api->get(ctx, sfp, n2, K_RIX);
 }
 
 /* ------------------------------------------------------------------------ */
-//## @Hidden method T1 Array.get2(Int x, Int y);
-//## @Hidden method T1 ArrayIm.get2(Int x, Int y);
+//## @Immutable @Hidden method T1 Array.get2(Int x, Int y);
 
 static METHOD Array_get2(CTX ctx, knh_sfp_t *sfp _RIX)
 {
@@ -319,12 +315,11 @@ static METHOD Array_get2(CTX ctx, knh_sfp_t *sfp _RIX)
 	const knh_dim_t *dim = a->dim;
 	knh_int_t n = sfp[1].ivalue + (sfp[2].ivalue * dim->x);
 	size_t n2 = a->api->index(ctx, sfp, n, a->size);
-	a->api->get(ctx, sfp, n2, rix);
+	a->api->get(ctx, sfp, n2, K_RIX);
 }
 
 /* ------------------------------------------------------------------------ */
-//## @Hidden method T1 Array.get3(Int x, Int y, Int z);
-//## @Hidden method T1 ArrayIm.get3(Int x, Int y, Int z);
+//## @Immutable @Hidden method T1 Array.get3(Int x, Int y, Int z);
 
 static METHOD Array_get3(CTX ctx, knh_sfp_t *sfp _RIX)
 {
@@ -332,12 +327,11 @@ static METHOD Array_get3(CTX ctx, knh_sfp_t *sfp _RIX)
 	const knh_dim_t *dim = a->dim;
 	knh_int_t n = sfp[1].ivalue + (sfp[2].ivalue * dim->x) + (sfp[3].ivalue * dim->xy);
 	size_t n2 = a->api->index(ctx, sfp, n, a->size);
-	a->api->get(ctx, sfp, n2, rix);
+	a->api->get(ctx, sfp, n2, K_RIX);
 }
 
 /* ------------------------------------------------------------------------ */
-//## @Hidden method T1 Array.get4(Int x, Int y, Int z, Int w);
-//## @Hidden method T1 ArrayIm.get4(Int x, Int y, Int z, Int w);
+//## @Immutable @Hidden method T1 Array.get4(Int x, Int y, Int z, Int w);
 
 static METHOD Array_get4(CTX ctx, knh_sfp_t *sfp _RIX)
 {
@@ -345,7 +339,7 @@ static METHOD Array_get4(CTX ctx, knh_sfp_t *sfp _RIX)
 	const knh_dim_t *dim = a->dim;
 	knh_int_t n = sfp[1].ivalue + (sfp[2].ivalue * dim->x) + (sfp[3].ivalue * dim->xy) + (sfp[4].ivalue * dim->xyz);
 	size_t n2 = a->api->index(ctx, sfp, n, a->size);
-	a->api->get(ctx, sfp, n2, rix);
+	a->api->get(ctx, sfp, n2, K_RIX);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -357,11 +351,11 @@ static METHOD Array_set(CTX ctx, knh_sfp_t *sfp _RIX)
 	knh_int_t n = sfp[1].ivalue;
 	size_t n2 = a->api->index(ctx, sfp, n, a->size);
 	a->api->set(ctx, sfp[0].a, n2, sfp+2);
-	a->api->get(ctx, sfp, n2, rix);
+	a->api->get(ctx, sfp, n2, K_RIX);
 }
 
 /* ------------------------------------------------------------------------ */
-//## method T1 Array.set2(Int x, Int y, T1 v);
+//## @Hidden method T1 Array.set2(Int x, Int y, T1 v);
 
 static METHOD Array_set2(CTX ctx, knh_sfp_t *sfp _RIX)
 {
@@ -370,11 +364,11 @@ static METHOD Array_set2(CTX ctx, knh_sfp_t *sfp _RIX)
 	knh_int_t n = sfp[1].ivalue + (sfp[2].ivalue * dim->x);
 	size_t n2 = a->api->index(ctx, sfp, n, a->size);
 	a->api->set(ctx, a, n2, sfp+3);
-	a->api->get(ctx, sfp, n2, rix);
+	a->api->get(ctx, sfp, n2, K_RIX);
 }
 
 /* ------------------------------------------------------------------------ */
-//## method T1 Array.set3(Int x, Int y, Int z, T1 v);
+//## @Hidden method T1 Array.set3(Int x, Int y, Int z, T1 v);
 
 static METHOD Array_set3(CTX ctx, knh_sfp_t *sfp _RIX)
 {
@@ -383,11 +377,11 @@ static METHOD Array_set3(CTX ctx, knh_sfp_t *sfp _RIX)
 	knh_int_t n = sfp[1].ivalue + (sfp[2].ivalue * dim->x) + (sfp[3].ivalue * dim->xy);
 	size_t n2 = a->api->index(ctx, sfp, n, a->size);
 	a->api->set(ctx, a, n2, sfp+4);
-	a->api->get(ctx, sfp, n2, rix);
+	a->api->get(ctx, sfp, n2, K_RIX);
 }
 
 /* ------------------------------------------------------------------------ */
-//## method T1 Array.set4(Int x, Int y, Int z, Int, w, T1 v);
+//## @Hidden method T1 Array.set4(Int x, Int y, Int z, Int, w, T1 v);
 
 static METHOD Array_set4(CTX ctx, knh_sfp_t *sfp _RIX)
 {
@@ -396,7 +390,7 @@ static METHOD Array_set4(CTX ctx, knh_sfp_t *sfp _RIX)
 	knh_int_t n = sfp[1].ivalue + (sfp[2].ivalue * dim->x) + (sfp[3].ivalue * dim->xy) + (sfp[4].ivalue * dim->xyz);
 	size_t n2 = a->api->index(ctx, sfp, n, a->size);
 	a->api->set(ctx, a, n2, sfp+5);
-	a->api->get(ctx, sfp, n2, rix);
+	a->api->get(ctx, sfp, n2, K_RIX);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -409,10 +403,10 @@ static METHOD Array_setAll(CTX ctx, knh_sfp_t *sfp _RIX)
 		(sfp[0].a)->api->set(ctx, sfp[0].a, i, sfp+1);
 	}
 	if((sfp[0].a)->size > 0) {
-		(sfp[0].a)->api->get(ctx, sfp, 0, rix);
+		(sfp[0].a)->api->get(ctx, sfp, 0, K_RIX);
 	}
 	else {
-		sfp[rix].ndata = sfp[1].ndata;
+		sfp[K_RIX].ndata = sfp[1].ndata;
 		RETURN_(sfp[1].o);
 	}
 }
@@ -434,21 +428,19 @@ static METHOD Array_add(CTX ctx, knh_sfp_t *sfp _RIX)
 static METHOD Array_insert(CTX ctx, knh_sfp_t *sfp _RIX)
 {
 	knh_Array_t *a = sfp[0].a;
-	size_t size, n = a->api->index(ctx, sfp, Int_to(size_t, sfp[1]), a->size);
+	size_t n = a->api->index(ctx, sfp, Int_to(knh_int_t, sfp[1]), a->size);
 	const knh_dim_t *dim = a->dim;
 	BEGIN_LOCAL(ctx, lsfp, 1);
 	if(a->size == dim->capacity) {
 		knh_Array_grow(ctx, a, k_grow(dim->capacity), a->size + 1);
 	}
 	if(Array_isNDATA(a)) {
-		size = sizeof(knh_ndata_t);
-		lsfp[0].ndata = a->nlist[a->size];
+		knh_memmove(a->nlist+(n+1), a->nlist+n, sizeof(knh_ndata_t*) * (a->size - n));
 	}else {
-		size = sizeof(knh_Object_t*);
-		KNH_SETv(ctx, lsfp[0].o, a->list[a->size]);
+		knh_memmove(a->list+(n+1), a->list+n, sizeof(knh_Object_t*) * (a->size - n));
+		KNH_INITv(a->list[n], KNH_NULL); // for RCGC
 	}
 	a->size++;
-	knh_memmove(a->list+(n+1), a->list+n, size * (a->size - n));
 	a->api->set(ctx, a, n, sfp+2);
 	END_LOCAL_(ctx, lsfp);
 	RETURNvoid_();
@@ -468,14 +460,12 @@ static METHOD Array_clear(CTX ctx, knh_sfp_t *sfp _RIX)
 static void knh_Array_remove_(CTX ctx, knh_Array_t *a, size_t n)
 {
 	DBG_ASSERT(n < a->size);
-	size_t size;
 	if (Array_isNDATA(a)) {
-		size = sizeof(knh_ndata_t);
+		knh_memmove(a->nlist+n, a->nlist+(n+1), sizeof(knh_ndata_t) * (a->size - n - 1));
 	} else {
-		size = sizeof(knh_Object_t*);
 		KNH_FINALv(ctx, a->list[n]);
+		knh_memmove(a->list+n, a->list+(n+1), sizeof(knh_Object_t*) * (a->size - n - 1));
 	}
-	knh_memmove(a->list+n, a->list+(n+1), size * (a->size - n - 1));
 	a->size--;
 }
 
@@ -485,7 +475,7 @@ static void knh_Array_remove_(CTX ctx, knh_Array_t *a, size_t n)
 static METHOD Array_remove(CTX ctx, knh_sfp_t *sfp _RIX)
 {
 	knh_Array_t *o = (knh_Array_t*)sfp[0].o;
-	size_t n = knh_array_index(ctx, sfp, sfp[1].ivalue, o->size);
+	size_t n = knh_array_index(ctx, sfp, Int_to(knh_int_t, sfp[1]), o->size);
 	knh_Array_remove_(ctx, o, n);
 	RETURNvoid_();
 }
@@ -497,7 +487,7 @@ static METHOD Array_pop(CTX ctx, knh_sfp_t *sfp _RIX)
 {
 	knh_Array_t *a = sfp[0].a;
 	if (a->size > 0) {
-		(a)->api->get(ctx, sfp, a->size - 1, rix);
+		(a)->api->get(ctx, sfp, a->size - 1, K_RIX);
 		knh_Array_clear(ctx, a, a->size - 1);
 	}
 }
@@ -551,87 +541,85 @@ static METHOD Array_lastIndexOf(CTX ctx, knh_sfp_t *sfp _RIX)
 	RETURNi_(i);
 }
 
-///* ------------------------------------------------------------------------ */
-///* [Collections] */
-//
-//typedef struct {
-//	CTX ctx;
-//	knh_sfp_t *sfp;
-//} knh_env_t;
-//
-//static int knh_env_comp(knh_env_t *env, Object **a1, Object **a2)
-//{
-//	CTX ctx = env->ctx;
-//	knh_sfp_t *lsfp = env->sfp + 2;
-//	knh_putsfp(ctx, lsfp, 2, a1[0]);
-//	knh_putsfp(ctx, lsfp, 3, a2[0]);
-//	knh_Func_invokesfp(ctx, env->sfp[1].cc, lsfp, 1/*rtnidx*/, 2);
-//	return (int)lsfp[0].ivalue;
-//}
-//
-///* ------------------------------------------------------------------------ */
-////## method void Array.sort(Cmpr? cc);
-//
-//static METHOD Array_sort(CTX ctx, knh_sfp_t *sfp _RIX)
-//{
-//
-//	knh_Array_t *o = sfp[0].a;
-//	if(IS_NULL(sfp[1].o)) {
-//		knh_qsort_r(o->list, o->size, sizeof(Object*),
-//			(void*)ctx, (int (*)(void*, const void*, const void*))knh_Object_compareTo2);
-//	}
-//	else {
-//		knh_env_t env = {ctx, sfp};
-//		knh_qsort_r(o->list, o->size, sizeof(Object*), (void*)&env,
-//				(int (*)(void *, const void* , const void*))knh_env_comp);
-//	}
-//	RETURNvoid_();
-//}
-//
-///* ------------------------------------------------------------------------ */
-//
-//static int qsort_icmp(const void* ap, const void* bp)
-//{
-//	knh_int_t a = *((knh_int_t*)ap);
-//	knh_int_t b = *((knh_int_t*)bp);
-//	if(a < b) return -1;
-//	if(a > b) return 1;
-//	return 0;
-//}
-//
-///* ------------------------------------------------------------------------ */
-////## method void IArray.sort();
-//
-//static METHOD IArray_sort(CTX ctx, knh_sfp_t *sfp _RIX)
-//{
-//
-//	knh_IArray_t *o = (knh_IArray_t*)sfp[0].o;
-//	knh_qsort(o->ilist, o->size, sizeof(knh_int_t), qsort_icmp);
-//	RETURNvoid_();
-//}
-//
-///* ------------------------------------------------------------------------ */
-//
-//static int qsort_fcmp(const void* ap, const void* bp)
-//{
-//	knh_float_t a = *((knh_float_t*)ap);
-//	knh_float_t b = *((knh_float_t*)bp);
-//	if(a < b) return -1;
-//	if(a > b) return 1;
-//	return 0;
-//}
-//
-///* ------------------------------------------------------------------------ */
-////## method void FArray.sort();
-//
-//static METHOD FArray_sort(CTX ctx, knh_sfp_t *sfp _RIX)
-//{
-//
-//	knh_FArray_t *o = (knh_FArray_t*)sfp[0].o;
-//	knh_qsort(o->flist, o->size, sizeof(knh_float_t), qsort_fcmp);
-//	RETURNvoid_();
-//}
-//
+/* ------------------------------------------------------------------------ */
+
+static int qsort_icmp(const void* ap, const void* bp)
+{
+	knh_int_t a = *((knh_int_t*)ap);
+	knh_int_t b = *((knh_int_t*)bp);
+	if(a < b) return -1;
+	return (a > b);
+}
+
+static int qsort_fcmp(const void* ap, const void* bp)
+{
+	knh_float_t a = *((knh_float_t*)ap);
+	knh_float_t b = *((knh_float_t*)bp);
+	if(a < b) return -1;
+	return (a > b);
+}
+
+static int qsort_ocmp(const void *ap, const void* bp)
+{
+	knh_RawPtr_t* o1 = *((knh_RawPtr_t**)ap);
+	knh_RawPtr_t* o2 = *((knh_RawPtr_t**)bp);
+	knh_class_t bcid1 = O_bcid(o1);
+	knh_class_t bcid2 = O_bcid(o2);
+	int res;
+	if(bcid1 == bcid2) {
+		res = O_cTBL(o1)->cdef->compareTo(o1, o2);
+	}
+	else {
+		res = (int)(o1 - o2);
+	}
+	return res;
+}
+
+// added by @shinpei_NKT
+int knh_compare(knh_Func_t *fo, const void *v1, const void *v2)
+{
+	knh_int_t a = *((knh_int_t*)v1);
+	knh_int_t b = *((knh_int_t*)v2);
+	CLOSURE_start(2);
+	CLOSURE_putArg(1, Int, a);
+	CLOSURE_putArg(2, Int, b);
+	CLOSURE_call(fo);
+	int ret = CLOSURE_getReturn(Int);
+	CLOSURE_end(return ret);
+}
+
+int dummyCallbackCompare(const void *v1, const void *v2)
+{
+	return knh_compare((knh_Func_t*)(0xfffffff0fffffff0), v1, v2);
+}
+
+/* ------------------------------------------------------------------------ */
+//## method void Array.sort(CmprT1 cmr);
+
+static METHOD Array_sort(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+	knh_Array_t *a = sfp[0].a;
+	if(IS_NULL(sfp[1].o)) {
+		knh_class_t p1 = O_p1(a);
+		if(Array_isNDATA(a)) {
+			if(p1 == TYPE_Boolean || IS_Tint(p1)) {
+				knh_qsort(a->nlist, a->size, sizeof(knh_int_t), qsort_icmp);
+			}
+			else {
+				knh_qsort(a->nlist, a->size, sizeof(knh_float_t), qsort_fcmp);
+			}
+		}
+		else {
+			knh_qsort(a->list, a->size, sizeof(Object*), qsort_ocmp);
+		}
+	}
+	else {
+		// added by @shinpei_NKT
+	  int(*cfunc)(const void*, const void*) = (int(*)(const void*, const void*))(knh_copyCallbackFunc(ctx, (void*)dummyCallbackCompare, (void*)knh_compare, sfp[1].fo));
+	  knh_qsort(a->ilist, a->size, sizeof(knh_int_t), cfunc);
+	}
+}
+
 /* ------------------------------------------------------------------------ */
 
 static inline void NArray_swap(CTX ctx, knh_Array_t *a, size_t n, size_t m)
@@ -655,8 +643,8 @@ static inline void OArray_swap(CTX ctx, knh_Array_t *a, size_t n, size_t m)
 static METHOD Array_swap(CTX ctx, knh_sfp_t *sfp _RIX)
 {
 	knh_Array_t *a = sfp[0].a;
-	size_t m = knh_array_index(ctx, sfp, (sfp[1].ivalue), a->size);
-	size_t n = knh_array_index(ctx, sfp, (sfp[2].ivalue), a->size);
+	size_t m = knh_array_index(ctx, sfp, Int_to(knh_int_t, sfp[1]), a->size);
+	size_t n = knh_array_index(ctx, sfp, Int_to(knh_int_t, sfp[2]), a->size);
 	if(Array_isNDATA(a)) {
 		NArray_swap(ctx, a, n, m);
 	}
@@ -712,6 +700,74 @@ static METHOD Array_reverse(CTX ctx, knh_sfp_t *sfp _RIX)
 }
 
 /* ------------------------------------------------------------------------ */
+
+static ITRNEXT ITR_where(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+	DBG_ASSERT(IS_bIterator(sfp[0].it));
+	knh_Iterator_t *itr = ITR(sfp);
+	knh_sfp_t *lsfp = ctx->esp;
+	DBG_ASSERT(sfp < lsfp);
+	long rtnidx_ = 0, thisidx = rtnidx_ + K_CALLDELTA;
+	knh_Iterator_t *itrIN = (knh_Iterator_t*)DP(itr)->source;
+	KNH_SETv(ctx, lsfp[thisidx+2].o, itrIN);
+	klr_setesp(ctx, lsfp + thisidx+2);
+	while(itrIN->fnext_1(ctx, lsfp+thisidx+2, -1)) {
+		knh_Func_t *fo = DP(itr)->funcNULL;
+		KNH_FINVOKE(ctx, lsfp, rtnidx_, fo, 1);
+		if(lsfp[rtnidx_].bvalue) {
+			sfp[K_RIX].ndata = lsfp[thisidx+1].ndata;
+			ITRNEXT_(lsfp[thisidx+1].o);
+		}
+		KNH_SETv(ctx, lsfp[thisidx+2].o, itrIN);
+		klr_setesp(ctx, lsfp + thisidx+2);
+	}
+	ITREND_();
+}
+
+static ITRNEXT ITR_each(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+	DBG_ASSERT(IS_bIterator(sfp[0].it));
+	knh_Iterator_t *itr = ITR(sfp);
+	knh_sfp_t *lsfp = ctx->esp;
+	DBG_ASSERT(sfp < lsfp);
+	long rtnidx_ = 0, thisidx = rtnidx_ + K_CALLDELTA;
+	knh_Iterator_t *itrIN = (knh_Iterator_t*)DP(itr)->source;
+	KNH_SETv(ctx, lsfp[thisidx+2].o, itrIN);
+	klr_setesp(ctx, lsfp + thisidx+2);
+	if(!itrIN->fnext_1(ctx, lsfp+thisidx+2, -1)) {
+		ITREND_();
+	}
+	knh_Func_t *fo = DP(itr)->funcNULL;
+	KNH_FINVOKE(ctx, lsfp, rtnidx_, fo, 1);
+	sfp[K_RIX].ndata = lsfp[rtnidx_].ndata;
+	ITRNEXT_(lsfp[rtnidx_].o);
+}
+
+/* ------------------------------------------------------------------------ */
+//## @Hidden method This Iterator.opWHERE(FuncWhere f);
+
+static METHOD Iterator_opWHERE(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+	knh_Iterator_t *it = (knh_Iterator_t*)new_Object_init2(ctx, O_cTBL(sfp[0].it));
+	KNH_SETv(ctx, DP(it)->source, sfp[1].o);
+	KNH_INITv(DP(it)->funcNULL, sfp[1].o);
+	it->fnext_1 = ITR_where;
+	RETURN_(it);
+}
+
+/* ------------------------------------------------------------------------ */
+//## @Hidden method This Iterator.opWHERE(FuncEach f);
+
+static METHOD Iterator_opEACH(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+	knh_Iterator_t *it = (knh_Iterator_t*)new_Object_init2(ctx, O_cTBL(sfp[0].it));
+	KNH_SETv(ctx, DP(it)->source, sfp[1].o);
+	KNH_INITv(DP(it)->funcNULL, sfp[1].o);
+	it->fnext_1 = ITR_each;
+	RETURN_(it);
+}
+
+/* ------------------------------------------------------------------------ */
 //## mapper Iterator Iterator;
 
 static TYPEMAP Iterator_Iterator(CTX ctx, knh_sfp_t *sfp _RIX)
@@ -729,7 +785,8 @@ static TYPEMAP Array_Array(CTX ctx, knh_sfp_t *sfp _RIX)
 //	knh_TypeMap_t *tmr = sfp[K_TMRIDX].tmrNC;
 //	knh_Array_t *ta = sfp[0].a;
 //	knh_Array_t *sa = new_ArrayCTBL(ctx, ClassTBL(tmr->tcid), knh_Array_size(ta));
-//	size_t i;
+//	klr_setesp(ctx, lsfp+2); added
+	//	size_t i;
 //	if(IS_TypeMap(tmr->tmr1)) {
 //		tmr = tmr->tmr1;
 //		for(i = 0; i < knh_Array_size(ta); i++) {
@@ -758,6 +815,24 @@ static TYPEMAP Array_Iterator(CTX ctx, knh_sfp_t *sfp _RIX)
 {
 	RETURN_(new_ArrayIterator(ctx, sfp[0].a));
 }
+
+/* ------------------------------------------------------------------------ */
+/* [RangeInt] */
+
+//## @Semantic @Const mapper RangeInt ArrayInt;
+
+static TYPEMAP RangeInt_ArrayInt(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+	knh_Range_t *rng = (knh_Range_t*)sfp[0].o;
+	knh_Array_t *a = new_Array(ctx, CLASS_Int, (rng->nend - rng->nstart) + 1);
+	knh_intptr_t i = 0, n;
+	for(n = (knh_intptr_t)rng->nstart; n <= (knh_intptr_t)rng->nend; n++) {
+		a->nlist[i] = n;
+		i++;
+	}
+	RETURN_(a);
+}
+
 
 /* ------------------------------------------------------------------------ */
 

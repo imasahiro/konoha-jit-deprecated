@@ -19,6 +19,19 @@
 #define LOG_DEBUG    7 /* debug-level messages */
 #endif
 
+#define KNH_DIE(fmt, ...) {\
+		fprintf(stderr, "%s(%s:%d): " fmt, __FUNCTION__, __FILE__, __LINE__, ## __VA_ARGS__);\
+		exit(70);  /* EX_SOFTWARE */ \
+	}\
+
+#define KNH_LOG(fmt, ...) \
+		knh_logprintf("[%s:%d] " fmt K_OSLINEFEED, __FUNCTION__, __LINE__, ## __VA_ARGS__);
+
+#define MEM_LOG(fmt, ...) { \
+		knh_logprintf("MEMORY: " fmt K_OSLINEFEED,  ## __VA_ARGS__);\
+	} \
+
+#ifdef OLD
 #define LOG_NULL(isNullable)  ((isNullable) ? LOG_NOTICE : LOG_ERR)
 #define LOG_NONE     (LOG_DEBUG+1)
 #define LOG_MSG      "Message"
@@ -38,10 +51,6 @@
 #define KNH_PTRACE(ctx, sfp, mon, e, fmt, ...) \
 	mon->trace(ctx, sfp, mon, LIBNAME, e, "!" fmt, ## __VA_ARGS__)
 
-#define KNH_DIE(fmt, ...) {\
-		fprintf(stderr, "%s(): " fmt, __FUNCTION__, ## __VA_ARGS__);\
-		exit(70);  /* EX_SOFTWARE */ \
-	}\
 
 #define KNH_PANIC(ctx, fmt, ...) \
 	ctx->api->trace(ctx, NULL, LOG_EMERG, "PANIC", __FUNCTION__, 0, "!(%s:%d) " fmt, __FILE__, __LINE__, ## __VA_ARGS__)
@@ -57,6 +66,20 @@
 
 #define KNH_MEMINFO(ctx, fmt, ...) \
 	ctx->api->trace(ctx, NULL, LOG_NOTICE, "MEM", __FUNCTION__, 0, "*(%s:%d) " fmt, __FILE__, __LINE__, ## __VA_ARGS__)
+#else
+#define KNH_SYSLOG()
+#define KNH_SYSLOG_()
+#define KNH_TRACE()
+#define KNH_PTRACE()
+
+#define KNH_PANIC()
+//#define KNH_WARN(ctx, fmt, ...)
+#define KNH_WARN()
+#define KNH_INFO()
+#define KNH_SECINFO()
+#define KNH_MEMINFO()
+
+#endif
 
 /* ------------------------------------------------------------------------ */
 /* [DBGMODE] */
@@ -95,9 +118,11 @@
 /* MALLOC */
 //#define K_USING_TRACEMALLOC 1
 
+#define KNH_FREEZERO(p, size)            knh_bzero(p, size)
+
 #ifdef K_EXPORTS
-	#define KNH_MALLOC(ctx, size)       ctx->api->malloc(ctx, size)
-	#define KNH_FREE(ctx, p, size)      ctx->api->free(ctx, p, size)
+	#define KNH_MALLOC(ctx, size)       ctx->spi->mallocSPI(ctx, size)
+	#define KNH_FREE(ctx, p, size)      ctx->spi->freeSPI(ctx, p, size)
 #else
 #if defined(K_USING_TRACEMALLOC)
 	#define KNH_MALLOC(ctx, size)       TRACE_malloc(ctx, size K_TRACEPOINT)
@@ -113,18 +138,18 @@
 #define KNH_VALLOC(ctx, size)        knh_valloc(ctx, size)
 #define KNH_VFREE(ctx, p, size)      knh_vfree(ctx, p, size)
 
-#define KNH_P(fmt, ...)   ctx->api->dbg_p(__FILE__, __FUNCTION__, __LINE__, fmt, ## __VA_ARGS__)
-
 #ifdef K_EXPORTS
-#define DBG_P(fmt, ...)   ctx->api->dbg_p(__FILE__, __FUNCTION__, __LINE__, fmt, ## __VA_ARGS__)
-#define TODO_P(fmt, ...)  ctx->api->todo_p(__FILE__, __FUNCTION__, __LINE__, fmt, ## __VA_ARGS__)
+#define KNH_P(fmt, ...)   ctx->spi->pSPI(__FILE__, __FUNCTION__, __LINE__, fmt, ## __VA_ARGS__)
+#define DBG_P(fmt, ...)   ctx->spi->pSPI(__FILE__, __FUNCTION__, __LINE__, fmt, ## __VA_ARGS__)
 
-#else/*K_EXPORTS*/
+#else/*not K_EXPORTS*/
+
+#define KNH_P(fmt, ...)   dbg_p(__FILE__, __FUNCTION__, __LINE__, fmt, ## __VA_ARGS__)
+
 #ifdef K_USING_DEBUG
 #define DBG_TRACE         ,const char* _file, const char* _func, int _line
 #define DBG_P(fmt, ...)   dbg_p(__FILE__, __FUNCTION__, __LINE__, fmt, ## __VA_ARGS__)
 #define TRACE_P(fmt, ...) dbg_p(_file, _func, _line, fmt, ## __VA_ARGS__)
-#define TODO_P(fmt, ...)  todo_p(__FILE__, __FUNCTION__, __LINE__, fmt, ## __VA_ARGS__)
 
 #define KNH_LOCK(ctx, m)    ctx->share->syncSPI->lock(m, __FILE__, __FUNCTION__, __LINE__)
 #define KNH_UNLOCK(ctx, m)  ctx->share->syncSPI->unlock(m, __FILE__, __FUNCTION__, __LINE__)

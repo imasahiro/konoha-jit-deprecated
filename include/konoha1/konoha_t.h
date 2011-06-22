@@ -250,18 +250,6 @@ typedef struct {
 #define STEXT(c)  new_bytes2(c,sizeof(c)-1)
 #define ISB(t,c) (t.len == (sizeof(c)-1) && knh_strncmp(t.text, c, t.len) == 0)
 
-typedef struct {
-	size_t pstart;
-	size_t pbody;
-	size_t plen;
-	int isRealPath;
-} knh_path_t;
-
-#define P_buf(ph)     (ctx->bufa->bu.buf + ph->pstart)
-#define P_ubuf(ph)    (ctx->bufa->bu.ubuf + ph->pstart)
-#define P_text(ph)    (ctx->bufa->bu.text + ph->pstart)
-#define P_utext(ph)   (ctx->bufa->bu.utextbuf + ph->pstart)
-
 /* ------------------------------------------------------------------------ */
 /* knh_flag_t */
 /* ------------------------------------------------------------------------ */
@@ -283,8 +271,8 @@ typedef knh_ushort_t              knh_flag_t;    /* flag field */
 #define TFLAG_set(T,f,op,b)       if(b) {TFLAG_set1(T,f,op);} else {TFLAG_set0(T,f,op);}
 #define TFLAG_setNOT(T,f,op,b)    if(!(b)) {TFLAG_set0(T,f,op);} else {TFLAG_set1(T,f,op);}
 
-#define FLAG_set(f,op)            TFLAG_set(knh_flag_t,f,op)
-#define FLAG_unset(f,op)          TFLAG_unset(knh_flag_t,f,op)
+#define FLAG_set(f,op)            TFLAG_set1(knh_flag_t,f,op)
+#define FLAG_unset(f,op)          TFLAG_set0(knh_flag_t,f,op)
 #define FLAG_is(f,op)             TFLAG_is(knh_flag_t,f,op)
 
 /* ------------------------------------------------------------------------ */
@@ -297,7 +285,7 @@ typedef const struct knh_context_t    Ctx;
 
 typedef knh_ushort_t       knh_class_t;  /* class id */
 typedef knh_ushort_t       knh_type_t;   /* extended knh_type_t */
-typedef knh_ushort_t       knh_ebi_t;    /* knh_ebi_t */
+typedef knh_ushort_t       knh_event_t;    /* knh_event_t */
 
 /* knh_class_t */
 #define CLASS_newid                ((knh_class_t)-1)
@@ -323,7 +311,6 @@ typedef knh_ushort_t       knh_ebi_t;    /* knh_ebi_t */
 #define IS_Tfloat(t)      (t == CLASS_Float || ClassTBL(CLASS_t(t))->bcid == CLASS_Float)
 #define IS_Tbool(t)       (TYPE_Boolean == t)
 #define IS_Tunbox(t)      (IS_Tint(t) || IS_Tfloat(t) || IS_Tbool(t))
-#define IS_Tnumbox(t)     (t == CLASS_Object || t == CLASS_Number)
 #define IS_Tfunc(t)       (ClassTBL(CLASS_t(t))->bcid == CLASS_Func)
 #define IS_Tstr(t)        (t == CLASS_String || ClassTBL(CLASS_t(t))->bcid == CLASS_String)
 #define IS_Tvany(t)       (t == CLASS_Tdynamic || t == TYPE_var || t == TYPE_void)
@@ -336,11 +323,11 @@ typedef knh_ushort_t       knh_ebi_t;    /* knh_ebi_t */
 #define O__(o)                     S_tochar(O_cTBL(o)->sname)
 #define TYPE__(type)               SAFETYPE__(ctx,type)
 
-/* knh_ebi_t */
-#define EBI_unknown            ((knh_ebi_t)-1)
-#define EBI_newid              ((knh_ebi_t)0)
+/* knh_event_t */
+#define EVENT_unknown            ((knh_event_t)-1)
+#define EVENT_newid              ((knh_event_t)0)
 #define ASSERT_ebi(eid)        DBG_ASSERT(eid < ctx->share->sizeEventTBL + 1)
-#define EBI__(eid)             S_tochar(knh_getEventName(ctx, eid))
+#define EVENT__(eid)             S_tochar(knh_getEventName(ctx, eid))
 
 /* ------------------------------------------------------------------------ */
 
@@ -349,17 +336,10 @@ typedef knh_ushort_t          knh_methodn_t;
 
 #define FN_NONAME    ((knh_fieldn_t)-1)
 #define FN_NEWID     ((knh_fieldn_t)-2)
-#define FN_DOCUAssurance  ((knh_fieldn_t)-2)
 #define FN_return    FN_
-#define MN_NONAME   ((knh_methodn_t)-1)
-#define MN_NEWID    ((knh_methodn_t)-2)
 
-#define FN_K FN_k
-#define FN_V FN_v
-#define FN_T FN_t
-#define FN_U FN_u
-#define FN_P FN_p
-#define FN_R FN_r
+#define MN_NONAME    ((knh_methodn_t)-1)
+#define MN_NEWID     ((knh_methodn_t)-2)
 
 #define K_FLAG_FN_U1         K_FLAG_H0
 #define K_FLAG_FN_U2         K_FLAG_H1
@@ -369,7 +349,11 @@ typedef knh_ushort_t          knh_methodn_t;
 #define FN_isU1(fnq)         ((fnq & K_FLAG_FN_U1) == K_FLAG_FN_U1)
 #define FN_isU2(fnq)         ((fnq & K_FLAG_FN_U2) == K_FLAG_FN_U2)
 
-#define FN_UNMASK(fnq)       (fnq & (~(K_FLAG_FN_SUPER|K_FLAG_FN_U1|K_FLAG_FN_U2)))
+#define K_FLAG_FN_REF        K_FLAG_H0
+#define K_FLAG_FN_NEMPTY     K_FLAG_H1
+#define K_FLAG_FN_SYSTEM     K_FLAG_H2
+
+#define FN_UNMASK(fnq)       (fnq & (~(K_FLAG_H0|K_FLAG_H1|K_FLAG_H2)))
 
 #define K_FLAG_MN_ISBOOL     K_FLAG_H0
 #define K_FLAG_MN_GETTER     K_FLAG_H1
@@ -445,13 +429,13 @@ typedef struct knh_Object_t {
 
 /* types of basic objects (not type-checked) */
 
-#define Object          knh_Object_t
-#define ObjectNULL      Object
-#define dynamic         knh_Object_t
-#define This            knh_Object_t
-#define T1              knh_Object_t
-#define T2              knh_Object_t
-#define UPCAST(o)       (Object*)(o)
+#define Object          struct knh_Object_t
+#define dynamic         struct knh_Object_t
+//#define This          knh_Object_t
+//#define T1            knh_Object_t
+//#define T2            knh_Object_t
+#define UPCAST(o)       (knh_Object_t*)(o)
+#define RAWPTR(o)       (knh_RawPtr_t*)(o)
 
 #define knh_Object_toNULL(ctx, o)   knh_Object_toNULL_(ctx, UPCAST(o))
 #define O_data(o)       (((knh_Int_t*)(o))->n.data)
@@ -466,7 +450,6 @@ typedef knh_ushort_t              knh_uri_t;
 
 #define URI__(uri) S_tochar(knh_getURN(ctx, uri))
 #define FILENAME__(uri) knh_sfile(URI__(uri))
-#define FILEPATH_BUFSIZ           512
 
 typedef knh_uintptr_t             knh_uline_t;
 #define new_ULINE(uri, line)       ((((knh_uline_t)uri) << (sizeof(knh_uri_t) * 8)) | ((knh_ushort_t)line))
@@ -534,22 +517,21 @@ typedef void *(*knh_Fthread)(void *);
 		struct knh_Range_t  *range; \
 		struct knh_Array_t  *a; \
 		struct knh_Iterator_t *it; \
-		struct knh_Map_t    *m;    \
+		struct knh_Map_t           *m;    \
 		struct knh_Func_t         *fo; \
 		struct knh_InputStream_t  *in; \
 		struct knh_OutputStream_t *w;  \
-		struct knh_Method_t *mtd;   \
-		struct knh_TypeMap_t *trl; \
-		struct knh_Exception_t *e;       \
-		struct knh_ExceptionHandler_t *hdr; \
-		struct knh_NameSpace_t *ns; \
+		struct knh_Method_t            *mtd;\
+		struct knh_TypeMap_t           *tmr;\
+		struct knh_Exception_t         *e;\
+		struct knh_ExceptionHandler_t  *hdr; \
+		struct knh_NameSpace_t         *ns;\
 		struct knh_RawPtr_t   *p; \
 		struct knh_ObjectField_t *ox; \
-		struct knh_Converter_t *conv;\
-		struct knh_Context_t   *cx;\
-		struct knh_Script_t    *scr;\
-		struct knh_Monitor_t   *mon;\
-		struct knh_Assurance_t      *Assurance;\
+		struct knh_Converter_t         *conv;\
+		struct knh_Context_t           *cx;\
+		struct knh_Script_t            *scr;\
+		struct knh_Assurance_t         *as;\
 		knh_int_t     dummy_ivalue;\
 		knh_float_t   dummy_fvalue \
 
@@ -585,26 +567,9 @@ typedef struct knh_rbp_t {
 /* ------------------------------------------------------------------------ */
 /* [ObjectFunc] */
 
-//#define K_USING_CSTACK_TRAVERSE_ 1
-
 #define O_hasRef(o)   (1/*O_cTBL(o)->fast_reftrace != NONE_reftrace*/)
 
 typedef void (*knh_Ftraverse)(CTX, Object *);
-#ifdef K_USING_CSTACK_TRAVERSE_
-#define FTRARG    , knh_Ftraverse _ftr
-#define FTRDATA   , _ftr
-
-#define KNH_ADDREF(ctx, p)  _ftr(ctx, UPCAST(p))
-
-#define KNH_ADDNNREF(ctx, p)  if(p != NULL) {\
-		KNH_ADDREF(ctx, p);\
-	}\
-
-#define KNH_ENSUREREF(ctx, SIZE)
-
-#define KNH_SIZEREF(ctx) 
-
-#else
 #define K_USING_FASTREFS_  1
 
 #define FTRARG    , knh_Object_t** tail_
@@ -613,6 +578,7 @@ typedef void (*knh_Ftraverse)(CTX, Object *);
 #define KNH_ENSUREREF(ctx, SIZE)  tail_ = knh_ensurerefs(ctx, tail_, SIZE)
 
 #define KNH_ADDREF(ctx, p)  {\
+		DBG_ASSERT(p != NULL);\
 		tail_[0] = (Object*)p;\
 		tail_++;\
 	}\
@@ -623,7 +589,7 @@ typedef void (*knh_Ftraverse)(CTX, Object *);
 	}\
 
 #define KNH_SIZEREF(ctx)  {\
-		((knh_context_t*)ctx)->ref_size = (tail_ - ctx->refs);\
+		((knh_context_t*)ctx)->ref_size = (tail_ - ctx->ref_buf);\
 	}\
 
 #define KNH_SETREF(ctx, LIST, SIZE)  {\
@@ -647,7 +613,6 @@ typedef void (*knh_Ftraverse)(CTX, Object *);
 		KNH_ASSERT(ctx->ref_size == (tail_ - ctx->refs));\
 	}\
 
-#endif
 typedef void (*knh_Freftrace)(CTX, Object * FTRARG);
 
 typedef knh_uintptr_t                knh_hashcode_t;  /* knh_hashcode_t */
@@ -690,7 +655,7 @@ typedef struct knh_PackSPI_t {
 	void  (*pack_null)(CTX, void*);
 	void  (*pack_bool)(CTX, void*, int d);
 	void  (*pack_int)(CTX, void*, knh_int_t d);
-	void  (*pack_float)(CTX, void*, knh_int_t d);
+	void  (*pack_float)(CTX, void*, knh_float_t d);
 	void  (*pack_string)(CTX, void*, const char *str, size_t n);
 	void  (*pack_raw)(CTX, void*, const char *str, size_t n);
 	void  (*pack_putc)(CTX, void*, int ch);  // use for delim : or ,
@@ -698,7 +663,7 @@ typedef struct knh_PackSPI_t {
 	void  (*pack_endarray)(CTX, void*);   // unnecessary for msgpack
 	void  (*pack_beginmap)(CTX, void*, size_t n);
 	void  (*pack_endmap)(CTX, void*);     // unnecessary for msgpack
-	knh_type_t (*unpack)(CTX, struct knh_InputStream_t *, knh_sfp_t*);   // put sfp[0]
+	knh_type_t (*unpack)(CTX, struct knh_ClassTBL_t *, struct knh_InputStream_t *, knh_sfp_t*);   // put sfp[0]
 } knh_PackSPI_t;
 
 /***
@@ -724,21 +689,21 @@ knh_Object_t *knh_InputStream_readObject(CTX ctx, knh_InputStream_t *in, knh_typ
 ***/
 
 typedef struct knh_ClassDef_t {
-	void (*init)(CTX, Object*);
-	void (*initcopy)(CTX, Object *, const Object *);
-	void (*reftrace)(CTX, Object * FTRARG);
-	void (*free)(CTX, Object *);
-	void (*checkin)(CTX, knh_sfp_t *sfp, Object*);
-	void (*checkout)(CTX, Object*, int);
-	int  (*compareTo)(const Object*, const Object*);
-	void (*p)(CTX, struct knh_OutputStream_t*, Object*, int);
+	void (*init)(CTX, struct knh_RawPtr_t*);
+	void (*initcopy)(CTX, struct knh_RawPtr_t*, struct knh_RawPtr_t*);
+	void (*reftrace)(CTX, struct knh_RawPtr_t* FTRARG);
+	void (*free)(CTX, struct knh_RawPtr_t*);
+	void (*checkin)(CTX, knh_sfp_t *sfp, struct knh_RawPtr_t*);
+	void (*checkout)(CTX, struct knh_RawPtr_t*, int);
+	int  (*compareTo)(struct knh_RawPtr_t*, struct knh_RawPtr_t*);
+	void (*p)(CTX, struct knh_OutputStream_t*, struct knh_RawPtr_t*, int);
 
 	struct knh_String_t* (*getkey)(CTX, knh_sfp_t*);
 	knh_hashcode_t       (*hashCode)(CTX, knh_sfp_t*);
 	knh_int_t   (*toint)(CTX ctx, knh_sfp_t*);
 	knh_float_t (*tofloat)(CTX ctx, knh_sfp_t*);
 	struct knh_TypeMap_t* (*findTypeMapNULL)(CTX, knh_class_t, knh_class_t, int);
-	void (*wdata)(CTX, void *, Object*, const knh_PackSPI_t *);
+	void (*wdata)(CTX, void *, struct knh_RawPtr_t*, const knh_PackSPI_t *);
 	void *RESERVED2;
 	void *RESERVED3;
 
@@ -759,7 +724,7 @@ typedef struct knh_ClassDef_t {
 #define K_CLASSTABLE_INIT 128
 
 typedef struct knh_ClassTBL_t {
-	const knh_ClassDef_t *ospi;
+	const knh_ClassDef_t *cdef;
 	knh_uintptr_t magicflag;
 	knh_flag_t    cflag;        knh_uri_t     domain;
 	knh_class_t   cid;          knh_class_t   imcid;
@@ -793,10 +758,19 @@ typedef struct knh_ClassTBL_t {
 	size_t total;
 } knh_ClassTBL_t;
 
-#define knh_class_bcid(c)   ClassTBL(c)->bcid
-#define knh_class_p1(c)     ClassTBL(c)->p1
-#define knh_class_p2(c)     ClassTBL(c)->p2
+#define C_bcid(c)           ClassTBL(c)->bcid
+#define C_bname(c)          knh_class_bname(ctx, cid)
+#define C_p1(c)             ClassTBL(c)->p1
+#define C_p2(c)             ClassTBL(c)->p2
+#define C_p(c, n)           knh_class_p(ctx, c, n)
+#define C_isGenerics(c)     knh_class_isGenerics(ctx, c)
+
 #define IS_Tcparam(cid)     (ClassTBL(cid)->cparam != NULL)
+
+#define PTYPE_Array           "[]"
+#define PTYPE_Iterator        ".."
+#define PTYPE_Immutable       "!"
+#define PTYPE_KindOf          "?"
 
 /* ------------------------------------------------------------------------ */
 
@@ -808,7 +782,7 @@ typedef struct knh_ClassTBL_t {
 
 typedef struct {
 	knh_flag_t   flag;
-	knh_ebi_t   parent;
+	knh_event_t   parent;
 	struct knh_String_t     *name;
 } knh_EventTBL_t;
 
@@ -880,9 +854,14 @@ typedef struct {
 
 #define K_PAGEOBJECTSIZE ((K_PAGESIZE / sizeof(knh_Object_t)) - 1)
 
+/* TODO @imasahiro */
+#ifdef K_INTERNAL
+#define slots_ slots
+#endif
+
 typedef struct {
 	knh_hOArena_t h;
-	knh_Object_t  slots[K_PAGEOBJECTSIZE];
+	knh_Object_t  slots_[K_PAGEOBJECTSIZE];
 } knh_ObjectPage_t;
 
 typedef struct {
@@ -1019,6 +998,10 @@ typedef struct {
 
 /* ------------------------------------------------------------------------ */
 
+typedef struct {
+	knh_class_t cid; knh_methodn_t mn;
+} knh_hcache_t;
+
 typedef struct knh_mtdcache_t {
 	knh_class_t cid; knh_methodn_t mn;
 	struct knh_Method_t *mtd;
@@ -1038,6 +1021,9 @@ typedef struct knh_tmrcache_t {
 #else
 typedef long iconv_t;
 #endif
+
+struct knh_logdata_t;
+struct knh_Iterator_t;
 
 typedef struct knh_ServiceSPI_t {
 	/* sync spi */
@@ -1059,20 +1045,30 @@ typedef struct knh_ServiceSPI_t {
 	size_t (*iconv)(iconv_t, char**, size_t*, char**, size_t*);
 	int (*iconv_close)(iconv_t);
 	/* shell spi */
-	const char *syncspi;    // debug
-	const char *syslogspi;  // debug
+	const char *syncspi;     // debug
+	const char *syslogspi;   // debug
 	const char *readlinespi; // debug
-	const char *iconvspi;   // debug
+	const char *iconvspi;    // debug
+	/* konoha spi */
+	void* (*mallocSPI)(CTX, size_t);       	// memory
+	void  (*freeSPI)(CTX, void *, size_t);
+	// stack operation
+	void  (*setsfpSPI)(CTX, knh_sfp_t *, void *);
+	void  (*closeItrSPI)(CTX, struct knh_Iterator_t *);
+	// evidence
+	void (*recordSPI)(CTX, knh_sfp_t *, int, int, const char *, const char *, const struct knh_logdata_t *, size_t);
+	void  (*pSPI)(const char*, const char*, int, const char*, ...);
 } knh_ServiceSPI_t;
 
 typedef struct knh_context_t {
 	/* shared table */
 	union {
-		const knh_share_t              *share;
+		const knh_share_t         *share;
 		knh_share_t *wshare;   // writable
 	};
 	knh_stat_t                     *stat;
 	const knh_ServiceSPI_t         *spi;
+	const struct knh_api2_t        *api2;
 	struct knh_System_t*            sys;
 	struct knh_Script_t*         script;
 
@@ -1083,7 +1079,6 @@ typedef struct knh_context_t {
 	knh_sfp_t*                   stacktop;
 	void*                        cstack_bottom;
 	struct knh_Exception_t      *e;
-	struct knh_Monitor_t        *mon;
 
 	/* memory */
 	knh_Object_t                *freeObjectList;
@@ -1102,6 +1097,7 @@ typedef struct knh_context_t {
 	size_t                       ref_capacity;
 	struct knh_Object_t        **queue;
 	size_t                       queue_capacity;
+	size_t                       queue_log2;
 
 	struct knh_String_t*         enc;
 	struct knh_InputStream_t*    in;
@@ -1119,8 +1115,6 @@ typedef struct knh_context_t {
 	struct knh_context_t        *parent;
 	knh_mutex_t                 *ctxlock;
 
-	const struct _knh_ExportsAPI_t *api;
-	const struct knh_api2_t        *api2;
 	char                            trace[16];
 	knh_uint_t                      seq;
 
@@ -1128,6 +1122,95 @@ typedef struct knh_context_t {
 	struct knh_ExceptionHandler_t  *ehdrNC;
 	struct knh_Object_t            *evaled;
 } knh_context_t ;
+
+/* ------------------------------------------------------------------------ */
+/* logdata */
+
+typedef struct knh_logdata_t {
+	union {
+		const char *key;
+		knh_intptr_t ivalue;
+		knh_uintptr_t uvalue;
+		knh_floatptr_t fvalue;
+		const char *svalue;
+		void *ptr;
+		Object *ovalue;
+		const struct knh_logdata_t* (*logger)(CTX);
+	};
+} knh_logdata_t;
+
+#define K_RECFAILED         1
+#define K_RECCRIT       (1<<1)
+#define K_RECNOTE       (1<<2)
+#define K_RECNOTESTART  ((1<<3)|(1<<2))
+
+#define LOGSFPDATA      knh_sfp_t *sfp = NULL; const knh_logdata_t _logdata[]
+#define LOGDATA         const knh_logdata_t _logdata[]
+#define LOGDATASIZE     (sizeof(_logdata)/sizeof(knh_logdata_t))
+
+#define LOGMSG(V)          {{"smsg"}}, {{(V)}}
+#define sDATA(K, V)        {{"s" K}}, {{(V)}}
+#define iDATA(K, V)        {{"i" K}}, {{(const char*)((knh_intptr_t)V)}}
+#define dDATA(K, V)        {{"i" K}}, {{(const char*)((knh_intptr_t)V)}}
+#define uDATA(K, V)        {{"u" K}}, {{(const char*)((knh_intptr_t)V)}}
+#define fDATA(K, V)        {{"f" K}}, {{(const char*)((knh_floatptr_t)V)}}
+#define pDATA(K, V)        {{"p" K}}, {{(const char*)(V)}}
+#define oDATA(K, V)        {{"o" K}}, {{(const char*)(V)}}
+#define cDATA(K, V)        {{"c" K}}, {{(const char*)((knh_intptr_t)V)}}
+#define tDATA(K, V)        {{"t" K}}, {{(const char*)((knh_intptr_t)V)}}
+#define fnDATA(K, V)       {{"n" K}}, {{(const char*)((knh_intptr_t)V)}}
+#define mnDATA(K, V)       {{"m" K}}, {{(const char*)((knh_intptr_t)V)}}
+
+#define sRANGE(K, V, V2)   {{"S" K}}, {{(V)}}, {{(V2)}}
+#define iRANGE(K, V, V2)   {{"I" K}}, {{(const char*)((knh_intptr_t)V)}}, {{(const char*)((knh_intptr_t)V2)}}
+#define dRANGE(K, V, V2)   {{"I" K}}, {{(const char*)((knh_intptr_t)V)}}, {{(const char*)((knh_intptr_t)V2)}}
+#define uRANGE(K, V, V2)   {{"U" K}}, {{(const char*)((knh_intptr_t)V)}}, {{(const char*)((knh_intptr_t)V2)}}
+#define fRANGE(K, V, V2)   {{"F" K}}, {{(const char*)((knh_floatptr_t)V)}}, {{(const char*)((knh_floatptr_t)V2)}}
+#define pRANGE(K, V, V2)   {{"P" K}}, {{(const char*)(V)}}, {{(const char*)(V2)}}
+#define oRANGE(K, V, V2)   {{"O" K}}, {{(const char*)(V)}}, {{(const char*)(V2)}}
+#define MDATA(K, V, V2)    {{"M" K}}, {{(const char*)((knh_intptr_t)V)}}, {{(const char*)((knh_intptr_t)V2)}}
+
+#define __TRACE__          {{"ssource"}}, {{knh_sfile(__FILE__)}}, {{"sfunction"}}, {{__FUNCTION__}}, iDATA("line", __LINE__)
+#define __ERRNO__          {{"eerrno"}}, {{NULL}}
+
+#define KNH_RESET_ERRNO()
+#ifdef K_EXPORTS
+#define KNH_RECORD ctx->spi->recordSPI
+#else
+#define KNH_RECORD knh_record
+#endif
+
+#define CRIT_OK(action)
+#define CRIT_Failed(action, event)  {  \
+		KNH_RECORD(ctx, sfp, K_RECFAILED|K_RECCRIT, LOG_CRIT, action, event, _logdata, LOGDATASIZE);  \
+	}  \
+
+#define LIB_OK(action) {  \
+		KNH_RECORD(ctx, sfp, K_RECNOTE, LOG_INFO, action, NULL, _logdata, LOGDATASIZE);  \
+	}  \
+
+#define LIB_Failed(action, event)   {   \
+		KNH_RECORD(ctx, sfp, K_RECFAILED|K_RECNOTE, LOG_ERR, action, event, _logdata, LOGDATASIZE);  \
+	}  \
+
+#define LIB_log(action, tf, event)   {   \
+		int op_ = (tf) ? K_RECNOTE : K_RECFAILED|K_RECNOTE; \
+		const char *ac_ = (tf) ? NULL : event;              \
+		int pe_ = (tf) ? LOG_INFO : LOG_ERR;                \
+		KNH_RECORD(ctx, sfp, op_, pe_, action, ac_, _logdata, LOGDATASIZE);  \
+	}  \
+
+#define NOTE_START(action) {  \
+		KNH_RECORD(ctx, sfp, K_RECNOTESTART, LOG_NOTICE, action, NULL, _logdata, LOGDATASIZE);  \
+	}  \
+
+#define NOTE_OK(action) {  \
+		KNH_RECORD(ctx, sfp, K_RECNOTE, LOG_NOTICE, action, NULL, _logdata, LOGDATASIZE);  \
+	}  \
+
+#define NOTE_Failed(action)   {   \
+		KNH_RECORD(ctx, sfp, K_RECFAILED|K_RECNOTE, LOG_WARNING, action, NULL, _logdata, LOGDATASIZE);  \
+	}  \
 
 
 /* ------------------------------------------------------------------------ */
@@ -1167,29 +1250,31 @@ typedef struct {
 	size_t pos;
 } knh_cwb_t;
 
-#define knh_cwb_clear(cwb,len)        knh_Bytes_clear(cwb->ba, cwb->pos+len)
-#define knh_cwb_close(cwb)            knh_Bytes_clear(cwb->ba, cwb->pos)
+#define knh_cwb_clear(cwb, len, j)      knh_Bytes_clear(cwb->ba, cwb->pos+len)
+#define knh_cwb_clear2(cwb, len)        knh_Bytes_clear(cwb->ba, (cwb->pos)+len)
+//#define knh_cwb_close(cwb)            knh_Bytes_clear(cwb->ba, cwb->pos)
 
 /* ------------------------------------------------------------------------ */
 /* Functions */
 /* ------------------------------------------------------------------------ */
 
-#define _RIX   ,long rix
+#define _RIX   ,long _rix
+#define K_RIX  _rix
 
-#ifdef K_USING_WINTHREAD_
-#define METHOD  void CC_FASTCALL_
+#ifdef K_USING_WIN32_
+#define METHOD  void CC_EXPORT
 #define TYPEMAP   METHOD
-#define ITRNEXT int   CC_FASTCALL_
-typedef void (CC_FASTCALL_ *knh_Fmethod)(CTX, knh_sfp_t* _RIX);
-typedef void (CC_FASTCALL_ *knh_Ftypemap)(CTX, knh_sfp_t * _RIX);
-typedef int  (CC_FASTCALL_ *knh_Fitrnext)(CTX, knh_sfp_t *, long rtnidx);
+#define ITRNEXT int   CC_EXPORT
+typedef void (CC_EXPORT *knh_Fmethod)(CTX, knh_sfp_t* _RIX);
+typedef void (CC_EXPORT *knh_Ftypemap)(CTX, knh_sfp_t * _RIX);
+typedef int  (CC_EXPORT *knh_Fitrnext)(CTX, knh_sfp_t * _RIX);
 #else
 #define METHOD  void  CC_FASTCALL_
 #define TYPEMAP   METHOD
 #define ITRNEXT int   CC_FASTCALL_
 typedef METHOD (*knh_Fmethod)(CTX, knh_sfp_t* _RIX);
 typedef TYPEMAP (*knh_Ftypemap)(CTX, knh_sfp_t * _RIX);
-typedef ITRNEXT (*knh_Fitrnext)(CTX, knh_sfp_t *, long rtnidx);
+typedef ITRNEXT (*knh_Fitrnext)(CTX, knh_sfp_t * _RIX);
 #endif
 
 /* ------------------------------------------------------------------------ */

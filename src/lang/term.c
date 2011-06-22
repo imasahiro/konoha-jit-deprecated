@@ -11,7 +11,7 @@
  * (1) GNU General Public License 3.0 (with K_UNDER_GPL)
  * (2) Konoha Non-Disclosure License 1.0
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORSÄ
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
  * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER
@@ -27,9 +27,6 @@
 
 /* ************************************************************************ */
 
-#define USE_bytes   1
-#define USE_cwb     1
-
 #include"commons.h"
 
 #define TT_SIZE TT_LOR   /* |a| */
@@ -43,7 +40,7 @@ extern "C" {
 /* ------------------------------------------------------------------------ */
 /* [term] */
 
-static knh_Token_t* new_Token(CTX ctx, knh_term_t tt)
+knh_Token_t* new_Token(CTX ctx, knh_term_t tt)
 {
 	knh_Token_t *tk = new_(Token);
 	SP(tk)->tt = tt;
@@ -193,11 +190,11 @@ static void ITR_chop(tkitr_t *itr, knh_term_t tt)
 	}
 }
 
-static int ITR_count(tkitr_t *tc, knh_term_t tt)
+static int ITR_count(tkitr_t *itr, knh_term_t tt)
 {
-	knh_Token_t **ts = tc->ts;
+	knh_Token_t **ts = itr->ts;
 	int i, cnt = 0;
-	for(i = tc->c; i < tc->e; i++) {
+	for(i = itr->c; i < itr->e; i++) {
 		if(TT_(ts[i]) == tt) cnt++;
 	}
 	return cnt;
@@ -206,7 +203,7 @@ static int ITR_count(tkitr_t *tc, knh_term_t tt)
 /* ------------------------------------------------------------------------ */
 /* [tokenizer] */
 
-static void Token_add(CTX ctx, knh_Token_t *tkB, knh_Token_t *tk);
+static void TokenBlock_add(CTX ctx, knh_Token_t *tkB, knh_Token_t *tk);
 
 static knh_term_t TT_ch(int ch)
 {
@@ -247,11 +244,18 @@ static knh_Token_t *new_TokenPTYPE(CTX ctx, knh_class_t cid, knh_Token_t *tk)
 {
 	knh_Token_t *tkT = new_Token(ctx, TT_PTYPE);
 	knh_Token_t *tkC = new_TokenCID(ctx, cid);
-	Token_add(ctx, tkT, tkC);
-	if(cid == CLASS_Map) {
-		Token_add(ctx, tkT, new_TokenCID(ctx, CLASS_String));
+	Token_setBOL(tkT, Token_isBOL(tk));
+	if(cid == CLASS_Tvar) {
+		TokenBlock_add(ctx, tkT, tk);
+		TokenBlock_add(ctx, tkT, tkC);
 	}
-	Token_add(ctx, tkT, tk);
+	else {
+		TokenBlock_add(ctx, tkT, tkC);
+		if(cid == CLASS_Map) {
+			TokenBlock_add(ctx, tkT, new_TokenCID(ctx, CLASS_String));
+		}
+		TokenBlock_add(ctx, tkT, tk);
+	}
 	return tkT;
 }
 
@@ -278,21 +282,23 @@ static int ITR_findPTYPE(tkitr_t *itr)
 
 static void Token_setTYPEOFEXPR(CTX ctx, knh_Token_t *tk);
 
-static void Token_add(CTX ctx, knh_Token_t *tkB, knh_Token_t *tk)
+static void TokenBlock_add(CTX ctx, knh_Token_t *tkB, knh_Token_t *tk)
 {
+	knh_Token_t *tkPREV = NULL;
+	knh_Array_t *a = NULL;
 	int prev_idx = 0;
-	knh_Token_t *tkPREV;
-	knh_Array_t *a;
 	DBG_ASSERT(tkB->uline != 0 && tk->uline != 0);
+
 	if(IS_NULL((tkB)->data)) {
 		KNH_SETv(ctx, (tkB)->data, tk);
 		return;
 	}
+
 	if(IS_Token((tkB)->data)) {
-		a = new_Array0(ctx, 0);
 		tkPREV = (tkB)->token;
-		knh_Array_add(ctx, a, (tkB)->data);
+		a = new_Array0(ctx, 0);
 		KNH_SETv(ctx, (tkB)->data, a);
+		knh_Array_add(ctx, a, tkPREV);
 	}
 	else {
 		DBG_ASSERT(IS_Array((tkB)->data));
@@ -301,15 +307,43 @@ static void Token_add(CTX ctx, knh_Token_t *tkB, knh_Token_t *tk)
 		prev_idx = knh_Array_size(a)-1;
 		tkPREV = a->tokens[prev_idx];
 	}
-	knh_Array_add(ctx, a, tk);
 
 	if(TT_(tk) == TT_SEMICOLON) {
+		knh_Array_add(ctx, a, tk);
 		Token_setBOL(tk, 1);
 		return;
 	}
-	if((tk->uline > tkPREV->uline) && !(Token_isPLUSLINE(tkB))) {
-		Token_setBOL(tk, 1);
+
+	if((tk->uline > tkPREV->uline) && TT_(tkPREV) != TT_SEMICOLON) {
+//		if(TT_(tk) == TT_ELSE || TT_(tk) == TT_CATCH || TT_(tk) == TT_FINALLY) {
+//			knh_Array_add(ctx, a, tk);
+//			return;
+//		}
+		DBG_P("isSAMELINE(tkB)=%d, prev=%s,%d cur=%s,%d", Token_isSAMELINE(tkB), TT__(tkPREV->tt), (short)tkPREV->uline, TT__(tk->tt), (short)tk->uline);
+		if(TT_(tkPREV) == TT_CODE) {
+			knh_bytes_t t = S_tobytes(tkPREV->text);
+			size_t i;
+			knh_uline_t uline = tkPREV->uline;
+			for(i = 0; i < t.len; i++) {
+				if(t.buf[i] == '\n') uline++;
+			}
+			DBG_P("BLOCK uline %d => %d cur=%d", (short)tkPREV->uline, (short)uline, (short)tk->uline);
+			if(uline == tk->uline) {
+				Token_setSAMELINE(tkB, 1);
+			}
+		}
+		if(!Token_isSAMELINE(tkB)) {
+//			knh_Token_t *tkSMC = new_Token(ctx, TT_SEMICOLON);
+			DBG_P("BOL: cur=%s,%d", TT__(tk->tt), (short)tk->uline);
+			DBG_P("*isSAMELINE(tkB)=%d, prev=%s,%d cur=%s,%d", Token_isSAMELINE(tkB), TT__(tkPREV->tt), (short)tkPREV->uline, TT__(tk->tt), (short)tk->uline);
+//			knh_Array_add(ctx, a, tkSMC);
+//			Token_setBOL(tkSMC, 1);
+			knh_Array_add(ctx, a, tk);
+			Token_setBOL(tk, 1);
+			return;
+		}
 	}
+	knh_Array_add(ctx, a, tk);
 
 	// 1. translation
 	if(TT_(tk) == TT_DECLLET) {
@@ -319,7 +353,7 @@ static void Token_add(CTX ctx, knh_Token_t *tkB, knh_Token_t *tk)
 
 	if(prev_idx > 0 && TT_(tk) == TT_CODE && TT_(tkPREV) == TT_DARROW) {
 		knh_Token_t *tkPREV2 = a->tokens[prev_idx - 1];
-		if(TT_(tkPREV2) == TT_PARENTHESIS) {  // (n) = > {} ==> function(n) {}
+		if(TT_(tkPREV2) == TT_PARENTHESIS) {  // (n) => {} ==> function(n) {}
 			TT_(tkPREV) = TT_FUNCTION;
 			knh_Array_swap(ctx, a, prev_idx-1, prev_idx);
 			return;
@@ -378,16 +412,22 @@ static void Token_add(CTX ctx, knh_Token_t *tkB, knh_Token_t *tk)
 			KNH_SETv(ctx, a->list[prev_idx], new_TokenPTYPE(ctx, CLASS_Iterator, tkPREV));
 			goto L_JOIN1;
 		}
+		if(TT_(tk) == TT_QTN) {  // String?
+			KNH_SETv(ctx, a->list[prev_idx], new_TokenPTYPE(ctx, CLASS_KindOf, tkPREV));
+			goto L_JOIN1;
+		}
+		if(TT_(tk) == TT_NOT) { // String! => Immutable<String>
+			KNH_SETv(ctx, a->list[prev_idx], new_TokenPTYPE(ctx, CLASS_Immutable, tkPREV));
+			goto L_JOIN1;
+		}
+		if(TT_(tk) == TT_DIAMOND) { // Array<> => Array<var>
+			KNH_SETv(ctx, a->list[prev_idx], new_TokenPTYPE(ctx, CLASS_Tvar, tkPREV));
+			goto L_JOIN1;
+		}
 		if(TT_(tk) == TT_DMUL) { // String** => Thunk<String>
 			KNH_SETv(ctx, a->list[prev_idx], new_TokenPTYPE(ctx, CLASS_Thunk, tkPREV));
 			goto L_JOIN1;
 		}
-#ifdef CLASS_Immutable
-		if(TT_(tk) == TT_TSTR && S_size(tk->text) == 0) { // String'' => Immutable<String>
-			KNH_SETv(ctx, a->list[prev_idx], new_TokenPTYPE(ctx, CLASS_Immutable, tkPREV));
-			goto L_JOIN1;
-		}
-#endif
 		if(TT_(tk) == TT_GT || TT_(tk) == TT_RSFT || TT_(tk) == TT_RSEND) { // String> or String>>
 			tkitr_t itrbuf, *itr = ITR_new(tkB, &itrbuf);
 			if(ITR_findPTYPE(itr)) {
@@ -395,9 +435,9 @@ static void Token_add(CTX ctx, knh_Token_t *tkB, knh_Token_t *tk)
 				prev_idx = itr->c;
 				while(ITR_hasNext(itr)) {
 					knh_Token_t *tkPT = ITR_nextTK(itr);
-					Token_add(ctx, tkT, tkPT);
+					TokenBlock_add(ctx, tkT, tkPT);
 					if(ITR_is(itr, TT_DARROW)) {
-						Token_add(ctx, tkT, ITR_tk(itr));
+						TokenBlock_add(ctx, tkT, ITR_tk(itr));
 					}
 					ITR_next(itr);
 				}
@@ -426,15 +466,21 @@ static void Token_add(CTX ctx, knh_Token_t *tkB, knh_Token_t *tk)
 	knh_Array_trimSize(ctx, a, prev_idx+1);
 }
 
-static knh_Token_t *Token_lastChildNULL(knh_Token_t *tk)
+static void TokenB_setline(knh_Token_t *tkB, knh_uline_t uline)
 {
-	if(IS_Array((tk)->data)) {
-		size_t n = knh_Array_size((tk)->list);
+	knh_Token_t *tk = IS_Array((tkB)->data) ? (tkB)->list->tokens[knh_Array_size((tkB)->list) - 1] : (tkB)->token;
+	tk->uline = uline;
+}
+
+static knh_Token_t *Token_lastChildNULL(knh_Token_t *tkB)
+{
+	if(IS_Array((tkB)->data)) {
+		size_t n = knh_Array_size((tkB)->list);
 		DBG_ASSERT(n>0);
-		return (tk)->list->tokens[n-1];
+		return (tkB)->list->tokens[n-1];
 	}
-	else if(IS_Token((tk)->data)) {
-		return (tk)->token;
+	else if(IS_Token((tkB)->data)) {
+		return (tkB)->token;
 	}
 	return NULL;
 }
@@ -578,7 +624,7 @@ static void Token_setTEXT(CTX ctx, knh_Token_t *tk, knh_cwb_t *cwb)
 		if(text != NULL) {
 			t = S_tobytes(text);
 			KNH_SETv(ctx, (tk)->data, text);
-			knh_cwb_clear(cwb, 0);
+			knh_cwb_clear2(cwb, 0);
 			knh_Bytes_write(ctx, cwb->ba, t);  // alias
 		}
 		knh_DictSet_t *tokenDictSet = DP(ctx->sys)->tokenDictSet;
@@ -606,7 +652,7 @@ static void Token_setTEXT(CTX ctx, knh_Token_t *tk, knh_cwb_t *cwb)
 				knh_Object_t *o = a->list[i];
 				if(O_cid(o) == CLASS_String) {
 					if(S_equals((knh_String_t*)o, t)) {
-						knh_cwb_clear(cwb, 0);
+						knh_cwb_clear2(cwb, 0);
 						if(isdigit(t.utext[0]) && TT_(tk) == TT_NUM) {
 							KNH_SETv(ctx, (tk)->data, o);
 						}
@@ -623,18 +669,27 @@ static void Token_setTEXT(CTX ctx, knh_Token_t *tk, knh_cwb_t *cwb)
 	}
 }
 
+static knh_Token_t *addNewToken(CTX ctx, knh_Token_t *tkB, knh_term_t tt, int ch)
+{
+	knh_Token_t *tk = new_Token(ctx, tt);
+	if(ch == ' ') {
+		Token_setNWS(tk, 1);
+	}
+	return tk;
+}
+
 static void Token_addBuf(CTX ctx, knh_Token_t *tkB, knh_cwb_t *cwb, knh_term_t tt, int ch)
 {
 	if(knh_cwb_size(cwb) != 0) {
-		knh_Token_t *newtk = new_Token(ctx, tt);
-		Token_setTEXT(ctx, newtk, cwb);
-		Token_add(ctx, tkB, newtk);
-		knh_cwb_clear(cwb, 0);
+		knh_Token_t *tk = addNewToken(ctx, tkB, tt, ch);
+		Token_setTEXT(ctx, tk, cwb);
+		TokenBlock_add(ctx, tkB, tk);  // must add after setting data
+		knh_cwb_clear2(cwb, 0);
 	}
 	else if(tt == TT_CODE || TT_isSTR(tt) || tt == TT_REGEX) {
-		knh_Token_t *tk2 = new_Token(ctx, tt);
-		KNH_SETv(ctx, (tk2)->data, TS_EMPTY);
-		Token_add(ctx, tkB, tk2);
+		knh_Token_t *tk = addNewToken(ctx, tkB, tt, ch);
+		KNH_SETv(ctx, (tk)->data, TS_EMPTY);
+		TokenBlock_add(ctx, tkB, tk);   // must add after setting data
 	}
 }
 
@@ -650,7 +705,7 @@ static void InputStream_skipLINE(CTX ctx, knh_InputStream_t *in)
 
 static void InputStream_skipBLOCKCOMMENT(CTX ctx, knh_InputStream_t *in, knh_Bytes_t *ba)
 {
-	int ch, prev = '*', level = 1;
+	int ch, prev = 0, level = 1;
 	if(ba != NULL) {
 		while((ch = knh_InputStream_getc(ctx, in)) != EOF) {
 			if(prev == '*' && ch == '/') {
@@ -704,6 +759,10 @@ static void Bytes_addQUOTE(CTX ctx, knh_Bytes_t *ba, knh_InputStream_t *in, int 
 			if(ch == quote && prev != '\\') {
 				return;
 			}
+			if(ch == '\n') {
+				WARN_MustCloseWith(ctx, quote);
+				return ;
+			}
 			knh_Bytes_putc(ctx, ba, ch);
 			if(prev == '\\' && ch == '\\') ch = 0;
 			prev = ch;
@@ -714,10 +773,14 @@ static void Bytes_addQUOTE(CTX ctx, knh_Bytes_t *ba, knh_InputStream_t *in, int 
 		if(ch != skip) goto L_INLOOP;
 		while((ch = knh_InputStream_getc(ctx, in)) != EOF) {
 			L_INLOOP:;
+			if(ch == '\n' && isTQUOTE != 1) {
+				WARN_MustCloseWith(ctx, quote);
+				return ;
+			}
 			if(ch == quote) {
 				if(isTQUOTE == 1) {
 					if(Bytes_isTripleQuote(ba, quote)) {
-						knh_Bytes_unputc(ba, 2);
+						knh_Bytes_reduce(ba, 2);
 						return;
 					}
 				}
@@ -737,9 +800,6 @@ static void Bytes_addQUOTE(CTX ctx, knh_Bytes_t *ba, knh_InputStream_t *in, int 
 static int Token_addQUOTE(CTX ctx, knh_Token_t *tkB, knh_cwb_t *cwb, knh_InputStream_t *in, int quote, int isRAW)
 {
 	int ch;
-	if(quote != '/') {
-		Token_addBuf(ctx, tkB, cwb, TT_UNTYPED, quote);
-	}
 	ch = knh_InputStream_getc(ctx, in);
 	if(quote == '#') {
 		if(ch == '#') {
@@ -772,12 +832,37 @@ static int Token_addQUOTE(CTX ctx, knh_Token_t *tkB, knh_cwb_t *cwb, knh_InputSt
 		knh_term_t tt = TT_ch(quote);
 		if(tt == TT_TSTR) tt = TT_STR;
 		Bytes_addQUOTE(ctx, cwb->ba, in, quote, '\n'/*skip*/, isRAW, 1/*isTQUOTE*/);
+		knh_uline_t uline = in->uline;
 		ch = knh_InputStream_getc(ctx, in);
 		Token_addBuf(ctx, tkB, cwb, tt, ch);
-		Token_setPLUSLINE(tkB, 1); /* ... hoge """ <<< EOL; */
+		TokenB_setline(tkB, uline); Token_setSAMELINE(tkB, 1); /* ... hoge """ <<< EOL; */
 	}
 	return ch;
 }
+
+static int Token_addREGEX(CTX ctx, knh_Token_t *tkB, knh_cwb_t *cwb, knh_InputStream_t *in, int ch0)
+{
+	int prev = 0;
+	int ch = (ch0 == 0) ? knh_InputStream_getc(ctx, in) : ch0;
+	do {
+		if(ch == '\n'/* && isTQUOTE != 1*/) {
+			WARN_MustCloseWith(ctx, '/');
+			Token_addBuf(ctx, tkB, cwb, TT_ch('/'), ch);
+			return ch;
+		}
+		if(ch == '/') {
+			if(prev != '\\') break;
+			knh_Bytes_reduce(cwb->ba, 1);
+		}
+		knh_Bytes_putc(ctx, cwb->ba, ch);
+		if(prev == '\\' && ch == '\\') ch = 0;
+		prev = ch;
+	} while((ch = knh_InputStream_getc(ctx, in)) != EOF);
+	ch = knh_InputStream_getc(ctx, in);
+	Token_addBuf(ctx, tkB, cwb, TT_ch('/'), ch);
+	return ch;
+}
+
 
 #define ISB1_(t, c)  (t.utext[0] == c)
 #define ISB2_(t, c, c2)  (t.utext[0] == c && t.utext[1] == c2)
@@ -850,6 +935,15 @@ static int bytes_isOPR(knh_bytes_t t, int ch)
 		case '.':
 			if(ISB2_(t, '.', '.')) return 1; /* ... */
 			return 0;
+		case '*':
+			if(ISB2_(t, '*', '*')) return 1; /* *** */
+			return 0;
+		case '+':
+			if(ISB2_(t, '+', '+')) return 1; /* +++ */
+			return 0;
+		case '-':
+			if(ISB2_(t, '-', '-')) return 1; /* --- */
+			return 0;
 		case '<':
 			if(ISB2_(t, '<', '<')) return 1;  /* <<< */
 			return 0;
@@ -882,8 +976,8 @@ static int Token_addOPR(CTX ctx, knh_Token_t *tkB, knh_cwb_t *cwb, knh_InputStre
 			return knh_InputStream_getc(ctx, in);
 		}
 		if(Token_startsWithExpr(ctx, tkB)) {
-			knh_Bytes_putc(ctx, cwb->ba, ch);
-			return Token_addQUOTE(ctx, tkB, cwb, in, '/', 1);
+			WARN_MuchBetter(ctx, "$/.../");
+			return Token_addREGEX(ctx, tkB, cwb, in, ch);
 		}
 		knh_Bytes_putc(ctx, cwb->ba, '/');
 		goto L_INLOOP;
@@ -920,10 +1014,6 @@ static int Token_addMETAN(CTX ctx, knh_Token_t *tk, knh_cwb_t *cwb, knh_InputStr
 		ch = Token_addQUOTE(ctx, tk, cwb, in, ch, /*RAW*/1);
 	}
 	do {
-		if(ch == ';') {
-			WarningNoEffect(ctx);
-			continue;
-		}
 		if(!isalnum(ch) && ch != '_' && ch != '.') {
 			break;
 		}
@@ -934,26 +1024,31 @@ static int Token_addMETAN(CTX ctx, knh_Token_t *tk, knh_cwb_t *cwb, knh_InputStr
 	return ch;
 }
 
-static int Token_addPROPN(CTX ctx, knh_Token_t *tk, knh_cwb_t *cwb, knh_InputStream_t *in)
+static int Token_addPROPN(CTX ctx, knh_Token_t *tkB, knh_cwb_t *cwb, knh_InputStream_t *in)
 {
 	int ch;
-	Token_addBuf(ctx, tk, cwb, TT_UNTYPED, '$');
-	while((ch = knh_InputStream_getc(ctx, in)) != EOF) {
+	Token_addBuf(ctx, tkB, cwb, TT_UNTYPED, '$');
+	ch = knh_InputStream_getc(ctx, in);
+	if(ch == '/') {
+		return Token_addREGEX(ctx, tkB, cwb, in, 0);
+	}
+	do {
 		if(!isalnum(ch) && ch != '_' && ch != '.' && ch != '*') {
 			break;
 		}
 		knh_Bytes_putc(ctx, cwb->ba, ch);
 	}
-	Token_addBuf(ctx, tk, cwb, TT_PROPN, ch);
+	while((ch = knh_InputStream_getc(ctx, in)) != EOF);
+	Token_addBuf(ctx, tkB, cwb, TT_PROPN, ch);
 	return ch;
 }
 
 static int Token_addURN(CTX ctx, knh_Token_t *tk, knh_cwb_t *cwb, knh_InputStream_t *in)
 {
 	int ch = knh_InputStream_getc(ctx, in);
-	if(ch == '+') {  /* hoge:+ */
+	if(ch == ':') {  /* hoge:: */
 		ch = knh_InputStream_getc(ctx, in);
-		Token_addBuf(ctx, tk, cwb, TT_TSCHEME, ch);
+		Token_addBuf(ctx, tk, cwb, TT_TLINK, ch);
 		return ch;
 	}
 	if(ch == '=') {   /* a:=1*/
@@ -964,7 +1059,7 @@ static int Token_addURN(CTX ctx, knh_Token_t *tk, knh_cwb_t *cwb, knh_InputStrea
 		Token_addBuf(ctx, tk, cwb, TT_UNTYPED, ch);
 		return ch;
 	}
-	if(isspace(ch) || ch == ';' || ch == '"' || ch == '\'') {
+	if(isspace(ch) || ch == EOF || ch == ';' || ch == '"' || ch == '\'' || ch == '(' || ch == '{' || ch == '[') {
 		Token_addBuf(ctx, tk, cwb, TT_UNTYPED, ':');
 		knh_Bytes_putc(ctx, cwb->ba, ':');
 		Token_addBuf(ctx, tk, cwb, TT_UNTYPED, ch);
@@ -1008,8 +1103,8 @@ static int Token_addNUM(CTX ctx, knh_Token_t *tk, knh_cwb_t *cwb, knh_InputStrea
 		if(isalnum(ch)) goto L_ADD;
 		if(ch == '_') continue; // nothing
 		if(prev == '.' && ch == '.') {  /* 1.. => 1 .. */
-			knh_Bytes_unputc(cwb->ba, 1);
-			Token_addBuf(ctx, tk, cwb, TT_NUM, ch);
+			knh_Bytes_reduce(cwb->ba, 1);
+			Token_addBuf(ctx, tk, cwb, TT_NUM, '.');
 			knh_Bytes_putc(ctx, cwb->ba, '.');
 			knh_Bytes_putc(ctx, cwb->ba, '.');
 			ch = knh_InputStream_getc(ctx, in);
@@ -1037,7 +1132,20 @@ static void Token_addBLOCKERR(CTX ctx, knh_Token_t *tkB, knh_InputStream_t *in, 
 	if(ch == ']') block = "]";
 	tkB->uline = in->uline;
 	(ctx->gma)->uline = in->uline;
-	Token_add(ctx, tkB, ERROR_Block(ctx, block));
+	TokenBlock_add(ctx, tkB, ERROR_Block(ctx, block));
+}
+
+static void Bytes_addRAW(CTX ctx, knh_Bytes_t *ba, knh_InputStream_t *in, int end)
+{
+	int prev = 0, ch;
+	while((ch = knh_InputStream_getc(ctx, in)) != EOF) {
+		knh_Bytes_putc(ctx, ba, ch);
+		if(ch == end && prev != '\\') {
+			return;
+		}
+		if(prev == '\\' && ch == '\\') ch = 0;
+		prev = ch;
+	}
 }
 
 static void Token_addBLOCK(CTX ctx, knh_Token_t *tkB, knh_cwb_t *cwb, knh_InputStream_t *in, int block_indent)
@@ -1064,15 +1172,22 @@ static void Token_addBLOCK(CTX ctx, knh_Token_t *tkB, knh_cwb_t *cwb, knh_InputS
 		if(ch == '{') {
 			level++;
 		}
-		else if(ch == '"' || ch == '`' || ch == '\'') {
-			Bytes_addQUOTE(ctx, cwb->ba, in, ch, -2/*skip*/, 1/*isRAW*/, 0);
-			knh_Bytes_putc(ctx, cwb->ba, ch);
+		else if(prev == '#' && ch == '#') {
+			Bytes_addRAW(ctx, cwb->ba, in, '\n');
 		}
-		else if(prev == '/' && ch == '/') {
-			knh_Bytes_unputc(cwb->ba, 2);
-			InputStream_skipLINE(ctx, in);
-			knh_Bytes_putc(ctx, cwb->ba, '\n');
-			break;
+		else if(ch == '"' || ch == '`' || ch == '\'') {
+			Bytes_addRAW(ctx, cwb->ba, in, ch);
+		}
+		else if(ch == '/') {
+			if(prev == '$' || prev == '@') {
+				Bytes_addRAW(ctx, cwb->ba, in, ch);
+			}
+			else if(prev == '/') {
+				knh_Bytes_reduce(cwb->ba, 2);
+				InputStream_skipLINE(ctx, in);
+				knh_Bytes_putc(ctx, cwb->ba, '\n');
+				break;
+			}
 		}
 		else if(prev == '/' && ch == '*') {
 			InputStream_skipBLOCKCOMMENT(ctx, in, cwb->ba);
@@ -1094,9 +1209,28 @@ static void Token_addBLOCK(CTX ctx, knh_Token_t *tkB, knh_cwb_t *cwb, knh_InputS
 	if(block_indent <= c) {
 		goto L_STARTLINE;
 	}
-	knh_cwb_clear(cwb, 0);
+	knh_cwb_clear2(cwb, 0);
 	DBG_P("block_indent=%d, c=%d, last=%d", block_indent, c, ch);
 	Token_addBLOCKERR(ctx, tkB, in, 0);
+}
+
+static int InputStream_skipMultiByteChar(CTX ctx, knh_InputStream_t *in, int ch)
+{
+	char buf[8] = {ch, 0};
+	int i, size = knh_utf8len(ch);
+	if(size > 2) {
+		for(i = 1; i < size; i++) {
+			ch = knh_InputStream_getc(ctx, in);
+			buf[i] = ch;
+		}
+		WARN_UnxpectedMultiByteChar(ctx, buf);
+		return ' ';
+	}
+	else {
+		while((ch = knh_InputStream_getc(ctx, in)) > 127);
+		WARN_UnxpectedMultiByteChar(ctx, NULL);
+		return ch;
+	}
 }
 
 static void InputStream_parseToken(CTX ctx, knh_InputStream_t *in, knh_Token_t *tkB)
@@ -1105,7 +1239,7 @@ static void InputStream_parseToken(CTX ctx, knh_InputStream_t *in, knh_Token_t *
 	int block_indent = 0, block_line = 0;
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 	DBG_ASSERT(in->uline != 0);
-	Token_setPLUSLINE(tkB, 0);
+	Token_setSAMELINE(tkB, 0);
 	L_NEWLINE:;
 	{
 		int c = 0;
@@ -1121,10 +1255,11 @@ static void InputStream_parseToken(CTX ctx, knh_InputStream_t *in, knh_Token_t *
 				else {
 					if(block_indent < c) {
 						DBG_P("indent %d < %d", block_indent, c);
-						Token_setPLUSLINE(tkB, 1);
+						Token_setSAMELINE(tkB, 1);
 					}
 					else if(c < block_indent) {
 						Token_addBLOCKERR(ctx, tkB, in, 0);
+						knh_cwb_close(cwb);
 						return;
 					}
 				}
@@ -1134,19 +1269,19 @@ static void InputStream_parseToken(CTX ctx, knh_InputStream_t *in, knh_Token_t *
 		}
 	}
 	L_NEWTOKEN:;
+	knh_cwb_clear2(cwb, 0);
 	ctx->gma->uline = in->uline;
-	knh_cwb_clear(cwb, 0);
 	while((ch = knh_InputStream_getc(ctx, in)) != EOF) {
 		L_AGAIN:;
 		switch(ch) {
 		case '\n':
 			Token_addBuf(ctx, tkB, cwb, TT_UNTYPED, ch);
-			Token_setPLUSLINE(tkB, 0);
+			Token_setSAMELINE(tkB, 0);
 			goto L_NEWLINE;
 
 		case '\\':
 			InputStream_skipLINE(ctx, in);
-			Token_setPLUSLINE(tkB, 1);
+			Token_setSAMELINE(tkB, 1);
 			goto L_NEWLINE;
 
 		case ' ': case '\t': case '\v': case '\r':
@@ -1156,31 +1291,31 @@ static void InputStream_parseToken(CTX ctx, knh_InputStream_t *in, knh_Token_t *
 		case ';': case ',':
 			Token_addBuf(ctx, tkB, cwb, TT_UNTYPED, ch);
 			knh_Bytes_putc(ctx, cwb->ba, ch);
-			Token_addBuf(ctx, tkB, cwb, TT_UNTYPED, ch);
+			Token_addBuf(ctx, tkB, cwb, TT_UNTYPED, ' ');
 			goto L_NEWTOKEN;
 
 		case '{':
-			Token_setPLUSLINE(tkB, 1);
+			Token_setSAMELINE(tkB, 1);
 			Token_addBLOCK(ctx, tkB, cwb, in, block_indent);
 			goto L_NEWTOKEN;
 
 		case '[': case '(':
-			Token_setPLUSLINE(tkB, 1);
 			Token_addBuf(ctx, tkB, cwb, TT_UNTYPED, ch);
 			{
-				knh_Token_t *ctk = new_Token(ctx, TT_ch(ch));
-				ctk->h.meta = tkB;
-				tkB = ctk;
+				knh_Token_t *tkSUB = new_Token(ctx, TT_ch(ch));
+				tkSUB->h.meta = tkB;
+				tkB = tkSUB;
 			}
 			goto L_NEWTOKEN;
 
 		case ')': case ']':
 			Token_addBuf(ctx, tkB, cwb, TT_UNTYPED, ch);
 			if(TT_ch(ch) == TT_(tkB)) {
-				knh_Token_t *ctk = tkB;
-				tkB = (knh_Token_t*)(ctk)->h.meta;
-				(ctk)->h.meta = NULL;
-				Token_add(ctx, tkB, ctk);
+				knh_Token_t *tkSUB = tkB;
+				tkB = (knh_Token_t*)(tkSUB)->h.meta;
+				(tkSUB)->h.meta = NULL;
+				TokenBlock_add(ctx, tkB, tkSUB);
+				TokenB_setline(tkB, ctx->gma->uline);
 				goto L_NEWTOKEN;
 			}
 		case '}':
@@ -1190,14 +1325,7 @@ static void InputStream_parseToken(CTX ctx, knh_InputStream_t *in, knh_Token_t *
 			/*goto L_NEWTOKEN;*/
 
 		/* token */
-		case '\'': {  // @CODE prime'
-			knh_bytes_t t = knh_cwb_tobytes(cwb);
-			if(t.len > 0 && (islower(t.text[t.len-1]) || t.text[t.len-1] == '\'')) {
-				knh_Bytes_putc(ctx, cwb->ba, ch);
-				break;
-			}
-		}
-		case '"': case '`' :
+		case '\'': case '"': case '`' :
 		case '#':
 			ch = Token_addQUOTE(ctx, tkB, cwb, in, ch, 0/*isRAW*/);
 			goto L_AGAIN;
@@ -1208,13 +1336,12 @@ static void InputStream_parseToken(CTX ctx, knh_InputStream_t *in, knh_Token_t *
 			ch = Token_addMETAN(ctx, tkB, cwb, in);
 			goto L_AGAIN;
 		case '|':
-#ifdef TT_SIZE
 			Token_addBuf(ctx, tkB, cwb, TT_UNTYPED, ch);
 			if(TT_ch(ch) == TT_(tkB)) {
 				knh_Token_t *ctk = tkB;
 				tkB = (knh_Token_t*)(ctk)->h.meta;
 				(ctk)->h.meta = NULL;
-				Token_add(ctx, tkB, ctk);
+				TokenBlock_add(ctx, tkB, ctk);
 				TT_(ctk) = TT_PARENTHESIS;
 				knh_Bytes_write(ctx, cwb->ba, STEXT(".size"));
 				Token_addBuf(ctx, tkB, cwb, TT_UNTYPED, ' ');
@@ -1226,7 +1353,6 @@ static void InputStream_parseToken(CTX ctx, knh_InputStream_t *in, knh_Token_t *
 				tkB = ctk;
 				goto L_NEWTOKEN;
 			}
-#endif
 		case '?': {
 			knh_bytes_t t = knh_cwb_tobytes(cwb);
 			if(ISB(t, "in") || ISB(t, "isa") || ISB(t, "is")) {
@@ -1275,13 +1401,14 @@ static void InputStream_parseToken(CTX ctx, knh_InputStream_t *in, knh_Token_t *
 
 		default:
 			if(ch > 127) {
-				WarningUnexpectedCharacter(ctx);
-				ch = ' ';
+				ch = InputStream_skipMultiByteChar(ctx, in, ch);
+				goto L_AGAIN;
 			}
 			knh_Bytes_putc(ctx, cwb->ba, ch);
 		} /* switch */
 	}/*while*/
 	Token_addBuf(ctx, tkB, cwb, TT_UNTYPED, EOF);
+	knh_cwb_close(cwb);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1297,7 +1424,7 @@ static void Token_toBRACE(CTX ctx, knh_Token_t *tk, int isEXPANDING)
 		in->uline = tk->uline;
 		InputStream_parseToken(ctx, in, tk);
 		DBG_(
-		if(knh_isSystemVerbose() && ULINE_uri(in->uline) == URI_EVAL) {
+		if(knh_isVerboseLang() && ULINE_uri(in->uline) == URI_EVAL) {
 			knh_write_Object(ctx, KNH_STDOUT, UPCAST(tk), FMT_dump);
 		});
 		END_LOCAL_(ctx, lsfp);
@@ -1399,7 +1526,7 @@ static void _SEMICOLON(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 		ITR_next(itr);
 	}
 	else if(STT_(stmt) != STT_ERR) {
-		BadPracticeSemicolon(ctx);
+		WARN_Semicolon(ctx);
 	}
 }
 
@@ -1429,10 +1556,11 @@ static tkitr_t *ITR_stmt(CTX ctx, tkitr_t *itr, int pos, tkitr_t *buf, int isNee
 {
 	int i;
 	*buf = *itr;
-	for(i = itr->c + 1 + pos; i < itr->e; i++) {
+	DBG_ASSERT(pos > 0);
+	for(i = itr->c + pos; i < itr->e; i++) {
 		if(Token_isBOL(itr->ts[i])) {
 			if(isNeedSemicolon && TT_(itr->ts[i]) != TT_SEMICOLON) {
-				BadPracticeSemicolon(ctx);
+				WARN_Semicolon(ctx);
 			}
 			buf->e = i;
 			itr->c = i;
@@ -1443,7 +1571,7 @@ static tkitr_t *ITR_stmt(CTX ctx, tkitr_t *itr, int pos, tkitr_t *buf, int isNee
 	buf->e = itr->e;
 	itr->c = itr->e;
 	if(isNeedSemicolon && itr->e -1 >= 0) {
-		BadPracticeSemicolon(ctx);
+		WARN_Semicolon(ctx);
 	}
 	return buf;
 }
@@ -1487,7 +1615,7 @@ static void TT_skipMETA(CTX ctx, tkitr_t *itr)
 	while(ITR_hasNext(itr)) {
 		knh_term_t tt = ITR_tt(itr);
 		ctx->gma->uline = ITR_tk(itr)->uline;
-		if(ITR_isN(itr, +1, TT_COLON) && (tt == TT_NAME || tt == TT_UNAME)) {
+		if(ITR_isN(itr, +1, TT_COLON) && (tt == TT_NAME || tt == TT_UNAME) && !ITR_isN(itr, +2, TT_PARENTHESIS)) {
 			if(itr->meta == -1) itr->meta = itr->c;
 			ITR_next(itr);
 		}
@@ -1518,7 +1646,7 @@ static void _DBGERROR(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr, const char *whati
 		if(whatis != NULL && ITR_hasNext(itr)) {
 			tkERR = ITR_tk(itr);
 			if(TT_(tkERR) != TT_ERR) {
-				tkERR = SyntaxErrorTokenIsNot(ctx, ITR_tk(itr), whatis);
+				tkERR = ERROR_TokenIsNot(ctx, ITR_tk(itr), whatis);
 			}
 		}
 		else {
@@ -1575,7 +1703,7 @@ static void Stmt_taddASIS(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr, knh_FisToken 
 
 static int isVARN(knh_Token_t* tk)
 {
-	return (TT_(tk) == TT_NAME && !Token_isDOT(tk));
+	return ((TT_(tk) == TT_NAME && !Token_isDOT(tk)) || TT_(tk) == TT_ASIS);
 }
 
 static void _PNAME(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr)
@@ -1658,25 +1786,26 @@ static int ITR_indexKEY(tkitr_t *itr, int shift)
 	return itr->e;
 }
 
-static int ITR_isImmutable(tkitr_t *titr)
-{
-	if(titr->e > 0) {
-		if(TT_(titr->ts[titr->e - 1]) == TT_DOTS) {
-			titr->e -= 1;
-			return 1;
-		}
-		return 0;
-	}
-	return 1;
-}
+//static int ITR_isImmutable(tkitr_t *titr)
+//{
+//	if(titr->e > 0) {
+//		if(TT_(titr->ts[titr->e - 1]) == TT_DOTS) {
+//			titr->e -= 1;
+//			return 1;
+//		}
+//		return 0;
+//	}
+//	return 1;
+//}
 
 static void _ARRAY(CTX ctx, knh_Stmt_t *stmt, knh_methodn_t mn, knh_class_t cid, tkitr_t *itr)
 {
+	//knh_Token_t *tkC = new_TokenCID(ctx, ITR_isImmutable(itr) ? knh_class_P1(ctx, CLASS_Immutable, cid));
 	knh_Token_t *tkC = new_TokenCID(ctx, cid);
 	DBG_ASSERT(STT_(stmt) == STT_NEW);
 	knh_Stmt_add(ctx, stmt, new_TokenMN(ctx, mn));
 	knh_Stmt_add(ctx, stmt, tkC);
-	Token_setImmutable(tkC, ITR_isImmutable(itr));
+	//Token_setImmutable(tkC, ITR_isImmutable(itr));
 	_EXPRs(ctx, stmt, itr);
 }
 
@@ -1722,14 +1851,14 @@ static void _KEYVALUEs(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 static void _DICT(CTX ctx, knh_Stmt_t *stmt, knh_Token_t *tkC, knh_Token_t *tkB)
 {
 	DBG_ASSERT(STT_(stmt) == STT_NEW);
-	knh_Stmt_add(ctx, stmt, tkC);
 	if(TT_(tkB) == TT_CODE) {
 		Token_toBRACE(ctx, tkB, 1/*isEXPANDING*/);
 	}
+	knh_Stmt_add(ctx, stmt, tkC);
 	DBG_ASSERT(TT_(tkB) == TT_BRACE);
 	{
 		tkitr_t pbuf, *pitr = ITR_new(tkB, &pbuf);
-		Token_setImmutable(tkC, ITR_isImmutable(pitr));
+		//Token_setImmutable(tkC, ITR_isImmutable(pitr));
 		_KEYVALUEs(ctx, stmt, pitr);
 	}
 }
@@ -1779,15 +1908,6 @@ static int ITR_indexLET(tkitr_t *itr)
 	return -1;
 }
 
-static int isLVALUE(knh_Token_t *tk)
-{
-	knh_term_t tt = TT_(tk);
-	if(tt == TT_NAME || tt == TT_UNAME || tt == TT_PROPN) {
-		return 1;
-	}
-	return 0;
-}
-
 static void _EXPRLET(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr, knh_index_t idx)
 {
 	knh_Token_t *tkCUR = itr->ts[idx];
@@ -1795,40 +1915,10 @@ static void _EXPRLET(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr, knh_index_t idx)
 	if(TT_(tkCUR) != TT_LET) { /* i += 1 ==> i = i + 1 */
 		itr->c = litr->c;
 	}
-	if(ITR_size(litr) == 1) {
-		if(ITR_isT(litr, isLVALUE)) {
-			stmt = new_StmtREUSE(ctx, stmt, STT_LET);
-			_VAR(ctx, stmt, litr);
-			knh_Stmt_add(ctx, stmt, ITR_nextTK(litr));
-			_EXPR(ctx, stmt, itr); return;
-		}
-	}
-	else {
-		if(STT_(stmt) != STT_CALL1) {
-			knh_Stmt_t *stmt1 = new_Stmt2(ctx, STT_CALL1, NULL);
-			knh_Stmt_add(ctx, stmt, stmt1);
-			stmt = stmt1;
-		}
-		_EXPR(ctx, stmt, litr);
-		if(STT_(stmt) == STT_CALL) {
-			knh_Token_t *tkS = tkNN(stmt, 0);
-			knh_Token_t *tkM = new_Token(ctx, TT_(tkS));
-			(tkM)->flag0 = (tkS)->flag0;
-			KNH_SETv(ctx, (tkM)->data, (tkS)->data);
-			(tkM)->mn = (tkS)->mn;
-			KNH_SETv(ctx, tkNN(stmt, 0), tkM);
-			if(Token_isGetter(tkM)) {
-				Token_setGetter(tkM, 0);
-				Token_setSetter(tkM, 1);
-				if(isupper(S_tochar(tkM->text)[0])) {
-					Stmt_setCLASSCONSTDEF(stmt, 1);
-				}
-				_EXPR(ctx, stmt, itr);
-				return;
-			}
-		}
-	}
-	_ERROR(ctx, stmt, itr, NULL);
+	stmt = new_StmtREUSE(ctx, stmt, STT_LET);
+	_VAR(ctx, stmt, litr);
+	_EXPR(ctx, stmt, litr);
+	_EXPR(ctx, stmt, itr); return;
 }
 
 static int ITR_isDOTNAME(tkitr_t *itr, int shift)
@@ -1843,21 +1933,30 @@ static int ITR_isDOTNAME(tkitr_t *itr, int shift)
 	return 0;
 }
 
+static void ITR_CASTOP(tkitr_t *itr)
+{
+	knh_Token_t *tk = itr->ts[itr->c+1];
+	if(TT_(tk) == TT_SUB) TT_(tk) = TT_TSUB;
+	else if(TT_(tk) == TT_ADD) TT_(tk) = TT_TADD;
+	else if(TT_(tk) == TT_AND) TT_(tk) = TT_TAND;
+	else if(TT_(tk) == TT_MUL) TT_(tk) = TT_TMUL;
+}
+
 static int ITR_isCAST(tkitr_t *itr)
 {
+	DBG_ASSERT(itr->c + 1 < itr->e);
 	if(ITR_is(itr, TT_PARENTHESIS) && !ITR_isDOTNAME(itr, 1)) {
 		tkitr_t cbuf, *citr = ITR_new(ITR_tk(itr), &cbuf);
 		if(ITR_is(citr, TT_TO)) {
 			ITR_next(citr)
 		}
-		if(ITR_isT(citr, isTYPE) && ITR_size(citr) == 1) {
+		if((ITR_isT(citr, isTYPE) || ITR_is(itr, TT_MUL)) && ITR_size(citr) == 1) {
+			ITR_CASTOP(itr);
 			return 1;
 		}
 	}
-	else if(ITR_is(itr, TT_FROM) && itr->c + 1 < itr->e) {
-		return 1;
-	}
-	else if(ITR_is(itr, TT_TSCHEME) && itr->c + 1 < itr->e) {
+	else if((ITR_is(itr, TT_FROM) || ITR_is(itr, TT_TLINK))) {
+		ITR_CASTOP(itr);
 		return 1;
 	}
 	return 0;
@@ -1865,52 +1964,65 @@ static int ITR_isCAST(tkitr_t *itr)
 
 static void _EXPRCAST(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 {
-	knh_Stmt_t *stmtTCST = new_StmtREUSE(ctx, stmt, STT_TCAST);
-	tkitr_t cbuf, *citr = ITR_new(ITR_nextTK(itr), &cbuf);
-	if(ITR_is(citr, TT_TO)) {
-		TODO();
-		ITR_next(citr)
+	knh_Stmt_t *stmtT = new_StmtREUSE(ctx, stmt, STT_TCAST);
+	DBG_ASSERT(itr->c + 1 < itr->e);
+	if(ITR_is(itr, TT_TLINK)) {
+		knh_Token_t *tkTL = ITR_nextTK(itr);
+		STT_(stmtT) = STT_TLINK;
+		_ASIS(ctx, stmtT, itr);
+		knh_Stmt_add(ctx, stmtT, tkTL);
+		_EXPR(ctx, stmtT, itr);
+		return;
 	}
-	if(ITR_isT(citr, isTYPE)) {
-//			if(ITR_is(citr, TT_PTYPE)) {
-//				Token_toStmtTYPEOF(ctx, ITR_tk(citr));
-//			}
-		knh_Stmt_add(ctx, stmtTCST, ITR_nextTK(citr));
+	if(ITR_is(itr, TT_FROM)) {
+		knh_Stmt_add(ctx, stmtT, new_TokenCID(ctx, CLASS_Tdynamic));
 	}
-	_EXPR(ctx, stmtTCST, itr); return;
+	else {
+		tkitr_t cbuf, *citr = ITR_new(ITR_nextTK(itr), &cbuf);
+		if(ITR_is(citr, TT_TO)) {
+			Stmt_setTRANS(stmtT, 1);
+			ITR_next(citr)
+		}
+		if(ITR_isT(citr, isTYPE)) {
+			knh_Stmt_add(ctx, stmtT, ITR_nextTK(citr));
+		}
+		if(ITR_is(citr, TT_MUL)) {
+			knh_Stmt_add(ctx, stmtT, new_TokenCID(ctx, CLASS_Tdynamic));
+		}
+	}
+	_EXPR(ctx, stmtT, itr);
 }
-
 
 int TT_priority(knh_term_t tt);
 
-static int ITR_indexOPR(CTX ctx, tkitr_t *itr)
+static int ITR_indexOPR(CTX ctx, tkitr_t *itr, int offset)
 {
 	int i, oppri = 98, idx = -1;
 	knh_term_t tt_found = TT_EOT;
 	knh_Token_t **ts = itr->ts;
-	{
-		int isTEXTPARAM = 0;
-		for(i = itr->c; i < itr->e; i++) {
-			if(TT_(ts[i]) == TT_NAME || TT_(ts[i]) == TT_UNAME) {
-				isTEXTPARAM = 1;
-				continue;
-			}
-			if(isTEXTPARAM == 1 && TT_isSTR(TT_(ts[i]))) {
-				return -1;
-			}
-			break;
+	int isTEXTPARAM = 0;
+	for(i = itr->c + offset; i < itr->e; i++) {
+		if(TT_(ts[i]) == TT_NAME || TT_(ts[i]) == TT_UNAME) {
+			isTEXTPARAM = 1;
+			continue;
 		}
+		if(isTEXTPARAM == 1 && TT_isSTR(TT_(ts[i]))) {
+			return -1;
+		}
+		break;
 	}
 	for(i = itr->c; i < itr->e; i++) {
-		int p = TT_priority(TT_(ts[i]));
+		knh_term_t tt = TT_(ts[i]);
+		int p = TT_priority(tt);
 		if(p == 0) {
+			DBG_P("p=%d, TT=%s", TT__(tt));
 			KNH_SETv(ctx, ts[i], ERROR_Token(ctx, ts[i] K_TRACEPOINT));
-			itr->e = i;
+			itr->c = i;
 			return i;
 		}
-		if(p <= oppri) { /* p <= oppri is binary*/
+		if(p <= oppri) {
 			oppri = p;
-			tt_found = TT_(ts[i]);
+			tt_found = tt;
 		}
 	}
 	if(tt_found != TT_EOT) {
@@ -1921,9 +2033,7 @@ static int ITR_indexOPR(CTX ctx, tkitr_t *itr)
 			}
 		}
 	}
-//	if(idx != -1) {
-//		DBG_P("idx=%d, TT=%s", idx, TT__(TT_(ts[idx])));
-//	}
+	//DBG_P("idx=%d=<%d<%d %s", itr->c, idx, itr->e, TT__(ts[idx]->tt));
 	return idx;
 }
 
@@ -1952,7 +2062,7 @@ static void ITR_toLET(CTX ctx, tkitr_t *itr, knh_Token_t *tk)
 	knh_Array_add(ctx, (tk)->list, tkC);
 }
 
-static void _EXPROP(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr, int idx, int isCAST)
+static void _EXPROP(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr, int idx)
 {
 	knh_term_t stt = STT_OPR;
 	knh_Token_t *tkOP = itr->ts[idx];
@@ -1968,10 +2078,7 @@ static void _EXPROP(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr, int idx, int isCAST
 	case TT_TSUB:   /* @CODE: -expr */
 	case TT_TADD:   /* @CODE: +expr */
 	case TT_TAND:   /* @CODE: &expr */ {
-		if(isCAST) {
-			_EXPRCAST(ctx, stmt, itr);
-		}
-		else if(itr->c == idx) {
+		if(itr->c == idx) {
 			knh_Stmt_t *stmtOPR = new_StmtREUSE(ctx, stmt, stt);
 			knh_Stmt_add(ctx, stmtOPR, tkOP);
 			ITR_next(itr);
@@ -2045,6 +2152,18 @@ static void _EXPROP(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr, int idx, int isCAST
 	}
 }
 
+void knh_Regex_setGlobalOption(CTX ctx, knh_Regex_t *re, const char *opt)
+{
+	const char *p = opt;
+	while(*p != 0) {
+		if(*p == 'g') {
+			Regex_setGlobalOption(re, 1);
+			break;
+		}
+		p++;
+	}
+}
+
 static void _REGEX(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr, knh_Token_t *tk)
 {
 	knh_Regex_t *re = new_H(Regex);
@@ -2058,16 +2177,18 @@ static void _REGEX(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr, knh_Token_t *tk)
 	re->reg = re->spi->regmalloc(ctx, (tk)->text);
 	if(ITR_is(itr, TT_NAME)) {
 		opt = S_tochar((ITR_nextTK(itr))->text);
-		DBG_P("opt=%s", opt);
+		knh_Regex_setGlobalOption(ctx, re, opt);
 	}
 	cflags = re->spi->parse_cflags(ctx, opt);
 	if(re->spi->regcomp(ctx, re->reg, S_tochar(re->pattern), cflags) != 0) {
-		knh_Stmt_toERR(ctx, stmt, ErrorRegexCompilation(ctx, tk, re->spi->name, S_tochar((tk)->text)));
+		knh_Stmt_toERR(ctx, stmt, ERROR_RegexCompilation(ctx, tk, re->spi->name, S_tochar((tk)->text)));
 	}
-	re->eflags = re->spi->parse_eflags(ctx, opt);
-	KNH_SETv(ctx, (tk)->data, re);
-	knh_Stmt_add(ctx, stmt, tk);
-	ITR_ignore(ctx, itr, +0);
+	else {
+		re->eflags = re->spi->parse_eflags(ctx, opt);
+		KNH_SETv(ctx, (tk)->data, re);
+		knh_Stmt_add(ctx, stmt, tk);
+		ITR_ignore(ctx, itr, +0);
+	}
 }
 
 static void _CODEDOC(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr)
@@ -2098,103 +2219,103 @@ static void _STMT1(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr);
 
 static void _EXPR1(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 {
-	knh_Token_t *tkCUR = ITR_nextTK(itr);
-	switch(TT_(tkCUR)) {
-		case TT_NAME:    /* @CODE: name */
-		case TT_UNAME:   /* @CODE: NAME */
-			DBG_ASSERT(!ITR_hasNext(itr));  // to avoid name. hoge
-		case TT_NULL:    /* @CODE: null */
-		case TT_TRUE:    /* @CODE: true */
-		case TT_FALSE:   /* @CODE: false */
-		case TT_PTYPE:    /* @CODE: T<T> */
-		case TT_PROPN:   /* @CODE: $NAME */
-		case TT_TYPEOF:  /* @CODE: typeof(expr) */
-		case TT_STR:     /* @CODE: "hoge" */
-		case TT_TSTR:    /* @CODE: 'hoge' */
-		case TT_ESTR:    /* @CODE: `hoge` */
-		case TT_NUM:     /* @CODE: 123m */
-		case TT_URN:     /* @CODE: URL */
-			knh_Stmt_add(ctx, stmt, tkCUR);
-			break;
-		case TT_BYTE:    /* @CODE: byte */
-			TT_(tkCUR) = TT_NAME;
-			knh_Stmt_add(ctx, stmt, tkCUR);
-			break;
-		case TT_REGEX:
-			_REGEX(ctx, stmt, itr, tkCUR);
-			break;
-		case TT_PARENTHESIS: /* @CODE: () */ {
-			tkitr_t pbuf, *pitr = ITR_new(tkCUR, &pbuf);
-			int c = ITR_indexTT(pitr, TT_DARROW, -1);
-			if(c != -1) {
-				STT_(stmt) = STT_FUNCTION;
-				_PARAMs(ctx, stmt, pitr);
-				_CODEDOC(ctx, stmt, pitr);
-				pitr->c = c + 1;
-				_RETURNEXPR(ctx, stmt, pitr);
+	//if(ITR_hasNext(itr)) {
+		knh_Token_t *tkCUR = ITR_nextTK(itr);
+		switch(TT_(tkCUR)) {
+			case TT_NAME:    /* @CODE: name */
+			case TT_UNAME:   /* @CODE: NAME */
+				DBG_ASSERT(!ITR_hasNext(itr));  // to avoid name. hoge
+			case TT_NULL:    /* @CODE: null */
+			case TT_TRUE:    /* @CODE: true */
+			case TT_FALSE:   /* @CODE: false */
+			case TT_PTYPE:    /* @CODE: T<T> */
+			case TT_PROPN:   /* @CODE: $NAME */
+			case TT_TYPEOF:  /* @CODE: typeof(expr) */
+			case TT_STR:     /* @CODE: "hoge" */
+			case TT_TSTR:    /* @CODE: 'hoge' */
+			case TT_ESTR:    /* @CODE: `hoge` */
+			case TT_NUM:     /* @CODE: 123m */
+			case TT_URN:     /* @CODE: URL */
+			case TT_TLINK:   /* @CODE: link:: */
+			case TT_DYN:
+				knh_Stmt_add(ctx, stmt, tkCUR);
+				break;
+			case TT_BYTE:    /* @CODE: byte */
+				TT_(tkCUR) = TT_NAME;
+				knh_Stmt_add(ctx, stmt, tkCUR);
+				break;
+			case TT_REGEX:
+				_REGEX(ctx, stmt, itr, tkCUR);
+				break;
+			case TT_PARENTHESIS: /* @CODE: () */ {
+				tkitr_t pbuf, *pitr = ITR_new(tkCUR, &pbuf);
+//				int c = ITR_indexTT(pitr, TT_DARROW, -1);
+//				if(c != -1) {
+//					STT_(stmt) = STT_FUNCTION;
+//					_PARAMs(ctx, stmt, pitr);
+//					_CODEDOC(ctx, stmt, pitr);
+//					pitr->c = c + 1;
+//					_RETURNEXPR(ctx, stmt, pitr);
+//					break;
+//				}
+				int c = ITR_count(pitr, TT_COMMA);
+				if(c == 0) {
+					if(ITR_hasNext(pitr)) {   /* @CODE: (expr) => expr */
+						_EXPR(ctx, stmt, pitr);
+					}
+					else { /* @CODE: () => null */
+						TT_(tkCUR) = TT_NULL;
+						knh_Stmt_add(ctx, stmt, tkCUR);
+					}
+				}
+				else {  /* @CODE: (1, 2) */
+					stmt = new_StmtREUSE(ctx, stmt, STT_NEW);
+					_ARRAY(ctx, stmt, MN_newTUPLE, CLASS_Tuple, pitr);
+				}
 				break;
 			}
-			c = ITR_count(pitr, TT_COMMA);
-			if(c == 0) {
-				if(ITR_hasNext(pitr)) {   /* @CODE: (expr) => expr */
-					_EXPR(ctx, stmt, pitr);
+			case TT_BRANCET: {  /* @CODE: [] */
+				tkitr_t pbuf, *pitr = ITR_new(tkCUR, &pbuf);
+				knh_class_t cid = CLASS_Array;
+				knh_index_t idx = ITR_indexTT(pitr, TT_TO, -1);
+				if(idx != -1) { /* [1 to 2] => [1, 2] */
+					cid = CLASS_Range;
+					TT_(pitr->ts[idx]) = TT_COMMA;
 				}
-				else { /* @CODE: () => null */
-					TT_(tkCUR) = TT_NULL;
-					knh_Stmt_add(ctx, stmt, tkCUR);
-				}
-			}
-			else {  /* @CODE: (1, 2) */
 				stmt = new_StmtREUSE(ctx, stmt, STT_NEW);
-				_ARRAY(ctx, stmt, MN_newTUPLE, CLASS_Tuple, pitr);
+				_ARRAY(ctx, stmt, MN_newLIST, cid, pitr);
+				break;
 			}
-			break;
-		}
-		case TT_BRANCET: {  /* @CODE: [] */
-			tkitr_t pbuf, *pitr = ITR_new(tkCUR, &pbuf);
-			knh_class_t cid = CLASS_Array;
-			knh_index_t idx = ITR_indexTT(pitr, TT_TO, -1);
-			if(idx != -1) { /* [1 to 2] => [1, 2] */
-				cid = CLASS_Range;
-				TT_(pitr->ts[idx]) = TT_COMMA;
+			case TT_CODE: {
+				knh_bytes_t t = S_tobytes(tkCUR->text);
+				if(t.len == 0 || knh_bytes_index(t, ':') != -1) {
+					stmt = new_StmtREUSE(ctx, stmt, STT_NEW);
+					knh_Stmt_add(ctx, stmt, new_TokenMN(ctx, MN_newMAP));
+					_DICT(ctx, stmt, new_TokenCID(ctx, CLASS_Map), tkCUR);
+				}
+				else {
+					stmt = new_StmtREUSE(ctx, stmt, STT_FUNCTION);
+					knh_Stmt_add(ctx, stmt, new_Stmt2(ctx, STT_DECL, NULL));
+					knh_Token_t *tkDOC = new_Token(ctx, TT_DOC);
+					KNH_SETv(ctx, (tkDOC)->data, (tkCUR)->text);
+					knh_Stmt_add(ctx, stmt, tkDOC);
+					itr->c -= 1;
+					_STMT1(ctx, stmt, itr);
+					DBG_P("SIZE=%d", DP(stmt)->size);
+				}
+				break;
 			}
-			stmt = new_StmtREUSE(ctx, stmt, STT_NEW);
-			_ARRAY(ctx, stmt, MN_newLIST, cid, pitr);
-			break;
-		}
-		case TT_CODE:
-		case TT_BRACE: {
-			stmt = new_StmtREUSE(ctx, stmt, STT_NEW);
-			knh_Stmt_add(ctx, stmt, new_TokenMN(ctx, MN_newMAP));
-			_DICT(ctx, stmt, new_TokenCID(ctx, CLASS_Map), tkCUR);
-			break;
-		}
-		case TT_FUNCTION: { /* function () */
-			STT_(stmt) = STT_FUNCTION;
-			if(ITR_is(itr, TT_FUNCNAME) || ITR_is(itr, TT_UFUNCNAME)) {
-				knh_Token_t *tkN = ITR_nextTK(itr);
-				WARN_Ignored(ctx, _("function name"), CLASS_unknown, S_tochar(tkN->text));
+			case TT_ERR:
+				knh_Stmt_toERR(ctx, stmt, tkCUR);
+				break;
+			default: {
+				Stmt_toSyntaxError(ctx, stmt, tkCUR K_TRACEPOINT);
 			}
-			if(ITR_is(itr, TT_PARENTHESIS) && ITR_isN(itr, +1, TT_CODE)) {
-				tkCUR = new_Token(ctx, TT_DOC);
-				KNH_SETv(ctx, (tkCUR)->data, (ITR_tk(itr))->text);
-				_PARAM(ctx, stmt, itr);
-				knh_Stmt_add(ctx, stmt, tkCUR);
-				_STMT1(ctx, stmt, itr);
-			}
-			else {
-				tkCUR = ITR_tk(itr); goto L_ERROR;
-			}
-			break;
 		}
-		case TT_ERR:
-			knh_Stmt_toERR(ctx, stmt, tkCUR);
-			break;
-		default: {
-			L_ERROR:;
-			Stmt_toSyntaxError(ctx, stmt, tkCUR K_TRACEPOINT);
-		}
-	}
+//	}
+//	else {
+//		knh_Stmt_toERR(ctx, stmt, ERROR_text(ctx, TT__(stmt->stt) K_TRACEPOINT));
+//	}
 }
 
 static knh_Stmt_t *Stmt_addFUNC(CTX ctx, knh_Stmt_t *stmt, knh_Token_t *tkF)
@@ -2294,6 +2415,25 @@ static void _EXPRCALL(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 			_REGEX(ctx, stmt, itr, tkCUR);
 			break;
 		}
+		case TT_FUNCTION: {
+			STT_(stmt) = STT_FUNCTION;
+			if(ITR_is(itr, TT_FUNCNAME) || ITR_is(itr, TT_UFUNCNAME)) {
+				knh_Token_t *tkN = ITR_nextTK(itr);
+				WARN_Ignored(ctx, _("function name"), CLASS_unknown, S_tochar(tkN->text));
+			}
+			if(ITR_is(itr, TT_PARENTHESIS) && ITR_isN(itr, +1, TT_CODE)) {
+				tkCUR = new_Token(ctx, TT_DOC);
+				KNH_SETv(ctx, (tkCUR)->data, (ITR_tk(itr))->text);
+				_PARAM(ctx, stmt, itr);
+				knh_Stmt_add(ctx, stmt, tkCUR);
+				_STMT1(ctx, stmt, itr);
+			}
+			else {
+				knh_Stmt_toERR(ctx, stmt, ERROR_text(ctx, "syntax error: function() {...}" K_TRACEPOINT));
+				return;
+			}
+			break;
+		}
 		case TT_NEW: {
 			STT_(stmt) = STT_NEW;
 			isCALL = 1;
@@ -2311,6 +2451,7 @@ static void _EXPRCALL(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 				TT_(tkCUR) = TT_MN; /* new byte[10] */
 				(tkCUR)->mn = MN_newARRAY;
 				knh_Stmt_add(ctx, stmt, new_TokenCID(ctx, CLASS_Bytes));
+				ITR_nextTK(itr);
 				TT_(itr->ts[itr->c]) = TT_PARENTHESIS;
 				break;
 			}
@@ -2341,7 +2482,20 @@ static void _EXPRCALL(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 				_DICT(ctx, stmt, new_Token(ctx, TT_ASIS), ITR_nextTK(itr));
 				break;
 			}
-			knh_Stmt_toERR(ctx, stmt, ERROR_Token(ctx, tkCUR K_TRACEPOINT));
+			if(ITR_is(itr, TT_URN)) {    /* new file:text.txt */
+				STT_(stmt) = STT_TLINK;
+				knh_Stmt_add(ctx, stmt, ITR_nextTK(itr));
+				_ASIS(ctx, stmt, itr);
+				break;
+			}
+			if(ITR_is(itr, TT_TLINK)) {    /* new file:: text.txt */
+				STT_(stmt) = STT_TLINK;
+				WARN_Unnecesary(ctx, tkCUR);
+				knh_Stmt_add(ctx, stmt, ITR_nextTK(itr));
+				_EXPR(ctx, stmt, itr);
+				break;
+			}
+			knh_Stmt_toERR(ctx, stmt, ERROR_Undefined(ctx, "class for new", CLASS_unknown, ITR_nextTK(itr)/*tkCUR*/));
 			return;
 		}/*TT_NEW*/
 		default: {
@@ -2349,13 +2503,23 @@ static void _EXPRCALL(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 			_EXPR1(ctx, stmt, itr);
 		}
 	}
-	if(isCALL || ITR_isDOTNAME(itr, 0) || ITR_is(itr, TT_PARENTHESIS) || ITR_is(itr, TT_BRACE)) {
+	if(isCALL || ITR_isDOTNAME(itr, 0) || ITR_is(itr, TT_PARENTHESIS) || ITR_is(itr, TT_BRANCET)) {
 		_CALLPARAM(ctx, stmt, itr);
 	}
 	else {
-		STT_(stmt) = STT_CALL1;
-		if(ITR_hasNext(itr)) WarningMisplaced(ctx);
+		if(STT_(stmt) != STT_FUNCTION) {
+			STT_(stmt) = STT_CALL1;
+		}
+		if(ITR_hasNext(itr)) {
+			WARN_Unnecesary(ctx, itr->ts[itr->c]);
+			itr->c = itr->e;
+		}
 	}
+}
+
+static int IS_BIN(knh_term_t tt)
+{
+	return (TT_isBINARY(tt) || tt == TT_AND || tt == TT_OR);
 }
 
 static void _EXPR(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr)
@@ -2371,21 +2535,14 @@ static void _EXPR(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 			return;
 		}
 		int isCAST = ITR_isCAST(itr);
-		idx = ITR_indexOPR(ctx, itr);
-		if(idx != -1) {
-			_EXPROP(ctx, stmt, itr, idx, isCAST);
+		idx = ITR_indexOPR(ctx, itr, 0);
+		if(idx != -1 && (!isCAST || IS_BIN(TT_(itr->ts[idx])))) {
+			_EXPROP(ctx, stmt, itr, idx);
 		}
 		else if(isCAST) {
 			_EXPRCAST(ctx, stmt, itr);
 		}
-		else if(ITR_is(itr, TT_TSCHEME) && itr->c + 1 < itr->e) {
-			knh_Token_t *tkCUR = ITR_nextTK(itr);
-			knh_Stmt_t *stmTYPEMAP = new_StmtREUSE(ctx, stmt, STT_TSCHEME);
-			_ASIS(ctx, stmTYPEMAP, itr);
-			_EXPR(ctx, stmTYPEMAP, itr);
-			knh_Stmt_add(ctx, stmTYPEMAP, tkCUR);
-		}
-		else {
+		else {  /*f -1*/
 			_EXPRCALL(ctx, stmt, itr);
 		}
 	}
@@ -2396,11 +2553,41 @@ static void _EXPR(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 
 typedef void (*knh_Fstmt)(CTX, knh_Stmt_t *stmt, tkitr_t *itr);
 
+static void _CHECKEXPR(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr, int s, int e)
+{
+	knh_Token_t **ts = itr->ts;
+	int i;
+	DBG_ASSERT(itr->c <= s && e <= itr->e);
+	for(i = s; i < e; i++) {
+		knh_term_t tt = TT_(ts[i]);
+		if(tt <= TT_ASIS) {
+			knh_Stmt_toERR(ctx, stmt, ERROR_TokenIsNot(ctx, ts[i], _("value")));
+			itr->e = i;
+			return;
+		}
+	}
+}
+
+static void _SAFEEXPR(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr)
+{
+	knh_Token_t **ts = itr->ts;
+	int i;
+	for(i = itr->c; i < itr->e; i++) {
+		knh_term_t tt = TT_(ts[i]);
+		if(tt <= TT_ASIS) {
+			knh_Stmt_toERR(ctx, stmt, ERROR_TokenIsNot(ctx, ts[i], _("value")));
+			itr->e = i;
+			return;
+		}
+	}
+	_EXPR(ctx, stmt, itr);
+}
+
 static void _PEXPR(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 {
 	if(ITR_is(itr, TT_PARENTHESIS)) {
 		tkitr_t pbuf, *pitr = ITR_new(ITR_nextTK(itr), &pbuf);
-		_EXPR(ctx, stmt, pitr);
+		_SAFEEXPR(ctx, stmt, pitr);
 	}
 	else {
 		_ERROR(ctx, stmt, itr, "()");
@@ -2417,20 +2604,24 @@ static void _ONEEXPR(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 
 /* ------------------------------------------------------------------------ */
 
-static void _DECL(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr)
+static void _DECL2(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 {
 	DBG_ASSERT(ITR_isT(itr, isTYPE));
 	knh_Token_t *tkT = ITR_nextTK(itr);
-	tkitr_t declbuf, *declitr = ITR_stmt(ctx, itr, +0, &declbuf, 0/*need;*/);
-	while(ITR_hasNext(declitr)) {
-		int idx = ITR_indexTT(declitr, TT_COMMA, declitr->e);
-		tkitr_t abuf, *aitr = ITR_first(declitr, idx, &abuf, +1);
-		if(isVARN(ITR_tk(aitr))) {
-			knh_Stmt_add(ctx, stmt, tkT);
-			knh_Stmt_add(ctx, stmt, ITR_nextTK(aitr));
-		}
-		else {
-			_ERROR(ctx, stmt, declitr, _("variable"));
+	knh_Stmt_add(ctx, stmt, tkT);
+	while(ITR_hasNext(itr)) {
+		int idx = ITR_indexTT(itr, TT_COMMA, itr->e);
+		tkitr_t abuf, *aitr = ITR_first(itr, idx, &abuf, +1);
+		_CHECKEXPR(ctx, stmt, aitr, aitr->c, aitr->e);
+		if(STT_(stmt) == STT_ERR) return;
+
+		DBG_ASSERT(isVARN(ITR_tk(aitr)));  // already checked
+		knh_Stmt_add(ctx, stmt, ITR_nextTK(aitr));
+
+		if(ITR_is(aitr, TT_BRANCET)) {  /* @ac(DeclareCStyleArray) */
+			WARN_MuchBetter(ctx, "Type[]");  // int a[] // C-sytle array
+			KNH_SETv(ctx, tmNN(stmt, 0), new_TokenPTYPE(ctx, CLASS_Array, tkT));
+			ITR_next(aitr);
 		}
 		if(ITR_is(aitr, TT_LET)) {
 			ITR_next(aitr);
@@ -2439,8 +2630,8 @@ static void _DECL(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 		else {
 			_ASIS(ctx, stmt, aitr);
 		}
-		if(ITR_hasNext(declitr)) {
-			knh_Stmt_t *stmtDECL = new_Stmt2(ctx, STT_DECL, NULL);
+		if(ITR_hasNext(itr)) {
+			knh_Stmt_t *stmtDECL = new_Stmt2(ctx, STT_DECL, tkT, NULL);
 			KNH_INITv(DP(stmt)->nextNULL, stmtDECL);
 			stmt = stmtDECL;
 		}
@@ -2450,14 +2641,17 @@ static void _DECL(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 static void _PARAMs(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 {
 	knh_Stmt_t *stmtP = new_Stmt2(ctx, STT_DECL, NULL);
-	int e = itr->e, ridx = ITR_indexTT(itr, TT_DARROW, -1);
-	if(ridx != -1) {
-		itr->e = ridx;
-	}
+	int e = itr->e, ridx = ITR_indexTT(itr, TT_DARROW, -1);  /* int n, int b */
+	if(ridx != -1) itr->e = ridx;
 	knh_Stmt_add(ctx, stmt, stmtP);
+
 	while(ITR_hasNext(itr)) {
 		int idx = ITR_indexTT(itr, TT_COMMA, itr->e);
 		tkitr_t abuf, *aitr = ITR_first(itr, idx, &abuf, +1);
+		while(ITR_is(aitr, TT_METAN)) {
+			DBG_P("TODO: parameter annotation");
+			ITR_next(aitr);
+		}
 		if(ITR_is(aitr, TT_DOTS)) {
 			StmtMETHOD_setVARGs(stmtP, 1);
 			break;
@@ -2486,9 +2680,7 @@ static void _PARAMs(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 			_ASIS(ctx, stmtP, aitr);
 		}
 	}
-	if(ridx != -1) {
-		itr->e = e;
-	}
+	if(ridx != -1) itr->e = e;
 }
 
 static void _PARAM(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr)
@@ -2510,14 +2702,17 @@ static void _PARAM(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 
 static knh_bool_t Stmt_checkDepth(knh_Stmt_t *stmt, int depth, int max)
 {
-	if(depth > max) return 1;
-	else {
-		size_t i;
-		for(i = 0; i < DP(stmt)->size; i++) {
-			knh_Stmt_t *stmt2 = stmtNN(stmt, i);
-			if(IS_Stmt(stmt2)) {
-				if(Stmt_checkDepth(stmt2, depth+1, max)) return 1;
-			}
+	size_t i;
+	if(depth > max) {
+		DBG_P("depth=%d > max=%d", depth, max);
+		DBG_ASSERT(depth < max);
+		return 1;
+	}
+	for(i = 0; i < DP(stmt)->size; i++) {
+		knh_Stmt_t *stmt2 = stmtNN(stmt, i);
+		if(IS_Stmt(stmt2)) {
+			//DBG_P("CHILD %p stmt=%s", stmt2, TT__(STT_(stmt2)));
+			if(Stmt_checkDepth(stmt2, depth+1, max)) return 1;
 		}
 	}
 	return 0;
@@ -2528,6 +2723,7 @@ static knh_Stmt_t *Stmt_norm(CTX ctx, knh_Stmt_t *stmt)
 	knh_Stmt_t *stmtITR = stmt;
 	knh_Stmt_t *stmtPREV = NULL, *stmtLAST = NULL;
 	while(stmtITR != NULL) {
+		//DBG_P("PARENT %p stmt=%s", stmtITR, TT__(STT_(stmtITR)));
 		if(Stmt_checkDepth(stmtITR, 0, 64)) {
 			knh_Stmt_toERR(ctx, stmtITR, NULL); // TODO
 		}
@@ -2544,6 +2740,7 @@ static knh_Stmt_t *Stmt_norm(CTX ctx, knh_Stmt_t *stmt)
 	}
 	if(stmtLAST != NULL) {
 		ctx->gma->uline = stmtLAST->uline;
+		//DBG_P("@@@@ STT=%s", TT__(stmtLAST->stt));
 		if(STT_(stmtLAST) == STT_CALL1 && !IS_Stmt(DP(stmtLAST)->stmtPOST)) {
 			STT_(stmtLAST) = STT_RETURN;
 		}
@@ -2590,6 +2787,8 @@ static void _STMT1(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 		_STMTs(ctx, stmt, stmtitr);
 	}
 	else {
+//		knh_Stmt_add(ctx, stmt, Stmt_norm(ctx, new_StmtSTMT1(ctx, itr)));
+		DBG_P("itr->c =%d, TT=%s", itr->c, TT__(itr->ts[itr->c]->tt));
 		knh_Stmt_add(ctx, stmt, Stmt_norm(ctx, new_StmtSTMT1(ctx, itr)));
 	}
 }
@@ -2872,14 +3071,14 @@ static int isCLASSAME(knh_Token_t* tk)
 static void _CLASS(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 {	// CNAME:0 NEW:1 EXTENDS:2 IMPLEMENTS:3 STMT:4
 	Stmt_tadd(ctx, stmt, itr, isCLASSAME, _("class name")); /*0*/
-	if(ITR_is(itr, TT_PARENTHESIS)) {
+	if(ITR_is(itr, TT_PARENTHESIS)) {  // Scala style
 		tkitr_t pbuf, *pitr = ITR_new(ITR_nextTK(itr), &pbuf);
 		_PARAMs(ctx, stmt, pitr);
 	}
 	else {
 		_ASIS(ctx, stmt, itr);
 	}
-	if(ITR_is(itr, TT_EXTENDS)) {
+	if(ITR_is(itr, TT_EXTENDS) || ITR_is(itr, TT_OF) || ITR_is(itr, TT_COLON)) {
 		ITR_next(itr);
 		Stmt_tadd(ctx, stmt, itr, isCLASSAME, _("class name")); /*2*/
 	}
@@ -2925,7 +3124,7 @@ static void _CODE(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 		}
 	}
 	else if(ITR_is(itr, TT_DARROW) || ITR_is(itr, TT_COLON)) {
-		tkitr_t stmtbuf, *stmtitr = ITR_stmt(ctx, itr, 0, &stmtbuf, 1);
+		tkitr_t stmtbuf, *stmtitr = ITR_stmt(ctx, itr, +1, &stmtbuf, 1);
 		if(hasCODE) {
 			WARN_Ignored(ctx, "=>", CLASS_unknown, NULL);
 		}
@@ -2936,7 +3135,7 @@ static void _CODE(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 		}
 	}
 	else if(ITR_is(itr, TT_USING)) {
-		tkitr_t stmtbuf, *stmtitr = ITR_stmt(ctx, itr, 0, &stmtbuf, 1);
+		tkitr_t stmtbuf, *stmtitr = ITR_stmt(ctx, itr, +1, &stmtbuf, 1);
 		if(hasCODE) {
 			WARN_Ignored(ctx, "using", CLASS_unknown, NULL);
 		}
@@ -2967,6 +3166,7 @@ static void _METHOD(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 	ADD(stmt, _CODE(ctx, stmt, itr));
 }
 
+
 static void _CONSTRUCTOR(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 {
 	knh_Token_t *tkT = ITR_tk(itr);
@@ -2975,6 +3175,16 @@ static void _CONSTRUCTOR(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 	_ASIS(ctx, stmt, itr);
 	knh_Stmt_add(ctx, stmt, new_TokenMN(ctx, MN_new));
 	ADD(stmt, _PARAM(ctx, stmt, itr));
+	ADD(stmt, _CODE(ctx, stmt, itr));
+}
+
+static void _TYPEMAP(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr)
+{
+	_ASIS(ctx, stmt, itr);    // TLINK or ASIS
+	knh_Stmt_add(ctx, stmt, ITR_nextTK(itr));  /* T */
+	ITR_nextTK(itr); // skip ':'
+	ADD(stmt, _PARAM(ctx, stmt, itr));
+	_ASIS(ctx, stmt, itr);    // TLINK or ASIS
 	ADD(stmt, _CODE(ctx, stmt, itr));
 }
 
@@ -3049,29 +3259,6 @@ static knh_Stmt_t *new_StmtMETA(CTX ctx, knh_term_t stt, tkitr_t *itr, int shift
 		break;\
 	}\
 
-static int Token_isMAP(CTX ctx, knh_Token_t *tk)
-{
-	int isMAP = 1;
-	if(TT_(tk) == TT_BRACE) {
-		tkitr_t tbuf, *titr = ITR_new(tk, &tbuf);
-		if(titr->e > 0) {
-			int i, c = 0;
-			for(i = 0; i < titr->e; i++) {
-				knh_Token_t *tkN = titr->ts[i];
-				if(TT_(tkN) <= TT_FINALLY) {
-					isMAP = 0;
-					goto L_RETURN;
-				}
-				if(TT_(tkN) == TT_COLON) c++;
-			}
-			if(c > 0) isMAP = 1;
-		}
-	}
-	DBG_P("@@@@@@@ isMAP=%d", isMAP);
-	L_RETURN:;
-	return isMAP;
-}
-
 static void _STMTEXPR(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 {
 	knh_index_t idx = ITR_indexTT(itr, TT_LET, -1);
@@ -3131,6 +3318,36 @@ static void _STMTEXPR(CTX ctx, knh_Stmt_t *stmt, tkitr_t *itr)
 	_EXPR(ctx, stmt, itr);
 }
 
+static int Token_isMAP(CTX ctx, knh_Token_t *tk)
+{
+	DBG_ASSERT(TT_(tk) == TT_BRACE);
+	tkitr_t tbuf, *titr = ITR_new(tk, &tbuf);
+	int i, colon = 0, comma = 0;
+	int isMAP = titr->e == 0 ? 1 : 0;
+	for(i = 0; i < titr->e; i++) {
+		knh_term_t tt = TT_(titr->ts[i]);
+		if(tt <= TT_FINALLY || tt == TT_LSEND || tt == TT_RSEND || tt == TT_LET) {
+			isMAP = 0;
+			goto L_RETURN;
+		}
+		else if(tt == TT_SEMICOLON && colon == 0) {
+			isMAP = 0;
+			goto L_RETURN;
+		}
+		else if(tt == TT_COLON) colon++;
+		else if(tt == TT_COMMA) comma++;
+	}
+	if(colon == 0 && titr->e > 0) {
+		TT_(tk) = TT_BRANCET;
+		isMAP = 1;
+	}
+	if(colon > 0) {
+		isMAP = 1;
+	}
+	L_RETURN:;
+	return isMAP;
+}
+
 static knh_Stmt_t *new_StmtSTMT1(CTX ctx, tkitr_t *itr)
 {
 	knh_term_t tt;
@@ -3151,7 +3368,7 @@ static knh_Stmt_t *new_StmtSTMT1(CTX ctx, tkitr_t *itr)
 		}
 		CASE_L(PRAGMA, +1, 1/*;*/, _PRAGMA)
 		CASE_(NAMESPACE, +1, _STMT1);
-		CASE_(SCRIPT, +1, _STMT1);
+		CASE_(LINK, +1, _ONEEXPR, _STMT1);
 		CASE_L(INCLUDE, +1, 1/*;*/, _EXPRs);
 		CASE_L(USING, +1, 1/*;*/, _USING);
 		CASE_(CLASS, +1, _CLASS);
@@ -3190,8 +3407,8 @@ static knh_Stmt_t *new_StmtSTMT1(CTX ctx, tkitr_t *itr)
 		case TT_UNAME: {
 			tkitr_t mbuf, *mitr = ITR_copy(itr, &mbuf, +1);
 			if(ITR_isT(mitr, isVARN) && tt != TT_VOID) {
-				tkitr_t dbuf, *ditr = ITR_stmt(ctx, itr, /*pos*/0, &dbuf, 1/*needs;*/);
-				stmt = new_StmtMETA(ctx, STT_DECL, ditr, 0, _DECL, NULL);
+				tkitr_t dbuf, *ditr = ITR_stmt(ctx, itr, /*pos*/+1, &dbuf, 1/*needs;*/);
+				stmt = new_StmtMETA(ctx, STT_DECL, ditr, 0, _DECL2, NULL);
 				break;
 			}
 			if(ITR_is(mitr, TT_UNAME)) {
@@ -3215,6 +3432,9 @@ static knh_Stmt_t *new_StmtSTMT1(CTX ctx, tkitr_t *itr)
 				stmt = new_StmtMETA(ctx, STT_METHOD, itr, 0, _METHOD, NULL);
 				break;
 			}
+			if(ITR_is(mitr, TT_COLON) && ITR_isN(mitr, +1, TT_PARENTHESIS) && tt != TT_VAR && tt != TT_DYN && tt != TT_VOID) {
+				stmt = new_StmtMETA(ctx, STT_TYPEMAP, itr, 0, _TYPEMAP, NULL);
+			}
 			break /*L_EXPR*/;
 		}
 		case TT_FUNCTION: {
@@ -3237,7 +3457,7 @@ static knh_Stmt_t *new_StmtSTMT1(CTX ctx, tkitr_t *itr)
 		case TT_PARENTHESIS:
 		case TT_BRANCET:
 		case TT_TRUE: case TT_FALSE: case TT_NULL:
-		case TT_NOT: case TT_EXISTS: case TT_TSCHEME:
+		case TT_NOT: case TT_EXISTS: case TT_TLINK:
 		case TT_LNOT:
 		case TT_NEXT: case TT_PREV:  /* Prev */
 		case TT_ITR: case TT_NEW:
@@ -3248,14 +3468,14 @@ static knh_Stmt_t *new_StmtSTMT1(CTX ctx, tkitr_t *itr)
 		case TT_URN:
 			break; // EXPR
 		case TT_ERR:  default: {
-			tkitr_t sbuf, *sitr = ITR_stmt(ctx, itr, /*pos*/0, &sbuf, 0/*needs;*/);
+			tkitr_t sbuf, *sitr = ITR_stmt(ctx, itr, /*pos*/+1, &sbuf, 0/*needs;*/);
 			stmt = new_StmtMETA(ctx, STT_CALL1, sitr, 0, NULL);
 			_DBGERROR(ctx, stmt, sitr, "value" K_TRACEPOINT);
 	 		break;
 		}
 	}
 	if(stmt == NULL) {
-		tkitr_t sbuf, *sitr = ITR_stmt(ctx, itr, /*pos*/0, &sbuf, 0/*needs;*/);
+		tkitr_t sbuf, *sitr = ITR_stmt(ctx, itr, /*pos*/+1, &sbuf, 0/*needs;*/);
 		stmt = new_StmtMETA(ctx, STT_CALL1, sitr, 0, _STMTEXPR, NULL);
 	}
 	L_RETURN:;
@@ -3274,7 +3494,7 @@ knh_Stmt_t *knh_InputStream_parseStmt(CTX ctx, knh_InputStream_t *in)
 	KNH_SETv(ctx, lsfp[0].o, rVALUE);
 	KNH_SETv(ctx, lsfp[1].o, tk);
 	InputStream_parseToken(ctx, in, tk);
-	DBG_(if(knh_isSystemVerbose() /*&& DP(in)->uri == URI_EVAL*/) {
+	DBG_(if(knh_isVerboseLang() /*&& DP(in)->uri == URI_EVAL*/) {
 		knh_write_Object(ctx, KNH_STDOUT, UPCAST(tk), FMT_dump);
 	})
 	if(TT_(tk) != TT_ERR) {
@@ -3283,7 +3503,7 @@ knh_Stmt_t *knh_InputStream_parseStmt(CTX ctx, knh_InputStream_t *in)
 		DBG_ASSERT(DP(rVALUE)->size == 1);
 		if(IS_Stmt(stmtNN(rVALUE, 0))) {
 			rVALUE = stmtNN(rVALUE, 0);
-			DBG_(if(knh_isSystemVerbose() /*&& DP(in)->uri == URI_EVAL*/) {
+			DBG_(if(knh_isVerboseLang() /*&& DP(in)->uri == URI_EVAL*/) {
 				knh_write_Object(ctx, KNH_STDOUT, UPCAST(rVALUE), FMT_dump);
 			})
 			goto L_RETURN;

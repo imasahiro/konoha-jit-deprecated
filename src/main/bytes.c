@@ -27,18 +27,16 @@
 
 /* ************************************************************************ */
 
-#ifndef K_INCLUDE_BUILTINAPI
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#define USE_cwb_tobytes 1
+#ifndef K_INCLUDE_BUILTINAPI
 
 #include"commons.h"
 #include<string.h>
 
 /* ************************************************************************ */
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /* ------------------------------------------------------------------------ */
 /* [memory] */
@@ -95,7 +93,7 @@ static void Bytes_checkstack(CTX ctx, knh_uchar_t*oldstart, knh_uchar_t *oldend,
 	while(p <= cstack_top) {
 		if((oldstart <= p[0] && p[0] < oldend)) {
 			knh_uchar_t *newc = p[0] + (newstart - oldstart);
-			KNH_WARN(ctx, "oldptr=%p, newptr=%p", p[0], newc);
+			KNH_LOG("oldptr=%p, newptr=%p", p[0], newc);
 			p[0] = newc;
 		}
 		p++;
@@ -114,7 +112,7 @@ void knh_Bytes_expands(CTX ctx, knh_Bytes_t *ba, size_t newsize)
 		ba->bu.ubuf = (knh_uchar_t*)KNH_REALLOC(ctx, ba->DBG_name, ba->bu.ubuf, ba->dim->capacity, newsize, 1);
 		((knh_dim_t*)ba->dim)->capacity = newsize;
 		if(unlikely(ctx->bufa == ba)) {
-			KNH_INFO(ctx, "newsize=%ld, pointer=(%p => %p)", newsize, ubuf, ba->bu.ubuf);
+//			KNH_INFO(ctx, "newsize=%ld, pointer=(%p => %p)", newsize, ubuf, ba->bu.ubuf);
 			Bytes_checkstack(ctx, ubuf, ubuf + ba->bu.len, ba->bu.ubuf);
 		}
 	}
@@ -183,11 +181,11 @@ void knh_Bytes_putc(CTX ctx, knh_Bytes_t *ba, int ch)
 	BA_size(ba) += 1;
 }
 
-void knh_Bytes_unputc(knh_Bytes_t *ba, int c)
+void knh_Bytes_reduce(knh_Bytes_t *ba, size_t size)
 {
-	if(BA_size(ba) >= c) {
-		BA_size(ba) -= c;
-		knh_bzero(ba->bu.ubuf + BA_size(ba), c);
+	if(BA_size(ba) >= size) {
+		BA_size(ba) -= size;
+		knh_bzero(ba->bu.ubuf + BA_size(ba), size);
 	}
 }
 
@@ -206,17 +204,35 @@ void knh_Bytes_write(CTX ctx, knh_Bytes_t *ba, knh_bytes_t t)
 
 /* ------------------------------------------------------------------------ */
 
+knh_bytes_t knh_cwb_ensure(CTX ctx, knh_cwb_t *cwb, knh_bytes_t t, size_t reqsize)
+{
+	if(!(cwb->ba->bu.len + reqsize < cwb->ba->dim->capacity)) {
+		const char *p = cwb->ba->bu.text;
+		if(p <= t.text && t.text <= p + cwb->pos) {
+			size_t s = t.text - p;
+			knh_Bytes_expands(ctx, cwb->ba, reqsize);
+			t.text = cwb->ba->bu.text + s;
+		}
+		else {
+			knh_Bytes_expands(ctx, cwb->ba, reqsize);
+		}
+	}
+	return t;
+}
+
+KNHAPI2(knh_text_t*) knh_cwb_tochar(CTX ctx, knh_cwb_t *cwb)
+{
+	return knh_Bytes_ensureZero(ctx, cwb->ba) + cwb->pos;
+}
+
 knh_String_t *knh_cwb_newString(CTX ctx, knh_cwb_t *cwb)
 {
-	if(cwb->pos == (cwb->ba)->bu.len) {
-		return TS_EMPTY;
+	knh_String_t *s = TS_EMPTY;
+	if(cwb->pos < (cwb->ba)->bu.len) {
+		s = new_S(ctx, knh_cwb_tobytes(cwb));
 	}
-	else {
-		knh_bytes_t t = knh_cwb_tobytes(cwb);
-		knh_String_t *s = new_S(ctx, t);
-		knh_cwb_close(cwb);
-		return s;
-	}
+	knh_cwb_close(cwb);
+	return s;
 }
 
 #else/*K_INCLUDE_BUILTINAPI*/
@@ -242,7 +258,7 @@ static METHOD Bytes_write(CTX ctx, knh_sfp_t *sfp _RIX)
 	knh_Bytes_t *ba = sfp[0].ba;
 	knh_bytes_t t = BA_tobytes(sfp[1].ba);
 	if(sfp[2].ivalue != 0) {
-		size_t n = knh_array_index(ctx, sfp, Int_to(size_t, sfp[2]), t.len);
+		size_t n = knh_array_index(ctx, sfp, Int_to(knh_int_t, sfp[2]), t.len);
 		t = knh_bytes_last(t, n);
 	}
 	if(sfp[3].ivalue != 0) {

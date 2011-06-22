@@ -80,7 +80,7 @@
 #define K_VERSION       "1.0"
 
 #define LIBK_VERSION     "1.0"
-#define K_CODENAME       "alpha2"
+#define K_CODENAME       "beta"
 #define K_URL            "http://code.google.com/p/konoha"
 
 #ifdef K_PREVIEW
@@ -138,7 +138,13 @@ typedef struct knh_sysinfo_t {
 #define K_TMAPCACHE_SIZE     91
 
 #define K_FIELDSIZE                    64
+
+#define K_STACK_MAXSIZ              (4096*32)
+#ifdef K_USING_STACKEXPANSION
 #define K_STACKSIZE                  1024
+#else
+#define K_STACKSIZE                  K_STACK_MAXSIZ
+#endif
 
 #ifdef K_USING_UTF8
 #define K_ENCODING                    "UTF-8"
@@ -187,12 +193,12 @@ typedef struct knh_sysinfo_t {
 #endif
 #define		CC_EXPORT __declspec(dllexport)
 #define		CC_IMPORT __declspec(dllimport)
-#define 	EXPORTAPI(T__)   CC_EXPORT T__ __cdecl
+#define 	DEFAPI(T__)   CC_EXPORT T__ __cdecl
 
 #define		CC_TYPE_TLS   __declspec( thread )
 #define		_CRT_SECURE_NO_WARNINGS
 
-#ifdef defined(_WIN64)
+#if defined(_WIN64)
 #define CC_PLATFORM "windows-x86_64"
 #else
 #define CC_PLATFORM "windows-i386"
@@ -238,7 +244,7 @@ typedef struct knh_sysinfo_t {
 
 #ifndef KNHAPI2
 #define KNHAPI2(T)        T
-#define EXPORTAPI(T)      T
+#define DEFAPI(T)      T
 #endif
 
 /* ------------------------------------------------------------------------ */
@@ -269,11 +275,13 @@ typedef struct knh_sysinfo_t {
 #define     K_USING_PCRE     1
 #endif
 
-#if defined(__WIN32__)  /* mingw */
+#if defined(__MINGW32__)  /* mingw */
 #define		K_USING_STDC_       1
 #define		K_USING_WIN32_      1
+#define		K_USING_WINDOWS_      1
+#define		K_USING_MINGW_      1
 #define     K_USING_ICONV       1
-#define     K_USING_SYSLOG       1   // if not available, report to konohaken
+//#define     K_USING_SYSLOG       1   // if not available, report to konohaken
 #define     K_USING_SQLITE3  1
 #define     K_USING_PCRE     1
 #if defined(K_USING_THREAD)
@@ -281,7 +289,7 @@ typedef struct knh_sysinfo_t {
 #endif
 #define 	K_OSLINEFEED "\r\n"
 #define 	K_OSDLLEXT ".dll"
-#define		K_FILESEPARATOR '\\'
+#define		K_SEP '\\'
 #define     K_KONOHAFOLDER "Konoha"
 
 #endif
@@ -302,7 +310,7 @@ typedef struct knh_sysinfo_t {
 
 #define 	K_OSLINEFEED "\r\n"
 #define 	K_OSDLLEXT ".dll"
-#define		K_FILESEPARATOR '\\'
+#define		K_SEP '\\'
 #define     K_KONOHAFOLDER "Konoha"
 #endif/* _MSC_VER*/
 
@@ -366,8 +374,8 @@ typedef struct knh_sysinfo_t {
 #define K_OSDLLEXT ".so"
 #endif
 
-#ifndef K_FILESEPARATOR
-#define K_FILESEPARATOR '/'
+#ifndef K_SEP
+#define K_SEP '/'
 #endif
 
 #ifndef K_KONOHAFOLDER
@@ -404,7 +412,7 @@ typedef struct knh_sysinfo_t {
 #endif
 
 #define knh_getenv(n)                  getenv(n)
-#define  knh_qsort(b,s,w,f)            qsort(b,s,w,f)
+#define knh_qsort(b,s,w,f)            qsort(b,s,w,f)
 
 //void knh_qsort_r (void *const pbase, size_t total_elems, size_t size,
 //        void* thunk,int (*cmp)(void* ,const void*,const void*));

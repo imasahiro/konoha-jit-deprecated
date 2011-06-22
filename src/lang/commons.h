@@ -12,13 +12,14 @@ extern "C" {
 /* ------------------------------------------------------------------------ */
 
 #define TT_UNTYPED TT_EOT
+#define TT_DYN     TT_DYNAMIC
 
 #define MN_newLIST   MN_new__LIST
 #define MN_newARRAY  MN_new__ARRAY
 #define MN_newTUPLE  MN_new__TUPLE
 #define MN_newMAP    MN_new__MAP
 
-#define TYPE_STMT      TYPE_var
+#define TYPE_stmtexpr  TYPE_void
 
 #define K_SYSVAL_CTX    0
 #define K_SYSVAL_CTXIN  1
@@ -49,21 +50,6 @@ const char* TT__(knh_term_t tt);
 		TT_(tk) = tt0;\
 		SP(tk)->type = type0;\
 		(tk)->index = index0;\
-	}\
-
-#define _NOTWARN     1
-#define _NOTCHECK    (1<<1)
-#define _BCHECK      (1<<2)
-#define _NOTYPEMAP     (1<<3)
-#define _ICAST       (1<<4)
-#define _CONSTASIS   (1<<5)
-#define _CONSTONLY   (1<<6)
-
-#define TYPING(ctx, stmt, n, reqt, mode) {\
-		knh_Token_t *tkRES_ = Tn_typing(ctx, stmt, n, reqt, mode);\
-		if(TT_(tkRES_) == TT_ERR) {\
-			return tkRES_;\
-		}\
 	}\
 
 #define ADD_FLAG(flag, T, F) \
@@ -110,10 +96,6 @@ const char* TT__(knh_term_t tt);
 
 #define STT_(stmt)   SP(stmt)->stt
 #define knh_Stmt_add(ctx, stmt, ...)   knh_Stmt_add_(ctx, stmt, ## __VA_ARGS__, NULL)
-
-//#define TK1(tc)          (tc)->ts[((tc)->c)+1]
-//#define IST_(tk, t)      S_equals((tk)->text, STEXT(t))
-//#define TTn_(tk)         (tk)->tt_next
 
 /* ------------------------------------------------------------------------ */
 

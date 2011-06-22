@@ -8,18 +8,6 @@ cmake_minimum_required(VERSION 2.8)
 # -DCMAKE_BUILD_TYPE=Debug
 # -DCMAKE_INSTALL_PREFIX=$HOME
 # -DCMAKE_VERBOSE_MAKEFILE=1
-
-set(CMAKE_C_FLAGS_RELEASE "-Wall -O2 -g")
-set(CMAKE_C_FLAGS_DEBUG   "-Wall -O0 -g3")
-set(CMAKE_CXX_FLAGS_RELEASE "-Wall -O2 -g")
-set(CMAKE_CXX_FLAGS_DEBUG   "-Wall -O0 -g3")
-set(CMAKE_BUILD_TYPE Release)
-#set(CMAKE_BUILD_TYPE Debug)
-
-#if("${CMAKE_C_COMPILER}" STREQUAL "/usr/bin/gcc")
-#	set(CMAKE_OSX_ARCHITECTURES "i386;x86_64")
-#endif()
-
 project(konoha)
 set(VERSION_MAJOR "1")
 set(VERSION_MINOR "0")
@@ -42,6 +30,19 @@ set(INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}
 		${KONOHA_INCLUDE_DIRS}  ${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${INCLUDE_DIRS})
 
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Release" )
+endif()
+
+SET(CMAKE_C_FLAGS         "-Wall")
+SET(CMAKE_C_FLAGS_RELEASE "-O2 -g")
+SET(CMAKE_C_FLAGS_DEBUG   "-O0 -g3")
+SET(CMAKE_CXX_FLAGS_RELEASE "-Wall -O2 -g")
+SET(CMAKE_CXX_FLAGS_DEBUG   "-Wall -O0 -g3")
+#if("${CMAKE_C_COMPILER}" STREQUAL "/usr/bin/gcc")
+#	set(CMAKE_OSX_ARCHITECTURES "i386;x86_64")
+#endif()
+
 add_definitions(-DHAVE_CONFIG_H)
 
 set(KONOHA_SRC
@@ -62,6 +63,7 @@ set(KONOHA_SRC
 	src/main/memory.c
 	src/main/number.c
 	src/main/os.c
+	src/main/link.c
 	src/main/query.c
 	src/main/runtime.c
 	src/main/security.c
@@ -209,12 +211,16 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 	set(K_USING_DEBUG 1)
 endif()
 
-#find_package(Subversion)
-#if(Subversion_FOUND)
-#	Subversion_WC_INFO(${CMAKE_CURRENT_SOURCE_DIR}/include ER)
-#	set(SUBVERSION_REVISION ${ER_WC_REVISION})
-#	add_definitions(-DK_REVISION=${SUBVERSION_REVISION})
-#endif(Subversion_FOUND)
+
+FIND_FILE(HAS_DOTSVN .svn PATHS "${CMAKE_CURRENT_SOURCE_DIR}/include")
+if(${HAS_DOTSVN})
+	find_package(Subversion)
+	if(Subversion_FOUND)
+		Subversion_WC_INFO(${CMAKE_CURRENT_SOURCE_DIR}/include ER)
+		set(SUBVERSION_REVISION ${ER_WC_REVISION})
+		add_definitions(-DK_REVISION=${SUBVERSION_REVISION})
+	endif(Subversion_FOUND)
+endif()
 
 if(HAVE_ICONV_ICONV_OPEN_SYM)
 	add_definitions(-DLIBICONV_PLUG)
@@ -222,6 +228,7 @@ endif()
 
 option(USE_LLVM "Use llvm" OFF)
 if(USE_LLVM)
+	add_definitions(-DK_USING_LLVM)
 	find_program(LLVM_CONFIG NAMES llvm-config DOC "llvm-config")
 	execute_process(
 			COMMAND ${LLVM_CONFIG} --cppflags
@@ -260,6 +267,20 @@ if(USE_LLVM)
 	link_directories(${LINK_DIRECTORIES} ${LLVM_LIBDIR})
 
 endif()
+
+option(USE_MPI "Using MPI" OFF)
+if(USE_MPI)
+	check_include_files(mpi.h HAVE_MPI_H)
+	if(${HAVE_MPI_H})
+		add_executable(mpikonoha src/mpikonoha.c)
+		# TODO
+		target_link_libraries(mpikonoha konoha mpi)
+	else()
+		message(FATAL_ERROR "Header file 'mpi.h ' is not found")
+	endif()
+endif(USE_MPI)
+
+option(USE_ACTOR "Compiling Actor package" OFF)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake 
 		${CMAKE_CURRENT_BINARY_DIR}/config.h)
@@ -300,6 +321,10 @@ foreach(f ${files})
 	string(REGEX REPLACE ".*/([^ ]+).k" "\\1" res "${f}" )
 	add_test(NAME ${res} COMMAND ${ktest} --utest "file:${f}")
 endforeach()
+
+#add_executable(test_class ctest/class.c)
+#target_link_libraries(test_class konoha)
+#add_test(NAME "class" COMMAND ./test_class)
 
 #set(CPACK_SOURCE_GENERATOR "TGZ;DEB")
 set(CPACK_SOURCE_GENERATOR "TGZ")

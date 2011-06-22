@@ -27,17 +27,6 @@
 
 /* ************************************************************************ */
 
-#define USE_STEXT 1
-#define USE_B     1
-#define USE_bytes_strcmp    1
-#define USE_bytes_parseint  1
-#define USE_cwb_open      1
-#define USE_cwb_tobytes   1
-#define USE_cwb_size      1
-
-// added by nakata
-//#define USE_cwb_write 1
-
 /* ************************************************************************ */
 
 #define LIBNAME "konoha"
@@ -136,106 +125,8 @@ knh_context_t* knh_getCurrentContext(void)
 /* ------------------------------------------------------------------------ */
 /* [opt] */
 
-#if defined(K_USING_DEBUG)
-static int systemVerbose = 1;
-static int auditLevel    = LOG_NOTICE;
-static int verboseLevel  = LOG_INFO;
-#else
-static int systemVerbose = 0;
-static int auditLevel    = LOG_ERR;
-static int verboseLevel  = LOG_CRIT;
-#endif
-
-
-knh_bool_t knh_isAuditLogging(int pe)
-{
-	return (pe <= auditLevel);
-}
-
-#ifdef K_USING_SYSLOG
-static void _vsyslog(int pe, const char *fmt, va_list ap)
-{
-	vsyslog(pe, fmt, ap);
-	if((pe <= verboseLevel)) {
-		pseudo_vsyslog(pe, fmt, ap);
-	}
-}
-static void _syslog(int pe, const char *fmt, ...)
-{
-	va_list ap;
-	va_start(ap , fmt);
-	vsyslog(pe, fmt, ap);
-	if((pe <= verboseLevel)) {
-		pseudo_vsyslog(pe, fmt, ap);
-	}
-	va_end(ap);
-}
-#endif
-
-static void opt_a(CTX ctx, int mode, const char *optstr)
-{
-	auditLevel = (mode <= LOG_CRIT) ? LOG_NOTICE /*defaults*/: mode;
-#if defined(K_USING_SYSLOG)
-	((knh_ServiceSPI_t*)ctx->spi)->syslogspi = "syslog";
-	((knh_ServiceSPI_t*)ctx->spi)->syslog    = _syslog;
-	((knh_ServiceSPI_t*)ctx->spi)->vsyslog    = _vsyslog;
-	openlog("konoha", LOG_PID, LOG_LOCAL7);
-	KNH_SYSLOG(ctx, NULL, LOG_NOTICE, "init", "version='%s', rev=%d, auditlevel=%d", K_VERSION, K_REVISION, auditLevel);
-#ifdef K_DEOS_TRACE
-		char *trace = knh_getenv(K_DEOS_TRACE);
-		if(trace != NULL) {
-			KNH_SYSLOG(ctx, NULL, LOG_NOTICE, K_DEOS_TRACE, "trace='%s'", trace);
-		}
-#endif
-#else
-	fprintf(stdout, "konoha: no available logging system.\n");
-	exit(0);
-#endif
-}
-
-KNHAPI2(knh_bool_t) knh_isSystemVerbose(void)
-{
-	return systemVerbose;
-}
-
-knh_bool_t knh_isVerboseLogging(int pe)
-{
-	return (pe <= verboseLevel);
-}
-
-static void opt_v(CTX ctx, int mode, const char *optstr)
-{
-	if(mode == 0) {
-		systemVerbose = 1;
-		dump_sysinfo(NULL, NULL, 1/*isALL*/);
-		verboseLevel = LOG_INFO;
-		KNH_ASSERT(sizeof(knh_intptr_t) == sizeof(void*));
-		KNH_ASSERT(sizeof(knh_Token_t) <= sizeof(knh_Object_t));
-		KNH_ASSERT(sizeof(knh_Stmt_t) <= sizeof(knh_Object_t));
-		KNH_ASSERT(sizeof(knh_int_t) <= sizeof(knh_float_t));
-#ifdef K_USING_RBP_
-		KNH_ASSERT(sizeof(knh_rbp_t) * 2 == sizeof(knh_sfp_t));
-#endif
-	}
-	else {
-		verboseLevel = (mode <= LOG_CRIT) ? auditLevel: mode;
-		if(auditLevel < verboseLevel) auditLevel = verboseLevel;
-	}
-}
-
-static int warningLevel = LOG_WARNING;
-
-knh_bool_t knh_shouldWarnMessage(int pe)
-{
-	return (pe <= warningLevel);
-}
-
 static void opt_W(CTX ctx, int mode, const char *optstr)
 {
-	if(mode == 0) mode = 10;
-	if(mode > LOG_WARNING) {
-		warningLevel = mode;
-	}
 }
 
 static knh_bool_t isInteractiveMode = 0;
@@ -245,7 +136,6 @@ static void opt_i(CTX ctx, int mode, const char *optstr)
 {
 	isInteractiveMode = 1;
 }
-
 
 knh_bool_t knh_isCompileOnly(CTX ctx /* for future extension*/)
 {
@@ -293,7 +183,7 @@ void knh_loadScriptPackageList(CTX ctx, const char *pkglist)
 					*c = 0;
 					DBG_P("loading '%s'", buf);
 					if(!knh_loadScriptPackage(ctx, B(buf)) && isExists == 0) {
-						KNH_WARN(ctx, "PackageNotFound package=%s", buf+8);
+						KNH_LOG("package not found: package=%s", buf+8);
 					}
 					goto L_NEXT;
 				}
@@ -305,7 +195,7 @@ void knh_loadScriptPackageList(CTX ctx, const char *pkglist)
 				}
 				c++;
 				if(!(c - buf < 256)) {
-					KNH_WARN(ctx, "too long name %s", pkglist);
+					KNH_LOG("too long name %s", pkglist);
 					return ;
 				}
 			}
@@ -316,7 +206,6 @@ void knh_loadScriptPackageList(CTX ctx, const char *pkglist)
 static void knh_setStartUpPackage(CTX ctx, int mode, const char *optstr)
 {
 	if(optstr != NULL) {
-		DBG_P("package loading='%s'", optstr);
 		knh_loadScriptPackageList(ctx, optstr);
 	}
 }
@@ -349,7 +238,7 @@ static const char *HELPMSG =
 
 static void opt_help(CTX ctx, int mode, const char *optstr)
 {
-	knh_String_t* home = knh_getPropertyNULL(ctx, STEXT("konoha.path"));
+	knh_String_t* home = knh_getPropertyNULL(ctx, STEXT("konoha.home.path"));
 	fprintf(stdout, HELPMSG, S_tochar(home), knh_getSystemEncoding());
 	exit(0);
 }
@@ -395,10 +284,13 @@ static knh_optdata_t optdata[] = {
 	{"--version", OPT_EMPTY, opt_v},
 	{"-g", OPT_NUMBER, opt_g},
 	{"-v", OPT_NUMBER, opt_v},
+	{"-l", OPT_EMPTY, opt_l},
 	{"-O", OPT_NUMBER, opt_O},
 	{"-P", OPT_STRING, knh_setStartUpPackage},
 	{"-W", OPT_NUMBER, opt_W},
 	{"-h", OPT_EMPTY, opt_help},
+	{"--verbose:gc", OPT_EMPTY, opt_verbose_gc},
+	{"--verbose:lang", OPT_EMPTY, opt_verbose_lang},
 	{"--utest", OPT_EMPTY, opt_utest},
 	{"--help", OPT_EMPTY, opt_help},
 	{"-V", OPT_EMPTY, opt_version},
@@ -559,26 +451,27 @@ static int shell_checkstmt(knh_bytes_t t)
 		ch = t.ubuf[i];
 		if(ch == '{' || ch == '[' || ch == '(') nest++;
 		if(ch == '}' || ch == ']' || ch == ')') nest--;
-		if(ch == '\'' && i > 0 && (islower(t.text[i-1]) || t.text[i-1] == '\'')) continue; // a' prime
 		if(ch == '\'' || ch == '"' || ch == '`') {
-			quote = ch; i++;
-			goto L_QUOTE;
+			if(t.ubuf[i+1] == ch && t.ubuf[i+2] == ch) {
+				quote = ch; i+=2;
+				goto L_TQUOTE;
+			}
 		}
 		if(ch == '\n') hasDOC = 0;
 		if(ch == '#') {
 			hasDOC = 1;
-//			quote = '\n'; i++;
-//			goto L_QUOTE;
 		}
 	}
 	return (hasDOC == 1) ? 1 : nest;
-	L_QUOTE:
+	L_TQUOTE:
 	DBG_ASSERT(i > 0);
 	for(; i < t.len; i++) {
 		ch = t.ubuf[i];
 		if(t.ubuf[i-1] != '\\' && ch == quote) {
-			i++;
-			goto L_NORMAL;
+			if(t.ubuf[i+1] == ch && t.ubuf[i+2] == ch) {
+				i+=2;
+				goto L_NORMAL;
+			}
 		}
 	}
 	return 1;
@@ -677,13 +570,13 @@ static knh_status_t readstmt(CTX ctx, knh_cwb_t *cwb)
 {
 	int line = 1;
 	knh_status_t status = K_CONTINUE;
-	knh_cwb_clear(cwb, 0);
+	knh_cwb_clear2(cwb, 0);
 	fputs(TERM_BBOLD(ctx), stdout);
 	while(1) {
 		int check;
 		char *ln = ctx->spi->readline(line == 1 ? ">>> " : "    ");
 		if(ln == NULL) {
-			knh_cwb_clear(cwb, 0);
+			knh_cwb_clear2(cwb, 0);
 			status = K_BREAK;
 			break;
 		}
@@ -696,7 +589,7 @@ static knh_status_t readstmt(CTX ctx, knh_cwb_t *cwb)
 		}
 		if(check < 0) {
 			fputs("(Cancelled)...\n", stdout);
-			knh_cwb_clear(cwb, 0);
+			knh_cwb_clear2(cwb, 0);
 		}
 		break;
 	}
@@ -758,7 +651,7 @@ static void knh_linkDynamicReadline(CTX ctx)
 	if(ctx->spi->readline == NULL) {
 		void *handler = knh_dlopen(ctx, "libreadline" K_OSDLLEXT);
 		if(handler != NULL) {
-			void *f = knh_dlsym(ctx, LOG_DEBUG, handler, "readline");
+			void *f = knh_dlsym(ctx, handler, "readline", 0/*isTest*/);
 			if(f != NULL) {
 				((knh_ServiceSPI_t*)ctx->spi)->readlinespi = "libreadline";
 				((knh_ServiceSPI_t*)ctx->spi)->readline = (char* (*)(const char*))f;
@@ -766,7 +659,7 @@ static void knh_linkDynamicReadline(CTX ctx)
 			else {
 				goto L_STDIN;
 			}
-			f = knh_dlsym(ctx, LOG_DEBUG, handler, "add_history");
+			f = knh_dlsym(ctx, handler, "add_history", 0/*isTest*/);
 			if(f != NULL) {
 				((knh_ServiceSPI_t*)ctx->spi)->add_history = (int (*)(const char*))f;
 			}
@@ -784,50 +677,70 @@ static void knh_linkDynamicReadline(CTX ctx)
 
 static void knh_shell(CTX ctx)
 {
-	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 	void *shell_status = NULL;
 	BEGIN_LOCAL(ctx, lsfp, 2);
 	LOCAL_NEW(ctx, lsfp, 0, knh_Array_t *, results, new_Array0(ctx, 0));
 	LOCAL_NEW(ctx, lsfp, 1, knh_InputStream_t *, bin, new_BytesInputStream(ctx, new_Bytes(ctx, "shell", K_PAGESIZE)));
 	knh_linkDynamicReadline(ctx);
-	knh_showWelcome(ctx, cwb->w);
-	knh_showSecurityAlert(ctx, cwb->w);
-	shell_status = shell_init(ctx, knh_cwb_tochar(ctx, cwb), NULL);
+	{
+		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
+		knh_showWelcome(ctx, cwb->w);
+		knh_showSecurityAlert(ctx, cwb->w);
+		shell_status = shell_init(ctx, knh_cwb_tochar(ctx, cwb), NULL);
+		knh_cwb_close(cwb);
+	}
 	while(1) {
 		size_t i;
-		knh_status_t status = readstmt(ctx, cwb);
-		if(status == K_BREAK) break;
-		if(knh_cwb_size(cwb) == 0) continue;
-		status = shell_command(ctx, knh_cwb_tochar(ctx, cwb));
-		if(status == K_BREAK) break;
-		if(status == K_REDO) continue;
-		knh_Bytes_clear(DP(bin)->ba, 0);
-		knh_Bytes_write(ctx, DP(bin)->ba, knh_cwb_tobytes(cwb));
+		{
+			knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
+			knh_status_t status = readstmt(ctx, cwb);
+			if(status == K_BREAK) {
+				knh_cwb_close(cwb);
+				break;
+			}
+			if(knh_cwb_size(cwb) == 0) {
+				knh_cwb_close(cwb);
+				continue;
+			}
+			status = shell_command(ctx, knh_cwb_tochar(ctx, cwb));
+			if(status == K_BREAK) {
+				knh_cwb_close(cwb);
+				break;
+			}
+			if(status == K_REDO) {
+				knh_cwb_close(cwb);
+				continue;
+			}
+			knh_Bytes_clear(DP(bin)->ba, 0);
+			knh_Bytes_write(ctx, DP(bin)->ba, knh_cwb_tobytes(cwb));
+			knh_cwb_close(cwb);
+		}
 		knh_InputStream_setpos(ctx, bin, 0, BA_size(DP(bin)->ba));
-		knh_cwb_clear(cwb, 0);
 		SP(bin)->uline = 1; // always line1
 		knh_eval(ctx, bin, results);
 		knh_OutputStream_flush(ctx, ctx->out, 1);
-		if(ctx->out != DP(ctx->sys)->out) {
-			knh_Bytes_t *outbuf = DP(ctx->out)->ba;
-			knh_write(ctx, cwb->w, outbuf->bu);
-			knh_Bytes_clear(outbuf, 0);
+
+//		if(ctx->out != DP(ctx->sys)->out) {
+//			knh_Bytes_t *outbuf = DP(ctx->out)->ba;
+//			knh_write(ctx, cwb->w, outbuf->bu);
+//			knh_Bytes_clear(outbuf, 0);
+//		}
+//		knh_cwb_clear2(cwb, 0); // necessary (because of some bugs)
+		{
+			knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
+			for(i = 0; i < knh_Array_size(results); i++) {
+				knh_Object_t *o = results->list[i];
+				knh_write_Object(ctx, cwb->w, o, FMT_dump);
+			}
+			knh_showSecurityAlert(ctx, cwb->w);
+			if(knh_cwb_size(cwb) !=0) {
+				shell_display(ctx, shell_status, knh_cwb_tochar(ctx, cwb));
+			}
+			knh_Array_clear(ctx, results, 0);
+			knh_cwb_close(cwb);
 		}
-		knh_cwb_clear(cwb, 0); // necessary (because of some bugs)
-		for(i = 0; i < knh_Array_size(results); i++) {
-			knh_Object_t *o = results->list[i];
-			knh_write_Object(ctx, cwb->w, o, FMT_dump);
-		}
-		knh_showSecurityAlert(ctx, cwb->w);
-		if(knh_cwb_size(cwb) !=0) {
-			shell_display(ctx, shell_status, knh_cwb_tochar(ctx, cwb));
-			knh_cwb_clear(cwb, 0);
-		}
-		knh_Array_clear(ctx, results, 0);
-		knh_cwb_clear(cwb, 0);
 	}
 	shell_cleanup(ctx, shell_status);
-	knh_cwb_close(cwb);
 	END_LOCAL_(ctx, lsfp);
 }
 
@@ -847,29 +760,77 @@ static void konoha_shell(konoha_t konoha, char *optstr)
 
 /*************************************************************************** */
 
-int konoha_main(konoha_t konoha, int argc, const char **argv)
+struct konoha_module_driver {
+	const char *name;
+	void (*init)(int argc, int n, const char **argv);
+	void (*exit)(void);
+};
+
+static void ac_init(int argc, int n, const char **argv)
 {
-	const char** args = argv;
-	int res = 1, n = konoha_parseopt(konoha, argc, args);
+	if(uout != NULL) {
+		fprintf(uout, "testing: %s\n", argv[n]);
+		fflush(uout);
+	}
+}
+
+static void ac_exit(void)
+{
+	if(uout != NULL) {
+		fclose(uout);
+	}
+}
+
+#ifdef K_USING_MPI
+static void mpi_init(int argc, int n, const char **argv)
+{
+	MPI_Init(&argc, &argv);
+}
+static void mpi_exit(void)
+{
+	MPI_Finalize();
+}
+#endif
+
+#ifdef K_USING_LLVM
+extern void knh_llvm_init(int, int, const char **);
+extern void knh_llvm_exit(void);
+#endif
+struct konoha_module_driver konoha_modules[] = {
+	{"ac", ac_init, ac_exit},
+#ifdef K_USING_LLVM
+	{"llvm", knh_llvm_init, knh_llvm_exit},
+#endif
+#ifdef K_USING_MPI
+	{"mpi", mpi_init, mpi_exit}
+#endif
+	{"null", NULL, NULL}
+};
+#ifndef ARRAY_SIZE
+#define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
+#endif
+
+void konoha_main(konoha_t konoha, int argc, const char **argv)
+{
+	int n = konoha_parseopt(konoha, argc, argv);
 	if(argc - n == 0) {
 		konoha_shell(konoha, NULL);
 	}
 	else {
-		if(uout != NULL) {
-			fprintf(uout, "testing: %s\n", args[n]);
-			fflush(uout);
+		int i;
+		for (i = 0; konoha_modules[i].init != NULL; ++i) {
+			konoha_modules[i].init(argc, n, argv);
 		}
-		if(konoha_initload(konoha, args[n]) == K_CONTINUE && !knh_isCompileOnly(konoha.ctx)) {
-			res = konoha_runMain(konoha, argc - n, args + n);
+		if(konoha_initload(konoha, argv[n]) == K_CONTINUE && !knh_isCompileOnly(konoha.ctx)) {
+			konoha_runMain(konoha, argc - n, argv + n);
 			if(isInteractiveMode) {
 				konoha_shell(konoha, NULL);
 			}
 		}
+		for (i = 0; konoha_modules[i].exit != NULL; ++i) {
+			konoha_modules[i].exit();
+		}
 	}
-	if(uout != NULL) {
-		fclose(uout);
-	}
-	return res;
 }
 
 /*************************************************************************** */

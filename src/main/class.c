@@ -27,11 +27,6 @@
 
 /* ************************************************************************ */
 
-#define USE_B     1
-#define USE_STEXT 1
-#define USE_bytes_startsWith 1
-#define USE_cwb_open      1
-
 #include"commons.h"
 
 /* ************************************************************************ */
@@ -39,6 +34,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/* ------------------------------------------------------------------------ */
 
 #ifndef K_INCLUDE_BUILTINAPI
 
@@ -69,7 +66,7 @@ int knh_Object_compareTo(Object *o1, Object *o2)
 	knh_class_t cid2 = O_cid(o2);
 	int res;
 	if(cid1 == cid2) {
-		res = O_cTBL(o1)->ospi->compareTo(o1, o2);
+		res = O_cTBL(o1)->cdef->compareTo(RAWPTR(o1), RAWPTR(o2));
 	}
 	else {
 		res = (int)(o1 - o2);
@@ -80,7 +77,7 @@ int knh_Object_compareTo(Object *o1, Object *o2)
 
 /* ------------------------------------------------------------------------ */
 
-void knh_Object_toNULL_(CTX ctx, Object *o)
+KNHAPI2(void) knh_Object_toNULL_(CTX ctx, Object *o)
 {
 	Object_setNullObject(o, 1);
 }
@@ -91,7 +88,7 @@ void knh_Object_toNULL_(CTX ctx, Object *o)
 const char *SAFESTRUCT__(CTX ctx, knh_class_t bcid)
 {
 	if(bcid < ctx->share->sizeClassTBL) {
-		return ClassTBL(bcid)->ospi->name;
+		return ClassTBL(bcid)->cdef->name;
 	}
 	KNH_P("unknown bcid=%d", bcid);
 	return "UNKNOWN";
@@ -157,7 +154,6 @@ KNHAPI2(void) knh_write_cid(CTX ctx, knh_OutputStream_t *w, knh_class_t cid)
 	case TYPE_void: tname = "void";       break;
 	case TYPE_var:  tname = "var";        break;
 	case TYPE_This: tname = "This";       break;
-	case TYPE_TEXT: tname = "@Secure String"; break;
 	default :{
 			if(cid > TYPE_This) {
 				knh_write(ctx, w, STEXT("T"));
@@ -169,23 +165,18 @@ KNHAPI2(void) knh_write_cid(CTX ctx, knh_OutputStream_t *w, knh_class_t cid)
 			return ;
 		}
 	}
+	knh_write_ascii(ctx, w, tname);
 }
 
-KNHAPI2(void) knh_write_type(CTX ctx, knh_OutputStream_t *w, knh_type_t type)
+void knh_write_cname(CTX ctx, knh_OutputStream_t *w, knh_class_t cid)
 {
 	const char *tname = NULL;
-	//DBG_P("type=%d", type);
-	switch(type) {
-	case TYPE_Boolean: tname = "boolean"; break;
-	case TYPE_Int:    tname = "int";      break;
-	case TYPE_Float:  tname = "float";    break;
-	case TYPE_dyn:  tname = "dynamic";    break;
+	switch(cid) {
+	case TYPE_Tdynamic:  tname = "dynamic";    break;
 	case TYPE_void: tname = "void";       break;
 	case TYPE_var:  tname = "var";        break;
 	case TYPE_This: tname = "This";       break;
-	case TYPE_TEXT: tname = "@Secure String"; break;
 	default :{
-			knh_class_t cid = CLASS_t(type);
 			if(cid > TYPE_This) {
 				knh_write(ctx, w, STEXT("T"));
 				knh_write_ifmt(ctx, w, K_INT_FMT, cid - TYPE_This);
@@ -199,6 +190,38 @@ KNHAPI2(void) knh_write_type(CTX ctx, knh_OutputStream_t *w, knh_type_t type)
 	knh_write_ascii(ctx, w, tname);
 }
 
+KNHAPI2(void) knh_write_type(CTX ctx, knh_OutputStream_t *w, knh_type_t type)
+{
+	const char *tname = NULL;
+	if(type > TYPE_This) {
+		knh_write(ctx, w, STEXT("T"));
+		knh_write_ifmt(ctx, w, K_INT_FMT, type - TYPE_This);
+		return;
+	}
+	else if(type == TYPE_This) {
+		knh_write_ascii(ctx, w, "This");
+		return;
+	}
+	switch(type) {
+	case TYPE_Boolean: tname = "boolean"; break;
+	case TYPE_Int: tname = "int"; break;
+	case TYPE_Float: tname = "float"; break;
+	case TYPE_Bytes:  tname = "byte[]";    break;
+	case TYPE_Array: tname = "dynamic" PTYPE_Array;  break;
+	case TYPE_Iterator:  tname = "dynamic" PTYPE_Iterator;  break;
+	case TYPE_KindOf: tname = "dynamic" PTYPE_KindOf; break;
+	case TYPE_Immutable: tname = "dynamic" PTYPE_Immutable; break;
+	default :
+		tname = NULL;
+	}
+	if(tname != NULL) {
+		knh_write_ascii(ctx, w, tname);
+	}
+	else {
+		knh_write(ctx, w, S_tobytes(ClassTBL(CLASS_t(type))->sname));
+	}
+}
+
 /* ------------------------------------------------------------------------ */
 
 static knh_Object_t *Fdefnull_newValue(CTX ctx, knh_class_t cid);
@@ -206,31 +229,32 @@ static knh_Object_t *Fdefnull_newValue(CTX ctx, knh_class_t cid);
 void knh_setClassName(CTX ctx, knh_class_t cid, knh_String_t *lname, knh_String_t *snameNULL)
 {
 	DBG_ASSERT_cid(cid);
-	knh_ClassTBL_t *t = varClassTBL(cid);
-	DBG_ASSERT(t->lname == NULL);
-	KNH_INITv(t->lname, lname);
+	knh_ClassTBL_t *ct = varClassTBL(cid);
+	DBG_ASSERT(ct->lname == NULL);
+	KNH_INITv(ct->lname, lname);
 	if(snameNULL != NULL) {
-		KNH_INITv(t->sname, snameNULL);
+		KNH_INITv(ct->sname, snameNULL);
 	}
-	else if(t->bcid == cid) {
-		KNH_INITv(t->sname, new_T(t->ospi->name));
+	else if(ct->bcid == cid) {
+		KNH_INITv(ct->sname, new_T(ct->cdef->name));
 	}
-	if(t->sname == NULL) {
-		KNH_INITv(t->sname, t->lname);
+	if(ct->sname == NULL) {
+		KNH_INITv(ct->sname, ct->lname);
 	}
 	OLD_LOCK(ctx, LOCK_SYSTBL, NULL);
 	{
-		if(S_startsWith(lname, STEXT("konoha."))) {
-			knh_DictSet_append(ctx, DP(ctx->sys)->ClassNameDictSet, t->sname, cid+1);
+		knh_bytes_t t = S_tobytes(lname);
+		if(t.buf[t.len-1] != '>') {
+			DBG_P("cid=%d, cname='%s', typename=%s", cid, S_tochar(ct->lname), S_tochar(ct->sname));
+			knh_DictSet_set(ctx, DP(ctx->sys)->ClassNameDictSet, lname, cid+1);
 		}
-		knh_DictSet_set(ctx, DP(ctx->sys)->ClassNameDictSet, lname, cid+1);
+		if(!class_isPrivate(cid) && S_startsWith(lname, STEXT("konoha."))) {
+			knh_DictSet_append(ctx, DP(ctx->sys)->ClassNameDictSet, ct->sname, cid+1);
+		}
 	}
 	OLD_UNLOCK(ctx, LOCK_SYSTBL, NULL);
-//	if(cid > CLASS_Gamma) {
-//		KNH_INFO("class=%d, lname=%s, sname=%s", cid, S_tochar(lname), S_tochar(t->sname));
-//	}
-	if(t->fdefnull == NULL) {
-		t->fdefnull = Fdefnull_newValue;
+	if(ct->fdefnull == NULL) {
+		ct->fdefnull = Fdefnull_newValue;
 	}
 }
 
@@ -262,10 +286,11 @@ static knh_Object_t *Fdefnull_newValue(CTX ctx, knh_class_t cid)
 	knh_ClassTBL_t *ct = varClassTBL(cid);
 	Object *v = new_Object_init2(ctx, (const knh_ClassTBL_t*)ct);
 	Object_setNullObject(v, 1);
-	DBG_P("create new default value of %s", CLASS__(cid));
 	KNH_ASSERT(ct->defnull == NULL);
 	KNH_INITv(ct->defnull, v);
 	ct->fdefnull = Fdefnull_getConst;
+	DBG_P("create new default value of %s", CLASS__(cid));
+	DBG_ASSERT(cid != CLASS_Class);  // for DEBUG
 	return ct->defnull;
 }
 
@@ -292,7 +317,7 @@ KNHAPI2(Object*) knh_getClassDefaultValue(CTX ctx, knh_class_t cid)
 void knh_setClassDef(knh_ClassTBL_t *ct, const knh_ClassDef_t *cdef)
 {
 	//DBG_P("setClassDef(%s)", cdef->name);
-	ct->ospi = cdef;
+	ct->cdef = cdef;
 	if(cdef->fields != NULL) {
 		KNH_ASSERT(ct->fields = NULL);
 		ct->fields = cdef->fields;
@@ -365,46 +390,98 @@ knh_bool_t ClassTBL_isa_(CTX ctx, const knh_ClassTBL_t *ct, const knh_ClassTBL_t
 /* ------------------------------------------------------------------------ */
 /* [class param] */
 
-int class_isGenerics(CTX ctx, knh_class_t cid)
+int knh_class_isGenerics(CTX ctx, knh_class_t cid)
 {
 	const knh_ClassTBL_t *ct = ClassTBL(cid);
 	return (ct->cparam != NULL);
 }
 
-knh_class_t knh_class_p(CTX ctx, knh_class_t cid, size_t n)
+//knh_class_t knh_class_p(CTX ctx, knh_class_t cid, size_t n)
+//{
+//	knh_ParamArray_t *pa = ClassTBL(cid)->cparam;
+//	if(n-1 < pa->psize) {
+//		knh_param_t *p = knh_ParamArray_get(pa, n-1);
+//		return p->type;
+//	}
+//	return TYPE_void;
+//}
+
+knh_bytes_t knh_class_bname(CTX ctx, knh_class_t bcid)
 {
-	knh_param_t *p = knh_ParamArray_get(ClassTBL(cid)->cparam, n);
-	return p->type;
+	return knh_bytes_head(S_tobytes(ClassTBL(bcid)->lname), '<');
 }
 
-static void knh_write_cname(CTX ctx, knh_OutputStream_t *w, knh_class_t cid, knh_Fwritecid f)
+static void knh_make_cname(CTX ctx, knh_OutputStream_t *w, knh_class_t cid)
 {
-	if(cid < ctx->share->sizeClassTBL) {
-		knh_class_t bcid = knh_class_bcid(cid);
-		if(class_isGenerics(ctx, cid) && cid != bcid) {
-			size_t i;
-			knh_ParamArray_t *pa = ClassTBL(cid)->cparam;
-			f(ctx, w, bcid);
-			knh_putc(ctx, w, '<');
-			for(i = 0; i < pa->psize; i++) {
-				knh_param_t *p = knh_ParamArray_get(pa, i);
-				if(i > 0) knh_putc(ctx, w, ',');
-				knh_write_cname(ctx, w, CLASS_t(p->type), f);
-			}
-			if(pa->rsize > 0) {
-				if(pa->psize == 0) knh_write(ctx, w, STEXT("void"));
-				knh_write(ctx, w, STEXT("=>"));
-			}
-			for(i = 0; i < pa->rsize; i++) {
-				knh_param_t *p = knh_ParamArray_rget(pa, i);
-				if(i > 0) knh_putc(ctx, w, ',');
-				knh_write_cname(ctx, w, CLASS_t(p->type), f);
-			}
-			knh_putc(ctx, w, '>');
-			return;
-		}
+	DBG_ASSERT(cid < ctx->share->sizeClassTBL);
+	DBG_ASSERT(C_isGenerics(cid));
+	knh_class_t bcid = C_bcid(cid);
+	size_t i;
+	knh_ParamArray_t *pa = ClassTBL(cid)->cparam;
+	knh_bytes_t bname = knh_class_bname(ctx, bcid);
+	knh_write(ctx, w, bname);
+	knh_putc(ctx, w, '<');
+	for(i = 0; i < pa->psize; i++) {
+		knh_param_t *p = knh_ParamArray_get(pa, i);
+		if(i > 0) knh_putc(ctx, w, ',');
+		knh_write_cid(ctx, w, p->type);
 	}
-	f(ctx, w, cid);
+	if(pa->rsize > 0) {
+		if(pa->psize == 0) knh_write(ctx, w, STEXT("void"));
+		knh_write(ctx, w, STEXT("=>"));
+	}
+	for(i = 0; i < pa->rsize; i++) {
+		knh_param_t *p = knh_ParamArray_rget(pa, i);
+		if(i > 0) knh_putc(ctx, w, ',');
+		knh_write_cid(ctx, w, p->type);
+	}
+	knh_putc(ctx, w, '>');
+}
+
+static void knh_make_tname(CTX ctx, knh_OutputStream_t *w, knh_class_t cid)
+{
+	DBG_ASSERT(cid < ctx->share->sizeClassTBL);
+	DBG_ASSERT(C_isGenerics(cid));
+	knh_class_t bcid = C_bcid(cid);
+	knh_ParamArray_t *pa = ClassTBL(cid)->cparam;
+	knh_class_t p1   = knh_ParamArray_get(pa, 0)->type;
+	if(bcid == CLASS_Array) {
+		knh_write_type(ctx, w, p1);
+		knh_write(ctx, w, STEXT(PTYPE_Array));
+	}
+	else if(bcid == CLASS_Iterator) {
+		knh_write_type(ctx, w, p1);
+		knh_write(ctx, w, STEXT(PTYPE_Iterator));
+	}
+	else if(bcid == CLASS_KindOf) {
+		knh_write_type(ctx, w, p1);
+		knh_write(ctx, w, STEXT(PTYPE_KindOf));
+	}
+	else if(bcid == CLASS_Immutable) {
+		knh_write_type(ctx, w, p1);
+		knh_write(ctx, w, STEXT(PTYPE_Immutable));
+	}
+	else if(C_isGenerics(cid)) {
+		size_t i;
+		knh_bytes_t bname = knh_bytes_head(S_tobytes(ClassTBL(bcid)->sname), '<');
+		knh_write(ctx, w, bname);
+		knh_putc(ctx, w, '<');
+		for(i = 0; i < pa->psize; i++) {
+			knh_param_t *p = knh_ParamArray_get(pa, i);
+			if(i > 0) knh_putc(ctx, w, ',');
+			knh_write_type(ctx, w, p->type);
+		}
+		if(pa->rsize > 0) {
+			if(pa->psize == 0) knh_write(ctx, w, STEXT("void"));
+			knh_write(ctx, w, STEXT("=>"));
+		}
+		for(i = 0; i < pa->rsize; i++) {
+			knh_param_t *p = knh_ParamArray_rget(pa, i);
+			if(i > 0) knh_putc(ctx, w, ',');
+			knh_write_type(ctx, w, p->type);
+		}
+		knh_putc(ctx, w, '>');
+	}
 }
 
 /* ------------------------------------------------------------------------ */
@@ -438,100 +515,90 @@ void knh_setClassParam(CTX ctx, knh_ClassTBL_t *t, knh_ParamArray_t *pa)
 	}
 }
 
-static void write_tuplecid(CTX ctx, knh_OutputStream_t *w, knh_class_t cid)
+static void ClassTBL_addTuple(CTX ctx, knh_ClassTBL_t *ct, const knh_ClassTBL_t *bct, knh_ParamArray_t *pa)
 {
-	if(cid == CLASS_Tuple) {
-		knh_write_ascii(ctx, w, "konoha.Tuple");
-	}
-	else {
-		knh_write_cid(ctx, w, cid);
-	}
-}
+	size_t i, fi = 0;
+	ct->magicflag  = bct->magicflag;
+	ct->cflag  = bct->cflag;
+	knh_setClassDef(ct, bct->cdef);
+	ct->bcid   = bct->cid;
+	ct->baseTBL = bct;
+	ct->supcid = bct->supcid;
+	ct->supTBL = ClassTBL(ct->supcid);
+	knh_setClassParam(ctx, ct, pa);
+	SimTBL_append(ctx, bct->cid, ct);
 
-static void write_tupletype(CTX ctx, knh_OutputStream_t *w, knh_class_t cid)
-{
-	if(cid == CLASS_Tuple) {
-		knh_write_ascii(ctx, w, "Tuple");
+	knh_Tuple_t *tpl = (knh_Tuple_t*)new_hObject_(ctx, (knh_ClassTBL_t*)ct);
+	Object_setNullObject(tpl, 1);
+	knh_setClassDefaultValue(ctx, ct->cid, tpl, NULL);
+	ct->fcapacity = pa->psize;
+	DBLNDATA_(for(i = 0; i < pa->psize; i++) {
+		knh_param_t *p = knh_ParamArray_get(pa, i);
+		if(IS_Tunbox(p->type)) ct->fcapacity += 1;
+	})
+	ct->fsize = ct->fcapacity;
+	ct->fields = (knh_fields_t*)KNH_MALLOC(ctx, sizeof(knh_fields_t) * ct->fcapacity);
+	if(ct->fcapacity <= K_SMALLOBJECT_FIELDSIZE) {
+		tpl->fields = &(tpl->smallobject);
 	}
 	else {
-		knh_write_type(ctx, w, cid);
+		tpl->fields = (knh_Object_t**)KNH_MALLOC(ctx, sizeof(knh_Object_t*) * ct->fcapacity);
 	}
+	knh_bzero(tpl->fields, sizeof(knh_Object_t*) * ct->fcapacity);
+	for(i = 0; i < pa->psize; i++) {
+		knh_param_t *p = knh_ParamArray_get(pa, i);
+		ct->fields[fi].flag = FLAG_Field_Getter;
+		ct->fields[fi].type = p->type;
+		ct->fields[fi].fn = FN_key;
+		ct->fields[fi].israw = 0;
+		if(IS_Tunbox(p->type)) {
+			ct->fields[fi].israw = 1;
+			DBLNDATA_(fi++;
+				ct->fields[fi].flag = 0;
+				ct->fields[fi].fn = FN_NONAME;
+				ct->fields[fi].type = TYPE_void;
+				ct->fields[fi].israw = 1;)
+		}
+		else {
+			KNH_INITv(tpl->fields[fi], KNH_NULVAL(CLASS_t(p->type)));
+		}
+		fi++;
+	}
+	KNH_INITv(ct->methods, bct->methods);
+	KNH_INITv(ct->typemaps, K_EMPTYARRAY);
 }
 
 knh_class_t knh_addGenericsClass(CTX ctx, knh_class_t cid, knh_class_t bcid, knh_ParamArray_t *pa)
 {
-	knh_Fwritecid write_cid = knh_write_cid;
-	knh_Fwritecid write_type = knh_write_type;
 	if(cid == CLASS_newid) cid = new_ClassId(ctx);
 	DBG_ASSERT(bcid < cid);
-	{
-		knh_ClassTBL_t *ct = varClassTBL(cid);
+	knh_ClassTBL_t *ct = varClassTBL(cid);
+	if(bcid == CLASS_Tuple) {
+		ClassTBL_addTuple(ctx, ct, ClassTBL(bcid), pa);
+	}
+	else {
 		const knh_ClassTBL_t *bct = ClassTBL(bcid);
 		ct->magicflag  = bct->magicflag;
 		ct->cflag  = bct->cflag;
-		knh_setClassDef(ct, bct->ospi);
+		knh_setClassDef(ct, bct->cdef);
 		ct->bcid   = bcid;
 		ct->baseTBL = bct;
 		ct->supcid = bct->supcid;
 		ct->supTBL = ClassTBL(ct->supcid);
 		knh_setClassParam(ctx, ct, pa);
 		SimTBL_append(ctx, bcid, ct);
-		if(bcid == CLASS_Tuple && cid != CLASS_Tuple) {
-			size_t i, fi = 0;
-			knh_Tuple_t *tpl = (knh_Tuple_t*)new_hObject_(ctx, (knh_ClassTBL_t*)ct);
-			Object_setNullObject(tpl, 1);
-			knh_setClassDefaultValue(ctx, cid, tpl, NULL);
-			ct->fcapacity = pa->psize;
-			DBLNDATA_(for(i = 0; i < pa->psize; i++) {
-				knh_param_t *p = knh_ParamArray_get(pa, i);
-				if(IS_Tunbox(p->type)) ct->fcapacity += 1;
-			})
-			ct->fsize = ct->fcapacity;
-			ct->fields = (knh_fields_t*)KNH_MALLOC(ctx, sizeof(knh_fields_t) * ct->fcapacity);
-			if(ct->fcapacity <= K_SMALLOBJECT_FIELDSIZE) {
-				tpl->fields = &(tpl->smallobject);
-			}
-			else {
-				tpl->fields = (knh_Object_t**)KNH_MALLOC(ctx, sizeof(knh_Object_t*) * ct->fcapacity);
-			}
-			knh_bzero(tpl->fields, sizeof(knh_Object_t*) * ct->fcapacity);
-			for(i = 0; i < pa->psize; i++) {
-				knh_param_t *p = knh_ParamArray_get(pa, i);
-				ct->fields[fi].flag = FLAG_Field_Getter;
-				ct->fields[fi].type = p->type;
-				ct->fields[fi].fn = FN_index(ctx, i);
-				ct->fields[fi].israw = 0;
-				if(IS_Tunbox(p->type)) {
-					ct->fields[fi].israw = 1;
-					DBLNDATA_(fi++;
-					ct->fields[fi].flag = 0;
-					ct->fields[fi].fn = FN_NONAME;
-					ct->fields[fi].type = TYPE_void;
-					ct->fields[fi].israw = 1;)
-				}
-				else {
-					KNH_INITv(tpl->fields[fi], KNH_NULVAL(CLASS_t(p->type)));
-				}
-				fi++;
-			}
-			KNH_INITv(ct->methods, K_EMPTYARRAY);
-			write_cid = write_tuplecid;
-			write_type = write_tupletype;
-		}
-		else {
-			ct->fields = bct->fields;
-			ct->fsize  = bct->fsize;
-			ct->fcapacity = bct->fcapacity;
-			KNH_INITv(ct->methods, bct->methods);
-		}
+		ct->fields = bct->fields;
+		ct->fsize  = bct->fsize;
+		ct->fcapacity = bct->fcapacity;
+		KNH_INITv(ct->methods, bct->methods);
 		KNH_INITv(ct->typemaps, K_EMPTYARRAY);
 	}
 	{
 		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
 		knh_String_t *lname, *sname;
-		knh_write_cname(ctx, cwb->w, cid, write_cid);
+		knh_make_cname(ctx, cwb->w, cid);
 		lname = knh_cwb_newString(ctx, cwb);
-		knh_write_cname(ctx, cwb->w, cid, write_type);
+		knh_make_tname(ctx, cwb->w, cid);
 		sname = knh_cwb_newString(ctx, cwb);
 		knh_setClassName(ctx, cid, lname, sname);
 	}
@@ -549,6 +616,10 @@ knh_class_t knh_class_Generics(CTX ctx, knh_class_t bcid, knh_ParamArray_t *pa)
 		}
 		t = t->simTBL;
 	}
+	if(bcid == CLASS_Immutable) {
+		knh_class_t p1 = knh_ParamArray_get(pa,0)->type;
+		if(p1 < ctx->share->sizeClassTBL && class_isImmutable(p1)) return p1;
+	}
 	return knh_addGenericsClass(ctx, CLASS_newid, bcid, pa);
 }
 
@@ -560,6 +631,9 @@ knh_class_t knh_class_P1(CTX ctx, knh_class_t bcid, knh_type_t p1)
 	while(ct != NULL) {
 		if(ct->p1 == p1) return ct->cid;
 		ct = ct->simTBL;
+	}
+	if(bcid == CLASS_Immutable && p1 < ctx->share->sizeClassTBL && class_isImmutable(p1)) {
+		return p1;
 	}
 	{
 		knh_ParamArray_t *bpa = ClassTBL(bcid)->cparam;
@@ -637,12 +711,12 @@ KNHAPI2(knh_class_t) knh_type_tocid(CTX ctx, knh_type_t ptype, knh_class_t this_
 	}
 	else {
 		knh_class_t pcid = CLASS_t(ptype);
-		if(class_isGenerics(ctx, pcid)) { /* Iterator<This> */
+		if(C_isGenerics(pcid)) { /* Iterator<This> */
 			BEGIN_LOCAL(ctx, lsfp, 1);
 			knh_ParamArray_t *npa = new_ParamArray(ctx);
 			KNH_SETv(ctx, lsfp[0].o, npa);
 			knh_ParamArray_tocid(ctx, ClassTBL(pcid)->cparam, this_cid, npa);
-			pcid = knh_class_Generics(ctx, knh_class_bcid(pcid), npa);
+			pcid = knh_class_Generics(ctx, C_bcid(pcid), npa);
 			END_LOCAL_(ctx, lsfp);
 		}
 		return pcid;
@@ -655,8 +729,10 @@ KNHAPI2(knh_class_t) knh_type_tocid(CTX ctx, knh_type_t ptype, knh_class_t this_
 knh_ParamArray_t *new_ParamArrayR0(CTX ctx, knh_type_t t)
 {
 	knh_ParamArray_t *pa = new_ParamArray(ctx);
-	knh_param_t p = {t, FN_return};
-	knh_ParamArray_radd(ctx, pa, p);
+	if(t != TYPE_void) {
+		knh_param_t p = {t, FN_return};
+		knh_ParamArray_radd(ctx, pa, p);
+	}
 	return pa;
 }
 
@@ -916,37 +992,6 @@ knh_index_t knh_Method_indexOfSetterField(knh_Method_t *o)
 	return -1;
 }
 
-knh_fieldn_t FN_index(CTX ctx, size_t idx)
-{
-	switch(idx) {
-		case 0: return FN_first;
-		case 1: return FN_second;
-		case 2: return FN_third;
-		default: {
-			knh_bytes_t t;
-			char buf[20];
-			knh_snprintf(buf, sizeof(buf), "%d", (int)idx);
-			t.text = (const char*)buf; t.len = knh_strlen(buf);
-			return knh_getfnq(ctx, t, FN_NEWID);
-		}
-	}
-}
-
-knh_Method_t* knh_ClassTBL_getTupleGetter(CTX ctx, const knh_ClassTBL_t *t, knh_methodn_t mn, size_t idx)
-{
-	size_t i = 0, ti = 0;
-	for(i = 0; i < t->fsize; i++) {
-		if(ti == idx) {
-			knh_Method_t *mtd = new_GetterMethod(ctx, t->cid, mn, t->fields[i].type, i);
-			knh_ClassTBL_addMethod(ctx, t, mtd, 0);
-			return mtd;
-		}
-		if(t->fields[i].type == TYPE_void) continue;
-		ti++;
-	}
-	return NULL;
-}
-
 /* ------------------------------------------------------------------------ */
 
 static METHOD Fmethod_NoSuchMethod(CTX ctx, knh_sfp_t *sfp _RIX)
@@ -975,7 +1020,7 @@ static inline knh_Method_t *Cache_setMethod(knh_mtdcache_t *mcache, knh_class_t 
 		if(mcache->cid != 0 && mcache->mn != 0) {
 			//DBG_P("MISSED h=%d mcache=%d.%d %d.%d", h, mcache->cid, mcache->mn, cid, mn);
 		}
-	})
+	});
 	mcache->cid = cid;
 	mcache->mn  = mn;
 	mcache->mtd = mtd;
@@ -996,13 +1041,16 @@ void knh_ClassTBL_addMethod(CTX ctx, const knh_ClassTBL_t *t, knh_Method_t *mtd,
 		for(i = 0; i < knh_Array_size(a); i++) {
 			knh_Method_t *mtd2 = a->methods[i];
 			if((mtd2)->mn == (mtd)->mn) {
-				KNH_WARN(ctx, "redefined %s.%s", CLASS__((mtd)->cid), MN__((mtd)->mn));
-				return ;
+				LOGSFPDATA = {sDATA("msg", "redefined method"), MDATA("method", CLASS__((mtd)->cid), MN__((mtd)->mn)), __TRACE__};
+				NOTE_Failed("konoha");
 			}
 		}
 	}
 	if(FLAG_is(t->cflag, FLAG_Class_Singleton)) {
 		DP(mtd)->flag = DP(mtd)->flag | FLAG_Method_Static;
+	}
+	if(FLAG_is(t->cflag, FLAG_Class_Immutable)) {
+		DP(mtd)->flag = DP(mtd)->flag | FLAG_Method_Immutable;
 	}
 	knh_Array_add(ctx, a, mtd);
 	Cache_setMethod(ctx->mtdcache, mtd->cid, mtd->mn, mtd);
@@ -1179,15 +1227,17 @@ KNHAPI2(void) knh_addTypeMap(CTX ctx, knh_TypeMap_t *trl)
 	knh_Array_add(ctx, ClassTBL(cid)->typemaps, trl);
 }
 
-KNHAPI2(void) knh_TypeMap_exec(CTX ctx, knh_TypeMap_t *tmr, knh_sfp_t *sfp, long rix)
+KNHAPI2(void) knh_TypeMap_exec(CTX ctx, knh_TypeMap_t *tmr, knh_sfp_t *sfp _RIX)
 {
 	if(IS_NULL(sfp[0].o)) {
-		KNH_SETv(ctx, sfp[rix].o, KNH_NULVAL(tmr->tcid))
-		sfp[rix].ivalue = 0;
+		KNH_SETv(ctx, sfp[K_RIX].o, KNH_NULVAL(tmr->tcid))
+		sfp[K_RIX].ivalue = 0;
 	}
 	else {
-		sfp[K_TMRIDX].tmrNC = tmr;
-		tmr->ftypemap_1(ctx, sfp, rix);
+		if(!TypeMap_isFastCall(tmr)) {
+			sfp[K_TMRIDX].tmrNC = tmr;
+		}
+		tmr->ftypemap_1(ctx, sfp, K_RIX);
 	}
 }
 
@@ -1198,8 +1248,7 @@ void knh_addTypeMapFunc(CTX ctx, knh_flag_t flag, knh_type_t stype, knh_type_t t
 	knh_class_t cid = CLASS_t(stype);
 	DBG_ASSERT_cid(cid);
 	knh_readyTransMapList(ctx, cid);
-	knh_Array_add(ctx, ClassTBL(cid)->typemaps,
-		new_TypeMap(ctx, flag, CLASS_t(stype), CLASS_t(ttype), fTYPEMAP));
+	knh_Array_add(ctx, ClassTBL(cid)->typemaps, new_TypeMap(ctx, flag, CLASS_t(stype), CLASS_t(ttype), fTYPEMAP));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1225,6 +1274,7 @@ static TYPEMAP Ftypemap_null(CTX ctx, knh_sfp_t *sfp _RIX)
 KNHAPI2(knh_TypeMap_t*) new_TypeMap(CTX ctx, knh_flag_t flag, knh_class_t scid, knh_class_t tcid, knh_Ftypemap func)
 {
 	knh_TypeMap_t* tmr = new_(TypeMap);
+	tmr->h.magicflag |= (knh_uintptr_t)flag;
 	SP(tmr)->scid = scid;
 	SP(tmr)->tcid = tcid;
 	tmr->ftypemap_1 = (func == NULL) ? Ftypemap_null : func;
@@ -1323,7 +1373,7 @@ static knh_TypeMap_t *knh_findTypeMap1NULL(CTX ctx, const knh_ClassTBL_t *sct, k
 					return Cache_setTypeMap(ctx, scid, tcid, tmr);
 				}
 			}
-			if(sct->supcid == CLASS_Object) break;
+			if(sct->supTBL == sct) return NULL;
 			sct = sct->supTBL;
 		}
 		tmr = NULL;
@@ -1339,7 +1389,7 @@ static knh_TypeMap_t *new_TypeMapNested(CTX ctx, knh_TypeMap_t *tmr, knh_TypeMap
 
 static knh_TypeMap_t *knh_findParam1TypeMapNULL(CTX ctx, const knh_ClassTBL_t *sct, const knh_ClassTBL_t *tct, int isT)
 {
-	if(sct->p1 == tct->p1) { // Iterator<T> => Array<T>
+	if(sct->p1 == tct->p1) { // Iterator<T> => Array<T> //fixed by shinpei_NKT
 		return knh_findTypeMap1NULL(ctx, sct->baseTBL, tct->bcid, isT);
 	}
 	else if(sct->bcid == tct->bcid) { // Array<S> => Array<T>
@@ -1355,7 +1405,7 @@ static knh_TypeMap_t *knh_findParam1TypeMapNULL(CTX ctx, const knh_ClassTBL_t *s
 	else {  // Array<S> => Iterator<T>
 		knh_TypeMap_t *tmr = knh_findTypeMap1NULL(ctx, sct->baseTBL, tct->bcid, isT);
 		if(tmr != NULL) {
-			knh_TypeMap_t *tmr2 = knh_findTypeMapNULL(ctx, sct->p1, tct->p2, isT);
+			knh_TypeMap_t *tmr2 = knh_findTypeMapNULL(ctx, sct->p1, tct->p1, isT);
 			if(tmr2 != NULL) {
 				tmr = new_TypeMapNested(ctx, tmr, tmr2);
 				return tmr;
@@ -1369,7 +1419,7 @@ knh_TypeMap_t *knh_findTypeMapNULL(CTX ctx, knh_class_t scid0, knh_class_t tcid0
 {
 	knh_TypeMap_t *tmr = NULL;
 	DBG_P("finding.. %s ==> %s",CLASS__(scid0), CLASS__(tcid0));
-	if(scid0 == CLASS_Tvoid) return NULL;
+	//if(scid0 == CLASS_Tvoid) return NULL;
 	DBG_ASSERT(scid0 != CLASS_Tvar);
 	{
 		knh_hashcode_t h = hashcode_tmr(scid0, tcid0, K_TMAPCACHE_SIZE);
@@ -1387,7 +1437,7 @@ knh_TypeMap_t *knh_findTypeMapNULL(CTX ctx, knh_class_t scid0, knh_class_t tcid0
 		while(1) {
 			tmr = knh_findTypeMap1NULL(ctx, sct, tct->cid, isT);
 			if(tmr != NULL) goto L_SETCACHE;
-			if(tct->supcid == CLASS_Object) break;
+			if(tct == tct->supTBL) break;
 			tct = tct->supTBL;
 		}
 		tct = ClassTBL(tcid0);
@@ -1410,6 +1460,74 @@ knh_TypeMap_t *knh_findTypeMapNULL(CTX ctx, knh_class_t scid0, knh_class_t tcid0
 	return Cache_setTypeMap(ctx, scid0, tcid0, tmr);
 }
 
+/* ------------------------------------------------------------------------ */
+
+knh_bool_t knh_Link_hasType(CTX ctx, knh_Link_t *flnk, knh_class_t tcid)
+{
+	size_t i;
+	if(tcid == CLASS_Boolean || tcid == CLASS_String) return 1;
+	for(i = 0; i < knh_Array_size(flnk->list); i++) {
+		knh_Method_t *mtd = flnk->list->methods[i];
+		if(mtd->cid == tcid) return 1;
+	}
+	return flnk->dpi->hasType(ctx, tcid);
+}
+
+//link file:: {
+//	boolean : (String path) {
+//  }
+//}
+
+knh_bool_t knh_Link_exists(CTX ctx, knh_Link_t *flnk, knh_NameSpace_t *ns, knh_bytes_t fn)
+{
+	size_t i;
+	for(i = 0; i < knh_Array_size(flnk->list); i++) {
+		knh_Method_t *mtd = flnk->list->methods[i];
+		if(mtd->cid == CLASS_Boolean) {
+
+		}
+	}
+	return flnk->dpi->exists(ctx, ns, fn);
+}
+
+knh_Object_t *knh_Link_newObjectNULL(CTX ctx, knh_Link_t *flnk, knh_NameSpace_t *ns, knh_String_t *fi, knh_class_t tcid)
+{
+	size_t i;
+	if(tcid == CLASS_String) return UPCAST(fi);
+	for(i = 0; i < knh_Array_size(flnk->list); i++) {
+		knh_Method_t *mtd = flnk->list->methods[i];
+		if(mtd->cid == tcid) {
+
+		}
+	}
+	if(tcid == CLASS_Boolean) {
+		return flnk->dpi->exists(ctx, ns, S_tobytes(fi)) ? KNH_TRUE : KNH_FALSE;
+	}
+	return flnk->dpi->newObjectNULL(ctx, ns, tcid, fi);
+}
+
+knh_Link_t *knh_NameSpace_getLinkNULL(CTX ctx, knh_NameSpace_t *ns, knh_bytes_t fi)
+{
+	fi = knh_bytes_head(fi, ':');
+	while(ns != NULL) {
+		if(DP(ns)->linkDictMapNULL != NULL) {
+			knh_DictMap_t *dm = DP(ns)->linkDictMapNULL;
+			knh_Link_t *lnk = (knh_Link_t*)knh_DictMap_getNULL(ctx, dm, fi);
+			if(lnk != NULL) return lnk;
+		}
+		ns = ns->parentNULL;
+	}
+	return NULL;
+}
+
+void knh_NameSpace_setLink(CTX ctx, knh_NameSpace_t *ns, knh_Link_t *lnk)
+{
+	if(DP(ns)->linkDictMapNULL == NULL) {
+		KNH_INITv(DP(ns)->linkDictMapNULL, new_DictMap0(ctx, 4, 1/*isCaseMap*/, "linkDictMap"));
+	}
+	knh_DictMap_set(ctx, DP(ns)->linkDictMapNULL, lnk->scheme, lnk);
+}
+
 #else/*K_INCLUDE_BUILTINAPI*/
 
 /* ------------------------------------------------------------------------ */
@@ -1425,7 +1543,7 @@ static METHOD Object_getClass(CTX ctx, knh_sfp_t *sfp _RIX)
 
 static METHOD Object_hashCode(CTX ctx, knh_sfp_t *sfp _RIX)
 {
-	knh_hashcode_t h = ClassTBL(O_bcid(sfp[0].o))->ospi->hashCode(ctx, sfp);
+	knh_hashcode_t h = ClassTBL(O_bcid(sfp[0].o))->cdef->hashCode(ctx, sfp);
 	RETURNi_(h);
 }
 
@@ -1450,7 +1568,7 @@ static METHOD Object_isNotNull(CTX ctx, knh_sfp_t *sfp _RIX)
 
 static METHOD Object_getKey(CTX ctx, knh_sfp_t *sfp _RIX)
 {
-	knh_String_t *s = ClassTBL(O_bcid(sfp[0].o))->ospi->getkey(ctx, sfp);
+	knh_String_t *s = ClassTBL(O_bcid(sfp[0].o))->cdef->getkey(ctx, sfp);
 	KNH_ASSERT(IS_String(s));
 	RETURN_(s);
 }
@@ -1466,21 +1584,79 @@ static METHOD Object_copy(CTX ctx, knh_sfp_t *sfp _RIX)
 		const knh_ClassTBL_t *ct = O_cTBL(src);
 		knh_Object_t *o = new_hObject_(ctx, ct);
 		o->h.magicflag = src->h.magicflag;
-		ct->ospi->initcopy(ctx, o, src);
+		ct->cdef->initcopy(ctx, RAWPTR(o), RAWPTR(src));
 		src = o;
 	}
-	sfp[rix].ndata = sfp[0].ndata;
+	sfp[K_RIX].ndata = sfp[0].ndata;
 	RETURN_(src);
 }
 
+/* ------------------------------------------------------------------------ */
+//## @Const @Hidden @Private method dyn Object.cast(TypeMap tmr);
 
-///* ------------------------------------------------------------------------ */
-////## @Hidden method Array! Class.domain();
-//
-//static METHOD Class_domain(CTX ctx, knh_sfp_t *sfp _RIX)
-//{
-//	RETURN_(knh_getClassDomain(ctx, (sfp[0].c)->cid));
-//}
+static METHOD Object_cast(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+	sfp[0].ndata = O_ndata(sfp[0].o); // UNBOX
+	knh_TypeMap_exec(ctx, sfp[1].tmr, sfp, K_RIX);
+}
+
+/* ------------------------------------------------------------------------ */
+//## @Const @Hidden @Private method dynamic Object.to(Class auto);
+
+static METHOD Object_to(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+	knh_class_t scid = O_cid(sfp[0].o), tcid = (sfp[1].c)->cid;
+	if(scid != tcid) {
+		knh_TypeMap_t *tmr = knh_findTypeMapNULL(ctx, scid, tcid, 1);
+		if(tmr != NULL) {
+			sfp[0].ndata = O_ndata(sfp[0].i); // UNBOX
+			knh_TypeMap_exec(ctx, tmr, sfp, K_RIX);
+		}
+		else {
+			sfp[K_RIX].ivalue = 0;
+			RETURN_(KNH_NULVAL(tcid));
+		}
+	}
+	else {
+		RETURN_(sfp[0].o);
+	}
+}
+
+/* ------------------------------------------------------------------------ */
+//## @Const @Hidden @Private method dynamic Object.typeCheck(Class auto);
+
+static METHOD Object_typeCheck(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+	knh_class_t scid = O_cid(sfp[0].o), tcid = (sfp[1].c)->cid;
+	if(scid != tcid && !class_isa(scid, tcid)) {
+		knh_TypeMap_t *tmr = knh_findTypeMapNULL(ctx, scid, tcid, 1);
+		if(tmr != NULL && TypeMap_isSemantic(tmr)) {
+			sfp[0].ndata = O_ndata(sfp[0].i); // UNBOX
+			knh_TypeMap_exec(ctx, tmr, sfp, K_RIX);
+		}
+		else {
+			DBG_P("reqt=%s", TYPE__(tcid));
+			THROW_TypeError(ctx, sfp, tcid, scid);
+		}
+	}
+	else {
+		sfp[K_RIX].ndata = O_ndata(sfp[0].o);
+		RETURN_(sfp[0].o);
+	}
+}
+
+/* ------------------------------------------------------------------------ */
+//## @Const @DownCast mapper Object Boolean;
+//## @Const @DownCast mapper Object Int;
+//## @Const @DownCast mapper Object Float;
+//## @Const @DownCast mapper Number Int;
+//## @Const @DownCast mapper Number Float;
+
+static TYPEMAP Object_num(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+	knh_ndata_t ndata = (sfp[0].i)->n.data;
+	RETURNd_(ndata);
+}
 
 /* ------------------------------------------------------------------------ */
 /* [Method] */
@@ -1504,7 +1680,6 @@ static METHOD Method_getName(CTX ctx, knh_sfp_t *sfp _RIX)
 	RETURN_(knh_cwb_newString(ctx, cwb));
 }
 
-
 ///* ------------------------------------------------------------------------ */
 ////## @Const method void Method.setTrace(Int trace);
 //
@@ -1516,7 +1691,7 @@ static METHOD Method_getName(CTX ctx, knh_sfp_t *sfp _RIX)
 //}
 
 /* ------------------------------------------------------------------------ */
-//## @Hidden @Private method dynamic Func.invoke(dynamic x);
+//## @Hidden method void Func.();
 
 static METHOD Func_invoke(CTX ctx, knh_sfp_t *sfp _RIX)
 {
@@ -1525,45 +1700,57 @@ static METHOD Func_invoke(CTX ctx, knh_sfp_t *sfp _RIX)
 		KNH_SETv(ctx, sfp[0].o, fo->baseNULL);
 	}
 	klr_setmtdNC(ctx, sfp[K_MTDIDX], fo->mtd);
-	KNH_SELFCALL(ctx, sfp, fo->mtd, rix);
+	KNH_SELFCALL(ctx, sfp, fo->mtd, K_RIX);
 }
 
-///* ------------------------------------------------------------------------ */
-////## method T1 Thunk.eval();
-//
-//static METHOD Thunk_eval(CTX ctx, knh_sfp_t *sfp _RIX)
-//{
-//
-//	knh_Thunk_t *thk = (knh_Thunk_t*)sfp[0].o;
-//	size_t i;
-//	if((thk)->envsize > 0) {
-//		for(i = 2; i < (thk)->envsize; i++) {
-//			KNH_SETv(ctx, sfp[i].o, (thk)->envsfp[i].o);
-//			sfp[i].ndata = (thk)->envsfp[i].ndata;
-//		}
-//		KNH_SCALL(ctx, sfp, 1, (thk)->envsfp[1].mtd, ((thk)->envsize-3));
-//		KNH_SETv(ctx, (thk)->envsfp[0].o, sfp[1].o);
-//		(thk)->envsfp[0].ndata = sfp[1].ndata;
-//		Thunk_setEvaluated(thk, 1);
-//	}
-//	KNH_SETv(ctx, sfp[-1].o, (thk)->envsfp[0].o);
-//	sfp[-1].ndata = (thk)->envsfp[0].ndata;
-//}
+/* ------------------------------------------------------------------------ */
+//## @Hidden method T1 Thunk.();
 
-///* ------------------------------------------------------------------------ */
-////## method T1 Thunk.value();
-//
-//static METHOD Thunk_value(CTX ctx, knh_sfp_t *sfp _RIX)
-//{
-//	knh_Thunk_t *thk = (knh_Thunk_t*)sfp[0].o;
-//	if(Thunk_isEvaluated(thk)) {
-//		KNH_SETv(ctx, sfp[-1].o, (thk)->envsfp[0].o);
-//		sfp[-1].ndata = (thk)->envsfp[0].ndata;
-//	}
-//	else {
-//		Thunk_eval(ctx, sfp);
-//	}
-//}
+static METHOD Fmethod_returnConst(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+	// return values are always set at sfp[_rix] correctly
+}
+
+/* ------------------------------------------------------------------------ */
+//## method T1 Thunk.eval();
+
+static METHOD Thunk_eval(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+
+	knh_Thunk_t *thk = (knh_Thunk_t*)sfp[0].o;
+	knh_sfp_t *lsfp = ctx->esp;
+	//DBG_P("rix=%d, sfpidx=%d, espidx=%d", rix, sfp-ctx->stack, ctx->esp - ctx->stack);
+	knh_Method_t *mtd = (thk)->envsfp[K_CALLDELTA+K_MTDIDX].mtdNC;
+	size_t i;
+	for(i = 0; i < (thk)->envsize; i++) {
+		KNH_SETv(ctx, lsfp[i].o, (thk)->envsfp[i].o);
+		lsfp[i].ndata = (thk)->envsfp[i].ndata;
+	}
+	KNH_SCALL(ctx, lsfp, 0, mtd, ((thk)->envsize-K_CALLDELTA));
+	KNH_SETv(ctx, (thk)->envsfp[0].o, lsfp[0].o);
+	(thk)->envsfp[0].ndata = lsfp[0].ndata;
+	Thunk_setEvaluated(thk, 1);
+	KNH_SETv(ctx, sfp[K_RIX].o, (thk)->envsfp[0].o);
+	sfp[K_RIX].ndata = (thk)->envsfp[0].ndata;
+}
+
+/* ------------------------------------------------------------------------ */
+//## method T1 Thunk.getValue();
+//## mapper Thunk Tvoid;
+
+static METHOD Thunk_value(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+	knh_Thunk_t *thk = (knh_Thunk_t*)sfp[0].o;
+	if(Thunk_isEvaluated(thk)) {
+		KNH_SETv(ctx, sfp[K_RIX].o, (thk)->envsfp[0].o);
+		sfp[K_RIX].ndata = (thk)->envsfp[0].ndata;
+	}
+	else {
+		Thunk_eval(ctx, sfp, K_RIX);
+	}
+}
+
+/* ------------------------------------------------------------------------ */
 
 #endif/* K_INCLUDE_BUILTINAPI*/
 

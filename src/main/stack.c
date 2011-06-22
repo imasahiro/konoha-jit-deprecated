@@ -27,15 +27,6 @@
 
 /* ************************************************************************ */
 
-//#define USE_STEXT 1
-#define USE_bytes_first       1
-#define USE_bytes_index       1
-//#define USE_bytes_last        1
-//#define USE_bytes_indexOf     1
-//#define USE_bytes_startsWith  1
-//#define USE_cwb_open      1
-//#define USE_cwb_tobytes   1
-
 #include"commons.h"
 
 /* ************************************************************************ */
@@ -49,7 +40,7 @@ extern "C" {
 knh_sfp_t* knh_stack_initexpand(CTX ctx, knh_sfp_t *sfp, size_t n)
 {
 	knh_context_t *ctxo = (knh_context_t*)ctx;
-	size_t i, s;
+	size_t i, s = 0;
 	if(sfp == NULL) {
 		DBG_ASSERT(ctxo->stacksize == 0);
 		s = 0;
@@ -63,7 +54,8 @@ knh_sfp_t* knh_stack_initexpand(CTX ctx, knh_sfp_t *sfp, size_t n)
 		KNH_INITv(ctxo->bufa, new_Bytes(ctx, "cwbbuf", K_PAGESIZE * 4));
 		KNH_INITv(ctxo->bufw, new_BytesOutputStream(ctx, ctxo->bufa));
 	}
-	else {
+#ifdef K_USING_STACKEXPANSION
+	else if(ctxo->stacksize < K_STACK_MAXSIZ) {
 		knh_sfp_t **cstack_top = &sfp;
 		knh_sfp_t *oldstack = ctxo->stack;
 		size_t espidx = (ctxo->esp - ctxo->stack);
@@ -100,6 +92,10 @@ knh_sfp_t* knh_stack_initexpand(CTX ctx, knh_sfp_t *sfp, size_t n)
 		ctxo->esp = ctxo->stack + espidx;
 		KNH_FREE(ctx, oldstack, size*sizeof(knh_sfp_t));
 		s = size;
+	}
+#endif
+	else {
+		THROW_StackOverflow(ctx, sfp);
 	}
 	for(i = s; i < ctxo->stacksize; i++) {
 		KNH_INITv(ctxo->stack[i].o, KNH_NULL);
@@ -162,25 +158,25 @@ void knh_stack_gc(CTX ctx, int isALL)
 }
 
 
-/* ------------------------------------------------------------------------ */
-/* [call] */
-
-void knh_stack_typecheck(CTX ctx, knh_sfp_t *sfp, knh_Method_t *mtd, knh_opline_t *pc)
-{
-	knh_class_t this_cid = O_cid(sfp[0].o);
-	int i, argc;
-	DBG_ASSERT(IS_Method(sfp[K_MTDIDX].mtdNC));
-	argc = ParamArray_isVARGs(DP(mtd)->mp) ? (ctx->esp - sfp) : knh_Method_psize(mtd);
-	for(i = 1; i < argc; i++) {
-		knh_type_t reqt = knh_Method_ptype(ctx, mtd, this_cid, i - 1);
-		const knh_ClassTBL_t *t = O_cTBL(sfp[i].o);
-		if(!ClassTBL_isa(t, reqt)) {
-			THROW_ParamTypeError(ctx, sfp, (mtd)->mn, i, reqt, O_cid(sfp[i].o));
-			break;
-		}
-	}
-	return;
-}
+///* ------------------------------------------------------------------------ */
+///* [call] */
+//
+//void knh_stack_typecheck(CTX ctx, knh_sfp_t *sfp, knh_Method_t *mtd, knh_opline_t *pc)
+//{
+//	knh_class_t this_cid = O_cid(sfp[0].o);
+//	int i, argc;
+//	DBG_ASSERT(IS_Method(sfp[K_MTDIDX].mtdNC));
+//	argc = ParamArray_isVARGs(DP(mtd)->mp) ? (ctx->esp - sfp) : knh_Method_psize(mtd);
+//	for(i = 1; i < argc; i++) {
+//		knh_type_t reqt = knh_Method_ptype(ctx, mtd, this_cid, i - 1);
+//		const knh_ClassTBL_t *t = O_cTBL(sfp[i].o);
+//		if(!ClassTBL_isa(t, reqt)) {
+//			THROW_ParamTypeError(ctx, sfp, (mtd)->mn, i, reqt, O_cid(sfp[i].o));
+//			break;
+//		}
+//	}
+//	return;
+//}
 
 
 ///* ------------------------------------------------------------------------ */
@@ -188,20 +184,19 @@ void knh_stack_typecheck(CTX ctx, knh_sfp_t *sfp, knh_Method_t *mtd, knh_opline_
 //KNHAPI2(void) konoha_throwSecurityException(void)
 //{
 //	CTX ctx = knh_getCurrentContext();
-//	knh_stack_throw(ctx, new_Exception(ctx, knh_getEventName(ctx, EBI_Security)), NULL, 0);
+//	knh_stack_throw(ctx, new_Exception(ctx, knh_getEventName(ctx, EVENT_Security)), NULL, 0);
 //}
 
 
 /* ------------------------------------------------------------------------ */
 /* [Event] */
 
-int expt_isa(CTX ctx, knh_ebi_t eid, knh_ebi_t parent)
+int event_isa(CTX ctx, knh_event_t eid, knh_event_t parent)
 {
 	ASSERT_ebi(eid);
 	DBG_ASSERT(parent <= ctx->share->sizeEventTBL);
-	if(eid == parent || parent == 1) return 1;
-	if(eid == 1) return 0;
-	while((eid = ctx->share->EventTBL[eid-1].parent) != 1) {
+	if(eid == parent || parent == EVENT_Exception) return 1;
+	while((eid = ctx->share->EventTBL[eid].parent) != EVENT_Exception) {
 		if(eid == parent) return 1;
 	}
 	return 0;
@@ -209,7 +204,7 @@ int expt_isa(CTX ctx, knh_ebi_t eid, knh_ebi_t parent)
 
 /* ------------------------------------------------------------------------ */
 
-knh_String_t *knh_getEventName(CTX ctx, knh_ebi_t eid)
+knh_String_t *knh_getEventName(CTX ctx, knh_event_t eid)
 {
 	ASSERT_ebi(eid);
 	return ctx->share->EventTBL[eid-1].name;
@@ -218,103 +213,108 @@ knh_String_t *knh_getEventName(CTX ctx, knh_ebi_t eid)
 /* ------------------------------------------------------------------------ */
 /* [TABLE] */
 
-static knh_ebi_t new_EventId(CTX ctx)
+knh_event_t knh_addEvent(CTX ctx, knh_flag_t flag, knh_String_t *name, knh_class_t peid)
 {
-	knh_class_t newid = 0;
+	knh_event_t eid = 0;
 	OLD_LOCK(ctx, LOCK_SYSTBL, NULL);
 	if(ctx->share->sizeEventTBL == ctx->share->capacityEventTBL) {
 		knh_expandEventTBL(ctx);
 	}
+	eid = ctx->share->sizeEventTBL;
 	((knh_share_t*)ctx->share)->sizeEventTBL += 1;
-	newid = ctx->share->sizeEventTBL;
 	OLD_UNLOCK(ctx, LOCK_SYSTBL, NULL);
-	return newid;
-}
 
-knh_ebi_t knh_addEvent(CTX ctx, knh_flag_t flag, knh_class_t eid, knh_String_t *name, knh_class_t peid)
-{
-	if(eid == EBI_newid) {
-		eid = new_EventId(ctx);
-	}else {
-		((knh_share_t*)ctx->share)->sizeEventTBL += 1;
-		DBG_ASSERT(eid == ctx->share->sizeEventTBL);
-	}
-	ASSERT_ebi(eid);
 	{
-		knh_EventTBL_t *t = pEventTBL(eid-1);
-		DBG_ASSERT(t->name == NULL);
-		t->flag = flag;
-		t->parent = peid;
-		KNH_INITv(t->name, name);
+		knh_EventTBL_t *et = pEventTBL(eid);
+		DBG_ASSERT(et->name == NULL);
+		et->flag = flag;
+		et->parent = peid;
+		KNH_INITv(et->name, name);
+		DBG_P("eid=%d, name='%s'", eid, S_tochar(name));
 		OLD_LOCK(ctx, LOCK_SYSTBL, NULL);
-		knh_DictSet_set(ctx, DP(ctx->sys)->EventDictCaseSet, name, eid);
+		knh_DictSet_set(ctx, DP(ctx->sys)->EventDictCaseSet, name, eid+1);
 		OLD_UNLOCK(ctx, LOCK_SYSTBL, NULL);
 	}
 	return eid;
 }
 
-/* ------------------------------------------------------------------------ */
-
-knh_ebi_t knh_geteid(CTX ctx, knh_bytes_t msg, knh_ebi_t def)
+knh_bool_t knh_isDefinedEvent(CTX ctx, knh_bytes_t t)
 {
-	knh_ebi_t eid = EBI_Exception;
-	knh_intptr_t loc = knh_bytes_index(msg, '!');
+	int eid;
+	knh_intptr_t loc = knh_bytes_index(t, '!');
 	if(loc != -1) {
-		if(msg.utext[loc+1] != '!') return eid;
-		msg = knh_bytes_first(msg, loc);
+		t = knh_bytes_first(t, loc);
 	}
-	if(msg.len == 0) return EBI_Exception; /* '!!' */
-	{
-		OLD_LOCK(ctx, LOCK_SYSTBL, NULL);
-		eid = (knh_ebi_t)knh_DictSet_get(ctx, DP(ctx->sys)->EventDictCaseSet, msg);
-		OLD_UNLOCK(ctx, LOCK_SYSTBL, NULL);
-		if(eid == 0 && def == EBI_newid) {
-			eid = knh_addEvent(ctx, 0, EBI_newid, new_S(ctx, msg), EBI_Exception);
-			DBG_P("NEW '%s', eid=%d", msg.text, eid);
-		}
-		return eid;
+	OLD_LOCK(ctx, LOCK_SYSTBL, NULL);
+	eid = (knh_event_t)knh_DictSet_get(ctx, DP(ctx->sys)->EventDictCaseSet, t);
+	OLD_UNLOCK(ctx, LOCK_SYSTBL, NULL);
+	return (eid > 0) ;
+}
+
+knh_event_t knh_geteid(CTX ctx, knh_bytes_t t)
+{
+	knh_event_t eid = EVENT_Exception;
+	knh_intptr_t loc = knh_bytes_index(t, '!');
+	if(loc != -1) {
+		t = knh_bytes_first(t, loc);
 	}
-	return def;
+	OLD_LOCK(ctx, LOCK_SYSTBL, NULL);
+	eid = (knh_event_t)knh_DictSet_get(ctx, DP(ctx->sys)->EventDictCaseSet, t);
+	//DBG_P("@@@@ '%s' is %d", t.text, eid);
+	OLD_UNLOCK(ctx, LOCK_SYSTBL, NULL);
+	if(eid == 0) {
+		return knh_addEvent(ctx, 0, new_S(ctx, t), EVENT_Exception);
+	}
+	else {
+		return eid - 1;
+	}
 }
 
 /* ------------------------------------------------------------------------ */
 /* [Exception.new] */
 
-knh_Exception_t* Exception_setup(CTX ctx, knh_Exception_t *e, knh_String_t *event, knh_String_t *msg, Object *bag)
-{
-	DBG_ASSERT(IS_Exception(e));
-	knh_ebi_t eid = knh_geteid(ctx, S_tobytes(event), EBI_unknown/*newid*/);
-	if(eid == EBI_unknown) {
-		KNH_WARN(ctx, "unknown exception: %s", S_tochar(event));
-		DP(e)->eid = EBI_Exception;
-	}
-	else {
-		DP(e)->eid = eid;
-	}
-	ASSERT_ebi(DP(e)->eid);
-	DP(e)->flag = ctx->share->EventTBL[DP(e)->eid - 1].flag;
-	KNH_SETv(ctx, DP(e)->event, event);
-	KNH_SETv(ctx, DP(e)->msg, msg);
-	KNH_SETv(ctx, DP(e)->bag, bag);
-	return e;
-}
-
-knh_Exception_t* new_Error(CTX ctx, knh_ebi_t eid, knh_String_t *msg)
+knh_Exception_t* new_Error(CTX ctx, knh_uline_t uline, knh_String_t *emsg)
 {
 	knh_Exception_t* e = new_(Exception);
-	if(eid == EBI_newid) {
-		eid = knh_geteid(ctx, S_tobytes(msg), EBI_newid);
-	}
-	DP(e)->eid = eid;
-	DP(e)->flag = ctx->share->EventTBL[eid - 1].flag;
-	KNH_SETv(ctx, DP(e)->event, ctx->share->EventTBL[eid - 1].name);
-	KNH_SETv(ctx, DP(e)->msg, msg);
+	KNH_SETv(ctx, e->emsg, emsg);
+	e->uline = uline;
 	return e;
 }
 
 void CTX_setThrowingException(CTX ctx, knh_Exception_t *e)
 {
 	KNH_SETv(ctx, ((knh_context_t*)ctx)->e, e);
+}
+
+/* rbp is ok, because isCATCH is called from only vm */
+knh_bool_t isCATCH(CTX ctx, knh_rbp_t *rbp, int en, knh_event_t peid)
+{
+	knh_Exception_t *e = ctx->e;
+	knh_event_t eid = knh_geteid(ctx, S_tobytes(e->emsg));
+	int res = event_isa(ctx, eid, peid);
+	if(res == 1) {
+		KNH_SETv(ctx, rbp[en].o, e);
+		KNH_SETv(ctx, ((knh_context_t*)ctx)->e, KNH_NULL);
+	}
+	return res;
+}
+
+void Context_push(CTX ctx, knh_Object_t *o)
+{
+	knh_Array_t *a = ctx->ehdrNC->stacklist;
+	knh_Array_add(ctx, a, o);
+}
+
+knh_Object_t *Context_pop(CTX ctx)
+{
+	knh_Array_t *a = ctx->ehdrNC->stacklist;
+	DBG_ASSERT(a->size > 0);
+	a->size -= 1;
+	{
+		knh_Object_t *o = a->list[a->size];
+		KNH_FINALv(ctx, a->list[a->size]);
+		return o;
+	}
 }
 
 /* ------------------------------------------------------------------------ */
@@ -353,12 +353,13 @@ knh_ExceptionHandler_t *knh_ExceptionHandler_longjmp(CTX ctx, knh_ExceptionHandl
 {
 #if defined(__GNUC__)
 #if defined(__i386__)
+	//@shinpei_NKT : fixed offset of knh_ExceptionHandler_t, i386 code
 	asm volatile(
 			"pop %%ebp;"
 			"mov 0x10(%%eax),%%esi;" /* esi = DP(hdr) */
-			"mov 0x08(%%esi),%%edx;" /* edx = DP(hdr)->return_address */
-			"mov 0x0c(%%esi),%%ebp;" /* ebp = DP(hdr)->frame_address */
-			"mov 0x10(%%esi),%%esp;" /* esp = DP(hdr)->stack_pointer */
+			"mov 0x0c(%%esi),%%edx;" /* edx = DP(hdr)->return_address */
+			"mov 0x10(%%esi),%%ebp;" /* ebp = DP(hdr)->frame_address */
+			"mov 0x14(%%esi),%%esp;" /* esp = DP(hdr)->stack_pointer */
 			"pop %%esi;"
 			"jmp *%%edx;"
 			::

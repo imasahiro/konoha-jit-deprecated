@@ -29,8 +29,6 @@
 
 #ifndef K_INCLUDE_BUILTINAPI
 
-#define USE_STEXT
-
 #include"commons.h"
 #include <errno.h>
 
@@ -154,11 +152,6 @@ int knh_bytes_strcmp(knh_bytes_t v1, knh_bytes_t v2)
 #define utf8_isTrail(c)     ((0x80 <= c) && (c <= 0xBF))
 #define utf8_isSingleton(c) (c <= 0x7f)
 
-//static knh_ushort_t utf8_getBytes0(knh_uchar_t c)
-//{
-//	return (utf8_isSingleton(c))?1:(c<=0x7f)?2:(c<=0xef)?3:(c<=0xf7)?4:(c<=0xfb)?5:6;
-//}
-
 static const knh_uchar_t _utf8len[] = {
 		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -180,43 +173,12 @@ static const knh_uchar_t _utf8len[] = {
 
 #define utf8len(c)    _utf8len[(knh_uchar_t)c]
 
+int knh_utf8len(int c)
+{
+	return _utf8len[c];
+}
 
 /* ------------------------------------------------------------------------ */
-
-//knh_bool_t knh_bytes_checkENCODING0(knh_bytes_t s)
-//{
-//#ifdef K_USING_UTF8
-//	size_t i, j;
-//	knh_uchar_t ch;
-//	size_t bytes = 0;
-//	for (i=0; i < s.len; i++) {
-//		ch = s.utext[i];
-//		/* UTF8 must be in
-//		 * single: 0x00 - 0x7f
-//		 * lead: 0xC0 - 0xFD (actually, 0xC2-0xF4)
-//		 * trail: 0x80 - 0xBF
-//		 * consequently, invalid utf8 is ranged
-//		 * 0xC0 - 0xC1, 0xF5 - 0xFF
-//		 *  */
-//		if (utf8_isSingleton(ch)) {
-//		} else if (utf8_isLead(ch)) {
-//			bytes = utf8_getBytes(ch);
-//			for (j=1;j<bytes;j++)
-//			{
-//				ch = s.utext[i+j];
-//				if (!utf8_isTrail(ch)) {
-//					DBG_P("invalid UTF!");
-//					return 0;
-//				}
-//			}
-//			i += bytes;
-//		}
-//	}
-//	return 1;
-//#else
-//	return 1;
-//#endif
-//}
 
 knh_bool_t knh_bytes_checkENCODING(knh_bytes_t v)
 {
@@ -444,7 +406,10 @@ KNHAPI2(knh_String_t*) new_String_(CTX ctx, knh_class_t cid, knh_bytes_t t, knh_
 
 KNHAPI2(knh_String_t*) new_String(CTX ctx, const char *str)
 {
-	if(str == NULL || str[0] == 0) {
+	if(str == NULL) {
+		return KNH_TNULL(String);
+	}
+	else if(str[0] == 0) {
 		return TS_EMPTY;
 	}
 	else {
@@ -566,9 +531,11 @@ static knh_regex_t* pcre_regex_malloc(CTX ctx, knh_String_t* s)
 size_t pcre_regex_nmatchsize(knh_regex_t *reg)
 {
 	PCRE_regex_t *preg = (PCRE_regex_t*)reg;
-	size_t capsize;
-	pcre_fullinfo(preg->re, NULL, PCRE_INFO_CAPTURECOUNT, &capsize);
-	return (capsize > 0) ? capsize+1 : K_REGEX_MATCHSIZE;
+	size_t capsize = 0;
+	if (pcre_fullinfo(preg->re, NULL, PCRE_INFO_CAPTURECOUNT, &capsize) != 0) {
+		return K_REGEX_MATCHSIZE;
+	}
+	return capsize + 1;
 }
 
 static int pcre_regex_parsecflags(CTX ctx, const char *option)
@@ -626,17 +593,18 @@ static int pcre_regex_regexec(CTX ctx, knh_regex_t *reg, const char *str, size_t
 	PCRE_regex_t *preg = (PCRE_regex_t*)reg;
 	int res, nm_count, nvector[nmatch*3];
 	nvector[0] = 0;
-	size_t idx, matched;
+	size_t idx, matched = nmatch;
 	if (strlen(str) == 0) return -1;
 	if ((res = pcre_exec(preg->re, NULL, str, strlen(str), 0, eflags, nvector, nmatch*3)) >= 0) {
-		matched = (res > 0) ? res : nmatch;
+		if (res > 0 && res < nmatch) {
+			matched = res;
+		}
 		res = 0;
 		for (idx = 0; idx < matched; idx++) {
 			p[idx].rm_so = nvector[2*idx];
 			p[idx].rm_eo = nvector[2*idx+1];
 		}
 		p[idx].rm_so = -1;
-		
 		pcre_fullinfo(preg->re, NULL, PCRE_INFO_NAMECOUNT, &nm_count);
 		if (nm_count > 0) {
 			unsigned char *nm_table;
@@ -691,7 +659,9 @@ static knh_conv_t* strconv_open(CTX ctx, const char* to, const char *from)
 {
 	iconv_t rc = ctx->spi->iconv_open(to, from);
 	if(rc == (iconv_t)-1){
-		KNH_WARN(ctx, "%s: unknown codec from=%s to=%s", ctx->spi->iconvspi, from, to);
+		LOGSFPDATA = {LOGMSG("unknown codec"), sDATA("spi", ctx->spi->iconvspi),
+			sDATA("from", from), sDATA("to", to)};
+		LIB_Failed("iconv", "IO!!");
 		return NULL;
 	}
 	return (knh_conv_t*)rc;
@@ -709,7 +679,8 @@ static knh_bool_t strconv(Ctx *ctx, knh_conv_t *iconvp, knh_bytes_t from, knh_By
 		size_t rc = ctx->spi->iconv(cd, &ibuf, &ilen, &obuf, &olen);
 		olen = sizeof(buffer) - olen; rsize += olen;
 		if(rc == (size_t)-1 && errno == EILSEQ) {
-			KNH_WARN(ctx, "%s: invalid sequence", ctx->spi->iconvspi);
+			LOGSFPDATA = {LOGMSG("invalid sequence"), sDATA("spi", ctx->spi->iconvspi)};
+			NOTE_Failed("iconv");
 			return 0;
 		}
 		bbuf.len = olen;
@@ -790,57 +761,58 @@ knh_String_t *knh_cwb_newStringDECODE(CTX ctx, knh_cwb_t *cwb, knh_StringDecoder
 
 #else /*K_INCLUDE_BUILTINAPI*/
 
-/* ------------------------------------------------------------------------ */
-//## @Const method Boolean String.opEXISTS(NameSpace ns);
-
-static METHOD String_opEXISTS(CTX ctx, knh_sfp_t *sfp _RIX)
+static knh_bool_t bytes_startsWithLink(knh_bytes_t t, knh_bytes_t scheme)
 {
-	knh_bytes_t path = S_tobytes(sfp[0].s);
-	DBG_ASSERT(IS_NameSpace(sfp[1].ns));
-	const knh_PathDSPI_t *dspi = knh_NameSpace_getPathDSPINULL(ctx, sfp[1].ns, path);
-	knh_bool_t tf = 0;
-	if(dspi != NULL) tf = dspi->exists(ctx, sfp[1].ns, path, dspi->thunk);
-	RETURNb_(tf);
+	if(knh_bytes_startsWith(t, scheme)) {
+		if(t.text[scheme.len] == ':') return 1;
+	}
+	return 0;
 }
 
 /* ------------------------------------------------------------------------ */
-//## @Hidden @Private method dynamic String.path(String scheme, NameSpace ns, Class c);
+//## @Hidden @Private method dynamic Link.newObject(String fi, NameSpace ns, Class c);
 
-static METHOD String_path(CTX ctx, knh_sfp_t *sfp _RIX)
+static METHOD Link_newObject(CTX ctx, knh_sfp_t *sfp _RIX)
 {
+	knh_Link_t *lnk = (knh_Link_t*)sfp[0].o;
 	knh_class_t cid = (sfp[3].c)->cid;
-	knh_bytes_t path = S_tobytes(sfp[0].s);
-	knh_bytes_t qpath = S_tobytes(sfp[1].s);
-	const knh_PathDSPI_t *dspi = knh_NameSpace_getPathDSPINULL(ctx, sfp[2].ns, qpath);
-	knh_String_t* spath = sfp[0].s;
-	Object *v = NULL;
-	int isTRIM = 0;
-	if(!knh_bytes_startsWith(path, qpath)) {
+	knh_String_t* fi = sfp[1].s;
+	DBG_ASSERT(IS_String(fi));
+	knh_Object_t *v = NULL;
+	if(!bytes_startsWithLink(S_tobytes(fi), S_tobytes(lnk->scheme))) {
 		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-		knh_Bytes_write(ctx, cwb->ba, qpath);
-		knh_Bytes_write(ctx, cwb->ba, path);
-		spath = knh_cwb_newString(ctx, cwb);
-		KNH_SETv(ctx, sfp[rix].s, spath);
-		path = S_tobytes(spath);
-		isTRIM = 1;
+		knh_Bytes_write(ctx, cwb->ba, S_tobytes(lnk->scheme));
+		knh_Bytes_putc(ctx, cwb->ba, ':');
+		knh_Bytes_write(ctx, cwb->ba, S_tobytes(fi));
+		fi = knh_cwb_newString(ctx, cwb);
+		KNH_SETv(ctx, sfp[K_RIX].s, fi);
 	}
-	KNH_ASSERT(dspi != NULL);
-	KNH_ASSERT(dspi->hasType(ctx, cid, dspi->thunk));
 	if(cid == CLASS_Boolean) {
-		sfp[rix].bvalue = dspi->exists(ctx, sfp[2].ns, path, dspi->thunk);
-		v = sfp[rix].bvalue ? KNH_TRUE : KNH_FALSE;
-	}
-	else if(cid == CLASS_String) {
-		v = UPCAST(spath);
+		sfp[K_RIX].bvalue = knh_Link_exists(ctx, lnk, sfp[2].ns, S_tobytes(fi));
+		v = sfp[K_RIX].bvalue ? KNH_TRUE : KNH_FALSE;
 	}
 	else {
-		v = dspi->newObjectNULL(ctx, sfp[2].ns, cid, spath, dspi->thunk);
+		v = knh_Link_newObjectNULL(ctx, lnk, sfp[2].ns, fi, cid);
 		if(v == NULL) {
-			KNH_SYSLOG(ctx, sfp, LOG_WARNING, "MissingPath", "qpath='%B', path='%B' for %C", qpath, path, cid);
+			LOGDATA = {sDATA("fid", S_tochar(fi)), tDATA("requested_type", cid)};
+			LIB_Failed("link", "Link!!");
 			v = KNH_NULVAL(cid);
 		}
 	}
 	RETURN_(v);
+}
+
+/* ------------------------------------------------------------------------ */
+//## @Hidden method Boolean String.opEXISTS(NameSpace ns);
+
+static METHOD String_opEXISTS(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+	knh_bool_t tf = 0;
+	knh_bytes_t path = S_tobytes(sfp[0].s);
+	DBG_ASSERT(IS_NameSpace(sfp[1].ns));
+	knh_Link_t *lnk = knh_NameSpace_getLinkNULL(ctx, sfp[1].ns, path);
+	if(lnk != NULL) tf = knh_Link_exists(ctx, lnk, sfp[1].ns, path);
+	RETURNb_(tf);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -936,7 +908,7 @@ static METHOD String_search(CTX ctx, knh_sfp_t *sfp _RIX)
 	if(IS_NULL(re) || S_size(re->pattern) == 0) RETURNi_(-1);
 	knh_index_t loc = -1;
 	const char *str = S_tochar(sfp[0].s);  // necessary
-	knh_regmatch_t pmatch[1];
+	knh_regmatch_t pmatch[2]; // modified by @utrhira
 	int res = re->spi->regexec(ctx, re->reg, str, 1, pmatch, re->eflags);
 	if(res == 0) {
 		loc = pmatch[0].rm_so;
@@ -967,20 +939,42 @@ static METHOD String_match(CTX ctx, knh_sfp_t *sfp _RIX)
 		a = new_Array(ctx, CLASS_String, 0);
 	}
 	else {
-		const char *str = S_tochar(sfp[0].s);  // necessary
+		const char *str = S_tochar(s0);  // necessary
+		const char *base = str;
+		const char *eos = base + S_size(s0);
 		size_t nmatch = pcre_regex_nmatchsize(re->reg);
-		knh_regmatch_t pmatch[nmatch];
-		int res = re->spi->regexec(ctx, re->reg, str, nmatch, pmatch, re->eflags);
+		knh_regmatch_t pmatch[nmatch+1];
 		a = new_Array(ctx, CLASS_String, nmatch);
-		if(res == 0) {
-			knh_bytes_t sub = S_tobytes(s0);
-			int i;
-			for(i = 0; i < nmatch; i++) {
-				if(pmatch[i].rm_so == -1) break;
-				//DBG_P("[%d], rm_so=%d, rm_eo=%d", i, pmatch[i].rm_so, pmatch[i].rm_eo);
-				sub.text = str + pmatch[i].rm_so;
-				sub.len = pmatch[i].rm_eo - pmatch[i].rm_so;
-				knh_Array_add(ctx, a, new_String_(ctx, CLASS_String, sub, s0));
+		if (!Regex_isGlobalOption(re)) {
+			int res = re->spi->regexec(ctx, re->reg, str, nmatch, pmatch, re->eflags);
+			if(res == 0) {
+				knh_regmatch_t *p;
+				size_t i;
+				for(p = pmatch, i = 0; i < nmatch; p++, i++) {
+					if (p->rm_so == -1) break;
+					//DBG_P("[%d], rm_so=%d, rm_eo=%d", i, p->rm_so, p->rm_eo);
+					knh_bytes_t sub = {{str + (p->rm_so)}, ((p->rm_eo) - (p->rm_so))};
+					knh_Array_add(ctx, a, new_String_(ctx, CLASS_String, sub, s0));
+				}
+			}
+		} else {
+		L_REGMATCH:;
+			int res = re->spi->regexec(ctx, re->reg, str, nmatch, pmatch, re->eflags);
+			if(res == 0) {
+				knh_regmatch_t *p;
+				size_t i;
+				for(p = pmatch, i = 0; i < nmatch; p++, i++) {
+					if (p->rm_so == -1) break;
+					//DBG_P("[%d], rm_so=%d, rm_eo=%d", i, p->rm_so, p->rm_eo);
+					knh_bytes_t sub = {{str + (p->rm_so)}, ((p->rm_eo) - (p->rm_so))};
+					knh_Array_add(ctx, a, new_String_(ctx, CLASS_String, sub, s0));
+				}
+				size_t eo = pmatch[0].rm_eo; // shift matched pattern
+				str += (eo > 0) ? eo : 1;
+				if (str < eos) {
+					knh_Array_grow(ctx, a, (a->dim->capacity)+nmatch, nmatch);
+					goto L_REGMATCH;
+				}
 			}
 		}
 //		else {
@@ -1006,32 +1000,81 @@ static METHOD String_match(CTX ctx, knh_sfp_t *sfp _RIX)
 /* ------------------------------------------------------------------------ */
 //## @Const method String String.replace(Regex re, String s);
 
+static void knh_cwb_write_regexfmt(CTX ctx, knh_cwb_t *cwb, knh_bytes_t *fmt, const char *base, knh_regmatch_t *r, size_t matched)
+{
+	const char *ch = fmt->text;
+	int i, len = fmt->len;
+	for (i = 0; i < len; i++, ch++) {
+		if (ch[0] == '$') {
+			if (i == 0 || ch[-1] != '\\') {
+				if (i+1 < len && isdigit(ch[1])) {
+					size_t grpidx = ch[1] - '0';
+					if (grpidx < matched) {
+						i++; ch++;
+						while (i+1 < len) {
+							if (isdigit(ch[1])) {
+								size_t nidx = grpidx * 10 + (ch[1] - '0');
+								if (nidx < matched) {
+									grpidx = nidx;
+									i++; ch++;
+									continue;
+								}
+							}
+							break;
+						}
+						knh_regmatch_t *rp = &r[grpidx];
+						knh_bytes_t b = new_bytes2(base + rp->rm_so, rp->rm_eo - rp->rm_so);
+						knh_Bytes_write(ctx, cwb->ba, b);
+						continue; // skip putc
+					}
+				}
+			}
+		}
+		knh_Bytes_putc(ctx, cwb->ba, ch[0]);
+	}
+}
+
+static size_t knh_regex_matched(knh_regmatch_t* r, size_t maxmatch)
+{
+	size_t n = 0;
+	for (; n < maxmatch && r[n].rm_so != -1; n++) ;
+	return n;
+}
+
 static METHOD String_replace(CTX ctx, knh_sfp_t *sfp _RIX)
 {
 	knh_String_t *s0 = sfp[0].s;
 	knh_Regex_t *re = sfp[1].re;
+	knh_bytes_t fmt = S_tobytes(sfp[2].s);
 	knh_String_t *s = s0;
 	if(!IS_NULL(re) && S_size(re->pattern) > 0) {
 		knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
-		knh_bytes_t tos = S_tobytes(sfp[2].s);
 		const char *str = S_tochar(s0);  // necessary
-		const char *estr = str + S_size(s0);
-		knh_regmatch_t pmatch[K_REGEX_MATCHSIZE];
-		while (str < estr) {
+		const char *base = str;
+		const char *eos = str + S_size(s0); // end of str
+		knh_regmatch_t pmatch[K_REGEX_MATCHSIZE+1];
+		while (str < eos) {
 			int res = re->spi->regexec(ctx, re->reg, str, K_REGEX_MATCHSIZE, pmatch, re->eflags);
-			if (res == 0) {
-				knh_bytes_t sub = {{str},  pmatch[0].rm_so};
-				knh_Bytes_write(ctx, cwb->ba, sub);
-				knh_Bytes_write(ctx, cwb->ba, tos);
-				str += (pmatch[0].rm_eo);
+			if (res == 0) { // matched
+				size_t len = pmatch[0].rm_eo;
+				KNH_ASSERT(len >= 0);
+				if (pmatch[0].rm_so > 0) {
+					knh_Bytes_write(ctx, cwb->ba, new_bytes2(str, pmatch[0].rm_so));
+				}
+				size_t matched = knh_regex_matched(pmatch, K_REGEX_MATCHSIZE);
+				if (len > 0) {
+					knh_cwb_write_regexfmt(ctx, cwb, &fmt, base, pmatch, matched);
+					str += len;
+					continue;
+				}
+				if (str == base) { // 0-length match at head of string
+					knh_cwb_write_regexfmt(ctx, cwb, &fmt, base, pmatch, matched);
+				}
 			}
-			else {
-				knh_bytes_t sub = {{str}, knh_strlen(str)};
-				knh_Bytes_write(ctx, cwb->ba, sub);
-				break;
-			}
+			knh_Bytes_write(ctx, cwb->ba, new_bytes((char*)str));
+			break;
 		}
-		s = knh_cwb_newString(ctx, cwb);
+		s = knh_cwb_newString(ctx, cwb); // close cwb
 	}
 	RETURN_(s);
 }
@@ -1093,24 +1136,81 @@ static METHOD String_split(CTX ctx, knh_sfp_t *sfp _RIX)
 	}
 	else {
 		const char *str = S_tochar(s0);  // necessary
-		const char *estr = str + S_size(s0);
-		knh_regmatch_t pmatch[K_REGEX_MATCHSIZE];
+		const char *eos = str + S_size(s0);
+		knh_regmatch_t pmatch[K_REGEX_MATCHSIZE+1];
 		a = new_Array(ctx, CLASS_String, 0);
-		while (str < estr) {
+		while (str <= eos) {
 			int res = re->spi->regexec(ctx, re->reg, str, K_REGEX_MATCHSIZE, pmatch, re->eflags);
-			if(res == 0) {
-				knh_bytes_t sub = {{str},  pmatch[0].rm_so};
-				knh_Array_add(ctx, a, new_String_(ctx, CLASS_String, sub, s0));
-				str += (pmatch[0].rm_eo);
-			}
-			else {
-				knh_bytes_t sub = {{str}, knh_strlen(str)};
-				knh_Array_add(ctx, a, new_String_(ctx, CLASS_String, sub, s0));
+			if (res == 0) {
+				size_t len = pmatch[0].rm_eo;
+				KNH_ASSERT(len >= 0);
+				if (len > 0) {
+					knh_bytes_t sub = {{str},  pmatch[0].rm_so};
+					knh_Array_add(ctx, a, new_String_(ctx, CLASS_String, sub, s0));
+					str += len;
+					continue;
+				}
+				knh_Array_t* ca = knh_String_toCharArray(ctx, new_String(ctx, str), 0);
+				size_t i, size = knh_Array_size(ca);
+				for (i = 0; i < size; i++) {
+					knh_Array_add(ctx, a, knh_Array_n(ca, i));
+				}
 				break;
 			}
+			knh_Array_add(ctx, a, new_String(ctx, str));
+			break;
 		}
 	}
 	RETURN_(a);
+}
+
+/* ------------------------------------------------------------------------ */
+//## @Const method Map String.extract(Regex re, NameSpace ns);
+
+static void knh_regex_map_set(CTX ctx, knh_Map_t *m, const char *str, size_t nmatch, knh_regmatch_t *r)
+{
+	knh_regmatch_t *rp;
+	knh_String_t *s_name, *s_value;
+	int idx;
+	BEGIN_LOCAL(ctx, lsfp, 2);
+	for (idx = 0; idx < (int)nmatch && r[idx].rm_so != -1; idx++) {
+		rp = &r[idx];
+		if (rp->rm_name.len > 0) {
+			s_name = new_S(ctx, rp->rm_name);
+			s_value = new_S(ctx, new_bytes2(&str[rp->rm_so], (rp->rm_eo - rp->rm_so)));
+			KNH_SETv(ctx, lsfp[0].s, s_name);
+			KNH_SETv(ctx, lsfp[1].s, s_value);
+			m->dspi->set(ctx, m->map, lsfp);
+		}
+	}
+	END_LOCAL(ctx, lsfp, m);
+}
+
+static METHOD String_extract(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+	knh_String_t *s = sfp[0].s;
+	knh_Regex_t *re = sfp[1].re;
+	knh_NameSpace_t *ns = sfp[2].ns;
+	knh_Map_t *m = new_H(Map);
+	const knh_MapDSPI_t *dspi = knh_NameSpace_getMapDSPI(ctx, ns, B("hash"));
+	m->dspi = dspi->config(ctx, CLASS_String, CLASS_String);
+	m->map = dspi->init(ctx, 0, dspi->name, NULL);
+	if (IS_NOTNULL(re) && S_size(re->pattern) > 0) {
+		size_t nmatch = pcre_regex_nmatchsize(re->reg);
+		const char *str = s->str.text;
+		knh_regmatch_t p[nmatch];
+		int idx;
+		for (idx = 0; idx < nmatch; idx++) {
+			p[idx].rm_so = -1;
+			p[idx].rm_eo = -1;
+			p[idx].rm_name.len = 0;
+		}
+		if (re->spi->regexec(ctx, re->reg, str, nmatch, p, re->eflags) == 0) {
+			size_t matched = knh_regex_matched(p, nmatch);
+			knh_regex_map_set(ctx, m, str, matched, p);
+		}
+	}
+	RETURN_(m);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1187,7 +1287,7 @@ static METHOD String_trim(CTX ctx, knh_sfp_t *sfp _RIX)
 static METHOD Regex_opHAS(CTX ctx, knh_sfp_t *sfp _RIX)
 {
 	knh_Regex_t *re = sfp[0].re;
-	knh_regmatch_t pmatch[1];
+	knh_regmatch_t pmatch[2]; // modified by @utrhira
 	const char *str = S_tochar(sfp[1].s);
 	int res = re->spi->regexec(ctx, re->reg, str, 1, pmatch, re->eflags);
 	RETURNb_(res == 0);
@@ -1200,7 +1300,7 @@ static TYPEMAP String_Int(CTX ctx, knh_sfp_t *sfp _RIX)
 {
 	knh_int_t v = 0;
 	if(!knh_bytes_parseint(S_tobytes(sfp[K_TMRIDX].s), &v)) {
-		KNH_SETv(ctx, sfp[rix].o, KNH_NULVAL(CLASS_Int));
+		KNH_SETv(ctx, sfp[K_RIX].o, KNH_NULVAL(CLASS_Int));
 	}
 	RETURNi_(v);
 }
@@ -1212,7 +1312,7 @@ static TYPEMAP String_Float(CTX ctx, knh_sfp_t *sfp _RIX)
 {
 	knh_float_t v = 0.0;
 	if(!knh_bytes_parsefloat(S_tobytes(sfp[K_TMRIDX].s), &v)) {
-		KNH_SETv(ctx, sfp[rix].o, KNH_NULVAL(CLASS_Float));
+		KNH_SETv(ctx, sfp[K_RIX].o, KNH_NULVAL(CLASS_Float));
 	}
 	RETURNf_(v);
 }
@@ -1229,7 +1329,7 @@ static TYPEMAP String_Bytes(CTX ctx, knh_sfp_t *sfp _RIX)
 
 /* ------------------------------------------------------------------------ */
 
-static ITRNEXT String_nextChar(CTX ctx, knh_sfp_t *sfp, long rtnidx)
+static ITRNEXT String_nextChar(CTX ctx, knh_sfp_t *sfp _RIX)
 {
 	knh_Iterator_t *itr = ITR(sfp);
 	knh_String_t *s = (knh_String_t*)DP(itr)->source;
