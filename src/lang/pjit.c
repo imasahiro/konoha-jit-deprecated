@@ -74,6 +74,45 @@ static void setesp(CTX ctx, knh_rbp_t *rbp, size_t size)
 }
 
 /* ----------------------------------------------------------------- */
+#include <sys/mman.h>
+static struct mem {
+    void *block;
+    size_t size;
+    size_t pos;
+} memblock[10] = {};
+//static int _index = 0;
+static int _cur = 0;
+
+#define ONE_MB (1024 * 1024)
+/* allocate executable memory */
+void *__xmalloc(Ctx *ctx, size_t size)
+{
+    void *block = NULL;
+    if (memblock[_cur].block == NULL) {
+        block = mmap(NULL, ONE_MB, PROT_READ|PROT_WRITE|PROT_EXEC,
+                MAP_PRIVATE | MAP_ANON, -1, 0);
+        memblock[_cur].block = block;
+        memblock[_cur].size  = ONE_MB;
+        memblock[_cur].pos   = size;
+    } else {
+        if (memblock[_cur].pos + size > memblock[_cur].size) {
+            TODO();
+            exit(1);
+        }
+        block = (void*)((intptr_t)memblock[_cur].block + memblock[_cur].pos);
+        memblock[_cur].pos += size;
+        DBG_P("block=%p & size=%zd",block, size);
+    }
+    return block;
+}
+/* ----------------------------------------------------------------- */
+
+void knh_xfree(Ctx *ctx, void *block, size_t size)
+{
+    munmap(block, size);
+}
+
+
 void jit_dump(void *mem, int size)
 {
     int i = 0;
@@ -1994,7 +2033,7 @@ static void *_gencode(CTX ctx, struct pjit *pjit)
     unsigned char *mem;
     int len, align = (int) ((uint16_t)(0x10 - codes.len % 0x10));
     len = codes.len + align;
-    mem = (unsigned char *) knh_xmalloc(ctx, len);
+    mem = (unsigned char *) __xmalloc(ctx, len);
     memcpy(mem, codes.ubuf, len);
     add_nops((void*)((intptr_t)mem + len), align);
     pjit_rewrite_symbols(pjit, mem);
@@ -2086,6 +2125,25 @@ void pjit_compile(CTX ctx, knh_Method_t *mtd)
         END_LOCAL_(ctx, lsfp);
     }
 }
+
+static void _TRACE(CTX ctx, knh_sfp_t *sfp, struct klr_PROBE_t *op)
+{
+    if (op->n++ == 10) {
+        knh_opline_t *pc = ((knh_opline_t*) op) +1;
+        knh_opline_t *opNext = pc;
+        while (pc->opcode != OPCODE_RET) {
+            if (knh_opcode_hasjump(pc->opcode)) {
+                break;
+            }
+            //knh_opcode_dump(ctx, pc, KNH_STDERR, NULL);
+            pc++;
+        }
+        //knh_opcode_dump(ctx, pc, KNH_STDERR, NULL);
+        //knh_write_EOL(ctx, KNH_STDERR);
+        memcpy(op, opNext, sizeof(knh_opline_t));
+    }
+}
+
 //static void checkrefc(knh_Object_t *o, knh_Object_t *o2, knh_Object_t *o3, knh_Object_t *o4)
 //{
 //    fprintf(stderr, "(o1=%p,refc=%ld,", o , o->h.refc);

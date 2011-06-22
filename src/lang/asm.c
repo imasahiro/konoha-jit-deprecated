@@ -2368,6 +2368,9 @@ static void FOR_asm(CTX ctx, knh_Stmt_t *stmt)
 	if(!Tn_isTRUE(stmt, 1)) {
 		Tn_JMPIF(ctx, stmt, 1, 0/*FALSE*/, lbBREAK, DP(stmt)->espidx);
 	}
+#ifdef K_USING_TJIT
+	ASM(PROBE, SFP2_(DP(stmt)->espidx), _TRACE, 0, 0);
+#endif
 	Tn_asmBLOCK(ctx, stmt, 3);
 	ASM_JMP(ctx, lbCONTINUE);
 	ASM_LABEL(ctx, lbBREAK);
