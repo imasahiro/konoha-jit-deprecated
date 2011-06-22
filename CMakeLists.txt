@@ -92,6 +92,7 @@ check_include_files("sys/param.h" HAVE_SYS_PARAM_H)
 check_include_files("sys/stat.h" HAVE_SYS_STAT_H)
 check_include_files("sys/sysctl.h" HAVE_SYS_SYSCTL_H)
 check_include_files("sys/types.h" HAVE_SYS_SYSCTL_H)
+check_include_files(pcre.h HAVE_PCRE_H)
 
 find_path(HAVE_PCRE_H  pcre.h  PATHS ${include_locations})
 find_path(HAVE_ICONV_H iconv.h PATHS ${include_locations})
@@ -266,6 +267,11 @@ if(USE_LLVM)
 	set(ExtraLibs ${ExtraLibs} ${v} ${HAVE_LIBFFI})
 	link_directories(${LINK_DIRECTORIES} ${LLVM_LIBDIR})
 
+endif()
+
+option(USE_TJIT "Use tjit" OFF)
+if(USE_TJIT)
+	add_definitions(-DK_USING_TJIT)
 endif()
 
 option(USE_MPI "Using MPI" OFF)
