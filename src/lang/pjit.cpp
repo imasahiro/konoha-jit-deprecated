@@ -1,4 +1,39 @@
+#include "commons.h"
 #include <konoha1/konoha_vm.h>
+
+#include <llvm/LLVMContext.h>
+#include <llvm/Module.h>
+#include <llvm/Constants.h>
+#include <llvm/GlobalVariable.h>
+#include <llvm/Function.h>
+#include <llvm/BasicBlock.h>
+#include <llvm/Instructions.h>
+#include <llvm/Support/ManagedStatic.h>
+#include <llvm/Pass.h>
+#include <llvm/PassManager.h>
+#include <llvm/Analysis/Verifier.h>
+#include <llvm/Analysis/Passes.h>
+#include <llvm/Support/IRBuilder.h>
+#include <llvm/ExecutionEngine/JIT.h>
+#include <llvm/ExecutionEngine/Interpreter.h>
+#include <llvm/ExecutionEngine/ExecutionEngine.h>
+#include <llvm/Target/TargetSelect.h>
+#include <llvm/Target/TargetData.h>
+#include <llvm/DerivedTypes.h>
+#include <llvm/Transforms/Scalar.h>
+#include <vector>
+#include <iostream>
+#include <sstream>
+#include <string>
+
+
+/* ************************************************************************ */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+using namespace llvm;
 #define PJIT
 #define TJIT_DUMP
 #if !defined(__amd64__)
@@ -759,7 +794,7 @@ static void pdata_delete(CTX ctx, pdata_t *pdata)
 
 static pdata_t *pdata_new(CTX ctx)
 {
-    pdata_t *pdata = KNH_MALLOC(ctx, sizeof(pdata_t));
+    pdata_t *pdata = (pdata_t*)KNH_MALLOC(ctx, sizeof(pdata_t));
     pdata->opbuf = NULL;
     pdata->size = 0;
     pdata->capacity = 0;
@@ -787,7 +822,7 @@ static pindex_t *createRegisterTable(CTX ctx, int size)
 {
     int size_ = size + 1;
     init_regtable();
-    pindex_t *table = KNH_MALLOC(ctx, sizeof(pindex_t) * size_);
+    pindex_t *table = (pindex_t*)KNH_MALLOC(ctx, sizeof(pindex_t) * size_);
     int i;
     table[0].data = size;
     for (i = 1; i < size_; i++) {
@@ -874,7 +909,7 @@ static void init_regtable(void)
 }
 static int reg_isUsed(reg_t r)
 {
-    int i;
+    size_t i;
     for (i = 1; i < ARRAY_SIZE(reg_table); i++) {
         struct regtable *t = &reg_table[i];
         if (t->r == r) {
@@ -887,7 +922,7 @@ static int reg_isUsed(reg_t r)
 
 static reg_t regalloc(pindex_t *regTable, int type, knh_sfpidx_t a)
 {
-    int i;
+    size_t i;
     for (i = 1; i < ARRAY_SIZE(reg_table); i++) {
         if (reg_table[i].use == a) return reg_table[i].r;
     }
@@ -920,7 +955,7 @@ static reg_t regalloc(pindex_t *regTable, int type, knh_sfpidx_t a)
 }
 static void clear_reg(reg_t r)
 {
-    int i;
+    size_t i;
     for (i = 1; i < ARRAY_SIZE(reg_table); i++) {
         if (reg_table[i].r == r) {
             CLEAR_REG(reg_table[i]);
@@ -1000,7 +1035,7 @@ static void store_reg_(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTable, int i)
 #define BLOCKEND 0
 #define MTDEND   1
 #define FUNCCALL 2
-static void store_regs(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTable, knh_sfpidx_t this, int end)
+static void store_regs(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTable, knh_sfpidx_t this_, int end)
 {
     int i;
     for (i = ARRAY_SIZE(reg_table) -1; i >= 0;i--) {
@@ -1010,7 +1045,7 @@ static void store_regs(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTable, knh_sf
             if (end == BLOCKEND || end == FUNCCALL) {
                 store_reg_ndat(ctx, bb, regTable, i);
             }
-            else if (end == MTDEND && this > use) {
+            else if (end == MTDEND && this_ > use) {
                 store_reg_ndat(ctx, bb, regTable, i);
             }
             CLEAR_REG(reg_table[i]);
@@ -1036,7 +1071,7 @@ static void store_regs(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTable, knh_sf
 
 static void reg_store_(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTable, knh_sfpidx_t a)
 {
-    int i;
+    size_t i;
     for (i = 0; i < ARRAY_SIZE(reg_table); i++) {
         if (reg_table[i].use == a)
             store_reg_(ctx, bb, regTable, i);
@@ -1045,7 +1080,7 @@ static void reg_store_(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTable, knh_sf
 }
 static int reg_isLoaded(pindex_t *regTable, knh_sfpidx_t a)
 {
-    int i;
+    size_t i;
     for (i = 0; i < ARRAY_SIZE(reg_table); i++) {
         if (reg_table[i].use == a)
             return 1;
@@ -1152,7 +1187,7 @@ static void PASM_CHKIDX2(CTX ctx, knh_BasicBlock_t *bb, reg_t raobj, reg_t rx, r
 #define LIST_OFFSET (offsetof(knh_Array_t, list))
 static void BasicBlock_setPcode(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTable)
 {
-    int j;
+    size_t j;
     /* EQ, NEQ, LT< LTE, GT, GTE */
     static int condop_c[] = {JNE, JE, JGE, JG, JLE, JL};
     static int condop[]   = {JE, JNE, JL, JLE, JGE, JNE};
@@ -1875,16 +1910,12 @@ static void pjit_rewrite_symbols(struct pjit *pjit, unsigned char *mem)
 {
 #define IArray_get(a, i)             ((a)->ilist[i])
     knh_Array_t *symbolList = pjit->symbolList;
-    int i;
+    size_t i;
     for (i = 0; i < knh_Array_size(symbolList); i+=4) {
         knh_int_t type = IArray_get(symbolList, i + 0);
         knh_int_t sym  = IArray_get(symbolList, i + 1);
         knh_int_t size = IArray_get(symbolList, i + 2);
         knh_int_t pos  = IArray_get(symbolList, i + 3);
-        //fprintf(stderr, "type=%lld\n", type);
-        //fprintf(stderr, "sym =%lld\n", sym);
-        //fprintf(stderr, "size=%lld\n", size);
-        //fprintf(stderr, "pos =%lld\n", pos);
         union {
             unsigned char code[sizeof(knh_int_t)];
             knh_int_t target;
@@ -1921,7 +1952,7 @@ static void *_gencode2(CTX ctx, knh_cwb_t *cwb, int *lenp)
 static void *_gencode(CTX ctx, struct pjit *pjit)
 {
     int len;
-    unsigned char *mem = _gencode2(ctx, pjit->cwb, &len);
+    unsigned char *mem = (unsigned char *)_gencode2(ctx, pjit->cwb, &len);
     pjit_rewrite_symbols(pjit, mem);
     pjit_delete(ctx, pjit);
 #ifdef PCODE_DUMP
@@ -2002,9 +2033,9 @@ void *pjit_compile(CTX ctx, knh_opline_t *opS, knh_opline_t *opE)
     return func;
 }
 
-static const unsigned char template[] = {
-    0x49, 0x81, 0xc4, 0x40, 0x00, 0x00, 0x00
-};
+//static const unsigned char template[] = {
+//    0x49, 0x81, 0xc4, 0x40, 0x00, 0x00, 0x00
+//};
 static const unsigned char load_jmp[] = {
     0x49, 0x8b, 0x04, 0x24, 0xff, 0xe0
 };
@@ -2031,7 +2062,7 @@ static void *write_wrapper(CTX ctx, knh_opline_t *opS, knh_opline_t *opE)
     return _gencode2(ctx, cwb, &len);
 }
 
-static void _TRACE(CTX ctx, knh_sfp_t *sfp, struct klr_PROBE_t *op)
+void _TRACE(CTX ctx, knh_sfp_t *sfp, struct klr_PROBE_t *op)
 {
     if (op->n++ == 10) {
         knh_opline_t *pc = ((knh_opline_t*) op) +1;
@@ -2047,5 +2078,7 @@ static void _TRACE(CTX ctx, knh_sfp_t *sfp, struct klr_PROBE_t *op)
         //memcpy(op, opNext, sizeof(knh_opline_t));
     }
 }
-
+#ifdef __cplusplus
+}
+#endif
 #endif

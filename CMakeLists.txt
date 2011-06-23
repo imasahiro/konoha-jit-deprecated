@@ -229,7 +229,18 @@ endif()
 
 option(USE_LLVM "Use llvm" OFF)
 if(USE_LLVM)
+	set(KONOHA_SRC ${KONOHA_SRC} src/lang/llvm.cpp)
 	add_definitions(-DK_USING_LLVM)
+endif()
+
+option(USE_TJIT "Use tjit" OFF)
+if(USE_TJIT)
+	add_definitions(-DK_USING_TJIT)
+	set(KONOHA_SRC ${KONOHA_SRC} src/lang/pjit.cpp)
+	set(USE_LLVM 1)
+endif()
+
+if(USE_LLVM)
 	find_program(LLVM_CONFIG NAMES llvm-config DOC "llvm-config")
 	execute_process(
 			COMMAND ${LLVM_CONFIG} --cppflags
@@ -258,7 +269,6 @@ if(USE_LLVM)
 			)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${LLVM_CFLAGS}")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${LLVM_CXXFLAGS}")
-	set(KONOHA_SRC ${KONOHA_SRC} src/lang/llvm.cpp)
 	string(REPLACE " " ";" v ${LLVM_JIT_LIBS})
 	find_library(HAVE_LIBFFI   NAMES ffi)
 	if("${HAVE_LIBFFI}" STREQUAL "")
@@ -266,13 +276,7 @@ if(USE_LLVM)
 	endif()
 	set(ExtraLibs ${ExtraLibs} ${v} ${HAVE_LIBFFI})
 	link_directories(${LINK_DIRECTORIES} ${LLVM_LIBDIR})
-
-endif()
-
-option(USE_TJIT "Use tjit" OFF)
-if(USE_TJIT)
-	add_definitions(-DK_USING_TJIT)
-endif()
+endif(USE_LLVM)
 
 option(USE_MPI "Using MPI" OFF)
 if(USE_MPI)

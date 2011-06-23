@@ -32,6 +32,7 @@ struct pjit {
 typedef struct {
     int type;
     union {
+        void *p;
         knh_BasicBlock_t* bb;
         knh_Object_t* o;
         knh_sfpidx_t  index;

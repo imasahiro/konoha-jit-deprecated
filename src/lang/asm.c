@@ -27,9 +27,6 @@
 /* ************************************************************************ */
 
 #include"commons.h"
-#ifdef K_USING_TJIT
-#include "pjit.c"
-#endif
 
 /* ************************************************************************ */
 
@@ -2369,6 +2366,7 @@ static void FOR_asm(CTX ctx, knh_Stmt_t *stmt)
 		Tn_JMPIF(ctx, stmt, 1, 0/*FALSE*/, lbBREAK, DP(stmt)->espidx);
 	}
 #ifdef K_USING_TJIT
+	void _TRACE(CTX ctx, knh_sfp_t *sfp, struct klr_PROBE_t *op);
 	ASM(PROBE, SFP2_(DP(stmt)->espidx), _TRACE, 0, 0);
 #endif
 	Tn_asmBLOCK(ctx, stmt, 3);
