@@ -39,24 +39,24 @@ Dim testFieldVariable() {
 void main (String[] args)
 {
     s = System.getTime();
-    testSimpleLoop();
+    print testSimpleLoop();
     period = System.getTime() - s;
     score = period;
     print "SimpleLoop[ms]: ", period, score;
     delta = period;
 
-    //s = System.getTime();
-    //testLocalVariable();
-    //period = System.getTime() - s;
-    //score = period - delta;
-    //print "LocalVariable[ms]:", period, score;
-    ////
+    s = System.getTime();
+    print testLocalVariable();
+    period = System.getTime() - s;
+    score = period - delta;
+    print "LocalVariable[ms]:", period, score;
+    //
 
-    //s = System.getTime();
-    //testFloatOperation();
-    //period = System.getTime() -s;
-    //score = period - delta;
-    //print "FloatOperation[ms]:", period, score;
+    s = System.getTime();
+    print testFloatOperation();
+    period = System.getTime() -s;
+    score = period - delta;
+    print "FloatOperation[ms]:", period, score;
 
     //s = System.getTime();
     //testFieldVariable();

@@ -1620,15 +1620,15 @@ knh_opline_t* knh_VirtualMachine_run(CTX ctx, knh_sfp_t *sfp0, knh_opline_t *pc)
 		pc++;
 		GOTO_NEXT();
 	} 
-  //L_999: {
-  //  klr_PROBE_t *op = (klr_PROBE_t*)pc; (void)op;
-  //  rbp[op->n].ivalue = 0xcafebabe;
-  //  asm volatile("int3;int3;");
-  //  pc += 4;
-  //  ++pc;
-  //  asm volatile("int3;int3;");
-  //  GOTO_NEXT();
-  //}
+  L_999: {
+    //klr_PROBE_t *op = (klr_PROBE_t*)pc; (void)op;
+    //rbp[op->n].ivalue = 0xcafebabe;
+    asm volatile("int3;int3;");
+    pc += 4;
+    ++pc;
+    asm volatile("int3;int3;");
+    GOTO_NEXT();
+  }
 	DISPATCH_END(pc);
 	L_RETURN:;
 	return pc;

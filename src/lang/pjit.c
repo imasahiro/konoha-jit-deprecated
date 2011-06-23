@@ -14,8 +14,9 @@
 #endif
 
 #include"commons.h"
+
 #if defined(PJIT)
-#if defined(K_USING_DEBUG) || 0
+#if defined(K_USING_DEBUG) || 1
 #define PCODE_DUMP
 #endif
 
@@ -765,29 +766,12 @@ static pdata_t *pdata_new(CTX ctx)
     return pdata;
 }
 
-static knh_BasicBlock_t* new_BasicBlock(CTX ctx, knh_Array_t *list)
+static knh_BasicBlock_t* new_BasicBlock(CTX ctx)
 {
     knh_BasicBlock_t *bb = new_(BasicBlock);
-    SP(bb)->listNC = list;
-    DP(bb)->id = knh_Array_size(list);
-    knh_Array_add(ctx, list, bb);
+    DP(bb)->id = 0;
     DP(bb)->code = (knh_opline_t *) pdata_new(ctx);
     return bb;
-}
-
-static knh_bool_t knh_opset_isHeadOfBasicBlock(knh_opline_t *codeblock, void *cur)
-{
-    knh_opline_t *pc = codeblock;
-    while(pc->opcode != OPCODE_RET) {
-        if(knh_opcode_hasjump(pc->opcode)) {
-            if(pc->p[0] == cur) {
-                DBG_P("%s jumppc=%p, cur=%p", OPCODE__(pc->opcode), pc->p[0], cur);
-                return 1;
-            }
-        }
-        pc++;
-    }
-    return 0;
 }
 
 static void BasicBlock_setOriginal(CTX ctx, knh_BasicBlock_t *bb, knh_opline_t *op)
@@ -818,49 +802,6 @@ static void deleteRegisterTable(CTX ctx, pindex_t *regTable)
     int size = regtable_size(regTable) + 1;
     pindex_t *table = (regTable - 1);
     KNH_FREE(ctx, table, size * sizeof(pindex_t));
-}
-
-#define COUNT_MAX(op, i) {\
-    int j;\
-    for (j = 0; j < knh_opcode_size(op->opcode); j++) {\
-        if (knh_opcode_usedef(op->opcode, j)) {\
-            _max = KNH_MAX(_max, (int)op->data[j]);\
-        }\
-    }\
-}
-
-static knh_Array_t *KonohaCode_toBasicBlock(CTX ctx, knh_KonohaCode_t *kcode, int *max)
-{
-    knh_opline_t *op, *opHEAD = SP(kcode)->code;
-    int i = 0, _max = 0;
-    knh_Array_t *list = new_Array(ctx, CLASS_BasicBlock, 0);
-    knh_BasicBlock_t* bb_, *bb = new_BasicBlock(ctx, list);
-
-    for (op = opHEAD + 1; op->opcode != OPCODE_RET; op++) {
-        bb = (knh_BasicBlock_t*) knh_Array_n(list, i);
-        COUNT_MAX(op, i);
-        if (knh_opset_isHeadOfBasicBlock(opHEAD, op)) {
-            bb_ = new_BasicBlock(ctx, list);
-            i = DP(bb_)->id;
-            //fprintf(stderr, "new bb(%p,%d)\n", bb_, i);
-            KNH_INITv(SP(bb)->nextNC, bb_);
-            BasicBlock_setOriginal(ctx, bb_, op);
-            bb = bb_;
-        }
-        else {
-            BasicBlock_setOriginal(ctx, bb, op);
-        }
-        //fprintf(stderr, "opcode=%6s\n", OPCODE__(op->opcode));
-    }
-    bb_ = new_BasicBlock(ctx, list);
-    BasicBlock_setOriginal(ctx, bb_, op);
-    KNH_INITv(SP(bb)->nextNC, bb_);
-    //BasicBlock_add_(ctx, bb, op); /* add ret op */
-    //for (i = 0; i < knh_Array_size(list); i++) {
-    //    dumpBB(knh_Array_n(list, i));
-    //}
-    *max = _max;
-    return list;
 }
 
 //static void register_allocation(kvc_t *kvc)
@@ -1093,23 +1034,6 @@ static void store_regs(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTable, knh_sf
     }
 }
 
-static knh_BasicBlock_t *knh_opline_getTargetBB(knh_Array_t *bbList, knh_opline_t *target)
-{
-    int i , j;
-    knh_BasicBlock_t* bb;
-    for (i = 0; i < knh_Array_size(bbList); i++) {
-        knh_opline_t *op;
-        bb = (knh_BasicBlock_t*) knh_Array_n(bbList, i);
-        for (j = 0; j < DP(bb)->size; j++) {
-            op = DP(bb)->opbuf + j;
-            if (op->codeaddr == target) {
-                return bb;
-            }
-        }
-    }
-    KNH_ASSERT(1);
-    return NULL;
-}
 static void reg_store_(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTable, knh_sfpidx_t a)
 {
     int i;
@@ -1226,24 +1150,21 @@ static void PASM_CHKIDX2(CTX ctx, knh_BasicBlock_t *bb, reg_t raobj, reg_t rx, r
 
 #define FIELD_OFFSET (offsetof(knh_ObjectField_t, fields))
 #define LIST_OFFSET (offsetof(knh_Array_t, list))
-static void BasicBlock_setPcode(CTX ctx, knh_Method_t *mtd, knh_Array_t *bbList, pindex_t *regTable)
+static void BasicBlock_setPcode(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTable)
 {
-    int i , j;
+    int j;
     /* EQ, NEQ, LT< LTE, GT, GTE */
     static int condop_c[] = {JNE, JE, JGE, JG, JLE, JL};
     static int condop[]   = {JE, JNE, JL, JLE, JGE, JNE};
-    knh_BasicBlock_t* bb = (knh_BasicBlock_t*) knh_Array_n(bbList, 0);
     PASM(INIT, nop(), nop());
-    for (i = 0; i < knh_Array_size(bbList); i++) {
-        knh_opline_t *op;
-        bb = (knh_BasicBlock_t*) knh_Array_n(bbList, i);
-        for (j = 0; j < DP(bb)->size; j++) {
-            op = DP(bb)->opbuf + j;
+    knh_opline_t *op;
+    for (j = 0; j < DP(bb)->size; j++) {
+        op = DP(bb)->opbuf + j;
 #ifdef PCODE_DUMP
-            fprintf(stderr, "bb=%d ", DP(bb)->id);
-            knh_opcode_dump(ctx, op, KNH_STDERR, NULL);
+        fprintf(stderr, "bb=%d ", DP(bb)->id);
+        knh_opcode_dump(ctx, op, KNH_STDERR, NULL);
 #endif
-            switch (op->opcode) {
+        switch (op->opcode) {
             OPCASE(NSET) {
                 klr_NSET_t *op_ = (klr_NSET_t*) op;
                 asm_nset(ctx, bb, regTable, op_->a, op_->n);
@@ -1335,53 +1256,10 @@ static void BasicBlock_setPcode(CTX ctx, knh_Method_t *mtd, knh_Array_t *bbList,
                 TODO();
                 break;
             }
-            OPCASE(iJEQ)OPCASE(iJNEQ)OPCASE(iJLT)OPCASE(iJLTE)OPCASE(iJGT)OPCASE(iJGTE) {
-                klr_iJLT_t *op_ = (klr_iJLT_t*) op;
-                int isLoaded  = reg_isLoaded(regTable, op_->a);
-                int isLoaded2 = reg_isLoaded(regTable, op_->b);
-                int opcode = op_->opcode - OPCODE_iJEQ;
-                reg_t r  = regalloc(regTable, NDAT, op_->a);
-                reg_t r2 = regalloc(regTable, NDAT, op_->b);
-                knh_BasicBlock_t *targetBB = knh_opline_getTargetBB(bbList, op_->jumppc);
-                if (!isLoaded) {
-                    if (r == PREG_NOP) { TODO(); }
-                    PASM(LOADR, reg(r), ndat(op_->a));
-                }
-                if (!isLoaded2) {
-                    if (r2 == PREG_NOP) { TODO(); }
-                    PASM(LOADR, reg(r2), ndat(op_->b));
-                }
-                PASM_CMP(CMPR , reg(r), reg(r2), 0/*default*/, 0);
-                if (!isLoaded)  { clear_reg(r); }
-                if (!isLoaded2) { clear_reg(r2); }
-                store_regs(ctx, bb, regTable, 0, BLOCKEND);
-                PASM(COND, bb(targetBB,0), cond(condop[opcode]));
-                break;
-            }
+            OPCASE(iJEQ)OPCASE(iJNEQ)OPCASE(iJLT)OPCASE(iJLTE)OPCASE(iJGT)OPCASE(iJGTE)
             OPCASE(iJEQC)OPCASE(iJNEQC)OPCASE(iJLTC)OPCASE(iJLTEC)OPCASE(iJGTC)OPCASE(iJGTEC) {
-                klr_iJLTC_t *op_ = (klr_iJLTC_t*) op;
-                int isLoaded = reg_isLoaded(regTable, op_->a);
-                int opcode = op_->opcode - OPCODE_iJEQC;
-                reg_t r = regalloc(regTable, NDAT, op_->a);
-                knh_int_t n = op_->n;
-                knh_BasicBlock_t *targetBB = knh_opline_getTargetBB(bbList, op_->jumppc);
-                if (!isLoaded) {
-                    if (r == PREG_NOP) { TODO(); }
-                    PASM(LOADR, reg(r), ndat(op_->a));
-                }
-                if (n >= 0x80000000) { // n is too big to compare directly.
-                    TODO();
-                    PASM(LOADR, reg(PREG0), data(n));
-                    PASM_CMP(CMPR , reg(r), reg(PREG0), 0/*default*/, 0);
-                } else {
-                    PASM_CMP(CMPN, reg(r), data(n), 0/*default*/, 0);
-                }
-                if (!isLoaded) {
-                    clear_reg(r);
-                }
-                //fprintf(stderr, "targetBB bb=(%p,id:%d)\n", targetBB, DP(targetBB)->id);
-                store_regs(ctx, bb, regTable, 0, BLOCKEND);
-                PASM(COND, bb(targetBB,0), cond(condop_c[opcode]));
+                fprintf(stderr, "non reachable\n");
+                KNH_ASSERT(0);
                 break;
             }
             OPCASE(iINC) {
@@ -1405,11 +1283,8 @@ static void BasicBlock_setPcode(CTX ctx, knh_Method_t *mtd, knh_Array_t *bbList,
                 break;
             }
             OPCASE(JMP) {
-                klr_JMP_t *op_ = (klr_JMP_t*) op;
-                knh_BasicBlock_t *targetBB = knh_opline_getTargetBB(bbList, op_->jumppc);
-                store_regs(ctx, bb, regTable, 0, BLOCKEND);
-                //fprintf(stderr, "targetBB bb=%d\n", DP(targetBB)->id);
-                PASM(JMP, bb(targetBB,0), nop());
+                fprintf(stderr, "non reachable\n");
+                KNH_ASSERT(0);
                 break;
             }
             OPCASE(NMOV) {
@@ -1459,12 +1334,15 @@ static void BasicBlock_setPcode(CTX ctx, knh_Method_t *mtd, knh_Array_t *bbList,
                 PASM(MOVRR, reg(PARG1), reg(RSFP));
                 PASM(ADDRN, reg(PARG1), data(thisidx * SHIFT));
                 PASM(LOADN, reg(PARG2), data(K_RTNIDX));
-                if (mtd == callmtd) {
-                    PASM(CALL , func(NULL), data(PJIT_RELOCATION_SYMBOL_SELF));
-                } else {
-                    PASM(STOREN, obj(thisidx + K_MTDIDX), data(callmtd));
-                    PASM(CALL , func(callmtd->fcall_1), nop());
-                }
+                /* TODO */
+                //if (mtd == callmtd) {
+                //    PASM(CALL , func(NULL), data(PJIT_RELOCATION_SYMBOL_SELF));
+                //} else {
+                //    PASM(STOREN, obj(thisidx + K_MTDIDX), data(callmtd));
+                //    PASM(CALL , func(callmtd->fcall_1), nop());
+                //}
+                PASM(STOREN, obj(thisidx + K_MTDIDX), data(callmtd));
+                PASM(CALL , func(callmtd->fcall_1), nop());
                 break;
             }
             OPCASE(SCALL) {
@@ -1906,62 +1784,57 @@ static void BasicBlock_setPcode(CTX ctx, knh_Method_t *mtd, knh_Array_t *bbList,
                 break;
             }
             default :
-                iprintf("not surpport yet %s(%d)",
-                        OPCODE__(op->opcode), op->opcode);
-                asm volatile("int3");
-                break;
+            iprintf("not surpport yet %s(%d)",
+                    OPCODE__(op->opcode), op->opcode);
+            asm volatile("int3");
+            break;
             //case OPCODE_:
             //    break;
-            }
         }
-        store_regs(ctx, bb, regTable, 0, BLOCKEND);
-        //PASM(HALT, nop(), nop());
     }
+    store_regs(ctx, bb, regTable, 0, BLOCKEND);
+    //PASM(HALT, nop(), nop());
 }
 
-static void pcode_optimize(CTX ctx, knh_Array_t *bbList, pindex_t *regTable)
+static void pcode_optimize(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTable)
 {
-#if 0
-    int i , j;
+#if 1
+    int j;
     pcode_t *op, *opP;
-    knh_BasicBlock_t* bb;
-    for (i = 0; i < knh_Array_size(bbList); i++) {
-        bb = (knh_BasicBlock_t*) knh_Array_n(bbList, i);
-        pdata_t *pdata = (pdata_t*) DP(bb)->code;
-        opP = pdata->opbuf;
-        for (j = 1; j < pdata->size; j++) {
-            op = pdata->opbuf + j;
-            if (opP->opcode == PCODE_LOADN && op->opcode == PCODE_STORER) {
-                if (opP->a.index == op->b.index) {
-                    opP->opcode  = PCODE_STOREN;
-                    op->opcode = PCODE_NOP;
-                    opP->a.type = op->a.type;
-                    opP->a.data = op->a.data;
-                    op->a.type = NOP;
-                    op->b.type = NOP;
-                }
+    pdata_t *pdata = (pdata_t*) DP(bb)->code;
+    opP = pdata->opbuf;
+    for (j = 1; j < pdata->size; j++) {
+        op = pdata->opbuf + j;
+        if (opP->opcode == PCODE_LOADN && op->opcode == PCODE_STORER) {
+            if (opP->a.index == op->b.index) {
+                opP->opcode  = PCODE_STOREN;
+                op->opcode = PCODE_NOP;
+                opP->a.type = op->a.type;
+                opP->a.data = op->a.data;
+                op->a.type = NOP;
+                op->b.type = NOP;
             }
-            if (opP->opcode == PCODE_LOADN && op->opcode == PCODE_LOADN) {
-                if (opP->a.index == op->a.index && opP->a.type == op->a.type) {
-                    opP->opcode = PCODE_NOP;
-                    opP->a.type = NOP;
-                    opP->b.type = NOP;
-                }
-            }
-
-            if (opP->opcode == PCODE_ADDRN) {
-                if (opP->b.data == 0) {
-                    opP->opcode = PCODE_NOP;
-                }
-            }
-            if (opP->opcode == PCODE_MOVRR) {
-                if (opP->a.reg == opP->b.reg) {
-                    opP->opcode = PCODE_NOP;
-                }
-            }
-
-            opP = op;
         }
+        if (opP->opcode == PCODE_LOADN && op->opcode == PCODE_LOADN) {
+            if (opP->a.index == op->a.index && opP->a.type == op->a.type) {
+                opP->opcode = PCODE_NOP;
+                opP->a.type = NOP;
+                opP->b.type = NOP;
+            }
+        }
+
+        if (opP->opcode == PCODE_ADDRN) {
+            if (opP->b.data == 0) {
+                opP->opcode = PCODE_NOP;
+            }
+        }
+        if (opP->opcode == PCODE_MOVRR) {
+            if (opP->a.reg == opP->b.reg) {
+                opP->opcode = PCODE_NOP;
+            }
+        }
+
+        opP = op;
     }
 #endif
 }
@@ -2027,15 +1900,28 @@ static void pjit_rewrite_symbols(struct pjit *pjit, unsigned char *mem)
         memcpy(mem + pos - size, code.code, size);
     }
 }
-static void *_gencode(CTX ctx, struct pjit *pjit)
+static void *_gencode2(CTX ctx, knh_cwb_t *cwb, int *lenp)
 {
-    knh_bytes_t codes = knh_cwb_tobytes(pjit->cwb);
+    knh_bytes_t codes = knh_cwb_tobytes(cwb);
     unsigned char *mem;
     int len, align = (int) ((uint16_t)(0x10 - codes.len % 0x10));
     len = codes.len + align;
     mem = (unsigned char *) __xmalloc(ctx, len);
     memcpy(mem, codes.ubuf, len);
     add_nops((void*)((intptr_t)mem + len), align);
+#ifdef PCODE_DUMP
+    jit_dump(mem, len);
+#endif
+    //knh_xfree(ctx, mem, len);
+    //return NULL;
+    *lenp = len;
+    return mem;
+}
+
+static void *_gencode(CTX ctx, struct pjit *pjit)
+{
+    int len;
+    unsigned char *mem = _gencode2(ctx, pjit->cwb, &len);
     pjit_rewrite_symbols(pjit, mem);
     pjit_delete(ctx, pjit);
 #ifdef PCODE_DUMP
@@ -2045,7 +1931,6 @@ static void *_gencode(CTX ctx, struct pjit *pjit)
     //return NULL;
     return mem;
 }
-
 static void pcode_gen1(struct pjit *pjit, pdata_t *pdata, knh_BasicBlock_t *bb)
 {
     int j;
@@ -2065,65 +1950,85 @@ static void pcode_gen1(struct pjit *pjit, pdata_t *pdata, knh_BasicBlock_t *bb)
         EMIT(pjit, op);
     }
 }
-static void *pcode_gencode(CTX ctx, knh_Array_t *bbList, pindex_t *regTable)
+static void *pcode_gencode(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTable)
 {
-    int i;
-    knh_BasicBlock_t *bb;
     knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
     struct pjit *pjit = new_pjit(ctx, cwb);
-    for (i = 0; i < knh_Array_size(bbList); i++) {
-        bb = (knh_BasicBlock_t*) knh_Array_n(bbList, i);
+    {
         pdata_t *pdata = (pdata_t*) DP(bb)->code;
         pcode_gen1(pjit, pdata, bb);
     }
+
     pjit->cur_pos = 0;
     pjit->state = PJIT_EMIT;
-    for (i = 0; i < knh_Array_size(bbList); i++) {
-        bb = (knh_BasicBlock_t*) knh_Array_n(bbList, i);
+    {
         pdata_t *pdata = (pdata_t*) DP(bb)->code;
         pcode_gen1(pjit, pdata, bb);
     }
     pjit->state = PJIT_EXIT;
-    for (i = 0; i < knh_Array_size(bbList); i++) {
-        bb = (knh_BasicBlock_t*) knh_Array_n(bbList, i);
+    {
         pdata_t *pdata = (pdata_t*) DP(bb)->code;
-        if (SP(bb)->nextNC) 
-            KNH_FINALv(ctx, (bb)->nextNC);
         pdata_delete(ctx, pdata);
     }
     return _gencode(ctx, pjit);
 }
 
-void pjit_compile(CTX ctx, knh_Method_t *mtd)
+static knh_BasicBlock_t *KonohaCode_toBasicBlock(CTX ctx, knh_opline_t *opS, knh_opline_t *opE)
 {
-    if(!Method_isKonohaCode(mtd)) {
-        return;
+    knh_opline_t *op, *opHEAD = opS;
+    knh_BasicBlock_t* bb = new_BasicBlock(ctx);
+
+    for (op = opHEAD + 1; op != opE; op++) {
+        BasicBlock_setOriginal(ctx, bb, op);
+        fprintf(stderr, "opcode=%6s\n", OPCODE__(op->opcode));
     }
-    //else if (knh_Method_isStatic(mtd) && 
-    //        (knh_Method_psize(mtd) == 0 || knh_Method_psize(mtd) == 1)) {
-    //    /* TODO mtd will be invoke by FASTCALL0 */
-    //    asm volatile("int3");
-    //    return;
-    //}
-    else {
-        void *func;
-        int max;
-        BEGIN_LOCAL(ctx, lsfp, 1);
-        knh_KonohaCode_t *kcode = DP(mtd)->kcode;
-        KonohaCode_setNativeCompiled(kcode, 1);
-        LOCAL_NEW(ctx, lsfp, 0, knh_Array_t *, bbList, KonohaCode_toBasicBlock(ctx, kcode, &max));
-        pindex_t *regTable = createRegisterTable(ctx, max);
-        BasicBlock_setPcode(ctx, mtd, bbList, regTable);
-        pcode_optimize(ctx, bbList, regTable);
-        func = pcode_gencode(ctx, bbList, regTable);
-        if (func)
-            knh_Method_setFunc(ctx, mtd, (knh_Fmethod)func);
-        deleteRegisterTable(ctx, regTable);
+    return bb;
+}
+
+void *pjit_compile(CTX ctx, knh_opline_t *opS, knh_opline_t *opE)
+{
+    void *func;
+    BEGIN_LOCAL(ctx, lsfp, 1);
+    LOCAL_NEW(ctx, lsfp, 0, knh_BasicBlock_t*, bb, KonohaCode_toBasicBlock(ctx, opS, opE));
+    pindex_t *regTable = createRegisterTable(ctx, 12);
+    BasicBlock_setPcode(ctx, bb, regTable);
+    pcode_optimize(ctx, bb, regTable);
+    func = pcode_gencode(ctx, bb, regTable);
+    deleteRegisterTable(ctx, regTable);
 #ifdef PCODE_DUMP
-        //asm volatile("int3");
+    //asm volatile("int3");
 #endif
-        END_LOCAL_(ctx, lsfp);
-    }
+    END_LOCAL_(ctx, lsfp);
+    return func;
+}
+
+static const unsigned char template[] = {
+    0x49, 0x81, 0xc4, 0x40, 0x00, 0x00, 0x00
+};
+static const unsigned char load_jmp[] = {
+    0x49, 0x8b, 0x04, 0x24, 0xff, 0xe0
+};
+struct opint {
+    union {
+        int32_t i;
+        unsigned char v[sizeof(int32_t)];
+    };
+};
+
+static void *write_wrapper(CTX ctx, knh_opline_t *opS, knh_opline_t *opE)
+{
+    knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
+    int len = (opE - opS);// / sizeof(knh_opline_t);
+    struct opint op;
+    knh_Bytes_putc(ctx, cwb->ba, 0x49);
+    knh_Bytes_putc(ctx, cwb->ba, 0x81);
+    knh_Bytes_putc(ctx, cwb->ba, 0xc4);
+    op.i  = sizeof(knh_opline_t) * len;
+    knh_Bytes_write(ctx, cwb->ba, new_bytes2((char*)op.v, sizeof(op)));
+    knh_Bytes_write(ctx, cwb->ba, new_bytes2((char*)load_jmp, sizeof(load_jmp)));
+    knh_Bytes_putc(ctx, cwb->ba, 0xcc);
+    knh_Bytes_putc(ctx, cwb->ba, 0xcc);
+    return _gencode2(ctx, cwb, &len);
 }
 
 static void _TRACE(CTX ctx, knh_sfp_t *sfp, struct klr_PROBE_t *op)
@@ -2135,43 +2040,12 @@ static void _TRACE(CTX ctx, knh_sfp_t *sfp, struct klr_PROBE_t *op)
             if (knh_opcode_hasjump(pc->opcode)) {
                 break;
             }
-            //knh_opcode_dump(ctx, pc, KNH_STDERR, NULL);
             pc++;
         }
-        //knh_opcode_dump(ctx, pc, KNH_STDERR, NULL);
-        //knh_write_EOL(ctx, KNH_STDERR);
-        memcpy(op, opNext, sizeof(knh_opline_t));
+        op->codeaddr = write_wrapper(ctx, opNext, pc);
+        pjit_compile(ctx, opNext, pc);
+        //memcpy(op, opNext, sizeof(knh_opline_t));
     }
 }
 
-//static void checkrefc(knh_Object_t *o, knh_Object_t *o2, knh_Object_t *o3, knh_Object_t *o4)
-//{
-//    fprintf(stderr, "(o1=%p,refc=%ld,", o , o->h.refc);
-//    if (o->h.cid == CLASS_String) {
-//        fprintf(stderr, "'%s')\n", ((knh_String_t*)o)->str.text);
-//    } else {
-//        fprintf(stderr, ")\n");
-//    }
-//    fprintf(stderr, "(o2=%p,refc=%ld,", o2, o2->h.refc);
-//    if (o2->h.cid == CLASS_String) {
-//        fprintf(stderr, "'%s')\n", ((knh_String_t*)o2)->str.text);
-//    } else {
-//        fprintf(stderr, ")\n");
-//    }
-//
-//    fprintf(stderr, "(o3=%p,refc=%ld,", o3, o3->h.refc);
-//    if (o3->h.cid == CLASS_String) {
-//        fprintf(stderr, "'%s')\n", ((knh_String_t*)o3)->str.text);
-//    } else {
-//        fprintf(stderr, ")\n");
-//    }
-//
-//    fprintf(stderr, "(o4=%p,refc=%ld,", o4, o4->h.refc);
-//    if (o4->h.cid == CLASS_String) {
-//        fprintf(stderr, "'%s')\n", ((knh_String_t*)o4)->str.text);
-//    } else {
-//        fprintf(stderr, ")\n");
-//    }
-//
-//}
 #endif
