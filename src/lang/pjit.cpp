@@ -1646,33 +1646,10 @@ static void BasicBlock_setPcode(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTabl
                 PASM(STOREF, reg(RSFP), data(op_->c * SHIFT));
                 break;
             }
-            OPCASE(fEQ)OPCASE(fNEQ)OPCASE(fLT)OPCASE(fLTE)OPCASE(fGT)OPCASE(fGTE) {
-                klr_fLT_t *op_ = (klr_fLT_t*) op;
-                int opcode = op_->opcode - OPCODE_iEQC;
-                if (reg_isLoaded(regTable, op_->a)) {
-                    reg_t r = regalloc(regTable, NDAT, op_->a);
-                    reg_store_(ctx, bb, regTable, op_->a);
-                    clear_reg(r);
-                }
-                if (reg_isLoaded(regTable, op_->b)) {
-                    reg_t r = regalloc(regTable, NDAT, op_->b);
-                    reg_store_(ctx, bb, regTable, op_->b);
-                    clear_reg(r);
-                }
-                PASM(LOADFR, reg(RSFP), data(op_->a * SHIFT));
-                PASM_CMP(CMPR, reg(xmmx0), data(op_->b * SHIFT), condop[opcode], 1);
-                TODO();
-                break;
-            }
+            OPCASE(fEQ)OPCASE(fNEQ)OPCASE(fLT)OPCASE(fLTE)OPCASE(fGT)OPCASE(fGTE)
             OPCASE(fEQC)OPCASE(fNEQC)OPCASE(fLTC)OPCASE(fLTEC)OPCASE(fGTC)OPCASE(fGTEC) {
-                klr_fLTC_t *op_ = (klr_fLTC_t*) op;
-                int opcode = op_->opcode - OPCODE_iEQC;
-                ndata_t v;
-                v.f = op_->n;
-                PASM(LOADFR, reg(RSFP), data(op_->a * SHIFT));
-                PASM_(opcode, reg(rsp), flat(v.i));
-                PASM_CMP(CMPN, reg(xmmx0), data(op_->c * SHIFT), condop_c[opcode], 1);
-                TODO();
+                fprintf(stderr, "non reachable\n");
+                KNH_ASSERT(0);
                 break;
             }
             OPCASE(fCAST) {
@@ -2006,10 +1983,10 @@ static void *pcode_gencode(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTable)
 
 static knh_BasicBlock_t *KonohaCode_toBasicBlock(CTX ctx, knh_opline_t *opS, knh_opline_t *opE)
 {
-    knh_opline_t *op, *opHEAD = opS;
+    knh_opline_t *op;
     knh_BasicBlock_t* bb = new_BasicBlock(ctx);
 
-    for (op = opHEAD + 1; op != opE; op++) {
+    for (op = opS; op < opE; op++) {
         BasicBlock_setOriginal(ctx, bb, op);
         fprintf(stderr, "opcode=%6s\n", OPCODE__(op->opcode));
     }
@@ -2073,7 +2050,7 @@ void _TRACE(CTX ctx, knh_sfp_t *sfp, struct klr_PROBE_t *op)
             }
             pc++;
         }
-        op->codeaddr = write_wrapper(ctx, opNext, pc);
+        //op->codeaddr = write_wrapper(ctx, opNext, pc);
         pjit_compile(ctx, opNext, pc);
         //memcpy(op, opNext, sizeof(knh_opline_t));
     }
