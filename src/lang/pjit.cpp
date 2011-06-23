@@ -1,30 +1,30 @@
 #include "commons.h"
 #include <konoha1/konoha_vm.h>
 
-#include <llvm/LLVMContext.h>
-#include <llvm/Module.h>
-#include <llvm/Constants.h>
-#include <llvm/GlobalVariable.h>
-#include <llvm/Function.h>
-#include <llvm/BasicBlock.h>
-#include <llvm/Instructions.h>
-#include <llvm/Support/ManagedStatic.h>
-#include <llvm/Pass.h>
-#include <llvm/PassManager.h>
-#include <llvm/Analysis/Verifier.h>
-#include <llvm/Analysis/Passes.h>
-#include <llvm/Support/IRBuilder.h>
-#include <llvm/ExecutionEngine/JIT.h>
-#include <llvm/ExecutionEngine/Interpreter.h>
-#include <llvm/ExecutionEngine/ExecutionEngine.h>
-#include <llvm/Target/TargetSelect.h>
-#include <llvm/Target/TargetData.h>
-#include <llvm/DerivedTypes.h>
-#include <llvm/Transforms/Scalar.h>
-#include <vector>
-#include <iostream>
-#include <sstream>
-#include <string>
+//#include <llvm/LLVMContext.h>
+//#include <llvm/Module.h>
+//#include <llvm/Constants.h>
+//#include <llvm/GlobalVariable.h>
+//#include <llvm/Function.h>
+//#include <llvm/BasicBlock.h>
+//#include <llvm/Instructions.h>
+//#include <llvm/Support/ManagedStatic.h>
+//#include <llvm/Pass.h>
+//#include <llvm/PassManager.h>
+//#include <llvm/Analysis/Verifier.h>
+//#include <llvm/Analysis/Passes.h>
+//#include <llvm/Support/IRBuilder.h>
+//#include <llvm/ExecutionEngine/JIT.h>
+//#include <llvm/ExecutionEngine/Interpreter.h>
+//#include <llvm/ExecutionEngine/ExecutionEngine.h>
+//#include <llvm/Target/TargetSelect.h>
+//#include <llvm/Target/TargetData.h>
+//#include <llvm/DerivedTypes.h>
+//#include <llvm/Transforms/Scalar.h>
+//#include <vector>
+//#include <iostream>
+//#include <sstream>
+//#include <string>
 
 
 /* ************************************************************************ */
@@ -33,7 +33,7 @@
 extern "C" {
 #endif
 
-using namespace llvm;
+//using namespace llvm;
 #define PJIT
 #define TJIT_DUMP
 #if !defined(__amd64__)
@@ -925,7 +925,7 @@ static void init_regtable(void)
 {
     size_t i;
     for (i = 0; i < ARRAY_SIZE(reg_table); ++i) {
-        reg_table[i].r = PREG0;
+        reg_table[i].r = PREG0+i;
     }
 }
 static int reg_isUsed(reg_t r)
@@ -1539,7 +1539,7 @@ static void BasicBlock_setPcode(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTabl
                 if (isLoadedR1) {
                     r = regalloc(regTable, OBJ, op_->a.i);
                 } else {
-                    r = PREG0;
+                    r = PREG0;//regalloc(regTable, OBJ, op_->a.i);
                     PASM(LOADR, reg(r), obj(op_->a.i)); /* sfp[b.i].ox */
                 }
                 assert(r != PREG_NOP);
