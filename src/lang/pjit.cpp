@@ -864,15 +864,14 @@ static void pcode_add_(CTX ctx, knh_BasicBlock_t *bb, pcode_t *op);
 //    int type = t->type;
 //    switch (type) {
 //    case REG:
-//        fprintf(stderr, "r%d", (t->reg));
+//        fprintf(stderr, "r%d(%d)", (t->reg), type);
 //        break;
 //    case OBJ:
 //    case NDAT:
-//    case SFP_:
-//        fprintf(stderr, "%4ld",(t->index));
+//        fprintf(stderr, "%4ld(%d)",(t->index), type);
 //        break;
 //    case NOP:
-//        fprintf(stderr, "nop");
+//        fprintf(stderr, "nop(%d)", type);
 //    }
 //}
 struct regtable {
@@ -892,20 +891,42 @@ static struct regtable reg_table[] = {
     {-1, NOP, REG_UNUSE, 0},
     {-1, NOP, REG_UNUSE, 0},
     {-1, NOP, REG_UNUSE, 0},
+    /* */
+    {-1, NOP, REG_UNUSE, 0},
+    {-1, NOP, REG_UNUSE, 0},
+    {-1, NOP, REG_UNUSE, 0},
+    {-1, NOP, REG_UNUSE, 0},
 };
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
-
+static void regtable_dump(void)
+{
+#if 0
+    size_t i;
+    for (i = 0; i < ARRAY_SIZE(reg_table); ++i) {
+        struct regtable *t = &reg_table[i];
+        int type = t->type;
+        switch (type) {
+            case REG:
+                fprintf(stderr, "r%d(%d), ", (t->r), type);
+                break;
+            case OBJ:
+            case NDAT:
+                fprintf(stderr, "%4ld(%d), ",(t->use), type);
+                break;
+            case NOP:
+                fprintf(stderr, "nop(%d), ", type);
+        }
+    }
+    fprintf(stderr, "\n");
+#endif
+}
 static void init_regtable(void)
 {
-    reg_table[0].r = PREG0;
-    reg_table[1].r = PREG1;
-    reg_table[2].r = PREG2;
-    reg_table[3].r = PREG3;
-    reg_table[4].r = PREG4;
-    reg_table[5].r = PREG5;
-    reg_table[6].r = PREG6;
-    reg_table[7].r = PREG7;
+    size_t i;
+    for (i = 0; i < ARRAY_SIZE(reg_table); ++i) {
+        reg_table[i].r = PREG0;
+    }
 }
 static int reg_isUsed(reg_t r)
 {
@@ -935,13 +956,8 @@ static reg_t regalloc(pindex_t *regTable, int type, knh_sfpidx_t a)
     reg_table[i].use  = a;
     reg_table[i].type = type;
     reg_table[i].generation++;
-    //int size = regtable_size(regTable);
-    //fprintf(stderr, "regtable: ");
-    //for (i = 0; i < size; i++) {
-    //    table_tochar(&regTable[i]);
-    //    fprintf(stderr, ", ");
-    //}
-    //fprintf(stderr, "\n");
+    regtable_dump();
+    //size_t size = regtable_size(regTable);
     //fprintf(stderr, "a=%ld\n", a);
     //if (0 <= a && a <= regtable_size(regTable)) {
     //    regTable[a].type  = type;
@@ -1438,7 +1454,7 @@ static void BasicBlock_setPcode(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTabl
                     PASM(LOADR , reg(r2), obj(op_->b.i)); /* sfp[b.i].ox */
                 }
                 r = regalloc(regTable, NDAT, op_->a);
-                assert(r != PREG0);
+                //assert(r != PREG0);
                 //if (r2 != PREG0) {
                 //    PASM(MOVRR, reg(PREG0), reg(r2));
                 //}
@@ -1459,7 +1475,7 @@ static void BasicBlock_setPcode(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTabl
                     PASM(LOADR , reg(r2), obj(op_->b.i)); /* sfp[b.i].ox */
                 }
                 r = regalloc(regTable, NDAT, op_->a);
-                assert(r != PREG0);
+                //assert(r != PREG0);
                 //if (r2 != PREG0) {
                 //    PASM(MOVRR, reg(PREG0), reg(r2));
                 //}
@@ -1518,7 +1534,6 @@ static void BasicBlock_setPcode(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTabl
                 int pos = sizeof(knh_int_t) * op_->a.n;
                 int isLoadedR1 = reg_isLoaded(regTable, op_->a.i);
                 //int isLoadedR2 = reg_isLoaded(regTable, op_->b);
-                TODO();
                 r2 = regalloc(regTable, NDAT, op_->b);
                 PASM(LOADN, reg(r2), ndat(op_->b));
                 if (isLoadedR1) {
@@ -1732,7 +1747,7 @@ static void BasicBlock_setPcode(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTabl
                     PASM(LOADR , reg(r3), ndat(op_->n)); /* n */
                 }
                 r = regalloc(regTable, NDAT, op_->c);
-                assert(r != PREG0);
+                //assert(r != PREG0);
                 PASM(GETIDX, reg(r2), data(LIST_OFFSET));  /* PREG0 = sfp[a].a->list */
                 PASM(GETIDX, reg(PREG0), reg(r3));/* PREG0 = sfp[a].a->list[n] */
                 PASM(MOVRR , reg(r), reg(PREG0));
@@ -1787,7 +1802,15 @@ static void BasicBlock_setPcode(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTabl
                 PASM(SETIDX, reg(r), reg(r3));/* sfp[a].a->list[n] = r */
                 break;
             }
-
+            OPCASE(OGETIDXC) {
+                break;
+            }
+            OPCASE(OGETIDX) {
+                break;
+            }
+            OPCASE(fNEG) {
+                break;
+            }
             OPCASE(HALT) OPCASE(THCODE) {
                 iprintf("JIT compile error at %s(%d) at %d",
                         OPCODE__(op->opcode),
@@ -1810,7 +1833,7 @@ static void BasicBlock_setPcode(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTabl
 
 static void pcode_optimize(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTable)
 {
-#if 1
+#if 0
     int j;
     pcode_t *op, *opP;
     pdata_t *pdata = (pdata_t*) DP(bb)->code;
@@ -2013,29 +2036,63 @@ void *pjit_compile(CTX ctx, knh_opline_t *opS, knh_opline_t *opE)
 //static const unsigned char template[] = {
 //    0x49, 0x81, 0xc4, 0x40, 0x00, 0x00, 0x00
 //};
-static const unsigned char load_jmp[] = {
-    0x49, 0x8b, 0x04, 0x24, 0xff, 0xe0
-};
+//static const unsigned char load_jmp[] = {
+//    0x49, 0x8b, 0x04, 0x24, 0xff, 0xe0
+//};
 struct opint {
     union {
-        int32_t i;
-        unsigned char v[sizeof(int32_t)];
+        int64_t  i;
+        void    *p;
+        unsigned char v[sizeof(int64_t)];
     };
 };
+/*
+ * movq  %r12,%rdx
+ * movq  %r13,%rsi
+ * movq  0xc8(%rbp),%rdi
+ * movq  $0xcafebabeaabbccdd,%rcx
+ * call  *%rcx
+ * movq  %rax,%r12
+ * movq  (%rax),%rax
+ * jmp   *%rax
+ */
+static const unsigned char template1[] = {
+    0x4c, 0x89, 0xe2,
+    0x4c, 0x89, 0xee,
+    0x48, 0x8b, 0x7d, 0xc8,
+    0x48, 0xb9
+};
+/* 0xcafebabeaabbccdd */
+static const unsigned char template2[] = {
+    0xff, 0xd1,
+    0x49, 0x89, 0xc4,
+    0x48, 0x8b, 0x00,
+    0xff, 0xe0,
+};
 
-static void *write_wrapper(CTX ctx, knh_opline_t *opS, knh_opline_t *opE)
+static knh_opline_t *jit_nop1(CTX ctx, knh_rbp_t *rbp, knh_opline_t *op)
+{
+    return op + 1;
+}
+static knh_opline_t *jit_nop2(CTX ctx, knh_rbp_t *rbp, knh_opline_t *op)
+{
+    return op + 2;
+}
+
+static void *write_wrapper(CTX ctx, knh_opline_t *opS, knh_opline_t *opE, void *ptr)
 {
     knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
     int len = (opE - opS);// / sizeof(knh_opline_t);
     struct opint op;
-    knh_Bytes_putc(ctx, cwb->ba, 0x49);
-    knh_Bytes_putc(ctx, cwb->ba, 0x81);
-    knh_Bytes_putc(ctx, cwb->ba, 0xc4);
-    op.i  = sizeof(knh_opline_t) * len;
+    if (len == 2) {
+        ptr = (void*) jit_nop2;
+    } else {
+        ptr = (void*) jit_nop1;
+    }
+    op.p = ptr;
+    knh_Bytes_write(ctx, cwb->ba, new_bytes2((char*)template1, sizeof(template1)));
     knh_Bytes_write(ctx, cwb->ba, new_bytes2((char*)op.v, sizeof(op)));
-    knh_Bytes_write(ctx, cwb->ba, new_bytes2((char*)load_jmp, sizeof(load_jmp)));
-    knh_Bytes_putc(ctx, cwb->ba, 0xcc);
-    knh_Bytes_putc(ctx, cwb->ba, 0xcc);
+    knh_Bytes_write(ctx, cwb->ba, new_bytes2((char*)template2, sizeof(template2)));
     return _gencode2(ctx, cwb, &len);
 }
 
@@ -2050,9 +2107,11 @@ void _TRACE(CTX ctx, knh_sfp_t *sfp, struct klr_PROBE_t *op)
             }
             pc++;
         }
-        //op->codeaddr = write_wrapper(ctx, opNext, pc);
-        pjit_compile(ctx, opNext, pc);
-        //memcpy(op, opNext, sizeof(knh_opline_t));
+        {
+            void *func = pjit_compile(ctx, opNext, pc);
+            op->codeaddr = write_wrapper(ctx, opNext, pc, func);
+            //memcpy(op, opNext, sizeof(knh_opline_t));
+        }
     }
 }
 #ifdef __cplusplus
