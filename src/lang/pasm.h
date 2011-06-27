@@ -100,11 +100,11 @@ static const reg_t xmmx4 = {4};
 #define PREG5    r11
 #define PREG6    r12
 #define PREG7    r13
-#define PARG0    rdi//90/*rdi*/
-#define PARG1    rsi//91/*rsi*/
-#define PARG2    rdx//92/*rdx*/
-#define PARG3    rcx//93/*rcx*/
-#define PARG4    r8//94/*r8*/
+#define PARG0    90/*rdi*/
+#define PARG1    91/*rsi*/
+#define PARG2    92/*rdx*/
+#define PARG3    93/*rcx*/
+#define PARG4    94/*r8*/
 #define PFREG0   xmmx0
 #define PFREG1   xmmx1
 

@@ -51,7 +51,7 @@ extern "C" {
 #include"commons.h"
 
 #if defined(PJIT)
-#if defined(K_USING_DEBUG) || 1
+#if defined(K_USING_DEBUG) || 0
 #define PCODE_DUMP
 #endif
 
@@ -194,8 +194,8 @@ typedef union {
 #define SELF PTYPE_SELF
 #define FLAT PTYPE_FLAT
 
-#define RSFP r14
-#define RCTX r15
+#define RSFP 80/*r14*/
+#define RCTX 81/*r15*/
 
 #define PJIT_RELOCATION_SYMBOL      (knh_intptr_t)0x0abadc0de /* a bad code! must rewrite it. */
 #define PJIT_RELOCATION_SYMBOL_FUNC (knh_intptr_t)0x1abadc0de /* a bad code! must rewrite it. */
@@ -742,6 +742,12 @@ static void pasm_mov_rr(struct pjit *pjit, pcode_t *op)
     if (EMITMODE(pjit)) {
         Value *v = VALUE_get(pjit, r2);
         if (!v) {
+            if (PARG0 == r2)
+                v = getctx(pjit);
+            if (PARG1 == r2)
+                v = getrbp(pjit);
+            if (RCTX == r2)
+                v = getctx(pjit);
             if (RSFP == r2)
                 v = getrbp(pjit);
         }
@@ -1604,10 +1610,10 @@ static void __throw_outofrange(CTX ctx, knh_rbp_t *rbp, knh_Array_t *a, size_t n
 }
 static void PASM_CHKIDX(CTX ctx, knh_BasicBlock_t *bb, reg_t raobj, reg_t rn)
 {
-    PASM(MOVRR, reg(PARG1), reg(RSFP));
-    PASM(MOVRR, reg(PARG2), reg(raobj));
-    PASM(MOVRR, reg(PARG3), reg(rn));
-    PASM(CALL , func(__throw_outofrange), nop());
+    //PASM(MOVRR, reg(PARG1), reg(RSFP));
+    //PASM(MOVRR, reg(PARG2), reg(raobj));
+    //PASM(MOVRR, reg(PARG3), reg(rn));
+    //PASM(CALL , func(__throw_outofrange), nop());
 }
 #if 0
 static void __throw_outofrange2(CTX ctx, knh_rbp_t *rbp, knh_Array_t *a, size_t x, size_t y)
@@ -2482,6 +2488,7 @@ static void VALUE_set(struct pjit *pjit, int index, Value *v)
     knh_sfp_t lsfp = {};
     //index = index + (-1 * K_RTNIDX);
     if ((int)knh_Array_capacity(lstacks) < index) {
+        asm volatile("int3");
         knh_Array_grow(pjit->ctx, lstacks, index, index);
     }
     lsfp.ndata = (knh_ndata_t) v;
@@ -2531,7 +2538,7 @@ static void pcode_gen1(struct pjit *pjit, pdata_t *pdata, knh_BasicBlock_t *bb, 
         func = build_function(MODULE());
         BasicBlock *bb = BasicBlock::Create(LLVM_CONTEXT(), "EntryBlock", func);
         g_builder = new IRBuilder<>(bb);
-        pjit->data = (void*)  new_Array(pjit->ctx, CLASS_Int, 32);
+        pjit->data = (void*)  new_Array(pjit->ctx, CLASS_Int, 128);
     }
     for (j = 0; j < pdata->size; j++) {
         pcode_t *op = pdata->opbuf + j;
@@ -2582,11 +2589,11 @@ static void *pcode_gencode(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTable, in
     pm.add(createDeadStoreEliminationPass()); // Delete dead stores
     pm.add(createDemoteRegisterToMemoryPass());
     pm.doInitialization();
-    (func)->dump();
     pm.run(*func);
 
     void *ptr =  (void*) g_engine->getPointerToFunction(func);
 #ifdef PCODE_DUMP
+    (func)->dump();
 #endif
     return ptr;
 #endif
@@ -2623,7 +2630,7 @@ void *pjit_compile(CTX ctx, knh_opline_t *opS, knh_opline_t *opE, int *oplen)
         DP(bb)->opbuf = NULL;
         DP(bb)->capacity = 0;
     }
-    fprintf(stderr, "*****%d\n", *oplen);
+    //fprintf(stderr, "*****%d\n", *oplen);
     //END_LOCAL_(ctx, lsfp);
     return func;
 }
@@ -2686,7 +2693,7 @@ static void *write_wrapper(CTX ctx, knh_opline_t *opS, knh_opline_t *opE, void *
     int len = (opE - opS);// / sizeof(knh_opline_t);
     struct opint op;
     op.p = ptr;
-    fprintf(stderr, "size=%d\n", len);
+    //fprintf(stderr, "size=%d\n", len);
     knh_Bytes_write(ctx, cwb->ba, new_bytes2((char*)template1, sizeof(template1)));
     knh_Bytes_write(ctx, cwb->ba, new_bytes2((char*)op.v, sizeof(op)));
     knh_Bytes_write(ctx, cwb->ba, new_bytes2((char*)template2, sizeof(template2)));

@@ -1,7 +1,7 @@
 using konoha.math.*;
 
-WIDTH  = 32;//256
-HEIGHT = 32;//256
+WIDTH  = 256
+HEIGHT = 256
 
 NSUBSAMPLES = 2
 NAO_SAMPLES = 8
