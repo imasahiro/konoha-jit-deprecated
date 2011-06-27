@@ -1,31 +1,32 @@
 #include "commons.h"
 #include <konoha1/konoha_vm.h>
 
-//#include <llvm/LLVMContext.h>
-//#include <llvm/Module.h>
-//#include <llvm/Constants.h>
-//#include <llvm/GlobalVariable.h>
-//#include <llvm/Function.h>
-//#include <llvm/BasicBlock.h>
-//#include <llvm/Instructions.h>
-//#include <llvm/Support/ManagedStatic.h>
-//#include <llvm/Pass.h>
-//#include <llvm/PassManager.h>
-//#include <llvm/Analysis/Verifier.h>
-//#include <llvm/Analysis/Passes.h>
-//#include <llvm/Support/IRBuilder.h>
-//#include <llvm/ExecutionEngine/JIT.h>
-//#include <llvm/ExecutionEngine/Interpreter.h>
-//#include <llvm/ExecutionEngine/ExecutionEngine.h>
-//#include <llvm/Target/TargetSelect.h>
-//#include <llvm/Target/TargetData.h>
-//#include <llvm/DerivedTypes.h>
-//#include <llvm/Transforms/Scalar.h>
-//#include <vector>
-//#include <iostream>
-//#include <sstream>
-//#include <string>
+#include <llvm/LLVMContext.h>
+#include <llvm/Module.h>
+#include <llvm/Constants.h>
+#include <llvm/GlobalVariable.h>
+#include <llvm/Function.h>
+#include <llvm/BasicBlock.h>
+#include <llvm/Instructions.h>
+#include <llvm/Support/ManagedStatic.h>
+#include <llvm/Pass.h>
+#include <llvm/PassManager.h>
+#include <llvm/Analysis/Verifier.h>
+#include <llvm/Analysis/Passes.h>
+#include <llvm/Support/IRBuilder.h>
+#include <llvm/ExecutionEngine/JIT.h>
+#include <llvm/ExecutionEngine/Interpreter.h>
+#include <llvm/ExecutionEngine/ExecutionEngine.h>
+#include <llvm/Target/TargetSelect.h>
+#include <llvm/Target/TargetData.h>
+#include <llvm/DerivedTypes.h>
+#include <llvm/Transforms/Scalar.h>
+#include <vector>
+#include <iostream>
+#include <sstream>
+#include <string>
 
+using namespace llvm;
 
 /* ************************************************************************ */
 
@@ -33,7 +34,6 @@
 extern "C" {
 #endif
 
-//using namespace llvm;
 #define PJIT
 #define TJIT_DUMP
 #if !defined(__amd64__)
@@ -101,13 +101,6 @@ static void add_nops(void *insns, unsigned int len)
 
 #define BasicBlock_add_(ctx, bb, op) \
     knh_BasicBlock_add_(ctx, bb, 0, op, sizeof(knh_opline_t));
-
-/* ----------------------------------------------------------------- */
-static void setesp(CTX ctx, knh_rbp_t *rbp, size_t size)
-{
-    klr_setesp(ctx, SFP(rshift(rbp, size)));
-    //((knh_context_t*)ctx)->esp += size;
-}
 
 /* ----------------------------------------------------------------- */
 #include <sys/mman.h>
@@ -209,7 +202,7 @@ typedef union {
 #define PJIT_RELOCATION_SYMBOL_SELF (knh_intptr_t)0x2abadc0de /* a bad code! must rewrite it. */
 
 static void pcode_dump(pcode_t *op);
-static void pjit_addRelocationCode(struct pjit *pjit, size_t size, int type, knh_uintptr_t target);
+//static void pjit_addRelocationCode(struct pjit *pjit, size_t size, int type, knh_uintptr_t target);
 #define _dump(op)  if(pjit->state == PJIT_EMIT) { pcode_dump(op); }
 //#define pcode_setline(op, pjit) if(pjit->state == PJIT_INIT) { op->pos = pjit->cur_pos; } fprintf(stderr, "op[%x] ", op->pos); pcode_dump(op);
 #define pcode_setline(op, pjit) if(pjit->state == PJIT_INIT) { op->pos = pjit->cur_pos; }
@@ -221,8 +214,71 @@ static void pjit_addRelocationCode(struct pjit *pjit, size_t size, int type, knh
 //    return 0;
 //}
 static int reg_isUsed(reg_t r);
+static IRBuilder<> *BUILDER();
+static Module *MODULE();
+static Function *FUNCTION();
+static Value *VALUE_get(struct pjit *pjit, int idx);
+static void VALUE_set(struct pjit *pjit, int idx, Value *v);
+#define LLVM_CONTEXT() (llvm::getGlobalContext())
+#define LLVMTYPE_Void  (Type::getVoidTy(LLVM_CONTEXT()))
+#define LLVMTYPE_Int   (Type::getInt64Ty(LLVM_CONTEXT()))
+#define LLVMTYPE_Bool  (Type::getInt64Ty(LLVM_CONTEXT()))
+#define LLVMTYPE_Float (Type::getDoubleTy(LLVM_CONTEXT()))
+static const Type *LLVMTYPE_ObjectField = NULL;
+static const Type *LLVMTYPE_Object = NULL;
+static const Type *LLVMTYPE_Array = NULL;
+static const Type *LLVMTYPE_Method = NULL;
+static const Type *LLVMTYPE_context = NULL;
+static const Type *LLVMTYPE_fcall = NULL;
+static const Type *LLVMTYPE_checkin = NULL;
+static const Type *LLVMTYPE_checkout = NULL;
+static const Type *LLVMTYPE_sfp    = NULL;
+static const Type *LLVMTYPE_rbp    = NULL;
+static const Type *LLVMTYPE_opline = NULL;
+static const Type *LLVMTYPE_itr    = NULL;
+static const Type *LLVMTYPE_Iterator = NULL;
+
+static Value *getctx(struct pjit *pjit)
+{
+		Function::arg_iterator args = FUNCTION()->arg_begin();
+		return args;
+}
+static Value *getrbp(struct pjit *pjit)
+{
+		Function::arg_iterator args = FUNCTION()->arg_begin();
+		args++;/* ctx */
+		return args;
+}
+static Value *getop(struct pjit *pjit)
+{
+		Function::arg_iterator args = FUNCTION()->arg_begin();
+		args++;/* ctx */
+		args++;/* rbp */
+		return args;
+}
+static Value *VNAME_(Value *v, const char *name)
+{
+	v->setName(name);
+	return v;
+}
+
+
 #define RSPARG2 0xd8
 #define BASE_SP 0xe8
+static Value *ToInt(Value *v)
+{
+    v = BUILDER()->CreatePtrToInt(v, LLVMTYPE_Int);
+    //return BUILDER()->CreateBitCast(v, LLVMTYPE_Int);
+    return v;
+}
+static Value *ToFloat(Value *v)
+{
+    v = BUILDER()->CreatePtrToInt(v, LLVMTYPE_Int);
+    return BUILDER()->CreateBitCast(v, LLVMTYPE_Float);
+}
+
+#define EMITMODE(pjit) (pjit->state == PJIT_EMIT) 
+
 static void pasm_init(struct pjit *pjit, pcode_t *op)
 {
     int i = 0;
@@ -246,8 +302,9 @@ static void pasm_init(struct pjit *pjit, pcode_t *op)
 }
 static void pasm_exit(struct pjit *pjit, pcode_t *op)
 {
-    int i = 0;
     pcode_setline(op, pjit);
+#if 0
+    int i = 0;
     if (reg_isUsed(r12)) {
         movbp1(pjit, BASE_SP + i++ * 0x08, rbp, r12);
     }
@@ -259,6 +316,32 @@ static void pasm_exit(struct pjit *pjit, pcode_t *op)
     movbp1(pjit, RSPARG2, rbp, rdx);
     leave(pjit);
     ret(pjit);
+#else
+    if (EMITMODE(pjit)) {
+        int size = pjit->opsize;
+#if 0
+        if (VALUE_get(pjit, 2)) {
+            IRBuilder<> *builder = BUILDER();
+            Module *m = MODULE();
+            std::vector<const Type*>args_list;
+            args_list.push_back(LLVMTYPE_sfp);
+            args_list.push_back(LLVMTYPE_Int);
+            args_list.push_back(LLVMTYPE_Int);
+            FunctionType* fnTy = FunctionType::get(LLVMTYPE_Void, args_list, false);
+            Function *func = cast<Function>(m->getOrInsertFunction("check", fnTy));
+
+            std::vector<Value*> params;
+            params.push_back(getrbp(pjit));
+            params.push_back(ToInt(VALUE_get(pjit, 1)));
+            params.push_back(ToInt(VALUE_get(pjit, 2)));
+            builder->CreateCall(func, params.begin(), params.end());
+        }
+#endif
+        Value *opline = getop(pjit);
+        Value *v = BUILDER()->CreateConstGEP1_32(opline, size+1, "gep");
+        BUILDER()->CreateRet(v);
+    }
+#endif
     _dump(op);
 }
 static void pasm_nop(struct pjit *pjit, pcode_t *op)
@@ -275,13 +358,34 @@ static void pasm_halt(struct pjit *pjit, pcode_t *op)
     _dump(op);
 }
 
+static Value *create_loadsfp(IRBuilder<> *builder, Value *v, int idx0, int idx1, bool isNotFloat=true)
+{
+	v = builder->CreateConstGEP2_32(v, (unsigned)idx0, (unsigned)idx1, "gep");
+    if (idx1 && isNotFloat) {
+        v = builder->CreateBitCast(v, PointerType::get(LLVMTYPE_Int, 0), "cast");
+    }
+	return v;
+}
+
 static void pasm_load_r(struct pjit *pjit, pcode_t *op)
 {
     reg_t r = op->a.reg;
     knh_sfpidx_t b = op->b.index;
     pcode_setline(op, pjit);
     int shift = b * SHIFT;
+#if 0
     mov1(pjit, shift, RSFP, r);
+#else
+    if (EMITMODE(pjit)) {
+        int sfpidx = b/2;
+        int validx = (op->b.type == PTYPE_NDAT);
+        IRBuilder<> *builder = BUILDER();
+        Value *v = getrbp(pjit);
+        v = create_loadsfp(builder, v, sfpidx, validx);
+        v = builder->CreateLoad(v);
+        VALUE_set(pjit, r, v);
+    }
+#endif
     _dump(op);
 }
 
@@ -290,12 +394,30 @@ static void pasm_load_n(struct pjit *pjit, pcode_t *op)
     reg_t r = op->a.reg;
     knh_int_t data = op->b.data;
     pcode_setline(op, pjit);
+#if 0
     if (data == 0) {
         xor_(pjit, r, r);
     }
     else {
         movi(pjit, r, data);
     }
+#else
+    if (EMITMODE(pjit)) {
+        int sfpidx = r/2;
+        int validx = (op->a.type == PTYPE_NDAT);
+        Value *v;
+        if (op->b.type == FLAT) {
+            v = ConstantFP::get(LLVMTYPE_Float, op->b.fval);
+        } else if (op->b.type == OBJP) {
+            v = ConstantInt::get(LLVMTYPE_Int, data);
+            v = BUILDER()->CreateIntToPtr(v, LLVMTYPE_Object);
+        } else {
+            v = ConstantInt::get(LLVMTYPE_Int, data);
+        }
+        VALUE_set(pjit, r, v);
+
+    }
+#endif
     _dump(op);
 }
 
@@ -304,6 +426,7 @@ static void pasm_store_r(struct pjit *pjit, pcode_t *op)
     knh_sfpidx_t a = op->a.index;
     reg_t r = op->b.reg;
     pcode_setline(op, pjit);
+#if 0
 //#ifdef OPCODE_FASTCALL0
 //    //TODO();
 //    if (isRetVal(a)) {
@@ -325,6 +448,26 @@ static void pasm_store_r(struct pjit *pjit, pcode_t *op)
     int shift = a * SHIFT;
     mov2(pjit, r, shift, RSFP);
 //#endif
+#else
+    if (EMITMODE(pjit)) {
+        int sfpidx = a/2;
+        int validx = (op->a.type == PTYPE_NDAT);
+        Value *v = VALUE_get(pjit, r);
+        IRBuilder<> *builder = BUILDER();
+        //fprintf(stderr, "reg=%d, sfpidx=%d, validx=%d\n", r, sfpidx, validx);
+        bool isNotFloat = (v->getType() != LLVMTYPE_Float);
+        if (validx == 1) {
+            if (isNotFloat && v->getType() != LLVMTYPE_Int) {
+                v = ToInt(v);
+            }
+            else if (!isNotFloat && v->getType() != LLVMTYPE_Float) {
+                v = ToFloat(v);
+            }
+        }
+        Value *ptr = create_loadsfp(builder, getrbp(pjit), sfpidx, validx, isNotFloat);
+        builder->CreateStore(v, ptr, false);
+    }
+#endif
     _dump(op);
 }
 
@@ -354,6 +497,7 @@ static void pasm_getidx(struct pjit *pjit, pcode_t *op)
 {
     reg_t r = op->a.reg;
     pcode_setline(op, pjit);
+#if 0
     if (op->b.type == REG) {
         reg_t r2 = op->b.reg;
         movrr_get(pjit, r, r2, PREG0);
@@ -364,12 +508,41 @@ static void pasm_getidx(struct pjit *pjit, pcode_t *op)
     } else {
         abort();
     }
+#else
+    if (EMITMODE(pjit)) {
+        if (op->b.type == REG) {
+            reg_t r2 = op->b.reg;
+            const Type *PtrTy = PointerType::get(LLVMTYPE_Object, 0);
+            Value *v, *v2;
+            v  = VALUE_get(pjit, r);
+            v2 = VALUE_get(pjit, r2);
+            v = BUILDER()->CreateBitCast(v, PtrTy);
+            v = BUILDER()->CreateGEP(v, v2);
+            v = BUILDER()->CreateLoad(v);
+        }
+        else if (op->b.type == DAT) {
+            knh_int_t data = op->b.data;
+            const Type *PtrTy = PointerType::get(LLVMTYPE_Object, 0);
+            Value *v;
+            v = VALUE_get(pjit, r);
+            v = BUILDER()->CreateBitCast(v, PtrTy);
+            v = BUILDER()->CreateConstGEP1_32(v, data/sizeof(void*));
+            v = BUILDER()->CreateLoad(v);
+            VALUE_set(pjit, 0, v);
+        } else {
+            fprintf(stderr, "%p\n", op);
+            asm volatile("int3");
+        }
+    }
+
+#endif
     _dump(op);
 }
 
 static void pasm_setidx(struct pjit *pjit, pcode_t *op)
 {
     reg_t r = op->a.reg;
+#if 0
     // movq    %r1,(%r2,%r3,8
     if (op->b.type == REG) {
         reg_t r2 = op->b.reg;
@@ -379,6 +552,42 @@ static void pasm_setidx(struct pjit *pjit, pcode_t *op)
         knh_int_t data = op->b.data;
         mov2(pjit, r, data, PREG0);
     }
+#else
+    if (EMITMODE(pjit)) {
+        Value *v = VALUE_get(pjit, 0);
+        if (op->b.type == REG) {
+            reg_t r2 = op->b.reg;
+            asm volatile("int3");
+        }
+        else if (op->b.type == DAT) {
+            IRBuilder<> *builder = BUILDER();
+            knh_int_t data = op->b.data;
+            v = builder->CreateBitCast(v, PointerType::get(LLVMTYPE_Int, 0));
+            Value *ptr = builder->CreateConstGEP1_32(v, data/sizeof(void*));
+            Value *val = VALUE_get(pjit, r);
+            builder->CreateStore(val, ptr);
+        }
+#if 0
+        {
+            asm volatile("int3");
+            IRBuilder<> *builder = BUILDER();
+            Module *m = MODULE();
+            std::vector<const Type*>args_list;
+            args_list.push_back(LLVMTYPE_sfp);
+            args_list.push_back(LLVMTYPE_Int);
+            args_list.push_back(LLVMTYPE_Int);
+            FunctionType* fnTy = FunctionType::get(LLVMTYPE_Void, args_list, false);
+            Function *func = cast<Function>(m->getOrInsertFunction("check", fnTy));
+
+            std::vector<Value*> params;
+            params.push_back(getrbp(pjit));
+            params.push_back(ToInt(VALUE_get(pjit, 1)));
+            params.push_back(ConstantInt::get(LLVMTYPE_Int, 10));
+            builder->CreateCall(func, params.begin(), params.end());
+        }
+#endif
+    }
+#endif
     _dump(op);
 }
 static void pasm_cmp_n(struct pjit *pjit, pcode_t *op)
@@ -441,6 +650,7 @@ static void pasm_call(struct pjit *pjit, pcode_t *op)
     knh_intptr_t func = op->a.data;
     knh_intptr_t flag = op->b.data;
     pcode_setline(op, pjit);
+#if 0
     movi(pjit, PREG0, func);
     if (flag == PJIT_RELOCATION_SYMBOL_FUNC && pjit->state == PJIT_EMIT) {
         pjit_addRelocationCode(pjit, sizeof(void*), FUNC, func);
@@ -451,23 +661,41 @@ static void pasm_call(struct pjit *pjit, pcode_t *op)
     call_r(pjit);
     //mov(pjit, RSFP, PARG1);
     //mov(pjit, RCTX, PARG0);
+#else
+    if (EMITMODE(pjit)) {
+        Value *vfunc;
+        IRBuilder<> *builder = BUILDER();
+        std::vector<Value*> params;
+        vfunc = ConstantInt::get(LLVMTYPE_Int, func);
+        vfunc = builder->CreateIntToPtr(vfunc, LLVMTYPE_fcall);
+        params.push_back(getctx(pjit));
+        params.push_back(VALUE_get(pjit, PARG1));
+        params.push_back(VALUE_get(pjit, PARG2));
+        builder->CreateCall(vfunc, params.begin(), params.end());
+    }
+
+#endif
     _dump(op);
 }
 static void pasm_incref(struct pjit *pjit, pcode_t *op)
 {
-    reg_t r = op->a.reg;
     pcode_setline(op, pjit);
+#if 0
+    reg_t r = op->a.reg;
     if (op->b.type == OBJ) {
         asm volatile("int3");
     } else {
     }
     inc2(pjit, r, 0x10);
+#else
+#endif
     _dump(op);
 }
 static void pasm_decref(struct pjit *pjit, pcode_t *op)
 {
-    reg_t r = op->a.reg;
     pcode_setline(op, pjit);
+#if 0
+    reg_t r = op->a.reg;
     if (op->b.type == OBJ) {
         knh_int_t b = op->b.data;
         int shift = b * SHIFT;
@@ -476,13 +704,24 @@ static void pasm_decref(struct pjit *pjit, pcode_t *op)
         asm volatile("int3");
     }
     dec2(pjit, r, 0x10);
+#else
+#endif
     _dump(op);
 }
 static void pasm_inc(struct pjit *pjit, pcode_t *op)
 {
     reg_t r = op->a.reg;
     pcode_setline(op, pjit);
+#if 0
     inc(pjit, r);
+#else
+    if (EMITMODE(pjit)) {
+        Value *v = VALUE_get(pjit, r);
+        Value *one = (ConstantInt::get(LLVMTYPE_Int, 1));
+        v = BUILDER()->CreateAdd(v, one, "add");
+        VALUE_set(pjit, r, v);
+    }
+#endif
     _dump(op);
 }
 static void pasm_dec(struct pjit *pjit, pcode_t *op)
@@ -497,7 +736,18 @@ static void pasm_mov_rr(struct pjit *pjit, pcode_t *op)
     reg_t r1 = op->a.reg;
     reg_t r2 = op->b.reg;
     pcode_setline(op, pjit);
+#if 0
     mov(pjit, r2, r1);
+#else
+    if (EMITMODE(pjit)) {
+        Value *v = VALUE_get(pjit, r2);
+        if (!v) {
+            if (RSFP == r2)
+                v = getrbp(pjit);
+        }
+        VALUE_set(pjit, r1, v);
+    }
+#endif
     _dump(op);
 }
 static void pasm_add_rm(struct pjit *pjit, pcode_t *op)
@@ -517,15 +767,42 @@ static void pasm_add_rn(struct pjit *pjit, pcode_t *op)
     reg_t r1 = op->a.reg;
     knh_int_t data = op->b.data;
     pcode_setline(op, pjit);
+#if 0
     addi(pjit, data, r1);
+#else
+    if (EMITMODE(pjit)) {
+        Value *v;
+        Value *v1 = VALUE_get(pjit, r1);
+        if (PointerType::classof(v1->getType())) {
+            data = data / 0x10;
+            v = BUILDER()->CreateConstGEP1_32(v1, data);
+        } else {
+            Value *v2 = ConstantInt::get(LLVMTYPE_Int, data);
+            v = BUILDER()->CreateAdd(v1, v2);
+        }
+        VALUE_set(pjit, r1, v);
+    }
+#endif
     _dump(op);
 }
+
 static void pasm_add_rr(struct pjit *pjit, pcode_t *op)
 {
     reg_t r1 = op->a.reg;
     reg_t r2 = op->b.reg;
     pcode_setline(op, pjit);
+#if 0
     addr(pjit, r2, r1);
+#else
+    if (EMITMODE(pjit)) {
+        Value *v1 = VALUE_get(pjit, r1);
+        Value *v2 = VALUE_get(pjit, r2);
+        v1 = ToInt(v1);
+        v2 = ToInt(v2);
+        Value *v  = BUILDER()->CreateAdd(v1, v2);
+        VALUE_set(pjit, r1, v);
+    }
+#endif
     _dump(op);
 }
 static void pasm_sub_rn(struct pjit *pjit, pcode_t *op)
@@ -533,22 +810,54 @@ static void pasm_sub_rn(struct pjit *pjit, pcode_t *op)
     reg_t r1 = op->a.reg;
     knh_int_t data = op->b.data;
     pcode_setline(op, pjit);
+#if 0
     subi(pjit, data, r1);
+#else
+    if (EMITMODE(pjit)) {
+        Value *v1 = VALUE_get(pjit, r1);
+        Value *v2 = (ConstantInt::get(LLVMTYPE_Int, data));
+        Value *v  = BUILDER()->CreateSub(v1, v2);
+        VALUE_set(pjit, r1, v);
+    }
+#endif
     _dump(op);
 }
 static void pasm_sub_rr(struct pjit *pjit, pcode_t *op)
 {
+    reg_t r1 = op->a.reg;
+    reg_t r2 = op->b.reg;
     pcode_setline(op, pjit);
+#if 0
     TODO();
+#else
+    if (EMITMODE(pjit)) {
+        Value *v1 = VALUE_get(pjit, r1);
+        Value *v2 = VALUE_get(pjit, r2);
+        v1 = ToInt(v1);
+        v2 = ToInt(v2);
+        Value *v  = BUILDER()->CreateSub(v1, v2);
+        VALUE_set(pjit, r1, v);
+    }
+#endif
+
     _dump(op);
 }
 static void pasm_mul_rn(struct pjit *pjit, pcode_t *op)
 {
-    //reg_t r1 = op->a.reg;
-    //knh_int_t data = op->b.data;
+    reg_t r1 = op->a.reg;
+    knh_int_t data = op->b.data;
     pcode_setline(op, pjit);
     //subi(pjit, data, r1);
+#if 0
     TODO();
+#else
+    if (EMITMODE(pjit)) {
+        Value *v1 = VALUE_get(pjit, r1);
+        Value *v2 = (ConstantInt::get(LLVMTYPE_Int, data));
+        Value *v  = BUILDER()->CreateMul(v1, v2);
+        VALUE_set(pjit, r1, v);
+    }
+#endif
     _dump(op);
 }
 static void pasm_mul_rr(struct pjit *pjit, pcode_t *op)
@@ -556,7 +865,16 @@ static void pasm_mul_rr(struct pjit *pjit, pcode_t *op)
     reg_t r1 = op->a.reg;
     reg_t r2 = op->b.reg;
     pcode_setline(op, pjit);
+#if 0
     mulr(pjit, r1, r2);
+#else
+    if (EMITMODE(pjit)) {
+        Value *v1 = VALUE_get(pjit, r1);
+        Value *v2 = VALUE_get(pjit, r2);
+        Value *v  = BUILDER()->CreateMul(v1, v2);
+        VALUE_set(pjit, r1, v);
+    }
+#endif
     _dump(op);
 }
 static void pasm_store_f(struct pjit *pjit, pcode_t *op)
@@ -564,7 +882,24 @@ static void pasm_store_f(struct pjit *pjit, pcode_t *op)
     reg_t r1 = op->a.reg;
     knh_int_t data = op->b.data;
     pcode_setline(op, pjit);
+#if 0
     fmov2(pjit, PFREG0, data, r1);
+#else
+    if (EMITMODE(pjit)) {
+        int sfpidx = (data/sizeof(void*))/sizeof(knh_sfp_t*);
+        int validx = 1;
+        Value *v = VALUE_get(pjit, 0);
+        IRBuilder<> *builder = BUILDER();
+        bool isNotFloat = (v->getType() != (LLVMTYPE_Float));
+        if (isNotFloat) {
+            v = ToFloat(v);
+        }
+        Value *ptr = create_loadsfp(builder, getrbp(pjit), sfpidx, validx, isNotFloat);
+        builder->CreateStore(v, ptr, false);
+
+    }
+
+#endif
     _dump(op);
 }
 static void pasm_load_fn(struct pjit *pjit, pcode_t *op)
@@ -572,6 +907,7 @@ static void pasm_load_fn(struct pjit *pjit, pcode_t *op)
     reg_t r1 = op->a.reg;
     knh_int_t data = op->b.data;
     pcode_setline(op, pjit);
+#if 0
     movi(pjit, PREG0, data);
     if (r1 == rsp) {
         mov2sp(pjit, PREG0, 0x00, r1);
@@ -579,6 +915,23 @@ static void pasm_load_fn(struct pjit *pjit, pcode_t *op)
         TODO();
     }
     fmov1(pjit, 0x00, r1, PFREG0);
+#else
+    if (EMITMODE(pjit)) {
+        //int sfpidx = r1/2;
+        //int validx = (op->a.type == PTYPE_NDAT);
+        Value *v;
+        if (op->b.type == FLAT) {
+            v = ConstantFP::get(LLVMTYPE_Float, op->b.fval);
+        } else if (op->b.type == OBJP) {
+            v = ConstantInt::get(LLVMTYPE_Int, data);
+            v = BUILDER()->CreateIntToPtr(v, LLVMTYPE_Object);
+        } else {
+            v = ConstantInt::get(LLVMTYPE_Int, data);
+        }
+        VALUE_set(pjit, r1, v);
+        asm volatile("int3");
+    }
+#endif
     _dump(op);
 }
 static void pasm_load_fr(struct pjit *pjit, pcode_t *op)
@@ -586,7 +939,19 @@ static void pasm_load_fr(struct pjit *pjit, pcode_t *op)
     reg_t r1 = op->a.reg;
     knh_int_t idx = op->b.data;
     pcode_setline(op, pjit);
+#if 0
     fmov1(pjit, idx, r1, PFREG0);
+#else
+    if (EMITMODE(pjit)) {
+        int sfpidx = idx/0x10;
+        int validx = 1;
+        IRBuilder<> *builder = BUILDER();
+        Value *v = getrbp(pjit);
+        v = create_loadsfp(builder, v, sfpidx, validx, false);
+        v = builder->CreateLoad(v);
+        VALUE_set(pjit, 0/*tmp*/, v);
+    }
+#endif
     _dump(op);
 }
 #define asm_f(pjit, op, func) {\
@@ -632,32 +997,87 @@ static void pasm_div_f(struct pjit *pjit, pcode_t *op)
 static void pasm_add_fn(struct pjit *pjit, pcode_t *op)
 {
     pcode_setline(op, pjit);
+#if 0
     asm_fn(pjit, op, fadd1);
+#else
+    if (EMITMODE(pjit)) {
+        reg_t r1 = op->a.reg;
+        Value *f = ConstantFP::get(LLVMTYPE_Float, op->b.fval);
+        IRBuilder<> *builder = BUILDER();
+        Value *v = VALUE_get(pjit, 0/*tmp*/);
+        v = builder->CreateFAdd(v, f);
+        VALUE_set(pjit, r1, v);
+    }
+#endif
     _dump(op);
 }
 static void pasm_sub_fn(struct pjit *pjit, pcode_t *op)
 {
     pcode_setline(op, pjit);
+#if 0
     asm_fn(pjit, op, fsub1);
+#else
+    if (EMITMODE(pjit)) {
+        reg_t r1 = op->a.reg;
+        Value *f = ConstantFP::get(LLVMTYPE_Float, op->b.fval);
+        IRBuilder<> *builder = BUILDER();
+        Value *v = VALUE_get(pjit, 0/*tmp*/);
+        v = builder->CreateFSub(v, f);
+        VALUE_set(pjit, r1, v);
+    }
+
+#endif
     _dump(op);
 }
 static void pasm_mul_fn(struct pjit *pjit, pcode_t *op)
 {
     pcode_setline(op, pjit);
+#if 0
     asm_fn(pjit, op, fmul1);
+#else
+    if (EMITMODE(pjit)) {
+        reg_t r1 = op->a.reg;
+        Value *f = ConstantFP::get(LLVMTYPE_Float, op->b.fval);
+        IRBuilder<> *builder = BUILDER();
+        Value *v = VALUE_get(pjit, 0/*tmp*/);
+        v = builder->CreateFMul(v, f);
+        VALUE_set(pjit, r1, v);
+    }
+
+#endif
     _dump(op);
 }
 static void pasm_div_fn(struct pjit *pjit, pcode_t *op)
 {
     pcode_setline(op, pjit);
+#if 0
     asm_fn(pjit, op, fdiv1);
+#else
+    if (EMITMODE(pjit)) {
+        reg_t r1 = op->a.reg;
+        Value *f = ConstantFP::get(LLVMTYPE_Float, op->b.fval);
+        IRBuilder<> *builder = BUILDER();
+        Value *v = VALUE_get(pjit, 0/*tmp*/);
+        v = builder->CreateFDiv(v, f);
+        VALUE_set(pjit, r1, v);
+    }
+
+#endif
     _dump(op);
 }
 static void pasm_fcast_r(struct pjit *pjit, pcode_t *op)
 {
     reg_t r1 = op->a.reg;
     pcode_setline(op, pjit);
+#if 0
     fcast(pjit, r1, PFREG0);
+#else
+    if (EMITMODE(pjit)) {
+        Value *v = VALUE_get(pjit, r1);
+        v = BUILDER()->CreateSIToFP(v, LLVMTYPE_Float, "fcast");
+        VALUE_set(pjit, 0, v);
+    }
+#endif
     _dump(op);
 }
 static void pasm_icast_r(struct pjit *pjit, pcode_t *op)
@@ -709,47 +1129,47 @@ static void pcode_dump(pcode_t *op)
     p[1] = op->b;
     for (i = 0; i < 2; i++) {
         switch (p[i].type) {
-        case PTYPE_REG:
-            fprintf(stderr, "r%d ", p[i].reg);
-            break;
-        case PTYPE_OBJ:
-            fprintf(stderr, "sfp[%ld].o ", p[i].index);
-            break;
-        case PTYPE_NDAT:
-            fprintf(stderr, "sfp[%ld].i ", p[i].index);
-            break;
-        case PTYPE_DATA:
-            fprintf(stderr, "0x%llx ", (long long unsigned int) p[i].data);
-            break;
-        case PTYPE_OBJP:
-            fprintf(stderr, "obj(%p) ", p[i].o);
-            break;
-        case PTYPE_BB:
-            fprintf(stderr, "bb[%d] ", DP(p[i].bb)->id);
-            break;
-        case PTYPE_FLAT:
-            {
-                ndata_t v;
-                v.i = p[i].data;
-                fprintf(stderr, "%f ", v.f);
+            case PTYPE_REG:
+                fprintf(stderr, "r%d ", p[i].reg);
                 break;
-            }
-        case PTYPE_IDX:
-            fprintf(stderr, "op[+%ld] ", p[i].index);
-            break;
-        case PTYPE_COND:
-        case PTYPE_FUNC:
-            fprintf(stderr, "%p ", (void *)p[i].data);
-            break;
-        case PTYPE_SFP:
-            if (p[i].type == OBJ) {
+            case PTYPE_OBJ:
                 fprintf(stderr, "sfp[%ld].o ", p[i].index);
-            } else if (p[i].type == NDAT) {
+                break;
+            case PTYPE_NDAT:
                 fprintf(stderr, "sfp[%ld].i ", p[i].index);
-            } else {
-                fprintf(stderr, "sfp[%ld] ", p[i].index);
-            }
-            break;
+                break;
+            case PTYPE_DATA:
+                fprintf(stderr, "0x%llx ", (long long unsigned int) p[i].data);
+                break;
+            case PTYPE_OBJP:
+                fprintf(stderr, "obj(%p) ", p[i].o);
+                break;
+            case PTYPE_BB:
+                fprintf(stderr, "bb[%d] ", DP(p[i].bb)->id);
+                break;
+            case PTYPE_FLAT:
+                {
+                    ndata_t v;
+                    v.i = p[i].data;
+                    fprintf(stderr, "%f ", v.f);
+                    break;
+                }
+            case PTYPE_IDX:
+                fprintf(stderr, "op[+%ld] ", p[i].index);
+                break;
+            case PTYPE_COND:
+            case PTYPE_FUNC:
+                fprintf(stderr, "%p ", (void *)p[i].data);
+                break;
+            case PTYPE_SFP:
+                if (p[i].type == OBJ) {
+                    fprintf(stderr, "sfp[%ld].o ", p[i].index);
+                } else if (p[i].type == NDAT) {
+                    fprintf(stderr, "sfp[%ld].i ", p[i].index);
+                } else {
+                    fprintf(stderr, "sfp[%ld] ", p[i].index);
+                }
+                break;
         }
     }
     fprintf(stderr, "\n");
@@ -1156,6 +1576,13 @@ static void asm_oset(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTable, knh_sfpi
     //PASM(INCREF, reg(r), nop());
 }
 
+//static void setesp(CTX ctx, knh_rbp_t *rbp, size_t size)
+//{
+//    //klr_setesp(ctx, SFP(rshift(rbp, size)));
+//    //((knh_context_t*)ctx)->esp += size;
+//}
+
+
 static void PASM_SETESP(CTX ctx, knh_BasicBlock_t *bb, size_t espshift)
 {
 #ifndef offsetof
@@ -1166,7 +1593,7 @@ static void PASM_SETESP(CTX ctx, knh_BasicBlock_t *bb, size_t espshift)
     //PASM(SETIDX, reg(PREG0), data(offsetof(knh_context_t, esp)));
     PASM(MOVRR, reg(PARG1), reg(RSFP));
     PASM(LOADN,  reg(PARG2), data(espshift));
-    PASM(CALL , func(setesp), nop());
+    //PASM(CALL , func(setesp), nop());
 }
 static void __throw_outofrange(CTX ctx, knh_rbp_t *rbp, knh_Array_t *a, size_t n)
 {
@@ -1201,7 +1628,7 @@ static void PASM_CHKIDX2(CTX ctx, knh_BasicBlock_t *bb, reg_t raobj, reg_t rx, r
 
 #define FIELD_OFFSET (offsetof(knh_ObjectField_t, fields))
 #define LIST_OFFSET (offsetof(knh_Array_t, list))
-static void BasicBlock_setPcode(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTable)
+static void BasicBlock_setPcode(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTable, int *oplen)
 {
     size_t j;
     /* EQ, NEQ, LT< LTE, GT, GTE */
@@ -1212,7 +1639,7 @@ static void BasicBlock_setPcode(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTabl
     for (j = 0; j < DP(bb)->size; j++) {
         op = DP(bb)->opbuf + j;
 #ifdef PCODE_DUMP
-        fprintf(stderr, "bb=%d ", DP(bb)->id);
+        fprintf(stderr, "bb=%d (%p)", DP(bb)->id, op);
         knh_opcode_dump(ctx, op, KNH_STDERR, NULL);
 #endif
         switch (op->opcode) {
@@ -1308,11 +1735,11 @@ static void BasicBlock_setPcode(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTabl
                 break;
             }
             OPCASE(iJEQ)OPCASE(iJNEQ)OPCASE(iJLT)OPCASE(iJLTE)OPCASE(iJGT)OPCASE(iJGTE)
-            OPCASE(iJEQC)OPCASE(iJNEQC)OPCASE(iJLTC)OPCASE(iJLTEC)OPCASE(iJGTC)OPCASE(iJGTEC) {
-                fprintf(stderr, "non reachable\n");
-                KNH_ASSERT(0);
-                break;
-            }
+                OPCASE(iJEQC)OPCASE(iJNEQC)OPCASE(iJLTC)OPCASE(iJLTEC)OPCASE(iJGTC)OPCASE(iJGTEC) {
+                    fprintf(stderr, "non reachable\n");
+                    KNH_ASSERT(0);
+                    break;
+                }
             OPCASE(iINC) {
                 klr_iINC_t *op_ = (klr_iINC_t*) op;
                 int isLoaded = reg_isLoaded(regTable, op_->a);
@@ -1377,6 +1804,8 @@ static void BasicBlock_setPcode(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTabl
                 klr_VCALL_t *op_ = (klr_VCALL_t*) op;
                 knh_sfpidx_t thisidx  = op_->thisidx;
                 //knh_sfpidx_t espshift = op_->espshift;
+                goto L_end;
+#if 0
                 knh_Method_t *callmtd = op_getmtd(op_);
                 store_regs(ctx, bb, regTable, thisidx+K_RTNIDX, FUNCCALL);
                 PASM(MOVRR, reg(PARG0), reg(RCTX));
@@ -1394,10 +1823,13 @@ static void BasicBlock_setPcode(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTabl
                 //}
                 PASM(STOREN, obj(thisidx + K_MTDIDX), data(callmtd));
                 PASM(CALL , func(callmtd->fcall_1), nop());
+#endif
                 break;
             }
             OPCASE(SCALL) {
                 klr_SCALL_t *op_ = (klr_SCALL_t*) op;
+                goto L_end;
+#if 0
                 knh_sfpidx_t thisidx  = op_->thisidx;
                 //knh_sfpidx_t espshift = op_->espshift;
                 knh_Method_t *callmtd = op_getmtd(op_);
@@ -1411,6 +1843,7 @@ static void BasicBlock_setPcode(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTabl
                 PASM(LOADN, reg(PARG2), data(K_RTNIDX));
                 /* TODO sfp_[K_MTDIDX].callmtd = mtd_ */
                 PASM(CALL , func(callmtd->fcall_1), nop());
+#endif
                 break;
             }
             OPCASE(FASTCALL0) {
@@ -1418,6 +1851,7 @@ static void BasicBlock_setPcode(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTabl
                 knh_sfpidx_t thisidx  = op_->thisidx;
                 knh_intptr_t rix = op_->rix;
                 klr_Ffcall fcall = op_->fcall;
+                //goto L_end;
                 //knh_sfpidx_t espshift = op_->espshift;
                 store_regs(ctx, bb, regTable, thisidx+K_RTNIDX, FUNCCALL);
                 PASM(MOVRR, reg(RCTX), reg(PARG0));
@@ -1535,7 +1969,7 @@ static void BasicBlock_setPcode(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTabl
                 int isLoadedR1 = reg_isLoaded(regTable, op_->a.i);
                 //int isLoadedR2 = reg_isLoaded(regTable, op_->b);
                 r2 = regalloc(regTable, NDAT, op_->b);
-                PASM(LOADN, reg(r2), ndat(op_->b));
+                PASM(LOADN, reg(r2), data(op_->b));
                 if (isLoadedR1) {
                     r = regalloc(regTable, OBJ, op_->a.i);
                 } else {
@@ -1546,6 +1980,7 @@ static void BasicBlock_setPcode(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTabl
                 /* TODO remove loading object fields */
                 PASM(GETIDX, reg(r), data(FIELD_OFFSET));  /* sfp[b.i].ox->fields */
                 PASM(SETIDX, reg(r2), data(pos));/* sfp[b.i].ox->fields[a] */
+                clear_reg(r2);
                 break;
             }
             OPCASE(XOSET) {
@@ -1569,6 +2004,24 @@ static void BasicBlock_setPcode(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTabl
                 PASM(SETIDX, reg(r2), data(pos));/* sfp[b.i].ox->fields[a] */
                 break;
             }
+            OPCASE(iNEG) {
+                klr_iNEG_t *op_ = (klr_iNEG_t*) op;
+                reg_t r0, r1;
+                int isLoaded1 = reg_isLoaded(regTable, op_->a);
+                r0 = regalloc(regTable, NDAT, op_->c);
+                if (isLoaded1) {
+                    r1 = regalloc(regTable, NDAT, op_->a);
+                    PASM(MOVRR, reg(r0), reg(r1));
+                    ///* TODO register allocation */
+                    reg_store_(ctx, bb, regTable, op_->a);
+                    clear_reg(r1);
+                } else {
+                    PASM(LOADR, reg(r0), ndat(op_->a));
+                }
+                PASM(MULRN, reg(r0), data(-1));
+                break;
+            }
+
             OPCASE(iADD)OPCASE(iSUB)OPCASE(iMUL) {
                 klr_iADD_t *op_ = (klr_iADD_t*) op;
                 reg_t r0, r1, r2;
@@ -1580,7 +2033,7 @@ static void BasicBlock_setPcode(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTabl
                 if (isLoaded1) {
                     r1 = regalloc(regTable, NDAT, op_->a);
                     PASM(MOVRR, reg(r0), reg(r1));
-                    /* TODO register allocation */
+                    ///* TODO register allocation */
                     reg_store_(ctx, bb, regTable, op_->a);
                     clear_reg(r1);
                 } else {
@@ -1600,8 +2053,8 @@ static void BasicBlock_setPcode(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTabl
                 } else if (op_->opcode == OPCODE_iMUL) {
                     PASM(MULRR, reg(r0), reg(r2));
                 }
-                reg_store_(ctx, bb, regTable, op_->b);
-                clear_reg(r2);
+                //reg_store_(ctx, bb, regTable, op_->b);
+                //clear_reg(r2);
                 //reg_store_(ctx, bb, regTable, op_->c);
                 //clear_reg(r0);
 
@@ -1618,6 +2071,8 @@ static void BasicBlock_setPcode(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTabl
                         TODO();
                     }
                     PASM(MOVRR, reg(r), reg(r2));
+                    reg_store_(ctx, bb, regTable, op_->a);
+                    clear_reg(r2);
                 } else {
                     r  = regalloc(regTable, NDAT, op_->c);
                     PASM(LOADR, reg(r), ndat(op_->a));
@@ -1652,21 +2107,37 @@ static void BasicBlock_setPcode(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTabl
             }
             OPCASE(fADDC) OPCASE(fSUBC) OPCASE(fMULC) OPCASE(fDIVC) {
                 klr_fADDC_t *op_ = (klr_fADDC_t*) op;
+                reg_t r0, r1;
+                int isLoaded1 = reg_isLoaded(regTable, op_->a);
+                r0 = regalloc(regTable, NDAT, op_->c);
+
+                if (isLoaded1) {
+                    r1 = regalloc(regTable, NDAT, op_->a);
+                    PASM(MOVRR, reg(r0), reg(r1));
+                    DBG_ASSERT(1);
+                } else {
+                    PASM(LOADFR, reg(r0), data(op_->a * SHIFT));
+                }
+
                 ndata_t v;
                 v.f = op_->n;
                 int opcode = op_->opcode - OPCODE_fADDC + PCODE_ADDFN;
-                PASM(LOADFR, reg(RSFP), data(op_->a * SHIFT));
-                PASM_(opcode, reg(rsp), flat(v.i));
-                // store 0x00(%r) = %ftmp0
-                PASM(STOREF, reg(RSFP), data(op_->c * SHIFT));
+                PASM_(opcode, reg(r0), flat(v.i));
+
+                // ORIGINAL VERSION
+                //PASM(LOADFR, reg(RSFP), data(op_->a * SHIFT));
+                //PASM_(opcode, reg(rsp), flat(v.i));
+                //// store 0x00(%r) = %ftmp0
+                //PASM(STOREF, reg(RSFP), data(op_->c * SHIFT));
+
                 break;
             }
             OPCASE(fEQ)OPCASE(fNEQ)OPCASE(fLT)OPCASE(fLTE)OPCASE(fGT)OPCASE(fGTE)
-            OPCASE(fEQC)OPCASE(fNEQC)OPCASE(fLTC)OPCASE(fLTEC)OPCASE(fGTC)OPCASE(fGTEC) {
-                fprintf(stderr, "non reachable\n");
-                KNH_ASSERT(0);
-                break;
-            }
+                OPCASE(fEQC)OPCASE(fNEQC)OPCASE(fLTC)OPCASE(fLTEC)OPCASE(fGTC)OPCASE(fGTEC) {
+                    fprintf(stderr, "non reachable\n");
+                    KNH_ASSERT(0);
+                    break;
+                }
             OPCASE(fCAST) {
                 klr_fCAST_t *op_ = (klr_fCAST_t*) op;
                 reg_t r;
@@ -1827,8 +2298,11 @@ static void BasicBlock_setPcode(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTabl
             //    break;
         }
     }
+L_end:;
     store_regs(ctx, bb, regTable, 0, BLOCKEND);
     //PASM(HALT, nop(), nop());
+    PASM(EXIT, nop(), nop());
+    *oplen = j;
 }
 
 static void pcode_optimize(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTable)
@@ -1890,22 +2364,22 @@ static void pjit_delete(CTX ctx, struct pjit *pjit)
     KNH_FINALv(ctx, pjit->symbolList);
     KNH_FREE(ctx, pjit, sizeof(struct pjit));
 }
-static void IArray_add(CTX ctx, knh_Array_t *a, knh_int_t v)
-{
-    BEGIN_LOCAL(ctx, lsfp, 1);
-    lsfp[0].ivalue = v;
-    a->api->add(ctx, a, lsfp);
-    END_LOCAL_(ctx, lsfp);
-}
-static void pjit_addRelocationCode(struct pjit *pjit, size_t size, int type, knh_uintptr_t target)
-{
-    CTX ctx = pjit->ctx;
-    knh_Array_t *symbolList = pjit->symbolList;
-    IArray_add(ctx, symbolList, type);
-    IArray_add(ctx, symbolList, target);
-    IArray_add(ctx, symbolList, size);
-    IArray_add(ctx, symbolList, pjit->cur_pos);
-}
+//static void IArray_add(CTX ctx, knh_Array_t *a, knh_int_t v)
+//{
+//    BEGIN_LOCAL(ctx, lsfp, 1);
+//    lsfp[0].ivalue = v;
+//    a->api->add(ctx, a, lsfp);
+//    END_LOCAL_(ctx, lsfp);
+//}
+//static void pjit_addRelocationCode(struct pjit *pjit, size_t size, int type, knh_uintptr_t target)
+//{
+//    CTX ctx = pjit->ctx;
+//    knh_Array_t *symbolList = pjit->symbolList;
+//    IArray_add(ctx, symbolList, type);
+//    IArray_add(ctx, symbolList, target);
+//    IArray_add(ctx, symbolList, size);
+//    IArray_add(ctx, symbolList, pjit->cur_pos);
+//}
 static void pjit_rewrite_symbols(struct pjit *pjit, unsigned char *mem)
 {
 #define IArray_get(a, i)             ((a)->ilist[i])
@@ -1941,7 +2415,7 @@ static void *_gencode2(CTX ctx, knh_cwb_t *cwb, int *lenp)
     memcpy(mem, codes.ubuf, len);
     add_nops((void*)((intptr_t)mem + len), align);
 #ifdef PCODE_DUMP
-    jit_dump(mem, len);
+    //jit_dump(mem, len);
 #endif
     //knh_xfree(ctx, mem, len);
     //return NULL;
@@ -1962,9 +2436,103 @@ static void *_gencode(CTX ctx, struct pjit *pjit)
     //return NULL;
     return mem;
 }
-static void pcode_gen1(struct pjit *pjit, pdata_t *pdata, knh_BasicBlock_t *bb)
+
+static const Type *getLongTy(Module *m)
+{
+#if defined(SIZEOF_VOIDP) && (SIZEOF_VOIDP == 4)
+    return Type::getInt32Ty(m->getContext());
+#else
+    return Type::getInt64Ty(m->getContext());
+#endif
+}
+static const Type *getShortTy(Module *m)
+{
+#if defined(SIZEOF_VOIDP) && (SIZEOF_VOIDP == 4)
+    return Type::getInt16Ty(m->getContext());
+#else
+    return Type::getInt32Ty(m->getContext());
+#endif
+}
+
+static Module *g_module = NULL;
+static ExecutionEngine *g_engine = NULL;
+static IRBuilder<> *g_builder = NULL;
+static Function *g_function = NULL;
+
+static Module *MODULE()
+{
+    return g_module;
+}
+
+static void VALUE_set(struct pjit *pjit, int index, Value *v);
+static Value *VALUE_get(struct pjit *pjit, int index)
+{
+    knh_Array_t *lstacks = (knh_Array_t*) (pjit->data);
+    knh_sfp_t lsfp = {};
+    //index = index + (-1 * K_RTNIDX);
+    lsfp.a = lstacks;
+    lstacks->api->get(pjit->ctx, &lsfp, index, 0);
+    return (Value*) lsfp.ndata;
+}
+
+#define knh_Array_capacity(a) ((a)->dim->capacity)
+static void VALUE_set(struct pjit *pjit, int index, Value *v)
+{
+    knh_Array_t *lstacks = (knh_Array_t*) (pjit->data);
+    knh_sfp_t lsfp = {};
+    //index = index + (-1 * K_RTNIDX);
+    if ((int)knh_Array_capacity(lstacks) < index) {
+        knh_Array_grow(pjit->ctx, lstacks, index, index);
+    }
+    lsfp.ndata = (knh_ndata_t) v;
+    lstacks->api->set(pjit->ctx, lstacks, index, &lsfp);
+}
+
+static IRBuilder<> *BUILDER()
+{
+    return g_builder;
+}
+static Function *FUNCTION()
+{
+    return g_function;
+}
+static void ConstructObjectStruct(Module *m);
+
+static Function *build_function(Module *m)
+{
+    std::vector<const Type*> argsTy;
+    std::string name("op");
+
+    argsTy.push_back(LLVMTYPE_context);
+    argsTy.push_back(LLVMTYPE_sfp);
+    argsTy.push_back(LLVMTYPE_opline);
+    FunctionType *fnTy = FunctionType::get(LLVMTYPE_opline, argsTy, false);
+    Function *func = Function::Create(fnTy, GlobalValue::ExternalLinkage, name, m);
+    Function::arg_iterator args = func->arg_begin();
+    VNAME_(args++, "ctx");
+    VNAME_(args++, "rbp");
+    VNAME_(args  , "op");
+    g_function = func;
+    return func;
+}
+
+static void pcode_gen1(struct pjit *pjit, pdata_t *pdata, knh_BasicBlock_t *bb, int oplen)
 {
     int j;
+    Function *func = NULL;
+    pjit->opsize = oplen;
+    if (g_module == NULL) {
+        InitializeNativeTarget();
+        g_module = new Module("test", LLVM_CONTEXT());
+        g_engine = EngineBuilder(g_module).setEngineKind(EngineKind::JIT).create();
+        ConstructObjectStruct(g_module);
+    }
+    if (pjit->state == PJIT_EMIT) {
+        func = build_function(MODULE());
+        BasicBlock *bb = BasicBlock::Create(LLVM_CONTEXT(), "EntryBlock", func);
+        g_builder = new IRBuilder<>(bb);
+        pjit->data = (void*)  new_Array(pjit->ctx, CLASS_Int, 32);
+    }
     for (j = 0; j < pdata->size; j++) {
         pcode_t *op = pdata->opbuf + j;
 #ifdef PCODE_DUMP
@@ -1975,33 +2543,53 @@ static void pcode_gen1(struct pjit *pjit, pdata_t *pdata, knh_BasicBlock_t *bb)
             }
             fprintf(stderr, "[%2d] bb[%d] ", opnum, DP(bb)->id);
         }
-#else
-        (void)bb;
 #endif
         EMIT(pjit, op);
     }
 }
-static void *pcode_gencode(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTable)
+static void *pcode_gencode(CTX ctx, knh_BasicBlock_t *bb, pindex_t *regTable, int oplen)
 {
     knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
     struct pjit *pjit = new_pjit(ctx, cwb);
     {
         pdata_t *pdata = (pdata_t*) DP(bb)->code;
-        pcode_gen1(pjit, pdata, bb);
+        pcode_gen1(pjit, pdata, bb, oplen);
     }
 
     pjit->cur_pos = 0;
     pjit->state = PJIT_EMIT;
     {
         pdata_t *pdata = (pdata_t*) DP(bb)->code;
-        pcode_gen1(pjit, pdata, bb);
+        pcode_gen1(pjit, pdata, bb, oplen);
     }
     pjit->state = PJIT_EXIT;
     {
         pdata_t *pdata = (pdata_t*) DP(bb)->code;
         pdata_delete(ctx, pdata);
     }
+#if 0
     return _gencode(ctx, pjit);
+#else
+    Function *func = FUNCTION();
+    FunctionPassManager pm(g_module);
+    pm.add(new TargetData(*(g_engine->getTargetData())));
+    pm.add(createVerifierPass());
+    pm.add(createInstructionCombiningPass()); // Cleanup for scalarrepl.
+    pm.add(createIndVarSimplifyPass());       // Canonicalize indvars
+    pm.add(createGVNPass());                  // Remove redundancies
+    pm.add(createSCCPPass());                 // Constant prop with SCCP
+    pm.add(createConstantPropagationPass());
+    pm.add(createDeadStoreEliminationPass()); // Delete dead stores
+    pm.add(createDemoteRegisterToMemoryPass());
+    pm.doInitialization();
+    (func)->dump();
+    pm.run(*func);
+
+    void *ptr =  (void*) g_engine->getPointerToFunction(func);
+#ifdef PCODE_DUMP
+#endif
+    return ptr;
+#endif
 }
 
 static knh_BasicBlock_t *KonohaCode_toBasicBlock(CTX ctx, knh_opline_t *opS, knh_opline_t *opE)
@@ -2011,25 +2599,32 @@ static knh_BasicBlock_t *KonohaCode_toBasicBlock(CTX ctx, knh_opline_t *opS, knh
 
     for (op = opS; op < opE; op++) {
         BasicBlock_setOriginal(ctx, bb, op);
-        fprintf(stderr, "opcode=%6s\n", OPCODE__(op->opcode));
+        //fprintf(stderr, "opcode=%6s\n", OPCODE__(op->opcode));
     }
     return bb;
 }
 
-void *pjit_compile(CTX ctx, knh_opline_t *opS, knh_opline_t *opE)
+void *pjit_compile(CTX ctx, knh_opline_t *opS, knh_opline_t *opE, int *oplen)
 {
     void *func;
-    BEGIN_LOCAL(ctx, lsfp, 1);
-    LOCAL_NEW(ctx, lsfp, 0, knh_BasicBlock_t*, bb, KonohaCode_toBasicBlock(ctx, opS, opE));
+    //BEGIN_LOCAL(ctx, lsfp, 4);
+    //LOCAL_NEW(ctx, lsfp, 0, knh_BasicBlock_t*, bb, KonohaCode_toBasicBlock(ctx, opS, opE));
+    knh_BasicBlock_t* bb = KonohaCode_toBasicBlock(ctx, opS, opE);
     pindex_t *regTable = createRegisterTable(ctx, 12);
-    BasicBlock_setPcode(ctx, bb, regTable);
+    BasicBlock_setPcode(ctx, bb, regTable, oplen);
     pcode_optimize(ctx, bb, regTable);
-    func = pcode_gencode(ctx, bb, regTable);
+    func = pcode_gencode(ctx, bb, regTable, *oplen);
     deleteRegisterTable(ctx, regTable);
 #ifdef PCODE_DUMP
     //asm volatile("int3");
 #endif
-    END_LOCAL_(ctx, lsfp);
+    if(DP(bb)->capacity > 0) {
+        KNH_FREE(ctx, DP(bb)->opbuf, DP(bb)->capacity * sizeof(knh_opline_t));
+        DP(bb)->opbuf = NULL;
+        DP(bb)->capacity = 0;
+    }
+    fprintf(stderr, "*****%d\n", *oplen);
+    //END_LOCAL_(ctx, lsfp);
     return func;
 }
 
@@ -2074,9 +2669,15 @@ static knh_opline_t *jit_nop1(CTX ctx, knh_rbp_t *rbp, knh_opline_t *op)
 {
     return op + 1;
 }
-static knh_opline_t *jit_nop2(CTX ctx, knh_rbp_t *rbp, knh_opline_t *op)
+//static knh_opline_t *jit_nop2(CTX ctx, knh_rbp_t *rbp, knh_opline_t *op)
+//{
+//    return op + 2;
+//}
+
+knh_opline_t *check(CTX ctx, knh_rbp_t *rbp, knh_opline_t *op)
 {
-    return op + 2;
+    asm volatile("int3");
+    return op+1;
 }
 
 static void *write_wrapper(CTX ctx, knh_opline_t *opS, knh_opline_t *opE, void *ptr)
@@ -2084,16 +2685,26 @@ static void *write_wrapper(CTX ctx, knh_opline_t *opS, knh_opline_t *opE, void *
     knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
     int len = (opE - opS);// / sizeof(knh_opline_t);
     struct opint op;
-    if (len == 2) {
-        ptr = (void*) jit_nop2;
-    } else {
-        ptr = (void*) jit_nop1;
-    }
     op.p = ptr;
+    fprintf(stderr, "size=%d\n", len);
     knh_Bytes_write(ctx, cwb->ba, new_bytes2((char*)template1, sizeof(template1)));
     knh_Bytes_write(ctx, cwb->ba, new_bytes2((char*)op.v, sizeof(op)));
     knh_Bytes_write(ctx, cwb->ba, new_bytes2((char*)template2, sizeof(template2)));
     return _gencode2(ctx, cwb, &len);
+}
+static void *compile(CTX ctx, knh_opline_t *opS, knh_opline_t *opE)
+{
+    int opsize = 0;
+    void *ptr;
+    if (opE - opS > 2) {
+        void *func = pjit_compile(ctx, opS, opE, &opsize);
+        ptr = write_wrapper(ctx, opS, opE, func);
+    }
+    else {
+        ptr = (void*) jit_nop1;
+    }
+
+    return NULL;
 }
 
 void _TRACE(CTX ctx, knh_sfp_t *sfp, struct klr_PROBE_t *op)
@@ -2108,12 +2719,255 @@ void _TRACE(CTX ctx, knh_sfp_t *sfp, struct klr_PROBE_t *op)
             pc++;
         }
         {
-            void *func = pjit_compile(ctx, opNext, pc);
-            op->codeaddr = write_wrapper(ctx, opNext, pc, func);
+            void *ptr = compile(ctx, opNext, pc);
+#ifndef K_USING_DEBUG
+            if (ptr) {
+                op->codeaddr = ptr;
+            }
+#endif
             //memcpy(op, opNext, sizeof(knh_opline_t));
         }
     }
 }
+static void ConstructObjectStruct(Module *m)
+{
+    // Type Definitions
+    const Type *longTy , *shortTy;
+    const Type *voidTy  = Type::getVoidTy(m->getContext());
+    const Type *hObjectTy, *objectPtr;
+    StructType* structTy;
+    longTy  = getLongTy(m);
+    shortTy = getShortTy(m);
+    const Type *voidPtr = PointerType::get(longTy, 0);
+
+    /* hObject */
+    std::vector<const Type*>fields;
+    fields.push_back(longTy);  /* magicflag */
+    fields.push_back(voidPtr); /* cTBL */
+    fields.push_back(longTy);  /* refc */
+    fields.push_back(voidPtr); /* meta */
+
+    structTy = StructType::get(m->getContext(), fields, /*isPacked=*/false);
+    m->addTypeName("struct.hObject", structTy);
+    hObjectTy = structTy;
+    fields.clear();
+
+    /* Object */
+    fields.push_back(structTy);
+    fields.push_back(voidPtr);
+    fields.push_back(voidPtr);
+    fields.push_back(voidPtr);
+    fields.push_back(voidPtr);
+    structTy = StructType::get(m->getContext(), fields, /*isPacked=*/false);
+    objectPtr = PointerType::get(structTy, 0);
+    LLVMTYPE_Object = objectPtr;
+    m->addTypeName("Object", objectPtr);
+    fields.clear();
+
+    /* ObjectField */
+    fields.push_back(hObjectTy);
+    fields.push_back(objectPtr);
+    fields.push_back(PointerType::get(objectPtr, 0));
+    structTy = StructType::get(m->getContext(), fields, /*isPacked=*/false);
+    LLVMTYPE_ObjectField = PointerType::get(structTy, 0);
+    m->addTypeName("ObjectField", LLVMTYPE_ObjectField);
+    fields.clear();
+
+    /* sfp */
+    fields.push_back(objectPtr);
+    //fields.push_back(LLVMTYPE_Int);
+    fields.push_back(LLVMTYPE_Float);
+    structTy = StructType::get(m->getContext(), fields, /*isPacked=*/false);
+    const Type *sfpPtr = PointerType::get(structTy, 0);
+    m->addTypeName("struct.knh_sfp_t", structTy);
+    m->addTypeName("knh_sfp_t_ptr", sfpPtr);
+    LLVMTYPE_sfp = sfpPtr;
+    fields.clear();
+
+    /* InputStream */
+    /* System */
+    /* SystemEX */
+    fields.push_back(longTy);  // knh_uintptr_t sysid;
+    fields.push_back(longTy);  // size_t     ctxcount;
+    fields.push_back(voidPtr); // struct knh_DictMap_t*      props;
+    fields.push_back(objectPtr/*TODO*/);  // struct knh_InputStream_t*  in;
+    fields.push_back(objectPtr/*TODO*/);  // struct knh_OutputStream_t* out;
+    fields.push_back(objectPtr/*TODO*/);  // struct knh_OutputStream_t* err;
+    fields.push_back(objectPtr/*TODO*/);  // struct knh_String_t*       enc;
+    fields.push_back(voidPtr); // struct knh_DictSet_t       *tokenDictSet;
+    fields.push_back(voidPtr); // struct knh_DictSet_t   *nameDictCaseSet;
+    fields.push_back(longTy);  // size_t                      namecapacity;
+    fields.push_back(voidPtr); // knh_nameinfo_t             *nameinfo;
+    fields.push_back(voidPtr); // struct knh_DictSet_t      *urnDictSet;
+    fields.push_back(voidPtr); // struct knh_Array_t        *urns;
+    fields.push_back(voidPtr); // struct knh_DictSet_t      *ClassNameDictSet;
+    fields.push_back(voidPtr); // struct knh_DictSet_t  *EventDictCaseSet;
+    fields.push_back(voidPtr); // struct knh_DictMap_t      *PackageDictMap;
+    fields.push_back(voidPtr); // struct knh_DictMap_t      *URNAliasDictMap;
+    fields.push_back(voidPtr); // struct knh_DictSet_t      *dspiDictSet;
+
+    structTy = StructType::get(m->getContext(), fields, /*isPacked=*/false);
+    fields.clear();
+    fields.push_back(hObjectTy);
+    fields.push_back(structTy);
+    structTy = StructType::get(m->getContext(), fields, /*isPacked=*/false);
+    const Type *sysPtr = PointerType::get(structTy, 0);
+    m->addTypeName("System", sysPtr);
+    fields.clear();
+
+    /* ctx */
+    /* 00 */fields.push_back(voidPtr);   /* share */
+    /* 01 */fields.push_back(voidPtr);   /* stat */
+    /* 02 */fields.push_back(voidPtr);   /* spi */
+    /* 03 */fields.push_back(voidPtr);   //const struct knh_api2_t        *api2;
+    /* 04 */fields.push_back(sysPtr);    /* sys */
+    /* 05 */fields.push_back(voidPtr); /* script */
+    /* stack */
+    /* 06 */fields.push_back(sfpPtr); //knh_sfp_t*                   stack;
+    /* 07 */fields.push_back(sfpPtr); //knh_sfp_t*                   esp;
+    /* 08 */fields.push_back(longTy); //size_t                       stacksize;
+    /* 09 */fields.push_back(sfpPtr); //knh_sfp_t*                   stacktop;
+    /* 10 */fields.push_back(voidPtr); //void*                        cstack_bottom;
+    /* 11 */fields.push_back(objectPtr); //struct knh_Exception_t      *e;
+    /* 12 */fields.push_back(objectPtr); //struct knh_Monitor_t        *mon;
+    /* memory */
+    /* 13 */fields.push_back(objectPtr); //knh_Object_t                *freeObjectList;
+    /* 14 */fields.push_back(objectPtr); //knh_Object_t                *freeObjectTail;
+    /* 15 */fields.push_back(longTy); //size_t                       freeObjectListSize;
+    /* 16 */fields.push_back(longTy); //knh_uintptr_t                mscheck;
+    /* 17 */fields.push_back(voidPtr); //knh_fastmem_t               *freeMemoryList;
+    /* 18 */fields.push_back(voidPtr); //knh_fastmem_t               *freeMemoryTail;
+
+    /* cache */
+    /* 19 */fields.push_back(voidPtr); //knh_mtdcache_t              *mtdcache;
+    /* 20 */fields.push_back(voidPtr); //knh_tmrcache_t             *tmrcache;
+    /* 21 */fields.push_back(voidPtr); //struct knh_Object_t        **refs;
+    /* 22 */fields.push_back(longTy); //size_t                       ref_size;
+    /* 23 */fields.push_back(voidPtr); //struct knh_Object_t        **ref_buf;
+    /* 24 */fields.push_back(longTy); //size_t                       ref_capacity;
+    /* 25 */fields.push_back(voidPtr); //struct knh_Object_t        **queue;
+    /* 26 */fields.push_back(longTy); //size_t                       queue_capacity;
+    /* 27 */fields.push_back(longTy); //size_t                       queue_log2;
+
+    /* 28 */fields.push_back(objectPtr); //struct knh_String_t*         enc;
+    /* 29 */fields.push_back(objectPtr); //struct knh_InputStream_t*    in;
+    /* 20 */fields.push_back(objectPtr); //struct knh_OutputStream_t*   out;
+    /* 31 */fields.push_back(objectPtr); //struct knh_OutputStream_t*   err;
+    /* 32 */fields.push_back(objectPtr); //struct knh_Bytes_t*          bufa;
+    /* 33 */fields.push_back(objectPtr); //struct knh_OutputStream_t*   bufw;
+    /* 34 */fields.push_back(objectPtr); //struct knh_Gamma_t*          gma;
+    /* 35 */fields.push_back(objectPtr); //struct knh_DictMap_t*        symbolDictMap;
+    /* 36 */fields.push_back(objectPtr); //struct knh_Array_t*          constPools;
+
+    fields.push_back(shortTy);   //knh_flag_t                   flag;
+    fields.push_back(shortTy);   //knh_ushort_t                 ctxid;
+    fields.push_back(voidPtr);   //struct knh_Context_t        *ctxobjNC;
+    fields.push_back(voidPtr);   //struct knh_context_t        *parent;
+    fields.push_back(voidPtr);   //knh_mutex_t                 *ctxlock;
+
+    fields.push_back(voidPtr);   //const struct _knh_ExportsAPI_t *api;
+    fields.push_back(voidPtr);   //char                            trace[16];
+    fields.push_back(voidPtr);   //knh_uint_t                      seq;
+    // add here for new entry
+    fields.push_back(voidPtr);   //struct knh_ExceptionHandler_t  *ehdrNC;
+    fields.push_back(voidPtr);   //struct knh_Object_t            *evaled;
+
+
+    structTy = StructType::get(m->getContext(), fields, /*isPacked=*/false);
+    const Type *ctxPtr = PointerType::get(structTy, 0);
+    m->addTypeName("struct.context", structTy);
+    m->addTypeName("ctx", ctxPtr);
+    LLVMTYPE_context = ctxPtr;
+    fields.clear();
+
+    // Function Type Definitions
+    FunctionType* callTy;
+    std::vector<const Type*>args;
+    args.push_back(ctxPtr);
+    args.push_back(sfpPtr);
+    args.push_back(longTy);
+    callTy = FunctionType::get(/*Result=*/voidTy,/*Params=*/args,/*isVarArg=*/false);
+    LLVMTYPE_fcall = PointerType::get(callTy, 0);
+    m->addTypeName("fcall", callTy);
+    args.clear();
+
+    /* checkin */
+    args.push_back(ctxPtr);
+    args.push_back(sfpPtr);
+    args.push_back(objectPtr);
+    callTy = FunctionType::get(/*Result=*/voidTy,/*Params=*/args,/*isVarArg=*/false);
+    LLVMTYPE_checkin = PointerType::get(callTy, 0);
+    m->addTypeName("checkin", callTy);
+    args.clear();
+
+    /* checkout */
+    args.push_back(ctxPtr);
+    args.push_back(objectPtr);
+    args.push_back(longTy);
+    FunctionType* callTy2 = FunctionType::get(/*Result=*/voidTy,/*Params=*/args,/*isVarArg=*/false);
+    LLVMTYPE_checkout = PointerType::get(callTy2, 0);
+    m->addTypeName("checkout", callTy2);
+
+    /* Method */
+    fields.push_back(hObjectTy);
+    fields.push_back(voidPtr);
+    fields.push_back(shortTy);
+    fields.push_back(shortTy);
+    fields.push_back(LLVMTYPE_fcall);
+    structTy = StructType::get(m->getContext(), fields, /*isPacked=*/false);
+    LLVMTYPE_Method = PointerType::get(structTy, 0);
+    m->addTypeName("Method", LLVMTYPE_Method);
+    fields.clear();
+
+    /* Array */
+    fields.push_back(hObjectTy);
+    fields.push_back(voidPtr);
+    fields.push_back(longTy); /* size */
+    fields.push_back(voidPtr);/* dim */
+    fields.push_back(voidPtr);/* api */
+    structTy = StructType::get(LLVM_CONTEXT(), fields, false);
+    LLVMTYPE_Array = PointerType::get(structTy, 0);
+    m->addTypeName("Array", LLVMTYPE_Array);
+    fields.clear();
+
+    /* fitr */
+    {
+        args.clear();
+        args.push_back(ctxPtr);
+        args.push_back(sfpPtr);
+        args.push_back(longTy);
+        FunctionType* callTy = FunctionType::get(longTy, args, false);
+        LLVMTYPE_itr = PointerType::get(callTy, 0);
+        m->addTypeName("fitr", callTy);
+    }
+
+    /* Iterator */
+    fields.push_back(hObjectTy);
+    fields.push_back(voidPtr);
+    fields.push_back(LLVMTYPE_itr);
+    structTy = StructType::get(m->getContext(), fields, /*isPacked=*/false);
+    LLVMTYPE_Iterator = PointerType::get(structTy, 0);
+    m->addTypeName("Iterator", LLVMTYPE_Iterator);
+    fields.clear();
+
+    /* Array */
+    fields.push_back(voidPtr); /* codeaddr */
+    fields.push_back(longTy); /* codeaddr */
+    fields.push_back(longTy); /* opcode/line */
+    fields.push_back(longTy);/* d[0] */
+    fields.push_back(longTy);/* d[1] */
+    fields.push_back(longTy);/* d[2] */
+    fields.push_back(longTy);/* d[3] */
+    fields.push_back(longTy);/* d[4] */
+    structTy = StructType::get(LLVM_CONTEXT(), fields, false);
+    LLVMTYPE_opline = PointerType::get(structTy, 0);
+    m->addTypeName("opline", LLVMTYPE_opline);
+    fields.clear();
+
+
+}
+
+
 #ifdef __cplusplus
 }
 #endif

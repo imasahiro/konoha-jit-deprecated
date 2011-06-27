@@ -27,6 +27,8 @@ struct pjit {
     knh_cwb_t *cwb;
     size_t cur_pos;
     knh_Array_t *symbolList;
+    void *data;
+    int opsize;
 };
 
 typedef struct {
@@ -38,6 +40,7 @@ typedef struct {
         knh_sfpidx_t  index;
         knh_ndata_t   data;
         reg_t         reg;
+        knh_float_t   fval;
     };
 } pindex_t;
 
@@ -97,60 +100,60 @@ static const reg_t xmmx4 = {4};
 #define PREG5    r11
 #define PREG6    r12
 #define PREG7    r13
-#define PARG0    rdi
-#define PARG1    rsi
-#define PARG2    rdx
-#define PARG3    rcx
-#define PARG4    r8
+#define PARG0    rdi//90/*rdi*/
+#define PARG1    rsi//91/*rsi*/
+#define PARG2    rdx//92/*rdx*/
+#define PARG3    rcx//93/*rcx*/
+#define PARG4    r8//94/*r8*/
 #define PFREG0   xmmx0
 #define PFREG1   xmmx1
 
-static int mov1(struct pjit *pjit, int n, reg_t r1, reg_t r2)
-{
-    unsigned char suffix = 0xff;
-    int ret = 3;
-    int over80 = (n >= 0x80)? 1 : 0;
-    if (r1 < 8) {
-        if (r2 < 8) {
-            __put(0x48);
-        } else if (r2 >= 8) {
-            __put(0x49);
-            r2 = r2 - 8;
-        }
-    } else {
-        if (r1 == r12) suffix = 0x24;
-        if (r2 < 8) {
-            __put(0x49);
-        } else if (r2 >= 8) {
-            __put(0x4d);
-            r2 = r2 - 8;
-        }
-        r1 = r1 - 8;
-    }
-    __put(0x8b);
-    if (!over80) {
-        __put(0x40 | (r2 << 3) | (r1 << 0));
-    } else {
-        __put(0x80 | (r2 << 3) | (r1 << 0));
-    }
-    if(suffix != 0xff) {
-        __put(0x24);
-        ret++;
-    }
-    if (over80) {
-        ret += 4;
-        union {
-            unsigned char code[sizeof(int32_t)];
-            int32_t ival;
-        } code;
-        code.ival = n;
-        __write(code.code, sizeof(code));
-    } else {
-        __put(n);
-    }
-
-    return ret;
-}
+//static int mov1(struct pjit *pjit, int n, reg_t r1, reg_t r2)
+//{
+//    unsigned char suffix = 0xff;
+//    int ret = 3;
+//    int over80 = (n >= 0x80)? 1 : 0;
+//    if (r1 < 8) {
+//        if (r2 < 8) {
+//            __put(0x48);
+//        } else if (r2 >= 8) {
+//            __put(0x49);
+//            r2 = r2 - 8;
+//        }
+//    } else {
+//        if (r1 == r12) suffix = 0x24;
+//        if (r2 < 8) {
+//            __put(0x49);
+//        } else if (r2 >= 8) {
+//            __put(0x4d);
+//            r2 = r2 - 8;
+//        }
+//        r1 = r1 - 8;
+//    }
+//    __put(0x8b);
+//    if (!over80) {
+//        __put(0x40 | (r2 << 3) | (r1 << 0));
+//    } else {
+//        __put(0x80 | (r2 << 3) | (r1 << 0));
+//    }
+//    if(suffix != 0xff) {
+//        __put(0x24);
+//        ret++;
+//    }
+//    if (over80) {
+//        ret += 4;
+//        union {
+//            unsigned char code[sizeof(int32_t)];
+//            int32_t ival;
+//        } code;
+//        code.ival = n;
+//        __write(code.code, sizeof(code));
+//    } else {
+//        __put(n);
+//    }
+//
+//    return ret;
+//}
 
 static int mov2(struct pjit *pjit, reg_t r1, int n, reg_t r2)
 {
@@ -251,154 +254,154 @@ static int mov(struct pjit *pjit, reg_t r1, reg_t r2)
 }
 
 // movq    %r1,(%r2,%r3,8)
-static int movrr(struct pjit *pjit, reg_t r1, reg_t r2, reg_t r3)
-{
-    int r2_eq_R13 = 0, n=4;
-    if (r3 < 8) {
-        if (r1 < 8) {
-            if (r2 < 8) {
-                __put(0x48);
-            } else {
-                __put(0x49);
-                r2 = r2 - 8;
-            }
-        } else {
-            r1 = r1 - 8;
-            if (r2 < 8) {
-                __put(0x4c);
-            } else {
-                __put(0x4d);
-                if (r2 == r13) {
-                    r2_eq_R13 = 1;
-                }
-                r2 = r2 - 8;
-            }
-        }
-    }
-    else {
-        r3 = r3 - 8;
-        if (r1 < 8) {
-            if (r2 < 8) {
-                __put(0x4a);
-            } else {
-                __put(0x4b);
-                r2 = r2 - 8;
-            }
-        } else {
-            r1 = r1 - 8;
-            if (r2 < 8) {
-                __put(0x4e);
-            } else {
-                __put(0x4f);
-                if (r2 == r13) {
-                    r2_eq_R13 = 1;
-                }
-                r2 = r2 - 8;
-            }
-        }
-    }
-    __put(0x89);
-    __put((r1 << 3) | 0x04);
-    __put(0xc0 | (r3 << 3) | (r2));
-    if (r2_eq_R13) {
-        __put(0x00);
-        n++;
-    }
-    return n;
-}
-
-// movq    (%r1,%r2,8),%r3
-static int movrr_get(struct pjit *pjit, reg_t r1, reg_t r2, reg_t r3)
-{
-    int r1_eq_R13 = 0, n=4;
-    //__put(0xcc);
-    if (r3 < 8) {
-        if (r1 < 8) {
-            if (r2 < 8) {
-                __put(0x48);
-            } else {
-                __put(0x4a);
-                r2 = r2 - 8;
-            }
-        } else {
-            r1 = r1 - 8;
-            if (r2 < 8) {
-                __put(0x49);
-            } else {
-                __put(0x4b);
-                if (r2 == r13) {
-                    r1_eq_R13 = 1;
-                }
-                r2 = r2 - 8;
-            }
-        }
-    }
-    else {
-        TODO();
-    }
-    __put(0x8b);
-    __put((r1 << 3) | 0x04);
-    __put(0xc0 | (r2 << 3) | (r3));
-    if (r1_eq_R13) {
-        __put(0x00);
-        n++;
-    }
-    //__put(0xcc);
-    return n;
-}
-
-
-static int _add_sub(struct pjit *pjit, unsigned char opcode, reg_t r1, reg_t r2)
-{
-    unsigned char op = 0x48;
-    if (r1 < 8) {
-        if (r2 >= 8) {
-            r2 = r2 - 8;
-            op = 0x49;
-        }
-    }
-    else {
-        r1 = r1 - 8;
-        if (r2 < 8) {
-            op = 0x4c;
-        } else {
-            r2 = r2 - 8;
-            op = 0x4d;
-        }
-    }
-    __put(op);
-    __put(opcode);
-    __put((0xc0 | r1 << 3 | r2));
-    return 3;
-}
+//static int movrr(struct pjit *pjit, reg_t r1, reg_t r2, reg_t r3)
+//{
+//    int r2_eq_R13 = 0, n=4;
+//    if (r3 < 8) {
+//        if (r1 < 8) {
+//            if (r2 < 8) {
+//                __put(0x48);
+//            } else {
+//                __put(0x49);
+//                r2 = r2 - 8;
+//            }
+//        } else {
+//            r1 = r1 - 8;
+//            if (r2 < 8) {
+//                __put(0x4c);
+//            } else {
+//                __put(0x4d);
+//                if (r2 == r13) {
+//                    r2_eq_R13 = 1;
+//                }
+//                r2 = r2 - 8;
+//            }
+//        }
+//    }
+//    else {
+//        r3 = r3 - 8;
+//        if (r1 < 8) {
+//            if (r2 < 8) {
+//                __put(0x4a);
+//            } else {
+//                __put(0x4b);
+//                r2 = r2 - 8;
+//            }
+//        } else {
+//            r1 = r1 - 8;
+//            if (r2 < 8) {
+//                __put(0x4e);
+//            } else {
+//                __put(0x4f);
+//                if (r2 == r13) {
+//                    r2_eq_R13 = 1;
+//                }
+//                r2 = r2 - 8;
+//            }
+//        }
+//    }
+//    __put(0x89);
+//    __put((r1 << 3) | 0x04);
+//    __put(0xc0 | (r3 << 3) | (r2));
+//    if (r2_eq_R13) {
+//        __put(0x00);
+//        n++;
+//    }
+//    return n;
+//}
+//
+//// movq    (%r1,%r2,8),%r3
+//static int movrr_get(struct pjit *pjit, reg_t r1, reg_t r2, reg_t r3)
+//{
+//    int r1_eq_R13 = 0, n=4;
+//    //__put(0xcc);
+//    if (r3 < 8) {
+//        if (r1 < 8) {
+//            if (r2 < 8) {
+//                __put(0x48);
+//            } else {
+//                __put(0x4a);
+//                r2 = r2 - 8;
+//            }
+//        } else {
+//            r1 = r1 - 8;
+//            if (r2 < 8) {
+//                __put(0x49);
+//            } else {
+//                __put(0x4b);
+//                if (r2 == r13) {
+//                    r1_eq_R13 = 1;
+//                }
+//                r2 = r2 - 8;
+//            }
+//        }
+//    }
+//    else {
+//        TODO();
+//    }
+//    __put(0x8b);
+//    __put((r1 << 3) | 0x04);
+//    __put(0xc0 | (r2 << 3) | (r3));
+//    if (r1_eq_R13) {
+//        __put(0x00);
+//        n++;
+//    }
+//    //__put(0xcc);
+//    return n;
+//}
+//
+//
+//static int _add_sub(struct pjit *pjit, unsigned char opcode, reg_t r1, reg_t r2)
+//{
+//    unsigned char op = 0x48;
+//    if (r1 < 8) {
+//        if (r2 >= 8) {
+//            r2 = r2 - 8;
+//            op = 0x49;
+//        }
+//    }
+//    else {
+//        r1 = r1 - 8;
+//        if (r2 < 8) {
+//            op = 0x4c;
+//        } else {
+//            r2 = r2 - 8;
+//            op = 0x4d;
+//        }
+//    }
+//    __put(op);
+//    __put(opcode);
+//    __put((0xc0 | r1 << 3 | r2));
+//    return 3;
+//}
 
 #define addr(pjit, r1, r2) _add_sub(pjit, 0x01, r1, r2)
 #define subr(pjit, r1, r2) _add_sub(pjit, 0x29, r1, r2)
 
-static int mulr(struct pjit *pjit, reg_t r1, reg_t r2)
-{
-    unsigned char op = 0x48;
-    if (r1 < 8) {
-        if (r2 >= 8) {
-            r2 = r2 - 8;
-            op = 0x49;
-        }
-    }
-    else {
-        r1 = r1 - 8;
-        if (r2 < 8) {
-            op = 0x4c;
-        } else {
-            r2 = r2 - 8;
-            op = 0x4d;
-        }
-    }
-    __put(op);
-    __put(0x0f);
-    __put(0xaf);
-    __put((0xc0 | r1 << 3 | r2));
-    return 3;
-}
+//static int MUlr(struct pjit *pjit, reg_t r1, reg_t r2)
+//{
+//    unsigned char op = 0x48;
+//    if (r1 < 8) {
+//        if (r2 >= 8) {
+//            r2 = r2 - 8;
+//            op = 0x49;
+//        }
+//    }
+//    else {
+//        r1 = r1 - 8;
+//        if (r2 < 8) {
+//            op = 0x4c;
+//        } else {
+//            r2 = r2 - 8;
+//            op = 0x4d;
+//        }
+//    }
+//    __put(op);
+//    __put(0x0f);
+//    __put(0xaf);
+//    __put((0xc0 | r1 << 3 | r2));
+//    return 3;
+//}
 static int _addi_subi(struct pjit *pjit, unsigned char opcode1, unsigned char opcode2, knh_int_t data, reg_t r1)
 {
     unsigned char op = 0x48;
@@ -464,16 +467,16 @@ static int nop_(struct pjit *pjit)
     //fprintf(stderr,"[%d]nop:%x\n",__LINE__,(unsigned int)__pos(pjit));
     return 1;
 }
-static int leave(struct pjit *pjit)
-{
-    __put(0xc9);
-    return 1;
-}
-static int ret(struct pjit *pjit)
-{
-    __put(0xc3);
-    return 1;
-}
+//static int leave(struct pjit *pjit)
+//{
+//    __put(0xc9);
+//    return 1;
+//}
+//static int ret(struct pjit *pjit)
+//{
+//    __put(0xc3);
+//    return 1;
+//}
 #define epilog(f) {\
     /*pop(rbx);*/\
     /*addi(rsp, 0x10);*/\
@@ -481,12 +484,12 @@ static int ret(struct pjit *pjit)
     ret();\
 }
 
-static int call_r(struct pjit *pjit)
-{
-    __put(0xff);
-    __put(0xd0);
-    return 2;
-}
+//static int call_r(struct pjit *pjit)
+//{
+//    __put(0xff);
+//    __put(0xd0);
+//    return 2;
+//}
 
 #define call(f, func) {\
     union { \
@@ -549,36 +552,36 @@ static int movi2(struct pjit *pjit, knh_int_t data, int n, reg_t r1)
     return 0;
 }
 
-static int mov2sp(struct pjit *pjit, reg_t r1, int n, reg_t r2)
-{
-    if (r1 < 8) {
-        __put(0x48);
-    } else {
-        iprintf("not surpport yet");
-        exit(1);
-    }
-    if (r2 != rsp) {
-        iprintf("not surpport yet");
-        exit(1);
-    }
-    __put(0x89);
-    if (n == 0) {
-        __put(0x04);
-    } else {
-        __put(0x44);
-    }
-    //if (r1 == rax) {
-    //    __put(0x04);
-    //    //__put((r1 << 3) | rbp);
-    //} else {
-    //    TODO();
-    //}
-    __put(0x24);
-    if (n != 0) {
-        __put(n);
-    }
-    return 0;
-}
+//static int mov2sp(struct pjit *pjit, reg_t r1, int n, reg_t r2)
+//{
+//    if (r1 < 8) {
+//        __put(0x48);
+//    } else {
+//        iprintf("not surpport yet");
+//        exit(1);
+//    }
+//    if (r2 != rsp) {
+//        iprintf("not surpport yet");
+//        exit(1);
+//    }
+//    __put(0x89);
+//    if (n == 0) {
+//        __put(0x04);
+//    } else {
+//        __put(0x44);
+//    }
+//    //if (r1 == rax) {
+//    //    __put(0x04);
+//    //    //__put((r1 << 3) | rbp);
+//    //} else {
+//    //    TODO();
+//    //}
+//    __put(0x24);
+//    if (n != 0) {
+//        __put(n);
+//    }
+//    return 0;
+//}
 static int mov2bp(struct pjit *pjit, reg_t r1, int n, reg_t r2)
 {
     if (r1 < 8) {
@@ -597,23 +600,23 @@ static int mov2bp(struct pjit *pjit, reg_t r1, int n, reg_t r2)
     return 0;
 }
 
-static int movbp1(struct pjit *pjit, int n, reg_t r1, reg_t r2)
-{
-    if (r1 != rbp) {
-        iprintf("not surpport yet");
-        exit(1);
-    }
-    if (r2 < 8) {
-        __put(0x48);
-    } else {
-        __put(0x4c);
-        r2 = r2 - 8;
-    }
-    __put(0x8b);
-    __put(0x40 | (r2 << 3) | rbp);
-    __put(n);
-    return 0;
-}
+//static int movbp1(struct pjit *pjit, int n, reg_t r1, reg_t r2)
+//{
+//    if (r1 != rbp) {
+//        iprintf("not surpport yet");
+//        exit(1);
+//    }
+//    if (r2 < 8) {
+//        __put(0x48);
+//    } else {
+//        __put(0x4c);
+//        r2 = r2 - 8;
+//    }
+//    __put(0x8b);
+//    __put(0x40 | (r2 << 3) | rbp);
+//    __put(n);
+//    return 0;
+//}
 
 static int cmpn(struct pjit *pjit, reg_t r1, int n)
 {
@@ -746,30 +749,30 @@ static int jump(struct pjit *pjit, knh_BasicBlock_t *bb, pcode_t *target)
     __write(code.code, sizeof(code));
     return 1 + sizeof(code);
 }
-static int xor_(struct pjit *pjit, reg_t r1, reg_t r2)
-{
-    if (r1 < 8) {
-        if (r2 < 8) {
-            __put(0x48);
-        } else if (r2 >= 8) {
-            iprintf("not surpport yet");
-            exit(1);
-        }
-    } else {
-        if (r2 < 8) {
-            iprintf("not surpport yet");
-            exit(1);
-        } else if (r2 >= 8) {
-            __put(0x4d);
-            r2 = r2 - 8;
-        }
-        r1 = r1 - 8;
-    }
-    __put(0x31);
-    __put(0xc0 | (r1 << 3) | (r2 << 0));
-    return 3;
-}
-
+//static int xor_(struct pjit *pjit, reg_t r1, reg_t r2)
+//{
+//    if (r1 < 8) {
+//        if (r2 < 8) {
+//            __put(0x48);
+//        } else if (r2 >= 8) {
+//            iprintf("not surpport yet");
+//            exit(1);
+//        }
+//    } else {
+//        if (r2 < 8) {
+//            iprintf("not surpport yet");
+//            exit(1);
+//        } else if (r2 >= 8) {
+//            __put(0x4d);
+//            r2 = r2 - 8;
+//        }
+//        r1 = r1 - 8;
+//    }
+//    __put(0x31);
+//    __put(0xc0 | (r1 << 3) | (r2 << 0));
+//    return 3;
+//}
+//
 static int _inc_dec(struct pjit *pjit, reg_t r1, int shift)
 {
     unsigned char op;
@@ -816,27 +819,27 @@ static int _inc_dec(struct pjit *pjit, reg_t r1, int shift)
 //    return ret;
 //}
 
-#define inc2(pjit, r1, offset) _inc2_dec2(pjit, 0x40, r1, offset)
-#define dec2(pjit, r1, offset) _inc2_dec2(pjit, 0x48, r1, offset)
-static int _inc2_dec2(struct pjit *pjit, unsigned char opcode, reg_t r1, int offset)
-{
-    unsigned char op = 0x48;
-    int ret = 4, suffix = 0x00;
-    if (r1 >= 8) {
-        op = 0x49;
-        if (r1 == r12) suffix = 0x24;
-        r1 = r1 - 8;
-    }
-    __put(op);
-    __put(0xff);
-    __put(opcode | r1);
-    if (suffix == 0x24) {
-        __put(suffix);
-        ret += 1;
-    }
-    __put(offset);
-    return ret;
-}
+//#define inc2(pjit, r1, offset) _inc2_dec2(pjit, 0x40, r1, offset)
+//#define dec2(pjit, r1, offset) _inc2_dec2(pjit, 0x48, r1, offset)
+//static int _inc2_dec2(struct pjit *pjit, unsigned char opcode, reg_t r1, int offset)
+//{
+//    unsigned char op = 0x48;
+//    int ret = 4, suffix = 0x00;
+//    if (r1 >= 8) {
+//        op = 0x49;
+//        if (r1 == r12) suffix = 0x24;
+//        r1 = r1 - 8;
+//    }
+//    __put(op);
+//    __put(0xff);
+//    __put(opcode | r1);
+//    if (suffix == 0x24) {
+//        __put(suffix);
+//        ret += 1;
+//    }
+//    __put(offset);
+//    return ret;
+//}
 static int testq(struct pjit *pjit, reg_t r1, reg_t r2)
 {
     unsigned char op = 0x48;
@@ -857,39 +860,39 @@ static int testq(struct pjit *pjit, reg_t r1, reg_t r2)
 #define IS_FloatReg(r) (1)
 // f2 0f 10 44 24 10
 // f2 0f 10 84 24 80 00 00 00
-static int fmov1(struct pjit *pjit, int32_t n, reg_t r1, reg_t r2)
-{
-    union {
-        unsigned char code[sizeof(int32_t)];
-        int32_t ival;
-    } code;
-    int ret = 4;
-    int over80 = (n >= 0x80)? 1 : 0;
-    assert(IS_FloatReg(r2));
-    __put(0xf2);
-    if (r1 >= 8) {
-        __put(0x41);
-        r1 = r1 - 8;
-        ret += 1;
-    }
-    __put(0x0f);
-    __put(0x10);
-    if (r1 == rsp) {
-        if (!over80) {
-            __put((0x00 | (r2 << 3) | r1));
-        } else {
-            __put((0x80 | (r2 << 3) | r1));
-        }
-        ret += 1;
-        __put(0x24);
-    } else {
-        __put((0x80 | (r2 << 3) | r1));
-        code.ival = n;
-        __write(code.code, sizeof(code));
-        ret += 1 + sizeof(code);
-    }
-    return ret;
-}
+//static int Fmov1(struct pjit *pjit, int32_t n, reg_t r1, reg_t r2)
+//{
+//    union {
+//        unsigned char code[sizeof(int32_t)];
+//        int32_t ival;
+//    } code;
+//    int ret = 4;
+//    int over80 = (n >= 0x80)? 1 : 0;
+//    assert(IS_FloatReg(r2));
+//    __put(0xf2);
+//    if (r1 >= 8) {
+//        __put(0x41);
+//        r1 = r1 - 8;
+//        ret += 1;
+//    }
+//    __put(0x0f);
+//    __put(0x10);
+//    if (r1 == rsp) {
+//        if (!over80) {
+//            __put((0x00 | (r2 << 3) | r1));
+//        } else {
+//            __put((0x80 | (r2 << 3) | r1));
+//        }
+//        ret += 1;
+//        __put(0x24);
+//    } else {
+//        __put((0x80 | (r2 << 3) | r1));
+//        code.ival = n;
+//        __write(code.code, sizeof(code));
+//        ret += 1 + sizeof(code);
+//    }
+//    return ret;
+//}
 //static int fadd1(struct pjit *pjit, int32_t n, reg_t r1, reg_t r2)
 //{
 //    reg_t _r1 = r1;
@@ -947,29 +950,29 @@ static int fcalc1(struct pjit *pjit, unsigned char op, int32_t n, reg_t r1, reg_
 #define fmul1(pjit, n, r1, r2) fcalc1(pjit, 0x59, n, r1, r2)
 #define fdiv1(pjit, n, r1, r2) fcalc1(pjit, 0x5e, n, r1, r2)
 
-static int fmov2(struct pjit *pjit, reg_t r1, int32_t n, reg_t r2)
-{
-    reg_t _r2 = r2;
-    union {
-        unsigned char code[sizeof(int32_t)];
-        int32_t ival;
-    } code;
-    int ret = 5 + sizeof(code);
-    assert(IS_FloatReg(r1));
-    __put(0xf2);
-    if (r2 >= 8) {
-        __put(0x41);
-        _r2 = _r2 - 8;
-        ret += 1;
-    }
-    __put(0x0f);
-    __put(0x11);
-    __put((0x80 | (r1 << 3) | _r2));
-    code.ival = n;
-    __write(code.code, sizeof(code));
-    return ret;
-}
-
+//static int fmov2(struct pjit *pjit, reg_t r1, int32_t n, reg_t r2)
+//{
+//    reg_t _r2 = r2;
+//    union {
+//        unsigned char code[sizeof(int32_t)];
+//        int32_t ival;
+//    } code;
+//    int ret = 5 + sizeof(code);
+//    assert(IS_FloatReg(r1));
+//    __put(0xf2);
+//    if (r2 >= 8) {
+//        __put(0x41);
+//        _r2 = _r2 - 8;
+//        ret += 1;
+//    }
+//    __put(0x0f);
+//    __put(0x11);
+//    __put((0x80 | (r1 << 3) | _r2));
+//    code.ival = n;
+//    __write(code.code, sizeof(code));
+//    return ret;
+//}
+//
 static int cast_(struct pjit *pjit, reg_t r1, reg_t r2, unsigned char opcode)
 {
     unsigned char op = 0x48;

@@ -39,9 +39,9 @@
 #define knh_unmlock(p)
 #endif
 
-#ifdef K_USING_DEBUG
-#define K_USING_CTRACE 1
-#endif
+//#ifdef K_USING_DEBUG
+//#define K_USING_CTRACE 1
+//#endif
 
 #ifdef K_USING_CTRACE
 #define _GNU_SOURCE
@@ -1080,7 +1080,7 @@ static void gc_mark(CTX ctx)
 static inline void Object_MSfree(CTX ctx, knh_Object_t *o)
 {
 	const knh_ClassTBL_t *ct = O_cTBL(o);
-	DBG_P("sweep %p %s", o, CLASS__(O_cid(o)));
+	//DBG_P("sweep %p %s", o, CLASS__(O_cid(o)));
 	ct->cdef->free(ctx, RAWPTR(o));
 	OBJECT_REUSE(o);
 	disposeClassObject(ct);

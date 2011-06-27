@@ -1,9 +1,7 @@
-#!/usr/local/bin/konoha
-
 using konoha.math.*;
 
-WIDTH = 256
-HEIGHT = 256
+WIDTH  = 32;//256
+HEIGHT = 32;//256
 
 NSUBSAMPLES = 2
 NAO_SAMPLES = 8
@@ -210,6 +208,7 @@ void render(int[] byteImage, int width, int height, int numberOfSubSamples)
                     isect.rayDirection.z = -1.0;
                     isect.distance = 1000000000;
                     isect.hit = false;
+
                     normalize(isect.rayDirection);
                     interSectsSphere(spheres[0], isect);
                     interSectsSphere(spheres[1], isect);
@@ -233,9 +232,6 @@ void render(int[] byteImage, int width, int height, int numberOfSubSamples)
             fimg[p1] = fimg[p1] / (double)(num);
             fimg[p1 + 1] = fimg[p1 + 1] / (double)(num);
             fimg[p1 + 2] = fimg[p1 + 2] / (double)(num);
-            //AOBench.write(p1, clamp(fimg[p1]));
-            //AOBench.write(p1+1, clamp(fimg[p1+1]));
-            //AOBench.write(p1+2, clamp(fimg[p1+2]));
             byteImage[p1] = clamp(fimg[p1]);
             byteImage[p1 + 1] = clamp(fimg[p1 +1]);
             byteImage[p1 + 2] = clamp(fimg[p1 + 2]);

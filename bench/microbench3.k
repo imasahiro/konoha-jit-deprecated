@@ -22,8 +22,10 @@ global_y = 0;
 global_z = 0;
 
 int testGlobalVariable() {
+    int j;
 	for(i = 0; i < 100_000_000; i++) {
 		global_y = i;
+        i = global_x + i + global_x;
 	}
 	return global_y;
 }
